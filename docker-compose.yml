@@ -1,27 +1,109 @@
 version: "3.9"
-
 services:
   orchestrator:
-    build: ./cmd/orchestrator
+    build:
+      context: .
+      dockerfile: ./cmd/orchestrator/Dockerfile
+    container_name: orchestrator
     ports:
       - "8080:8080"
     volumes:
       - .:/app
     working_dir: /app
+    networks:
+      - sovereign-net
 
   fl-aggregator:
-    build: ./cmd/fl-aggregator
+    build:
+      context: .
+      dockerfile: ./cmd/fl-aggregator/Dockerfile
+    container_name: fl-aggregator
     ports:
       - "8090:8090"
     volumes:
       - .:/app
     working_dir: /app
+    networks:
+      - sovereign-net
+
+  api-dashboard:
+    build:
+      context: .
+      dockerfile: ./cmd/api-dashboard/Dockerfile
+    container_name: api-dashboard
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/app
+    working_dir: /app
+    networks:
+      - sovereign-net
 
   node-agent-1:
-    build: ./cmd/node-agent
+    build:
+      context: .
+      dockerfile: ./cmd/node-agent/Dockerfile
+    container_name: node-agent-1
     depends_on:
       - orchestrator
       - fl-aggregator
     volumes:
       - .:/app
     working_dir: /app
+    environment:
+      - NODE_ID=node-1
+    networks:
+      - sovereign-net
+
+  # optional second node
+  node-agent-2:
+    build:
+      context: .
+      dockerfile: ./cmd/node-agent/Dockerfile
+    container_name: node-agent-2
+    depends_on:
+      - orchestrator
+      - fl-aggregator
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - NODE_ID=node-2
+    networks:
+      - sovereign-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      - sovereign-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - sovereign-net
+
+networks:
+  sovereign-net:
+    driver: bridge
+
+volumes:
+  grafana-data:
+
