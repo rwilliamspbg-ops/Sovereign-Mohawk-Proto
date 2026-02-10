@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'orchestrator'
+    static_configs:
+      - targets: ['orchestrator:8080']
+
+  - job_name: 'fl-aggregator'
+    static_configs:
+      - targets: ['fl-aggregator:8090']
+
+  - job_name: 'node-agent'
+    static_configs:
+      - targets: ['node-agent-1:9100']
