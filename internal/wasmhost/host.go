@@ -1,4 +1,4 @@
-// internal/wasmhost/host.go
+
 package wasmhost
 
 import (
@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"github.com/bytecodealliance/wasmtime-go/v15"
-	"sovereign/internal/manifest"
+	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
 )
 
 type HostEnv struct {
 	Caps   map[manifest.Capability]bool
 	LogFn  func(level, msg string)
 	FLSend func(payload []byte) error
-	// Add sensor/NPU hooks as needed.
 }
 
 type Runner struct {
@@ -29,10 +28,9 @@ func NewRunner() *Runner {
 
 func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Manifest, env *HostEnv) error {
 	store := wasmtime.NewStore(r.engine)
-
 	linker := wasmtime.NewLinker(r.engine)
 
-	// log(level: i32, ptr: i32, len: i32)
+	// LOG capability
 	if env.Caps[manifest.CapLog] {
 		err := linker.DefineFunc("env", "log",
 			func(caller *wasmtime.Caller, level int32, ptr, length int32) {
@@ -48,7 +46,7 @@ func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Mani
 		}
 	}
 
-	// submit_gradients(ptr: i32, len: i32) -> i32 (0=OK)
+	// SUBMIT_GRADIENTS capability
 	if env.Caps[manifest.CapSubmitGrad] {
 		err := linker.DefineFunc("env", "submit_gradients",
 			func(caller *wasmtime.Caller, ptr, length int32) int32 {
@@ -96,7 +94,6 @@ func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Mani
 	case err := <-done:
 		return err
 	case <-time.After(time.Duration(m.MaxMillis) * time.Millisecond):
-		// Circuit breaker on timeout.
 		return fmt.Errorf("task timeout")
 	}
 }
