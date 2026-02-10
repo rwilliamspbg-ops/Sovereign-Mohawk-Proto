@@ -1,4 +1,3 @@
-// internal/manifest/manifest.go
 package manifest
 
 import (
@@ -11,10 +10,9 @@ import (
 type Capability string
 
 const (
-	CapLog          Capability = "LOG"
-	CapGetSensor    Capability = "GET_SENSOR"
-	CapSubmitGrad   Capability = "SUBMIT_GRADIENTS"
-	CapNoNetwork    Capability = "NO_NETWORK"
+	CapLog        Capability = "LOG"
+	CapSubmitGrad Capability = "SUBMIT_GRADIENTS"
+	// Add more as needed: CapGetSensor, CapNoNetwork, etc.
 )
 
 type Manifest struct {
@@ -25,7 +23,7 @@ type Manifest struct {
 	MaxMemPages      uint32       `json:"max_mem_pages"`
 	MaxMillis        uint64       `json:"max_millis"`
 
-	// DP / FL config hints
+	// Differential privacy hints
 	MaxGradNorm float64 `json:"max_grad_norm"`
 	Epsilon     float64 `json:"epsilon"`
 	Delta       float64 `json:"delta"`
@@ -42,6 +40,7 @@ func VerifySignature(m *Manifest, orchestratorPub []byte) error {
 	if err != nil {
 		return err
 	}
+
 	pub, err := x509.ParsePKIXPublicKey(orchestratorPub)
 	if err != nil {
 		return err
@@ -50,6 +49,7 @@ func VerifySignature(m *Manifest, orchestratorPub []byte) error {
 	if !ok {
 		return errors.New("not ed25519 key")
 	}
+
 	if !ed25519.Verify(pk, data, sig) {
 		return errors.New("invalid manifest signature")
 	}
