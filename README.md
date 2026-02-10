@@ -129,3 +129,43 @@ git add .
 git commit -m "Initial MOHAWK prototype: orchestrator, node agent, FL aggregator, dashboard, monitoring"
 git push -u origin main
 
+Guest Wasm contract (example)
+Define a simple ABI your FL/mapping modules implement:
+
+Import: env.log, env.submit_gradients
+
+Export: run_task()
+
+Rust guest example (to be compiled to Wasm):
+
+rust
+#[link(wasm_import_module = "env")]
+extern "C" {
+    fn log(level: i32, ptr: *const u8, len: i32);
+    fn submit_gradients(ptr: *const u8, len: i32) -> i32;
+}
+
+fn host_log(level: i32, msg: &str) {
+    unsafe { log(level, msg.as_ptr(), msg.len() as i32) }
+}
+
+#[no_mangle]
+pub extern "C" fn run_task() {
+    host_log(1, "FL task started");
+    let grads: Vec<f32> = compute_gradients(); // your code here
+    let bytes = bytemuck::cast_slice(&grads);
+    unsafe {
+        let rc = submit_gradients(bytes.as_ptr(), bytes.len() as i32);
+        if rc != 0 {
+            host_log(3, "submit_gradients failed");
+        }
+    }
+}
+This gives you:
+
+Wasm‑level isolation.
+
+Capability‑scoped host interface.
+
+A clear place to plug TPM attestation and DP controls.
+
