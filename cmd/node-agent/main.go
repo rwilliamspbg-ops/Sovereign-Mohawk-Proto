@@ -1,7 +1,7 @@
-// cmd/node-agent/main.go
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,12 +9,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
-	"sovereign/internal/manifest"
-	"sovereign/internal/tpm"
-	"sovereign/internal/wasmhost"
+	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
+	"github.com/your-org/sovereign-mohawk-proto/internal/tpm"
+	"github.com/your-org/sovereign-mohawk-proto/internal/wasmhost"
 )
 
 var nodeID = "node-1"
@@ -40,10 +39,12 @@ func main() {
 			log.Println("TPM verify failed:", err)
 			continue
 		}
+
 		if err := manifest.VerifySignature(&job.Man, orchPub); err != nil {
 			log.Println("manifest invalid:", err)
 			continue
 		}
+
 		if !hashMatches(job.Wasm, job.Man.WasmModuleSHA256) {
 			log.Println("wasm hash mismatch")
 			continue
@@ -88,7 +89,7 @@ func fetchJob() (*NextJobResponse, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return nil, io.ErrUnexpectedEOF
 	}
 	var nj NextJobResponse
@@ -99,14 +100,18 @@ func fetchJob() (*NextJobResponse, error) {
 }
 
 func sendGradients(payload []byte) error {
-	req, _ := http.NewRequest("POST", "http://fl-aggregator:8090/fl/submit", nil)
-	req.Body = io.NopCloser(
-		io.Reader(
-			os.NewFile(uintptr(0), ""),
-		),
-	)
-	// for prototype, just log payload length; wire real JSON here.
-	log.Printf("would send %d bytes to FL aggregator", len(payload))
+	reqBody := map[string]interface{}{
+		"node_id": nodeID,
+		"grads":   []float64{1.0, 2.0, 3.0}, // demo payload
+	}
+	b, _ := json.Marshal(reqBody)
+
+	resp, err := http.Post("http://fl-aggregator:8090/fl/submit", "application/json", bytes.NewReader(b))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	log.Printf("sent gradients, status %s", resp.Status)
 	return nil
 }
 
@@ -114,4 +119,3 @@ func hashMatches(b []byte, hexSha string) bool {
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:]) == hexSha
 }
-
