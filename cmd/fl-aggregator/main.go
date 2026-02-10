@@ -1,4 +1,3 @@
-// cmd/fl-aggregator/main.go
 package main
 
 import (
@@ -24,11 +23,10 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	body, _ := io.ReadAll(r.Body)
 	var p GradPayload
 	if err := json.Unmarshal(body, &p); err != nil {
-		http.Error(w, "bad json", 400)
+		http.Error(w, "bad json", http.StatusBadRequest)
 		return
 	}
 
-	// simple clipping
 	maxNorm := 10.0
 	norm := 0.0
 	for _, g := range p.Grads {
@@ -43,5 +41,6 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("received %d grads from %s (clipped)", len(p.Grads), p.NodeID)
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 }
+
