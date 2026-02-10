@@ -1,16 +1,17 @@
-// cmd/orchestrator/main.go
 package main
 
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
-	"sovereign/internal/manifest"
+	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
 )
 
 var orchPriv ed25519.PrivateKey
@@ -36,7 +37,7 @@ func handlePubkey(w http.ResponseWriter, r *http.Request) {
 }
 
 type NextJobResponse struct {
-	Wasm []byte             `json:"wasm"` // base64 if you prefer
+	Wasm []byte             `json:"wasm"`
 	Man  manifest.Manifest  `json:"manifest"`
 }
 
@@ -47,7 +48,11 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wasmBytes, wasmHash := loadWasm() // read from disk, compute sha256
+	wasmBytes, wasmHash, err := loadWasm()
+	if err != nil {
+		http.Error(w, "no wasm", http.StatusInternalServerError)
+		return
+	}
 
 	m := manifest.Manifest{
 		TaskID:           "task-" + time.Now().Format("150405"),
@@ -71,11 +76,20 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+func loadWasm() ([]byte, string, error) {
+	// Build the module into wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, "", err
+	}
+	sum := sha256.Sum256(b)
+	return b, hex.EncodeToString(sum[:]), nil
+}
+
 func signManifest(m *manifest.Manifest) {
 	m.Signature = nil
 	data, _ := json.Marshal(m)
 	sig := ed25519.Sign(orchPriv, data)
 	m.Signature = sig
 }
-
-// implement loadWasm() + sha256 helper
