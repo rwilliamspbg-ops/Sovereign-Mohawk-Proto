@@ -3,54 +3,115 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
+	"io"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
 	"sovereign/internal/manifest"
 	"sovereign/internal/tpm"
 	"sovereign/internal/wasmhost"
 )
 
+var nodeID = "node-1"
+
+type NextJobResponse struct {
+	Wasm []byte            `json:"wasm"`
+	Man  manifest.Manifest `json:"manifest"`
+}
+
 func main() {
-	// Fetch job, manifest, and wasmBytes from MOHAWK API (omitted for brevity).
-	var m manifest.Manifest
-	var wasmBytes []byte
-	var orchestratorPub []byte // load from config or TPM-provisioned blob
+	orchPub := fetchOrchestratorPub()
+	runner := wasmhost.NewRunner()
 
-	if err := tpm.VerifyNodeState(); err != nil {
-		log.Fatalf("TPM verification failed: %v", err)
-	}
-	if err := manifest.VerifySignature(&m, orchestratorPub); err != nil {
-		log.Fatalf("manifest signature invalid: %v", err)
-	}
+	for {
+		job, err := fetchJob()
+		if err != nil {
+			log.Println("no job:", err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
 
-	if !hashMatches(wasmBytes, m.WasmModuleSHA256) {
-		log.Fatalf("Wasm hash mismatch, aborting")
-	}
+		if err := tpm.VerifyNodeState(); err != nil {
+			log.Println("TPM verify failed:", err)
+			continue
+		}
+		if err := manifest.VerifySignature(&job.Man, orchPub); err != nil {
+			log.Println("manifest invalid:", err)
+			continue
+		}
+		if !hashMatches(job.Wasm, job.Man.WasmModuleSHA256) {
+			log.Println("wasm hash mismatch")
+			continue
+		}
 
-	env := &wasmhost.HostEnv{
-		Caps: map[manifest.Capability]bool{},
-		LogFn: func(level, msg string) {
-			log.Printf("[%s] %s", level, msg)
-		},
-		FLSend: func(payload []byte) error {
-			// POST to FL aggregator; apply DP config if needed.
-			return nil
-		},
-	}
-	for _, c := range m.Capabilities {
-		env.Caps[c] = true
-	}
+		env := &wasmhost.HostEnv{
+			Caps: map[manifest.Capability]bool{},
+			LogFn: func(level, msg string) {
+				log.Printf("[%s] %s", level, msg)
+			},
+			FLSend: func(payload []byte) error {
+				return sendGradients(payload)
+			},
+		}
+		for _, c := range job.Man.Capabilities {
+			env.Caps[c] = true
+		}
 
-	r := wasmhost.NewRunner()
-	ctx := context.Background()
-	if err := r.RunTask(ctx, wasmBytes, &m, env); err != nil {
-		log.Fatalf("task failed: %v", err)
+		log.Println("running task", job.Man.TaskID)
+		ctx := context.Background()
+		if err := runner.RunTask(ctx, job.Wasm, &job.Man, env); err != nil {
+			log.Println("task error:", err)
+		}
 	}
+}
+
+func fetchOrchestratorPub() []byte {
+	resp, err := http.Get("http://orchestrator:8080/orchestrator/pubkey")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	hexKey, _ := io.ReadAll(resp.Body)
+	pub, _ := hex.DecodeString(string(hexKey))
+	return pub
+}
+
+func fetchJob() (*NextJobResponse, error) {
+	url := "http://orchestrator:8080/jobs/next?node_id=" + nodeID
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, io.ErrUnexpectedEOF
+	}
+	var nj NextJobResponse
+	if err := json.NewDecoder(resp.Body).Decode(&nj); err != nil {
+		return nil, err
+	}
+	return &nj, nil
+}
+
+func sendGradients(payload []byte) error {
+	req, _ := http.NewRequest("POST", "http://fl-aggregator:8090/fl/submit", nil)
+	req.Body = io.NopCloser(
+		io.Reader(
+			os.NewFile(uintptr(0), ""),
+		),
+	)
+	// for prototype, just log payload length; wire real JSON here.
+	log.Printf("would send %d bytes to FL aggregator", len(payload))
+	return nil
 }
 
 func hashMatches(b []byte, hexSha string) bool {
-	sum := sha256Sum(b)
-	return hex.EncodeToString(sum) == hexSha
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:]) == hexSha
 }
+
