@@ -20,7 +20,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          # Full git history is needed for some linters
           fetch-depth: 0
 
       - name: Lint Code Base
@@ -29,7 +28,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Language-specific toggles
           VALIDATE_GO: true
           VALIDATE_RUST_2021: true
           VALIDATE_YAML: true
