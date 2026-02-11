@@ -1,9 +1,10 @@
 # 🛡️ Sovereign Mohawk Proto
 
-[![Lint Code Base](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
+[![Lint Code Base](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)[![Sync Check](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
 ![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)
 ![Rust Wasm](https://img.shields.io/badge/Wasm-Rust-black?style=flat&logo=webassembly)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)
+[![Security Audit](https://img.shields.io/badge/Security-Zero%20Trust%20Audit-blueviolet?logo=dependabot)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/security)
 ![Last Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
 
 **MOHAWK Runtime & Reference Node Agent**
