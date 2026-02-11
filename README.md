@@ -1,176 +1,62 @@
+# 🛡️ Sovereign Mohawk Proto
+
 [![Lint Code Base](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
 ![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)
 ![Rust Wasm](https://img.shields.io/badge/Wasm-Rust-black?style=flat&logo=webassembly)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)
 ![Last Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-# Sovereign-Mohawk-Proto
-The reference node agent + MOHAWK runtime (Go + Wasmtime + manifests + TPM stub).  A tiny FL pipeline to prove the security model.  A dashboard + monitoring shell you can later point at Sovereign_Map/Federated_Learning data.
 
-Sovereign_Map_Federated_Learning: real FL logic, models, optimizers.
+**MOHAWK Runtime & Reference Node Agent**
+A tiny Federated Learning (FL) pipeline built to prove the security model for decentralized spatial intelligence. This repo serves as the secure execution skeleton (Go + Wasmtime + TPM) for the broader Sovereign Map ecosystem.
 
-Sovereign-Map / Sovereign-Map-V2: orchestration + business logic.
+## 🧩 Ecosystem Integration
+This prototype is designed to be integrated with:
+* **Sovereign Map Federated Learning**: Real FL logic, models, and optimizers.
+* **Sovereign-Map-V2**: Orchestration and business logic.
+* **Autonomous-Mapping**: Mapping agents and task management.
 
-Autonomous-Mapping: mapping agents and tasks.
+---
 
-# Sovereign Mohawk Proto
+## ⚡ Quick Start
 
-Small-scale prototype of the MOHAWK execution model:
+### Prerequisites
+* **Go**: 1.22+
+* **Rust**: Stable + `wasm32-unknown-unknown` target
+* **Docker**: Desktop or Engine with Compose
 
-- Go + Wasmtime node agent with capability-based host funcs
-- Signed zero-trust manifests from an orchestrator
-- FL aggregator with gradient clipping (DP-ready)
-- Wasm-based FL client module
-- Basic user dashboard and operator observability stack
-
-## Layout
-
-- cmd/orchestrator: issues jobs + signed manifests
-- cmd/fl-aggregator: receives gradients, clips norms
-- cmd/node-agent: node runtime (Go + Wasmtime)
-- cmd/api-dashboard: simple web UI for overview
-- internal/manifest: manifest types + Ed25519 verify
-- internal/wasmhost: Wasmtime host & capabilities
-- internal/tpm: TPM/TEE verification stub
-- wasm-modules/fl_task: Rust Wasm client
-- monitoring: Prometheus + Grafana
-
-## Prereqs
-
-- Go 1.22+
-- Rust + cargo
-- Docker + docker compose
-
-## Build Wasm
-
+### 1. Build the Wasm Task
 ```bash
 cd wasm-modules/fl_task
 rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
 cd ../../
 
-Run locally (Docker)
+### 2. Launch the Stack
 
+'''bash
 go mod tidy
 docker compose up --build
 
+## 🏗️ System Architecture
 
-Services:
+Internal Components
 
-Orchestrator: http://localhost:8080
+| Component | Function |
+| :--- | :--- |
+| cmd/node-agent | The Go runtime utilizing Wasmtime for sandboxed execution. |
 
-FL Aggregator: http://localhost:8090
+## 📊 Observability
 
-Dashboard API/UI: http://localhost:8081
+Once the stack is running, you can monitor the network via:
 
+Dashboard UI: http://localhost:8081
 Prometheus: http://localhost:9090
-
-Grafana: http://localhost:3000 (admin / admin)
-
-What happens
-Node agents ask /jobs/next on the orchestrator.
-
-Orchestrator returns a Wasm module + signed manifest.
-
-Node agent verifies TPM (stub), manifest signature, and wasm hash.
-
-Node agent runs the Wasm task with Wasmtime, using only allowed capabilities.
-
-Wasm task logs and submits dummy gradients to the FL aggregator.
-
-Aggregator receives gradients and clips them.
-
-This repo is a minimal skeleton to be integrated with:
-
-Sovereign_Map_Federated_Learning (real FL)
-
-Sovereign-Map / V2 (real orchestration)
-
-Autonomous-Mapping (real mapping tasks)
-
-
-## 3. Concrete move into existing projects
-
-Once `Sovereign-Mohawk-Proto` is up and running:
-
-1. **Node agent into Sovereign_Map_Federated_Learning**
-
-   - Copy `internal/manifest`, `internal/wasmhost`, `internal/tpm`, and `cmd/node-agent` into that repo under a new module, e.g. `/mohawk/node-agent`.  
-   - Replace the dummy `FLSend` with calls to your real FL client code (model updates, secure upload, DP).  
-   - Keep the Wasm contract stable: `run_task`, `env.log`, `env.submit_gradients`.
-
-2. **Orchestrator into Sovereign-Map / Sovereign-Map-V2**
-
-   - Move the orchestrator logic into that repo’s main API service:  
-     - Add manifest construction and signing to your existing job model.  
-     - Replace `loadWasm()` with real model‑specific Wasm bundles for FL or mapping jobs.  
-   - Add your existing auth, tokenomics, and job scheduling around `/jobs/next`.
-
-3. **Autonomous-Mapping integration**
-
-   - For each mapping tool you want sandboxed, wrap it as a Wasm module that implements `run_task` and uses only host functions you allow (e.g. `GET_LIDAR_FRAME`, `GET_CAMERA_FRAME`, `SUBMIT_MAP_TILE`).  
-   - Plug those modules into the same orchestrator path, with manifests that expose only the correct capabilities and data scopes.
-
-4. **Dashboard + metrics**
-
-   - Point the `api-dashboard` service at your real DB or metrics store from Sovereign-Map instead of static values.  
-   - Export `/metrics` from the orchestrator, FL aggregator, and node agent using Prometheus client libraries and extend the Grafana dashboard panels.
-
-## 4. GitHub initial commit flow
-
-In a fresh folder:
-
-```bash
-git init
-git remote add origin git@github.com:rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
-
-# create all files as specified (structure + contents)
-go mod tidy
-cd wasm-modules/fl_task
-rustup target add wasm32-unknown-unknown
-cargo build --release --target wasm32-unknown-unknown
-cd ../..
-
-git add .
-git commit -m "Initial MOHAWK prototype: orchestrator, node agent, FL aggregator, dashboard, monitoring"
-git push -u origin main
-
-Guest Wasm contract (example)
-Define a simple ABI your FL/mapping modules implement:
-
-Import: env.log, env.submit_gradients
-
-Export: run_task()
-
-Rust guest example (to be compiled to Wasm):
-
-rust
-#[link(wasm_import_module = "env")]
-extern "C" {
-    fn log(level: i32, ptr: *const u8, len: i32);
-    fn submit_gradients(ptr: *const u8, len: i32) -> i32;
-}
-
-fn host_log(level: i32, msg: &str) {
-    unsafe { log(level, msg.as_ptr(), msg.len() as i32) }
-}
-
-#[no_mangle]
-pub extern "C" fn run_task() {
-    host_log(1, "FL task started");
-    let grads: Vec<f32> = compute_gradients(); // your code here
-    let bytes = bytemuck::cast_slice(&grads);
-    unsafe {
-        let rc = submit_gradients(bytes.as_ptr(), bytes.len() as i32);
-        if rc != 0 {
-            host_log(3, "submit_gradients failed");
-        }
-    }
-}
-This gives you:
-
-Wasm‑level isolation.
+Grafana: http://localhost:3000 (Credentials: admin / admin)
 
 Capability‑scoped host interface.
 
 A clear place to plug TPM attestation and DP controls.
+Note: This environment utilizes a capability-scoped host interface as defined in capabilities.json. This provides a secure integration point for TPM attestation and Differential Privacy (DP) controls.
 
+
+Would you like me to help you set up a **GitHub Action** to automatically validate that your `capabilities.json` stays in sync with the host functions defined in your Go code?
