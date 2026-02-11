@@ -57,6 +57,3 @@ Capability‑scoped host interface.
 
 A clear place to plug TPM attestation and DP controls.
 Note: This environment utilizes a capability-scoped host interface as defined in capabilities.json. This provides a secure integration point for TPM attestation and Differential Privacy (DP) controls.
-
-
-Would you like me to help you set up a **GitHub Action** to automatically validate that your `capabilities.json` stays in sync with the host functions defined in your Go code?
