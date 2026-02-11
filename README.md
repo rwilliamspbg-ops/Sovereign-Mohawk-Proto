@@ -29,32 +29,29 @@ This prototype is designed to be integrated with:
 ```bash
 cd wasm-modules/fl_task
 rustup target add wasm32-unknown-unknown
-cargo build --release --target wasm32-unknown-unknown
-cd ../../
 
 ### 2. Launch the Stack
-
-'''bash
+```bash
 go mod tidy
 docker compose up --build
 
 ## 🏗️ System Architecture
 
-Internal Components
-
+### Internal Components
 | Component | Function |
 | :--- | :--- |
-| cmd/node-agent | The Go runtime utilizing Wasmtime for sandboxed execution. |
+| `cmd/node-agent` | The Go runtime utilizing Wasmtime for sandboxed execution. |
+| `cmd/orchestrator` | Issues jobs and signs zero-trust manifests (Ed25519). |
+| `cmd/fl-aggregator` | Receives gradients with DP-ready clipping. |
+| `internal/wasmhost` | Manages [capability-based](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/capabilities.json) host functions. |
+| `internal/tpm` | TPM/TEE verification stub for hardware attestation. |
+
+---
 
 ## 📊 Observability
-
 Once the stack is running, you can monitor the network via:
+* **Dashboard UI**: [http://localhost:8081](http://localhost:8081)
+* **Prometheus**: [http://localhost:9090](http://localhost:9090)
+* **Grafana**: [http://localhost:3000](http://localhost:3000) (Credentials: `admin` / `admin`)
 
-Dashboard UI: http://localhost:8081
-Prometheus: http://localhost:9090
-Grafana: http://localhost:3000 (Credentials: admin / admin)
-
-Capability‑scoped host interface.
-
-A clear place to plug TPM attestation and DP controls.
-Note: This environment utilizes a capability-scoped host interface as defined in capabilities.json. This provides a secure integration point for TPM attestation and Differential Privacy (DP) controls.
+> **Note**: This environment utilizes a capability-scoped host interface as defined in [capabilities.json](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/capabilities.json). This provides a secure integration point for TPM attestation and Differential Privacy (DP) controls.
