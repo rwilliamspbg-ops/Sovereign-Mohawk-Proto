@@ -29,15 +29,17 @@ This prototype is designed to be integrated with:
 ```bash
 cd wasm-modules/fl_task
 rustup target add wasm32-unknown-unknown
+```
 
 ### 2. Launch the Stack
 ```bash
 go mod tidy
 docker compose up --build
+```
 
 ## 🏗️ System Architecture
 
-### Internal Components
+ Internal Components
 | Component | Function |
 | :--- | :--- |
 | `cmd/node-agent` | The Go runtime utilizing Wasmtime for sandboxed execution. |
