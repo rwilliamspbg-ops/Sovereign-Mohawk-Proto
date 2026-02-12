@@ -1,0 +1,41 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build Wasm Module
+        run: |
+          cd wasm-modules/fl_task
+          cargo build --target wasm32-unknown-unknown --release
+
+      - name: Go Build and Test
+        run: |
+          go mod tidy
+          go build ./...
+          go test ./...
+
+      - name: Validate Capabilities
+        run: python3 scripts/validate_capabilities.py
+
+      - name: Verify Docker Stack
+        run: docker compose config
