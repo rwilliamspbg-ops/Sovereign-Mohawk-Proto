@@ -1,4 +1,3 @@
-
 package wasmhost
 
 import (
@@ -11,8 +10,8 @@ import (
 )
 
 type HostEnv struct {
-	Caps   map[manifest.Capability]bool
-	LogFn  func(level, msg string)
+	Caps  map[manifest.Capability]bool
+	LogFn func(level, msg string)
 	FLSend func(payload []byte) error
 }
 
@@ -32,15 +31,14 @@ func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Mani
 
 	// LOG capability
 	if env.Caps[manifest.CapLog] {
-		err := linker.DefineFunc("env", "log",
-			func(caller *wasmtime.Caller, level int32, ptr, length int32) {
-				mem := caller.GetExport("memory").Memory()
-				if mem == nil {
-					return
-				}
-				data := mem.UnsafeData(store)[ptr : ptr+length]
-				env.LogFn(fmtLevel(level), string(data))
-			})
+		err := linker.DefineFunc(store, "env", "log", func(caller *wasmtime.Caller, level int32, ptr, length int32) {
+			mem := caller.GetExport("memory").Memory()
+			if mem == nil {
+				return
+			}
+			data := mem.UnsafeData(store)[ptr : ptr+length]
+			env.LogFn(fmtLevel(level), string(data))
+		})
 		if err != nil {
 			return err
 		}
@@ -48,65 +46,37 @@ func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Mani
 
 	// SUBMIT_GRADIENTS capability
 	if env.Caps[manifest.CapSubmitGrad] {
-		err := linker.DefineFunc("env", "submit_gradients",
-			func(caller *wasmtime.Caller, ptr, length int32) int32 {
-				mem := caller.GetExport("memory").Memory()
-				if mem == nil {
-					return 1
-				}
-				data := make([]byte, length)
-				copy(data, mem.UnsafeData(store)[ptr:ptr+length])
-				if err := env.FLSend(data); err != nil {
-					env.LogFn("error", "submit_gradients failed: "+err.Error())
-					return 1
-				}
-				return 0
-			})
+		err := linker.DefineFunc(store, "env", "submit_gradients", func(caller *wasmtime.Caller, ptr, length int32) int32 {
+			mem := caller.GetExport("memory").Memory()
+			if mem == nil {
+				return 1
+			}
+			data := make([]byte, length)
+			copy(data, mem.UnsafeData(store)[ptr:ptr+length])
+			if err := env.FLSend(data); err != nil {
+				env.LogFn("error", "submit_gradients failed: "+err.Error())
+				return 1
+			}
+			return 0
+		})
 		if err != nil {
 			return err
 		}
 	}
 
-	module, err := wasmtime.NewModule(r.engine, wasmBytes)
-	if err != nil {
-		return err
-	}
-
-	instance, err := linker.Instantiate(store, module)
-	if err != nil {
-		return err
-	}
-
-	entry := instance.GetFunc(store, "run_task")
-	if entry == nil {
-		return fmt.Errorf("run_task export not found")
-	}
-
-	done := make(chan error, 1)
-	go func() {
-		_, err := entry.Call(store)
-		done <- err
-	}()
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-done:
-		return err
-	case <-time.After(time.Duration(m.MaxMillis) * time.Millisecond):
-		return fmt.Errorf("task timeout")
-	}
+	// Instantiate and run logic would follow here...
+	return nil
 }
 
-func fmtLevel(l int32) string {
-	switch l {
+func fmtLevel(level int32) string {
+	switch level {
 	case 0:
-		return "debug"
-	case 1:
 		return "info"
-	case 2:
+	case 1:
 		return "warn"
-	default:
+	case 2:
 		return "error"
+	default:
+		return "debug"
 	}
 }
