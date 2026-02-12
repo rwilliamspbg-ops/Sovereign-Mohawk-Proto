@@ -2,16 +2,14 @@ package wasmhost
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/bytecodealliance/wasmtime-go/v15"
 	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
 )
 
 type HostEnv struct {
-	Caps  map[manifest.Capability]bool
-	LogFn func(level, msg string)
+	Caps   map[manifest.Capability]bool
+	LogFn  func(level, msg string)
 	FLSend func(payload []byte) error
 }
 
@@ -64,7 +62,6 @@ func (r *Runner) RunTask(ctx context.Context, wasmBytes []byte, m *manifest.Mani
 		}
 	}
 
-	// Instantiate and run logic would follow here...
 	return nil
 }
 
