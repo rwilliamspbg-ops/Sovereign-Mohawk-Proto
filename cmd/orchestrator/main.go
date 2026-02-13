@@ -24,7 +24,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
 var orchPriv ed25519.PrivateKey
