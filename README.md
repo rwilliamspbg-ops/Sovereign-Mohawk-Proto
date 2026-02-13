@@ -18,7 +18,16 @@ The Sovereign-Mohawk protocol is provably optimal and secure at a 10M node scale
 - **Optimality:** O(d log n) communication complexity (Theorem 3).
 - **Verification:** 200-byte zk-SNARK proofs with 10ms O(1) verify (Theorem 5).
 
-- 
+2. Trust Anchors
+Performance is sustained by the MOHAWK runtime, which enforces security through:
+
+Hardware Attestation: TPM 2.0 quotes verify the environment before any gradient processing.
+
+Sandboxed Execution: Wasmtime restricts operations to capability-based host functions.
+
+Batch Verification: Ed25519 manifest checks provide a 2.5× throughput increase for high-velocity updates.
+
+
 ## ⚡ Quick Start
 
 ### Prerequisites
