@@ -21,21 +21,21 @@ import (
 
 type Server struct{}
 
+// HandleAttest offloads hardware calls to the worker pool
 func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
 	nodeID := r.Header.Get("X-Node-ID")
-	// Read quote from request body (simplified for example)
-	quote := []byte("attestation_data") 
+	quote := []byte("attestation_payload") // Simulated
 
-	respChan := make(chan error)
+	respChan := make(chan error, 1)
 	
-	// Send job to the non-blocking worker pool
+	// Delegate job to workers
 	JobQueue <- AttestationJob{
 		NodeID: nodeID,
 		Quote:  quote,
 		Resp:   respChan,
 	}
 
-	// Wait for result with a 2-second timeout to maintain Liveness
+	// Wait with a timeout to maintain system liveness
 	select {
 	case err := <-respChan:
 		if err != nil {
@@ -44,7 +44,6 @@ func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusOK)
 	case <-time.After(2 * time.Second):
-		// Prevents "Wait-and-Block" failures at scale
-		http.Error(w, "Hardware Timeout", http.StatusGatewayTimeout)
+		http.Error(w, "Hardware Response Timeout", http.StatusGatewayTimeout)
 	}
 }
