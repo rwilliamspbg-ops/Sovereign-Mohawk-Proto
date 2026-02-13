@@ -1,30 +1,39 @@
 name: Mohawk AOT Release
 on:
   push:
-    tags: ['v*']
+    tags: [ 'v*' ]
 
 jobs:
   build-aot:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasi
+
       - name: Install Wasmtime
         run: curl https://wasmtime.dev/install.sh -sSf | bash && echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
-      
+
       - name: Build and Pre-compile
         run: |
           cargo build --target wasm32-wasi --release
-          wasmtime compile --out mohawk_core.cwasm target/wasm32-wasi/release/mohawk_core.wasm
-          sha256sum mohawk_core.cwasm | awk '{print $1}' > golden_hash.txt
+          wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasi/release/mohawk_core.wasm
+          sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
-      - name: Release
+      - name: Generate Binary Measurement
+        run: |
+          # Create a SHA-256 hash for verification tracking
+          sha256sum mohawk_core_aot.cwasm > measurement.sha256
+          echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Create GitHub Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            mohawk_core.cwasm
+            mohawk_core_aot.cwasm
             golden_hash.txt
+            measurement.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
