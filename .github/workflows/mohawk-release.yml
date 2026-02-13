@@ -28,17 +28,20 @@ jobs:
           # 1. Build the WASM binary
           cargo build --target wasm32-wasip1 --release
           
-          # 2. Find the generated .wasm file and AOT compile it
-          # This handles cases where the binary is named 'fl_task.wasm' or 'mohawk_core.wasm'
-          WASM_FILE=$(ls target/wasm32-wasip1/release/*.wasm | head -n 1)
-          echo "Found WASM file: $WASM_FILE"
-          wasmtime compile --output ../../mohawk_core_aot.cwasm "$WASM_FILE"
+          # 2. Automatically find the generated .wasm file
+          # This fixes the "No such file or directory" error by detecting the correct name
+          WASM_PATH=$(ls target/wasm32-wasip1/release/*.wasm | head -n 1)
+          echo "Compiling binary: $WASM_PATH"
           
-          # 3. Generate verification hash in root
+          # 3. AOT Compile and output to root workspace
+          wasmtime compile --output ../../mohawk_core_aot.cwasm "$WASM_PATH"
+          
+          # 4. Generate verification hash in root
           sha256sum ../../mohawk_core_aot.cwasm | awk '{print $1}' > ../../golden_hash.txt
 
       - name: Generate Binary Measurement
         run: |
+          # Runs in root directory
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
           echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
 
