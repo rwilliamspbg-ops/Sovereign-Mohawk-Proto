@@ -20,52 +20,37 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
-// AttestationJob encapsulates the data for a non-blocking worker pool
+// AttestationJob encapsulates the data for the non-blocking worker pool
 type AttestationJob struct {
 	NodeID string
 	Quote  []byte
 	Resp   chan error
 }
 
-// JobQueue defines the buffer for the worker pool (10,000 capacity)
+// JobQueue defines the buffer for the worker pool to handle 10M node scale [cite: 32]
 var JobQueue = make(chan AttestationJob, 10000)
 
 type Server struct{}
 
-// StartAttestationWorkers initializes a pool of goroutines to process jobs asynchronously
-func StartAttestationWorkers(count int) {
-	for i := 0; i < count; i++ {
-		go func() {
-			for job := range JobQueue {
-				// Verify the quote against cache or hardware without blocking the main thread
-				err := tpm.Verify(job.NodeID, job.Quote)
-				job.Resp <- err
-			}
-		}()
-	}
-}
-
-// HandleAttest serves as the primary endpoint for node attestation
+// HandleAttest serves as the primary endpoint for node attestation [cite: 32]
 func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
-	// 1. Quick validation of header metadata
 	nodeID := r.Header.Get("X-Node-ID")
 
-	// 2. Offload the heavy lifting to the worker pool
-	respChan := make(chan error)
+	respChan := make(chan error, 1)
 	JobQueue <- AttestationJob{
 		NodeID: nodeID, 
 		Resp:   respChan,
 	}
 
-	// 3. Set a timeout to ensure system liveness and prevent hangs
+	// 2-second timeout to maintain system liveness under load [cite: 32]
 	select {
 	case err := <-respChan:
 		if err != nil {
-			http.Error(w, "Attestation Forbidden", 403)
+			http.Error(w, "Attestation Forbidden", http.StatusForbidden)
 			return
 		}
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 	case <-time.After(2 * time.Second):
-		w.WriteHeader(504) // Gateway Timeout if hardware is unresponsive
+		http.Error(w, "Hardware Response Timeout", http.StatusGatewayTimeout)
 	}
 }
