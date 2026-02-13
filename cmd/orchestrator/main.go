@@ -104,6 +104,7 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func loadWasm() ([]byte, string, error) {
+	// Build the module into wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
 	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -117,14 +118,6 @@ func signManifest(m *manifest.Manifest) {
 	data, _ := json.Marshal(m)
 	sig := ed25519.Sign(orchPriv, data)
 	m.Signature = sig
-}e-5,
-	}
-
-	signManifest(&m)
-
-	resp := NextJobResponse{Wasm: wasmBytes, Man: m}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
 }
 
 func loadWasm() ([]byte, string, error) {
