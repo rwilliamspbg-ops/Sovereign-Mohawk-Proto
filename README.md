@@ -48,18 +48,13 @@ To transition to a **1M+ node production environment**, we are implementing:
 
 ---
 
-Quick Start: Regional Shard Simulation
-To test the hierarchical aggregation and O(d log n) complexity locally, run the 3-shard cluster:
+### 🚀 Quick Start: Regional Shard Simulation
 
-Launch the Environment:
+To test the hierarchical aggregation and $O(d \log n)$ complexity locally, run the 3-shard cluster:
 
-Bash
-docker-compose up --build
-What this simulates:
-
-Orchestrator: The central authority managing global model state.
-
-Regional Shards: Two independent aggregators (us-east-1 and eu-west-1) performing local Multi-Krum filtering.
+1. **Launch the Environment:**
+   ```bash
+   docker-compose up --build
 
 Node Agents: Distributed workers communicating only with their assigned regional shard to preserve backbone bandwidth.
 
