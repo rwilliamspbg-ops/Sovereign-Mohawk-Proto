@@ -15,14 +15,21 @@
 package main
 
 import (
+	"log"
+	// Ensure this path matches the module name in your go.mod
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
+// StartAttestationWorkers initializes a pool of goroutines to process jobs.
+// Note: JobQueue must be defined in another file within 'package main' (e.g., server.go)
 func StartAttestationWorkers(count int) {
+	log.Printf("Starting %d Async Attestation Workers...", count)
 	for i := 0; i < count; i++ {
 		go func() {
+			// The linter error 'undefined: JobQueue' occurs if server.go 
+			// (where JobQueue is defined) isn't included in the linting run.
 			for job := range JobQueue {
-				// Verify signature matches: func Verify(string, []byte) error
+				// verify the hardware quote
 				err := tpm.Verify(job.NodeID, job.Quote)
 				job.Resp <- err
 			}
