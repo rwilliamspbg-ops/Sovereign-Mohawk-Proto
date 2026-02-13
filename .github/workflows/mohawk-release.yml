@@ -2,7 +2,8 @@ name: Mohawk AOT Release
 on:
   push:
     tags:
-      - 'v*'  # Triggers only when you push a tag like v1.0.0
+      - 'v*'
+  workflow_dispatch: # Allows manual triggering from the Actions tab
 
 jobs:
   build-aot:
@@ -23,18 +24,15 @@ jobs:
 
       - name: Build and Pre-compile
         run: |
-          # Build the WASM binary
           cargo build --target wasm32-wasi --release
-          
           # AOT Compile for the Sovereign-Mohawk architecture
           wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasi/release/mohawk_core.wasm
-          
-          # Generate the initial hash for the formal verification check
+          # Generate the initial hash for verification
           sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
       - name: Generate Binary Measurement
         run: |
-          # Create the final measurement file for the release
+          # Create the final measurement file
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
           echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
 
