@@ -23,22 +23,22 @@ jobs:
           echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
 
       - name: Build and Pre-compile
-        # Points to your module folder
         working-directory: ./wasm-modules/fl_task
         run: |
           # 1. Build the WASM binary
           cargo build --target wasm32-wasip1 --release
           
-          # 2. AOT Compile (Changed --out to --output)
-          # Saves the result back to the root of the workspace
-          wasmtime compile --output ../../mohawk_core_aot.cwasm target/wasm32-wasip1/release/mohawk_core.wasm
+          # 2. Find the generated .wasm file and AOT compile it
+          # This handles cases where the binary is named 'fl_task.wasm' or 'mohawk_core.wasm'
+          WASM_FILE=$(ls target/wasm32-wasip1/release/*.wasm | head -n 1)
+          echo "Found WASM file: $WASM_FILE"
+          wasmtime compile --output ../../mohawk_core_aot.cwasm "$WASM_FILE"
           
           # 3. Generate verification hash in root
           sha256sum ../../mohawk_core_aot.cwasm | awk '{print $1}' > ../../golden_hash.txt
 
       - name: Generate Binary Measurement
         run: |
-          # These commands execute in the root directory
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
           echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
 
