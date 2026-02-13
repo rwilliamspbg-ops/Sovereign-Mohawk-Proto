@@ -19,26 +19,16 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
-// AttestationJob represents a hardware verification task
-type AttestationJob struct {
-	NodeID string
-	Quote  []byte
-	Resp   chan error // Result channel for the requester
-}
-
-// Global job queue with a high-scale buffer
-var JobQueue = make(chan AttestationJob, 10000)
-
-// StartAttestationWorkers initializes the background pool
-func StartAttestationWorkers(workerCount int) {
-	log.Printf("[WorkerPool] Starting %d verification workers...", workerCount)
-	for i := 0; i < workerCount; i++ {
-		go func(id int) {
+// StartAttestationWorkers initializes a pool of goroutines [cite: 32]
+func StartAttestationWorkers(count int) {
+	log.Printf("Starting %d Async Attestation Workers...", count)
+	for i := 0; i < count; i++ {
+		go func() {
 			for job := range JobQueue {
-				// Utilize internal caching and hardware calls
+				// Verify the quote against TPM hardware or cache-aside layer [cite: 12]
 				err := tpm.Verify(job.NodeID, job.Quote)
 				job.Resp <- err
 			}
-		}(i)
+		}()
 	}
 }
