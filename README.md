@@ -11,10 +11,14 @@
 [![Scale](https://img.shields.io/badge/Scale-10M_Nodes-orange)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pulls)
 
-🛡️ Formally Verified Guarantees (10M Node Scale)The Sovereign-Mohawk protocol is the first federated learning system to achieve a 10-million-node scale with complete formal verification across all critical security and performance dimensions.1. Performance VisualizationThe architecture achieves a 700,000× communication reduction compared to naive aggregation while maintaining a constant verification latency.MetricVerified ValueProof TechniqueByzantine Tolerance55.5% (5.5M nodes)Hierarchical Multi-Krum InductionComm. Complexity$O(d \log n)$ (Optimal)Matching Converse ProofPrivacy Budget$\epsilon=2.0, \delta=10^{-5}$Rényi DP (RDP) AccountantVerification Speed10ms (Constant)Groth16 zk-SNARK PairingsStraggler Liveness99.99% SuccessChernoff Bound Analysis2. Trust AnchorsPerformance is sustained by the MOHAWK runtime, which enforces security through:Hardware Attestation: TPM 2.0 quotes verify the environment before any gradient processing.Sandboxed Execution: Wasmtime restricts operations to capability-based host functions.Batch Verification: Ed25519 manifest checks provide a 2.5× throughput increase for high-velocity updates.
+## 🛡️ Formally Verified Guarantees
+The Sovereign-Mohawk protocol is provably optimal and secure at a 10M node scale:
+- **Resilience:** 55.5% Byzantine Fault Tolerance (Theorem 1).
+- **Privacy:** (ε=2.0, δ=1e-5)-DP composition (Theorem 2).
+- **Optimality:** O(d log n) communication complexity (Theorem 3).
+- **Verification:** 200-byte zk-SNARK proofs with 10ms O(1) verify (Theorem 5).
 
----
-
+- 
 ## ⚡ Quick Start
 
 ### Prerequisites
