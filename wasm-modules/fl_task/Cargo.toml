@@ -7,3 +7,5 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+opendp = "0.10" # Leading DP library in 2026
+
