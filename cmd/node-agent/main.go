@@ -31,8 +31,10 @@ import (
 func main() {
 	log.Println("Node Agent starting...")
 	
+	// Satisfy tpm import
 	_ = tpm.Verify("node-init", []byte{})
 	
+	// Satisfy context and wasmhost imports
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	
@@ -53,7 +55,6 @@ func runLoop(client *http.Client) {
 		}
 		
 		var m manifest.Manifest
-		// Uses bytes, json, and manifest to satisfy imports
 		if err := json.NewDecoder(bytes.NewReader(data)).Decode(&m); err == nil {
 			log.Printf("Received task: %s", m.TaskID)
 		}
@@ -67,6 +68,5 @@ func fetchJob(client *http.Client) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	// Uses io to satisfy import
 	return io.ReadAll(resp.Body)
 }
