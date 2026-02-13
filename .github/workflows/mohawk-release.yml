@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build-aot:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-wasi
+          targets: wasm32-wasip1 # Updated from wasm32-wasi
 
       - name: Install Wasmtime
         run: |
@@ -24,15 +24,17 @@ jobs:
 
       - name: Build and Pre-compile
         run: |
-          cargo build --target wasm32-wasi --release
+          # Build using the new target name
+          cargo build --target wasm32-wasip1 --release
+          
           # AOT Compile for the Sovereign-Mohawk architecture
-          wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasi/release/mohawk_core.wasm
-          # Generate the initial hash for verification
+          # Note: The compiled binary path in /target/ changes to the new target name
+          wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasip1/release/mohawk_core.wasm
+          
           sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
       - name: Generate Binary Measurement
         run: |
-          # Create the final measurement file
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
           echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
 
