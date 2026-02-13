@@ -16,15 +16,14 @@ package main
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"runtime"
 	"time"
-	"crypto/sha256"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
@@ -33,18 +32,12 @@ import (
 var orchPriv ed25519.PrivateKey
 var orchPub ed25519.PublicKey
 
-type OrchestratorData struct {
-	NodeID string            `json:"node_id"`
-	Man    manifest.Manifest `json:"manifest"`
-}
-
 type NextJobResponse struct {
 	Wasm []byte            `json:"wasm"`
 	Man  manifest.Manifest `json:"manifest"`
 }
 
 func main() {
-	// Initialize keys
 	_, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		log.Fatal(err)
@@ -52,11 +45,9 @@ func main() {
 	orchPriv = priv
 	orchPub = priv.Public().(ed25519.PublicKey)
 
-	// Start Workers
 	workerCount := runtime.NumCPU() * 2
 	StartAttestationWorkers(workerCount)
 
-	// Satisfy linter for internal/tpm
 	_ = tpm.Verify("init-check", []byte{})
 
 	http.HandleFunc("/orchestrator/pubkey", handlePubkey)
@@ -97,8 +88,13 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 		Epsilon:     2.0,
 	}
 
-	func loadWasm() ([]byte, string, error) {
-	// Path to the compiled Wasm module
+	signManifest(&m)
+	resp := NextJobResponse{Wasm: wasmBytes, Man: m}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func loadWasm() ([]byte, string, error) {
 	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
