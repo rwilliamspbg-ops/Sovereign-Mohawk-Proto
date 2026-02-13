@@ -6,6 +6,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)
 [![Security Audit](https://img.shields.io/badge/Security-Zero%20Trust%20Audit-blueviolet?logo=dependabot)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/security)
 ![Last Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 **MOHAWK Runtime & Reference Node Agent**
 A tiny Federated Learning (FL) pipeline built to prove the security model for decentralized spatial intelligence. This repo serves as the secure execution skeleton (Go + Wasmtime + TPM) for the broader Sovereign Map ecosystem.
