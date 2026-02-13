@@ -15,17 +15,14 @@
 package main
 
 import (
-	"log"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
-// StartAttestationWorkers initializes a pool of goroutines [cite: 32]
 func StartAttestationWorkers(count int) {
-	log.Printf("Starting %d Async Attestation Workers...", count)
 	for i := 0; i < count; i++ {
 		go func() {
 			for job := range JobQueue {
-				// Verify the quote against TPM hardware or cache-aside layer [cite: 12]
+				// Verify signature matches: func Verify(string, []byte) error
 				err := tpm.Verify(job.NodeID, job.Quote)
 				job.Resp <- err
 			}
