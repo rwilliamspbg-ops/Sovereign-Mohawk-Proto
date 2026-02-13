@@ -30,14 +30,17 @@ import (
 
 func main() {
 	log.Println("Node Agent starting...")
-	// Satisfy tpm import
+	
 	_ = tpm.Verify("node-init", []byte{})
-	// Satisfy context and wasmhost imports
+	
+	// Use context and wasmhost to satisfy linter
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	
 	runner := wasmhost.NewRunner()
 	_ = runner
 	_ = ctx
+
 	client := &http.Client{Timeout: 10 * time.Second}
 	runLoop(client)
 }
@@ -49,6 +52,7 @@ func runLoop(client *http.Client) {
 			time.Sleep(5 * time.Second)
 			continue
 		}
+		
 		var m manifest.Manifest
 		if err := json.NewDecoder(bytes.NewReader(data)).Decode(&m); err == nil {
 			log.Printf("Received task: %s", m.TaskID)
