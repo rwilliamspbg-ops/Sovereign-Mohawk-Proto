@@ -48,8 +48,20 @@ To transition to a **1M+ node production environment**, we are implementing:
 
 ---
 
-### ⚡ Quick Start
-**1. Build the Wasm Task**
-```bash
-cd wasm-modules/fl_task
-cargo build --target wasm32-unknown-unknown --release
+Quick Start: Regional Shard Simulation
+To test the hierarchical aggregation and O(d log n) complexity locally, run the 3-shard cluster:
+
+Launch the Environment:
+
+Bash
+docker-compose up --build
+What this simulates:
+
+Orchestrator: The central authority managing global model state.
+
+Regional Shards: Two independent aggregators (us-east-1 and eu-west-1) performing local Multi-Krum filtering.
+
+Node Agents: Distributed workers communicating only with their assigned regional shard to preserve backbone bandwidth.
+
+Verify Attestation:
+Monitor the logs to see the TPM-backed verification handshake between the node-agent and its regional aggregator.
