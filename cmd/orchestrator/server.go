@@ -11,12 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package main
 
 import (
+	"encoding/json"
 	"net/http"
-	"time"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
 )
+
+type Server struct{}
 
 type AttestationJob struct {
 	NodeID string
@@ -24,27 +29,30 @@ type AttestationJob struct {
 	Resp   chan error
 }
 
-var JobQueue = make(chan AttestationJob, 10000)
-
-type Server struct{}
+var JobQueue = make(chan AttestationJob, 100)
 
 func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
-	nodeID := r.Header.Get("X-Node-ID")
-	respChan := make(chan error, 1)
+	var req struct {
+		NodeID string `json:"node_id"`
+		Quote  []byte `json:"quote"`
+	}
 
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	respChan := make(chan error)
 	JobQueue <- AttestationJob{
-		NodeID: nodeID, 
+		NodeID: req.NodeID,
+		Quote:  req.Quote,
 		Resp:   respChan,
 	}
 
-	select {
-	case err := <-respChan:
-		if err != nil {
-			http.Error(w, "Attestation Forbidden", http.StatusForbidden)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	case <-time.After(2 * time.Second):
-		http.Error(w, "Hardware Response Timeout", http.StatusGatewayTimeout)
+	if err := <-respChan; err != nil {
+		http.Error(w, "attestation failed", http.StatusForbidden)
+		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
