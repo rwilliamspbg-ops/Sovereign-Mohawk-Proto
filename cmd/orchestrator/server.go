@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package main
 
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
+    // The internal/manifest import has been removed to fix the unused import error
 )
 
 type Server struct{}
