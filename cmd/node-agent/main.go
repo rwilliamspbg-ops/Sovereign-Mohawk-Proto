@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 package main
 
 import (
@@ -30,14 +29,14 @@ import (
 
 func main() {
 	log.Println("Node Agent starting...")
-	
-	// Satisfy tpm import
+
+	// Use tpm to satisfy linter
 	_ = tpm.Verify("node-init", []byte{})
-	
-	// Satisfy context and wasmhost imports
+
+	// Use context and wasmhost to satisfy linter
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	runner := wasmhost.NewRunner()
 	_ = runner
 	_ = ctx
@@ -53,7 +52,7 @@ func runLoop(client *http.Client) {
 			time.Sleep(5 * time.Second)
 			continue
 		}
-		
+
 		var m manifest.Manifest
 		if err := json.NewDecoder(bytes.NewReader(data)).Decode(&m); err == nil {
 			log.Printf("Received task: %s", m.TaskID)
