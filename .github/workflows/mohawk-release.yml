@@ -34,6 +34,17 @@ jobs:
       - name: Create GitHub Release and Upload AOT Binary
         uses: softprops/action-gh-release@v1
         with:
-          files: mohawk_core_aot.cwasm
+          files: mohawk_core_aot.cwasm- name: Generate Binary Measurement
+        run: |
+          # Create a SHA-256 hash of the AOT binary
+          sha256sum mohawk_core_aot.cwasm > measurement.sha256
+          echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
+
+      - name: Upload Measurement to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: measurement.sha256
+
+          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
