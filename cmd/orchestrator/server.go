@@ -17,7 +17,6 @@ package main
 import (
 	"net/http"
 	"time"
-	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
 type AttestationJob struct {
