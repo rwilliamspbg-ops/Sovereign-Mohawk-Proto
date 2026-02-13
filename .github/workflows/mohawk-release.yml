@@ -23,14 +23,12 @@ jobs:
           echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
 
       - name: Build and Pre-compile
+        # Replace 'YOUR_SUBFOLDER_NAME' with the folder containing Cargo.toml
+        # If it IS in the root, ensure the name 'mohawk_core' matches your [Implementation]
+        working-directory: . 
         run: |
-          # Build using the new target name
           cargo build --target wasm32-wasip1 --release
-          
-          # AOT Compile for the Sovereign-Mohawk architecture
-          # Note: The compiled binary path in /target/ changes to the new target name
           wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasip1/release/mohawk_core.wasm
-          
           sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
       - name: Generate Binary Measurement
