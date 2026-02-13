@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
+  workflow_dispatch: # Allows you to click "Run workflow" in the Actions tab
 
 jobs:
   build-aot:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-wasip1 # Updated from wasm32-wasi
+          targets: wasm32-wasip1 # The updated name for wasm32-wasi
 
       - name: Install Wasmtime
         run: |
@@ -23,12 +23,18 @@ jobs:
           echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
 
       - name: Build and Pre-compile
-        # Replace 'YOUR_SUBFOLDER_NAME' with the folder containing Cargo.toml
-        # If it IS in the root, ensure the name 'mohawk_core' matches your [Implementation]
+        # Set this to the folder containing your Cargo.toml (e.g., ./core)
+        # If it's in the root of the repo, leave it as '.'
         working-directory: . 
         run: |
+          # 1. Build the WASM binary
           cargo build --target wasm32-wasip1 --release
+          
+          # 2. AOT Compile for the Sovereign-Mohawk architecture
+          # Path logic: target/[target-name]/release/[package-name].wasm
           wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasip1/release/mohawk_core.wasm
+          
+          # 3. Generate verification hash
           sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
       - name: Generate Binary Measurement
@@ -38,6 +44,8 @@ jobs:
 
       - name: Create GitHub Release and Upload Assets
         uses: softprops/action-gh-release@v1
+        # This safety check ensures the release only triggers on actual tags
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             mohawk_core_aot.cwasm
