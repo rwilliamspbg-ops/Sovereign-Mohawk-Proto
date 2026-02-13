@@ -1,109 +1,76 @@
----
-version: "3.9"
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3.8'
+
 services:
   orchestrator:
     build:
       context: .
-      dockerfile: ./cmd/orchestrator/Dockerfile
+      dockerfile: cmd/orchestrator/Dockerfile
     container_name: orchestrator
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
-    working_dir: /app
     networks:
-      - sovereign-net
+      - mohawk-net
 
-  fl-aggregator:
+  shard-us-east:
     build:
       context: .
-      dockerfile: ./cmd/fl-aggregator/Dockerfile
-    container_name: fl-aggregator
-    ports:
-      - "8090:8090"
-    volumes:
-      - .:/app
-    working_dir: /app
+      dockerfile: cmd/orchestrator/Dockerfile
+    container_name: shard-us-east
+    command: ["./aggregator", "--shard-id=us-east-1"]
+    depends_on:
+      - orchestrator
     networks:
-      - sovereign-net
+      - mohawk-net
 
-  api-dashboard:
+  shard-eu-west:
     build:
       context: .
-      dockerfile: ./cmd/api-dashboard/Dockerfile
-    container_name: api-dashboard
-    ports:
-      - "8081:8081"
-    volumes:
-      - .:/app
-    working_dir: /app
+      dockerfile: cmd/orchestrator/Dockerfile
+    container_name: shard-eu-west
+    command: ["./aggregator", "--shard-id=eu-west-1"]
+    depends_on:
+      - orchestrator
     networks:
-      - sovereign-net
+      - mohawk-net
 
   node-agent-1:
     build:
       context: .
-      dockerfile: ./cmd/node-agent/Dockerfile
+      dockerfile: cmd/node-agent/Dockerfile
     container_name: node-agent-1
-    depends_on:
-      - orchestrator
-      - fl-aggregator
-    volumes:
-      - .:/app
-    working_dir: /app
     environment:
+      - AGGREGATOR_URL=http://shard-us-east:8080
       - NODE_ID=node-1
+    depends_on:
+      - shard-us-east
     networks:
-      - sovereign-net
+      - mohawk-net
 
-  # optional second node
   node-agent-2:
     build:
       context: .
-      dockerfile: ./cmd/node-agent/Dockerfile
+      dockerfile: cmd/node-agent/Dockerfile
     container_name: node-agent-2
-    depends_on:
-      - orchestrator
-      - fl-aggregator
-    volumes:
-      - .:/app
-    working_dir: /app
     environment:
+      - AGGREGATOR_URL=http://shard-eu-west:8080
       - NODE_ID=node-2
-    networks:
-      - sovereign-net
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-    ports:
-      - "9090:9090"
-    networks:
-      - sovereign-net
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
     depends_on:
-      - prometheus
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - shard-eu-west
     networks:
-      - sovereign-net
+      - mohawk-net
 
 networks:
-  sovereign-net:
+  mohawk-net:
     driver: bridge
-
-volumes:
-  grafana-data:
