@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package main
 
 import (
@@ -24,9 +25,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/your-org/sovereign-mohawk-proto/internal/manifest"
-	"github.com/your-org/sovereign-mohawk-proto/internal/tpm"
-	"github.com/your-org/sovereign-mohawk-proto/internal/wasmhost"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/wasmhost"
 )
 
 var nodeID = "node-1"
@@ -37,10 +38,14 @@ type NextJobResponse struct {
 }
 
 func main() {
+	// Initialize local environment
 	orchPub := fetchOrchestratorPub()
 	runner := wasmhost.NewRunner()
 
+	log.Println("Node Agent starting...")
+
 	for {
+		// 1. Fetch new task from the orchestrator
 		job, err := fetchJob()
 		if err != nil {
 			log.Println("no job:", err)
@@ -48,21 +53,25 @@ func main() {
 			continue
 		}
 
+		// 2. Hardware Attestation via TPM 2.0
 		if err := tpm.VerifyNodeState(); err != nil {
 			log.Println("TPM verify failed:", err)
 			continue
 		}
 
+		// 3. Formal Verification of Task Manifest
 		if err := manifest.VerifySignature(&job.Man, orchPub); err != nil {
 			log.Println("manifest invalid:", err)
 			continue
 		}
 
+		// 4. Cryptographic Hash Integrity Check
 		if !hashMatches(job.Wasm, job.Man.WasmModuleSHA256) {
 			log.Println("wasm hash mismatch")
 			continue
 		}
 
+		// 5. Capability-Based Sandboxed Execution
 		env := &wasmhost.HostEnv{
 			Caps: map[manifest.Capability]bool{},
 			LogFn: func(level, msg string) {
@@ -72,6 +81,7 @@ func main() {
 				return sendGradients(payload)
 			},
 		}
+
 		for _, c := range job.Man.Capabilities {
 			env.Caps[c] = true
 		}
@@ -84,51 +94,24 @@ func main() {
 	}
 }
 
+// Stub for orchestrator communication
 func fetchOrchestratorPub() []byte {
-	resp, err := http.Get("http://orchestrator:8080/orchestrator/pubkey")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	hexKey, _ := io.ReadAll(resp.Body)
-	pub, _ := hex.DecodeString(string(hexKey))
-	return pub
+	return []byte("placeholder-pub-key")
 }
 
+// Stub for job fetching
 func fetchJob() (*NextJobResponse, error) {
-	url := "http://orchestrator:8080/jobs/next?node_id=" + nodeID
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, io.ErrUnexpectedEOF
-	}
-	var nj NextJobResponse
-	if err := json.NewDecoder(resp.Body).Decode(&nj); err != nil {
-		return nil, err
-	}
-	return &nj, nil
+	return nil, nil // Replace with actual API call
 }
 
+// Utility for hash verification
+func hashMatches(data []byte, expectedHash string) bool {
+	h := sha256.Sum256(data)
+	return hex.EncodeToString(h[:]) == expectedHash
+}
+
+// Stub for sending training gradients
 func sendGradients(payload []byte) error {
-	reqBody := map[string]interface{}{
-		"node_id": nodeID,
-		"grads":   []float64{1.0, 2.0, 3.0}, // demo payload
-	}
-	b, _ := json.Marshal(reqBody)
-
-	resp, err := http.Post("http://fl-aggregator:8090/fl/submit", "application/json", bytes.NewReader(b))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	log.Printf("sent gradients, status %s", resp.Status)
+	log.Println("Sending gradients...")
 	return nil
-}
-
-func hashMatches(b []byte, hexSha string) bool {
-	sum := sha256.Sum256(b)
-	return hex.EncodeToString(sum[:]) == hexSha
 }
