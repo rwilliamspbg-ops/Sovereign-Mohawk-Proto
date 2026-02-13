@@ -11,14 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package main
 
 import (
 	"encoding/json"
 	"net/http"
-    // The internal/manifest import has been removed to fix the unused import error
 )
 
+// Server handles orchestrator HTTP requests.
+// Note: internal/manifest import removed as it is currently unused in this file.
 type Server struct{}
 
 type AttestationJob struct {
