@@ -1,30 +1,40 @@
 name: Mohawk AOT Release
 on:
   push:
-    tags: [ 'v*' ]
+    tags:
+      - 'v*'  # Triggers only when you push a tag like v1.0.0
 
 jobs:
   build-aot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
       
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasi
 
       - name: Install Wasmtime
-        run: curl https://wasmtime.dev/install.sh -sSf | bash && echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
+        run: |
+          curl https://wasmtime.dev/install.sh -sSf | bash
+          echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
 
       - name: Build and Pre-compile
         run: |
+          # Build the WASM binary
           cargo build --target wasm32-wasi --release
+          
+          # AOT Compile for the Sovereign-Mohawk architecture
           wasmtime compile --out mohawk_core_aot.cwasm target/wasm32-wasi/release/mohawk_core.wasm
+          
+          # Generate the initial hash for the formal verification check
           sha256sum mohawk_core_aot.cwasm | awk '{print $1}' > golden_hash.txt
 
       - name: Generate Binary Measurement
         run: |
-          # Create a SHA-256 hash for verification tracking
+          # Create the final measurement file for the release
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
           echo "MEASUREMENT=$(cat measurement.sha256 | awk '{print $1}')" >> $GITHUB_ENV
 
