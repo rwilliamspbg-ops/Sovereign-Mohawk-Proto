@@ -97,14 +97,8 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 		Epsilon:     2.0,
 	}
 
-	signManifest(&m)
-	resp := NextJobResponse{Wasm: wasmBytes, Man: m}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-
-func loadWasm() ([]byte, string, error) {
-	// Build the module into wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+	func loadWasm() ([]byte, string, error) {
+	// Path to the compiled Wasm module
 	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -115,24 +109,6 @@ func loadWasm() ([]byte, string, error) {
 }
 
 func signManifest(m *manifest.Manifest) {
-	data, _ := json.Marshal(m)
-	sig := ed25519.Sign(orchPriv, data)
-	m.Signature = sig
-}
-
-func loadWasm() ([]byte, string, error) {
-	// Build the module into wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
-	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, "", err
-	}
-	sum := sha256.Sum256(b)
-	return b, hex.EncodeToString(sum[:]), nil
-}
-
-func signManifest(m *manifest.Manifest) {
-	m.Signature = nil
 	data, _ := json.Marshal(m)
 	sig := ed25519.Sign(orchPriv, data)
 	m.Signature = sig
