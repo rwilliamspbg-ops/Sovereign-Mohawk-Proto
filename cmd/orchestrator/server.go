@@ -20,29 +20,25 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
-// AttestationJob encapsulates the data for the non-blocking worker pool
 type AttestationJob struct {
 	NodeID string
 	Quote  []byte
 	Resp   chan error
 }
 
-// JobQueue defines the buffer for the worker pool to handle 10M node scale [cite: 32]
 var JobQueue = make(chan AttestationJob, 10000)
 
 type Server struct{}
 
-// HandleAttest serves as the primary endpoint for node attestation [cite: 32]
 func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
 	nodeID := r.Header.Get("X-Node-ID")
-
 	respChan := make(chan error, 1)
+
 	JobQueue <- AttestationJob{
 		NodeID: nodeID, 
 		Resp:   respChan,
 	}
 
-	// 2-second timeout to maintain system liveness under load [cite: 32]
 	select {
 	case err := <-respChan:
 		if err != nil {
