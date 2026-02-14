@@ -13,7 +13,7 @@
 // limitations under the License.
 module github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 
-go 1.22
+go 1.24.0
 
 require (
 	// Standard library only for now. 
