@@ -11,7 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// Implementation supports Theorem 5 (Verifiability) via batch processing.
+// Reference: /proofs/cryptography.md
 package crypto
 
 import (
