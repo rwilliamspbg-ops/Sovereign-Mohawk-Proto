@@ -19,7 +19,7 @@ Sovereign-Mohawk is a high-performance, formally verified federated learning arc
 
 ## Comparative Analysis
 
-Sovereign-Mohawk outperforms traditional federated learning frameworks by achieving the information-theoretic lower bound for communication while maintaining full formal verification.
+Sovereign-Mohawk significantly reduces overhead compared to standard federated protocols by achieving the information-theoretic lower bound for communication.
 
 | Feature | TensorFlow Federated | PySyft | Sovereign-Mohawk |
 | :--- | :--- | :--- | :--- |
@@ -29,16 +29,22 @@ Sovereign-Mohawk outperforms traditional federated learning frameworks by achiev
 | **Verification** | Re-execution | None | **10ms zk-SNARKs** |
 
 ### Efficiency Advancements
-* **Memory:** Reduced metadata overhead by 700,000x compared to naive aggregation.
-* **Speed:** Hierarchical Tiering (10M : 1k : 100 : 1) allows continental-level synthesis in milliseconds.
-* **Federated Efficiency:** Asymptotically optimal communication complexity $O(d \log n)$.
+* **Memory Efficiency:** Reduced metadata overhead by **~700,000x** (from 40 TB to 28 MB for 10M nodes) by eliminating per-node overhead in favor of hierarchical tiering.
+* **Speed:** Hierarchical synthesis ($10M : 1k : 100 : 1$) enables continental-level aggregation in milliseconds, bypassing the linear bottlenecks of flat architectures.
+* **Federated Learning Efficiency:** Achieves the optimal communication complexity of $O(d \log n)$, ensuring that scaling to millions of nodes does not cause exponential bandwidth growth.
 
 ## Installation
 
-Ensure you are using **Go 1.24** or higher.
+This project requires **Go 1.24**.
 
 ```bash
-go get [github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
+# Clone the repository
+git clone [https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git)
+cd Sovereign-Mohawk-Proto
+
+# Install dependencies and verify module
+go mod tidy
+go build ./...
 ```
 
 Usage
