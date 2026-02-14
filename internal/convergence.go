@@ -1,3 +1,4 @@
+// Reference: /proofs/convergence.md
 package internal
 
 import (
