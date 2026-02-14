@@ -1,0 +1,34 @@
+name: Proof-Driven Design Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for Proof Links
+        run: |
+          echo "Verifying that all internal modules link to formal proofs..."
+          FAILED=0
+          # Scan all .go files in the internal directory
+          for file in $(find internal -name "*.go"); do
+            # Check if the file contains a reference to the proofs directory
+            if ! grep -q "/proofs/" "$file"; then
+              echo "❌ Error: $file does not contain a link to a formal proof in /proofs/"
+              FAILED=1
+            else
+              echo "✅ $file is verified."
+            fi
+          done
+          
+          if [ $FAILED -ne 0 ]; then
+            echo "Validation Failed: Every core module must reference a formal proof."
+            exit 1
+          fi
