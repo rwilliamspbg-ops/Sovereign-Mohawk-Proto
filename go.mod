@@ -13,9 +13,10 @@
 // limitations under the License.
 module github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 
-go 1.21
+go 1.22
 
 require (
-	github.com/stretchr/testify v1.8.4
-	gopkg.in/yaml.v3 v3.0.1
+	// Standard library only for now. 
+	// If you integrate gnark or bls12-381 later, 
+	// they will be added here via 'go mod tidy'.
 )
