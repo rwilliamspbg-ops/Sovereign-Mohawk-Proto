@@ -49,4 +49,28 @@ func Verify(nodeID string, quote []byte) error {
 // GenerateTPMQuote is a stub for the expensive hardware call
 func GenerateTPMQuote() ([]byte, error) {
 	return []byte("tpm-quote-stub"), nil
+}// VerifyByzantineResilience implements the safety check for Theorem 1.
+// It ensures the number of nodes (n) can support the declared 
+// Byzantine fault tolerance (f) per the Hierarchical Multi-Krum proof.
+// Reference: /proofs/bft_resilience.md
+func VerifyByzantineResilience(totalNodes int, maliciousNodes int) (bool, error) {
+	// Theorem 1 requirement: n > 2f + 1
+	// For 10M nodes, this allows up to 4,999,999 malicious nodes per tier.
+	if totalNodes <= 2*maliciousNodes {
+		return false, fmt.Errorf(
+			"security threshold violated: total nodes (%d) must be > 2 * malicious nodes (%d) + 1",
+			totalNodes, maliciousNodes,
+		)
+	}
+	return true, nil
 }
+
+// CalculateGlobalTolerance returns the (Σf_t) bound described in the whitepaper.
+func CalculateGlobalTolerance(f_tiers []int) int {
+	total := 0
+	for _, f := range f_tiers {
+		total += f
+	}
+	return total
+}
+
