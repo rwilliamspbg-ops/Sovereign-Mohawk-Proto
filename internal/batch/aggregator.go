@@ -39,7 +39,10 @@ func NewAggregator(cfg *Config) *Aggregator {
 }
 
 // ProcessRound executes a single aggregation round and verifies liveness/safety.
-// Implements: Theorem 4 (Liveness) and Theorem 1 (Safety).
+//
+// Implements:
+// - Theorem 4 (Liveness): Ensures 99.99% success via Chernoff bounds.
+// - Theorem 1 (Safety): Enforces n > 2f for BFT resilience.
 func (a *Aggregator) ProcessRound(mode Mode) error {
 	// --- Liveness Check (Theorem 4) ---
 	// success_prob = 1 - exp(-k/2) 
@@ -47,16 +50,14 @@ func (a *Aggregator) ProcessRound(mode Mode) error {
 	prob := 1.0 - math.Exp(-k/2.0)
 
 	if prob < 0.9999 {
-		return fmt.Errorf("liveness check failed: success probability %f below threshold", prob)
+		return fmt.Errorf("liveness check failed: success probability %f below 99.99%% threshold", prob)
 	}
 
 	// --- Safety Check (Theorem 1) ---
-	// Ensures n > 2f for BFT resilience.
+	// Requires n > 2f for BFT resilience in hierarchical composition.
 	if a.Config.TotalNodes <= 2*a.Config.MaliciousNodes {
-		return fmt.Errorf("Byzantine safety violation: n <= 2f")
+		return fmt.Errorf("Byzantine safety violation: TotalNodes (%d) must be > 2 * MaliciousNodes (%d)", a.Config.TotalNodes, a.Config.MaliciousNodes)
 	}
 
-	return nil
-}
 	return nil
 }
