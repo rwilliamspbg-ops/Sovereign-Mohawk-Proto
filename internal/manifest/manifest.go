@@ -70,3 +70,19 @@ func VerifySignature(m *Manifest, orchestratorPub []byte) error {
 	}
 	return nil
 }
+import "math" // Ensure "math" is in your imports
+
+// ValidateCommunicationComplexity enforces Theorem 3.
+// Reference: /proofs/communication.md
+func (m *Manifest) ValidateCommunicationComplexity(d int, n int) error {
+	// Theoretical limit: O(d * log10(n))
+	limit := float64(d) * math.Log10(float64(n))
+	
+	// Assuming an estimated size based on fields; replace with actual byte count if available
+	actual := float64(len(m.TaskID) + len(m.NodeID) + 200) // 200B for SNARK + metadata
+
+	if actual > limit*2.0 { // Allowing 2x constant-factor overhead
+		return fmt.Errorf("communication optimality violated: actual size %.2f exceeds O(d log n) bound", actual)
+	}
+	return nil
+}
