@@ -50,7 +50,9 @@ func (sm *StragglerMonitor) CalculateSuccessProbability(n int, dropoutRate float
 }
 
 // ValidateLiveness ensures the current active set meets the 99.99% threshold.
-func (sm *StragglerMonitor) ValidateLiveness(activeNodes int, totalNodes int) error {
+// Reference: /proofs/straggler_resilience.md
+func (sm *StragglerMonitor) ValidateLiveness(activeNodes int, _ int) error {
+	// totalNodes is renamed to _ to satisfy golangci-lint (unused-parameter)
 	successProb := sm.CalculateSuccessProbability(activeNodes, 0.5)
 	if successProb < 0.9999 {
 		return fmt.Errorf("liveness risk: success probability %.6f below 99.99%% threshold", successProb)
