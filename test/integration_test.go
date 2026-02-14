@@ -8,31 +8,29 @@ import (
 )
 
 func TestByzantineTolerance(t *testing.T) {
-	t.Run("Verify_Filter_Performance", func(t *testing.T) {
-		// SETUP: Aligning with Theorem 4 (Straggler Resilience)
-		// To achieve >99.99% liveness, we need sufficient honest redundancy.
-		config := &batch.Config{
-			TotalNodes:      100,  // Increased from small default to satisfy Chernoff bounds
-			HonestNodes:     60,   // Must be > 55.5% for Theorem 1
-			MaliciousNodes:  40,
-			RedundancyFactor: 10,  // Required r=10x for 99.99% guarantee
-			LivenessThreshold: 0.9999,
-		}
+	// config setup to satisfy 99.99% liveness (Theorem 4)
+	cfg := &batch.Config{
+		TotalNodes:       100,
+		HonestNodes:      60, // > 55.5% per Theorem 1
+		MaliciousNodes:   40,
+		RedundancyFactor: 10, // Required r=10x
+	}
 
-		aggregator := batch.NewAggregator(config)
+	aggregator := batch.NewAggregator(cfg)
 
-		// 1. TEST HONEST PATH
-		// This previously failed with 0.464412 probability
+	t.Run("Verify_Honest_Liveness", func(t *testing.T) {
+		// Test with honest nodes only
 		err := aggregator.ProcessRound(batch.ModeHonestOnly)
 		if err != nil {
-			t.Errorf("Aggregator rejected honest updates: %v", err)
+			t.Fatalf("Liveness check failed: %v", err)
 		}
+	})
 
-		// 2. TEST BYZANTINE RESILIENCE
-		// Resilience Guard should flag malicious divergence while maintaining liveness
-		err = aggregator.ProcessRound(batch.ModeByzantineMix)
+	t.Run("Verify_Byzantine_Filtering", func(t *testing.T) {
+		// Test with malicious actors injected
+		err := aggregator.ProcessRound(batch.ModeByzantineMix)
 		if err != nil {
-			t.Errorf("Resilience Guard failed: %v", err)
+			t.Fatalf("Resilience Guard failed under attack: %v", err)
 		}
 	})
 }
