@@ -16,3 +16,6 @@ We are currently seeking contributions in the following areas:
 
 ## Licensing
 By contributing, you agree that your contributions will be licensed under the **Apache License 2.0**.
+
+By making a contribution to this project, you agree to the Developer Certificate of Origin (DCO) v1.1:
+https://developercertificate.org/
