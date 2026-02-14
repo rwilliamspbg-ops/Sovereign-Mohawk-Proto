@@ -1,3 +1,6 @@
+Sovereign-Mohawk-Proto
+======================
+
 [![Mohawk AOT Release](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release.yml)
 [![Build and Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
@@ -5,6 +8,29 @@
 [![Privacy Budget](https://img.shields.io/badge/Privacy-ε%20%3D%202.0-blue)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/rdp_accountant.go)
 [![Liveness](https://img.shields.io/badge/Liveness-99.99%25-green)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/straggler_resilience.go)
 [![Scale](https://img.shields.io/badge/Scale-10M%20Nodes-orange)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/proofs/communication.md)
+
+Project Overview
+----------------
+
+Sovereign-Mohawk is a formally verified federated learning architecture designed for 10-million-node scale. This prototype implements the core active guards required by the [Six Critical Theorems](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/WHITE_PAPER.md).
+
+Core Features
+-------------
+
+* **Byzantine Fault Tolerance:** Hierarchical Multi-Krum implementation
+* **Differential Privacy:** RDP-based privacy accounting
+* **Straggler Resilience:** Chernoff-bound verified redundancy
+
+Usage
+-----
+
+To initialize the project and verify the formal proofs locally:
+
+```bash
+make tidy
+make verify
+make build
+
 ---
 # 🛡️ Sovereign Mohawk Proto
 
