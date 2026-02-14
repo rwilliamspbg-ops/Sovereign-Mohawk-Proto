@@ -14,7 +14,7 @@
 
 // Implementation supports Theorem 5 (Verifiability) via batch processing.
 // Reference: /proofs/cryptography.md
-package batch
+package internal
 
 import (
 	"crypto/ed25519"
