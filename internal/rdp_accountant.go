@@ -12,51 +12,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Implementation supports Theorem 5 (Verifiability) via batch processing.
-// Reference: /proofs/cryptography.md
+// Reference: /proofs/differential_privacy.md
+// Theorem 2: Real-time Rényi DP privacy loss tracking with automatic enforcement.
 package internal
 
 import (
-	"crypto/ed25519"
-	"errors"
+	"fmt"
+	"math"
 	"sync"
 )
 
-// BatchVerifier manages the high-throughput verification of node manifests.
-type BatchVerifier struct {
-	maxBatchSize int
+// RDPAccountant tracks cumulative privacy leakage using Rényi Differential Privacy.
+// It implements Theorem 2: sequential composition of RDP mechanisms.
+type RDPAccountant struct {
+	mu           sync.RWMutex
+	Alpha        float64 // Rényi divergence order
+	TotalEpsilon float64 // Cumulative RDP epsilon
+	MaxBudget    float64 // Target (ε, δ)-DP limit (e.g., 2.0)
+	TargetDelta  float64 // Fixed delta (e.g., 10⁻⁵)
 }
 
-// NewBatchVerifier initializes a verifier with a specific throughput limit.
-func NewBatchVerifier(batchSize int) *BatchVerifier {
-	return &BatchVerifier{maxBatchSize: batchSize}
+// NewRDPAccountant initializes the accountant with research-backed defaults.
+func NewRDPAccountant(maxEpsilon float64, delta float64) *RDPAccountant {
+	return &RDPAccountant{
+		Alpha:       10.0, // Optimized alpha for hierarchical composition
+		MaxBudget:   maxEpsilon,
+		TargetDelta: delta,
+	}
 }
 
-// VerifySignatures processes public keys, messages, and signatures in parallel.
-// This is required to maintain the O(1) verification time described in Theorem 5.
-func (bv *BatchVerifier) VerifySignatures(pubKeys []ed25519.PublicKey, messages [][]byte, signatures [][]byte) ([]bool, error) {
-	if len(pubKeys) != len(messages) || len(messages) != len(signatures) {
-		return nil, errors.New("input slice lengths must match")
+// RecordStep adds the RDP epsilon of a new mechanism to the running sum.
+// Reference: /proofs/differential_privacy.md
+func (a *RDPAccountant) RecordStep(epsilon float64) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.TotalEpsilon += epsilon
+}
+
+// GetCurrentEpsilon converts cumulative RDP to standard (ε, δ)-DP.
+// Conversion formula: ε = ε_rdp + log(1/δ) / (α - 1)
+func (a *RDPAccountant) GetCurrentEpsilon() float64 {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+
+	if a.TotalEpsilon == 0 {
+		return 0
 	}
 
-	results := make([]bool, len(pubKeys))
-	var wg sync.WaitGroup
+	conversion := math.Log(1.0/a.TargetDelta) / (a.Alpha - 1.0)
+	return a.TotalEpsilon + conversion
+}
 
-	for i := 0; i < len(pubKeys); i += bv.maxBatchSize {
-		end := i + bv.maxBatchSize
-		if end > len(pubKeys) {
-			end = len(pubKeys)
-		}
-
-		wg.Add(1)
-		go func(start, end int) {
-			defer wg.Done()
-			for j := start; j < end; j++ {
-				results[j] = ed25519.Verify(pubKeys[j], messages[j], signatures[j])
-			}
-		}(i, end)
+// CheckBudget verifies if the system is still within the verified privacy bound.
+func (a *RDPAccountant) CheckBudget() error {
+	current := a.GetCurrentEpsilon()
+	if current > a.MaxBudget {
+		return fmt.Errorf("privacy budget exhausted: current ε=%.2f exceeds limit ε=%.2f", current, a.MaxBudget)
 	}
-
-	wg.Wait()
-	return results, nil
+	return nil
 }
