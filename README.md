@@ -11,6 +11,7 @@
 [![Scale](https://img.shields.io/badge/Scale-10M_Nodes-orange)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pulls)
 [![Privacy](https://img.shields.io/badge/Privacy-%CE%B5%3D2.0-blue)](./proofs/differential_privacy.md)
+[![Proof-Driven Design Verification](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 ---
 # 🛡️ Sovereign Mohawk Proto
 
