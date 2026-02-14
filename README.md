@@ -1,45 +1,60 @@
-# Sovereign Mohawk Proto
+# 🦅 Sovereign Mohawk Proto
 
 [![Mohawk AOT Release](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?include_prereleases&label=Mohawk%20AOT%20Release&color=blue)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
 [![Proof-Driven Design Verification](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
 [![Build and Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
-[![Lint](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/linter.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
 [![Go Version](https://img.shields.io/badge/Go-1.24-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![BFT Safety](https://img.shields.io/badge/BFT%20Safety-55.5%25-blueviolet)](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#905)
 [![Liveness](https://img.shields.io/badge/Liveness-99.99%25-green)](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469)
 
-Sovereign-Mohawk is a high-performance, formally verified federated learning architecture designed to scale to 10 million nodes. It bridges the gap between theoretical security and production implementation through a suite of interconnected formal proofs.
+**Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. It bridges the gap between theoretical security and production implementation through a suite of interconnected formal proofs and cutting-edge zero-knowledge cryptography.
 
-## Core Capabilities
+---
 
-* **Byzantine Fault Tolerance:** Achieves 55.5% malicious node resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
-* **Straggler Resilience:** Guarantees 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
-* **Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
+## 🚀 Why Sovereign Mohawk?
 
-## Comparative Analysis
+Traditional federated learning protocols struggle with linear scaling bottlenecks and Byzantine threats. Sovereign-Mohawk redefines the boundaries of decentralized AI.
 
-Sovereign-Mohawk significantly reduces overhead compared to standard federated protocols by achieving the information-theoretic lower bound for communication.
+### 📊 Comparative Analysis
 
-| Feature | TensorFlow Federated | PySyft | Sovereign-Mohawk |
-| :--- | :--- | :--- | :--- |
+| Feature | TensorFlow Federated | PySyft | **Sovereign-Mohawk** |
+| :--- | :---: | :---: | :---: |
 | **Max Scale** | 10k Nodes | 1k Nodes | **10M Nodes** |
 | **Communication** | $O(dn)$ | $O(dn)$ | **$O(d \log n)$** |
 | **BFT Proof** | None | Partial | **Full (Theorem 1)** |
 | **Verification** | Re-execution | None | **10ms zk-SNARKs** |
+| **Resilience** | Low | Medium | **99.99% (Straggler)** |
 
-### Efficiency Advancements
-* **Memory Efficiency:** Reduced metadata overhead by **~700,000x** (from 40 TB to 28 MB for 10M nodes) by eliminating per-node overhead in favor of hierarchical tiering.
-* **Speed:** Hierarchical synthesis ($10M : 1k : 100 : 1$) enables continental-level aggregation in milliseconds, bypassing the linear bottlenecks of flat architectures.
-* **Federated Learning Efficiency:** Achieves the optimal communication complexity of $O(d \log n)$, ensuring that scaling to millions of nodes does not cause exponential bandwidth growth.
+---
 
-## Installation
+## 🧠 Advancing AI Computing
 
-This project requires **Go 1.24**.
+Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ecosystem:
+
+1.  **Hyper-Scale Decentralization:** By moving from $O(dn)$ to $O(d \log n)$ communication complexity, we enable millions of edge devices (phones, IoT, cars) to participate in training without saturating global bandwidth.
+2.  **Trustless Aggregation:** With **10ms zk-SNARKs**, the central server can prove to every participant that the model update was computed correctly without revealing private data or requiring re-execution.
+3.  **Byzantine Resilience at Scale:** Achieves a record **55.5% malicious node resilience**, ensuring that even under heavy adversarial attack, the global model remains uncorrupted.
+4.  **Continental-Level Speed:** Our hierarchical synthesis (10M:1k:100:1) allows for global model updates to be aggregated in milliseconds, bypassing the bottlenecks of traditional flat architectures.
+
+---
+
+## ✨ Key Capabilities
+
+*   🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
+*   🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
+*   ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
+*   📉 **Extreme Efficiency:** 700,000x reduction in metadata overhead (40 TB → 28 MB for 10M nodes).
+
+---
+
+## 🛠️ Installation
+
+Sovereign-Mohawk is built with **Go 1.24**.
 
 ```bash
 # Clone the repository
-git clone [https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git)
+git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
 cd Sovereign-Mohawk-Proto
 
 # Install dependencies and verify module
@@ -47,42 +62,56 @@ go mod tidy
 go build ./...
 ```
 
-Usage
-Verified Aggregation
+---
+
+## 📖 Quick Start
+
 Initialize a BFT-compliant aggregator that enforces Theorem 1 safety checks:
 
-```Go
-import "[github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch)"
+```go
+import "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch"
 
-cfg := &batch.Config{
-    TotalNodes:       1000,
-    HonestNodes:      600,
-    MaliciousNodes:   400,
-    RedundancyFactor: 10,
+func main() {
+    // Configure the network topology
+    cfg := &batch.Config{
+        TotalNodes:       1000,
+        HonestNodes:      600,
+        MaliciousNodes:    400,
+        RedundancyFactor: 10,
+    }
+
+    // Initialize the aggregator
+    aggregator := batch.NewAggregator(cfg)
+
+    // Process a federated learning round with Byzantine protection
+    err := aggregator.ProcessRound(batch.ModeByzantineMix)
+    if err != nil {
+        panic(err)
+    }
 }
-
-aggregator := batch.NewAggregator(cfg)
-err := aggregator.ProcessRound(batch.ModeByzantineMix)
 ```
-Monitoring and Logs
-The system leverages a proof-driven monitoring strategy. You can track the internal state of the 10M-node hierarchy through standard output or CI/CD dashboards.
 
-Local Log Viewing
-To observe real-time safety checks and liveness probabilities during development:
+---
+
+## 🛡️ Verification & Monitoring
+
+The system leverages a proof-driven monitoring strategy. Track real-time safety checks and liveness probabilities:
 
 ```bash
+# Run tests with detailed liveness output
 go test -v ./... | grep "liveness"
 ```
-GitHub Actions Monitoring
-All production-grade safety requirements are verified on every push. View the latest verification results here.
 
-Verify Proof Links: Checks every exported function against the Formal Documentation.
+### GitHub Actions
+All production-grade safety requirements are verified on every push.
+*   **Verify Proof Links:** Checks exported functions against Formal Documentation.
+*   **Linter:** Ensures zero terminology errors or markdown formatting violations.
 
-Linter: Ensures zero "built-in" terminology errors or markdown formatting violations.
+---
 
-Documentation
-Full architectural details and mathematical derivations are available in the Sovereign-Mohawk Technical Paper.
+## 📜 License
 
-License
-This project is licensed under the Apache License 2.0. See the LICENSE file for details.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
 
+---
+*Built for the future of Sovereign AI.*
