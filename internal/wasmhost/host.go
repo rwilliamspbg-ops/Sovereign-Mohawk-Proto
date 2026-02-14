@@ -5,7 +5,8 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-
+// Secure execution environment supporting BFT and Privacy guards.
+// Reference: /proofs/bft_resilience.md
 package wasmhost
 
 import (
