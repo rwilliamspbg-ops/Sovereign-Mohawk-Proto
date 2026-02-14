@@ -30,7 +30,8 @@ To initialize the project and verify the formal proofs locally:
 make tidy
 make verify
 make build
-'''
+```
+
 ---
 # 🛡️ Sovereign Mohawk Proto
 
