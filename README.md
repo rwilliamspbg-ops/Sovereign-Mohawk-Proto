@@ -11,11 +11,12 @@
 [![Scale](https://img.shields.io/badge/Scale-10M_Nodes-orange)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pulls)
 [![Privacy](https://img.shields.io/badge/Privacy-%CE%B5%3D2.0-blue)](./proofs/differential_privacy.md)
+---
 # 🛡️ Sovereign Mohawk Proto
 
 
 *Sovereign Mohawk* is a formally verified, zero-trust federated learning (FL) architecture. It bridges the gap between empirical distributed training and mathematical certainty, supporting up to **10 million nodes**.
-
+----
 This repository implements a **Proof-Driven Design** where every core architectural module is mathematically bound to a formal theorem derived from the [Sovereign-Mohawk Research](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c).
 
 ---
