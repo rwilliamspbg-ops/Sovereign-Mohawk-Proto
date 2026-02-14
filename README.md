@@ -1,5 +1,13 @@
 # 🦅 Sovereign Mohawk Proto
 
+## Note on Naming
+
+The "Sovereign Mohawk Protocol" name draws inspiration from principles of sovereignty, resilience, and decentralized governance—reflecting the protocol's design for edge/node self-determination and resistance to centralized control. It is **not** intended to appropriate, claim, or represent the cultural, intellectual, or traditional knowledge/property of the Kanienʼkehá꞉ka (Mohawk) people or any Indigenous nations.
+
+We acknowledge and respect the ongoing sovereignty and self-determination of Indigenous peoples, including the Kanienʼkehá꞉ka as Keepers of the Eastern Door in the Haudenosaunee Confederacy. This project is a technical implementation in AI/privacy and makes no claims to Indigenous cultural IP, protocols, or heritage.
+
+If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
+
 [![Mohawk AOT Release](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?include_prereleases&label=Mohawk%20AOT%20Release&color=blue)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
 [![Proof-Driven Design Verification](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
 [![Build and Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
