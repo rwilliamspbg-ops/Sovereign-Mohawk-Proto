@@ -1,8 +1,9 @@
 # Stage 1: Build the Go binary
-FROM golang:1.22-alpine AS builder
+# Pinning to a specific version instead of :latest (DL3007)
+FROM golang:1.22.5-alpine3.20 AS builder
 
-# Install build dependencies
-RUN apk add --no-cache git make
+# Pin versions in apk add (DL3018)
+RUN apk add --no-cache git=2.45.2-r0 make=4.4.1-r2
 
 WORKDIR /app
 
@@ -15,9 +16,11 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o aggregator ./cmd/aggregator/main.go
 
 # Stage 2: Final lightweight image
-FROM alpine:latest
+# Using explicit alpine version (3.20) instead of :latest
+FROM alpine:3.20
 
-RUN apk add --no-cache ca-certificates
+# Pin versions for final image runtime dependencies
+RUN apk add --no-cache ca-certificates=20240203-r0
 
 WORKDIR /root/
 
