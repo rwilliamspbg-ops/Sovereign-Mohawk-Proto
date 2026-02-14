@@ -2,6 +2,8 @@ package tpm
 
 import (
 	"fmt"
+	"sync"
+	"time"
 )
 
 type CachedQuote struct {
