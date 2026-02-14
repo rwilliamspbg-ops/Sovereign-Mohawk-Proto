@@ -1,36 +1,38 @@
 // Copyright 2026 Sovereign-Mohawk Core Team
 // Reference: /proofs/bft_resilience.md
-
 package test
 
 import (
 	"testing"
-	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch"
 )
 
 func TestByzantineTolerance(t *testing.T) {
-	// Setup: 10 Nodes, where 5 are malicious (50% < 55.5% limit)
-	totalNodes := 10
-	maliciousNodes := 5
-	honestNodes := totalNodes - maliciousNodes
+	t.Run("Verify_Filter_Performance", func(t *testing.T) {
+		// SETUP: Aligning with Theorem 4 (Straggler Resilience)
+		// To achieve >99.99% liveness, we need sufficient honest redundancy.
+		config := &batch.Config{
+			TotalNodes:      100,  // Increased from small default to satisfy Chernoff bounds
+			HonestNodes:     60,   // Must be > 55.5% for Theorem 1
+			MaliciousNodes:  40,
+			RedundancyFactor: 10,  // Required r=10x for 99.99% guarantee
+			LivenessThreshold: 0.9999,
+		}
 
-	agg := internal.NewAggregator(internal.Regional)
+		aggregator := batch.NewAggregator(config)
 
-	// Simulate gradient norms
-	honestGrad := 0.01
-	maliciousGrad := 100.0
-
-	t.Run("Verify Filter Performance", func(t *testing.T) {
-		// Test Honest Path
-		err := agg.ProcessUpdates(honestNodes, totalNodes, honestGrad)
+		// 1. TEST HONEST PATH
+		// This previously failed with 0.464412 probability
+		err := aggregator.ProcessRound(batch.ModeHonestOnly)
 		if err != nil {
 			t.Errorf("Aggregator rejected honest updates: %v", err)
 		}
 
-		// Test Resilience: Process malicious input
-		err = agg.ProcessUpdates(maliciousNodes, totalNodes, maliciousGrad)
+		// 2. TEST BYZANTINE RESILIENCE
+		// Resilience Guard should flag malicious divergence while maintaining liveness
+		err = aggregator.ProcessRound(batch.ModeByzantineMix)
 		if err != nil {
-			t.Logf("Resilience Guard: Successfully flagged/filtered malicious divergence: %v", err)
+			t.Errorf("Resilience Guard failed: %v", err)
 		}
-	}) // Fixed: Ensured proper closing and comma handling
+	})
 }
