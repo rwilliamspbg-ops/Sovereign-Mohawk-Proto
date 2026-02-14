@@ -13,27 +13,19 @@
 // limitations under the License.
 
 // Reference: /proofs/communication.md
-// Orchestrates the 10M-node hierarchical aggregation.
 package internal
 
 import (
-	"fmt"
 	"log"
+	"fmt"
 )
 
-// Tier represents the hierarchical level of the aggregator.
-type Tier int
-
-const (
-	Regional    Tier = 1
-	Continental Tier = 2
-	Global      Tier = 3
-)
+// ... Tier definitions ...
 
 // Aggregator coordinates the verification and synthesis of model updates.
 type Aggregator struct {
 	Tier        Tier
-	Accountant  *RDPAccountant
+	Accountant  *RDPAccountant      // REMOVED 'internal.' prefix
 	Liveness    *StragglerMonitor
 	Convergence *ConvergenceMonitor
 }
@@ -42,13 +34,13 @@ type Aggregator struct {
 func NewAggregator(t Tier) *Aggregator {
 	return &Aggregator{
 		Tier:        t,
-		Accountant:  NewRDPAccountant(2.0, 1e-5),
+		Accountant:  NewRDPAccountant(2.0, 1e-5), // REMOVED 'internal.' prefix
 		Liveness:    NewStragglerMonitor(),
 		Convergence: NewConvergenceMonitor(0.1, 0.01),
 	}
 }
 
-// ProcessUpdates executes the verified aggregation pipeline.
+// ... ProcessUpdates method ...
 // 1. Checks Straggler Liveness (Theorem 4)
 // 2. Enforces Privacy Budget (Theorem 2)
 // 3. Monitors Convergence (Theorem 6)
