@@ -1,3 +1,8 @@
+// Package batch implements hierarchical aggregation safety.
+// 
+// Formal Proof Reference:
+// - Theorem 4 (Straggler Resilience): https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469
+// - Theorem 1 (Byzantine Fault Tolerance): https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691
 package batch
 
 import (
@@ -5,6 +10,7 @@ import (
 	"math"
 )
 
+// Mode defines the operational state of the aggregator for testing and production.
 type Mode int
 
 const (
@@ -12,6 +18,7 @@ const (
 	ModeByzantineMix
 )
 
+// Config holds the parameters required to satisfy Theorem 4 and Theorem 1.
 type Config struct {
 	TotalNodes       int
 	HonestNodes      int
@@ -19,31 +26,32 @@ type Config struct {
 	RedundancyFactor int
 }
 
+// Aggregator handles the secure summation of model updates.
 type Aggregator struct {
 	Config *Config
 }
 
+// NewAggregator initializes a new aggregator instance with the provided security config.
 func NewAggregator(cfg *Config) *Aggregator {
 	return &Aggregator{Config: cfg}
 }
 
+// ProcessRound executes a single aggregation round and verifies liveness/safety.
 func (a *Aggregator) ProcessRound(mode Mode) error {
-	// Theorem 4: Probability of liveness failure
-	// success_prob = 1 - exp(-k/2) where k is expected honest successes
-	
-	// Calculate expected successful honest aggregations (k)
-	// In a 10x redundancy setup, regional success p ≈ 0.999
+	// --- Liveness Check (Theorem 4) ---
+	// success_prob = 1 - exp(-k/2) 
+	// k = expected successful honest aggregations given redundancy r
 	k := float64(a.Config.HonestNodes) * (1.0 - math.Pow(0.5, float64(a.Config.RedundancyFactor)))
-	
 	prob := 1.0 - math.Exp(-k/2.0)
 
 	if prob < 0.9999 {
 		return fmt.Errorf("liveness check failed: liveness risk: success probability %f below 99.99%% threshold", prob)
 	}
 
-	// Theorem 1: Byzantine Safety Check (n > 2f)
+	// --- Safety Check (Theorem 1) ---
+	// Requires n > 2f for BFT resilience in hierarchical composition.
 	if a.Config.TotalNodes <= 2*a.Config.MaliciousNodes {
-		return fmt.Errorf("Byzantine safety violation: n <= 2f")
+		return fmt.Errorf("Byzantine safety violation: TotalNodes (%d) must be > 2 * MaliciousNodes (%d)", a.Config.TotalNodes, a.Config.MaliciousNodes)
 	}
 
 	return nil
