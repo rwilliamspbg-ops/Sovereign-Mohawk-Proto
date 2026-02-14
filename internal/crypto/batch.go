@@ -23,6 +23,7 @@ import (
 // VerifyBatchIntegrity ensures that a batch has a valid ID and meets safety criteria.
 func VerifyBatchIntegrity(batchID string) (bool, error) {
 	// Active Guard: Ensure cryptographic commitments are not empty.
+	// Reference: /proofs/cryptography.md
 	if batchID == "" {
 		return false, fmt.Errorf("cryptographic failure: empty batch identifier (violated Theorem 5)")
 	}
