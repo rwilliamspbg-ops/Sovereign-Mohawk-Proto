@@ -30,7 +30,7 @@ The architecture reduces communication overhead from $O(dn)$ to $O(d \log n)$, a
 
 ## Implementation
 
-The codebase is built in Go 1.24 and strictly adheres to a proof-driven development cycle. Every critical module (Krum filtering, RDP accounting, and SNARK verification) is mapped directly to its corresponding mathematical theorem.
+The codebase is built-in Go 1.24 and strictly adheres to a proof-driven development cycle. Every critical module (Krum filtering, RDP accounting, and SNARK verification) is mapped directly to its corresponding mathematical theorem.
 
 ```go
 import "[github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch)"
