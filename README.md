@@ -45,7 +45,7 @@ Usage
 Verified Aggregation
 Initialize a BFT-compliant aggregator that enforces Theorem 1 safety checks:
 
-Go
+```Go
 import "[github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch)"
 
 cfg := &batch.Config{
@@ -57,6 +57,7 @@ cfg := &batch.Config{
 
 aggregator := batch.NewAggregator(cfg)
 err := aggregator.ProcessRound(batch.ModeByzantineMix)
+```
 Monitoring and Logs
 The system leverages a proof-driven monitoring strategy. You can track the internal state of the 10M-node hierarchy through standard output or CI/CD dashboards.
 
