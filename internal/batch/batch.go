@@ -5,7 +5,8 @@
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  */
-
+// Implementation supports Theorem 5 (Verifiability) via batch processing.
+// Reference: /proofs/cryptography.md
 package batch
 
 import (
