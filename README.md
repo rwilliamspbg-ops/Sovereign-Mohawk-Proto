@@ -1,7 +1,8 @@
 Sovereign-Mohawk-Proto
 ======================
 
-[![Mohawk AOT Release](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release.yml)
+[![Mohawk AOT Release](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?include_prereleases&label=Mohawk%20AOT%20Release&color=blue)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
+[![Liveness](https://img.shields.io/badge/Liveness-99.99%25-green)](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469)
 [![Build and Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
 [![BFT Safety](https://img.shields.io/badge/BFT%20Safety-55.5%25-blueviolet)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/proofs/bft_resilience.md)
