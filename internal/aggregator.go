@@ -16,16 +16,24 @@
 package internal
 
 import (
-	"log"
 	"fmt"
+	"log"
 )
 
-// ... Tier definitions ...
+// Tier represents the hierarchical level of the aggregator.
+// Defined here to ensure visibility across the internal package.
+type Tier int
+
+const (
+	Regional    Tier = 1
+	Continental Tier = 2
+	Global      Tier = 3
+)
 
 // Aggregator coordinates the verification and synthesis of model updates.
 type Aggregator struct {
 	Tier        Tier
-	Accountant  *RDPAccountant      // REMOVED 'internal.' prefix
+	Accountant  *RDPAccountant
 	Liveness    *StragglerMonitor
 	Convergence *ConvergenceMonitor
 }
@@ -34,16 +42,13 @@ type Aggregator struct {
 func NewAggregator(t Tier) *Aggregator {
 	return &Aggregator{
 		Tier:        t,
-		Accountant:  NewRDPAccountant(2.0, 1e-5), // REMOVED 'internal.' prefix
+		Accountant:  NewRDPAccountant(2.0, 1e-5),
 		Liveness:    NewStragglerMonitor(),
 		Convergence: NewConvergenceMonitor(0.1, 0.01),
 	}
 }
 
-// ... ProcessUpdates method ...
-// 1. Checks Straggler Liveness (Theorem 4)
-// 2. Enforces Privacy Budget (Theorem 2)
-// 3. Monitors Convergence (Theorem 6)
+// ProcessUpdates executes the verified aggregation pipeline.
 func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm float64) error {
 	// Active Guard: Theorem 4 (Straggler Resilience)
 	if err := a.Liveness.ValidateLiveness(activeNodes, totalNodes); err != nil {
