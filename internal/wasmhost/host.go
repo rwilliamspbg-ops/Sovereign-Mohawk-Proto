@@ -20,25 +20,26 @@ import (
 	"fmt"
 )
 
-// Host handles the deterministic execution of the ML training logic.
-type Host struct {
-	ModulePath string
+// Runner handles the deterministic execution of the ML training logic.
+// This is a prerequisite for the BFT Resilience proofs in Theorem 1.
+type Runner struct {
+	ModulePath  string
 	MemoryLimit uint32
 }
 
-// NewHost creates a new execution environment for regional aggregators.
-func NewHost(path string, memLimit uint32) *Host {
-	return &Host{
+// NewRunner creates a new execution environment for regional aggregators.
+// Renamed from NewHost to match cmd/node-agent requirements.
+func NewRunner(path string, memLimit uint32) *Runner {
+	return &Runner{
 		ModulePath:  path,
 		MemoryLimit: memLimit,
 	}
 }
 
 // Initialize checks the environment readiness.
-func (h *Host) Initialize() error {
-	if h.ModulePath == "" {
-		return fmt.Errorf("failed to initialize Wasm host: empty module path")
+func (r *Runner) Initialize() error {
+	if r.ModulePath == "" {
+		return fmt.Errorf("failed to initialize Wasm runner: empty module path")
 	}
-	// Logic here supports the integrity required by BFT Resilience proofs.
 	return nil
 }
