@@ -32,7 +32,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	runner := wasmhost.NewRunner()
+	runner := wasmhost.NewRunner(m.WasmModuleSHA256+".wasm", m.MaxMemPages)
 	_ = runner
 	_ = ctx
 
