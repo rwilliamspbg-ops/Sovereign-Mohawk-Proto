@@ -4,6 +4,7 @@ package batch
 
 import (
 	"fmt"
+
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs"
 )
 
