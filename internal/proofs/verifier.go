@@ -1,3 +1,4 @@
+// Proof: /proofs/zksnark_verification.md
 package proofs
 
 import (
