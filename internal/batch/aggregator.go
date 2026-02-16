@@ -8,7 +8,6 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs"
 )
 
-// Ensure these structs are defined in THIS file
 type Config struct {
 	TotalNodes     int
 	MaliciousNodes int
@@ -20,7 +19,6 @@ type Aggregator struct {
 }
 
 func (a *Aggregator) ProcessRound() error {
-	// Root for empty proof baseline
 	expected := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 	salt := [32]byte{}
 
@@ -32,6 +30,6 @@ func (a *Aggregator) ProcessRound() error {
 	if err != nil || !isValid {
 		return fmt.Errorf("attestation failure: %v", err)
 	}
-	
+
 	return nil
 }
