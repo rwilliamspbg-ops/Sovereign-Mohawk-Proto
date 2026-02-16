@@ -1,4 +1,5 @@
-// Proof: /proofs/zksnark_verification.md
+// @notice: ZK-SNARK Verification Logic for MOHAWK Runtime.
+// @proof: /proofs/communication.md#Theorem-5-Verification-Complexity
 package proofs
 
 import (
