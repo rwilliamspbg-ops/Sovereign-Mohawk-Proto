@@ -1,4 +1,5 @@
-// Proof: /proofs/byzantine_resilience.md
+// @notice: Implements Byzantine Fault Tolerance for Sovereign Map.
+// @proof: /proofs/communication.md#Theorem-1-Byzantine-Resilience
 package batch
 
 import (
