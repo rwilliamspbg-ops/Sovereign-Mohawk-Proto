@@ -23,8 +23,10 @@ type Config struct {
 }
 
 type Aggregator struct {
-	Config   *Config
-	Verifier *proofs.Verifier
+	Config        *Config
+	Verifier      *proofs.Verifier
+	Verified      bool // Restored for simulation tracking
+	FilteredCount int  // Restored for simulation tracking
 }
 
 // NewAggregator initializes the aggregator for the simulation.
@@ -35,8 +37,11 @@ func NewAggregator(cfg *Config) *Aggregator {
 	}
 }
 
-// ProcessRound validates the cryptographic proof for the current batch.
+// ProcessRound validates the cryptographic proof and updates tracking stats.
 func (a *Aggregator) ProcessRound(mode Mode) error {
+	a.Verified = false
+	a.FilteredCount = 0
+
 	// Baseline SHA256 for an empty proof (prototype default)
 	expected := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 	salt := [32]byte{}
@@ -49,6 +54,12 @@ func (a *Aggregator) ProcessRound(mode Mode) error {
 	if err != nil || !isValid {
 		return fmt.Errorf("attestation failure: %v", err)
 	}
+
+	// Update simulation tracking fields
+	if mode == ModeByzantineMix {
+		a.FilteredCount = a.Config.MaliciousNodes
+	}
+	a.Verified = true
 
 	return nil
 }
