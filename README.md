@@ -64,8 +64,9 @@ Sovereign-Mohawk is built with **Go 1.24**.
 # Clone the repository
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
 cd Sovereign-Mohawk-Proto
-
+```
 # Install dependencies and verify module
+```
 go mod tidy
 go build ./...
 ```
