@@ -72,31 +72,16 @@ go build ./...
 
 ---
 
-## 📖 Quick Start
+## 🛠 Testing & Compliance
+This repository maintains strict adherence to the MOHAWK runtime specifications. 
 
-Initialize a BFT-compliant aggregator that enforces Theorem 1 safety checks:
-
-```go
-import "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch"
-
-func main() {
-    // Configure the network topology
-    cfg := &batch.Config{
-        TotalNodes:       1000,
-        HonestNodes:      600,
-        MaliciousNodes:    400,
-        RedundancyFactor: 10,
-    }
-
-    // Initialize the aggregator
-    aggregator := batch.NewAggregator(cfg)
-
-    // Process a federated learning round with Byzantine protection
-    err := aggregator.ProcessRound(batch.ModeByzantineMix)
-    if err != nil {
-        panic(err)
-    }
-}
+### Quick Start Testing
+To run the full suite of logic, security, and performance tests:
+1. Ensure you have Go 1.21+, Rust (latest stable), and Python 3 installed.
+2. Run the automated script:
+   ```bash
+   chmod +x test_all.sh
+   ./test_all.sh
 ```
 
 ---
