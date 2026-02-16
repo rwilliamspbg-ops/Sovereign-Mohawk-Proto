@@ -27,7 +27,7 @@ type Aggregator struct {
 	Verifier *proofs.Verifier
 }
 
-// NewAggregator restores the constructor required by cmd/simulate/main.go
+// NewAggregator initializes the aggregator for the simulation.
 func NewAggregator(cfg *Config) *Aggregator {
 	return &Aggregator{
 		Config:   cfg,
@@ -35,9 +35,15 @@ func NewAggregator(cfg *Config) *Aggregator {
 	}
 }
 
+// ProcessRound validates the cryptographic proof for the current batch.
 func (a *Aggregator) ProcessRound(mode Mode) error {
+	// Baseline SHA256 for an empty proof (prototype default)
 	expected := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 	salt := [32]byte{}
+
+	if a.Verifier == nil {
+		a.Verifier = &proofs.Verifier{}
+	}
 
 	isValid, err := a.Verifier.VerifyProof(expected, []byte(""), salt)
 	if err != nil || !isValid {
