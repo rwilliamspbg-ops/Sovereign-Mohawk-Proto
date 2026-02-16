@@ -1,28 +1,35 @@
 package test
 
 import (
-    "testing"
-    // Assume you have a verifier package; adjust import
-    // "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/zk" or similar
+	"testing"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs"
 )
 
-func TestZKProofVerification(t *testing.T) {
-    // Dummy proof data (replace with real generation if you have a helper)
-    proof := []byte{0x01, 0x02 /* ... mock proof bytes ... */}
-    publicInputs := []byte{0xab, 0xcd /* mock inputs */ }
+func TestVerifyZKProof(t *testing.T) {
+	// Root of an empty SHA256 hash (the prototype default)
+	root := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	data := []byte("")
+	salt := [32]byte{}
 
-    valid, err := VerifyZKProof(proof, publicInputs) // replace with your actual verifier func
-    if err != nil {
-        t.Fatalf("Verification error: %v", err)
-    }
-    if !valid {
-        t.Error("Valid zk-SNARK proof failed verification")
-    }
+	// FIX: Use the proofs. prefix to call the exported function
+	isValid, err := proofs.VerifyZKProof(root, data, salt)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+	if !isValid {
+		t.Fatal("Expected proof to be valid")
+	}
+}
 
-    // Test invalid proof
-    invalidProof := append(proof, 0xff) // corrupt it
-    valid, _ = VerifyZKProof(invalidProof, publicInputs)
-    if valid {
-        t.Error("Corrupted proof incorrectly passed verification")
-    }
+func TestVerifyZKProof_Invalid(t *testing.T) {
+	root := "invalid_root"
+	data := []byte("some data")
+	salt := [32]byte{}
+
+	// FIX: Use the proofs. prefix to call the exported function
+	isValid, _ := proofs.VerifyZKProof(root, data, salt)
+	if isValid {
+		t.Fatal("Expected proof to be invalid for mismatched root")
+	}
 }
