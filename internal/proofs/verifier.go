@@ -3,15 +3,17 @@
 package proofs
 
 import (
+	"crypto/sha256"
 	"fmt"
-	// ... other imports
 )
 
 func VerifyProof(expectedRoot string, proofData []byte) (bool, error) {
-	// ... existing logic to calculate root
-	actualRoot := performCalculation(proofData) 
+	// Calculate the actual root using a standard SHA256 hash of the proof data
+	h := sha256.New()
+	h.Write(proofData)
+	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
 
-	// FIX: Use the variable to satisfy the compiler and validate the proof
+	// Validate the calculated root against the expected value
 	if actualRoot != expectedRoot {
 		return false, fmt.Errorf("integrity check failed: expected %s, got %s", expectedRoot, actualRoot)
 	}
