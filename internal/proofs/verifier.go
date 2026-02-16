@@ -9,22 +9,22 @@ import (
 
 type Verifier struct{}
 
+// VerifyProof is the receiver method used by the Aggregator.
 func (v *Verifier) VerifyProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
 	return VerifyZKProof(expectedRoot, proofData, salt)
 }
 
+// VerifyZKProof is the standalone function required by test/zk_verifier_test.go.
 func VerifyZKProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
 	h := sha256.New()
 	h.Write(proofData)
-	
-	// Only hash the salt if it's not all zeros (baseline check)
+
 	var emptySalt [32]byte
 	if salt != emptySalt {
 		h.Write(salt[:])
 	}
-	
-	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
 
+	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
 	if actualRoot != expectedRoot {
 		return false, fmt.Errorf("integrity check failed: expected %s, got %s", expectedRoot, actualRoot)
 	}
