@@ -9,13 +9,13 @@ import (
 
 // ProofArtifact matches the capability structure for AOT Release verification.
 type ProofArtifact struct {
-	Version          string    `json:"version"`
-	Timestamp        string    `json:"timestamp"`
-	BFTSafetyPassed  bool      `json:"bft_safety_theorem_1"`
-	LivenessProb     string    `json:"liveness_theorem_4"`
-	ZKVerificationMS float64   `json:"zk_snark_verify_ms"`
-	SimulatedNodes   int       `json:"total_nodes_verified"`
-	Status           string    `json:"status"`
+	Version          string  `json:"version"`
+	Timestamp        string  `json:"timestamp"`
+	BFTSafetyPassed  bool    `json:"bft_safety_theorem_1"`
+	LivenessProb     string  `json:"liveness_theorem_4"`
+	ZKVerificationMS float64 `json:"zk_snark_verify_ms"`
+	SimulatedNodes   int     `json:"total_nodes_verified"`
+	Status           string  `json:"status"`
 }
 
 func main() {

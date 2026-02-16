@@ -30,7 +30,7 @@ func main() {
 	agg := internal.NewAggregator(internal.Global)
 
 	// 2. Setup Health and Monitoring
-	// In a production 10M-node scenario, this would interface with 
+	// In a production 10M-node scenario, this would interface with
 	// the Prometheus/Grafana stack for real-time BFT metrics.
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -38,14 +38,14 @@ func main() {
 	})
 
 	// 3. Simulation: Process initial synchronization
-	// We simulate a 1,000-region active set to verify the 
+	// We simulate a 1,000-region active set to verify the
 	// 99.99% success probability (Theorem 4).
 	activeNodes := 999
 	totalNodes := 1000
 	gradNorm := 0.05 // Typical convergence value
 
 	log.Printf("Verifying initial synchronization for %d nodes...", activeNodes)
-	
+
 	if err := agg.ProcessUpdates(activeNodes, totalNodes, gradNorm); err != nil {
 		log.Fatalf("Critical Safety Guard Triggered: %v", err)
 	}

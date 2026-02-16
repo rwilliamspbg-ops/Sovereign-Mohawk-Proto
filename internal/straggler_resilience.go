@@ -43,7 +43,7 @@ func NewStragglerMonitor() *StragglerMonitor {
 func (sm *StragglerMonitor) CalculateSuccessProbability(n int, dropoutRate float64) float64 {
 	// Active Guard: Ensure the system configuration satisfies the Chernoff bound.
 	expectedSuccess := float64(n) * (1.0 - math.Pow(dropoutRate, float64(sm.RedundancyFactor)))
-	
+
 	// Bound: P[Failure] < exp(-expectedSuccess / 8)
 	failureProb := math.Exp(-expectedSuccess / 8.0)
 	return 1.0 - failureProb

@@ -45,9 +45,9 @@ func main() {
 	// Based on the 10ms zk-SNARK verification goal in the project documentation.
 	batchSize := 1000 // Each aggregator handles 1000 nodes
 	totalBatches := cfg.TotalNodes / batchSize
-	
+
 	// Assuming parallel verification across a distributed cluster
-	parallelThreads := 100 
+	parallelThreads := 100
 	simulatedTime := (time.Duration(totalBatches/parallelThreads) * 10 * time.Millisecond)
 
 	duration := time.Since(start)

@@ -26,7 +26,7 @@ func StartAttestationWorkers(count int) {
 	log.Printf("Starting %d Async Attestation Workers...", count)
 	for i := 0; i < count; i++ {
 		go func() {
-			// The linter error 'undefined: JobQueue' occurs if server.go 
+			// The linter error 'undefined: JobQueue' occurs if server.go
 			// (where JobQueue is defined) isn't included in the linting run.
 			for job := range JobQueue {
 				// verify the hardware quote

@@ -1,39 +1,32 @@
-# Sovereign-Mohawk-Proto Build System
-# Reference: /WHITE_PAPER.md
+# Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all tidy verify build clean docker-test
+.PHONY: all build test audit lint verify clean
 
-# Default target: prepares and builds the entire stack
-all: tidy verify build
+all: build verify
 
-# 1. Dependency Management
-# Ensures Go 1.24+ compatibility for wazero requirements
-tidy:
-	@echo "Tidying Go modules..."
-	go mod tidy
-
-# 2. Formal Proof Verification
-# Executes the integration tests for BFT (Theorem 1) and Convergence (Theorem 6)
-verify:
-	@echo "Verifying Formal Proofs (Theorems 1-6)..."
-	go test -v ./internal/...
-	go test -v ./test/integration_test.go
-
-# 3. Binary Compilation
-# Builds the Global Aggregator and Edge Node Agent
 build:
-	@echo "Building Sovereign-Mohawk Binaries..."
-	go build -o bin/aggregator ./cmd/aggregator/main.go
-	go build -o bin/node-agent ./cmd/node-agent/main.go
+	@echo "🏗️  Building Sovereign Mohawk binaries..."
+	go build ./...
 
-# 4. Simulation Environment
-# Launches the local 10-node cluster via Docker Compose
-deploy:
-	@echo "Deploying local 10-node cluster..."
-	docker-compose up --build -d
+test:
+	@echo "🧪 Running Proof-Driven Design tests..."
+	chmod +x test_all.sh
+	./test_all.sh
 
-# 5. Cleanup
+audit:
+	@echo "🔍 Running Security Audit..."
+	chmod +x scripts/audit_proofs.sh
+	./scripts/audit_proofs.sh
+
+lint:
+	@echo "🧹 Running local linting checks..."
+	go fmt ./...
+	go vet ./...
+
+verify: lint test audit
+	@echo "✅ All Formal Proofs and Lints PASSED."
+
 clean:
-	@echo "Cleaning build artifacts..."
-	rm -rf bin/
-	docker-compose down --rmi local
+	@echo "🧹 Cleaning build artifacts..."
+	go clean
+	rm -f proofs/VERIFICATION_LOG.md

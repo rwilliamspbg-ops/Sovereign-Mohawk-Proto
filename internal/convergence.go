@@ -48,7 +48,7 @@ func (c *ConvergenceMonitor) IsConverging(gradNorm float64) bool {
 
 	// In non-IID settings, we expect a residual error proportional to ζ²
 	effectiveThreshold := c.Threshold + math.Sqrt(c.Heterogeneity)
-	
+
 	return gradNorm <= effectiveThreshold
 }
 
@@ -56,11 +56,11 @@ func (c *ConvergenceMonitor) IsConverging(gradNorm float64) bool {
 func (c *ConvergenceMonitor) GetHeterogeneityEstimate() float64 {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	if len(c.History) < 2 {
 		return c.Heterogeneity
 	}
-	
+
 	// Implementation of Step 2: Descent Lemma with Heterogeneity
 	return c.Heterogeneity // In practice, this scales with O(4ζ²) in 4-tier systems
 }

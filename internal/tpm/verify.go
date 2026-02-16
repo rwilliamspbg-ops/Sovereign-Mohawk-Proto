@@ -20,7 +20,7 @@ import (
 	"fmt"
 )
 
-// VerifyShardIntegrity ensures that a regional shard has enough participants 
+// VerifyShardIntegrity ensures that a regional shard has enough participants
 // to meet the local f < n/2 requirement.
 func VerifyShardIntegrity(participants int, faultyNodes int) error {
 	// Active Guard: Enforce Theorem 1 safety threshold at the shard level.
