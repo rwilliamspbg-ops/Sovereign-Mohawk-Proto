@@ -7,14 +7,13 @@ import (
 	"fmt"
 )
 
-// Verifier provides cryptographic attestation methods.
 type Verifier struct{}
 
-// VerifyProof validates that proofData hashes to expectedRoot with a salt.
+// VerifyProof now accepts the 'salt' [32]byte to match the Aggregator's call.
 func (v *Verifier) VerifyProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
 	h := sha256.New()
 	h.Write(proofData)
-	h.Write(salt[:]) 
+	h.Write(salt[:]) // Properly utilize the salt
 	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
 
 	if actualRoot != expectedRoot {
