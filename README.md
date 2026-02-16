@@ -59,13 +59,15 @@ Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ec
 ## 🛠️ Installation
 
 Sovereign-Mohawk is built with **Go 1.24**.
-
+---
 ```bash
 # Clone the repository
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
 cd Sovereign-Mohawk-Proto
 ```
+---
 # Install dependencies and verify module
+---
 ```
 go mod tidy
 go build ./...
