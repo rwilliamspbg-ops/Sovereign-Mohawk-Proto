@@ -10,6 +10,7 @@ func TestAttestationProofVerification(t *testing.T) {
 	t.Parallel()
 
 	// 1. Setup Configuration
+	// This mirrors the MOHAWK architecture requirements for node distribution.
 	cfg := &batch.Config{
 		TotalNodes:       100,
 		HonestNodes:      70,
