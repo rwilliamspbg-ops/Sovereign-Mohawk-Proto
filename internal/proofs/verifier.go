@@ -9,7 +9,13 @@ import (
 
 type Verifier struct{}
 
+// VerifyProof is used by the Aggregator (3 arguments)
 func (v *Verifier) VerifyProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
+	return VerifyZKProof(expectedRoot, proofData, salt)
+}
+
+// VerifyZKProof is the standalone function required by test/zk_verifier_test.go
+func VerifyZKProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
 	h := sha256.New()
 	h.Write(proofData)
 	h.Write(salt[:])
