@@ -1,42 +1,26 @@
-# 🧪 Testing & Evaluation Procedures: Sovereign Mohawk Protocol
+# 🧪 Testing & Evaluation: Sovereign Mohawk Protocol
 
-This document outlines the professional testing suite and monitoring specifications for the Sovereign Mohawk Proto (SMP) reference node and MOHAWK runtime.
+## 1. Automated Test Suite
+The following workflows are integrated via GitHub Actions to ensure continuous compliance with the MOHAWK runtime specifications:
 
-## 1. Testing Procedures
+* **Logic Verification:** `go test ./internal/...` validates the Byzantine fault tolerance logic.
+* **Formal Proofs:** `python3 scripts/verifier.py` checks the mathematical consistency of the O(d log n) complexity.
+* **AOT Compilation:** Validates that the Rust-based Wasm modules compile for Ahead-of-Time execution.
 
-### A. Unit & Logic Verification
-Validate the Go-based aggregator and Rust-based attestation logic.
-* **Command:** `go test ./test/... -v`
-* **Objective:** Ensure `aggregator.go` correctly implements Multi-Krum Byzantine filtering and 55.5% resilience thresholds.
-* **Rust Validation:** Run `cargo test` within `/host` and `/node` to verify Wasm module loading and TPM signature stubs.
-
-### B. Simulation Scaling (Stress Test)
-Simulate the O(d log n) communication complexity across virtual shards.
-* **Procedure:** 1. Spin up the simulation environment: `docker-compose up --build`.
-    2. Execute the simulation entry point: `go run cmd/simulate/main.go`.
-* **Evaluation:** Monitor memory consumption (target: <95% footprint vs. standard FL) and metadata overhead.
-
-### C. Security & Formal Proof Verification
-Verify that the implementation adheres to the formal theorems (Theorems 1, 4, and 5).
-* **Proof Check:** `python3 scripts/verifier.py --proofs ./proofs/`
-* **Expectation:** Validates 10ms zk-SNARK verification times and Byzantine Fault Tolerance (BFT) safety limits.
-
----
-
-## 2. Evaluation Specifications
-
-### Performance Benchmarks
-| Metric | Professional Standard | SMP Target |
+## 2. Professional Evaluation Specs
+| Category | Requirement | Validation Method |
 | :--- | :--- | :--- |
-| **Verification Speed** | < 50ms | **10ms (zk-SNARK)** |
-| **Byzantine Resilience** | 33.3% (Standard BFT) | **55.5% (Theorem 1)** |
-| **Comm. Complexity** | O(d * n) | **O(d log n)** |
-| **Straggler Tolerance** | 90% | **99.99% (Theorem 4)** |
+| **Trust Integrity** | Zero-Knowledge Proofs | `scripts/verifier.py` |
+| **Throughput** | > 1000 attestations/sec | `cmd/simulate/main.go` |
+| **Byzantine Threshold** | 55.5% Resilience | Unit tests in `aggregator_test.go` |
 
-### Monitoring & Observability
-* **Dashboard:** Access the monitoring shell via the Grafana datasource configured in `/monitoring`.
-* **Key Logs:** Filter for `[LIVENESS]` and `[ATTESTATION_SUCCESS]` tags to track real-time node health.
-* **Audit Trail:** Verify `capabilities.json` against runtime manifests to ensure zero-trust compliance.
+## 3. Monitoring & Observability
+For professional deployments, the following metrics must be exported to the monitoring stack defined in `/monitoring`:
+* **`mohawk_node_attestation_latency`**: Targeted at **10ms**.
+* **`mohawk_aggregator_byzantine_count`**: Real-time tracking of filtered malicious updates.
+* **`mohawk_runtime_memory_bytes`**: Ensuring < 5% overhead compared to non-sovereign execution.
 
-## 3. Professional Certification
-To certify a node for the Sovereign Map ecosystem, it must pass the `200_Node_TEST.md` suite without a single attestation failure.
+## 4. Troubleshooting CI Failures
+If the `Proof-Driven Design Verification` or `Build and Test` workflows fail:
+1. Ensure the `mock-tpm` dependency is correctly linked in the Rust environment.
+2. Verify that the Go version in `.github/workflows` matches the `go.mod` file (v1.21+).
