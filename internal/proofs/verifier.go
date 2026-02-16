@@ -9,16 +9,14 @@ import (
 
 type Verifier struct{}
 
-// VerifyProof now accepts the 'salt' [32]byte to match the Aggregator's call.
 func (v *Verifier) VerifyProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
 	h := sha256.New()
 	h.Write(proofData)
-	h.Write(salt[:]) // Properly utilize the salt
+	h.Write(salt[:])
 	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
 
 	if actualRoot != expectedRoot {
 		return false, fmt.Errorf("integrity check failed: expected %s, got %s", expectedRoot, actualRoot)
 	}
-
 	return true, nil
 }
