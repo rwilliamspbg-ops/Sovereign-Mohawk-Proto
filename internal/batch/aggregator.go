@@ -1,4 +1,4 @@
-// Package batch implements secure hierarchical aggregation.
+// Proof: /proofs/byzantine_resilience.md
 package batch
 
 import (
