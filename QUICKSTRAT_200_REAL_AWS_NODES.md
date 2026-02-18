@@ -1,10 +1,7 @@
-# Sovereign FL 200-Node Test - Quick Start
-
-## Run Complete Test
-
-The test consists of 5 main phases. You can run them individually using the following commands:
-
-```bash
+Sovereign FL 200-Node Test - Quick Start
+Run Complete Test (5 phases)
+bash
+Copy
 # 1. Setup AWS (one-time)
 ./run-test.sh setup
 
@@ -23,26 +20,18 @@ The test consists of 5 main phases. You can run them individually using the foll
 # 6. Cleanup (when done)
 ./run-test.sh cleanup
 Or run everything at once
-
-```bash
+bash
 Copy
-
 ./run-test.sh all
-
 Check status anytime
-```
----
-```bash
+bash
 Copy
 ./run-test.sh status
 ./run-test.sh logs
 ./run-test.sh dashboard
-```
----
 Files Created
----
 Table
-
+Copy
 File	Purpose
 run-test.sh	Master orchestration script
 phase-1-aws-setup.sh	AWS account setup
