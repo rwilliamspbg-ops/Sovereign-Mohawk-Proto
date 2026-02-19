@@ -29,7 +29,7 @@ type RegionalAggregator struct {
 func NewRegionalAggregator(id string) *RegionalAggregator {
 	return &RegionalAggregator{
 		ShardID: id,
-		results: make([][]byte, 0),
+		results: make([][]byte, 0, 1000), // Pre-allocate for 1000 nodes per shard
 	}
 }
 
