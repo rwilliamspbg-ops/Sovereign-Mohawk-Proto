@@ -1,5 +1,5 @@
 // Copyright 2026 Ryan Williams / Sovereign Mohawk Contributors
-// [Standard Apache License Header...]
+// Licensed under the Apache License, Version 2.0 (the "License");
 
 package main
 
