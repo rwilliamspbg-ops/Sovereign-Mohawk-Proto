@@ -13,35 +13,38 @@
 # limitations under the License.
 
 import json
+import os
 import re
 import sys
-import os
+
 
 def extract_go_functions(file_path):
     """Regex to find host function registrations in your Go code."""
     if not os.path.exists(file_path):
         print(f"⚠️ Warning: Source file {file_path} not found.")
         return set()
-        
+
     # Pattern looks for linker.Define("env", "function_name", ...)
     pattern = re.compile(r'linker\.Define\("env",\s*"([^"]+)"')
-    with open(file_path, 'r') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         return set(pattern.findall(f.read()))
 
+
 def validate():
-    capabilities_path = 'capabilities.json'
-    host_logic_path = 'internal/wasmhost/host.go'
+    """Main validation logic for capabilities and host sync."""
+    capabilities_path = "capabilities.json"
+    host_logic_path = "internal/wasmhost/host.go"
 
     if not os.path.exists(capabilities_path):
         print(f"❌ Error: {capabilities_path} missing.")
         sys.exit(1)
 
-    with open(capabilities_path, 'r') as f:
+    with open(capabilities_path, "r", encoding="utf-8") as f:
         capabilities = json.load(f)
 
     # Flatten the exposed_functions categories for comparison
     json_functions = set()
-    exposed = capabilities.get('exposed_functions', {})
+    exposed = capabilities.get("exposed_functions", {})
     for category in exposed.values():
         if isinstance(category, dict):
             json_functions.update(category.keys())
@@ -50,15 +53,19 @@ def validate():
     go_functions = extract_go_functions(host_logic_path)
 
     if not go_functions:
-        print(f"⚠️ No functions found in {host_logic_path}. Check your regex or file path.")
+        print(f"⚠️ No functions found in {host_logic_path}. Check regex.")
         return
 
     missing_in_json = go_functions - json_functions
     if missing_in_json:
-        print(f"❌ Error: Functions defined in Go but missing in capabilities.json: {missing_in_json}")
+        print(
+            f"❌ Error: Functions defined in Go but missing in "
+            f"capabilities.json: {missing_in_json}"
+        )
         sys.exit(1)
 
     print("✅ Sync check passed: capabilities.json is up to date with host.go.")
+
 
 if __name__ == "__main__":
     validate()
