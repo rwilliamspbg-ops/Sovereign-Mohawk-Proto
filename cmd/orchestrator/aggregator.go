@@ -1,16 +1,6 @@
 // Copyright 2026 Ryan Williams / Sovereign Mohawk Contributors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// [Standard Apache License Header...]
+
 package main
 
 import (
@@ -25,15 +15,15 @@ type RegionalAggregator struct {
 	results [][]byte
 }
 
-// NewRegionalAggregator initializes a new shard.
+// NewRegionalAggregator initializes a new shard with pre-allocated capacity.
 func NewRegionalAggregator(id string) *RegionalAggregator {
 	return &RegionalAggregator{
 		ShardID: id,
-		results: make([][]byte, 0, 1000), // Pre-allocate for 1000 nodes per shard
+		results: make([][]byte, 0, 1000),
 	}
 }
 
-// PushResult collects a gradient from a local node.
+// PushResult collects a gradient from a local node in a thread-safe manner.
 func (ra *RegionalAggregator) PushResult(data []byte) {
 	ra.mu.Lock()
 	defer ra.mu.Unlock()
