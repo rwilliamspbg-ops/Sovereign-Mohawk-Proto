@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package <your_package_name>
-// Package main provides a utility to export formal proof artifacts to JSON.
 package main
 
 import (
