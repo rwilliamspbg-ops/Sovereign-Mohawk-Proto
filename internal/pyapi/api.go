@@ -3,6 +3,7 @@ package main
 
 import "C"
 import (
+	#include <stdlib.h>
 	"encoding/json"
 	"fmt"
 	"log"
