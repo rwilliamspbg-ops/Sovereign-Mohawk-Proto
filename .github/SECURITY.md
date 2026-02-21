@@ -15,7 +15,7 @@ Please report it privately via
 - **Email:** architects@sovereignmap.network
 - **GitHub Private Advisory:** [Open a Private Report](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/security/advisories/new)
 
-### 📋 Please include:
+### 📋 Please include
 1. A brief description of the vulnerability.
 2. Steps to reproduce (or a proof-of-concept script).
 3. The potential impact on the mesh.
@@ -27,4 +27,4 @@ Verified security researchers who discover critical flaws will receive:
 - **Priority Access:** Early access to the mainnet governance council.
 
 ---
-*Note: We follow a 90-day responsible disclosure window. We ask that you give us time to patch the vulnerability before sharing details publicly.*
+*Note: We follow a 90-day responsible disclosure window. We ask that you give us time to patch the vulnerability before sharing details publicly.
