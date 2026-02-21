@@ -1,27 +1,27 @@
 """Setup script for the Sovereign-Mohawk Python SDK."""
 
-import os
 import subprocess
 import sys
 from pathlib import Path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 
 class BuildGoLibrary(build_ext):
     """Custom build command to compile the Go shared library."""
-    
+
     def run(self):
         """Build the Go C-shared library."""
         print("🏗️  Building MOHAWK Go shared library...")
-        
+
         # Navigate to repository root (3 levels up from sdk/python/)
         repo_root = Path(__file__).parent.parent.parent
         go_api_path = repo_root / "internal" / "pyapi" / "api.go"
-        
+
         if not go_api_path.exists():
             raise RuntimeError(f"Go API file not found: {go_api_path}")
-        
+
         # Determine shared library extension based on platform
         if sys.platform == "darwin":
             lib_name = "libmohawk.dylib"
@@ -31,32 +31,30 @@ class BuildGoLibrary(build_ext):
             lib_name = "libmohawk.dll"
         else:
             raise RuntimeError(f"Unsupported platform: {sys.platform}")
-        
+
         output_path = repo_root / lib_name
-        
+
         # Build command
         cmd = [
-            "go", "build",
-            "-o", str(output_path),
+            "go",
+            "build",
+            "-o",
+            str(output_path),
             "-buildmode=c-shared",
-            str(go_api_path)
+            str(go_api_path),
         ]
-        
+
         print(f"Running: {' '.join(cmd)}")
-        
+
         try:
-            result = subprocess.run(
-                cmd,
-                cwd=str(repo_root),
-                check=True,
-                capture_output=True,
-                text=True
+            subprocess.run(
+                cmd, cwd=str(repo_root), check=True, capture_output=True, text=True
             )
             print(f"✅ Successfully built {lib_name}")
         except subprocess.CalledProcessError as e:
             print(f"❌ Build failed:\n{e.stderr}", file=sys.stderr)
             raise RuntimeError(f"Failed to build Go library: {e}")
-        
+
         # Continue with regular extension building
         super().run()
 
@@ -66,7 +64,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="sovereign-mohawk",
-    version="2.0.0a1",    author="rwilliamspbg-ops",
+    version="2.0.0a1",
+    author="rwilliamspbg-ops",
     description="Python SDK for Sovereign-Mohawk federated learning protocol",
     long_description=long_description,
     long_description_content_type="text/markdown",
