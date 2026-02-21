@@ -1,6 +1,6 @@
 # 🗺️ Sovereign Map: Project Dashboard
 
-This dashboard tracks the health of the mesh and the contributions of our global developer community. 
+This dashboard tracks the health of the mesh and the contributions of our global developer community.
 
 ## 🏆 Audit Points Leaderboard (Feb 2026)
 *Status: Pre-Incentive Phase*
