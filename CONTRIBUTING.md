@@ -1,21 +1,48 @@
-# Contributing to Sovereign-Mohawk
+# Contributing to Sovereign Map
 
-Thank you for your interest in the Sovereign-Mohawk protocol. We are building the first formally verified decentralized intelligence pipeline capable of scaling to 10M nodes.
+Thank you for your interest in contributing to **Sovereign Map**! We are building a decentralized spatial operating system where data sovereignty is a right, not a feature. By contributing, you are helping scale a coordinator-less, privacy-preserving network to 10 million nodes.
 
-## Technical Priorities
-We are currently seeking contributions in the following areas:
-* **Cryptographic Optimization:** Enhancing the [Ed25519 Batching](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) logic.
-* **Formal Verification:** Extending the **Theorem 1 (BFT Safety)** proofs for continental-scale hubs.
-* **Hardware Integration:** Improving the [internal/tpm](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/internal/tpm) capability-scoped interface for various TEEs.
+---
 
-## Development Process
-1. **Fork & Branch:** Create a feature branch from `main`.
-2. **Implement:** Ensure your code follows the [System Architecture](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto#%EF%B8%8F-system-architecture) guidelines.
-3. **Formal Check:** If your PR affects core logic, please update the relevant [White Paper](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/WHITE_PAPER.md) sections.
-4. **Pull Request:** Submit for review by the Technical Steering Committee.
+## 🏆 The Audit Status & Points System
+To incentivize high-integrity contributions, we use a merit-based **Audit Points** system. Earning points grants you "Audit Status" within the community and determines eligibility for the upcoming Incentive Whitepaper rewards.
 
-## Licensing
-By contributing, you agree that your contributions will be licensed under the **Apache License 2.0**.
+### Priority Tracks & Point Values
+| Track | Role | Goal | Points |
+| :--- | :--- | :--- | :--- |
+| **🛡️ Audit & Verify** | Cryptographer | Verify Theorems 1-6 or audit zk-SNARK logic. | **100** |
+| **🏗️ Hardware Port** | Edge Engineer | Port the node-agent to new NPUs (e.g., Jetson, Coral). | **50** |
+| **🐍 SDK Expansion** | Python Dev | Build high-level wrappers or Jupyter tutorials. | **25** |
+| **📝 Documentation** | Any | Fix typos, improve READMEs, or clarify technical specs. | **5** |
 
-By making a contribution to this project, you agree to the Developer Certificate of Origin (DCO) v1.1:
-https://developercertificate.org/
+---
+
+## 🛠️ How to Contribute
+
+### 1. Claim an Issue
+Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign_Map_Federated_Learning/issues) for the `good first issue` or `priority` labels. Comment on the issue to claim it before starting work.
+
+### 2. Use Professional Templates
+When submitting your results, you **must** use our specialized templates to be eligible for Audit Points:
+* [Cryptographic Audit Template](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/ISSUE_TEMPLATE/audit_verification.md)
+* [Hardware Porting Template](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/ISSUE_TEMPLATE/hardware_port.md)
+* [SDK Expansion Template](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/ISSUE_TEMPLATE/sdk_expansion.md)
+
+### 3. Submission Process
+1. **Fork** the repository and create a feature branch (`git checkout -b feat/your-contribution`).
+2. **Implement** your changes, ensuring compliance with the [SGP-001 Privacy Standard](https://github.com/rwilliamspbg-ops/Sovereign_Map_Federated_Learning#trust--verification).
+3. **Test** your code using `./test_all.sh`.
+4. **Submit a Pull Request (PR)**. Include a link to the original issue and any relevant audit plots.
+
+---
+
+## 📜 Standards
+* **Privacy First:** Never include raw data in logs or PRs. All logs must be security-scrubbed.
+* **Code Quality:** We follow the [Go Style Guide](https://google.github.io/styleguide/go/) and [PEP 8](https://peps.python.org/pep-0008/) for Python.
+* **Respect:** Follow our [Code of Conduct](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/CODE_OF_CONDUCT.md).
+
+---
+
+## 🔗 Connect with the Architects
+* **Bitcointalk Discussion:** [Six-Theorem Formal Verification Thread](https://bitcointalk.org/index.php?topic=5575025.0)
+* **Official Repo:** [Sovereign Mohawk Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
