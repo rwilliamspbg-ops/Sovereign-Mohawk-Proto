@@ -26,5 +26,3 @@ This dashboard tracks the health of the mesh and the contributions of our global
 * **[2026-02-19]** Round 45 Audit passed. See [audit_results/](https://github.com/rwilliamspbg-ops/Sovereign_Map_Federated_Learning/tree/main/audit_results) for logs.
 
 ---
-
-**Would you like me to help you set up a "GitHub Action" that automatically checks if a Pull Request includes the required test logs before it's allowed to be merged?**
