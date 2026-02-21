@@ -1,9 +1,12 @@
 // Formal Proof Reference: See /proofs/pyapi_bridge_correctness.md for ctypes binding safety proofs
 package main
 
+/*
+#include <stdlib.h>
+*/
+
 import "C"
 import (
-	#include <stdlib.h>
 	"encoding/json"
 	"fmt"
 	"log"
