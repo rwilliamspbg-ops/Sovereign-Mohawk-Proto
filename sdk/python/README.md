@@ -1,4 +1,5 @@
-# Sovereign-Mohawk Python SDK
+- [![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python)
++ [![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/feature/python-sdk/sdk/python)
 
 🐍 A Python interface to the high-performance MOHAWK federated learning runtime.
 
