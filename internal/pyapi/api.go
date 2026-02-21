@@ -1,10 +1,6 @@
 // Formal Proof Reference: See /proofs/pyapi_bridge_correctness.md for ctypes binding safety proofs
 package main
 
-/*
-#include <stdlib.h>
-*/
-
 import "C"
 import (
 	"encoding/json"
@@ -99,10 +95,6 @@ func AttestNode(nodeID *C.char) *C.char {
 	return marshalResult(true, "Attestation successful", "attestation_data")
 }
 
-//export FreeString
-func FreeString(str *C.char) {
-	C.free(unsafe.Pointer(str))
-}
 
 // Helper function to marshal results to JSON and return as C string
 func marshalResult(success bool, message, data string) *C.char {
