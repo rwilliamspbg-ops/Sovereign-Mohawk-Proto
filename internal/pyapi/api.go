@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"unsafe"
 )
 
 // NodeConfig represents the configuration for initializing a MOHAWK node
