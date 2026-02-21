@@ -66,8 +66,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="sovereign-mohawk",
-    version="0.1.0",
-    author="rwilliamspbg-ops",
+    version="2.0.0a1",    author="rwilliamspbg-ops",
     description="Python SDK for Sovereign-Mohawk federated learning protocol",
     long_description=long_description,
     long_description_content_type="text/markdown",
