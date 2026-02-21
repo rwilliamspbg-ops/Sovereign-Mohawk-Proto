@@ -1,3 +1,4 @@
+// Formal Proof Reference: See /proofs/pyapi_bridge_correctness.md for ctypes binding safety proofs
 package main
 
 import "C"
