@@ -11,7 +11,7 @@ If you discover a bug that could lead to:
 - Proof-of-Contribution spoofing (zk-SNARK bypass)
 - Unauthorized model poisoning (BFT failure)
 
-Please report it privately via:
+Please report it privately via
 - **Email:** architects@sovereignmap.network
 - **GitHub Private Advisory:** [Open a Private Report](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/security/advisories/new)
 
