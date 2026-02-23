@@ -1,11 +1,12 @@
 """
 sdk_cache.py — Production LRU+TTL cache for the Mohawk SDK
 ===========================================================
-Updated by FL optimization run [2026-02-23T19:50:55Z]
-  • fedavg_weights_optimized  : 20-dim vector
+Updated by FL Distributed Sharding run [2026-02-23T19:51:04Z]
+  • fedavg_weights_optimized      : 20-dim vector
     (sample-count weighted FedAvg, 8-round simulation, test_acc=0.904)
-  • fedavg_bias_optimized     : 0.0056836628
-  • Added: get_sharded_fedavg() — reusable horizontal-scaling SDK function
+  • fedavg_bias_optimized         : 0.0056836628
+  • Added: get_distributed_sharded_fedavg()
+    — Full production SDK with shard assignment logic + coordinator reduce step
 """
 
 import hashlib
@@ -14,50 +15,140 @@ import math
 import threading
 import time
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
-# ── Optimized FL model weights (from horizontal scaling run) ─────────────────
+# ── Optimized FL model weights (from horizontal scaling run) ──────────────────
 FEDAVG_WEIGHTS_OPTIMIZED: List[float] = [0.11468014455177575, -0.06270534068523452, -0.09932557207624451, 0.1008978312679598, -0.34525065752959133, -0.15687471053952207, 0.033863540818771486, 0.1130605845071889, 0.1167827757855516, -0.3510638871139363, -0.06952658683557271, 0.10470621691276578, -0.1243207145679921, -0.022260517144474946, 0.06635051043261866, 0.023615398705973047, 0.04135465632698709, -0.007940440488131082, 0.08723400836966255, 0.0622966090452512]
 
 FEDAVG_BIAS_OPTIMIZED: float = 0.0056836627914285676
 
-# ── Horizontal sharding SDK function ─────────────────────────────────────────
+# ── Distributed sharded FedAvg SDK function ────────────────────────────────────
 
-def get_sharded_fedavg(
-    weight_matrix: "np.ndarray",   # shape (n_clients, n_params)
-    bias_vec: "np.ndarray",        # shape (n_clients,)
-    sample_counts: Optional["np.ndarray"] = None,  # shape (n_clients,) or None → uniform
-    n_shards: int = 1,
-) -> Tuple[List[float], float]:
+def _assign_shards(n_params: int, n_shards: int, strategy: str = "round_robin") -> List[List[int]]:
     """
-    Horizontally-sharded FedAvg aggregation with optional sample-count weighting.
+    Shard assignment logic for distributed parameter aggregation.
 
-    Partitions the parameter vector across `n_shards` independent shards.
-    With n_shards=1 this is identical to standard FedAvg.
+    Supported strategies:
+      "round_robin"      : param i → shard i % n_shards  (best for uniform latency)
+      "contiguous_block" : split param vector into n_shards consecutive ranges
+      "random_shuffle"   : random permutation then contiguous split (seed=42)
 
     Parameters
     ----------
-    weight_matrix  : np.ndarray, shape (n_clients, n_params)
-        Per-client model weight vectors.
-    bias_vec       : np.ndarray, shape (n_clients,)
-        Per-client bias scalars.
-    sample_counts  : np.ndarray or None
-        Per-client sample counts for weighted averaging.
-        If None, uniform averaging is used.
-    n_shards       : int
-        Number of horizontal parameter shards (>= 1).
+    n_params  : total number of model parameters
+    n_shards  : number of aggregation shards / workers
+    strategy  : one of "round_robin", "contiguous_block", "random_shuffle"
 
     Returns
     -------
-    (aggregated_weights: List[float], aggregated_bias: float)
+    List of n_shards lists, each containing the param indices for that shard.
 
-    Scaling
+    Raises
+    ------
+    ValueError if n_shards < 1 or strategy is unrecognized.
+    """
+    if n_shards < 1:
+        raise ValueError(f"n_shards must be >= 1, got {n_shards}")
+
+    _valid = ("round_robin", "contiguous_block", "random_shuffle")
+    if strategy not in _valid:
+        raise ValueError(f"Unknown strategy {strategy!r}. Choose from {_valid}")
+
+    _indices = list(range(n_params))
+
+    if strategy == "round_robin":
+        _shards: List[List[int]] = [[] for _ in range(n_shards)]
+        for _i in _indices:
+            _shards[_i % n_shards].append(_i)
+        return _shards
+
+    if strategy == "contiguous_block":
+        _arr = np.array_split(np.arange(n_params), n_shards)
+        return [a.tolist() for a in _arr]
+
+    # random_shuffle
+    _rng = np.random.default_rng(42)
+    _shuffled = _rng.permutation(n_params)
+    _arr = np.array_split(_shuffled, n_shards)
+    return [a.tolist() for a in _arr]
+
+
+def _coordinator_reduce(
+    shard_indices: List[List[int]],
+    partial_results: Dict[int, "np.ndarray"],
+    n_params: int,
+) -> "np.ndarray":
+    """
+    Coordinator reduce step: merge per-shard partial aggregation results
+    back into the full parameter vector.
+
+    Algorithm: O(n_params) scatter — each shard's result is placed at
+    its assigned parameter indices. No overlap is possible by construction
+    of the shard assignment.
+
+    Parameters
+    ----------
+    shard_indices   : list of n_shards lists of parameter indices
+    partial_results : dict {shard_id: aggregated_slice (np.ndarray)}
+    n_params        : total number of model parameters
+
+    Returns
     -------
-    With ideal parallelism across `n_shards` workers, aggregation latency
-    follows Amdahl's Law:
-        T(N) = T_serial × (serial_frac + parallel_frac / N)
-    where parallel_frac ≈ 0.95 for standard FedAvg on modern hardware.
+    np.ndarray of shape (n_params,) — fully reconstructed parameter vector.
+    """
+    _reconstructed = np.zeros(n_params, dtype=np.float64)
+    for _sid, _idx in enumerate(shard_indices):
+        _reconstructed[np.array(_idx)] = partial_results[_sid]
+    return _reconstructed
+
+
+def get_distributed_sharded_fedavg(
+    weight_matrix: "np.ndarray",
+    bias_vec: "np.ndarray",
+    sample_counts: Optional["np.ndarray"] = None,
+    n_shards: int = 1,
+    strategy: str = "round_robin",
+) -> Tuple[List[float], float, dict]:
+    """
+    Distributed horizontally-sharded FedAvg aggregation SDK function.
+
+    Implements the full pipeline:
+      1. Shard assignment  : _assign_shards() partitions parameter indices
+      2. Per-shard FedAvg  : weighted average on each shard independently
+      3. Coordinator reduce: _coordinator_reduce() merges partial results
+
+    With n_shards > 1, step 2 can be parallelized across workers.
+    The coordinator reduce (step 3) is serial: O(n_params × n_shards) additions.
+
+    Parameters
+    ----------
+    weight_matrix : np.ndarray, shape (n_clients, n_params)
+        Per-client model weight vectors.
+    bias_vec      : np.ndarray, shape (n_clients,)
+        Per-client bias scalars.
+    sample_counts : np.ndarray or None
+        Per-client sample counts for weighted averaging.
+        If None, uniform averaging is used.
+    n_shards      : int
+        Number of horizontal parameter shards (>= 1).
+        With ideal parallelism, latency follows Amdahl's Law:
+          T(N) ≈ T_serial × (ε + (1-ε)/N)  where ε ≈ serial fraction
+    strategy      : str
+        Sharding strategy — "round_robin" (default), "contiguous_block",
+        or "random_shuffle".
+
+    Returns
+    -------
+    Tuple of:
+      aggregated_weights : List[float]   — reconstructed weight vector
+      aggregated_bias    : float         — weighted-average bias scalar
+      metadata           : dict          — shard_assignments, n_shards, strategy,
+                                          reconstruction_error (vs reference run)
+
+    Raises
+    ------
+    ValueError  : if n_shards < 1, strategy unknown, or shapes mismatch
 
     Example
     -------
@@ -65,40 +156,62 @@ def get_sharded_fedavg(
     >>> W = np.random.randn(20, 20)
     >>> b = np.random.randn(20)
     >>> counts = np.ones(20) * 200
-    >>> weights, bias = get_sharded_fedavg(W, b, counts, n_shards=4)
+    >>> weights, bias, meta = get_distributed_sharded_fedavg(W, b, counts, n_shards=4)
+    >>> print(f"Shards: {meta['n_shards']}, strategy: {meta['strategy']}")
     """
-    _weight_matrix = np.asarray(weight_matrix, dtype=np.float64)
-    _bias_vec      = np.asarray(bias_vec,      dtype=np.float64)
-    _n_c, _n_p     = _weight_matrix.shape
+    _W = np.asarray(weight_matrix, dtype=np.float64)
+    _b = np.asarray(bias_vec,      dtype=np.float64)
 
-    if n_shards < 1:
-        raise ValueError(f"n_shards must be >= 1, got {n_shards}")
+    if _W.ndim != 2:
+        raise ValueError(f"weight_matrix must be 2-D, got shape {_W.shape}")
+    if _b.ndim != 1:
+        raise ValueError(f"bias_vec must be 1-D, got shape {_b.shape}")
 
-    # Compute normalized averaging weights
+    _n_clients, _n_params = _W.shape
+    if len(_b) != _n_clients:
+        raise ValueError(
+            f"bias_vec length ({len(_b)}) must equal n_clients ({_n_clients})"
+        )
+
+    # Normalized averaging weights
     if sample_counts is not None:
         _counts = np.asarray(sample_counts, dtype=np.float64)
         if _counts.sum() <= 0:
             raise ValueError("sample_counts must have positive sum")
         _w_norm = _counts / _counts.sum()
     else:
-        _w_norm = np.ones(_n_c, dtype=np.float64) / _n_c
+        _w_norm = np.ones(_n_clients, dtype=np.float64) / _n_clients
 
-    # Shard the parameter dimension
-    _param_indices = np.arange(_n_p)
-    _shard_slices  = np.array_split(_param_indices, n_shards)
+    # ── Step 1: Shard assignment ─────────────────────────────────────────────
+    _shard_idx = _assign_shards(_n_params, n_shards, strategy)
 
-    # Aggregate each shard (in serial here; caller parallelizes across shards)
-    _shard_results = []
-    for _shard_idx in _shard_slices:
-        _shard_w = _weight_matrix[:, _shard_idx]   # (n_clients, shard_size)
-        _shard_results.append(_w_norm @ _shard_w)  # (shard_size,)
+    # ── Step 2: Per-shard FedAvg (parallelizable) ────────────────────────────
+    _partial: Dict[int, np.ndarray] = {}
+    for _sid, _idx in enumerate(_shard_idx):
+        _shard_slice = _W[:, np.array(_idx)]      # (n_clients, shard_size)
+        _partial[_sid] = _w_norm @ _shard_slice   # (shard_size,)
 
-    _agg_w = np.concatenate(_shard_results)
-    _agg_b = float(_w_norm @ _bias_vec)
-    return _agg_w.tolist(), _agg_b
+    # ── Step 3: Coordinator reduce ───────────────────────────────────────────
+    _agg_w = _coordinator_reduce(_shard_idx, _partial, _n_params)
+    _agg_b = float(_w_norm @ _b)
+
+    # Compute reconstruction error vs direct (non-sharded) FedAvg for validation
+    _ref_w = _w_norm @ _W
+    _recon_err = float(np.linalg.norm(_agg_w - _ref_w))
+
+    _metadata = {
+        "n_shards":           n_shards,
+        "strategy":           strategy,
+        "shard_assignments":  _shard_idx,
+        "n_clients":          _n_clients,
+        "n_params":           _n_params,
+        "reconstruction_error": _recon_err,
+    }
+
+    return _agg_w.tolist(), _agg_b, _metadata
 
 
-# ── Canonical key hashing ──────────────────────────────────────────────────────
+# ── Canonical key hashing ─────────────────────────────────────────────────────
 
 def _hash_value(obj: Any) -> str:
     if isinstance(obj, bytes):
@@ -172,25 +285,25 @@ class LRUTTLCache:
 
     def clear(self) -> int:
         with self._lock:
-            n = len(self._store)
+            _n = len(self._store)
             self._store.clear()
-            return n
+            return _n
 
     def purge_expired(self) -> int:
         if self._ttl is None:
             return 0
         with self._lock:
-            now = time.monotonic()
-            expired = [k for k, (_, ts) in self._store.items()
-                       if (now - ts) > self._ttl]
-            for k in expired:
-                del self._store[k]
-            self._evictions += len(expired)
-            return len(expired)
+            _now = time.monotonic()
+            _expired = [k for k, (_, ts) in self._store.items()
+                        if (_now - ts) > self._ttl]
+            for _k in _expired:
+                del self._store[_k]
+            self._evictions += len(_expired)
+            return len(_expired)
 
     def metrics(self) -> dict:
         with self._lock:
-            total = self._hits + self._misses
+            _total = self._hits + self._misses
             return {
                 "name":          self._name,
                 "size":          len(self._store),
@@ -199,8 +312,8 @@ class LRUTTLCache:
                 "hits":          self._hits,
                 "misses":        self._misses,
                 "evictions":     self._evictions,
-                "hit_rate":      round(self._hits / total, 4) if total else 0.0,
-                "total_lookups": total,
+                "hit_rate":      round(self._hits / _total, 4) if _total else 0.0,
+                "total_lookups": _total,
             }
 
     def reset_metrics(self) -> None:
@@ -238,65 +351,65 @@ class CacheLayer:
         }
 
     def verify_proof_batch(self, proof_payload, fallback, *args, **kwargs):
-        cache = self._caches["verify_proof_batch"]
-        key = make_cache_key(proof_payload)
-        hit, value = cache.get(key)
-        if hit:
-            return value
-        result = fallback(*args, **kwargs)
-        cache.put(key, result)
-        return result
+        _cache = self._caches["verify_proof_batch"]
+        _key = make_cache_key(proof_payload)
+        _hit, _value = _cache.get(_key)
+        if _hit:
+            return _value
+        _result = fallback(*args, **kwargs)
+        _cache.put(_key, _result)
+        return _result
 
     def aggregate(self, updates, fallback, *args, **kwargs):
-        cache = self._caches["aggregate"]
-        key = make_cache_key(updates)
-        hit, value = cache.get(key)
-        if hit:
-            return value
-        result = fallback(*args, **kwargs)
-        cache.put(key, result)
-        return result
+        _cache = self._caches["aggregate"]
+        _key = make_cache_key(updates)
+        _hit, _value = _cache.get(_key)
+        if _hit:
+            return _value
+        _result = fallback(*args, **kwargs)
+        _cache.put(_key, _result)
+        return _result
 
     def attest(self, node_id, fallback, *args, **kwargs):
-        cache = self._caches["attest"]
-        second_bucket = math.floor(time.time_ns() / 1_000_000_000)
-        key = make_cache_key(node_id, second_bucket)
-        hit, value = cache.get(key)
-        if hit:
-            return value
-        result = fallback(*args, **kwargs)
-        cache.put(key, result)
-        return result
+        _cache = self._caches["attest"]
+        _second_bucket = math.floor(time.time_ns() / 1_000_000_000)
+        _key = make_cache_key(node_id, _second_bucket)
+        _hit, _value = _cache.get(_key)
+        if _hit:
+            return _value
+        _result = fallback(*args, **kwargs)
+        _cache.put(_key, _result)
+        return _result
 
     def load_wasm(self, file_path, checksum, fallback, *args, **kwargs):
-        cache = self._caches["load_wasm"]
-        key = make_cache_key(file_path, checksum)
-        hit, value = cache.get(key)
-        if hit:
-            return value
-        result = fallback(*args, **kwargs)
-        cache.put(key, result)
-        return result
+        _cache = self._caches["load_wasm"]
+        _key = make_cache_key(file_path, checksum)
+        _hit, _value = _cache.get(_key)
+        if _hit:
+            return _value
+        _result = fallback(*args, **kwargs)
+        _cache.put(_key, _result)
+        return _result
 
     def metrics(self) -> dict:
-        per_op = {name: c.metrics() for name, c in self._caches.items()}
-        total_hits   = sum(v["hits"]   for v in per_op.values())
-        total_misses = sum(v["misses"] for v in per_op.values())
-        total_lookups = total_hits + total_misses
+        _per_op = {name: c.metrics() for name, c in self._caches.items()}
+        _total_hits   = sum(v["hits"]   for v in _per_op.values())
+        _total_misses = sum(v["misses"] for v in _per_op.values())
+        _total_lookups = _total_hits + _total_misses
         return {
-            "per_operation": per_op,
+            "per_operation": _per_op,
             "aggregate": {
-                "total_hits":       total_hits,
-                "total_misses":     total_misses,
-                "total_lookups":    total_lookups,
-                "overall_hit_rate": round(total_hits / total_lookups, 4) if total_lookups else 0.0,
-                "total_evictions":  sum(v["evictions"] for v in per_op.values()),
+                "total_hits":       _total_hits,
+                "total_misses":     _total_misses,
+                "total_lookups":    _total_lookups,
+                "overall_hit_rate": round(_total_hits / _total_lookups, 4) if _total_lookups else 0.0,
+                "total_evictions":  sum(v["evictions"] for v in _per_op.values()),
             },
         }
 
     def reset_all_metrics(self) -> None:
-        for c in self._caches.values():
-            c.reset_metrics()
+        for _c in self._caches.values():
+            _c.reset_metrics()
 
     def purge_all_expired(self) -> Dict[str, int]:
         return {name: c.purge_expired() for name, c in self._caches.items()}
@@ -305,7 +418,7 @@ class CacheLayer:
         return self._caches[name]
 
 
-# ── Module-level singleton ─────────────────────────────────────────────────────
+# ── Module-level singleton ────────────────────────────────────────────────────
 
 _DEFAULT_CACHE: Optional[CacheLayer] = None
 _SINGLETON_LOCK = threading.Lock()
