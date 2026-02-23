@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-02-23T01:35:54Z",
+  "repo": "rwilliamspbg-ops/Sovereign-Mohawk-Proto",
+  "branch": "main",
+  "optimization_run": {
+    "fl_rounds": 8,
+    "fl_clients": 20,
+    "fl_test_accuracy": 0.904,
+    "fedavg_bias_optimized": 0.0056836627914285676,
+    "adaptive_schedule_keys": [
+      "per_round",
+      "total_scheduled",
+      "executed_rounds",
+      "skipped_rounds",
+      "stopped_rounds",
+      "rounds_saved_vs_fixed",
+      "fixed_baseline_rounds",
+      "early_stop_round",
+      "stop_reason",
+      "exp_smoothing_alpha",
+      "patience",
+      "loss_epsilon",
+      "acc_epsilon",
+      "final_estimated_acc",
+      "smoothed_divergence"
+    ]
+  },
+  "artifacts": [
+    {
+      "repo_path": "results/fl/fedavg_scaling_report.json",
+      "sha256": "037cbadbcee3de5a23c88da839d4137d30af6f095361ed530785becf5cc19e7a",
+      "size_bytes": 1512,
+      "generated_at": "2026-02-23T01:35:54Z",
+      "linter_pass": true
+    },
+    {
+      "repo_path": "results/fl/fl_comm_savings_report.json",
+      "sha256": "468b98e64b717cada152b905cb50a67396032b567ce951a591aad65a36e87846",
+      "size_bytes": 5116,
+      "generated_at": "2026-02-23T01:35:54Z",
+      "linter_pass": false
+    },
+    {
+      "repo_path": "results/fl/fl_latency_model_report.json",
+      "sha256": "aa12bd6fbca17fe0908d76576822a511057cf051728b4ec230f0d14738ca0017",
+      "size_bytes": 13888,
+      "generated_at": "2026-02-23T01:35:54Z",
+      "linter_pass": true
+    },
+    {
+      "repo_path": "results/fl/adaptive_schedule_report.json",
+      "sha256": "de0e1a1894262647ed25ab6efc1c72e87fbf71e8086e58172308f5da24a36eca",
+      "size_bytes": 6543,
+      "generated_at": "2026-02-23T01:35:54Z",
+      "linter_pass": true
+    },
+    {
+      "repo_path": "sdk_cache.py",
+      "sha256": "0f80b168373a4c98572fc1cbc6226f73882cd2cf2c6a0203a3db7c6f0d180301",
+      "size_bytes": 12308,
+      "generated_at": "2026-02-23T01:35:54Z",
+      "linter_pass": true
+    }
+  ]
+}
