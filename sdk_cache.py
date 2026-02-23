@@ -46,6 +46,31 @@ class LRUTTLCache:
 
     def __init__(self, capacity: int = 128, default_ttl: int = 60):
         self.capacity = capacity
+        self.default_ttl = default_ttlimport hashlib
+import json
+import threading
+import time
+from collections import OrderedDict
+from typing import Any, Callable, Dict, Optional, Tuple
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+
+
+def make_cache_key(*args: Any, **kwargs: Any) -> str:
+    """Generates a stable SHA256 hash for any set of arguments."""
+    data = {"args": args, "kwargs": kwargs}
+    serialized = json.dumps(data, sort_keys=True, default=str)
+    return hashlib.sha256(serialized.encode()).hexdigest()
+
+
+# ── Core Cache Logic ─────────────────────────────────────────────────────────
+
+
+class LRUTTLCache:
+    """An LRU cache with Time-To-Live (TTL) support."""
+
+    def __init__(self, capacity: int = 128, default_ttl: int = 60):
+        self.capacity = capacity
         self.default_ttl = default_ttl
         self.cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
         self.lock = threading.Lock()
@@ -107,7 +132,9 @@ class CacheLayer:
             "data_query": LRUTTLCache(capacity=200, default_ttl=30),
         }
 
-    def with_cache(self, name: str, key_parts: tuple, fallback: Callable, *args: Any, **kwargs: Any) -> Any:
+    def with_cache(
+        self, name: str, key_parts: tuple, fallback: Callable, *args: Any, **kwargs: Any
+    ) -> Any:
         cache = self._caches[name]
         key = make_cache_key(*key_parts)
         hit, value = cache.get(key)
@@ -117,7 +144,9 @@ class CacheLayer:
         cache.put(key, result)
         return result
 
-    def load_wasm(self, file_path: str, checksum: str, fallback: Callable, *args: Any, **kwargs: Any) -> Any:
+    def load_wasm(
+        self, file_path: str, checksum: str, fallback: Callable, *args: Any, **kwargs: Any
+    ) -> Any:
         cache = self._caches["load_wasm"]
         key = make_cache_key(file_path, checksum)
         hit, value = cache.get(key)
