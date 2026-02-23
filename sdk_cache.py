@@ -46,31 +46,6 @@ class LRUTTLCache:
 
     def __init__(self, capacity: int = 128, default_ttl: int = 60):
         self.capacity = capacity
-        self.default_ttl = default_ttlimport hashlib
-import json
-import threading
-import time
-from collections import OrderedDict
-from typing import Any, Callable, Dict, Optional, Tuple
-
-# ── Utilities ────────────────────────────────────────────────────────────────
-
-
-def make_cache_key(*args: Any, **kwargs: Any) -> str:
-    """Generates a stable SHA256 hash for any set of arguments."""
-    data = {"args": args, "kwargs": kwargs}
-    serialized = json.dumps(data, sort_keys=True, default=str)
-    return hashlib.sha256(serialized.encode()).hexdigest()
-
-
-# ── Core Cache Logic ─────────────────────────────────────────────────────────
-
-
-class LRUTTLCache:
-    """An LRU cache with Time-To-Live (TTL) support."""
-
-    def __init__(self, capacity: int = 128, default_ttl: int = 60):
-        self.capacity = capacity
         self.default_ttl = default_ttl
         self.cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
         self.lock = threading.Lock()
