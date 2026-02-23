@@ -1,0 +1,331 @@
+{
+  "partition_strategy": "round_robin",
+  "shard_assignments": [
+    [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20
+    ],
+    [
+      1,
+      5,
+      9,
+      13,
+      17
+    ],
+    [
+      2,
+      6,
+      10,
+      14,
+      18
+    ],
+    [
+      3,
+      7,
+      11,
+      15,
+      19
+    ]
+  ],
+  "per_server_latency_ms": [
+    50.019439999999996,
+    50.0162,
+    50.0162,
+    50.0162
+  ],
+  "coordinator_reduce_latency_ms": 8.4e-05,
+  "total_wall_clock_ms": 50.019524,
+  "speedup_ratio": 1.0009703610934002,
+  "parallel_efficiency": 0.25024259027335005,
+  "amdahl_ceiling": 3.999979867506221,
+  "reconstructed_weights": [
+    0.11468014455177575,
+    -0.06270534068523452,
+    -0.09932557207624451,
+    0.1008978312679598,
+    -0.34525065752959133,
+    -0.15687471053952207,
+    0.033863540818771486,
+    0.1130605845071889,
+    0.1167827757855516,
+    -0.3510638871139363,
+    -0.06952658683557271,
+    0.10470621691276578,
+    -0.1243207145679921,
+    -0.022260517144474946,
+    0.06635051043261866,
+    0.023615398705973047,
+    0.04135465632698708,
+    -0.007940440488131084,
+    0.08723400836966255,
+    0.0622966090452512,
+    0.005683662791428567
+  ],
+  "reconstruction_error": 3.54346729316687e-17,
+  "all_strategies": {
+    "round_robin": {
+      "shard_assignments": [
+        [
+          0,
+          4,
+          8,
+          12,
+          16,
+          20
+        ],
+        [
+          1,
+          5,
+          9,
+          13,
+          17
+        ],
+        [
+          2,
+          6,
+          10,
+          14,
+          18
+        ],
+        [
+          3,
+          7,
+          11,
+          15,
+          19
+        ]
+      ],
+      "reconstruction_error": 3.54346729316687e-17,
+      "per_server_latency_ms": [
+        50.019439999999996,
+        50.0162,
+        50.0162,
+        50.0162
+      ],
+      "wall_clock_ms": 50.019524
+    },
+    "contiguous_block": {
+      "shard_assignments": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        [
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        [
+          16,
+          17,
+          18,
+          19,
+          20
+        ]
+      ],
+      "reconstruction_error": 6.546714017464125e-17,
+      "per_server_latency_ms": [
+        50.019439999999996,
+        50.0162,
+        50.0162,
+        50.0162
+      ],
+      "wall_clock_ms": 50.019524
+    },
+    "load_balanced": {
+      "shard_assignments": [
+        [
+          9,
+          2,
+          16,
+          6
+        ],
+        [
+          4,
+          3,
+          19,
+          13
+        ],
+        [
+          5,
+          0,
+          11,
+          10,
+          1,
+          17,
+          20
+        ],
+        [
+          12,
+          8,
+          7,
+          18,
+          14,
+          15
+        ]
+      ],
+      "reconstruction_error": 3.474863734255854e-17,
+      "per_server_latency_ms": [
+        50.01296,
+        50.01296,
+        50.022679999999994,
+        50.019439999999996
+      ],
+      "wall_clock_ms": 50.022763999999995
+    },
+    "random_shuffle": {
+      "shard_assignments": [
+        [
+          16,
+          10,
+          15,
+          20,
+          12,
+          14
+        ],
+        [
+          7,
+          6,
+          9,
+          3,
+          0
+        ],
+        [
+          17,
+          5,
+          11,
+          19,
+          2
+        ],
+        [
+          4,
+          18,
+          1,
+          13,
+          8
+        ]
+      ],
+      "reconstruction_error": 3.470530984772429e-17,
+      "per_server_latency_ms": [
+        50.019439999999996,
+        50.0162,
+        50.0162,
+        50.0162
+      ],
+      "wall_clock_ms": 50.019524
+    }
+  },
+  "scaling_analysis": [
+    {
+      "n_servers": 1,
+      "per_server_latency_ms": [
+        50.068039999999996
+      ],
+      "coordinator_reduce_latency_ms": 2.1e-05,
+      "total_wall_clock_ms": 50.06806099999999,
+      "speedup_ratio": 1.0,
+      "parallel_efficiency": 1.0,
+      "amdahl_ceiling": 1.0,
+      "serial_fraction": 4.194290647684559e-07,
+      "parallel_fraction": 0.9999995805709352
+    },
+    {
+      "n_servers": 2,
+      "per_server_latency_ms": [
+        50.03564,
+        50.032399999999996
+      ],
+      "coordinator_reduce_latency_ms": 4.2e-05,
+      "total_wall_clock_ms": 50.035682,
+      "speedup_ratio": 1.0006471181905743,
+      "parallel_efficiency": 0.5003235590952871,
+      "amdahl_ceiling": 1.999998322285148,
+      "serial_fraction": 8.388581295369118e-07,
+      "parallel_fraction": 0.9999991611418705
+    },
+    {
+      "n_servers": 4,
+      "per_server_latency_ms": [
+        50.019439999999996,
+        50.0162,
+        50.0162,
+        50.0162
+      ],
+      "coordinator_reduce_latency_ms": 8.4e-05,
+      "total_wall_clock_ms": 50.019524,
+      "speedup_ratio": 1.0009703610934002,
+      "parallel_efficiency": 0.25024259027335005,
+      "amdahl_ceiling": 3.999979867506221,
+      "serial_fraction": 1.6777162590738236e-06,
+      "parallel_fraction": 0.999998322283741
+    },
+    {
+      "n_servers": 8,
+      "per_server_latency_ms": [
+        50.00972,
+        50.00972,
+        50.00972,
+        50.00972,
+        50.00972,
+        50.006479999999996,
+        50.006479999999996,
+        50.006479999999996
+      ],
+      "coordinator_reduce_latency_ms": 0.000168,
+      "total_wall_clock_ms": 50.009888000000004,
+      "speedup_ratio": 1.001163229959643,
+      "parallel_efficiency": 0.12514540374495536,
+      "amdahl_ceiling": 7.999812100192379,
+      "serial_fraction": 3.3554325181476473e-06,
+      "parallel_fraction": 0.9999966445674818
+    },
+    {
+      "n_servers": 16,
+      "per_server_latency_ms": [
+        50.006479999999996,
+        50.006479999999996,
+        50.006479999999996,
+        50.006479999999996,
+        50.006479999999996,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324,
+        50.00324
+      ],
+      "coordinator_reduce_latency_ms": 0.000336,
+      "total_wall_clock_ms": 50.00681599999999,
+      "speedup_ratio": 1.0012247330443913,
+      "parallel_efficiency": 0.06257654581527446,
+      "amdahl_ceiling": 15.998389554503524,
+      "serial_fraction": 6.7108650362952945e-06,
+      "parallel_fraction": 0.9999932891349637
+    }
+  ],
+  "n_params": 21,
+  "n_clients": 20,
+  "n_servers_base": 4
+}

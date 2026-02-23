@@ -1,0 +1,544 @@
+{
+  "parameters": {
+    "bandwidth_mbps": 10.0,
+    "rtt_ms": 50.0,
+    "n_params": 21,
+    "model_bytes": 84,
+    "grad_bytes": 92,
+    "cpu_gflops_s": 1.0,
+    "server_ingest_mbps": 100.0,
+    "local_epochs": 5,
+    "samples_per_client": 200
+  },
+  "component_latencies_ms": {
+    "local_train_ms": 0.060000000000000005,
+    "serialize_ms": 9.2e-05,
+    "upload_seq_ms": 25.0736,
+    "aggregate_1c_ms": 4.2e-05,
+    "broadcast_ms": 25.0672,
+    "deserialize_ms": 8.4e-05
+  },
+  "per_round_fixed_seq": [
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 1,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 2,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 3,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 4,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 5,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 6,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 7,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 501.472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 526.6002159999999,
+      "round": 8,
+      "n_clients": 20,
+      "mode": "fixed_seq"
+    }
+  ],
+  "per_round_fixed_par": [
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 1,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 2,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 3,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 4,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 5,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 6,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 7,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.1472,
+      "aggregate": 0.00084,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.27541600000001,
+      "round": 8,
+      "n_clients": 20,
+      "mode": "fixed_par"
+    }
+  ],
+  "per_round_adapt_seq": [
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 1,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 2,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 3,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 4,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 5,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 6,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 7,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 250.736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 275.863796,
+      "round": 8,
+      "n_clients": 10,
+      "mode": "adapt_seq"
+    }
+  ],
+  "per_round_adapt_par": [
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 1,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 2,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 3,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 4,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 5,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 6,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 7,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    },
+    {
+      "local_train": 0.060000000000000005,
+      "serialize": 9.2e-05,
+      "upload": 25.0736,
+      "aggregate": 0.00042,
+      "broadcast": 25.0672,
+      "deserialize": 8.4e-05,
+      "total_ms": 50.201396,
+      "round": 8,
+      "n_clients": 10,
+      "mode": "adapt_par"
+    }
+  ],
+  "wall_clock_scenarios": {
+    "Fixed + Sequential": {
+      "rounds": 8,
+      "per_round_ms": 526.6002,
+      "total_ms": 4212.8017,
+      "total_s": 4.212802
+    },
+    "Fixed + Parallel": {
+      "rounds": 8,
+      "per_round_ms": 50.2754,
+      "total_ms": 402.2033,
+      "total_s": 0.402203
+    },
+    "Adaptive + Sequential": {
+      "rounds": 8,
+      "per_round_ms": 275.8638,
+      "total_ms": 2206.9104,
+      "total_s": 2.20691
+    },
+    "Adaptive + Parallel": {
+      "rounds": 8,
+      "per_round_ms": 50.2014,
+      "total_ms": 401.6112,
+      "total_s": 0.401611
+    }
+  },
+  "critical_path": {
+    "dominant_stage": "upload",
+    "analyses": {
+      "Fixed + Sequential": {
+        "n_clients": 20,
+        "mode": "sequential",
+        "total_ms": 526.6002159999999,
+        "dominant": "upload",
+        "dominant_ms": 501.472,
+        "dominant_pct": 95.22821768079184,
+        "components": {
+          "local_train": 0.060000000000000005,
+          "serialize": 9.2e-05,
+          "upload": 501.472,
+          "aggregate": 0.00084,
+          "broadcast": 25.0672,
+          "deserialize": 8.4e-05
+        },
+        "pcts": {
+          "local_train": 0.011393842648936553,
+          "serialize": 1.7470558728369378e-05,
+          "upload": 95.22821768079184,
+          "aggregate": 0.00015951379708511174,
+          "broadcast": 4.760195540823705,
+          "deserialize": 1.5951379708511175e-05
+        }
+      },
+      "Fixed + Parallel": {
+        "n_clients": 20,
+        "mode": "parallel",
+        "total_ms": 50.27541600000001,
+        "dominant": "upload",
+        "dominant_ms": 25.1472,
+        "dominant_pct": 50.018880002902414,
+        "components": {
+          "local_train": 0.060000000000000005,
+          "serialize": 9.2e-05,
+          "upload": 25.1472,
+          "aggregate": 0.00084,
+          "broadcast": 25.0672,
+          "deserialize": 8.4e-05
+        },
+        "pcts": {
+          "local_train": 0.119342622644833,
+          "serialize": 0.00018299202138874395,
+          "upload": 50.018880002902414,
+          "aggregate": 0.001670796717027662,
+          "broadcast": 49.85975650604263,
+          "deserialize": 0.00016707967170276618
+        }
+      },
+      "Adaptive + Sequential": {
+        "n_clients": 10,
+        "mode": "sequential",
+        "total_ms": 275.863796,
+        "dominant": "upload",
+        "dominant_ms": 250.736,
+        "dominant_pct": 90.89123097544848,
+        "components": {
+          "local_train": 0.060000000000000005,
+          "serialize": 9.2e-05,
+          "upload": 250.736,
+          "aggregate": 0.00042,
+          "broadcast": 25.0672,
+          "deserialize": 8.4e-05
+        },
+        "pcts": {
+          "local_train": 0.021749863834977463,
+          "serialize": 3.334979121363211e-05,
+          "upload": 90.89123097544848,
+          "aggregate": 0.00015224904684484224,
+          "broadcast": 9.086803112069118,
+          "deserialize": 3.044980936896845e-05
+        }
+      },
+      "Adaptive + Parallel": {
+        "n_clients": 10,
+        "mode": "parallel",
+        "total_ms": 50.201396,
+        "dominant": "upload",
+        "dominant_ms": 25.0736,
+        "dominant_pct": 49.946021421396324,
+        "components": {
+          "local_train": 0.060000000000000005,
+          "serialize": 9.2e-05,
+          "upload": 25.0736,
+          "aggregate": 0.00042,
+          "broadcast": 25.0672,
+          "deserialize": 8.4e-05
+        },
+        "pcts": {
+          "local_train": 0.11951858868625885,
+          "serialize": 0.00018326183598559688,
+          "upload": 49.946021421396324,
+          "aggregate": 0.0008366301208038119,
+          "broadcast": 49.93327277193646,
+          "deserialize": 0.00016732602416076234
+        }
+      }
+    }
+  },
+  "parallel_speedup": {
+    "fixed_20c": 10.4743,
+    "adaptive_10c": 5.4951
+  }
+}

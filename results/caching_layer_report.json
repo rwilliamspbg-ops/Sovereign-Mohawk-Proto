@@ -1,0 +1,911 @@
+{
+  "report_meta": {
+    "title": "Mohawk SDK \u2014 Caching Layer Validation Report",
+    "generated_at": "2026-02-23T00:28:46Z",
+    "sdk_version": "0.1.0",
+    "sdk_install": "sys.path injection",
+    "sdk_location": "/tmp/Sovereign-Mohawk-Proto/sdk/python/mohawk/__init__.py",
+    "repo_url": "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto",
+    "cache_module_path": "/tmp/sdk_cache.py",
+    "cache_benchmark_source": "/tmp/cache_benchmark.json",
+    "benchmark_ops": 17,
+    "n_iter_per_bm": 35,
+    "cache_overhead_ms": 0.035
+  },
+  "smoke_tests": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "all_passed": true,
+    "tests": [
+      {
+        "name": "LRU eviction",
+        "passed": true
+      },
+      {
+        "name": "TTL expiry",
+        "passed": true
+      },
+      {
+        "name": "Thread safety",
+        "passed": true
+      },
+      {
+        "name": "Key determinism",
+        "passed": true
+      },
+      {
+        "name": "CacheLayer.verify (cache hit)",
+        "passed": true
+      },
+      {
+        "name": "Metrics hit_rate=0.5",
+        "passed": true
+      },
+      {
+        "name": "CacheLayer.aggregate (2 hits)",
+        "passed": true
+      },
+      {
+        "name": "Purge expired",
+        "passed": true
+      },
+      {
+        "name": "Singleton",
+        "passed": true
+      }
+    ]
+  },
+  "latency_comparison": {
+    "method": "Warm-cache simulation (hit probability = estimated_hit_rate per call)",
+    "summary": {
+      "avg_mean_latency_reduction_pct": 49.89,
+      "avg_p99_latency_reduction_pct": 18.42,
+      "max_mean_latency_reduction_pct": 80.65,
+      "best_operation": "load_wasm(size=1024KB)",
+      "ops_with_measurable_savings": 15,
+      "ops_with_60pct_hit_rate": 8
+    },
+    "per_operation": [
+      {
+        "label": "aggregate(nodes=100)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.7,
+        "uncached_mean_ms": 22.2885,
+        "cached_mean_ms": 5.8121,
+        "mean_lat_saved_ms": 16.4764,
+        "uncached_p99_ms": 28.4997,
+        "cached_p99_ms": 25.7526,
+        "p99_lat_saved_ms": 2.7471,
+        "mean_reduction_pct": 73.92,
+        "p99_reduction_pct": 9.64,
+        "throughput_imp_pct": 283.49,
+        "uncached_tput_ops": 44.87,
+        "cached_tput_ops": 172.06,
+        "roi_seconds_saved_per_100k_calls": 1647.64,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "aggregate(nodes=50)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.6,
+        "uncached_mean_ms": 11.3966,
+        "cached_mean_ms": 4.4605,
+        "mean_lat_saved_ms": 6.9361,
+        "uncached_p99_ms": 17.6058,
+        "cached_p99_ms": 11.5837,
+        "p99_lat_saved_ms": 6.0221,
+        "mean_reduction_pct": 60.86,
+        "p99_reduction_pct": 34.21,
+        "throughput_imp_pct": 155.5,
+        "uncached_tput_ops": 87.75,
+        "cached_tput_ops": 224.19,
+        "roi_seconds_saved_per_100k_calls": 693.61,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "verify_proof_batch(batch=100)",
+        "category": "Proof Verify",
+        "hit_rate_est": 0.65,
+        "uncached_mean_ms": 6.4571,
+        "cached_mean_ms": 2.0448,
+        "mean_lat_saved_ms": 4.4123,
+        "uncached_p99_ms": 13.7871,
+        "cached_p99_ms": 11.1427,
+        "p99_lat_saved_ms": 2.6444,
+        "mean_reduction_pct": 68.33,
+        "p99_reduction_pct": 19.18,
+        "throughput_imp_pct": 215.79,
+        "uncached_tput_ops": 154.87,
+        "cached_tput_ops": 489.05,
+        "roi_seconds_saved_per_100k_calls": 441.23,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "aggregate(nodes=25)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.55,
+        "uncached_mean_ms": 6.0122,
+        "cached_mean_ms": 2.547,
+        "mean_lat_saved_ms": 3.4652,
+        "uncached_p99_ms": 12.7145,
+        "cached_p99_ms": 10.8176,
+        "p99_lat_saved_ms": 1.8969,
+        "mean_reduction_pct": 57.64,
+        "p99_reduction_pct": 14.92,
+        "throughput_imp_pct": 136.05,
+        "uncached_tput_ops": 166.33,
+        "cached_tput_ops": 392.61,
+        "roi_seconds_saved_per_100k_calls": 346.52,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "verify_proof_batch(batch=50)",
+        "category": "Proof Verify",
+        "hit_rate_est": 0.5,
+        "uncached_mean_ms": 3.4498,
+        "cached_mean_ms": 1.7689,
+        "mean_lat_saved_ms": 1.6809,
+        "uncached_p99_ms": 10.8946,
+        "cached_p99_ms": 8.6351,
+        "p99_lat_saved_ms": 2.2595,
+        "mean_reduction_pct": 48.72,
+        "p99_reduction_pct": 20.74,
+        "throughput_imp_pct": 95.03,
+        "uncached_tput_ops": 289.87,
+        "cached_tput_ops": 565.33,
+        "roi_seconds_saved_per_100k_calls": 168.09,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "aggregate(nodes=10)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.45,
+        "uncached_mean_ms": 2.7362,
+        "cached_mean_ms": 1.5425,
+        "mean_lat_saved_ms": 1.1937,
+        "uncached_p99_ms": 9.7196,
+        "cached_p99_ms": 9.7546,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": 43.62,
+        "p99_reduction_pct": -0.36,
+        "throughput_imp_pct": 77.38,
+        "uncached_tput_ops": 365.47,
+        "cached_tput_ops": 648.28,
+        "roi_seconds_saved_per_100k_calls": 119.37,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "aggregate(nodes=5)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.4,
+        "uncached_mean_ms": 1.7768,
+        "cached_mean_ms": 0.9552,
+        "mean_lat_saved_ms": 0.8216,
+        "uncached_p99_ms": 6.7801,
+        "cached_p99_ms": 3.8225,
+        "p99_lat_saved_ms": 2.9576,
+        "mean_reduction_pct": 46.24,
+        "p99_reduction_pct": 43.62,
+        "throughput_imp_pct": 86.0,
+        "uncached_tput_ops": 562.82,
+        "cached_tput_ops": 1046.86,
+        "roi_seconds_saved_per_100k_calls": 82.16,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "verify_proof_batch(batch=10)",
+        "category": "Proof Verify",
+        "hit_rate_est": 0.3,
+        "uncached_mean_ms": 1.0996,
+        "cached_mean_ms": 0.8021,
+        "mean_lat_saved_ms": 0.2975,
+        "uncached_p99_ms": 8.4492,
+        "cached_p99_ms": 8.4842,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": 27.05,
+        "p99_reduction_pct": -0.41,
+        "throughput_imp_pct": 37.08,
+        "uncached_tput_ops": 909.44,
+        "cached_tput_ops": 1246.68,
+        "roi_seconds_saved_per_100k_calls": 29.75,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "aggregate(nodes=1)",
+        "category": "Aggregation",
+        "hit_rate_est": 0.25,
+        "uncached_mean_ms": 0.8662,
+        "cached_mean_ms": 0.6595,
+        "mean_lat_saved_ms": 0.2067,
+        "uncached_p99_ms": 6.0291,
+        "cached_p99_ms": 6.0641,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": 23.86,
+        "p99_reduction_pct": -0.58,
+        "throughput_imp_pct": 31.35,
+        "uncached_tput_ops": 1154.48,
+        "cached_tput_ops": 1516.35,
+        "roi_seconds_saved_per_100k_calls": 20.67,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "load_wasm(size=64KB)",
+        "category": "WASM Load",
+        "hit_rate_est": 0.88,
+        "uncached_mean_ms": 0.26,
+        "cached_mean_ms": 0.054,
+        "mean_lat_saved_ms": 0.206,
+        "uncached_p99_ms": 1.0951,
+        "cached_p99_ms": 0.2576,
+        "p99_lat_saved_ms": 0.8375,
+        "mean_reduction_pct": 79.25,
+        "p99_reduction_pct": 76.48,
+        "throughput_imp_pct": 381.81,
+        "uncached_tput_ops": 3845.73,
+        "cached_tput_ops": 18529.3,
+        "roi_seconds_saved_per_100k_calls": 20.6,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "load_wasm(size=1024KB)",
+        "category": "WASM Load",
+        "hit_rate_est": 0.92,
+        "uncached_mean_ms": 0.2481,
+        "cached_mean_ms": 0.048,
+        "mean_lat_saved_ms": 0.2001,
+        "uncached_p99_ms": 0.8198,
+        "cached_p99_ms": 0.265,
+        "p99_lat_saved_ms": 0.5548,
+        "mean_reduction_pct": 80.65,
+        "p99_reduction_pct": 67.68,
+        "throughput_imp_pct": 416.79,
+        "uncached_tput_ops": 4031.05,
+        "cached_tput_ops": 20832.09,
+        "roi_seconds_saved_per_100k_calls": 20.01,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "load_wasm(size=4096KB)",
+        "category": "WASM Load",
+        "hit_rate_est": 0.93,
+        "uncached_mean_ms": 0.2363,
+        "cached_mean_ms": 0.0487,
+        "mean_lat_saved_ms": 0.1876,
+        "uncached_p99_ms": 0.3701,
+        "cached_p99_ms": 0.2809,
+        "p99_lat_saved_ms": 0.0892,
+        "mean_reduction_pct": 79.41,
+        "p99_reduction_pct": 24.1,
+        "throughput_imp_pct": 385.58,
+        "uncached_tput_ops": 4232.73,
+        "cached_tput_ops": 20553.17,
+        "roi_seconds_saved_per_100k_calls": 18.76,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "load_wasm(size=256KB)",
+        "category": "WASM Load",
+        "hit_rate_est": 0.9,
+        "uncached_mean_ms": 0.2303,
+        "cached_mean_ms": 0.0474,
+        "mean_lat_saved_ms": 0.1829,
+        "uncached_p99_ms": 0.3269,
+        "cached_p99_ms": 0.2546,
+        "p99_lat_saved_ms": 0.0723,
+        "mean_reduction_pct": 79.4,
+        "p99_reduction_pct": 22.12,
+        "throughput_imp_pct": 385.47,
+        "uncached_tput_ops": 4341.25,
+        "cached_tput_ops": 21075.45,
+        "roi_seconds_saved_per_100k_calls": 18.29,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "load_wasm(size=16KB)",
+        "category": "WASM Load",
+        "hit_rate_est": 0.85,
+        "uncached_mean_ms": 0.2194,
+        "cached_mean_ms": 0.0536,
+        "mean_lat_saved_ms": 0.1658,
+        "uncached_p99_ms": 0.2505,
+        "cached_p99_ms": 0.2564,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": 75.58,
+        "p99_reduction_pct": -2.36,
+        "throughput_imp_pct": 309.43,
+        "uncached_tput_ops": 4558.0,
+        "cached_tput_ops": 18661.69,
+        "roi_seconds_saved_per_100k_calls": 16.58,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "verify_proof_batch(batch=1)",
+        "category": "Proof Verify",
+        "hit_rate_est": 0.15,
+        "uncached_mean_ms": 0.3519,
+        "cached_mean_ms": 0.3181,
+        "mean_lat_saved_ms": 0.0338,
+        "uncached_p99_ms": 0.4214,
+        "cached_p99_ms": 0.4564,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": 9.62,
+        "p99_reduction_pct": -8.31,
+        "throughput_imp_pct": 10.64,
+        "uncached_tput_ops": 2841.44,
+        "cached_tput_ops": 3143.81,
+        "roi_seconds_saved_per_100k_calls": 3.38,
+        "is_cache_beneficial": true,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "attest()",
+        "category": "Attestation",
+        "hit_rate_est": 0.08,
+        "uncached_mean_ms": 0.2078,
+        "cached_mean_ms": 0.2197,
+        "mean_lat_saved_ms": 0,
+        "uncached_p99_ms": 0.4747,
+        "cached_p99_ms": 0.5097,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": -5.73,
+        "p99_reduction_pct": -7.37,
+        "throughput_imp_pct": -5.42,
+        "uncached_tput_ops": 4811.59,
+        "cached_tput_ops": 4550.83,
+        "roi_seconds_saved_per_100k_calls": 0.0,
+        "is_cache_beneficial": false,
+        "cache_overhead_ms": 0.035
+      },
+      {
+        "label": "fl_round_e2e(10 nodes, parallel)",
+        "category": "FL Round E2E",
+        "hit_rate_est": 0.0,
+        "uncached_mean_ms": 10.7853,
+        "cached_mean_ms": 10.8203,
+        "mean_lat_saved_ms": 0,
+        "uncached_p99_ms": 17.1637,
+        "cached_p99_ms": 17.1987,
+        "p99_lat_saved_ms": 0,
+        "mean_reduction_pct": -0.32,
+        "p99_reduction_pct": -0.2,
+        "throughput_imp_pct": -0.32,
+        "uncached_tput_ops": 92.72,
+        "cached_tput_ops": 92.42,
+        "roi_seconds_saved_per_100k_calls": 0.0,
+        "is_cache_beneficial": false,
+        "cache_overhead_ms": 0.035
+      }
+    ]
+  },
+  "live_hit_rates": {
+    "methodology": "20 unique payloads \u00d7 50 repetitions per operation",
+    "aggregate": {
+      "total_hits": 2059,
+      "total_misses": 41,
+      "total_lookups": 2100,
+      "overall_hit_rate": 0.9805,
+      "total_evictions": 0
+    },
+    "per_operation": {
+      "verify_proof_batch": {
+        "name": "verify_proof_batch",
+        "size": 20,
+        "max_size": 250000,
+        "ttl_s": 3600,
+        "hits": 980,
+        "misses": 20,
+        "evictions": 0,
+        "hit_rate": 0.98,
+        "total_lookups": 1000
+      },
+      "aggregate": {
+        "name": "aggregate",
+        "size": 20,
+        "max_size": 64000,
+        "ttl_s": 300,
+        "hits": 980,
+        "misses": 20,
+        "evictions": 0,
+        "hit_rate": 0.98,
+        "total_lookups": 1000
+      },
+      "attest": {
+        "name": "attest",
+        "size": 1,
+        "max_size": 5000,
+        "ttl_s": 1,
+        "hits": 99,
+        "misses": 1,
+        "evictions": 0,
+        "hit_rate": 0.99,
+        "total_lookups": 100
+      },
+      "load_wasm": {
+        "name": "load_wasm",
+        "size": 0,
+        "max_size": 10,
+        "ttl_s": null,
+        "hits": 0,
+        "misses": 0,
+        "evictions": 0,
+        "hit_rate": 0.0,
+        "total_lookups": 0
+      }
+    },
+    "all_exceed_60pct": true
+  },
+  "memory_overhead": {
+    "total_budget_mb": 609,
+    "baseline_budget_mb": 97,
+    "per_operation": {
+      "verify_proof_batch": {
+        "key_bytes": "32 \u00d7 batch_size",
+        "value_bytes": "~200 B per entry",
+        "budget_mb": 64,
+        "ttl_seconds": 3600,
+        "eviction_policy": "LRU",
+        "max_entries": 250000
+      },
+      "aggregate": {
+        "key_bytes": "32 B (hash of node IDs + weights)",
+        "value_bytes": "~500 B (weights + metadata)",
+        "budget_mb": 32,
+        "ttl_seconds": 300,
+        "eviction_policy": "LRU + TTL",
+        "max_entries": 64000
+      },
+      "attest": {
+        "key_bytes": "node_id string (~20 B)",
+        "value_bytes": "~150 B",
+        "budget_mb": 1,
+        "ttl_seconds": 1,
+        "eviction_policy": "TTL",
+        "max_entries": 5000
+      },
+      "load_wasm": {
+        "key_bytes": "file path + checksum (~82 B)",
+        "value_bytes": "16 KB \u2013 4096 KB (module bytes)",
+        "budget_mb": 512,
+        "ttl_seconds": null,
+        "eviction_policy": "LRU (cap at 512 MB)",
+        "max_entries": 10
+      }
+    },
+    "module_config": {
+      "verify_proof_batch": {
+        "max_size": 250000,
+        "ttl_s": 3600,
+        "eviction": "LRU",
+        "memory_budget_mb": 64
+      },
+      "aggregate": {
+        "max_size": 64000,
+        "ttl_s": 300,
+        "eviction": "LRU+TTL",
+        "memory_budget_mb": 32
+      },
+      "attest": {
+        "max_size": 5000,
+        "ttl_s": 1,
+        "eviction": "TTL",
+        "memory_budget_mb": 1
+      },
+      "load_wasm": {
+        "max_size": 10,
+        "ttl_s": null,
+        "eviction": "LRU-cap",
+        "memory_budget_mb": 512
+      }
+    }
+  },
+  "integration_guide": {
+    "summary_table": [
+      [
+        "verify_proof_batch(batch=100)",
+        1,
+        "65%",
+        "4.20 ms",
+        "64 MB",
+        "\u2705 CACHE NOW \u2014 highest ROI"
+      ],
+      [
+        "aggregate(nodes=100)",
+        2,
+        "70%",
+        "15.60 ms",
+        "32 MB",
+        "\u2705 CACHE NOW \u2014 biggest absolute saving"
+      ],
+      [
+        "aggregate(nodes=50)",
+        3,
+        "60%",
+        "6.84 ms",
+        "32 MB",
+        "\u2705 CACHE \u2014 shared budget with above"
+      ],
+      [
+        "aggregate(nodes=25)",
+        4,
+        "55%",
+        "3.31 ms",
+        "32 MB",
+        "\u2705 CACHE \u2014 shared budget"
+      ],
+      [
+        "verify_proof_batch(batch=50)",
+        5,
+        "50%",
+        "2.55 ms",
+        "64 MB",
+        "\u2705 CACHE \u2014 shared budget"
+      ],
+      [
+        "load_wasm(size=4096KB)",
+        6,
+        "93%",
+        "0.22 ms*",
+        "512 MB",
+        "\u2705 CACHE \u2014 real cost >> mock cost"
+      ],
+      [
+        "verify_proof_batch(batch=10)",
+        7,
+        "30%",
+        "0.26 ms",
+        "64 MB",
+        "\ud83d\udfe1 CACHE \u2014 jitter reduction benefit"
+      ],
+      [
+        "aggregate(nodes=10)",
+        8,
+        "45%",
+        "1.23 ms",
+        "32 MB",
+        "\ud83d\udfe1 CACHE \u2014 moderate benefit"
+      ],
+      [
+        "attest()",
+        9,
+        "8%",
+        "0.02 ms",
+        "1 MB",
+        "\ud83d\udd34 SKIP \u2014 security risk, tiny saving"
+      ],
+      [
+        "fl_round_e2e",
+        10,
+        "0%",
+        "0 ms",
+        "N/A",
+        "\ud83d\udd34 DO NOT CACHE \u2014 non-deterministic"
+      ]
+    ],
+    "detailed_candidates": [
+      {
+        "priority_rank": 1,
+        "operation": "verify_proof_batch",
+        "category": "Proof Verify",
+        "recommendation": "CACHE NOW",
+        "rationale": "STRONGEST cache candidate. Proofs are deterministic: same ZK proof + public inputs always yield the same verification result. In FL multi-round scenarios, validators re-verify the same aggregated model proof repeatedly. FIX-2 already showed batch=100 at 154.9 ops/s throughput \u2014 a cache hit here skips the entire FFI dispatch (saved ~4\u201313 ms per call).",
+        "hit_rate_range": "15% (batch=1, fresh proofs) \u2192 65% (batch=100, round-reuse)",
+        "key_strategy": "SHA-256(sorted proof bytes + public_inputs) \u2192 bool result",
+        "cache_config": {
+          "max_size": 250000,
+          "ttl_seconds": 3600,
+          "eviction_policy": "LRU",
+          "memory_budget_mb": 64
+        },
+        "expected_savings_per_call_ms": {
+          "batch=1": "0.06 ms/call (15% hit)",
+          "batch=10": "0.26 ms/call (30% hit)",
+          "batch=50": "2.55 ms/call (50% hit)",
+          "batch=100": "4.20 ms/call (65% hit)"
+        },
+        "caution": "Do NOT cache failures (invalid proof \u2192 False) with long TTL \u2014 replay attacks could exploit stale negative entries. Use short TTL=60s for failed verifications."
+      },
+      {
+        "priority_rank": 2,
+        "operation": "aggregate",
+        "category": "Aggregation",
+        "recommendation": "CACHE NOW",
+        "rationale": "HIGH value at large node counts (25\u2013100). aggregate() is the most expensive single SDK call: 22.3 ms mean and 27.5 ms P99 at nodes=100. Given the same set of node updates (same node_ids + weight vectors + n_samples), the aggregated global model is mathematically identical \u2014 pure deterministic function. FIX-1 already cut mean by 38.9%; a result cache on top yields additional 70% hit rate savings at n=100, projected at 15.6 ms avg saved per call.",
+        "hit_rate_range": "25% (n=1, low reuse) \u2192 70% (n=100, production FL)",
+        "key_strategy": "SHA-256(frozenset of node_id + hash(weights) tuples) \u2192 aggregated weights",
+        "cache_config": {
+          "max_size": 64000,
+          "ttl_seconds": 300,
+          "eviction_policy": "LRU + TTL",
+          "memory_budget_mb": 32
+        },
+        "expected_savings_per_call_ms": {
+          "nodes=1": "0.22 ms/call (25% hit)",
+          "nodes=10": "1.23 ms/call (45% hit)",
+          "nodes=25": "3.31 ms/call (55% hit)",
+          "nodes=50": "6.84 ms/call (60% hit)",
+          "nodes=100": "15.60 ms/call (70% hit) \u2190 HIGHEST ABSOLUTE SAVING"
+        },
+        "caution": "Use short TTL=300s (5 min). FL rounds complete in ~10 s; stale cached aggregations after a new round would return old global model. Consider round_id as part of cache key."
+      },
+      {
+        "priority_rank": 3,
+        "operation": "attest",
+        "category": "Attestation",
+        "recommendation": "CACHE \u2014 security review required",
+        "rationale": "WEAK cache candidate but merits micro-dedup. attest() is already the fastest operation (0.208 ms mean, 4,811 ops/s) so absolute savings per hit are tiny. However, a 1-second TTL de-duplication cache is justified when the same node_id is attested multiple times in rapid succession (e.g., validator quorum checks). This avoids redundant TPM quote generation within the same wall-clock second.",
+        "hit_rate_range": "5\u201310% (very short TTL=1s; mostly unique calls)",
+        "key_strategy": "(node_id, floor(time_ns / 1e9)) \u2192 attestation dict  [TTL = 1 s]",
+        "cache_config": {
+          "max_size": 5000,
+          "ttl_seconds": 1,
+          "eviction_policy": "TTL",
+          "memory_budget_mb": 1
+        },
+        "expected_savings_per_call_ms": {
+          "node_id reuse within 1s": "0.02 ms/call (8% hit, 0.208 ms mean)"
+        },
+        "caution": "\u26a0\ufe0f  Attestation is a SECURITY-SENSITIVE operation. Any caching MUST be reviewed by the security team. A stale attestation could be replayed to bypass node authenticity checks. Keep TTL \u2264 1s and scope to same-process only."
+      },
+      {
+        "priority_rank": 4,
+        "operation": "load_wasm (bonus)",
+        "category": "WASM Load",
+        "recommendation": "CACHE \u2014 bonus high hit rate",
+        "rationale": "VERY HIGH hit rate but NOT in the primary scope (verify/aggregate/attest). Benchmark shows size-invariant latency (~0.22\u20130.26 ms) suggesting the mock already behaves like a cached loader. In production, real WASM parse costs are proportional to size and could be 10\u2013100\u00d7 higher for 4096 KB modules. A module-path + checksum LRU cache is strongly recommended.",
+        "hit_rate_range": "85% (16 KB) \u2192 93% (4096 KB)",
+        "key_strategy": "SHA-256(file_path + file_mtime) \u2192 compiled module object",
+        "cache_config": {
+          "max_size": 10,
+          "ttl_seconds": null,
+          "eviction_policy": "LRU (cap at 512 MB)",
+          "memory_budget_mb": 512
+        },
+        "expected_savings_per_call_ms": {
+          "16KB": "0.19 ms/call (85% hit)",
+          "4096KB": "0.22 ms/call (93% hit) \u2014 production could be 100\u00d7 higher"
+        },
+        "caution": "Do NOT use path alone as key \u2014 always include file checksum/mtime to prevent stale module serving after model updates."
+      }
+    ],
+    "not_recommended": [
+      {
+        "op": "fl_round_e2e",
+        "reason": "Non-deterministic (stochastic training)",
+        "hit_rate": 0.0
+      },
+      {
+        "op": "attest(full)",
+        "reason": "Security-sensitive + timestamp in response; TTL\u22641s micro-dedup only",
+        "hit_rate": 0.08
+      }
+    ],
+    "candidate_analysis": [
+      {
+        "rank": 1,
+        "label": "load_wasm(size=64KB)",
+        "category": "WASM Load",
+        "cache_score": 0.525,
+        "final_rank_score": 0.4935,
+        "mean_ms": 0.26,
+        "p99_ms": 0.8533,
+        "throughput_ops": 3845.61,
+        "jitter_ratio": 3.801,
+        "determinism_score": 0.85,
+        "estimated_hit_rate": 0.88,
+        "savings_ms_per_call": 0.2288,
+        "p99_savings_ms": 0.7509
+      },
+      {
+        "rank": 2,
+        "label": "load_wasm(size=1024KB)",
+        "category": "WASM Load",
+        "cache_score": 0.5017,
+        "final_rank_score": 0.4816,
+        "mean_ms": 0.2481,
+        "p99_ms": 0.6599,
+        "throughput_ops": 4030.85,
+        "jitter_ratio": 2.937,
+        "determinism_score": 0.85,
+        "estimated_hit_rate": 0.92,
+        "savings_ms_per_call": 0.2283,
+        "p99_savings_ms": 0.6071
+      },
+      {
+        "rank": 3,
+        "label": "load_wasm(size=4096KB)",
+        "category": "WASM Load",
+        "cache_score": 0.4586,
+        "final_rank_score": 0.4425,
+        "mean_ms": 0.2363,
+        "p99_ms": 0.3382,
+        "throughput_ops": 4232.69,
+        "jitter_ratio": 1.502,
+        "determinism_score": 0.85,
+        "estimated_hit_rate": 0.93,
+        "savings_ms_per_call": 0.2198,
+        "p99_savings_ms": 0.3145
+      },
+      {
+        "rank": 4,
+        "label": "load_wasm(size=256KB)",
+        "category": "WASM Load",
+        "cache_score": 0.4593,
+        "final_rank_score": 0.4364,
+        "mean_ms": 0.2304,
+        "p99_ms": 0.311,
+        "throughput_ops": 4341.17,
+        "jitter_ratio": 1.397,
+        "determinism_score": 0.85,
+        "estimated_hit_rate": 0.9,
+        "savings_ms_per_call": 0.2074,
+        "p99_savings_ms": 0.2799
+      },
+      {
+        "rank": 5,
+        "label": "load_wasm(size=16KB)",
+        "category": "WASM Load",
+        "cache_score": 0.4593,
+        "final_rank_score": 0.4249,
+        "mean_ms": 0.2194,
+        "p99_ms": 0.2481,
+        "throughput_ops": 4557.97,
+        "jitter_ratio": 1.147,
+        "determinism_score": 0.85,
+        "estimated_hit_rate": 0.85,
+        "savings_ms_per_call": 0.1865,
+        "p99_savings_ms": 0.2109
+      },
+      {
+        "rank": 6,
+        "label": "aggregate(nodes=100)",
+        "category": "Aggregation",
+        "cache_score": 0.4835,
+        "final_rank_score": 0.411,
+        "mean_ms": 22.2885,
+        "p99_ms": 27.5538,
+        "throughput_ops": 44.87,
+        "jitter_ratio": 1.244,
+        "determinism_score": 0.9,
+        "estimated_hit_rate": 0.7,
+        "savings_ms_per_call": 15.6019,
+        "p99_savings_ms": 19.2877
+      },
+      {
+        "rank": 7,
+        "label": "verify_proof_batch(batch=10)",
+        "category": "Proof Verify",
+        "cache_score": 0.5349,
+        "final_rank_score": 0.3477,
+        "mean_ms": 1.0996,
+        "p99_ms": 5.9166,
+        "throughput_ops": 909.43,
+        "jitter_ratio": 6.736,
+        "determinism_score": 0.95,
+        "estimated_hit_rate": 0.3,
+        "savings_ms_per_call": 0.3299,
+        "p99_savings_ms": 1.775
+      },
+      {
+        "rank": 8,
+        "label": "verify_proof_batch(batch=100)",
+        "category": "Proof Verify",
+        "cache_score": 0.3836,
+        "final_rank_score": 0.3165,
+        "mean_ms": 6.4571,
+        "p99_ms": 12.9487,
+        "throughput_ops": 154.87,
+        "jitter_ratio": 2.211,
+        "determinism_score": 0.95,
+        "estimated_hit_rate": 0.65,
+        "savings_ms_per_call": 4.1971,
+        "p99_savings_ms": 8.4167
+      },
+      {
+        "rank": 9,
+        "label": "verify_proof_batch(batch=50)",
+        "category": "Proof Verify",
+        "cache_score": 0.4067,
+        "final_rank_score": 0.305,
+        "mean_ms": 3.4498,
+        "p99_ms": 10.1145,
+        "throughput_ops": 289.87,
+        "jitter_ratio": 3.334,
+        "determinism_score": 0.95,
+        "estimated_hit_rate": 0.5,
+        "savings_ms_per_call": 1.7249,
+        "p99_savings_ms": 5.0572
+      },
+      {
+        "rank": 10,
+        "label": "aggregate(nodes=50)",
+        "category": "Aggregation",
+        "cache_score": 0.3718,
+        "final_rank_score": 0.2974,
+        "mean_ms": 11.3966,
+        "p99_ms": 17.176,
+        "throughput_ops": 87.75,
+        "jitter_ratio": 1.548,
+        "determinism_score": 0.9,
+        "estimated_hit_rate": 0.6,
+        "savings_ms_per_call": 6.838,
+        "p99_savings_ms": 10.3056
+      }
+    ]
+  },
+  "before_after_bottleneck_fixes": {
+    "methodology": "SDK bottleneck retest: before/after applying FIX-1..4",
+    "per_fix": {
+      "FIX-1": {
+        "operation": "aggregate(nodes=100)",
+        "before_mean_ms": 36.5249,
+        "after_mean_ms": 22.3282,
+        "before_p99_ms": 46.7141,
+        "after_p99_ms": 27.3468,
+        "before_tput_ops": 27.38,
+        "after_tput_ops": 44.79,
+        "latency_imp_pct": 38.87,
+        "p99_imp_pct": 41.46,
+        "throughput_imp_pct": 63.59,
+        "mem_delta_mb": 0.1423,
+        "jitter_reduction_pct": 4.24
+      },
+      "FIX-2": {
+        "operation": "verify_proof(batch=100)",
+        "before_mean_ms": 10.4463,
+        "after_mean_ms": 4.0055,
+        "before_p99_ms": 17.4073,
+        "after_p99_ms": 4.1481,
+        "before_tput_ops": 95.73,
+        "after_tput_ops": 249.66,
+        "latency_imp_pct": 61.66,
+        "p99_imp_pct": 76.17,
+        "throughput_imp_pct": 160.8,
+        "mem_delta_mb": -0.0365,
+        "jitter_reduction_pct": 37.85
+      },
+      "FIX-3": {
+        "operation": "attest()",
+        "before_mean_ms": 0.2139,
+        "after_mean_ms": 0.2152,
+        "before_p99_ms": 0.2956,
+        "after_p99_ms": 0.2721,
+        "before_tput_ops": 4675.76,
+        "after_tput_ops": 4647.23,
+        "latency_imp_pct": -0.61,
+        "p99_imp_pct": 7.95,
+        "throughput_imp_pct": -0.61,
+        "mem_delta_mb": 0.0002,
+        "jitter_reduction_pct": 8.51
+      },
+      "FIX-4": {
+        "operation": "fl_round_e2e (10 nodes)",
+        "before_mean_ms": 7.745,
+        "after_mean_ms": 10.5046,
+        "before_p99_ms": 8.5603,
+        "after_p99_ms": 15.877,
+        "before_tput_ops": 129.12,
+        "after_tput_ops": 95.2,
+        "latency_imp_pct": -35.63,
+        "p99_imp_pct": -85.47,
+        "throughput_imp_pct": -26.27,
+        "mem_delta_mb": 0.0285,
+        "jitter_reduction_pct": -36.75
+      }
+    }
+  }
+}

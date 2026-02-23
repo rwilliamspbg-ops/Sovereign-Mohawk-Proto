@@ -1,0 +1,85 @@
+---
+name: Performance Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  performance-gate:
+    name: Performance Regression Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-benchmark numpy
+          cd sdk/python && pip install -e .
+
+      - name: Run performance benchmarks
+        run: |
+          # SC2155 Fix: Declare and assign separately
+          PYTHONPATH="$PYTHONPATH:$(pwd)/sdk/python"
+          export PYTHONPATH
+          pytest sdk/python/tests/test_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json
+
+      - name: Performance Gate Check
+        run: |
+          python3 << 'EOF'
+          import json
+          import sys
+
+          try:
+              with open('benchmark-results.json', 'r') as f:
+                  results = json.load(f)
+          except FileNotFoundError:
+              print("❌ benchmark-results.json not found.")
+              sys.exit(1)
+
+          # REC-09 Thresholds
+          thresholds = {
+              'verify_proof_batch': {'p99_max_ms': 6.0},
+              'aggregate_nodes': {'mean_max_ms': 25.0},
+              'attest': {'throughput_min_ops': 4000.0}
+          }
+
+          failures = []
+          for benchmark in results.get('benchmarks', []):
+              name = benchmark['name']
+              stats = benchmark['stats']
+              mean_ms = stats['mean'] * 1000
+              p99_ms = stats.get('p99', 0) * 1000
+              throughput = 1.0 / stats['mean'] if stats['mean'] > 0 else 0
+
+              for key, limits in thresholds.items():
+                  if key in name.lower():
+                      if 'p99_max_ms' in limits and p99_ms > limits['p99_max_ms']:
+                          failures.append(f"{name}: P99 {p99_ms:.2f}ms > 6ms")
+                      if 'throughput_min_ops' in limits and \
+                         throughput < limits['throughput_min_ops']:
+                          failures.append(f"{name}: Low Throughput {throughput:.1f}")
+
+          if failures:
+              print("\n🚫 PERFORMANCE GATE FAILED:")
+              for f in failures: print(f"  {f}")
+              sys.exit(1)
+          print("✅ All performance gates passed.")
+          EOF
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-benchmarks
+          path: benchmark-results.json

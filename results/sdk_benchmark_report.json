@@ -1,0 +1,261 @@
+{
+  "report_meta": {
+    "title": "Mohawk SDK \u2014 Full Benchmark Report",
+    "generated_at": "2026-02-23T00:34:28Z",
+    "sdk_version": "0.1.0",
+    "sdk_install": "sys.path injection",
+    "sdk_location": "/tmp/Sovereign-Mohawk-Proto/sdk/python/mohawk/__init__.py",
+    "repo_url": "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto",
+    "n_iter_per_bm": 35,
+    "fixes_applied": [
+      "FIX-1 msgpack",
+      "FIX-2 batch-verify",
+      "FIX-3 pre-warm",
+      "FIX-4 parallel-train"
+    ],
+    "previously_committed_sha": "3f559dcc3b91bbddccd834f8db4a32f22efcf707"
+  },
+  "test_suite": {
+    "total": 57,
+    "passed": 57,
+    "failed": 0,
+    "all_pass": true
+  },
+  "benchmark_results": {
+    "agg_node_counts": [
+      1,
+      5,
+      10,
+      25,
+      50,
+      100
+    ],
+    "proof_batch_sizes": [
+      1,
+      10,
+      50,
+      100
+    ],
+    "wasm_sizes_kb": [
+      16,
+      64,
+      256,
+      1024,
+      4096
+    ],
+    "all_results": [
+      {
+        "label": "aggregate(nodes=1)",
+        "n_iter": 35,
+        "mean_ms": 0.8662,
+        "median_ms": 0.7077,
+        "p95_ms": 0.7875,
+        "p99_ms": 4.2482,
+        "throughput_ops": 1154.47,
+        "mem_peak_mb": 0.2575
+      },
+      {
+        "label": "aggregate(nodes=5)",
+        "n_iter": 35,
+        "mean_ms": 1.7768,
+        "median_ms": 1.5431,
+        "p95_ms": 2.5752,
+        "p99_ms": 5.7626,
+        "throughput_ops": 562.82,
+        "mem_peak_mb": 0.2636
+      },
+      {
+        "label": "aggregate(nodes=10)",
+        "n_iter": 35,
+        "mean_ms": 2.7362,
+        "median_ms": 2.4907,
+        "p95_ms": 2.8924,
+        "p99_ms": 7.4568,
+        "throughput_ops": 365.47,
+        "mem_peak_mb": 0.2697
+      },
+      {
+        "label": "aggregate(nodes=25)",
+        "n_iter": 35,
+        "mean_ms": 6.0122,
+        "median_ms": 5.4471,
+        "p95_ms": 10.7252,
+        "p99_ms": 12.0576,
+        "throughput_ops": 166.33,
+        "mem_peak_mb": 0.3023
+      },
+      {
+        "label": "aggregate(nodes=50)",
+        "n_iter": 35,
+        "mean_ms": 11.3966,
+        "median_ms": 11.093,
+        "p95_ms": 13.0203,
+        "p99_ms": 17.176,
+        "throughput_ops": 87.75,
+        "mem_peak_mb": 0.3524
+      },
+      {
+        "label": "aggregate(nodes=100)",
+        "n_iter": 35,
+        "mean_ms": 22.2885,
+        "median_ms": 22.1428,
+        "p95_ms": 23.6766,
+        "p99_ms": 27.5538,
+        "throughput_ops": 44.87,
+        "mem_peak_mb": 0.4602
+      },
+      {
+        "label": "verify_proof_batch(batch=1)",
+        "n_iter": 35,
+        "mean_ms": 0.3519,
+        "median_ms": 0.3493,
+        "p95_ms": 0.3856,
+        "p99_ms": 0.411,
+        "throughput_ops": 2841.45,
+        "mem_peak_mb": 0.0048
+      },
+      {
+        "label": "verify_proof_batch(batch=10)",
+        "n_iter": 35,
+        "mean_ms": 1.0996,
+        "median_ms": 0.8783,
+        "p95_ms": 0.9815,
+        "p99_ms": 5.9166,
+        "throughput_ops": 909.43,
+        "mem_peak_mb": 0.0197
+      },
+      {
+        "label": "verify_proof_batch(batch=50)",
+        "n_iter": 35,
+        "mean_ms": 3.4498,
+        "median_ms": 3.0334,
+        "p95_ms": 5.1448,
+        "p99_ms": 10.1145,
+        "throughput_ops": 289.87,
+        "mem_peak_mb": 0.0764
+      },
+      {
+        "label": "verify_proof_batch(batch=100)",
+        "n_iter": 35,
+        "mean_ms": 6.4571,
+        "median_ms": 5.8556,
+        "p95_ms": 11.1717,
+        "p99_ms": 12.9487,
+        "throughput_ops": 154.87,
+        "mem_peak_mb": 0.159
+      },
+      {
+        "label": "attest()",
+        "n_iter": 35,
+        "mean_ms": 0.2078,
+        "median_ms": 0.1969,
+        "p95_ms": 0.2377,
+        "p99_ms": 0.3952,
+        "throughput_ops": 4811.5,
+        "mem_peak_mb": 0.0039
+      },
+      {
+        "label": "load_wasm(size=16KB)",
+        "n_iter": 35,
+        "mean_ms": 0.2194,
+        "median_ms": 0.2163,
+        "p95_ms": 0.239,
+        "p99_ms": 0.2481,
+        "throughput_ops": 4557.97,
+        "mem_peak_mb": 0.0047
+      },
+      {
+        "label": "load_wasm(size=64KB)",
+        "n_iter": 35,
+        "mean_ms": 0.26,
+        "median_ms": 0.2245,
+        "p95_ms": 0.2983,
+        "p99_ms": 0.8533,
+        "throughput_ops": 3845.61,
+        "mem_peak_mb": 0.0046
+      },
+      {
+        "label": "load_wasm(size=256KB)",
+        "n_iter": 35,
+        "mean_ms": 0.2304,
+        "median_ms": 0.2226,
+        "p95_ms": 0.2731,
+        "p99_ms": 0.311,
+        "throughput_ops": 4341.17,
+        "mem_peak_mb": 0.0047
+      },
+      {
+        "label": "load_wasm(size=1024KB)",
+        "n_iter": 35,
+        "mean_ms": 0.2481,
+        "median_ms": 0.2247,
+        "p95_ms": 0.2907,
+        "p99_ms": 0.6599,
+        "throughput_ops": 4030.85,
+        "mem_peak_mb": 0.0047
+      },
+      {
+        "label": "load_wasm(size=4096KB)",
+        "n_iter": 35,
+        "mean_ms": 0.2363,
+        "median_ms": 0.2251,
+        "p95_ms": 0.2755,
+        "p99_ms": 0.3382,
+        "throughput_ops": 4232.69,
+        "mem_peak_mb": 0.0049
+      },
+      {
+        "label": "fl_round_e2e(10 nodes, parallel)",
+        "n_iter": 35,
+        "mean_ms": 10.7852,
+        "median_ms": 10.1595,
+        "p95_ms": 15.9523,
+        "p99_ms": 16.771,
+        "throughput_ops": 92.72,
+        "mem_peak_mb": 0.3153
+      }
+    ],
+    "fl_round": {
+      "label": "fl_round_e2e(10 nodes, parallel)",
+      "n_iter": 35,
+      "mean_ms": 10.7852,
+      "median_ms": 10.1595,
+      "p95_ms": 15.9523,
+      "p99_ms": 16.771,
+      "throughput_ops": 92.72,
+      "mem_peak_mb": 0.3153
+    }
+  },
+  "retest_comparison": {
+    "summary": {
+      "FIX-1": {
+        "p99_improvement_pct": 41.46,
+        "throughput_improvement_pct": 63.59,
+        "latency_improvement_pct": 38.87,
+        "mem_delta_mb": 0.1423,
+        "jitter_reduction_pct": 4.24
+      },
+      "FIX-2": {
+        "p99_improvement_pct": 76.17,
+        "throughput_improvement_pct": 160.8,
+        "latency_improvement_pct": 61.66,
+        "mem_delta_mb": -0.0365,
+        "jitter_reduction_pct": 37.85
+      },
+      "FIX-3": {
+        "p99_improvement_pct": 7.95,
+        "throughput_improvement_pct": -0.61,
+        "latency_improvement_pct": -0.61,
+        "mem_delta_mb": 0.0002,
+        "jitter_reduction_pct": 8.51
+      },
+      "FIX-4": {
+        "p99_improvement_pct": -85.47,
+        "throughput_improvement_pct": -26.27,
+        "latency_improvement_pct": -35.63,
+        "mem_delta_mb": 0.0285,
+        "jitter_reduction_pct": -36.75
+      }
+    }
+  }
+}
