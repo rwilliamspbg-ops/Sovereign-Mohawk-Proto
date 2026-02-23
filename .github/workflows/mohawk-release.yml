@@ -5,6 +5,12 @@ on:
       - 'v*'
   workflow_dispatch:
 
+# ── Permissions ──────────────────────────────────────────────────────────────
+# This block is required to fix the "Resource not accessible" error.
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build-aot:
     runs-on: ubuntu-latest
@@ -13,7 +19,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
