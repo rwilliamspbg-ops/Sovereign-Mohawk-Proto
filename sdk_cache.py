@@ -15,7 +15,6 @@ import time
 from collections import OrderedDict
 from typing import Any, Callable, Dict, Optional, Tuple
 
-
 # ── Canonical key hashing ─────────────────────────────────────────────────────
 
 
@@ -101,7 +100,9 @@ class LRUTTLCache:
             return 0
         with self._lock:
             now = time.monotonic()
-            expired = [k for k, (_, ts) in self._store.items() if (now - ts) > self._ttl]
+            expired = [
+                k for k, (_, ts) in self._store.items() if (now - ts) > self._ttl
+            ]
             for k in expired:
                 del self._store[k]
             self._evictions += len(expired)
