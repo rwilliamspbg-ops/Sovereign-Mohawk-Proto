@@ -21,6 +21,28 @@ Usage:
     print(cache.metrics())
 """
 
+"""
+sdk_cache.py — Production-ready LRU+TTL cache for the Mohawk SDK
+=================================================================
+Thread-safe implementation with:
+* SHA-256 content-addressing for complex inputs (bytes, dicts, lists, floats)
+* Per-operation configurable max_size and TTL (seconds)
+* Hit / miss / eviction counter metrics
+* Context manager and decorator interfaces
+* Security notes: short TTL for security-sensitive ops (attest), no
+  negative-result caching for verify_proof_batch
+
+Usage:
+    from sdk_cache import CacheLayer, get_default_cache
+    cache = get_default_cache()
+    result = cache.verify_proof_batch(proof_payload, fallback=sdk_call)
+    result = cache.aggregate(updates, fallback=sdk_call)
+    result = cache.attest(node_id, fallback=sdk_call)
+
+    # Inspect metrics
+    print(cache.metrics())
+"""
+
 import hashlib
 import json
 import math
