@@ -298,6 +298,6 @@ FL_MONITOR_METADATA = {
     "divergence_trend": "stable",
     "bytes_within_budget": True,
     "sla_breach_rounds": [],
-    "linter_pass": true,
+    "linter_pass": True,
     "report_file": "results/fl_monitor_report.json"
 }
