@@ -1,7 +1,7 @@
 {
   "report_meta": {
     "title": "Mohawk SDK \u2014 Full Benchmark Report",
-    "generated_at": "2026-02-23T00:03:56Z",
+    "generated_at": "2026-02-23T00:34:28Z",
     "sdk_version": "0.1.0",
     "sdk_install": "sys.path injection",
     "sdk_location": "/tmp/Sovereign-Mohawk-Proto/sdk/python/mohawk/__init__.py",
@@ -12,7 +12,8 @@
       "FIX-2 batch-verify",
       "FIX-3 pre-warm",
       "FIX-4 parallel-train"
-    ]
+    ],
+    "previously_committed_sha": "3f559dcc3b91bbddccd834f8db4a32f22efcf707"
   },
   "test_suite": {
     "total": 57,
@@ -225,193 +226,7 @@
       "mem_peak_mb": 0.3153
     }
   },
-  "fl_round_results": {
-    "attest": {
-      "label": "attest()",
-      "n_iter": 35,
-      "mean_ms": 0.2078,
-      "median_ms": 0.1969,
-      "p95_ms": 0.2377,
-      "p99_ms": 0.3952,
-      "throughput_ops": 4811.5,
-      "mem_peak_mb": 0.0039
-    },
-    "fl_round_e2e": {
-      "label": "fl_round_e2e(10 nodes, parallel)",
-      "n_iter": 35,
-      "mean_ms": 10.7852,
-      "median_ms": 10.1595,
-      "p95_ms": 15.9523,
-      "p99_ms": 16.771,
-      "throughput_ops": 92.72,
-      "mem_peak_mb": 0.3153
-    }
-  },
   "retest_comparison": {
-    "before_after": {
-      "FIX-1": {
-        "before": {
-          "label": "aggregate(nodes=100) [v1 JSON]",
-          "n_iter": 35,
-          "mean_ms": 36.5249,
-          "median_ms": 35.8913,
-          "p95_ms": 42.9186,
-          "p99_ms": 46.7141,
-          "throughput_ops": 27.38,
-          "mem_peak_mb": 0.3135
-        },
-        "after": {
-          "label": "aggregate(nodes=100) [v2 msgpack]",
-          "n_iter": 35,
-          "mean_ms": 22.3282,
-          "median_ms": 22.1685,
-          "p95_ms": 22.7826,
-          "p99_ms": 27.3468,
-          "throughput_ops": 44.79,
-          "mem_peak_mb": 0.4558
-        }
-      },
-      "FIX-2": {
-        "before": {
-          "label": "verify_proof(batch=100) [v1 sequential]",
-          "n_iter": 35,
-          "mean_ms": 10.4463,
-          "median_ms": 10.0131,
-          "p95_ms": 12.6175,
-          "p99_ms": 17.4073,
-          "throughput_ops": 95.73,
-          "mem_peak_mb": 0.1424
-        },
-        "after": {
-          "label": "verify_proof(batch=100) [v2 batch]",
-          "n_iter": 35,
-          "mean_ms": 4.0055,
-          "median_ms": 3.9978,
-          "p95_ms": 4.1277,
-          "p99_ms": 4.1481,
-          "throughput_ops": 249.66,
-          "mem_peak_mb": 0.1059
-        }
-      },
-      "FIX-3": {
-        "before": {
-          "label": "attest() [v1 cold-start]",
-          "n_iter": 35,
-          "mean_ms": 0.2139,
-          "median_ms": 0.2057,
-          "p95_ms": 0.2515,
-          "p99_ms": 0.2956,
-          "throughput_ops": 4675.76,
-          "mem_peak_mb": 0.004
-        },
-        "after": {
-          "label": "attest() [v2 pre-warmed]",
-          "n_iter": 35,
-          "mean_ms": 0.2152,
-          "median_ms": 0.2097,
-          "p95_ms": 0.2679,
-          "p99_ms": 0.2721,
-          "throughput_ops": 4647.23,
-          "mem_peak_mb": 0.0042
-        }
-      },
-      "FIX-4": {
-        "before": {
-          "label": "fl_round_e2e [v1 sequential]",
-          "n_iter": 35,
-          "mean_ms": 7.745,
-          "median_ms": 7.6989,
-          "p95_ms": 8.0686,
-          "p99_ms": 8.5603,
-          "throughput_ops": 129.12,
-          "mem_peak_mb": 0.2793
-        },
-        "after": {
-          "label": "fl_round_e2e [v2 parallel]",
-          "n_iter": 35,
-          "mean_ms": 10.5046,
-          "median_ms": 10.2115,
-          "p95_ms": 11.4287,
-          "p99_ms": 15.877,
-          "throughput_ops": 95.2,
-          "mem_peak_mb": 0.3078
-        }
-      }
-    },
-    "delta_metrics": {
-      "FIX-1": {
-        "fix": "FIX-1",
-        "short_label": "aggregate\n(100n)",
-        "label": "aggregate(nodes=100)",
-        "before_mean": 36.5249,
-        "after_mean": 22.3282,
-        "before_p99": 46.7141,
-        "after_p99": 27.3468,
-        "before_tput": 27.38,
-        "after_tput": 44.79,
-        "before_mem": 0.3135,
-        "after_mem": 0.4558,
-        "lat_imp_pct": 38.87,
-        "p99_imp_pct": 41.46,
-        "tput_imp_pct": 63.59,
-        "mem_delta_mb": 0.1423,
-        "jit_red_pct": 4.24
-      },
-      "FIX-2": {
-        "fix": "FIX-2",
-        "short_label": "verify\n(batch=100)",
-        "label": "verify_proof(batch=100)",
-        "before_mean": 10.4463,
-        "after_mean": 4.0055,
-        "before_p99": 17.4073,
-        "after_p99": 4.1481,
-        "before_tput": 95.73,
-        "after_tput": 249.66,
-        "before_mem": 0.1424,
-        "after_mem": 0.1059,
-        "lat_imp_pct": 61.66,
-        "p99_imp_pct": 76.17,
-        "tput_imp_pct": 160.8,
-        "mem_delta_mb": -0.0365,
-        "jit_red_pct": 37.85
-      },
-      "FIX-3": {
-        "fix": "FIX-3",
-        "short_label": "attest()",
-        "label": "attest()",
-        "before_mean": 0.2139,
-        "after_mean": 0.2152,
-        "before_p99": 0.2956,
-        "after_p99": 0.2721,
-        "before_tput": 4675.76,
-        "after_tput": 4647.23,
-        "before_mem": 0.004,
-        "after_mem": 0.0042,
-        "lat_imp_pct": -0.61,
-        "p99_imp_pct": 7.95,
-        "tput_imp_pct": -0.61,
-        "mem_delta_mb": 0.0002,
-        "jit_red_pct": 8.51
-      },
-      "FIX-4": {
-        "fix": "FIX-4",
-        "short_label": "fl_round\n(10n)",
-        "label": "fl_round_e2e (10 nodes)",
-        "before_mean": 7.745,
-        "after_mean": 10.5046,
-        "before_p99": 8.5603,
-        "after_p99": 15.877,
-        "before_tput": 129.12,
-        "after_tput": 95.2,
-        "before_mem": 0.2793,
-        "after_mem": 0.3078,
-        "lat_imp_pct": -35.63,
-        "p99_imp_pct": -85.47,
-        "tput_imp_pct": -26.27,
-        "mem_delta_mb": 0.0285,
-        "jit_red_pct": -36.75
-      }
-    },
     "summary": {
       "FIX-1": {
         "p99_improvement_pct": 41.46,
