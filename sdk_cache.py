@@ -21,19 +21,34 @@ import numpy as np
 
 # ── Optimized FL model weights (from horizontal scaling run) ──────────────────
 FEDAVG_WEIGHTS_OPTIMIZED: List[float] = [
-    0.11468014455177575, -0.06270534068523452, -0.09932557207624451,
-    0.1008978312679598, -0.34525065752959133, -0.15687471053952207,
-    0.033863540818771486, 0.1130605845071889, 0.1167827757855516,
-    -0.3510638871139363, -0.06952658683557271, 0.10470621691276578,
-    -0.1243207145679921, -0.022260517144474946, 0.06635051043261866,
-    0.023615398705973047, 0.04135465632698709, -0.007940440488131082,
-    0.08723400836966255, 0.0622966090452512
+    0.11468014455177575,
+    -0.06270534068523452,
+    -0.09932557207624451,
+    0.1008978312679598,
+    -0.34525065752959133,
+    -0.15687471053952207,
+    0.033863540818771486,
+    0.1130605845071889,
+    0.1167827757855516,
+    -0.3510638871139363,
+    -0.06952658683557271,
+    0.10470621691276578,
+    -0.1243207145679921,
+    -0.022260517144474946,
+    0.06635051043261866,
+    0.023615398705973047,
+    0.04135465632698709,
+    -0.007940440488131082,
+    0.08723400836966255,
+    0.0622966090452512,
 ]
 FEDAVG_BIAS_OPTIMIZED: float = 0.0056836627914285676
 
 
 # ── Distributed sharded FedAvg SDK function ────────────────────────────────────
-def _assign_shards(n_params: int, n_shards: int, strategy: str = "round_robin") -> List[List[int]]:
+def _assign_shards(
+    n_params: int, n_shards: int, strategy: str = "round_robin"
+) -> List[List[int]]:
     """
     Shard assignment logic for distributed parameter aggregation.
     """
@@ -59,9 +74,7 @@ def _assign_shards(n_params: int, n_shards: int, strategy: str = "round_robin") 
 
 
 def _coordinator_reduce(
-    shard_indices: List[List[int]],
-    partial_results: Dict[int, np.ndarray],
-    n_params: int
+    shard_indices: List[List[int]], partial_results: Dict[int, np.ndarray], n_params: int
 ) -> np.ndarray:
     """
     Coordinator reduce step: merge per-shard partial aggregation results.
@@ -90,7 +103,9 @@ def get_distributed_sharded_fedavg(
         raise ValueError(f"bias_vec must be 1-D, got shape {_b.shape}")
     _n_clients, _n_params = _W.shape
     if len(_b) != _n_clients:
-        raise ValueError(f"bias_vec length ({len(_b)}) must equal n_clients ({_n_clients})")
+        raise ValueError(
+            f"bias_vec length ({len(_b)}) must equal n_clients ({_n_clients})"
+        )
     # Normalized averaging weights
     if sample_counts is not None:
         _counts = np.asarray(sample_counts, dtype=np.float64)
@@ -130,14 +145,19 @@ def _hash_value(obj: Any) -> str:
     elif isinstance(obj, (str, int, float, bool)):
         payload = repr(obj).encode()
     elif isinstance(obj, (list, tuple)):
-        payload = json.dumps([_hash_value(v) for v in obj], sort_keys=True, separators=(",", ":")).encode()
+        payload = json.dumps(
+            [_hash_value(v) for v in obj], sort_keys=True, separators=(",", ":")
+        ).encode()
     elif isinstance(obj, dict):
         payload = json.dumps(
             {k: _hash_value(v) for k, v in sorted(obj.items())},
-            sort_keys=True, separators=(",", ":")
+            sort_keys=True,
+            separators=(",", ":"),
         ).encode()
     elif isinstance(obj, set):
-        payload = json.dumps(sorted([_hash_value(v) for v in obj]), separators=(",", ":")).encode()
+        payload = json.dumps(
+            sorted([_hash_value(v) for v in obj]), separators=(",", ":")
+        ).encode()
     else:
         payload = repr(obj).encode()
     return hashlib.sha256(payload).hexdigest()
@@ -200,7 +220,9 @@ class LRUTTLCache:
             return 0
         with self._lock:
             _now = time.monotonic()
-            _expired = [k for k, (_, ts) in self._store.items() if (_now - ts) > self._ttl]
+            _expired = [
+                k for k, (_, ts) in self._store.items() if (_now - ts) > self._ttl
+            ]
             for _k in _expired:
                 del self._store[_k]
             self._evictions += len(_expired)
@@ -248,7 +270,9 @@ class CacheLayer:
         wasm_ttl: Optional[float] = None,
     ):
         self._caches: Dict[str, LRUTTLCache] = {
-            "verify_proof_batch": LRUTTLCache(verify_max_size, verify_ttl, "verify_proof_batch"),
+            "verify_proof_batch": LRUTTLCache(
+                verify_max_size, verify_ttl, "verify_proof_batch"
+            ),
             "aggregate": LRUTTLCache(aggregate_max_size, aggregate_ttl, "aggregate"),
             "attest": LRUTTLCache(attest_max_size, attest_ttl, "attest"),
             "load_wasm": LRUTTLCache(wasm_max_size, wasm_ttl, "load_wasm"),
@@ -306,7 +330,9 @@ class CacheLayer:
                 "total_hits": _total_hits,
                 "total_misses": _total_misses,
                 "total_lookups": _total_lookups,
-                "overall_hit_rate": round(_total_hits / _total_lookups, 4) if _total_lookups else 0.0,
+                "overall_hit_rate": (
+                    round(_total_hits / _total_lookups, 4) if _total_lookups else 0.0
+                ),
                 "total_evictions": sum(v["evictions"] for v in _per_op.values()),
             },
         }
