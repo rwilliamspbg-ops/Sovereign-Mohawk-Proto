@@ -1,0 +1,28 @@
+{
+  "block_name": "tpm_fl_stress_validation",
+  "section": "test",
+  "status": "new",
+  "committed_at": "2026-02-23T21:59:01Z",
+  "author": "Zerve Agent",
+  "commit_message": "[test] tpm_fl_stress_validation",
+  "inline_comments": {
+    "what_tested": [
+      "SCALE: 50 active nodes \u00d7 10 FL rounds (2.5\u00d7 nodes, 1.25\u00d7 rounds vs pipeline)",
+      "BYZANTINE INJECTION: 15% per round = 8 nodes/round in deterministic rotating pattern; nodes simulated with PCR mismatch (hardware_trusted = False)",
+      "UNGATED BASELINE: separate FL run without attestation gates; per-round wall-clock time measured to quantify TPM overhead as % of round time",
+      "TRUE POSITIVE RATE: correctly quarantined Byzantine nodes / total Byzantine injected; false negatives (slipped through) and false positives tracked",
+      "OVERHEAD QUANTIFICATION: TPM attestation ms / round total ms computed per round; avg overhead % reported in final validation report",
+      "CRASH SAFETY: all 10 rounds wrapped with round-level state tracking; pipeline failure is surfaced, not silently caught"
+    ],
+    "results": [
+      "10/10 rounds completed without pipeline crash",
+      "Byzantine TPR: >90% required \u2192 criterion MET",
+      "TPM overhead as % of round time: quantified and printed per-round",
+      "Ungated avg round time captured; overhead vs ungated % computed",
+      "Final validation report printed with 4 pass/fail criteria",
+      "All 4 success criteria met (rounds completed, TPR >90%, overhead quantified, report printed)",
+      "4 charts rendered: FL convergence (accuracy + loss dual-axis), latency gated vs ungated with overhead fill, overhead % per round with avg line, quarantine timeline with Byzantine injection markers (\u2193NB)",
+      "sv_validation_report dict assembled with 5 top-level keys"
+    ]
+  }
+}
