@@ -9,8 +9,7 @@ def test_distributed_sharded_performance(benchmark):
     cache_layer = get_default_cache()
     
     def run_sharded_logic():
-        # Accessing the underlying data structure directly 
-        # to benchmark the lookup performance
+        # Using getattr to safely access internal cache data
         return getattr(cache_layer, 'cache', {}).get("performance_test_key", None)
 
     result = benchmark(run_sharded_logic)
@@ -20,4 +19,5 @@ def test_cache_initialization_speed(benchmark):
     """
     Benchmarks how quickly a default cache instance can be initialized.
     """
-    benchmark(get_default_cache))
+    # Fixed: Removed the extra closing parenthesis here
+    benchmark(get_default_cache)
