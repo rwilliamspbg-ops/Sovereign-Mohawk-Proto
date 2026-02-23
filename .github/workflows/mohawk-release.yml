@@ -1,3 +1,4 @@
+---
 name: Mohawk AOT Release
 on:
   push:
@@ -5,8 +6,6 @@ on:
       - 'v*'
   workflow_dispatch:
 
-# ── Permissions ──────────────────────────────────────────────────────────────
-# This block is required to fix the "Resource not accessible" error.
 permissions:
   contents: write
   packages: write
@@ -28,13 +27,13 @@ jobs:
       - name: Install Wasmtime
         run: |
           curl https://wasmtime.dev/install.sh -sSf | bash
-          echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
+          echo "$HOME/.wasmtime/bin" >> "$GITHUB_PATH"
 
       - name: Build and Pre-compile
         working-directory: ./wasm-modules/fl_task
         run: |
           cargo build --target wasm32-wasip1 --release
-          WASM_PATH=$(ls target/wasm32-wasip1/release/*.wasm | head -n 1)
+          WASM_PATH=$(find target/wasm32-wasip1/release/ -name "*.wasm" | head -n 1)
           wasmtime compile --output ../../mohawk_core_aot.cwasm "$WASM_PATH"
           sha256sum ../../mohawk_core_aot.cwasm | awk '{print $1}' > ../../golden_hash.txt
 
@@ -42,9 +41,9 @@ jobs:
         id: measure
         run: |
           sha256sum mohawk_core_aot.cwasm > measurement.sha256
-          M_HASH=$(cat measurement.sha256 | awk '{print $1}')
-          echo "MEASUREMENT=$M_HASH" >> $GITHUB_OUTPUT
-          echo "MEASUREMENT=$M_HASH" >> $GITHUB_ENV
+          M_HASH=$(awk '{print $1}' < measurement.sha256)
+          echo "MEASUREMENT=$M_HASH" >> "$GITHUB_OUTPUT"
+          echo "MEASUREMENT=$M_HASH" >> "$GITHUB_ENV"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
@@ -67,13 +66,11 @@ jobs:
       - name: Install Wasmtime
         run: |
           curl https://wasmtime.dev/install.sh -sSf | bash
-          echo "$HOME/.wasmtime/bin" >> $GITHUB_PATH
+          echo "$HOME/.wasmtime/bin" >> "$GITHUB_PATH"
 
       - name: Verify AOT Execution
         run: |
-          # Test if the AOT module can be loaded and initialized
-          # This validates the Byzantine Fault Tolerance logic entry point
-          wasmtime run --allow-unknown-exports mohawk_core_aot.cwasm || echo "Module loaded successfully"
+          wasmtime run --allow-unknown-exports mohawk_core_aot.cwasm || echo "Module loaded"
 
   create-release:
     needs: [build-aot, test-aot]
