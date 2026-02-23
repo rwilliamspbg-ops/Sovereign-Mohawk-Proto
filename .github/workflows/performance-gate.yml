@@ -19,21 +19,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-
       - name: Install dependencies
         run: |
           pip install pytest pytest-benchmark numpy
-          # Ensure pyproject.toml is fixed before this step
+          # Installing the SDK in editable mode
           cd sdk/python && pip install -e .
 
       - name: Run performance benchmarks
         run: |
-          cd sdk/python
-          pytest tests/test_benchmarks.py --benchmark-only --benchmark-json=../../benchmark-results.json
+          # We run from the root and point to the specific test file
+          pytest sdk/python/tests/test_benchmarks.py --benchmark-only --benchmark-json=benchmark-results.json
 
       - name: Performance Gate Check
         run: |
@@ -45,13 +40,14 @@ jobs:
               with open('benchmark-results.json', 'r') as f:
                   results = json.load(f)
           except FileNotFoundError:
-              print("❌ benchmark-results.json not found. Benchmarks likely failed to run.")
+              print("❌ benchmark-results.json not found. Check if tests/test_benchmarks.py exists.")
               sys.exit(1)
 
+          # REC-09 Thresholds
           thresholds = {
-              'verify_proof_batch': {'p99_max_ms': 6.0, 'critical': True},
-              'aggregate_nodes': {'mean_max_ms': 25.0, 'critical': True},
-              'attest': {'throughput_min_ops': 4000.0, 'critical': True}
+              'verify_proof_batch': {'p99_max_ms': 6.0},
+              'aggregate_nodes': {'mean_max_ms': 25.0},
+              'attest': {'throughput_min_ops': 4000.0}
           }
 
           failures = []
@@ -60,7 +56,7 @@ jobs:
               stats = benchmark['stats']
               mean_ms = stats['mean'] * 1000
               p99_ms = stats.get('p99', 0) * 1000
-              throughput = 1.0 / stats['mean']
+              throughput = 1.0 / stats['mean'] if stats['mean'] > 0 else 0
 
               for key, limits in thresholds.items():
                   if key in name.lower():
@@ -73,7 +69,7 @@ jobs:
               print("\n🚫 PERFORMANCE GATE FAILED:")
               for f in failures: print(f"  {f}")
               sys.exit(1)
-          print("✅ All performance gates passed")
+          print("✅ All performance gates passed.")
           EOF
 
       - name: Upload benchmark results
