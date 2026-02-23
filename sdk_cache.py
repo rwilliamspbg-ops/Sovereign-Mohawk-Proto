@@ -296,7 +296,7 @@ FL_MONITOR_METADATA = {
     "final_loss": 0.49625,
     "final_accuracy": 0.904862,
     "divergence_trend": "stable",
-    "bytes_within_budget": true,
+    "bytes_within_budget": True,
     "sla_breach_rounds": [],
     "linter_pass": true,
     "report_file": "results/fl_monitor_report.json"
