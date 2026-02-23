@@ -1,16 +1,16 @@
 # Contributing to Sovereign Mohawk Protocol (SMP)
 
-Thank you for your interest in the **Sovereign Mohawk Protocol**! We are building 
-a decentralized spatial operating system where data sovereignty is a right, not 
-a feature. By contributing, you are helping scale a coordinator-less, 
+Thank you for your interest in the **Sovereign Mohawk Protocol**! We are building
+a decentralized spatial operating system where data sovereignty is a right, not
+a feature. By contributing, you are helping scale a coordinator-less,
 privacy-preserving network to 10 million nodes.
 
 ---
 
 ## 🏆 The Audit Status & Points System
-To incentivize high-integrity contributions, we use a merit-based **Audit Points** system. Earning points grants you "Audit Status" within the community and 
-determines eligibility for rewards within the 
-[Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) 
+To incentivize high-integrity contributions, we use a merit-based **Audit Points** system. Earning points grants you "Audit Status" within the community and
+determines eligibility for rewards within the
+[Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
 ecosystem.
 
 ### Priority Tracks & Point Values
@@ -26,7 +26,7 @@ ecosystem.
 ## 🛠️ How to Contribute
 
 ### 1. Claim a "Master Auditor" Task
-Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues) 
+Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues)
 for the `Master Auditor` or `priority` labels. We are currently seeking:
 * **Theorem 5 Verification:** Stress-test ZK-proofs against Round 45 logs.
 * **NPU Optimization:** FFI bindings for **85+ TOPS** hardware.
