@@ -1,18 +1,24 @@
 # Contributing to Sovereign Mohawk Protocol (SMP)
 
-Thank you for your interest in the **Sovereign Mohawk Protocol**! We are building a decentralized spatial operating system where data sovereignty is a right, not a feature. By contributing, you are helping scale a coordinator-less, privacy-preserving network to 10 million nodes.
+Thank you for your interest in the **Sovereign Mohawk Protocol**! We are building 
+a decentralized spatial operating system where data sovereignty is a right, not 
+a feature. By contributing, you are helping scale a coordinator-less, 
+privacy-preserving network to 10 million nodes.
 
 ---
 
 ## 🏆 The Audit Status & Points System
-To incentivize high-integrity contributions, we use a merit-based **Audit Points** system. Earning points grants you "Audit Status" within the community and determines eligibility for rewards within the [Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) ecosystem.
+To incentivize high-integrity contributions, we use a merit-based **Audit Points** system. Earning points grants you "Audit Status" within the community and 
+determines eligibility for rewards within the 
+[Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) 
+ecosystem.
 
 ### Priority Tracks & Point Values
 | Track | Role | Goal | Points |
 | :--- | :--- | :--- | :--- |
 | **🛡️ Audit & Verify** | Cryptographer | Verify Theorems 1-6 or audit zk-SNARK logic. | **100** |
-| **🏗️ Hardware Port** | Edge Engineer | Port the node-agent to new NPUs (e.g., Jetson, Apple Silicon). | **50** |
-| **🐍 SDK Expansion** | Python Dev | Build high-level wrappers or [Jupyter Tutorials](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/notebooks). | **25** |
+| **🏗️ Hardware Port** | Edge Engineer | Port node-agent to NPUs (e.g., Jetson, Apple Silicon). | **50** |
+| **🐍 SDK Expansion** | Python Dev | Build wrappers or [Jupyter Tutorials](./notebooks). | **25** |
 | **📝 Documentation** | Any | Fix typos, improve READMEs, or clarify technical specs. | **5** |
 
 ---
@@ -20,14 +26,15 @@ To incentivize high-integrity contributions, we use a merit-based **Audit Points
 ## 🛠️ How to Contribute
 
 ### 1. Claim a "Master Auditor" Task
-Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues) for the `Master Auditor` or `priority` labels. We are currently seeking:
+Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues) 
+for the `Master Auditor` or `priority` labels. We are currently seeking:
 * **Theorem 5 Verification:** Stress-test ZK-proofs against Round 45 logs.
 * **NPU Optimization:** FFI bindings for **85+ TOPS** hardware.
 
 ### 2. Use Professional Templates
 Your PR must include a completed template to be eligible for points:
-* [Cryptographic Audit Template](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/ISSUE_TEMPLATE/audit_verification.md)
-* [Hardware Porting Template](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/ISSUE_TEMPLATE/hardware_port.md)
+* [Cryptographic Audit Template](./proofs/audit_verification.md)
+* [Hardware Porting Template](./proofs/hardware_port.md)
 
 ### 3. Submission & Linting
 1. **Fork** the repository and create a feature branch (`git checkout -b feat/your-contribution`).
