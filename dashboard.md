@@ -15,7 +15,7 @@ fault tolerance validation, and 500-node scale testing.
 
 ---
 
-## 1. TPM Attestation Bug Fixes
+## 1. TPM Attestation bugfixes
 
 **Block:** `tpm_attestation_verification`  |  **Commit tag:** `[fix]`
 **Commit SHA:** `36c9902a009311e07755a16e9e565f9938082b1b`
