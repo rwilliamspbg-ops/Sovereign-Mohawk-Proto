@@ -10,43 +10,42 @@ jobs:
   performance-gate:
     name: Performance Regression Gate
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.24'
-          
+
       - name: Install dependencies
         run: |
           pip install pytest pytest-benchmark numpy
           make build-python-lib
           cd sdk/python && pip install -e .
-          
+
       - name: Run performance benchmarks
         run: |
           cd sdk/python
           pytest tests/test_benchmarks.py --benchmark-only --benchmark-json=../../benchmark-results.json
-          
+
       - name: Performance Gate Check
         run: |
           python3 << 'EOF'
           import json
           import sys
-          
+
           # Load benchmark results
           with open('benchmark-results.json', 'r') as f:
               results = json.load(f)
-          
-          # Define critical thresholds from REC-09 (sdk_optimization_report.json)
+
+          # Define critical thresholds from REC-09
           thresholds = {
               'verify_proof_batch_100': {
                   'p99_max_ms': 6.0,
@@ -73,10 +72,10 @@ jobs:
                   'critical': False
               }
           }
-          
+
           failures = []
           warnings = []
-          
+
           for benchmark in results.get('benchmarks', []):
               name = benchmark['name']
               stats = benchmark['stats']
@@ -84,19 +83,16 @@ jobs:
               # Convert seconds to milliseconds
               mean_ms = stats['mean'] * 1000
               p99_ms = stats.get('p99', 0) * 1000 if 'p99' in stats else None
-              throughput_ops = 1000 / stats['mean'] if stats['mean'] > 0 else 0
-              
+              throughput_ops = 1000 / (stats['mean'] * 1000) if stats['mean'] > 0 else 0
+
               # Check thresholds
               for key, limits in thresholds.items():
                   if key in name.lower():
                       violations = []
-                      
                       if 'mean_max_ms' in limits and mean_ms > limits['mean_max_ms']:
                           violations.append(f"Mean latency {mean_ms:.2f}ms exceeds {limits['mean_max_ms']}ms")
-                      
                       if 'p99_max_ms' in limits and p99_ms and p99_ms > limits['p99_max_ms']:
                           violations.append(f"P99 latency {p99_ms:.2f}ms exceeds {limits['p99_max_ms']}ms")
-                      
                       if 'throughput_min_ops' in limits and throughput_ops < limits['throughput_min_ops']:
                           violations.append(f"Throughput {throughput_ops:.1f} ops/s below minimum {limits['throughput_min_ops']}")
                       
@@ -106,13 +102,13 @@ jobs:
                               failures.append(msg)
                           else:
                               warnings.append(msg)
-          
+
           # Report results
           if warnings:
               print("⚠️  Performance Warnings:")
               for w in warnings:
                   print(f"  {w}")
-          
+
           if failures:
               print("\n🚫 PERFORMANCE GATE FAILED:")
               for f in failures:
@@ -124,14 +120,14 @@ jobs:
           else:
               print("✅ All performance gates passed")
           EOF
-          
+
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-benchmarks
           path: benchmark-results.json
-          
+
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -139,7 +135,6 @@ jobs:
           script: |
             const fs = require('fs');
             const results = JSON.parse(fs.readFileSync('benchmark-results.json', 'utf8'));
-            
             let comment = '## 📊 Performance Benchmark Results\n\n';
             comment += '| Operation | Mean (ms) | P99 (ms) | Throughput (ops/s) | Status |\n';
             comment += '|-----------|-----------|----------|-------------------|--------|\n';
@@ -147,12 +142,11 @@ jobs:
             for (const bench of results.benchmarks) {
               const mean = (bench.stats.mean * 1000).toFixed(2);
               const p99 = bench.stats.p99 ? (bench.stats.p99 * 1000).toFixed(2) : 'N/A';
-              const throughput = (1000 / bench.stats.mean).toFixed(1);
+              const throughput = (1 / bench.stats.mean).toFixed(1);
               comment += `| ${bench.name} | ${mean} | ${p99} | ${throughput} | ✅ |\n`;
             }
             
             comment += '\n*Performance gates enforced per REC-09 from sdk_optimization_report.json*';
-            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
