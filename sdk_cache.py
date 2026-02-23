@@ -86,7 +86,9 @@ def _assign_shards(
 
 
 def _coordinator_reduce(
-    shard_indices: List[List[int]], partial_results: Dict[int, np.ndarray], n_params: int
+    shard_indices: List[List[int]],
+    partial_results: Dict[int, np.ndarray],
+    n_params: int,
 ) -> np.ndarray:
     """
     Coordinator reduce step: merge per-shard partial aggregation results.
