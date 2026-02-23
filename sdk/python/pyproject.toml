@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sovereign-mohawk"
-version = "0.1.0"
+version = "2.0.0a1"
 authors = [
-    {name = "Ryan", email = "architects@sovereignmap.network"}
+    {name = "rwilliamspbg-ops", email = "ryan@mohawk-protocol.io"}
 ]
 description = "Python SDK for Sovereign-Mohawk federated learning protocol"
 readme = "README.md"
