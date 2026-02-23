@@ -1,3 +1,4 @@
+---
 name: Performance Gate
 
 on:
@@ -22,14 +23,16 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pytest pytest-benchmark numpy
-          # Installing the SDK in editable mode
           cd sdk/python && pip install -e .
 
       - name: Run performance benchmarks
         run: |
-          # FIX: Adding the SDK directory to PYTHONPATH so pytest can find sdk_cache
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/sdk/python
-          pytest sdk/python/tests/test_benchmarks.py --benchmark-only --benchmark-json=benchmark-results.json
+          # SC2155 Fix: Declare and assign separately
+          PYTHONPATH="$PYTHONPATH:$(pwd)/sdk/python"
+          export PYTHONPATH
+          pytest sdk/python/tests/test_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json
 
       - name: Performance Gate Check
         run: |
@@ -41,10 +44,10 @@ jobs:
               with open('benchmark-results.json', 'r') as f:
                   results = json.load(f)
           except FileNotFoundError:
-              print("❌ benchmark-results.json not found. Check if sdk/python/tests/test_benchmarks.py exists.")
+              print("❌ benchmark-results.json not found.")
               sys.exit(1)
 
-          # REC-09 Thresholds enforced for Sovereign-Mohawk Protocol
+          # REC-09 Thresholds
           thresholds = {
               'verify_proof_batch': {'p99_max_ms': 6.0},
               'aggregate_nodes': {'mean_max_ms': 25.0},
@@ -62,16 +65,16 @@ jobs:
               for key, limits in thresholds.items():
                   if key in name.lower():
                       if 'p99_max_ms' in limits and p99_ms > limits['p99_max_ms']:
-                          failures.append(f"{name}: P99 {p99_ms:.2f}ms > {limits['p99_max_ms']}ms")
-                      if 'throughput_min_ops' in limits and throughput < limits['throughput_min_ops']:
-                          failures.append(f"{name}: Throughput {throughput:.1f} < {limits['throughput_min_ops']}")
+                          failures.append(f"{name}: P99 {p99_ms:.2f}ms > 6ms")
+                      if 'throughput_min_ops' in limits and \
+                         throughput < limits['throughput_min_ops']:
+                          failures.append(f"{name}: Low Throughput {throughput:.1f}")
 
           if failures:
               print("\n🚫 PERFORMANCE GATE FAILED:")
               for f in failures: print(f"  {f}")
               sys.exit(1)
-          
-          print("✅ All performance gates passed. 91.2% Accuracy Milestone Verified.")
+          print("✅ All performance gates passed.")
           EOF
 
       - name: Upload benchmark results
