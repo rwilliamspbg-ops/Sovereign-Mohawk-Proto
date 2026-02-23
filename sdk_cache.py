@@ -108,7 +108,12 @@ class CacheLayer:
         }
 
     def with_cache(
-        self, name: str, key_parts: tuple, fallback: Callable, *args: Any, **kwargs: Any
+        self,
+        name: str,
+        key_parts: tuple,
+        fallback: Callable,
+        *args: Any,
+        **kwargs: Any,
     ) -> Any:
         cache = self._caches[name]
         key = make_cache_key(*key_parts)
@@ -120,7 +125,12 @@ class CacheLayer:
         return result
 
     def load_wasm(
-        self, file_path: str, checksum: str, fallback: Callable, *args: Any, **kwargs: Any
+        self,
+        file_path: str,
+        checksum: str,
+        fallback: Callable,
+        *args: Any,
+        **kwargs: Any,
     ) -> Any:
         cache = self._caches["load_wasm"]
         key = make_cache_key(file_path, checksum)
