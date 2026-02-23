@@ -142,7 +142,9 @@ class CacheLayer:
                 "total_hits": total_hits,
                 "total_misses": total_misses,
                 "total_lookups": total_lookups,
-                "overall_hit_rate": round(total_hits / total_lookups, 4) if total_lookups else 0.0,
+                "overall_hit_rate": (
+                    round(total_hits / total_lookups, 4) if total_lookups else 0.0
+                ),
                 "total_evictions": sum(v["evictions"] for v in per_op.values()),
             },
         }
