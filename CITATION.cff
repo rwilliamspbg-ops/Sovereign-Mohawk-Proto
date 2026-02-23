@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this protocol or the Round 45 Audit benchmarks in your research, please cite it as follows."
+authors:
+  - family-names: "Williams"
+    given-names: "Ryan"
+    email: "r.williamspbg@gmail.com"
+title: "Sovereign Mohawk Protocol: A Formally Verified 10M-Node Federated Learning Architecture"
+version: 2.0.0a1
+date-released: 2026-02-23
+url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"
