@@ -1,13 +1,48 @@
-- name: Auto-Fix Badge Links
-        if: github.event_name == 'push'
+name: Badge Guard & Link Validator
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Auto-Fix README Badge Paths
         run: |
-          # This regex finds workflow badge URLs and ensures they match actual files
-          # Note: This is a basic version; for production, use a dedicated Action
+          # Replace deleted workflow references with the new Mohawk Master CI
           sed -i 's/verify.yml/main.yml/g' README.md
           sed -i 's/performance.yml/main.yml/g' README.md
+          sed -i 's/performance-metrics/main.yml/g' README.md
           
+          # Configure Git
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "docs: auto-fix broken badge references" || echo "No changes to commit"
-          git push
+          
+          # Commit changes if any exist
+          if [[ -n $(git status -s) ]]; then
+            git add README.md
+            git commit -m "docs: auto-fix broken badge references"
+            git push
+          else
+            echo "No broken references found."
+          fi
+
+      - name: Verify Remaining Badges
+        run: |
+          # Ensure all remaining workflow badges point to existing files
+          BADGES=$(grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md || true)
+          for B in $BADGES; do
+            FILE=$(echo $B | cut -d'/' -f2)
+            if [ ! -f ".github/workflows/$FILE" ]; then
+              echo "::error file=README.md::Badge still refers to missing workflow: $FILE"
+              exit 1
+            fi
+          done
