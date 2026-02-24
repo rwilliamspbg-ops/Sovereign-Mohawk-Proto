@@ -1,9 +1,8 @@
 {
-  "version": "v0.1.0-verified",
-  "timestamp": "2026-02-16T13:09:37Z",
-  "bft_safety_theorem_1": true,
-  "liveness_theorem_4": "99.99%+",
-  "zk_snark_verify_ms": 0.014,
-  "total_nodes_verified": 10000000,
-  "status": "VALID_AOT_RELEASE"
+  "version": "1.0.0",
+  "runtime": "mohawk-proto-v1",
+  "byzantine_threshold": 0.55,
+  "nodes": [
+    { "id": "genesis-01", "role": "validator", "capacity": "85TOPS" }
+  ]
 }
