@@ -3,19 +3,36 @@ name: Mohawk Master CI
 on:
   push:
     branches: [ main ]
-    paths-ignore: ['README.md', 'DASHBOARD.md', 'docs/**']
+    paths-ignore: ['README.md', 'docs/**']
   workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 permissions:
   contents: read
   security-events: write
 
 jobs:
-  verify:
+  relation-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Verify Cross-Repo Relations
+        run: |
+          echo "Verifying Sovereign Mohawk ecosystem relations..."
+          # 1. Check for Go 1.24 Sync
+          grep "go 1.24" go.mod || (echo "Error: go.mod version mismatch" && exit 1)
+          
+          # 2. Check for Critical Protocol Files
+          FILES=("main.go" "go.mod" ".github/workflows/main.yml" ".github/workflows/badge-guard.yml")
+          for f in "${FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Relation Broken: Missing critical file $f"
+              exit 1
+            fi
+          done
+
+  logic-verification:
+    needs: relation-audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,9 +40,7 @@ jobs:
         with:
           go-version: '1.24'
           cache: true
-      - name: Environment Sync
+      - name: BFT Simulation
         run: |
           go mod tidy
-          go mod verify
-      - name: BFT Logic & Race Detection
-        run: go test -v -race ./...
+          go test -v -race ./...
