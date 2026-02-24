@@ -1,0 +1,28 @@
+name: Badge Guard & Link Validator
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-badges:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check README for Dead Action Links
+        run: |
+          # This script checks if the workflow files mentioned in README badges actually exist
+          BADGES=$(grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md || true)
+          for B in $BADGES; do
+            FILE=$(echo $B | cut -d'/' -f2)
+            if [ ! -f ".github/workflows/$FILE" ]; then
+              echo "::error file=README.md::Badge refers to missing workflow: $FILE"
+              exit 1
+            fi
+          done
+          echo "All active badges verified against existing workflows."
