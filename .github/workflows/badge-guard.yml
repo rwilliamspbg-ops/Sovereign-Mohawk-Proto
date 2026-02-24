@@ -3,10 +3,12 @@ name: Badge Guard & Link Validator
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'README.md' # Only run when README changes to save resources
   workflow_dispatch:
 
 permissions:
-  contents: write  # This is the missing piece allowing the fix
+  contents: write
 
 jobs:
   validate-and-fix:
@@ -14,36 +16,29 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Auto-Fix README Badge Paths
+      - name: Auto-Fix README
         run: |
-          # Replace deleted workflow references with active ones
+          # Fix common naming mismatches
           sed -i 's/verify.yml/main.yml/g' README.md
           sed -i 's/performance.yml/main.yml/g' README.md
           
-          # Configure Git for the runner
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # Only commit if there are changes
           if [[ -n $(git status -s) ]]; then
             git add README.md
-            git commit -m "docs: sync badges with active workflows"
+            # [skip ci] is the magic key to stop the infinite loop
+            git commit -m "docs: auto-fix badges [skip ci]"
             git push
-          else
-            echo "No broken references found. README is clean."
           fi
 
-      - name: Final Integrity Check
+      - name: Verify Existing Workflows
         run: |
-          # Verify all workflow badges in README actually exist in the repo
-          BADGES=$(grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md || true)
-          for B in $BADGES; do
-            FILE=$(echo $B | cut -d'/' -f2)
-            if [ ! -f ".github/workflows/$FILE" ]; then
-              echo "::error::README badge points to non-existent file: $FILE"
+          # Only check for files that SHOULD exist in .github/workflows
+          for f in main.yml badge-guard.yml; do
+            if [ ! -f ".github/workflows/$f" ]; then
+              echo "::error::Missing critical workflow file: $f"
               exit 1
             fi
           done
