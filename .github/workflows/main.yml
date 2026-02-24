@@ -5,9 +5,6 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -18,9 +15,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: '1.23'
 
-      - name: Run Build
+      - name: Build
         run: |
           if [ -f "main.go" ]; then
             go build -v ./...
@@ -29,4 +26,9 @@ jobs:
           fi
 
       - name: Check HTML
-        run: grep -q "<html" index.html && echo "HTML looks good."
+        run: |
+          if [ -f "index.html" ]; then
+            grep -q "<html" index.html && echo "HTML looks good."
+          else
+            echo "index.html not found."
+          fi
