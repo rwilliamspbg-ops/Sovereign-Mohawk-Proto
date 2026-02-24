@@ -10,13 +10,13 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 # Sovereign Mohawk Protocol
 
-| Layer | Status | Responsibility |
-| :--- | :--- | :--- |
-| **Protocol Engine** | [![Master CI](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml) | BFT & Logic Validation |
-| **Anti-Regression** | [![Regression](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml) | Performance Stability |
-| **Code Integrity** | [![Lint](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml) | Security & Linting |
-| **System Guard** | [![Badge Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml) | Repo & Link Health |
-| **Public Interface** | [![Deploy](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment) | Documentation Sync |
+| Component | Status |
+| :--- | :--- |
+| **Engine** | [![Master](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml) |
+| **Regression** | [![Anti-Regression](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml) |
+| **Linter** | [![Integrity](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml) |
+| **Guard** | [![Badge Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml) |
+| **Deployment** | [![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment) |
 
 ---
 
