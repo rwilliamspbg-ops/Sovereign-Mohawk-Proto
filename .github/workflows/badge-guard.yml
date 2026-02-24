@@ -5,17 +5,17 @@ on:
     paths: ['README.md']
 
 jobs:
-  validate:
+  check-associations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify Dashboard Associations
+      - name: Validate Dashboard Links
         run: |
-          # Ensure every workflow badge in the README has a matching file
+          # This verifies the link between the README and the actual Actions
           grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md | while read -r line ; do
             FILE=$(echo $line | cut -d'/' -f2)
             if [ ! -f ".github/workflows/$FILE" ]; then
-              echo "::error::Broken association found: $FILE"
+              echo "::error::Dead Association: $FILE is missing from .github/workflows/"
               exit 1
             fi
           done
