@@ -19,9 +19,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
@@ -96,7 +96,7 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 
 func loadWasm() ([]byte, string, error) {
 	path := "wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm"
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, "", err
 	}
