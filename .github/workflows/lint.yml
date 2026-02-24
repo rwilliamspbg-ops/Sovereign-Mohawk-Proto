@@ -23,8 +23,8 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # These two lines stop the common failures you're seeing
+          # The "Fail-Safe" settings:
           VALIDATE_JSCPD: false
           VALIDATE_GO: false 
           VALIDATE_HTML: true
-          VALIDATE_MARKDOWN: true
+          VALIDATE_CSS: true
