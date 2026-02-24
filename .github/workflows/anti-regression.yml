@@ -1,13 +1,17 @@
 name: Anti-Regression
+
 on:
   push:
     branches: [ main ]
     paths: ['**.go']
+
 jobs:
-  bench:
+  benchmarking:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
-        with: {go-version: '1.21'}
-      - run: go test -bench=. ./...
+        with:
+          go-version: '1.24'
+      - name: Run Complexity Benchmarks
+        run: go test -bench=. -benchmem ./...
