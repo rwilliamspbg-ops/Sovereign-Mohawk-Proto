@@ -3,17 +3,28 @@ name: Mohawk Master CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: System Check
-        run: |
-          echo "Protocol Engine: Online"
-          echo "Environment: Production-Proto"
-          ls -R
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: Build Protocol
+        run: go build -v ./...
+
+      - name: Run Tests
+        run: go test -v ./...
