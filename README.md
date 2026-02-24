@@ -13,12 +13,15 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 | Component | Status | Operational Role |
 | :--- | :--- | :--- |
 | **Mohawk Master** | ![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg) | Core Logic & BFT |
-| **System Guard** | ![Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg) | Link & Badge Integrity |
-| **Site Deployment** | ![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg) | Frontend Deployment |
+| **System Guard** | ![Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg) | Integrity Check |
+| **Deployment** | ![Deployment](https://img.shields.io/github/deployments/rwilliamspbg-ops/Sovereign-Mohawk-Proto/github-pages?label=deployment&logo=github) | Frontend Live Status |
 
 ### Project Health
 ![License](https://img.shields.io/github/license/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square&color=blue)
-![Last Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square)
+![Go](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square&logo=go)
+![Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square)
+
+---
 
 ---
 
