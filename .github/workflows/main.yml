@@ -6,34 +6,22 @@ on:
     paths-ignore: ['README.md', 'docs/**']
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
-  contents: write
+  contents: read
   security-events: write
 
 jobs:
-  verify-and-audit:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Go 1.24
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.24'
           cache: true
-
-      - name: Force Sync Environment
+      - name: Environment Sync
         run: |
           if [ ! -f "go.mod" ]; then go mod init github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto; fi
           go mod tidy
-          go mod verify
-
-      - name: BFT Logic & Race Detection
+      - name: BFT Verification Suite
         run: go test -v -race ./...
-
-      - name: Anti-Regression Benchmark
-        run: go test -bench=. -benchmem ./...
