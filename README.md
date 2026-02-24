@@ -8,14 +8,20 @@ We acknowledge and respect the ongoing sovereignty and self-determination of Ind
 
 If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
 
-[![Mohawk AOT Release](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?include_prereleases&label=Mohawk%20AOT%20Release&color=blue)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
-[![Proof-Driven Design Verification](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
-[![Build and Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
-[![Go Version](https://img.shields.io/badge/Go-1.24-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
-[![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python)
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![BFT Safety](https://img.shields.io/badge/BFT%20Safety-55.5%25-blueviolet)](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#905)
-[![Liveness](https://img.shields.io/badge/Liveness-99.99%25-green)](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469)
+# Sovereign Mohawk Protocol
+
+| Component | Status | Operational Context |
+| :--- | :--- | :--- |
+| **Protocol Engine** | ![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg) | Main BFT & zk-SNARK Logic |
+| **Interface (Pages)** | ![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg) | Frontend Deployment Status |
+| **Validation Layer** | ![Badge Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg) | Documentation & Link Integrity |
+
+### System Metrics
+![License](https://img.shields.io/github/license/rwilliamspbg-ops/Sovereign-Mohawk-Proto?color=0078D4&style=flat-square)
+![Repo Size](https://img.shields.io/github/repo-size/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square)
+![Activity](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto?color=brightgreen&style=flat-square)
+
+---
 
 **Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. It bridges the gap between theoretical security and production implementation through a suite of interconnected formal proofs and cutting-edge zero-knowledge cryptography.
 
