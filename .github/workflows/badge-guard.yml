@@ -1,33 +1,29 @@
-name: Badge Guard & Link Validator
+name: Badge Guard
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'README.md'
+      - '.github/workflows/**'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  repair-readme:
+  validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Clean Badges
+      - name: Verify Badge Links
         run: |
-          # Replace all known broken workflow references
-          sed -i 's/verify.yml/main.yml/g' README.md
-          sed -i 's/performance.yml/main.yml/g' README.md
-          
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
-          if [[ -n $(git status -s) ]]; then
-            git add README.md
-            git commit -m "docs: auto-fix badges [skip ci]"
-            git push
-          fi
+          # This ensures every workflow badge in the README actually exists
+          BADGES=$(grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md || true)
+          for B in $BADGES; do
+            FILE=$(echo $B | cut -d'/' -f2)
+            if [ ! -f ".github/workflows/$FILE" ]; then
+              echo "::error::README refers to missing workflow file: $FILE"
+              exit 1
+            fi
+          done
+          echo "All badges verified."
