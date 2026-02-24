@@ -10,16 +10,15 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 # Sovereign Mohawk Protocol
 
-| Component | Status | Operational Context |
+| Component | Status | Operational Role |
 | :--- | :--- | :--- |
-| **Protocol Engine** | ![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg) | Main BFT & zk-SNARK Logic |
-| **Interface (Pages)** | ![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg) | Frontend Deployment Status |
-| **Validation Layer** | ![Badge Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg) | Documentation & Link Integrity |
+| **Mohawk Master** | ![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg) | Core Logic & BFT |
+| **System Guard** | ![Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg) | Link & Badge Integrity |
+| **Site Deployment** | ![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg) | Frontend Deployment |
 
-### System Metrics
-![License](https://img.shields.io/github/license/rwilliamspbg-ops/Sovereign-Mohawk-Proto?color=0078D4&style=flat-square)
-![Repo Size](https://img.shields.io/github/repo-size/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square)
-![Activity](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto?color=brightgreen&style=flat-square)
+### Project Health
+![License](https://img.shields.io/github/license/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square&color=blue)
+![Last Commit](https://img.shields.io/github/last-commit/rwilliamspbg-ops/Sovereign-Mohawk-Proto?style=flat-square)
 
 ---
 
