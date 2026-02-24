@@ -33,3 +33,8 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Disable copy-paste detection to allow repeated SVG/HTML structures
+          VALIDATE_JSCPD: false 
+          # Focus on logic and security
+          VALIDATE_GO: true
+          VALIDATE_HTML: true
