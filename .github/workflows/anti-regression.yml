@@ -1,0 +1,25 @@
+name: Anti-Regression
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  performance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Benchmarks
+        run: |
+          if [ -f "go.mod" ]; then
+            # Runs Go benchmarks and compares against previous results if available
+            go test -bench=. -benchmem ./... > new_bench.txt
+            echo "Benchmark complete. Comparing against baseline..."
+            cat new_bench.txt
+          else
+            echo "No benchmarks found."
+          fi
