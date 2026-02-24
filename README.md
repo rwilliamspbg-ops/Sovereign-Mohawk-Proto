@@ -8,15 +8,15 @@ We acknowledge and respect the ongoing sovereignty and self-determination of Ind
 
 If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
 
-# Sovereign Mohawk Protocol Dashboard
+# Sovereign Mohawk Protocol
 
-| Verification Layer | Status | Responsibility |
+| Layer | Status | Verification |
 | :--- | :--- | :--- |
-| **BFT Engine** | [![Master CI](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml) | Go 1.24 Runtime Logic |
-| **Anti-Regression** | [![Regression](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml) | O(d log n) Complexity |
-| **Code Integrity** | [![Integrity](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml) | Security & Linting |
-| **System Guard** | [![Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml) | Association Integrity |
-| **Public Interface** | [![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment) | Spec Deployment |
+| **Protocol Engine** | [![Master CI](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/main.yml) | Go 1.24 Runtime |
+| **Anti-Regression** | [![Regression](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/anti-regression.yml) | O(d log n) Scaling |
+| **Code Integrity** | [![Lint](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml) | Security Audit |
+| **System Guard** | [![Guard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/badge-guard.yml) | Link Persistence |
+| **Documentation** | [![Pages](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/pages-build-deployment) | Live Research |
 
 ---
 
