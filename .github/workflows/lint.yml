@@ -8,15 +8,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Super-Linter
+      - name: Lint
         uses: github/super-linter/slim@v5
         env:
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
-          # Fix: Disable copy-paste detection for your HTML paper
-          VALIDATE_JSCPD: false 
-          # Fix: Disable Go linting until your 1.24 environment is stable
-          VALIDATE_GO: false
+          VALIDATE_JSCPD: false # This stops the "duplicate proof" error
           VALIDATE_HTML: true
           VALIDATE_MARKDOWN: true
