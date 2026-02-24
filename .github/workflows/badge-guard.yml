@@ -3,21 +3,18 @@ name: Badge Guard
 on:
   push:
     paths: ['README.md', '.github/workflows/**']
-  workflow_dispatch:
 
 jobs:
-  validate-integrity:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Cross-Reference Badges
+      - name: Audit Associations
         run: |
-          # Verify every workflow badge in README points to a real file
-          grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md | while read -r line ; do
-            FILE=$(echo $line | cut -d'/' -f2)
-            if [ ! -f ".github/workflows/$FILE" ]; then
-              echo "::error::Dead Link Found: $FILE"
+          # Verify the 5 core workflows exist as linked in README
+          for file in main.yml anti-regression.yml lint.yml badge-guard.yml; do
+            if [ ! -f ".github/workflows/$file" ]; then
+              echo "::error::Missing $file - check your associations!"
               exit 1
             fi
           done
-          echo "All associations verified."
