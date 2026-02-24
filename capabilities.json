@@ -2,6 +2,7 @@
   "version": "1.0.0",
   "runtime": "mohawk-proto-v1",
   "byzantine_threshold": 0.55,
+  "nodes": [],
   "cluster_config": {
     "node_count": 200,
     "quorum_size": 134,
