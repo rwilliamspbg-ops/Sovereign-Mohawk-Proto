@@ -4,28 +4,26 @@ on:
   push:
     branches: [ main ]
     paths-ignore: ['README.md', 'docs/**']
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write # Required for security scanning
 
 jobs:
-  verify-runtime:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Go (Synced Version)
-        uses: actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.24' # Corrected to match research spec
+          go-version: '1.24'
           cache: true
-
-      - name: Synchronize Dependencies
+      - name: Security Scan (govulncheck)
         run: |
-          go mod edit -go=1.24
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+      - name: BFT Logic Verification
+        run: |
           go mod tidy
-
-      - name: Protocol Verification
-        run: |
-          go build -v ./...
-          go test -v ./...
+          go test -v -race ./...
