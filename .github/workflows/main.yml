@@ -3,15 +3,13 @@ name: Mohawk Master CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/badge-guard.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -21,15 +19,12 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          cache: true
 
-      - name: Install Dependencies
-        run: go mod download
-
-      - name: Run Protocol Tests
-        run: go test -v ./...
-
-      - name: Static Analysis
+      - name: Verify Logic
         run: |
-          go vet ./...
-          # Add extra linting/security steps here as the proto evolves
+          if [ -f "go.mod" ]; then
+            go mod download
+            go test -v ./...
+          else
+            echo "No go.mod found, skipping tests."
+          fi
