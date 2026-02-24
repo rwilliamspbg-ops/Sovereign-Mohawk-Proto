@@ -16,6 +16,11 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)
 ![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)
 
+![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
+![Python SDK](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)
+![BFT Safety](https://img.shields.io/badge/BFT%20Resilience-55.5%25-green)
+![Protocol](https://img.shields.io/badge/Protocol-MOHAWK%20v1.0-orange)
+
 ---
 
 **Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. It bridges the gap between theoretical security and production implementation through a suite of interconnected formal proofs and cutting-edge zero-knowledge cryptography.
