@@ -78,7 +78,7 @@ To build the world's most scalable, secure, and verifiable federated learning pr
 
 **Deliverables:**
 - Production-ready Python SDK v0.2.0
-- Published on PyPI (`pip install sovereign-mohawk`)
+- Published on PyPI (`pip install sovereign-Mohawk`)
 - Complete API documentation site
 - 5+ end-to-end example notebooks
 

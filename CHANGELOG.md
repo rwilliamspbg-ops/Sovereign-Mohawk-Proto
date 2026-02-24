@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Memory-safe string handling with `FreeString` function
   - Cross-platform support (Linux `.so`, macOS `.dylib`, Windows `.dll`)
 
-- **Python Client Package** (`sdk/python/mohawk/`)
+- **Python Client Package** (`sdk/python/Mohawk/`)
   - `MohawkNode` class with ctypes bindings to Go runtime
   - Pythonic API with type hints and comprehensive docstrings
   - Custom exception hierarchy: `MohawkError`, `InitializationError`, `VerificationError`, `AggregationError`, `AttestationError`
@@ -86,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Bridge Architecture
 ```
-Python (mohawk.client) → ctypes → libmohawk.so → CGO → Go Runtime (internal/)
+Python (Mohawk.client) → ctypes → libMohawk.so → CGO → Go Runtime (internal/)
 ```
 
 #### Memory Management

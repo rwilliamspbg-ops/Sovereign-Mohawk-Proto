@@ -92,13 +92,13 @@ cd sdk/python
 pip install -e .
 
 # Verify installation
-python -c "import mohawk; print(mohawk.__version__)"
+python -c "import Mohawk; print(Mohawk.__version__)"
 ```
 
 **Quick Python Example:**
 
 ```python
-from mohawk import MohawkNode
+from Mohawk import MohawkNode
 
 # Initialize and start a node
 node = MohawkNode()
@@ -183,7 +183,7 @@ Sovereign-Mohawk-Proto/
 │   └── wasmhost/          # WebAssembly runtime
 ├── sdk/
 │   └── python/            # Python SDK
-│       ├── mohawk/        # Python package
+│       ├── Mohawk/        # Python package
 │       ├── examples/      # Usage examples
 │       └── tests/         # Unit tests
 ├── proofs/                # Formal verification documents
@@ -214,7 +214,7 @@ Sovereign-Mohawk-Proto/
 
 📚 **Documentation:**
 - [Python SDK README](sdk/python/README.md)
-- [API Reference](sdk/python/mohawk/client.py)
+- [API Reference](sdk/python/Mohawk/client.py)
 - [Usage Examples](sdk/python/examples/)
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.

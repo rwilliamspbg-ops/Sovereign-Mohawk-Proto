@@ -38,8 +38,8 @@ pip install -e .
 ### Verifying Installation
 
 ```python
-import mohawk
-print(mohawk.__version__)  # Should print: 0.1.0
+import Mohawk
+print(Mohawk.__version__)  # Should print: 0.1.0
 ```
 
 ## Quick Start
@@ -47,7 +47,7 @@ print(mohawk.__version__)  # Should print: 0.1.0
 ### Initialize a Node
 
 ```python
-from mohawk import MohawkNode
+from Mohawk import MohawkNode
 
 # Create a node instance
 node = MohawkNode()
@@ -138,12 +138,12 @@ The Python SDK uses a C-shared library bridge:
 ```
 ┌─────────────────┐
 │  Python Code    │
-│  (mohawk/)      │
+│  (Mohawk/)      │
 └────────┬────────┘
          │ ctypes
          ▼
 ┌─────────────────┐
-│  libmohawk.so   │
+│  libMohawk.so   │
 │  (C-shared)     │
 └────────┬────────┘
          │ cgo
@@ -167,14 +167,14 @@ pytest tests/
 ### Code Formatting
 
 ```bash
-black mohawk/
-ruff check mohawk/
+black Mohawk/
+ruff check Mohawk/
 ```
 
 ### Type Checking
 
 ```bash
-mypy mohawk/
+mypy Mohawk/
 ```
 
 ## Performance
