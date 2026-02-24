@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write  # This is the missing piece allowing the fix
 
 jobs:
   validate-and-fix:
@@ -14,35 +14,36 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Auto-Fix README Badge Paths
         run: |
-          # Replace deleted workflow references with the new Mohawk Master CI
+          # Replace deleted workflow references with active ones
           sed -i 's/verify.yml/main.yml/g' README.md
           sed -i 's/performance.yml/main.yml/g' README.md
-          sed -i 's/performance-metrics/main.yml/g' README.md
           
-          # Configure Git
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          # Configure Git for the runner
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           
-          # Commit changes if any exist
+          # Only commit if there are changes
           if [[ -n $(git status -s) ]]; then
             git add README.md
-            git commit -m "docs: auto-fix broken badge references"
+            git commit -m "docs: sync badges with active workflows"
             git push
           else
-            echo "No broken references found."
+            echo "No broken references found. README is clean."
           fi
 
-      - name: Verify Remaining Badges
+      - name: Final Integrity Check
         run: |
-          # Ensure all remaining workflow badges point to existing files
+          # Verify all workflow badges in README actually exist in the repo
           BADGES=$(grep -oE "workflows/[a-zA-Z0-9._-]+/badge.svg" README.md || true)
           for B in $BADGES; do
             FILE=$(echo $B | cut -d'/' -f2)
             if [ ! -f ".github/workflows/$FILE" ]; then
-              echo "::error file=README.md::Badge still refers to missing workflow: $FILE"
+              echo "::error::README badge points to non-existent file: $FILE"
               exit 1
             fi
           done
