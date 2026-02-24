@@ -59,7 +59,7 @@ func main() {
 }
 
 func handlePubkey(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(hex.EncodeToString(orchPub)))
+	_, _ = w.Write([]byte(hex.EncodeToString(orchPub)))
 }
 
 func handleNextJob(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +91,7 @@ func handleNextJob(w http.ResponseWriter, r *http.Request) {
 	signManifest(&m)
 	resp := NextJobResponse{Wasm: wasmBytes, Man: m}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func loadWasm() ([]byte, string, error) {

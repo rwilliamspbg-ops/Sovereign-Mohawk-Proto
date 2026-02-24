@@ -16,17 +16,18 @@ import json
 import os
 import sys
 
+
 def validate_capabilities():
-    file_path = 'capabilities.json'
-    
+    file_path = "capabilities.json"
+
     if not os.path.exists(file_path):
         print(f"CRITICAL: {file_path} not found.")
         sys.exit(1)
 
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = json.load(f)
-            
+
         # 1. Check for required keys in your Mohawk architecture
         required_keys = ["version", "nodes", "byzantine_threshold", "runtime"]
         for key in required_keys:
@@ -38,7 +39,9 @@ def validate_capabilities():
         # Theorem 1: Resilience must be <= 55.5% for current Mohawk Proto
         threshold = data.get("byzantine_threshold", 0)
         if threshold > 0.555:
-            print(f"SECURITY ALERT: Byzantine threshold {threshold} exceeds Theorem 1 limit (0.555)")
+            print(
+                f"SECURITY ALERT: Byzantine threshold {threshold} exceeds Theorem 1 limit (0.555)"
+            )
             sys.exit(1)
 
         # 3. Structural Validation: Node Configuration
@@ -47,13 +50,14 @@ def validate_capabilities():
             sys.exit(1)
 
         print("SUCCESS: capabilities.json passed all sync checks.")
-        
+
     except json.JSONDecodeError as e:
         print(f"JSON ERROR: Failed to parse capabilities.json: {e}")
         sys.exit(1)
     except Exception as e:
         print(f"UNEXPECTED ERROR: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     validate_capabilities()

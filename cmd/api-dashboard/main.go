@@ -35,7 +35,7 @@ func main() {
 			TasksToday:  5,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	log.Println("api-dashboard listening on :8081")
