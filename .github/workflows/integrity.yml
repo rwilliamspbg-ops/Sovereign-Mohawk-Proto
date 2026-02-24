@@ -1,0 +1,21 @@
+name: Integrity Guard
+
+on:
+  push:
+    branches: [ main ]
+    paths: ['**.go', 'go.mod']
+
+jobs:
+  performance-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: O(d log n) Benchmark
+        run: go test -bench=. -benchmem ./...
+      - name: Static Security Analysis
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
