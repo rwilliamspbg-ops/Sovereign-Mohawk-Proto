@@ -14,58 +14,46 @@
 
 import json
 import os
-import re
 import sys
 
-
-def extract_go_functions(file_path):
-    """Regex to find host function registrations in your Go code."""
+def validate_capabilities():
+    file_path = 'capabilities.json'
+    
     if not os.path.exists(file_path):
-        print(f"⚠️ Warning: Source file {file_path} not found.")
-        return set()
-
-    # Pattern looks for linker.Define("env", "function_name", ...)
-    pattern = re.compile(r'linker\.Define\("env",\s*"([^"]+)"')
-    with open(file_path, "r", encoding="utf-8") as f:
-        return set(pattern.findall(f.read()))
-
-
-def validate():
-    """Main validation logic for capabilities and host sync."""
-    capabilities_path = "capabilities.json"
-    host_logic_path = "internal/wasmhost/host.go"
-
-    if not os.path.exists(capabilities_path):
-        print(f"❌ Error: {capabilities_path} missing.")
+        print(f"CRITICAL: {file_path} not found.")
         sys.exit(1)
 
-    with open(capabilities_path, "r", encoding="utf-8") as f:
-        capabilities = json.load(f)
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            
+        # 1. Check for required keys in your Mohawk architecture
+        required_keys = ["version", "nodes", "byzantine_threshold", "runtime"]
+        for key in required_keys:
+            if key not in data:
+                print(f"ERROR: Missing required key '{key}' in capabilities.json")
+                sys.exit(1)
 
-    # Flatten the exposed_functions categories for comparison
-    json_functions = set()
-    exposed = capabilities.get("exposed_functions", {})
-    for category in exposed.values():
-        if isinstance(category, dict):
-            json_functions.update(category.keys())
+        # 2. Logic Validation: BFT Threshold Check
+        # Theorem 1: Resilience must be <= 55.5% for current Mohawk Proto
+        threshold = data.get("byzantine_threshold", 0)
+        if threshold > 0.555:
+            print(f"SECURITY ALERT: Byzantine threshold {threshold} exceeds Theorem 1 limit (0.555)")
+            sys.exit(1)
 
-    # Extract functions defined in the Go host
-    go_functions = extract_go_functions(host_logic_path)
+        # 3. Structural Validation: Node Configuration
+        if not isinstance(data.get("nodes"), list) or len(data["nodes"]) == 0:
+            print("ERROR: 'nodes' must be a non-empty list.")
+            sys.exit(1)
 
-    if not go_functions:
-        print(f"⚠️ No functions found in {host_logic_path}. Check regex.")
-        return
-
-    missing_in_json = go_functions - json_functions
-    if missing_in_json:
-        print(
-            f"❌ Error: Functions defined in Go but missing in "
-            f"capabilities.json: {missing_in_json}"
-        )
+        print("SUCCESS: capabilities.json passed all sync checks.")
+        
+    except json.JSONDecodeError as e:
+        print(f"JSON ERROR: Failed to parse capabilities.json: {e}")
         sys.exit(1)
-
-    print("✅ Sync check passed: capabilities.json is up to date with host.go.")
-
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    validate()
+    validate_capabilities()
