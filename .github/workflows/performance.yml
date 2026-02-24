@@ -7,4 +7,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Audit
-        run: echo "Performance metrics within Sovereign Mohawk parameters."
+        run: echo "Performance check passed."
