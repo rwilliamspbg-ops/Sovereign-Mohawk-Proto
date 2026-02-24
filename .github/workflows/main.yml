@@ -3,23 +3,29 @@ name: Mohawk Master CI
 on:
   push:
     branches: [ main ]
-    paths-ignore: ['README.md', 'docs/**']
+    paths-ignore: ['README.md', 'docs/**'] # Stops Badge Guard from triggering this
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
-  security-events: write # Fixes the "Security Alert" failures
+  security-events: write
 
 jobs:
-  verify:
+  verify-protocol:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24' # Synchronized with Spec
+          go-version: '1.24' # Matches your Research Spec
           cache: true
-      - name: BFT Logic Verification
+      - name: Initialize Environment
         run: |
+          if [ ! -f "go.mod" ]; then go mod init github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto; fi
           go mod tidy
-          go test -v -race ./...
+      - name: BFT Verification
+        run: go test -v -race ./...
