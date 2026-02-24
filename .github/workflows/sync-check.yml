@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   validate-sync:
     runs-on: ubuntu-latest
@@ -16,15 +19,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # Using a specific stable version to prevent environment drift
+          # Using 3.11 for stability with your SDK logic
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install Dependencies
-        # If your validation script needs specific libraries (like pandas or requests)
-        # make sure they are installed or listed in a requirements.txt
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python -m pip install --upgrade pip
+          # Add any specific sync-check requirements here
+          # pip install -r requirements.txt
 
-      - name: Run Validation Script
-        # Ensure the path matches your repository structure
+      - name: Run Capability Validation
+        # This targets your central capabilities.json against the node logic
         run: python scripts/validate_capabilities.py
