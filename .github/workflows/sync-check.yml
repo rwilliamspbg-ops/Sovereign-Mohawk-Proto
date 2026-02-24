@@ -14,9 +14,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          # Using a specific stable version to prevent environment drift
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        # If your validation script needs specific libraries (like pandas or requests)
+        # make sure they are installed or listed in a requirements.txt
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Validation Script
+        # Ensure the path matches your repository structure
         run: python scripts/validate_capabilities.py
