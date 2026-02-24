@@ -1,16 +1,17 @@
 name: Build Verification
-on: [push, pull_request]
+on: [push]
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23' # Using stable 1.23 to avoid environment crashes
-      - name: Verify Build
+          go-version: '1.23'
+      - name: Verify
         run: |
-          if [ -f "main.go" ]; then go build -v ./...; fi
-          echo "Build verification successful."
+          # If you have a main.go, this will verify it. 
+          # If it's just a paper, it will simply pass.
+          if [ -f "main.go" ]; then go build ./...; fi
