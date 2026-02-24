@@ -2,7 +2,13 @@
   "version": "1.0.0",
   "runtime": "mohawk-proto-v1",
   "byzantine_threshold": 0.55,
-  "nodes": [
-    { "id": "genesis-01", "role": "validator", "capacity": "85TOPS" }
-  ]
+  "cluster_config": {
+    "node_count": 200,
+    "quorum_size": 134,
+    "max_byzantine_nodes": 60
+  },
+  "performance_targets": {
+    "verification_p99_ms": 11.0,
+    "aggregation_mean_ms": 25.0
+  }
 }
