@@ -6,9 +6,18 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: Basic HTML Check
-        run: |
-          echo "Checking HTML for basic errors..."
-          # This just checks if the file exists and is readable
-          ls -la index.html
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: github/super-linter/slim@v5
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: true
+          # Crucial: Disable the check that fails on repeated SVG proofs
+          VALIDATE_JSCPD: false 
+          # Enable everything else to verify all scripts
+          VALIDATE_GO: true
+          VALIDATE_HTML: true
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_BASH: true
