@@ -2,19 +2,20 @@ name: Badge Guard
 
 on:
   push:
-    paths: ['README.md', '.github/workflows/**']
+    paths: ['README.md']
 
 jobs:
-  validate:
+  verify-associations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Audit Associations
+      - name: Audit Dashboard Links
         run: |
-          # Verify the 5 core workflows exist as linked in README
-          for file in main.yml anti-regression.yml lint.yml badge-guard.yml; do
-            if [ ! -f ".github/workflows/$file" ]; then
-              echo "::error::Missing $file - check your associations!"
+          # Verify the 4 primary local workflow files exist
+          for f in main.yml badge-guard.yml lint.yml anti-regression.yml; do
+            if [ ! -f ".github/workflows/$f" ]; then
+              echo "::error::Missing Workflow Association: $f"
               exit 1
             fi
           done
+          echo "All associations verified for Sovereign Mohawk."
