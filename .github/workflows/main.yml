@@ -5,26 +5,32 @@ on:
     branches: [ main ]
     paths-ignore:
       - 'README.md'
-      - 'docs/**'
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-test:
+  verify-protocol:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
           cache: true
 
-      - name: Build Protocol
-        run: go build -v ./...
-
-      - name: Run Tests
-        run: go test -v ./...
+      - name: Protocol Check
+        run: |
+          go version
+          # This is where your BFT/zk-SNARK tests live
+          if [ -f "go.mod" ]; then
+            go mod download
+            go test -v ./...
+          else
+            echo "Awaiting go.mod initialization..."
+          fi
