@@ -3,7 +3,7 @@ name: Mohawk Master CI
 on:
   push:
     branches: [ main ]
-    paths-ignore: ['README.md', 'docs/**'] # Stops Badge Guard from triggering this
+    paths-ignore: ['README.md', 'docs/**']
   workflow_dispatch:
 
 concurrency:
@@ -11,21 +11,29 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   security-events: write
 
 jobs:
-  verify-protocol:
+  verify-and-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      
+      - name: Setup Go 1.24
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.24' # Matches your Research Spec
+          go-version: '1.24'
           cache: true
-      - name: Initialize Environment
+
+      - name: Force Sync Environment
         run: |
           if [ ! -f "go.mod" ]; then go mod init github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto; fi
           go mod tidy
-      - name: BFT Verification
+          go mod verify
+
+      - name: BFT Logic & Race Detection
         run: go test -v -race ./...
+
+      - name: Anti-Regression Benchmark
+        run: go test -bench=. -benchmem ./...
