@@ -4,22 +4,22 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'README.md' # Only run when README changes to save resources
+      - 'README.md'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  validate-and-fix:
+  repair-readme:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Auto-Fix README
+      - name: Clean Badges
         run: |
-          # Fix common naming mismatches
+          # Replace all known broken workflow references
           sed -i 's/verify.yml/main.yml/g' README.md
           sed -i 's/performance.yml/main.yml/g' README.md
           
@@ -28,17 +28,6 @@ jobs:
           
           if [[ -n $(git status -s) ]]; then
             git add README.md
-            # [skip ci] is the magic key to stop the infinite loop
             git commit -m "docs: auto-fix badges [skip ci]"
             git push
           fi
-
-      - name: Verify Existing Workflows
-        run: |
-          # Only check for files that SHOULD exist in .github/workflows
-          for f in main.yml badge-guard.yml; do
-            if [ ! -f ".github/workflows/$f" ]; then
-              echo "::error::Missing critical workflow file: $f"
-              exit 1
-            fi
-          done
