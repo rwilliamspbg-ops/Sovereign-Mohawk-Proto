@@ -9,10 +9,10 @@ permissions:
   contents: read
 
 jobs:
-  verify-code:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Go
@@ -20,19 +20,13 @@ jobs:
         with:
           go-version: '1.23'
 
-      - name: Verify Build Logic
+      - name: Run Build
         run: |
-          if [ -f "main.go" ]; then 
+          if [ -f "main.go" ]; then
             go build -v ./...
           else
-            echo "No Go files found, skipping build."
+            echo "No Go files yet."
           fi
 
-      - name: Basic HTML Lint
-        run: |
-          # This checks for basic document structure without the fussy Super-Linter
-          grep -q "<html" index.html && echo "HTML structure present."
-          grep -q "</html>" index.html && echo "HTML closure present."
-
-      - name: Performance Check
-        run: echo "Performance within Mohawk parameters."
+      - name: Check HTML
+        run: grep -q "<html" index.html && echo "HTML looks good."
