@@ -1,5 +1,5 @@
 import pytest
-from sdk_cache import get_default_cache
+from mohawk.cache import get_default_cache
 
 def test_distributed_sharded_performance(benchmark):
     """
