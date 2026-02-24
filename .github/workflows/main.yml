@@ -1,0 +1,35 @@
+name: Mohawk Master CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: Install Dependencies
+        run: go mod download
+
+      - name: Run Protocol Tests
+        run: go test -v ./...
+
+      - name: Static Analysis
+        run: |
+          go vet ./...
+          # Add extra linting/security steps here as the proto evolves
