@@ -1,0 +1,12 @@
+name: Performance Gate
+on: [push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Script Audit
+        run: |
+          echo "Auditing script execution time..."
+          # Insert specific logic to verify your Mohawk script performance here
