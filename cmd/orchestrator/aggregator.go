@@ -27,7 +27,7 @@ type RegionalAggregator struct {
 	results [][]byte
 }
 
-// NewRegionalAggregator initializes a new shard with pre-allocated capacity 
+// NewRegionalAggregator initializes a new shard with pre-allocated capacity
 // to optimize memory management for large-scale node deployments.
 func NewRegionalAggregator(id string) *RegionalAggregator {
 	return &RegionalAggregator{
