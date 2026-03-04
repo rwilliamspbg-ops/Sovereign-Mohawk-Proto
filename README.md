@@ -7,7 +7,9 @@ The "Sovereign Mohawk Protocol" name draws inspiration from principles of sovere
 We acknowledge and respect the ongoing sovereignty and self-determination of Indigenous peoples, including the Kanienʼkehá꞉ka as Keepers of the Eastern Door in the Haudenosaunee Confederacy. This project is a technical implementation in AI/privacy and makes no claims to Indigenous cultural IP, protocols, or heritage.
 
 If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
+
 ⚠️ Intellectual Property Notice: This project implements the Sovereign Mohawk Protocol. Portions of this technology are Patent Pending (U.S. Provisional Patent Application Filed March 2026).
+
 # Sovereign-Mohawk-Proto
 
 ![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)
