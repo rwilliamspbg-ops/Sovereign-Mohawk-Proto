@@ -275,7 +275,35 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 - **Discussions:** [Community Forum](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/discussions)
 
 ---
+Addendum: Human Impact & Governance Sovereignty
+1. The Paradox of the Sovereign Protocol
+While the Sovereign Mohawk Protocol is designed to be "Sovereign"—meaning it operates via decentralized consensus rather than centralized human authority—this creates a risk of Technological Determinism.
 
+A system that answers to no one can inadvertently become a "Master" rather than a tool. We explicitly recognize that mathematical verification does not equal moral justification. A protocol may be "correct" in its execution of code while being "wrong" in its impact on human free will.
+
+2. The "Seventh Theorem": Resistance to Commercial Capture
+Current BFT (Byzantine Fault Tolerance) models focus on "liars" (adversarial nodes). We propose a transition toward defending against "owners" (economic consolidation).
+
+Transparency of the Genesis Block: To prevent the Genesis Block from becoming a "Digital Board of Directors," the selection criteria for the initial 1,000 nodes must be publicly auditable, diverse in geography, and inclusive of non-commercial stakeholders.
+
+The Anti-Greed Protocol: We must implement decay functions on node influence to ensure that "Health and Wealth" promises do not lead to a "lock-in" effect where users trade long-term agency for short-term convenience.
+
+3. Protecting the "Thinker" over the "Consensus"
+Standard Federated Learning prunes outliers to achieve accuracy. However, in human systems, the "outlier" is often the innovator or the dissenter.
+
+Dissensus Preservation: The protocol shall include "Thinker Clauses" that prevent the automatic suppression of minority data paths, ensuring that "Sovereignty" includes the right to deviate from the planetary norm.
+
+Legibility of the Sovereign Map: The "Sovereign Map" must not remain a black box. We commit to developing "Human-Readable Proofs" where the logic of the network is accessible to the average person, not just the cryptographer.
+
+4. Accountability in Scaleless Systems
+As the system scales toward 100M+ nodes, traditional regulation becomes functionally impossible.
+
+Algorithmic Recourse: Every automated decision within the protocol must have a defined path for human appeal, ensuring that "messy" free will remains the final fail-safe against "perfect" algorithmic errors.
+
+Privacy as Agency: Privacy in this network is not a "shield for owners" but a sanctuary for the individual. It must be architected to protect the user from the network owners, not the owners from public scrutiny.
+
+Final Declaration: We build this protocol to serve humanity, not to replace its judgment. The messiness of human choice is the only metric that cannot be optimized, and it is the only metric that matters.
+---
 *Built for the future of Sovereign AI.*
 
 ## Prior Art & Novelty Statement
