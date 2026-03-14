@@ -45,6 +45,41 @@ jobs:
         run: |
           cat /tmp/weekly-digest.txt >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Notify Slack or Teams (optional)
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from urllib import request
+
+          digest_path = "reports/weekly-readiness-digest.md"
+          with open(digest_path, "r", encoding="utf-8") as f:
+              digest = f.read()
+
+          run_url = f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          text = f"Weekly Mainnet Readiness Digest\nRun: {run_url}\n\n{digest}"
+
+          if len(text) > 3500:
+              text = text[:3500] + "\n\n[truncated] See workflow artifacts for full digest."
+
+          payload = json.dumps({"text": text}).encode("utf-8")
+
+          for env_name in ("SLACK_WEBHOOK_URL", "TEAMS_WEBHOOK_URL"):
+              webhook = os.environ.get(env_name, "").strip()
+              if not webhook:
+                  continue
+              req = request.Request(webhook, data=payload, headers={"Content-Type": "application/json"})
+              with request.urlopen(req, timeout=10) as resp:
+                  print(f"{env_name}: {resp.status}")
+          PY
+
       - name: Upload digest artifacts
         uses: actions/upload-artifact@v4
         if: always()

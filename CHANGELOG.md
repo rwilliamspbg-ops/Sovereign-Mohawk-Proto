@@ -50,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Weekly readiness digest** (`.github/workflows/weekly-readiness-digest.yml`, `scripts/generate_readiness_digest.py`):
   - Runs readiness + all chaos drills on a weekly schedule and on-demand
   - Produces a consolidated markdown digest and publishes it to job summary + artifacts
+  - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
 
