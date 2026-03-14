@@ -12,9 +12,15 @@ def _read_token(path: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run strict auth/role smoke checks against libmohawk.")
-    parser.add_argument("--lib-path", default="", help="Path to libmohawk shared library")
-    parser.add_argument("--token-file", default="secrets/mohawk_api_token", help="API token file path")
+    parser = argparse.ArgumentParser(
+        description="Run strict auth/role smoke checks against libmohawk."
+    )
+    parser.add_argument(
+        "--lib-path", default="", help="Path to libmohawk shared library"
+    )
+    parser.add_argument(
+        "--token-file", default="secrets/mohawk_api_token", help="API token file path"
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]

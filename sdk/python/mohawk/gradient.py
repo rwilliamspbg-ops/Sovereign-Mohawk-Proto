@@ -120,8 +120,14 @@ class GradientBuffer:
 class CompressedGradient:
     """Immutable compressed gradient payload ready for network dispatch."""
 
-    __slots__ = ("data", "format", "original_bytes", "scale",
-                 "compression_ratio", "backend")
+    __slots__ = (
+        "data",
+        "format",
+        "original_bytes",
+        "scale",
+        "compression_ratio",
+        "backend",
+    )
 
     def __init__(
         self,
@@ -141,6 +147,7 @@ class CompressedGradient:
 
     def to_dict(self) -> Dict[str, Any]:
         import base64
+
         return {
             "format": self.format,
             "original_bytes": self.original_bytes,
@@ -155,6 +162,7 @@ class CompressedGradient:
         """Decompress back to float32 values."""
         if self.format == "int8":
             from .accelerator import dequantize_int8
+
             return dequantize_int8(self.data, self.scale)
         return fp16_to_fp32(self.data)
 

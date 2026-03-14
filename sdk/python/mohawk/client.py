@@ -10,7 +10,12 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
 from .accelerator import compression_ratio, detect_devices, fp32_to_fp16, quantize_int8
-from .exceptions import AggregationError, AttestationError, InitializationError, VerificationError
+from .exceptions import (
+    AggregationError,
+    AttestationError,
+    InitializationError,
+    VerificationError,
+)
 from .gradient import CompressedGradient, GradientBuffer
 
 JsonDict = Dict[str, Any]
@@ -26,7 +31,11 @@ class ZeroCopyBridge:
 
     def invoke_json(self, symbol: str, payload: Any) -> JsonDict:
         if self.lib is None:
-            return {"success": True, "message": f"{symbol} simulated", "data": json.dumps(payload)}
+            return {
+                "success": True,
+                "message": f"{symbol} simulated",
+                "data": json.dumps(payload),
+            }
 
         func = getattr(self.lib, symbol)
         func.argtypes = [ctypes.c_char_p]
@@ -89,7 +98,9 @@ class MohawkNode:
         }
         result = self.bridge.invoke_json("InitializeNode", payload)
         if not result.get("success", False):
-            raise InitializationError(result.get("message", "node initialization failed"))
+            raise InitializationError(
+                result.get("message", "node initialization failed")
+            )
         return result
 
     def verify_proof(self, proof: JsonDict) -> JsonDict:
@@ -135,7 +146,9 @@ class MohawkNode:
     def hybrid_backends(self) -> JsonDict:
         result = self.bridge.invoke_json("GetHybridBackends", {})
         if not result.get("success", False):
-            raise VerificationError(result.get("message", "failed to list hybrid backends"))
+            raise VerificationError(
+                result.get("message", "failed to list hybrid backends")
+            )
         return result
 
     def aggregate(self, updates: Iterable[JsonDict]) -> JsonDict:
@@ -323,19 +336,25 @@ class MohawkNode:
             payload["role"] = role
         result = self.bridge.invoke_json("TransferUtilityCoin", payload)
         if not result.get("success", False):
-            raise AggregationError(result.get("message", "utility coin transfer failed"))
+            raise AggregationError(
+                result.get("message", "utility coin transfer failed")
+            )
         return result
 
     def utility_coin_balance(self, account: str) -> JsonDict:
         result = self.bridge.invoke_json("GetUtilityCoinBalance", {"account": account})
         if not result.get("success", False):
-            raise AggregationError(result.get("message", "utility coin balance lookup failed"))
+            raise AggregationError(
+                result.get("message", "utility coin balance lookup failed")
+            )
         return result
 
     def utility_coin_ledger(self) -> JsonDict:
         result = self.bridge.invoke_json("GetUtilityCoinLedger", {})
         if not result.get("success", False):
-            raise AggregationError(result.get("message", "utility coin ledger lookup failed"))
+            raise AggregationError(
+                result.get("message", "utility coin ledger lookup failed")
+            )
         return result
 
     def backup_utility_coin_ledger(
@@ -375,13 +394,17 @@ class MohawkNode:
     def status(self, node_id: str) -> JsonDict:
         result = self.bridge.invoke_json("GetNodeStatus", {"node_id": node_id})
         if "status_data" not in result:
-            result["status_data"] = result.get("data", {"node_id": node_id, "status": "running"})
+            result["status_data"] = result.get(
+                "data", {"node_id": node_id, "status": "running"}
+            )
         return result
 
     def load_wasm(self, module_path: str) -> JsonDict:
         result = self.bridge.invoke_json("LoadWasmModule", {"module_path": module_path})
         if not result.get("success", False):
-            raise InitializationError(result.get("message", "wasm module loading failed"))
+            raise InitializationError(
+                result.get("message", "wasm module loading failed")
+            )
         return result
 
     def attest(self, node_id: str) -> JsonDict:

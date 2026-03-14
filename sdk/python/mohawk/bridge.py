@@ -82,7 +82,9 @@ def build_cosmos_ibc_proof(
     ).to_payload()
 
 
-def build_route_policy_manifest(*, routes: List[Dict[str, Any]], version: str = "v1") -> Dict[str, Any]:
+def build_route_policy_manifest(
+    *, routes: List[Dict[str, Any]], version: str = "v1"
+) -> Dict[str, Any]:
     return {
         "version": version,
         "routes": routes,

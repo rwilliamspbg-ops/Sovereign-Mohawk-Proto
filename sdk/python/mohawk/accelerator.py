@@ -28,6 +28,7 @@ __all__ = [
 
 try:
     import numpy as np  # type: ignore
+
     _HAS_NUMPY = True
 except ImportError:
     np = None  # type: ignore
@@ -37,6 +38,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Backend constants
 # ---------------------------------------------------------------------------
+
 
 class Backend:
     CPU = "cpu"
@@ -58,6 +60,7 @@ class DeviceInfo:
 # Device detection
 # ---------------------------------------------------------------------------
 
+
 def detect_devices() -> List[DeviceInfo]:
     """Enumerate compute devices available on this host.
 
@@ -67,11 +70,13 @@ def detect_devices() -> List[DeviceInfo]:
     devices: List[DeviceInfo] = [_cpu_device()]
     devices.extend(_cuda_devices())
     if _has_metal():
-        devices.append(DeviceInfo(
-            backend=Backend.METAL,
-            name="Apple Metal (GPU/ANE)",
-            simd_width=128,
-        ))
+        devices.append(
+            DeviceInfo(
+                backend=Backend.METAL,
+                name="Apple Metal (GPU/ANE)",
+                simd_width=128,
+            )
+        )
     return devices
 
 
@@ -105,8 +110,11 @@ def _cuda_devices() -> List[DeviceInfo]:
     devices: List[DeviceInfo] = []
     try:
         out = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=name,memory.total",
-             "--format=csv,noheader,nounits"],
+            [
+                "nvidia-smi",
+                "--query-gpu=name,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
             stderr=subprocess.DEVNULL,
             timeout=3,
         ).decode()
@@ -114,12 +122,14 @@ def _cuda_devices() -> List[DeviceInfo]:
             parts = [p.strip() for p in line.split(",")]
             name = parts[0] if parts else f"NVIDIA GPU {idx}"
             mem_mb = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
-            devices.append(DeviceInfo(
-                backend=Backend.CUDA,
-                name=name,
-                index=idx,
-                memory_mb=mem_mb,
-            ))
+            devices.append(
+                DeviceInfo(
+                    backend=Backend.CUDA,
+                    name=name,
+                    index=idx,
+                    memory_mb=mem_mb,
+                )
+            )
     except Exception:
         pass
     return devices
@@ -132,6 +142,7 @@ def _has_metal() -> bool:
 # ---------------------------------------------------------------------------
 # Quantization helpers
 # ---------------------------------------------------------------------------
+
 
 def fp32_to_fp16(values: List[float]) -> bytes:
     """Convert a list of float32 values to IEEE 754 FP16 bytes (little-endian).
@@ -147,8 +158,8 @@ def fp32_to_fp16(values: List[float]) -> bytes:
     for i, v in enumerate(values):
         bits = struct.unpack(">I", struct.pack(">f", v))[0]
         sign = (bits >> 16) & 0x8000
-        raw_exp = ((bits >> 23) & 0xff) - 127 + 15
-        mantissa = bits & 0x7fffff
+        raw_exp = ((bits >> 23) & 0xFF) - 127 + 15
+        mantissa = bits & 0x7FFFFF
         if raw_exp <= 0:
             h = sign | (mantissa >> 13) if raw_exp >= -10 else sign
         elif raw_exp >= 31:
@@ -169,10 +180,10 @@ def fp16_to_fp32(data: bytes) -> List[float]:
     for i in range(n):
         h = struct.unpack_from("<H", data, i * 2)[0]
         sign = (h & 0x8000) >> 15
-        exp = (h >> 10) & 0x1f
-        mant = h & 0x3ff
+        exp = (h >> 10) & 0x1F
+        mant = h & 0x3FF
         if exp == 0:
-            val = ((-1) ** sign) * (2 ** -14) * (mant / 1024.0)
+            val = ((-1) ** sign) * (2**-14) * (mant / 1024.0)
         elif exp == 31:
             val = float("inf") if mant == 0 else float("nan")
             val = -val if sign else val

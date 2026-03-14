@@ -173,7 +173,9 @@ class TestMohawkNode:
         assert result["success"] is True
 
     def test_utility_coin_workflow(self, node):
-        minted = node.mint_utility_coin(to="edge-alice", amount=100.0, actor="protocol", memo="genesis")
+        minted = node.mint_utility_coin(
+            to="edge-alice", amount=100.0, actor="protocol", memo="genesis"
+        )
         assert minted["success"] is True
 
         transferred = node.transfer_utility_coin(

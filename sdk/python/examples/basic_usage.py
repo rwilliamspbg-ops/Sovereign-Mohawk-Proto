@@ -79,10 +79,12 @@ def main():
 
         # Verify multiple proofs in batch mode
         print("📦 Batch verifying proofs...")
-        batch = node.batch_verify([
-            {"id": "proof-1", "proof": "abc"},
-            {"id": "proof-2", "proof": "xyz"},
-        ])
+        batch = node.batch_verify(
+            [
+                {"id": "proof-1", "proof": "abc"},
+                {"id": "proof-2", "proof": "xyz"},
+            ]
+        )
         print(f"✅ {batch['message']}")
         print(f"   Data: {batch.get('data', 'N/A')}\n")
 

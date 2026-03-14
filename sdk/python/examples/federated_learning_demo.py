@@ -85,7 +85,9 @@ def main():
         # Stream + compress gradient path
         print("\n🛰️  Running stream aggregation (INT8 compression)...")
         gradient_stream = [u["gradient"] for u in all_updates]
-        stream_result = aggregator.stream_aggregate(gradient_stream, format="int8", max_norm=1.0)
+        stream_result = aggregator.stream_aggregate(
+            gradient_stream, format="int8", max_norm=1.0
+        )
         print(f"✅ Stream aggregation complete")
         print(f"   Compressed bytes: {stream_result.get('compressed_bytes', 'N/A')}")
         print(f"   Compression ratio: {stream_result.get('compression_ratio', 'N/A')}x")
