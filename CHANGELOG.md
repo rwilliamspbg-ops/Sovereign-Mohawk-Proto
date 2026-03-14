@@ -38,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Runtime status includes active `wasm_module_hash`
   - `LoadWasmModule` supports path and inline `wasm_b64` payloads
 - **Async hot-reload examples** (`sdk/python/examples/wasm_hot_reload_demo.py`, `sdk/python/examples/wasm_hot_reload_async_demo.py`)
+- **Mainnet readiness gate** (`.github/workflows/mainnet-readiness-gate.yml`, `scripts/mainnet_readiness_gate.py`):
+  - Boots core monitoring stack in CI and verifies Grafana/Prometheus readiness
+  - Enforces orchestrator (`orchestrator:9091`) and TPM (`tpm-metrics:9102`) scrape target health
+  - Validates tokenomics metric presence and supply invariant (`total_supply ~= minted - burned`)
+  - Publishes structured readiness report artifact (`mainnet-readiness-report`)
 
 ### Changed
 

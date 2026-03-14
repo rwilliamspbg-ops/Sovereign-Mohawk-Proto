@@ -1,0 +1,45 @@
+name: Mainnet Readiness Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+  readiness-gate:
+    name: Mainnet Readiness Invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Start monitoring stack
+        run: |
+          docker compose up -d --build orchestrator prometheus tpm-metrics grafana
+
+      - name: Run mainnet readiness checks
+        run: |
+          python3 scripts/mainnet_readiness_gate.py > readiness-report.json
+          cat readiness-report.json
+
+      - name: Upload readiness report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mainnet-readiness-report
+          path: readiness-report.json
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose down -v
