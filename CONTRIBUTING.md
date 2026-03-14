@@ -42,6 +42,16 @@ Your PR must include a completed template to be eligible for points:
 3. **Lint & Test**: Run `black`, `ruff`, and `mypy` on any Python changes to ensure they pass the [CI/CD Workflow](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions).
 4. **Submit PR**: Tag your PR with `[AUDIT]` to trigger the verification runner.
 
+### 4. Optional Chat Notifications for Weekly Readiness Digest
+Maintainers can wire the `Weekly Readiness Digest` workflow to Slack and/or Teams.
+
+Configure repository secrets in **Settings → Secrets and variables → Actions**:
+
+* `SLACK_WEBHOOK_URL`
+* `TEAMS_WEBHOOK_URL`
+
+If unset, the notification step is skipped and digest artifacts are still published.
+
 ---
 
 ## 📜 Standards
