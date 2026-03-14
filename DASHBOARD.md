@@ -53,3 +53,14 @@ curl -fsS http://localhost:9090/api/v1/targets | grep '"instance":"orchestrator:
 * `MOHAWK NOC Wallboard`
 * `Consensus Trust Monitoring`
 * `TPM Metrics`
+
+### Weekly Digest Webhooks (Optional)
+
+`Weekly Readiness Digest` can send markdown summary notifications to chat systems.
+
+Configure repository secrets in GitHub Actions:
+
+* `SLACK_WEBHOOK_URL`
+* `TEAMS_WEBHOOK_URL`
+
+If unset, the workflow still completes normally and publishes digest artifacts.

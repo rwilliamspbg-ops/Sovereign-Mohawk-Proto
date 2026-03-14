@@ -179,6 +179,26 @@ Stop the stack with:
 docker compose down
 ```
 
+### Weekly Readiness Digest Notifications (Optional)
+
+The weekly digest workflow can post readiness/chaos summaries to Slack and/or Teams.
+
+Required repository secrets:
+
+* `SLACK_WEBHOOK_URL`
+* `TEAMS_WEBHOOK_URL`
+
+Configure in GitHub:
+
+1. Open **Settings → Secrets and variables → Actions**
+2. Add one or both webhook secrets above
+3. Run `Weekly Readiness Digest` manually (or wait for schedule) to verify delivery
+
+Notes:
+
+* If neither secret is set, notification step is skipped automatically.
+* Digest is always published to workflow summary and uploaded as an artifact.
+
 ### Multi-Asset Bridge Settlement Configuration
 
 Bridge settlement is optional and disabled by default. Set `settle=true` on `bridge_transfer(...)` requests to execute burn/release settlement after transfer verification.
