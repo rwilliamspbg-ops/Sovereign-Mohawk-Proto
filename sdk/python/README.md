@@ -10,6 +10,8 @@
 ![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
+![Async Client](https://img.shields.io/badge/SDK-Async%20Supported-6f42c1)
+![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
 
 ## Overview
 
@@ -24,6 +26,12 @@ The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based 
 - **bridge route policy verification** with typed EVM/Cosmos proof helpers
 - **hardware-aware gradient compression** and streaming aggregation
 - **WebAssembly module loading** for flexible computation
+
+The SDK now includes:
+
+- automatic Go string deallocation via exported `FreeString` (prevents bridge-response leaks)
+- context-managed lifecycle (`with MohawkNode(...) as node:`)
+- async context-managed lifecycle (`async with AsyncMohawkNode(...) as node:`)
 
 ## Installation
 
@@ -65,17 +73,13 @@ print(mohawk.__version__)  # Should print: 2.0.0a2
 ```python
 from mohawk import MohawkNode
 
-# Create a node instance
-node = MohawkNode()
-
-# Start the node with configuration
-result = node.start(
-    config_path="capabilities.json",
-    node_id="node-001"
-)
-
-print(result)
-# {'success': True, 'message': 'Node started successfully'}
+with MohawkNode() as node:
+    result = node.start(
+        config_path="capabilities.json",
+        node_id="node-001"
+    )
+    print(result)
+    # {'success': True, 'message': 'Node started successfully'}
 ```
 
 ### Verify zk-SNARK Proofs
@@ -189,10 +193,33 @@ print(node.utility_coin_ledger())
 ### Load WebAssembly Modules
 
 ```python
-# Load a WASM module for custom computation
+# 1) Load by filesystem path
 result = node.load_wasm("wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm")
-print(result)
-# {'success': True, 'message': 'WASM module loaded'}
+print(result["module_hash"])
+
+# 2) Hot-reload inline bytes
+with open("wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm", "rb") as f:
+    hot = node.load_wasm(wasm_bytes=f.read())
+
+# 3) Hot-reload pre-encoded base64 payload
+import base64
+wasm_b64 = base64.b64encode(b"\x00asm\x01\x00\x00\x00").decode("ascii")
+hot2 = node.load_wasm(wasm_b64=wasm_b64)
+
+print(hot["module_hash"], hot2["module_hash"])
+# {'success': True, 'message': 'WASM module loaded', 'module_hash': '...'}
+```
+
+Runnable demo:
+
+```bash
+python sdk/python/examples/wasm_hot_reload_demo.py
+```
+
+Async variant:
+
+```bash
+python sdk/python/examples/wasm_hot_reload_async_demo.py
 ```
 
 ### TPM Attestation
@@ -220,18 +247,34 @@ Main class for interacting with the MOHAWK runtime.
 - **`aggregate(updates)`**: Aggregate federated learning updates
 - **`aggregate_buffer(gradient_buffer)`**: Inspect zero-copy aggregation buffer path
 - **`status(node_id)`**: Get node status
-- **`load_wasm(module_path)`**: Load a WebAssembly module
+- **`load_wasm(module_path=None, wasm_bytes=None, wasm_b64=None)`**: Load or hot-reload a WebAssembly module and return `module_hash`
 - **`attest(node_id)`**: Perform TPM attestation
+- **`close()`**: Release SDK bridge references; also available through `with MohawkNode(...) as node:`
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
 - **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
 - **`bridge_transfer(..., settle=False, settlement_minter=None, auth_token=None, role=None)`**: Cross-chain transfer verification with optional settlement execution
 - **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
 - **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
+- **`burn_utility_coin(from_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Burn utility coin balances with optional API auth + replay controls
 - **`utility_coin_balance(account)`**: Retrieve utility coin balance
 - **`utility_coin_ledger()`**: Retrieve utility coin ledger snapshot
 - **`backup_utility_coin_ledger(path, auth_token=None, role=None)`**: Write current utility coin state snapshot to backup file
 - **`restore_utility_coin_ledger(path, auth_token=None, role=None)`**: Restore utility coin state from backup file
+
+Async lifecycle support:
+
+- Use `async with AsyncMohawkNode(...) as node:` for automatic cleanup.
+
+Example:
+
+```python
+from mohawk import AsyncMohawkNode
+
+async def run():
+    async with AsyncMohawkNode() as node:
+        return await node.status("node-001")
+```
 
 Bridge policy fallback:
 
@@ -251,8 +294,8 @@ Utility coin hardening runtime controls:
 - Set `MOHAWK_API_TOKEN` (or `MOHAWK_API_TOKEN_FILE`) to require API token authorization on mint/transfer requests.
 - Set `MOHAWK_API_AUTH_MODE` to `optional` (default), `required`, or `file-only` for global API token behavior.
 - Set `MOHAWK_UTILITY_RATE_LIMIT_PER_MIN` to cap utility coin endpoint operations per principal per minute.
-- Set `MOHAWK_UTILITY_ENFORCE_ROLES=true` to require role authorization for mint/transfer/backup/restore.
-- Configure allowed roles with `MOHAWK_UTILITY_MINT_ALLOWED_ROLES`, `MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES`, `MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES`, and `MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES`.
+- Set `MOHAWK_UTILITY_ENFORCE_ROLES=true` to require role authorization for mint/burn/transfer/backup/restore.
+- Configure allowed roles with `MOHAWK_UTILITY_MINT_ALLOWED_ROLES`, `MOHAWK_UTILITY_BURN_ALLOWED_ROLES`, `MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES`, `MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES`, and `MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES`.
 - Optionally bind the configured API token to a fixed role with `MOHAWK_API_TOKEN_ROLE`.
 - Set `MOHAWK_API_ENFORCE_ROLES=true` and configure `MOHAWK_API_BRIDGE_ALLOWED_ROLES` / `MOHAWK_API_HYBRID_ALLOWED_ROLES` for non-utility endpoint role gates.
 

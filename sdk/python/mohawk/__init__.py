@@ -6,11 +6,16 @@ federated learning operations, and hardware-accelerated gradient compression.
 """
 
 from .client import MohawkNode
+from .async_client import AsyncMohawkNode
 from .exceptions import (
     AggregationError,
     AttestationError,
     InitializationError,
     MohawkError,
+    ProofDegenerateError,
+    ProofPairingError,
+    ProofStructureError,
+    ProofTooShortError,
     VerificationError,
 )
 from .accelerator import Backend, DeviceInfo, detect_devices
@@ -28,10 +33,15 @@ __version__ = "2.0.0a2"
 __all__ = [
     # Core client
     "MohawkNode",
+    "AsyncMohawkNode",
     # Exceptions
     "MohawkError",
     "InitializationError",
     "VerificationError",
+    "ProofTooShortError",
+    "ProofStructureError",
+    "ProofPairingError",
+    "ProofDegenerateError",
     "AggregationError",
     "AttestationError",
     # Accelerator

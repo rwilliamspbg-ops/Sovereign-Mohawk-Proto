@@ -23,6 +23,11 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Build Wasm Module
         run: |
           cd wasm-modules/fl_task
@@ -34,6 +39,21 @@ jobs:
           go test ./...
       - name: Validate Capabilities
         run: python3 scripts/validate_capabilities.py
+
+      - name: Install Python SDK Test Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ./sdk/python[dev]
+
+      - name: Python SDK Tests
+        run: |
+          cd sdk/python
+          pytest -q
+
+      - name: Verify Python SDK WASM Examples
+        run: |
+          python3 sdk/python/examples/wasm_hot_reload_demo.py --ci
+          python3 sdk/python/examples/wasm_hot_reload_async_demo.py --ci
 
       - name: Verify Docker Stack
         run: docker compose config

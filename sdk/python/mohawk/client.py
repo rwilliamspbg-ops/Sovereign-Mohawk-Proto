@@ -6,6 +6,7 @@ import ctypes
 import json
 import sys
 import time
+import base64
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
@@ -15,6 +16,7 @@ from .exceptions import (
     AttestationError,
     InitializationError,
     VerificationError,
+    verification_error_for_code,
 )
 from .gradient import CompressedGradient, GradientBuffer
 
@@ -28,6 +30,16 @@ class ZeroCopyBridge:
     def __init__(self, lib_path: Optional[str] = None):
         self.lib_path = self._resolve_library(lib_path)
         self.lib = self._load_library(self.lib_path) if self.lib_path else None
+        self._free_string = None
+        if self.lib is not None and hasattr(self.lib, "FreeString"):
+            free_func = self.lib.FreeString
+            free_func.argtypes = [ctypes.c_void_p]
+            free_func.restype = None
+            self._free_string = free_func
+
+    def close(self) -> None:
+        self._free_string = None
+        self.lib = None
 
     def invoke_json(self, symbol: str, payload: Any) -> JsonDict:
         if self.lib is None:
@@ -39,12 +51,17 @@ class ZeroCopyBridge:
 
         func = getattr(self.lib, symbol)
         func.argtypes = [ctypes.c_char_p]
-        func.restype = ctypes.c_char_p
+        func.restype = ctypes.c_void_p
         encoded = json.dumps(payload).encode("utf-8")
-        result = func(encoded)
-        if not result:
+        result_ptr = func(encoded)
+        if not result_ptr:
             return {"success": False, "message": f"{symbol} returned no data"}
-        return json.loads(ctypes.cast(result, ctypes.c_char_p).value.decode("utf-8"))
+        try:
+            raw = ctypes.string_at(result_ptr)
+            return json.loads(raw.decode("utf-8"))
+        finally:
+            if self._free_string is not None:
+                self._free_string(result_ptr)
 
     def view(self, payload: BufferLike) -> memoryview:
         view = memoryview(payload)
@@ -90,6 +107,16 @@ class MohawkNode:
         self.lib_path = self.bridge.lib_path
         self.lib = self.bridge.lib
 
+    def close(self) -> None:
+        self.bridge.close()
+        self.lib = None
+
+    def __enter__(self) -> "MohawkNode":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
+
     def start(self, config_path: str, node_id: str = "default") -> JsonDict:
         payload = {
             "node_id": node_id,
@@ -109,7 +136,9 @@ class MohawkNode:
         elapsed_ms = (time.perf_counter() - started) * 1000.0
         result.setdefault("verification_time_ms", round(elapsed_ms, 3))
         if not result.get("success", False):
-            raise VerificationError(result.get("message", "proof verification failed"))
+            code = result.get("error_code", "")
+            msg = result.get("message", "proof verification failed")
+            raise verification_error_for_code(code, msg)
         return result
 
     def batch_verify(self, proofs: List[Dict[str, str]]) -> JsonDict:
@@ -205,8 +234,6 @@ class MohawkNode:
         else:
             raw = fp32_to_fp16(grads)
             scale = 0.0
-
-        import base64
 
         original = len(grads) * 4
         return {
@@ -347,6 +374,35 @@ class MohawkNode:
             )
         return result
 
+    def burn_utility_coin(
+        self,
+        *,
+        from_account: str,
+        amount: float,
+        memo: str = "",
+        auth_token: Optional[str] = None,
+        idempotency_key: Optional[str] = None,
+        nonce: Optional[int] = None,
+        role: Optional[str] = None,
+    ) -> JsonDict:
+        payload = {
+            "from": from_account,
+            "amount": amount,
+            "memo": memo,
+        }
+        if auth_token is not None:
+            payload["auth_token"] = auth_token
+        if idempotency_key is not None:
+            payload["idempotency_key"] = idempotency_key
+        if nonce is not None:
+            payload["nonce"] = nonce
+        if role is not None:
+            payload["role"] = role
+        result = self.bridge.invoke_json("BurnUtilityCoin", payload)
+        if not result.get("success", False):
+            raise AggregationError(result.get("message", "utility coin burn failed"))
+        return result
+
     def utility_coin_balance(self, account: str) -> JsonDict:
         result = self.bridge.invoke_json("GetUtilityCoinBalance", {"account": account})
         if not result.get("success", False):
@@ -405,12 +461,44 @@ class MohawkNode:
             )
         return result
 
-    def load_wasm(self, module_path: str) -> JsonDict:
-        result = self.bridge.invoke_json("LoadWasmModule", {"module_path": module_path})
+    def load_wasm(
+        self,
+        module_path: Optional[str] = None,
+        *,
+        wasm_bytes: Optional[BufferLike] = None,
+        wasm_b64: Optional[str] = None,
+    ) -> JsonDict:
+        payload: JsonDict = {}
+        if module_path is not None:
+            payload["module_path"] = module_path
+        if wasm_bytes is not None:
+            payload["wasm_b64"] = base64.b64encode(self.bridge.view(wasm_bytes).tobytes()).decode("ascii")
+        elif wasm_b64 is not None:
+            payload["wasm_b64"] = wasm_b64
+        if not payload:
+            raise InitializationError(
+                "load_wasm requires module_path, wasm_bytes, or wasm_b64"
+            )
+
+        result = self.bridge.invoke_json("LoadWasmModule", payload)
         if not result.get("success", False):
             raise InitializationError(
                 result.get("message", "wasm module loading failed")
             )
+
+        data = result.get("data")
+        if isinstance(data, str) and data:
+            try:
+                payload_data = json.loads(data)
+            except json.JSONDecodeError:
+                payload_data = None
+            if isinstance(payload_data, dict):
+                module_hash = payload_data.get("module_hash")
+                module_path_out = payload_data.get("module_path")
+                if isinstance(module_hash, str) and module_hash:
+                    result["module_hash"] = module_hash
+                if isinstance(module_path_out, str) and module_path_out:
+                    result["module_path"] = module_path_out
         return result
 
     def attest(self, node_id: str) -> JsonDict:

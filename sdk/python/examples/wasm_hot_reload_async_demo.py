@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Demonstrate async WASM path load + inline hot-reload via bytes/base64."""
+
+import asyncio
+import base64
+import json
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from mohawk import AsyncMohawkNode, InitializationError
+
+
+def _print_result(title: str, result: dict, ci_mode: bool) -> None:
+    if ci_mode:
+        status = "ok" if result.get("success") else "fail"
+        hash_value = result.get("module_hash", "-")
+        print(f"{title}: {status} module_hash={hash_value}")
+        return
+
+    print(title)
+    print(f"  success: {result.get('success')}")
+    print(f"  message: {result.get('message')}")
+    if result.get("module_hash"):
+        print(f"  module_hash: {result['module_hash']}")
+    if result.get("module_path"):
+        print(f"  module_path: {result['module_path']}")
+    if result.get("data"):
+        try:
+            decoded = json.loads(result["data"])
+            print(f"  data: {json.dumps(decoded)}")
+        except Exception:
+            print(f"  data: {result['data']}")
+    print()
+
+
+async def main() -> None:
+    ci_mode = "--ci" in sys.argv or os.getenv("CI") == "1"
+
+    print("🧱 MOHAWK Async WASM Hot-Reload Demo\n")
+
+    wasm_path = Path("wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm")
+
+    try:
+        node = AsyncMohawkNode()
+
+        by_path = await node.load_wasm(str(wasm_path))
+        _print_result("1) Async load by path", by_path, ci_mode)
+
+        if wasm_path.exists():
+            wasm_bytes = wasm_path.read_bytes()
+        else:
+            wasm_bytes = b"\x00asm\x01\x00\x00\x00"
+
+        by_bytes = await node.load_wasm(wasm_bytes=wasm_bytes)
+        _print_result("2) Async hot-reload by bytes", by_bytes, ci_mode)
+
+        wasm_b64 = base64.b64encode(wasm_bytes).decode("ascii")
+        by_b64 = await node.load_wasm(wasm_b64=wasm_b64)
+        _print_result("3) Async hot-reload by base64", by_b64, ci_mode)
+
+        if by_path.get("module_hash") and by_bytes.get("module_hash") and by_b64.get("module_hash"):
+            if not (by_path["module_hash"] == by_bytes["module_hash"] == by_b64["module_hash"]):
+                raise RuntimeError("module_hash mismatch across path/bytes/base64 loads")
+
+        status = await node.status("demo-node")
+        data = status.get("status_data") or status.get("data")
+        if ci_mode:
+            print(f"4) Async status snapshot: {status.get('message')} status_data_present={bool(data)}")
+        else:
+            print("4) Async status snapshot")
+            print(f"  message: {status.get('message')}")
+            print(f"  status_data: {data}")
+
+    except InitializationError as exc:
+        print(f"Initialization failed: {exc}")
+        print("Build shared library first: make build-python-lib")
+        raise SystemExit(1)
+    except Exception as exc:
+        print(f"Unexpected error: {exc}")
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

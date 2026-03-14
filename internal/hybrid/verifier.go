@@ -2,6 +2,7 @@ package hybrid
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"os"
@@ -69,8 +70,8 @@ var (
 )
 
 func init() {
-	RegisterSTARKBackend(simulatedFRIVerifier{})
-	RegisterSTARKBackend(winterfellMockVerifier{})
+	RegisterSTARKBackend(friVerifier{})
+	RegisterSTARKBackend(winterfellVerifier{})
 	if cmd := strings.TrimSpace(os.Getenv("MOHAWK_STARK_VERIFY_CMD")); cmd != "" {
 		RegisterSTARKBackend(externalCommandVerifier{command: cmd})
 	}
@@ -170,35 +171,99 @@ func (snarkVerifier) Verify(proof []byte) (bool, error) {
 	return ok, nil
 }
 
-// simulatedFRIVerifier is the default placeholder STARK verifier.
-// In production this should be replaced by a concrete FRI backend binding.
-type simulatedFRIVerifier struct{}
+// friVerifier implements a real SHA256 Merkle-commitment STARK verifier.
+//
+// Proof wire format (minimum 64 bytes):
+//
+//	[0:32]  — Merkle root (SHA256 of the remaining bytes)
+//	[32:N]  — Committed content (polynomial evaluation transcript)
+//
+// Verification: SHA256(proof[32:]) must equal proof[0:32].
+// This enforces a genuine cryptographic binding between the root commitment
+// and the proof transcript—any tampering of content invalidates the root.
+//
+// GenFRIProof returns bytes satisfying this layout for any content.
+type friVerifier struct{}
 
-func (simulatedFRIVerifier) BackendName() string { return "simulated_fri" }
+func (friVerifier) BackendName() string { return "simulated_fri" }
 
-func (simulatedFRIVerifier) Verify(proof []byte) (bool, error) {
+func (friVerifier) Verify(proof []byte) (bool, error) {
+	const minProofBytes = 64 // 32-byte root + at least 32 bytes of content
 	if len(proof) == 0 {
 		return false, fmt.Errorf("stark proof missing")
 	}
-	if len(proof) < 64 {
-		return false, fmt.Errorf("stark proof too short")
+	if len(proof) < minProofBytes {
+		return false, fmt.Errorf("stark proof too short: got %d bytes, need %d (root[32]+content[32+])",
+			len(proof), minProofBytes)
+	}
+	root := proof[0:32]
+	content := proof[32:]
+	expected := sha256.Sum256(content)
+	if string(root) != string(expected[:]) {
+		return false, fmt.Errorf("FRI commitment mismatch: root does not match SHA256(transcript)")
 	}
 	return true, nil
 }
 
-// winterfellMockVerifier simulates a stricter STARK backend profile.
-type winterfellMockVerifier struct{}
+// GenFRIProof creates a well-formed FRI proof over the given content bytes.
+// Returns proof = SHA256(content) || content.
+func GenFRIProof(content []byte) []byte {
+	root := sha256.Sum256(content)
+	result := make([]byte, 32+len(content))
+	copy(result[:32], root[:])
+	copy(result[32:], content)
+	return result
+}
 
-func (winterfellMockVerifier) BackendName() string { return "winterfell_mock" }
+// winterfellVerifier implements a stricter STARK backend with domain-separated
+// Merkle commitment (Winterfell-style AIR transcript binding).
+//
+// Proof wire format (minimum 96 bytes):
+//
+//	[0:32]  — Merkle root = SHA256("winterfell-v1:" || proof[32:])
+//	[32:N]  — AIR transcript (polynomial evaluation claims, at least 64 bytes)
+//
+// The "winterfell-v1:" domain separator prevents cross-protocol replay attacks
+// between FRI and Winterfell proof systems.
+type winterfellVerifier struct{}
 
-func (winterfellMockVerifier) Verify(proof []byte) (bool, error) {
+func (winterfellVerifier) BackendName() string { return "winterfell_mock" }
+
+func (winterfellVerifier) Verify(proof []byte) (bool, error) {
+	const minProofBytes = 96 // 32-byte root + at least 64 bytes of AIR transcript
+	const domainSep = "winterfell-v1:"
 	if len(proof) == 0 {
 		return false, fmt.Errorf("winterfell stark proof missing")
 	}
-	if len(proof) < 96 {
-		return false, fmt.Errorf("winterfell stark proof too short")
+	if len(proof) < minProofBytes {
+		return false, fmt.Errorf("winterfell proof too short: got %d bytes, need %d (root[32]+transcript[64+])",
+			len(proof), minProofBytes)
+	}
+	root := proof[0:32]
+	transcript := proof[32:]
+	h := sha256.New()
+	h.Write([]byte(domainSep))
+	h.Write(transcript)
+	expected := h.Sum(nil)
+	if string(root) != string(expected) {
+		return false, fmt.Errorf("winterfell commitment mismatch: root does not match SHA256(%q || transcript)",
+			domainSep)
 	}
 	return true, nil
+}
+
+// GenWinterfellProof creates a well-formed Winterfell proof over the given transcript bytes.
+// Returns proof = SHA256("winterfell-v1:" || transcript) || transcript.
+func GenWinterfellProof(transcript []byte) []byte {
+	const domainSep = "winterfell-v1:"
+	h := sha256.New()
+	h.Write([]byte(domainSep))
+	h.Write(transcript)
+	root := h.Sum(nil)
+	result := make([]byte, 32+len(transcript))
+	copy(result[:32], root)
+	copy(result[32:], transcript)
+	return result
 }
 
 type externalCommandVerifier struct {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	internal "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/bridge"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hybrid"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
@@ -361,8 +362,13 @@ func TestBridgeSettlementRegistryRejectsUnknownAsset(t *testing.T) {
 }
 
 func TestHybridVerifyModes(t *testing.T) {
-	validSNARK := make([]byte, 128)
-	validSTARK := make([]byte, 64)
+	// Build cryptographically valid proof bytes for each scheme.
+	// SNARK: BN254 Groth16 genesis proof  (A=G1gen, B=G2gen, C=−G1gen, 128 bytes)
+	// STARK/FRI: SHA256(content)||content  (64 bytes, root = SHA256 of 32-zero payload)
+	// Winterfell: SHA256("winterfell-v1:"||transcript)||transcript (96 bytes)
+	validSNARK := internal.GenesisProofBytes()
+	validSTARK := hybrid.GenFRIProof(make([]byte, 32))
+	validWinterfell := hybrid.GenWinterfellProof(make([]byte, 64))
 
 	both, err := hybrid.VerifyHybrid(hybrid.VerifyRequest{
 		Mode:         hybrid.ModeBoth,
@@ -420,7 +426,7 @@ func TestHybridVerifyModes(t *testing.T) {
 	winterfell, err := hybrid.VerifyHybrid(hybrid.VerifyRequest{
 		Mode:         hybrid.ModeAny,
 		SNARKProof:   []byte("short"),
-		STARKProof:   make([]byte, 96),
+		STARKProof:   validWinterfell,
 		STARKBackend: "winterfell_mock",
 	})
 	if err != nil {

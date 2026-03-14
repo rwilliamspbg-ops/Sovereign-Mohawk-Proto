@@ -26,6 +26,8 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
 ![Genesis Testnet](https://img.shields.io/badge/Testnet-global--testnet-orange)
+![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
+![Tokenomics Dashboard](https://img.shields.io/badge/Grafana-Tokenomics%20Live-F46800?logo=grafana&logoColor=white)
 
 ---
 
@@ -60,6 +62,8 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 * 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
 * 🌉 **Bridge Policy Enforcement:** Cross-chain route policies with default manifests and typed EVM/Cosmos proof helpers.
 * 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
+* 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
+* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, bridge settlement, and proof cost.
 * 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
 
 ---
@@ -68,7 +72,7 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 
 ### Go Runtime
 
-Sovereign-Mohawk is built with **Go 1.24**.
+Sovereign-Mohawk is built with **Go 1.25+**.
 
 ```bash
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
@@ -154,6 +158,20 @@ Default endpoints after startup:
 * Prometheus: `http://localhost:9090`
 * TPM metrics exporter: `http://localhost:9102/metrics`
 * Orchestrator control plane: `https://localhost:8080` (mTLS enforced)
+
+Quick health checks:
+
+```bash
+curl -fsS http://localhost:3000/api/health
+curl -fsS http://localhost:9090/-/healthy
+curl -fsS http://localhost:9102/metrics | head
+```
+
+Grafana dashboard shortlist:
+
+* `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
+* `MOHAWK Live Overview`
+* `TPM Metrics`
 
 Stop the stack with:
 
@@ -258,6 +276,7 @@ All production-grade safety requirements are verified on every push:
 
 * [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
 * [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
+* [monitoring/grafana/dashboards/tokenomics.json](monitoring/grafana/dashboards/tokenomics.json)
 * [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
 
 ---

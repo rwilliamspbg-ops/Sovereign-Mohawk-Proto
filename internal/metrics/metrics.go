@@ -1,6 +1,10 @@
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 var (
 	tpmQuotesTotal = prometheus.NewCounterVec(
@@ -113,6 +117,70 @@ var (
 		Name: "mohawk_utility_coin_tx_count",
 		Help: "Latest observed utility coin ledger transaction count.",
 	})
+
+	// utilityCoinBurnsTotal counts successful utility coin burn operations.
+	utilityCoinBurnsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "mohawk_utility_coin_burns_total",
+		Help: "Total successful utility coin burn operations.",
+	})
+
+	// utilityCoinBurnedAmountTotal accumulates all burned utility coin amounts.
+	utilityCoinBurnedAmountTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "mohawk_utility_coin_burned_amount_total",
+		Help: "Cumulative burned utility coin amount.",
+	})
+
+	// utilityCoinHoldersCount tracks the number of unique accounts with a non-zero balance.
+	utilityCoinHoldersCount = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "mohawk_utility_coin_holders_count",
+		Help: "Number of unique accounts with a non-zero utility coin balance.",
+	})
+
+	// bridgeSettlementsTotal counts bridge settlement attempts by asset and outcome.
+	bridgeSettlementsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_bridge_settlements_total",
+			Help: "Total bridge settlement operations by asset and status.",
+		},
+		[]string{"asset", "status"}, // status: settled | refunded | failed
+	)
+
+	// bridgeSettlementVolumeTotal accumulates the gross settlement volume per asset.
+	bridgeSettlementVolumeTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_bridge_settlement_volume_total",
+			Help: "Cumulative settlement volume per asset.",
+		},
+		[]string{"asset"},
+	)
+
+	// bridgeTransfersTotal counts bridge transfer verifications by source/target chain pair.
+	bridgeTransfersTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_bridge_transfers_total",
+			Help: "Total verified bridge transfers per chain pair.",
+		},
+		[]string{"source_chain", "target_chain", "result"},
+	)
+
+	// proofVerificationsTotal counts individual zk-SNARK proof verifications by scheme and outcome.
+	proofVerificationsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_proof_verifications_total",
+			Help: "Total zk-proof verification attempts by scheme and result.",
+		},
+		[]string{"scheme", "result"}, // scheme: groth16 | fri | winterfell | hybrid
+	)
+
+	// proofVerificationLatency records individual proof verification latency in milliseconds.
+	proofVerificationLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_proof_verification_latency_ms",
+			Help:    "Proof verification latency in milliseconds by scheme.",
+			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 15, 20, 50},
+		},
+		[]string{"scheme"},
+	)
 )
 
 func init() {
@@ -132,6 +200,14 @@ func init() {
 		utilityCoinTransferredAmountTotal,
 		utilityCoinTotalSupply,
 		utilityCoinTxCount,
+		utilityCoinBurnsTotal,
+		utilityCoinBurnedAmountTotal,
+		utilityCoinHoldersCount,
+		bridgeSettlementsTotal,
+		bridgeSettlementVolumeTotal,
+		bridgeTransfersTotal,
+		proofVerificationsTotal,
+		proofVerificationLatency,
 	)
 
 	utilityCoinMintsTotal.Add(0)
@@ -140,6 +216,9 @@ func init() {
 	utilityCoinTransferredAmountTotal.Add(0)
 	utilityCoinTotalSupply.Set(0)
 	utilityCoinTxCount.Set(0)
+	utilityCoinBurnsTotal.Add(0)
+	utilityCoinBurnedAmountTotal.Add(0)
+	utilityCoinHoldersCount.Set(0)
 }
 
 func ObserveQuote(success bool) {
@@ -218,6 +297,64 @@ func ObserveUtilityCoinSnapshot(totalSupply float64, txCount int) {
 	}
 	if txCount >= 0 {
 		utilityCoinTxCount.Set(float64(txCount))
+	}
+}
+
+// ObserveUtilityCoinBurn records a successful burn and updates supply/tx/holders gauges.
+func ObserveUtilityCoinBurn(amount float64, totalSupply float64, txCount int, holders int) {
+	utilityCoinBurnsTotal.Inc()
+	if amount > 0 {
+		utilityCoinBurnedAmountTotal.Add(amount)
+	}
+	if totalSupply >= 0 {
+		utilityCoinTotalSupply.Set(totalSupply)
+	}
+	if txCount >= 0 {
+		utilityCoinTxCount.Set(float64(txCount))
+	}
+	if holders >= 0 {
+		utilityCoinHoldersCount.Set(float64(holders))
+	}
+}
+
+// ObserveUtilityCoinHolders updates the unique-holder count gauge.
+func ObserveUtilityCoinHolders(count int) {
+	if count >= 0 {
+		utilityCoinHoldersCount.Set(float64(count))
+	}
+}
+
+// ObserveBridgeSettlement records a bridge settlement outcome.
+// status must be "settled", "refunded", or "failed".
+func ObserveBridgeSettlement(asset string, status string, amount float64) {
+	asset = strings.ToUpper(strings.TrimSpace(asset))
+	if asset == "" {
+		asset = "UNKNOWN"
+	}
+	bridgeSettlementsTotal.WithLabelValues(asset, status).Inc()
+	if amount > 0 {
+		bridgeSettlementVolumeTotal.WithLabelValues(asset).Add(amount)
+	}
+}
+
+// ObserveBridgeTransfer records a bridge transfer verification.
+func ObserveBridgeTransfer(sourceChain, targetChain string, success bool) {
+	bridgeTransfersTotal.WithLabelValues(
+		strings.ToLower(strings.TrimSpace(sourceChain)),
+		strings.ToLower(strings.TrimSpace(targetChain)),
+		resultLabel(success),
+	).Inc()
+}
+
+// ObserveProofVerification records a single zk-proof verification.
+// scheme: "groth16" | "fri" | "winterfell" | "hybrid"
+func ObserveProofVerification(scheme string, success bool, latencyMS float64) {
+	if scheme == "" {
+		scheme = "groth16"
+	}
+	proofVerificationsTotal.WithLabelValues(scheme, resultLabel(success)).Inc()
+	if latencyMS >= 0 {
+		proofVerificationLatency.WithLabelValues(scheme).Observe(latencyMS)
 	}
 }
 

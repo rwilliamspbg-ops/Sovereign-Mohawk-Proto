@@ -1,6 +1,9 @@
 // Formal Proof Reference: See /proofs/pyapi_bridge_correctness.md for ctypes binding safety proofs
 package main
 
+/*
+#include <stdlib.h>
+*/
 import "C"
 import (
 	"context"
@@ -18,6 +21,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
@@ -39,11 +43,13 @@ type NodeConfig struct {
 	Capabilities string `json:"capabilities"`
 }
 
-// Result represents a generic result structure for API responses
+// Result represents a generic result structure for API responses.
+// ErrorCode is a machine-readable code for the Python SDK to classify failure types.
 type Result struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
-	Data    string `json:"data,omitempty"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message"`
+	Data      string `json:"data,omitempty"`
+	ErrorCode string `json:"error_code,omitempty"`
 }
 
 type runtimeState struct {
@@ -53,6 +59,8 @@ type runtimeState struct {
 	meshPlan   hva.Plan
 	host       corehost.Host
 	runner     *wasmhost.Host
+	registry   *wasmhost.Registry
+	runnerHash string
 	aggregator *internalpkg.Aggregator
 }
 
@@ -130,6 +138,7 @@ func loadAPIRolePolicy() apiRolePolicyConfig {
 func loadUtilityRolePolicy() utilityRolePolicyConfig {
 	enabled := parseBoolEnv("MOHAWK_UTILITY_ENFORCE_ROLES", false)
 	mintRoles := parseRoleSet(os.Getenv("MOHAWK_UTILITY_MINT_ALLOWED_ROLES"), "minter,admin,protocol")
+	burnRoles := parseRoleSet(os.Getenv("MOHAWK_UTILITY_BURN_ALLOWED_ROLES"), "operator,admin,protocol")
 	transferRoles := parseRoleSet(os.Getenv("MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES"), "user,operator,admin,protocol")
 	backupRoles := parseRoleSet(os.Getenv("MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES"), "operator,admin")
 	restoreRoles := parseRoleSet(os.Getenv("MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES"), "admin")
@@ -138,12 +147,14 @@ func loadUtilityRolePolicy() utilityRolePolicyConfig {
 		enabled: enabled,
 		allowedByOp: map[string]map[string]struct{}{
 			"mint":     mintRoles,
+			"burn":     burnRoles,
 			"transfer": transferRoles,
 			"backup":   backupRoles,
 			"restore":  restoreRoles,
 		},
 		requiredByOp: map[string]bool{
 			"mint":     true,
+			"burn":     true,
 			"transfer": true,
 			"backup":   true,
 			"restore":  true,
@@ -504,9 +515,15 @@ func InitializeNode(configJSON *C.char) *C.char {
 		_ = state.host.Close()
 		state.host = nil
 	}
-	if state.runner != nil {
+	if state.registry != nil {
+		_ = state.registry.Close(context.Background())
+		state.registry = nil
+		state.runner = nil
+		state.runnerHash = ""
+	} else if state.runner != nil {
 		_ = state.runner.Close(context.Background())
 		state.runner = nil
+		state.runnerHash = ""
 	}
 
 	meshPlan, err := hva.BuildPlan(10000000, 1024)
@@ -541,20 +558,25 @@ func VerifyZKProof(proofJSON *C.char) *C.char {
 	proofStr := C.GoString(proofJSON)
 	var payload map[string]any
 	if err := json.Unmarshal([]byte(proofStr), &payload); err != nil {
-		return marshalResult(false, fmt.Sprintf("Failed to parse proof payload: %v", err), "")
+		return marshalResultEC(false, "PROOF_PARSE_ERROR",
+			fmt.Sprintf("Failed to parse proof payload: %v", err), "")
 	}
 	proofBytes := extractProofBytes(payload)
-	if len(proofBytes) < 128 {
-		proofBytes = append(proofBytes, make([]byte, 128-len(proofBytes))...)
-	}
 	started := time.Now()
 	valid, err := internalpkg.VerifyProof(proofBytes, nil)
+	latencyMS := float64(time.Since(started).Microseconds()) / 1000.0
 	if err != nil {
-		return marshalResult(false, err.Error(), "")
+		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		return marshalResultEC(false, classifyProofError(err), err.Error(), "")
 	}
+	if !valid {
+		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		return marshalResultEC(false, "PROOF_INVALID", "pairing check failed: proof does not satisfy genesis VK", "")
+	}
+	metrics.ObserveProofVerification("groth16", true, latencyMS)
 	data, _ := json.Marshal(map[string]any{
 		"valid":                valid,
-		"verification_time_ms": float64(time.Since(started).Microseconds()) / 1000.0,
+		"verification_time_ms": latencyMS,
 	})
 	return marshalResult(true, "Proof verified", string(data))
 }
@@ -608,6 +630,9 @@ func GetNodeStatus(nodeID *C.char) *C.char {
 	if state.host != nil {
 		status["peer_id"] = state.host.ID().String()
 	}
+	if state.runnerHash != "" {
+		status["wasm_module_hash"] = state.runnerHash
+	}
 
 	statusJSON, _ := json.Marshal(status)
 	return marshalResult(true, "Status retrieved", string(statusJSON))
@@ -615,24 +640,62 @@ func GetNodeStatus(nodeID *C.char) *C.char {
 
 //export LoadWasmModule
 func LoadWasmModule(modulePath *C.char) *C.char {
-	path := C.GoString(modulePath)
+	raw := strings.TrimSpace(C.GoString(modulePath))
+	path := raw
+	wasmBytes := []byte(nil)
 
-	wasmBytes, err := os.ReadFile(path)
-	if err != nil {
-		wasmBytes = []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
+	if strings.HasPrefix(raw, "{") {
+		var req struct {
+			ModulePath string `json:"module_path"`
+			WasmB64    string `json:"wasm_b64,omitempty"`
+		}
+		if err := json.Unmarshal([]byte(raw), &req); err == nil {
+			path = strings.TrimSpace(req.ModulePath)
+			if req.WasmB64 != "" {
+				decoded, decErr := base64.StdEncoding.DecodeString(req.WasmB64)
+				if decErr != nil {
+					return marshalResult(false, fmt.Sprintf("invalid wasm_b64 payload: %v", decErr), "")
+				}
+				wasmBytes = decoded
+			}
+		}
 	}
-	runner, err := wasmhost.NewRunner(context.Background(), wasmBytes)
+
+	if len(wasmBytes) == 0 {
+		readBytes, err := os.ReadFile(path)
+		if err != nil {
+			wasmBytes = []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
+		} else {
+			wasmBytes = readBytes
+		}
+	}
+
+	state.mu.Lock()
+	if state.registry == nil {
+		state.registry = wasmhost.NewRegistry()
+	}
+	registry := state.registry
+	state.mu.Unlock()
+
+	hash, err := registry.HotReload(context.Background(), wasmBytes)
 	if err != nil {
 		return marshalResult(false, fmt.Sprintf("Failed to load WASM module: %v", err), "")
 	}
-	state.mu.Lock()
-	if state.runner != nil {
-		_ = state.runner.Close(context.Background())
+	host, ok := registry.Get(hash)
+	if !ok || host == nil {
+		return marshalResult(false, "Failed to resolve WASM module after hot-reload", "")
 	}
-	state.runner = runner
+
+	state.mu.Lock()
+	state.runner = host
+	state.runnerHash = hash
 	state.mu.Unlock()
 
-	return marshalResult(true, "WASM module loaded", path)
+	data, _ := json.Marshal(map[string]any{
+		"module_path": path,
+		"module_hash": hash,
+	})
+	return marshalResult(true, "WASM module loaded", string(data))
 }
 
 //export AttestNode
@@ -748,11 +811,11 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-			proofBytes := []byte(proof)
-			if len(proofBytes) < 128 {
-				proofBytes = append(proofBytes, make([]byte, 128-len(proofBytes))...)
-			}
+			proofBytes := decodeProofString(proof)
+			batchStart := time.Now()
 			valid, err := internalpkg.VerifyProof(proofBytes, nil)
+			batchLatency := float64(time.Since(batchStart).Microseconds()) / 1000.0
+			metrics.ObserveProofVerification("groth16", valid && err == nil, batchLatency)
 			r := verifyResult{ID: id, Valid: valid}
 			if err != nil {
 				r.Error = err.Error()
@@ -854,17 +917,21 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 	receipt, err := engine.VerifyTransfer(req)
 	if err != nil {
 		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+		metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
 		return marshalResult(false, err.Error(), "")
 	}
+	metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, true)
 	response := map[string]any{"receipt": receipt}
 	if payload.Settle {
 		settlement, settleErr := engine.SettleVerifiedTransfer(req, receipt)
 		if settleErr != nil {
 			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+			metrics.ObserveBridgeSettlement(payload.Asset, "failed", payload.Amount)
 			response["settlement"] = settlement
 			data, _ := json.Marshal(response)
 			return marshalResult(false, settleErr.Error(), string(data))
 		}
+		metrics.ObserveBridgeSettlement(payload.Asset, "settled", payload.Amount)
 		response["settlement"] = settlement
 	}
 	metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", true)
@@ -978,6 +1045,7 @@ func MintUtilityCoin(payloadJSON *C.char) *C.char {
 	totalSupply, _ := snapshot["total_supply"].(float64)
 	txCount, _ := snapshot["tx_count"].(int)
 	metrics.ObserveUtilityCoinMint(req.Amount, totalSupply, txCount)
+	metrics.ObserveUtilityCoinHolders(ledgerHolders(snapshot))
 	data, _ := json.Marshal(map[string]any{
 		"tx":      tx,
 		"balance": utilityCoinLedger.Balance(to),
@@ -1031,6 +1099,7 @@ func TransferUtilityCoin(payloadJSON *C.char) *C.char {
 	snapshot := utilityCoinLedger.Snapshot()
 	txCount, _ := snapshot["tx_count"].(int)
 	metrics.ObserveUtilityCoinTransfer(req.Amount, txCount)
+	metrics.ObserveUtilityCoinHolders(ledgerHolders(snapshot))
 	data, _ := json.Marshal(map[string]any{
 		"tx":           tx,
 		"from_balance": utilityCoinLedger.Balance(from),
@@ -1038,6 +1107,50 @@ func TransferUtilityCoin(payloadJSON *C.char) *C.char {
 		"symbol":       utilityCoinLedger.Symbol(),
 	})
 	return marshalResult(true, "Utility coin transferred", string(data))
+}
+
+//export BurnUtilityCoin
+func BurnUtilityCoin(payloadJSON *C.char) *C.char {
+	raw := C.GoString(payloadJSON)
+	var req struct {
+		From           string  `json:"from"`
+		Amount         float64 `json:"amount"`
+		Memo           string  `json:"memo,omitempty"`
+		AuthToken      string  `json:"auth_token,omitempty"`
+		Authorization  string  `json:"authorization,omitempty"`
+		APIToken       string  `json:"api_token,omitempty"`
+		Nonce          uint64  `json:"nonce,omitempty"`
+		IdempotencyKey string  `json:"idempotency_key,omitempty"`
+		Role           string  `json:"role,omitempty"`
+	}
+	if err := json.Unmarshal([]byte(raw), &req); err != nil {
+		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
+	}
+	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
+	if !verifyAPIToken(providedToken) {
+		return marshalResult(false, "unauthorized: invalid API token", "")
+	}
+	if err := authorizeUtilityRole("burn", req.Role); err != nil {
+		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
+	}
+	if err := enforceUtilityRateLimit(req.From); err != nil {
+		return marshalResult(false, err.Error(), "")
+	}
+	tx, err := utilityCoinLedger.BurnWithControls(req.From, req.Amount, req.Memo, req.IdempotencyKey, req.Nonce)
+	if err != nil {
+		return marshalResult(false, err.Error(), "")
+	}
+	snapshot := utilityCoinLedger.Snapshot()
+	totalSupply, _ := snapshot["total_supply"].(float64)
+	txCount, _ := snapshot["tx_count"].(int)
+	holders := ledgerHolders(snapshot)
+	metrics.ObserveUtilityCoinBurn(req.Amount, totalSupply, txCount, holders)
+	data, _ := json.Marshal(map[string]any{
+		"tx":      tx,
+		"balance": utilityCoinLedger.Balance(req.From),
+		"symbol":  utilityCoinLedger.Symbol(),
+	})
+	return marshalResult(true, "Utility coin burned", string(data))
 }
 
 //export GetUtilityCoinBalance
@@ -1066,6 +1179,7 @@ func GetUtilityCoinLedger(_ *C.char) *C.char {
 	totalSupply, _ := snapshot["total_supply"].(float64)
 	txCount, _ := snapshot["tx_count"].(int)
 	metrics.ObserveUtilityCoinSnapshot(totalSupply, txCount)
+	metrics.ObserveUtilityCoinHolders(ledgerHolders(snapshot))
 	data, _ := json.Marshal(snapshot)
 	return marshalResult(true, "Utility coin ledger snapshot", string(data))
 }
@@ -1136,12 +1250,30 @@ func RestoreUtilityCoinLedger(payloadJSON *C.char) *C.char {
 	return marshalResult(true, "Utility coin ledger restore complete", string(data))
 }
 
+func ledgerHolders(snapshot map[string]any) int {
+	balances, _ := snapshot["balances"].(map[string]float64)
+	holders := 0
+	for _, bal := range balances {
+		if bal > 0 {
+			holders++
+		}
+	}
+	return holders
+}
+
 // Helper function to marshal results to JSON and return as C string
 func marshalResult(success bool, message, data string) *C.char {
+	return marshalResultEC(success, "", message, data)
+}
+
+// marshalResultEC includes a machine-readable error_code in the JSON result.
+// code should be empty on success; non-empty on error.
+func marshalResultEC(success bool, code, message, data string) *C.char {
 	result := Result{
-		Success: success,
-		Message: message,
-		Data:    data,
+		Success:   success,
+		Message:   message,
+		Data:      data,
+		ErrorCode: code,
 	}
 
 	jsonBytes, err := json.Marshal(result)
@@ -1153,15 +1285,75 @@ func marshalResult(success bool, message, data string) *C.char {
 	return C.CString(string(jsonBytes))
 }
 
+//export FreeString
+func FreeString(s *C.char) {
+	if s != nil {
+		C.free(unsafe.Pointer(s))
+	}
+}
+
 // Required main function for cgo
 func main() {}
 
+// extractProofBytes decodes the "proof" field from a JSON payload map.
+// The field value may be either:
+//   - Base64-encoded bytes (standard or URL-safe encoding) — decoded to raw bytes
+//   - A hex string prefixed with "0x" — decoded from hex
+//   - A plain string — converted to bytes as-is (legacy fallback)
+//
+// If no "proof" field exists, the entire JSON-encoded payload is used as the
+// proof bytes (for backwards compatibility with structured payloads).
 func extractProofBytes(payload map[string]any) []byte {
 	if raw, ok := payload["proof"].(string); ok {
-		return []byte(raw)
+		return decodeProofString(raw)
 	}
 	encoded, _ := json.Marshal(payload)
 	return encoded
+}
+
+// decodeProofString attempts base64/hex decoding of a proof string value.
+// Returns raw bytes on success, or the original string bytes as a fallback.
+func decodeProofString(s string) []byte {
+	// Hex string (0x-prefixed)
+	if strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X") {
+		if b, err := hex.DecodeString(s[2:]); err == nil {
+			return b
+		}
+	}
+	// Standard base64
+	if b, err := base64.StdEncoding.DecodeString(s); err == nil {
+		return b
+	}
+	// URL-safe base64
+	if b, err := base64.URLEncoding.DecodeString(s); err == nil {
+		return b
+	}
+	// Raw string fallback
+	return []byte(s)
+}
+
+// classifyProofError maps a VerifyProof error to a machine-readable error code
+// so the Python SDK can raise the appropriate exception subclass.
+func classifyProofError(err error) string {
+	if err == nil {
+		return ""
+	}
+	msg := err.Error()
+	switch {
+	case strings.Contains(msg, "too short") || strings.Contains(msg, "invalid proof size"):
+		return "PROOF_TOO_SHORT"
+	case strings.Contains(msg, "not a valid BN254") || strings.Contains(msg, "invalid proof A") ||
+		strings.Contains(msg, "invalid proof B") || strings.Contains(msg, "invalid proof C"):
+		return "PROOF_POINT_INVALID"
+	case strings.Contains(msg, "infinity"):
+		return "PROOF_DEGENERATE"
+	case strings.Contains(msg, "pairing computation"):
+		return "PROOF_PAIRING_FAILED"
+	case strings.Contains(msg, "O(1) bound") || strings.Contains(msg, "latency"):
+		return "PROOF_LATENCY_EXCEEDED"
+	default:
+		return "PROOF_INVALID"
+	}
 }
 
 func maxInt(a int, b int) int {

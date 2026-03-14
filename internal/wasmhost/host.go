@@ -18,6 +18,8 @@ package wasmhost
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"sync"
 
@@ -35,6 +37,18 @@ type Host struct {
 	runtime wazero.Runtime
 	mod     api.Module
 	mu      sync.Mutex
+}
+
+// Registry manages hash-addressed WASM hosts and supports default hot reload.
+type Registry struct {
+	mu          sync.RWMutex
+	modules     map[string]*Host
+	defaultHash string
+}
+
+// NewRegistry creates an empty module registry.
+func NewRegistry() *Registry {
+	return &Registry{modules: make(map[string]*Host)}
 }
 
 // NewHost initializes a high-performance Wasm environment.
@@ -75,6 +89,88 @@ func newCompilationCache(ctx context.Context) wazero.CompilationCache {
 // NewRunner is a compatibility alias for NewHost.
 func NewRunner(ctx context.Context, wasmBin []byte) (*Host, error) {
 	return NewHost(ctx, wasmBin)
+}
+
+// Upsert compiles/loads a WASM module and stores it by SHA256 content hash.
+// Returns the module hash. Existing hashes are deduplicated.
+func (r *Registry) Upsert(ctx context.Context, wasmBin []byte) (string, error) {
+	if len(wasmBin) == 0 {
+		return "", fmt.Errorf("empty wasm module")
+	}
+	hashBytes := sha256.Sum256(wasmBin)
+	hash := hex.EncodeToString(hashBytes[:])
+
+	r.mu.RLock()
+	_, exists := r.modules[hash]
+	r.mu.RUnlock()
+	if exists {
+		return hash, nil
+	}
+
+	host, err := NewHost(ctx, wasmBin)
+	if err != nil {
+		return "", err
+	}
+
+	r.mu.Lock()
+	if _, exists = r.modules[hash]; exists {
+		r.mu.Unlock()
+		_ = host.Close(ctx)
+		return hash, nil
+	}
+	r.modules[hash] = host
+	if r.defaultHash == "" {
+		r.defaultHash = hash
+	}
+	r.mu.Unlock()
+
+	return hash, nil
+}
+
+// Get returns a host by content hash.
+func (r *Registry) Get(hash string) (*Host, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	host, ok := r.modules[hash]
+	return host, ok
+}
+
+// Default returns the current default host.
+func (r *Registry) Default() *Host {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	if r.defaultHash == "" {
+		return nil
+	}
+	return r.modules[r.defaultHash]
+}
+
+// HotReload inserts module bytes and sets that module as default.
+func (r *Registry) HotReload(ctx context.Context, wasmBin []byte) (string, error) {
+	hash, err := r.Upsert(ctx, wasmBin)
+	if err != nil {
+		return "", err
+	}
+	r.mu.Lock()
+	r.defaultHash = hash
+	r.mu.Unlock()
+	return hash, nil
+}
+
+// Close releases all module runtimes in the registry.
+func (r *Registry) Close(ctx context.Context) error {
+	r.mu.Lock()
+	modules := r.modules
+	r.modules = make(map[string]*Host)
+	r.defaultHash = ""
+	r.mu.Unlock()
+
+	for _, host := range modules {
+		if host != nil {
+			_ = host.Close(ctx)
+		}
+	}
+	return nil
 }
 
 // Verify executes the zk-SNARK proof verification in the Wasm sandbox.

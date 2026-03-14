@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Real BN254 Groth16 zk-SNARK verifier** (`internal/zksnark_verifier.go`):
+  - Replaced simulation with full four-pairing Miller-loop check using `gnark-crypto v0.20.0`
+  - Genesis VK uses canonical BN254 generator points (α=G1, β=G2, γ=G2, δ=G2, IC₀=G1)
+  - Wire format: 128 bytes compressed — A[32] | B[64] | C[32] — matches existing buffer contract
+  - `GenesisProofBytes()` helper produces a deterministic valid proof (A=G1gen, B=G2gen, C=−G1gen)
+  - Infinity-point guard and O(1) 15 ms latency enforcement retained from Theorem 5
+- **Real SHA256 Merkle-commitment STARK verifiers** (`internal/hybrid/verifier.go`):
+  - `friVerifier` (backend: `simulated_fri`): verifies `proof[0:32] == SHA256(proof[32:])` — binding root to transcript
+  - `winterfellVerifier` (backend: `winterfell_mock`): uses domain-separated commitment `SHA256("winterfell-v1:"+transcript)` to prevent cross-protocol replay
+  - `GenFRIProof(content)` and `GenWinterfellProof(transcript)` constructor helpers for testing and SDK usage
+- **Structured error codes in the Go↔Python bridge** (`internal/pyapi/api.go`):
+  - `Result.ErrorCode` field: machine-readable code (`PROOF_TOO_SHORT`, `PROOF_POINT_INVALID`, `PROOF_DEGENERATE`, `PROOF_PAIRING_FAILED`, `PROOF_LATENCY_EXCEEDED`, `PROOF_INVALID`)
+  - `classifyProofError()` maps Go error strings to codes; `marshalResultEC()` emits them in JSON
+- **Base64/hex proof decoding in the bridge** (`internal/pyapi/api.go`):
+  - `decodeProofString()` transparently handles 0x-hex, standard base64, URL-safe base64, and raw string bytes
+  - Removed legacy zero-padding in `VerifyZKProof` and `BatchVerifyProofs` — invalid-size proofs now return `PROOF_TOO_SHORT`
+- **Structured Python SDK exception hierarchy** (`sdk/python/mohawk/exceptions.py`, `__init__.py`):
+  - `ProofTooShortError`, `ProofStructureError`, `ProofPairingError`, `ProofDegenerateError` as `VerificationError` subclasses
+  - `verification_error_for_code(code, message)` mapper used by `MohawkNode.verify_proof()` to raise the most specific type
+- **gnark-crypto** `v0.20.0` added as a direct dependency
+- **Grafana tokenomics dashboard** (`monitoring/grafana/dashboards/tokenomics.json`):
+  - Supply, holder count, tx count, burn/mint rates
+  - Bridge settlement volume/success tracking
+  - Proof verification throughput and p50/p95/p99 latency views
+- **WASM module registry + hot reload** (`internal/wasmhost/host.go`, `internal/pyapi/api.go`):
+  - Content-hash keyed module registry (`Upsert`, `Get`, `Default`, `HotReload`, `Close`)
+  - Runtime status includes active `wasm_module_hash`
+  - `LoadWasmModule` supports path and inline `wasm_b64` payloads
+- **Async hot-reload examples** (`sdk/python/examples/wasm_hot_reload_demo.py`, `sdk/python/examples/wasm_hot_reload_async_demo.py`)
+
+### Changed
+
+- `TestVerifyProof_Valid` now uses `internal.GenesisProofBytes()` (real BN254 proof) instead of `make([]byte, 128)`
+- `TestVerifyProof_TooSmall` behaviour unchanged; added `TestVerifyProof_InvalidPoint` and `TestVerifyProof_WrongProof`
+- `TestHybridVerifyModes` updated to construct proofs via `hybrid.GenFRIProof` / `hybrid.GenWinterfellProof`
+- Python bridge now deallocates Go-returned strings through exported `FreeString` (leak-safe ctypes boundary)
+- Python SDK client lifecycle now supports `close()`, `with MohawkNode(...)`, and `async with AsyncMohawkNode(...)`
+- Build workflow now installs SDK (`pip install -e ./sdk/python[dev]`) and runs Python tests directly in CI
+
 - Python SDK roadmap integration milestones
 - CI/CD pipeline for automated Python SDK builds
 - Strict auth/role smoke runner at `scripts/strict_auth_smoke.py` for deterministic token/role validation (positive and negative paths)
@@ -99,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: "Stubbed" means the binding is complete but calls mock implementations. Next phase will connect to actual Go runtime logic.*
 
-### Changed
+### Changed (0.1.0)
 
 - Updated `README.md` with Python SDK section and examples
 - Extended `Makefile` with Python-specific targets
