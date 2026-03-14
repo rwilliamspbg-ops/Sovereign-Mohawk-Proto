@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Validates tokenomics metric presence and supply invariant (`total_supply ~= minted - burned`)
   - Publishes structured readiness report artifact (`mainnet-readiness-report`)
 - **Mainnet chaos gate** (`.github/workflows/mainnet-chaos-gate.yml`, `scripts/chaos_readiness_drill.sh`):
-  - Runs outage/recovery drills for `tpm-metrics`, `orchestrator`, and `prometheus` in CI matrix jobs
+  - Runs outage/recovery drills for `tpm-metrics`, `orchestrator`, `prometheus`, and `grafana` in CI matrix jobs
   - Requires baseline readiness pass, expected failure during outage, and full readiness recovery post-restart
   - Enforces recovery-latency threshold and publishes per-scenario baseline/failure/recovery/summary reports
 

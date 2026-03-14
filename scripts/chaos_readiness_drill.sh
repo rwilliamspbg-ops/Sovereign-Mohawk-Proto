@@ -6,11 +6,11 @@ REPORT_DIR="${2:-chaos-reports}"
 RECOVERY_LATENCY_MAX_SECONDS="${RECOVERY_LATENCY_MAX_SECONDS:-90}"
 
 case "$SCENARIO" in
-  tpm-metrics|orchestrator|prometheus)
+  tpm-metrics|orchestrator|prometheus|grafana)
     ;;
   *)
     echo "unsupported scenario: $SCENARIO" >&2
-    echo "supported scenarios: tpm-metrics | orchestrator | prometheus" >&2
+    echo "supported scenarios: tpm-metrics | orchestrator | prometheus | grafana" >&2
     exit 2
     ;;
 esac
@@ -24,6 +24,9 @@ case "$SCENARIO" in
     TARGET_INSTANCE="orchestrator:9091"
     ;;
   prometheus)
+    TARGET_INSTANCE=""
+    ;;
+  grafana)
     TARGET_INSTANCE=""
     ;;
 esac
@@ -90,7 +93,26 @@ wait_prometheus_health() {
   return 1
 }
 
+wait_grafana_health() {
+  local desired="$1"
+  local deadline=$((SECONDS + 180))
+  while (( SECONDS < deadline )); do
+    if curl -fsS http://localhost:3000/api/health >/dev/null 2>&1; then
+      if [[ "$desired" == "up" ]]; then
+        return 0
+      fi
+    else
+      if [[ "$desired" == "down" ]]; then
+        return 0
+      fi
+    fi
+    sleep 2
+  done
+  return 1
+}
+
 echo "[chaos] scenario=$SCENARIO baseline check"
+wait_grafana_health up
 wait_target_state "orchestrator:9091" up
 wait_target_state "tpm-metrics:9102" up
 if ! run_gate "$BASELINE_REPORT" --retries 60 --delay 2; then
@@ -104,6 +126,8 @@ echo "[chaos] scenario=$SCENARIO injecting outage"
 docker compose stop "$SCENARIO"
 if [[ "$SCENARIO" == "prometheus" ]]; then
   wait_prometheus_health down
+elif [[ "$SCENARIO" == "grafana" ]]; then
+  wait_grafana_health down
 else
   wait_target_state "$TARGET_INSTANCE" down
 fi
@@ -123,6 +147,8 @@ if [[ "$SCENARIO" == "prometheus" ]]; then
   wait_prometheus_health up
   wait_target_state "orchestrator:9091" up
   wait_target_state "tpm-metrics:9102" up
+elif [[ "$SCENARIO" == "grafana" ]]; then
+  wait_grafana_health up
 else
   wait_target_state "$TARGET_INSTANCE" up
 fi
