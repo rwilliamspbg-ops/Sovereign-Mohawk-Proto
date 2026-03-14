@@ -1,0 +1,48 @@
+name: Mainnet Chaos Gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '30 */12 * * *'
+
+jobs:
+  chaos-gate:
+    name: Chaos Readiness (${{ matrix.scenario }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [tpm-metrics, orchestrator]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Start monitoring stack
+        run: |
+          docker compose up -d --build orchestrator prometheus tpm-metrics grafana
+
+      - name: Run chaos readiness drill
+        run: |
+          bash scripts/chaos_readiness_drill.sh "${{ matrix.scenario }}" chaos-reports
+
+      - name: Upload chaos reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mainnet-chaos-report-${{ matrix.scenario }}
+          path: chaos-reports/*.json
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose down -v

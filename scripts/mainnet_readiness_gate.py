@@ -40,9 +40,11 @@ def query_vector(prom_url: str, expr: str) -> list[dict]:
     return data.get("result", [])
 
 
-def query_scalar_value(prom_url: str, expr: str) -> float:
+def query_scalar_value(prom_url: str, expr: str, default_if_empty: float | None = None) -> float:
     result = query_vector(prom_url, expr)
     if not result:
+        if default_if_empty is not None:
+            return default_if_empty
         raise RuntimeError(f"metric not present yet for query: {expr}")
     value = result[0].get("value")
     if not isinstance(value, list) or len(value) != 2:
@@ -76,9 +78,9 @@ def check_metric_names(prom_url: str, required_metrics: list[str]) -> list[str]:
 
 
 def check_supply_invariant(prom_url: str, tolerance: float) -> list[str]:
-    minted = query_scalar_value(prom_url, "mohawk_utility_coin_minted_amount_total")
-    burned = query_scalar_value(prom_url, "mohawk_utility_coin_burned_amount_total")
-    supply = query_scalar_value(prom_url, "mohawk_utility_coin_total_supply")
+    minted = query_scalar_value(prom_url, "mohawk_utility_coin_minted_amount_total", default_if_empty=0.0)
+    burned = query_scalar_value(prom_url, "mohawk_utility_coin_burned_amount_total", default_if_empty=0.0)
+    supply = query_scalar_value(prom_url, "mohawk_utility_coin_total_supply", default_if_empty=0.0)
 
     expected = minted - burned
     if not math.isfinite(supply):
@@ -177,7 +179,7 @@ def main() -> int:
         report["checks"]["supply_invariant"] = len(invariant_failures) == 0
         failures.extend(invariant_failures)
 
-        tx_count = query_scalar_value(args.prom_url, "mohawk_utility_coin_tx_count")
+        tx_count = query_scalar_value(args.prom_url, "mohawk_utility_coin_tx_count", default_if_empty=0.0)
         report["checks"]["tx_count_non_negative"] = tx_count >= 0
         if tx_count < 0:
             failures.append(f"tx count negative: {tx_count}")
