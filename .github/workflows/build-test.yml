@@ -16,7 +16,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.x'
+          go-version: '1.25.x'
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -57,3 +57,21 @@ jobs:
 
       - name: Verify Docker Stack
         run: docker compose config
+
+      - name: Monitoring Smoke Check
+        run: |
+          docker compose up -d --build orchestrator prometheus tpm-metrics
+          for i in {1..30}; do
+            if curl -fsS http://localhost:9090/-/healthy >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          for i in {1..30}; do
+            if curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep -q 'mohawk_utility_coin_total_supply'; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep 'mohawk_utility_coin_total_supply'
+          docker compose down -v

@@ -34,6 +34,7 @@
 | Prometheus | `http://localhost:9090` | Metrics query + scrape state |
 | TPM Exporter | `http://localhost:9102/metrics` | TPM attestation metrics |
 | Orchestrator | `https://localhost:8080` | Control plane / API |
+| Orchestrator Metrics (internal) | `http://orchestrator:9091/metrics` | Prometheus scrape target inside Docker network |
 
 ### Health Checks
 
@@ -41,6 +42,7 @@
 curl -fsS http://localhost:3000/api/health
 curl -fsS http://localhost:9090/-/healthy
 curl -fsS http://localhost:9102/metrics | head
+curl -fsS http://localhost:9090/api/v1/targets | grep '"instance":"orchestrator:9091"'
 ```
 
 ### Provisioned Grafana Dashboards
