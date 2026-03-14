@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Sovereign-Mohawk Protocol will be documented in this file.
+All notable changes to the Sovereign-Mohawk Protocol are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -8,21 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Python SDK roadmap integration milestones
 - CI/CD pipeline for automated Python SDK builds
+- Strict auth/role smoke runner at `scripts/strict_auth_smoke.py` for deterministic token/role validation (positive and negative paths)
+- New Make targets: `strict-auth-smoke-host`, `strict-auth-smoke-container`, and `production-readiness`
+- SDK docs for strict-auth smoke usage and Alpine/musl ctypes troubleshooting with glibc-container fallback
 
 ## [0.1.0] - 2026-02-20
 
 ### Added - Python SDK Foundation
 
 #### Core Components
+
 - **Go C-Shared Library** (`internal/pyapi/api.go`)
   - Exported functions: `InitializeNode`, `VerifyZKProof`, `AggregateUpdates`, `GetNodeStatus`, `LoadWasmModule`, `AttestNode`
   - JSON-based communication protocol between Go and Python
   - Memory-safe string handling with `FreeString` function
   - Cross-platform support (Linux `.so`, macOS `.dylib`, Windows `.dll`)
 
-- **Python Client Package** (`sdk/python/Mohawk/`)
+- **Python Client Package** (`sdk/python/mohawk/`)
   - `MohawkNode` class with ctypes bindings to Go runtime
   - Pythonic API with type hints and comprehensive docstrings
   - Custom exception hierarchy: `MohawkError`, `InitializationError`, `VerificationError`, `AggregationError`, `AttestationError`
@@ -60,14 +65,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Specifications
 
 #### Performance
+
 - Node initialization: ~50ms
 - zk-SNARK verification: 10ms (maintained from Go runtime)
 - Aggregation complexity: O(d log n)
 - Memory overhead: Minimal (ctypes zero-copy where possible)
 
 #### API Coverage
+
 | Function | Go Implementation | Python Binding | Status |
-|----------|-------------------|----------------|--------|
+| --- | --- | --- | --- |
 | InitializeNode | ✅ | ✅ | Stubbed |
 | VerifyZKProof | ✅ | ✅ | Stubbed |
 | AggregateUpdates | ✅ | ✅ | Stubbed |
@@ -78,35 +85,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 *Note: "Stubbed" means the binding is complete but calls mock implementations. Next phase will connect to actual Go runtime logic.*
 
 ### Changed
-- Updated README.md with Python SDK section and examples
-- Extended Makefile with Python-specific targets
+
+- Updated `README.md` with Python SDK section and examples
+- Extended `Makefile` with Python-specific targets
 - Added Python SDK badge to repository shields
 
 ### Developer Notes
 
 #### Bridge Architecture
-```
-Python (Mohawk.client) → ctypes → libMohawk.so → CGO → Go Runtime (internal/)
+
+```text
+Python (mohawk.client) → ctypes → libmohawk.so → CGO → Go Runtime (internal/)
 ```
 
 #### Memory Management
+
 - Go allocates strings with `C.CString()`
 - Python receives via `ctypes.c_char_p`
 - Python calls `FreeString()` to deallocate Go memory
-- JSON used for complex data structures
+- JSON is used for complex data structures
 
 #### Next Steps for Full Integration
+
 1. Replace TODO comments in `internal/pyapi/api.go` with actual module calls
-2. Connect `VerifyZKProof` to `internal/zksnark_verifier.go`
-3. Link `AggregateUpdates` to `internal/aggregator.go`
-4. Integrate `LoadWasmModule` with `internal/wasmhost`
-5. Connect `AttestNode` to `internal/tpm` attestation
+1. Connect `VerifyZKProof` to `internal/zksnark_verifier.go`
+1. Link `AggregateUpdates` to `internal/aggregator.go`
+1. Integrate `LoadWasmModule` with `internal/wasmhost`
+1. Connect `AttestNode` to `internal/tpm` attestation
 
 ## [0.0.1] - 2026-01-15
 
 ### Added - Initial Release
 
 #### Core Protocol
+
 - Hierarchical federated learning architecture (10M:1k:100:1)
 - O(d log n) communication complexity
 - 55.5% Byzantine fault tolerance (Theorem 1)
@@ -115,6 +127,7 @@ Python (Mohawk.client) → ctypes → libMohawk.so → CGO → Go Runtime (inter
 - 28 MB metadata for 10M nodes (700,000x compression)
 
 #### Implementation
+
 - Go 1.24 runtime with Wasmtime integration
 - TPM attestation stub
 - Batch verification system
@@ -123,12 +136,14 @@ Python (Mohawk.client) → ctypes → libMohawk.so → CGO → Go Runtime (inter
 - WebAssembly module hosting
 
 #### Documentation
+
 - White Paper with complete protocol specification
 - Academic Paper with formal proofs (Theorems 1-5)
 - Proof-driven design verification system
 - Security audit scripts
 
 #### Testing
+
 - Comprehensive test suite (`test_all.sh`)
 - GitHub Actions CI/CD
 - Proof verification automation

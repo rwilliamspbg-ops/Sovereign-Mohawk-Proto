@@ -10,7 +10,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 ⚠️ Intellectual Property Notice: This project implements the Sovereign Mohawk Protocol. Portions of this technology are Patent Pending (U.S. Provisional Patent Application Filed March 2026).
 
-# Sovereign-Mohawk-Proto
+## Sovereign-Mohawk-Proto
 
 ![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)
 ![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)
@@ -50,21 +50,21 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 
 Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ecosystem:
 
-1.  **Hyper-Scale Decentralization:** By moving from $O(dn)$ to $O(d \log n)$ communication complexity, we enable millions of edge devices (phones, IoT, cars) to participate in training without saturating global bandwidth.
-2.  **Trustless Aggregation:** With **10ms zk-SNARKs**, the central server can prove to every participant that the model update was computed correctly without revealing private data or requiring re-execution.
-3.  **Byzantine Resilience at Scale:** Achieves a record **55.5% malicious node resilience**, ensuring that even under heavy adversarial attack, the global model remains uncorrupted.
-4.  **Continental-Level Speed:** Our hierarchical synthesis (10M:1k:100:1) allows for global model updates to be aggregated in milliseconds, bypassing the bottlenecks of traditional flat architectures.
-5.  **Multi-Language Support:** Native Go runtime with high-performance Python SDK via C-shared library bridge.
+1. **Hyper-Scale Decentralization:** By moving from $O(dn)$ to $O(d \log n)$ communication complexity, we enable millions of edge devices (phones, IoT, cars) to participate in training without saturating global bandwidth.
+2. **Trustless Aggregation:** With **10ms zk-SNARKs**, the central server can prove to every participant that the model update was computed correctly without revealing private data or requiring re-execution.
+3. **Byzantine Resilience at Scale:** Achieves a record **55.5% malicious node resilience**, ensuring that even under heavy adversarial attack, the global model remains uncorrupted.
+4. **Continental-Level Speed:** Our hierarchical synthesis (10M:1k:100:1) allows for global model updates to be aggregated in milliseconds, bypassing the bottlenecks of traditional flat architectures.
+5. **Multi-Language Support:** Native Go runtime with high-performance Python SDK via C-shared library bridge.
 
 ---
 
 ## ✨ Key Capabilities
 
-*   🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
-*   🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
-*   ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
-*   📉 **Extreme Efficiency:** 700,000x reduction in metadata overhead (40 TB → 28 MB for 10M nodes).
-*   🐍 **Python SDK:** Full-featured Python interface to the Go runtime via ctypes bridge.
+* 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
+* 🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
+* ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
+* 📉 **Extreme Efficiency:** 700,000x reduction in metadata overhead (40 TB → 28 MB for 10M nodes).
+* 🐍 **Python SDK:** Full-featured Python interface to the Go runtime via ctypes bridge.
 
 ---
 
@@ -97,13 +97,13 @@ cd sdk/python
 pip install -e .
 
 # Verify installation
-python -c "import Mohawk; print(Mohawk.__version__)"
+python -c "import mohawk; print(mohawk.__version__)"
 ```
 
 **Quick Python Example:**
 
 ```python
-from Mohawk import MohawkNode
+from mohawk import MohawkNode
 
 # Initialize and start a node
 node = MohawkNode()
@@ -153,6 +153,14 @@ make demo-python-sdk
 make python-all  # Build + Install + Test
 ```
 
+### Production Readiness Check
+
+Run the full production readiness gate (lint + tests + audit + strict auth/role smoke on host and container):
+
+```bash
+make production-readiness
+```
+
 ---
 
 ## 🛡️ Verification & Monitoring
@@ -168,15 +176,15 @@ go test -v ./... | grep "liveness"
 
 All production-grade safety requirements are verified on every push:
 
-*   **Verify Proof Links:** Checks exported functions against Formal Documentation.
-*   **Linter:** Ensures zero terminology errors or markdown formatting violations.
-*   **Build & Test:** Multi-platform Go compilation and test execution.
+* **Verify Proof Links:** Checks exported functions against Formal Documentation.
+* **Linter:** Ensures zero terminology errors or markdown formatting violations.
+* **Build & Test:** Multi-platform Go compilation and test execution.
 
 ---
 
 ## 📦 Repository Structure
 
-```
+```text
 Sovereign-Mohawk-Proto/
 ├── cmd/                    # Main application entry points
 ├── internal/               # Core Go implementation
@@ -205,22 +213,25 @@ Sovereign-Mohawk-Proto/
 ### Python SDK (v0.1.0)
 
 ✨ **New Features:**
-- Full Python interface to MOHAWK runtime via C-shared library bridge
-- Zero-copy ctypes bindings for maximum performance
-- Pythonic API with comprehensive type hints
-- Automatic Go library compilation during `pip install`
-- Complete example suite and unit tests
+
+* Full Python interface to MOHAWK runtime via C-shared library bridge
+* Zero-copy ctypes bindings for maximum performance
+* Pythonic API with comprehensive type hints
+* Automatic Go library compilation during `pip install`
+* Complete example suite and unit tests
 
 🔧 **Technical Details:**
-- Exported Go functions: `InitializeNode`, `VerifyZKProof`, `AggregateUpdates`, `GetNodeStatus`, `LoadWasmModule`, `AttestNode`
-- JSON-based communication protocol
-- Cross-platform support (Linux, macOS, Windows)
-- Memory-safe string handling
+
+* Exported Go functions: `InitializeNode`, `VerifyZKProof`, `AggregateUpdates`, `GetNodeStatus`, `LoadWasmModule`, `AttestNode`
+* JSON-based communication protocol
+* Cross-platform support (Linux, macOS, Windows)
+* Memory-safe string handling
 
 📚 **Documentation:**
-- [Python SDK README](sdk/python/README.md)
-- [API Reference](sdk/python/Mohawk/client.py)
-- [Usage Examples](sdk/python/examples/)
+
+* [Python SDK README](sdk/python/README.md)
+* [API Reference](sdk/python/mohawk/client.py)
+* [Usage Examples](sdk/python/examples/)
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -230,23 +241,24 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development priorities.
 
-**Current Phase: Python SDK Integration (Q1 2026)**
+### Current Phase: Python SDK Integration (Q1 2026)
 
 **Next Up:**
-- Production-ready zk-SNARK integration
-- TPM hardware attestation
-- Advanced WASM module support
-- Multi-chain bridge connectors
+
+* Production-ready zk-SNARK integration
+* TPM hardware attestation
+* Advanced WASM module support
+* Multi-chain bridge connectors
 
 ---
 
 ## 📖 Documentation
 
-- [White Paper](WHITE_PAPER.md) - Protocol design and architecture
-- [Academic Paper](ACADEMIC_PAPER.md) - Formal proofs and theorems
-- [Python SDK Guide](sdk/python/README.md) - Python development guide
-- [Contributing Guide](CONTRIBUTING.md) - Development guidelines
-- [API Documentation](docs/API.md) - Complete API reference
+* [White Paper](WHITE_PAPER.md) - Protocol design and architecture
+* [Academic Paper](ACADEMIC_PAPER.md) - Formal proofs and theorems
+* [Python SDK Guide](sdk/python/README.md) - Python development guide
+* [Contributing Guide](CONTRIBUTING.md) - Development guidelines
+* [API Documentation](docs/API.md) - Complete API reference
 
 ---
 
@@ -254,10 +266,10 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
-- Development setup
-- Code style guidelines
-- Testing requirements
-- Pull request process
+* Development setup
+* Code style guidelines
+* Testing requirements
+* Pull request process
 
 ---
 
@@ -269,40 +281,45 @@ This project is licensed under the **Apache License 2.0**. See the [LICENSE](LIC
 
 ## 🔗 Links
 
-- **GitHub:** [Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-- **Twitter/X:** [@RyanWill98382](https://twitter.com/RyanWill98382)
-- **Issues:** [Report a Bug](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues)
-- **Discussions:** [Community Forum](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/discussions)
+* **GitHub:** [Sovereign-Mohawk-Proto](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
+* **Twitter/X:** [@RyanWill98382](https://twitter.com/RyanWill98382)
+* **Issues:** [Report a Bug](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues)
+* **Discussions:** [Community Forum](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/discussions)
 
 ---
-Addendum: Human Impact & Governance Sovereignty
+
+## Addendum: Human Impact & Governance Sovereignty
+
 1. The Paradox of the Sovereign Protocol
 While the Sovereign Mohawk Protocol is designed to be "Sovereign"—meaning it operates via decentralized consensus rather than centralized human authority—this creates a risk of Technological Determinism.
 
 A system that answers to no one can inadvertently become a "Master" rather than a tool. We explicitly recognize that mathematical verification does not equal moral justification. A protocol may be "correct" in its execution of code while being "wrong" in its impact on human free will.
 
-2. The "Seventh Theorem": Resistance to Commercial Capture
+1. The "Seventh Theorem": Resistance to Commercial Capture
 Current BFT (Byzantine Fault Tolerance) models focus on "liars" (adversarial nodes). We propose a transition toward defending against "owners" (economic consolidation).
 
 Transparency of the Genesis Block: To prevent the Genesis Block from becoming a "Digital Board of Directors," the selection criteria for the initial 1,000 nodes must be publicly auditable, diverse in geography, and inclusive of non-commercial stakeholders.
 
 The Anti-Greed Protocol: We must implement decay functions on node influence to ensure that "Health and Wealth" promises do not lead to a "lock-in" effect where users trade long-term agency for short-term convenience.
 
-3. Protecting the "Thinker" over the "Consensus"
+1. Protecting the "Thinker" over the "Consensus"
 Standard Federated Learning prunes outliers to achieve accuracy. However, in human systems, the "outlier" is often the innovator or the dissenter.
 
 Dissensus Preservation: The protocol shall include "Thinker Clauses" that prevent the automatic suppression of minority data paths, ensuring that "Sovereignty" includes the right to deviate from the planetary norm.
 
 Legibility of the Sovereign Map: The "Sovereign Map" must not remain a black box. We commit to developing "Human-Readable Proofs" where the logic of the network is accessible to the average person, not just the cryptographer.
 
-4. Accountability in Scaleless Systems
+1. Accountability in Scaleless Systems
 As the system scales toward 100M+ nodes, traditional regulation becomes functionally impossible.
 
 Algorithmic Recourse: Every automated decision within the protocol must have a defined path for human appeal, ensuring that "messy" free will remains the final fail-safe against "perfect" algorithmic errors.
 
 Privacy as Agency: Privacy in this network is not a "shield for owners" but a sanctuary for the individual. It must be architected to protect the user from the network owners, not the owners from public scrutiny.
 
-Final Declaration: We build this protocol to serve humanity, not to replace its judgment. The messiness of human choice is the only metric that cannot be optimized, and it is the only metric that matters.
+### Final Declaration
+
+We build this protocol to serve humanity, not to replace its judgment. The messiness of human choice is the only metric that cannot be optimized, and it is the only metric that matters.
+
 ---
 *Built for the future of Sovereign AI.*
 

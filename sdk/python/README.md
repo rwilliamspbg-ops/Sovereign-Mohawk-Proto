@@ -38,8 +38,8 @@ pip install -e .
 ### Verifying Installation
 
 ```python
-import Mohawk
-print(Mohawk.__version__)  # Should print: 0.1.0
+import mohawk
+print(mohawk.__version__)  # Should print: 2.0.0a2
 ```
 
 ## Quick Start
@@ -47,7 +47,7 @@ print(Mohawk.__version__)  # Should print: 0.1.0
 ### Initialize a Node
 
 ```python
-from Mohawk import MohawkNode
+from mohawk import MohawkNode
 
 # Create a node instance
 node = MohawkNode()
@@ -122,6 +122,124 @@ Main class for interacting with the MOHAWK runtime.
 - **`status(node_id)`**: Get node status
 - **`load_wasm(module_path)`**: Load a WebAssembly module
 - **`attest(node_id)`**: Perform TPM attestation
+- **`device_info()`**: Enumerate available CPU/GPU/NPU backends
+- **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
+- **`batch_verify(proofs)`**: Verify many proofs in parallel
+- **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
+- **`verify_hybrid_proof(snark_proof, stark_proof, mode, auth_token=None, role=None)`**: Hybrid zk-SNARK/zk-STARK policy verification
+- **`bridge_transfer(..., auth_token=None, role=None)`**: Cross-chain transfer envelope verification + receipt generation
+- **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
+- **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
+- **`utility_coin_balance(account)`**: Retrieve utility coin balance
+- **`utility_coin_ledger()`**: Retrieve utility coin ledger snapshot
+- **`backup_utility_coin_ledger(path, auth_token=None, role=None)`**: Write current utility coin state snapshot to backup file
+- **`restore_utility_coin_ledger(path, auth_token=None, role=None)`**: Restore utility coin state from backup file
+
+Bridge policy fallback:
+
+- If no `route_policy`, `policy_manifest`, or `policy_manifest_path` is supplied to `bridge_transfer`, the runtime automatically attempts to load a default manifest from `bridge-policies.json`.
+- Override the default path with environment variable `MOHAWK_BRIDGE_POLICY_MANIFEST`.
+
+Utility coin hardening runtime controls:
+
+- Set `MOHAWK_LEDGER_STATE_PATH` and `MOHAWK_LEDGER_AUDIT_PATH` to enable persistent ledger state + append-only audit trail.
+- Set `MOHAWK_API_TOKEN` (or `MOHAWK_API_TOKEN_FILE`) to require API token authorization on mint/transfer requests.
+- Set `MOHAWK_API_AUTH_MODE` to `optional` (default), `required`, or `file-only` for global API token behavior.
+- Set `MOHAWK_UTILITY_RATE_LIMIT_PER_MIN` to cap utility coin endpoint operations per principal per minute.
+- Set `MOHAWK_UTILITY_ENFORCE_ROLES=true` to require role authorization for mint/transfer/backup/restore.
+- Configure allowed roles with `MOHAWK_UTILITY_MINT_ALLOWED_ROLES`, `MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES`, `MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES`, and `MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES`.
+- Optionally bind the configured API token to a fixed role with `MOHAWK_API_TOKEN_ROLE`.
+- Set `MOHAWK_API_ENFORCE_ROLES=true` and configure `MOHAWK_API_BRIDGE_ALLOWED_ROLES` / `MOHAWK_API_HYBRID_ALLOWED_ROLES` for non-utility endpoint role gates.
+
+### Strict Auth Smoke Validation
+
+Use reproducible smoke targets to validate positive and negative auth/role behavior:
+
+```bash
+# Host execution
+make strict-auth-smoke-host
+
+# Container execution (recommended for deployment parity)
+make strict-auth-smoke-container
+```
+
+### Container Troubleshooting (Alpine + ctypes)
+
+If `ctypes.CDLL("libmohawk.so")` fails in an Alpine/musl runtime with a TLS relocation error (for example `initial-exec TLS resolves to dynamic definition`), run strict smoke validation from a glibc-based container path instead (`make strict-auth-smoke-container`).
+
+### Accelerator APIs
+
+```python
+from mohawk import MohawkNode, GradientBuffer
+
+node = MohawkNode()
+print(node.device_info())
+
+compressed = node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
+print(compressed)
+
+batch = node.batch_verify([
+    {"id": "p1", "proof": "abc"},
+    {"id": "p2", "proof": "xyz"},
+])
+print(batch)
+
+stream = node.stream_aggregate(
+    [[0.1, 0.2, 0.3], [0.11, 0.21, 0.31]],
+    format="int8",
+    max_norm=1.0,
+)
+print(stream)
+
+# Hybrid SNARK/STARK verification
+hybrid = node.verify_hybrid_proof(
+    snark_proof="s" * 128,
+    stark_proof="t" * 64,
+    mode="both",  # one of: both | any | prefer_snark
+)
+print(hybrid)
+
+# Cross-chain transfer verification
+bridge = node.bridge_transfer(
+    source_chain="ethereum",
+    target_chain="polygon",
+    asset="USDC",
+    amount=12.5,
+    sender="0xabc",
+    receiver="0xdef",
+    nonce=1,
+    proof="proof-bytes",
+)
+print(bridge)
+
+# Utility coin mint/transfer/balance workflow
+minted = node.mint_utility_coin(
+    to="edge-alice",
+    amount=100.0,
+    actor="protocol",
+    auth_token="my-service-token",
+    idempotency_key="mint-001",
+    nonce=1,
+)
+print(minted)
+
+payment = node.transfer_utility_coin(
+    from_account="edge-alice",
+    to_account="edge-bob",
+    amount=25.0,
+    auth_token="my-service-token",
+    idempotency_key="tx-001",
+    nonce=2,
+)
+print(payment)
+
+print(node.utility_coin_balance("edge-bob"))
+print(node.utility_coin_ledger())
+
+# Optional backup/restore operations
+node.backup_utility_coin_ledger("/tmp/mohawk_ledger_backup.json")
+node.restore_utility_coin_ledger("/tmp/mohawk_ledger_backup.json")
+```
 
 ### Exceptions
 
@@ -135,7 +253,7 @@ Main class for interacting with the MOHAWK runtime.
 
 The Python SDK uses a C-shared library bridge:
 
-```
+```text
 ┌─────────────────┐
 │  Python Code    │
 │  (Mohawk/)      │
@@ -167,14 +285,14 @@ pytest tests/
 ### Code Formatting
 
 ```bash
-black Mohawk/
-ruff check Mohawk/
+black mohawk/
+ruff check mohawk/
 ```
 
 ### Type Checking
 
 ```bash
-mypy Mohawk/
+mypy mohawk/
 ```
 
 ## Performance

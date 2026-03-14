@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sovereign-mohawk"
-version = "2.0.0a1"
+version = "2.0.0a2"
 authors = [
     {name = "rwilliamspbg-ops", email = "ryan@mohawk-protocol.io"}
 ]
@@ -25,20 +25,28 @@ classifiers = [
 ]
 keywords = ["federated-learning", "zk-snark", "blockchain", "privacy", "ai"]
 
-[project.urls]
-Homepage = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"
-Repository = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"
-Documentation = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python"
-Issues = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues"
-
 [project.optional-dependencies]
+accelerator = [
+    "numpy>=1.22",
+]
+torch = [
+    "numpy>=1.22",
+    "torch>=2.0",
+]
 dev = [
     "pytest>=7.0",
+    "pytest-benchmark>=4.0",
     "pytest-cov>=4.0",
     "black>=23.0",
     "mypy>=1.0",
     "ruff>=0.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"
+Repository = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"
+Documentation = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python"
+Issues = "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues"
 
 [tool.black]
 line-length = 100
