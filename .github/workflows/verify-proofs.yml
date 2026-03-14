@@ -13,22 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for Proof Links
+      - name: Install audit dependencies
         run: |
-          echo "Verifying that all internal modules link to formal proofs..."
-          FAILED=0
-          # Scan all .go files in the internal directory
-          for file in $(find internal -name "*.go"); do
-            # Check if the file contains a reference to the proofs directory
-            if ! grep -q "/proofs/" "$file"; then
-              echo "❌ Error: $file does not contain a link to a formal proof in /proofs/"
-              FAILED=1
-            else
-              echo "✅ $file is verified."
-            fi
-          done
-          
-          if [ $FAILED -ne 0 ]; then
-            echo "Validation Failed: Every core module must reference a formal proof."
-            exit 1
-          fi
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Run proof and capability audit
+        run: |
+          chmod +x scripts/audit_proofs.sh
+          ./scripts/audit_proofs.sh

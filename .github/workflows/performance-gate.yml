@@ -43,26 +43,32 @@ jobs:
               print("❌ benchmark-results.json not found.")
               sys.exit(1)
 
-          # Adjusted REC-09 Thresholds for 2026 WASM Runtime
           thresholds = {
-              'verify_proof_batch': {'p99_max_ms': 11.0},
-              'aggregate_nodes': {'mean_max_ms': 25.0},
-              'attest': {'throughput_min_ops': 4000.0}
+              'test_verify_proof_performance': {'mean_max_ms': 12.0, 'p99_max_ms': 20.0},
+              'test_aggregate_nodes_performance': {'mean_max_ms': 1.0, 'p99_max_ms': 3.0},
+              'test_gradient_compression_performance': {'mean_max_ms': 3.0, 'p99_max_ms': 8.0},
           }
 
           failures = []
+          discovered = {benchmark['name'] for benchmark in results.get('benchmarks', [])}
+
+          missing = set(thresholds.keys()) - discovered
+          if missing:
+              failures.append(f"Missing expected benchmarks: {', '.join(sorted(missing))}")
+
           for benchmark in results.get('benchmarks', []):
               name = benchmark['name']
-              stats = benchmark['stats']
-              p99_ms = stats.get('p99', 0) * 1000
-              throughput = 1.0 / stats['mean'] if stats['mean'] > 0 else 0
+              if name not in thresholds:
+                  continue
+              stats = benchmark.get('stats', {})
+              mean_ms = float(stats.get('mean', 0.0)) * 1000.0
+              p99_ms = float(stats.get('p99', 0.0)) * 1000.0
+              limits = thresholds[name]
 
-              for key, limits in thresholds.items():
-                  if key in name.lower():
-                      if 'p99_max_ms' in limits and p99_ms > limits['p99_max_ms']:
-                          failures.append(f"{name}: P99 {p99_ms:.2f}ms > {limits['p99_max_ms']}ms")
-                      if 'throughput_min_ops' in limits and throughput < limits['throughput_min_ops']:
-                          failures.append(f"{name}: Low Throughput {throughput:.1f}")
+              if 'mean_max_ms' in limits and mean_ms > limits['mean_max_ms']:
+                  failures.append(f"{name}: mean {mean_ms:.2f}ms > {limits['mean_max_ms']}ms")
+              if 'p99_max_ms' in limits and p99_ms > limits['p99_max_ms']:
+                  failures.append(f"{name}: p99 {p99_ms:.2f}ms > {limits['p99_max_ms']}ms")
 
           if failures:
               print("\n🚫 PERFORMANCE GATE FAILED:")
