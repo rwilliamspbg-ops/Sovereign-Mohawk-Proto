@@ -136,3 +136,41 @@ func TestValidateAPIAccessFileOnlyModeRequiresFile(t *testing.T) {
 		t.Fatal("expected file-only mode to require token file")
 	}
 }
+
+func TestParseBridgeSettlementAssets(t *testing.T) {
+	assets := parseBridgeSettlementAssets(" mhc, USDX, mhc ,, usdx ")
+	if len(assets) != 2 {
+		t.Fatalf("expected 2 unique assets, got %d (%v)", len(assets), assets)
+	}
+	if assets[0] != "MHC" || assets[1] != "USDX" {
+		t.Fatalf("unexpected parsed assets: %v", assets)
+	}
+}
+
+func TestLoadBridgeSettlementConfigFromEnv(t *testing.T) {
+	t.Setenv("MOHAWK_BRIDGE_SETTLEMENT_ASSETS", "MHC,USDX")
+	t.Setenv("MOHAWK_UTILITY_MINTER_USDX", "mint-usdx")
+
+	registry, ledgers, minters, err := loadBridgeSettlementConfig()
+	if err != nil {
+		t.Fatalf("loadBridgeSettlementConfig failed: %v", err)
+	}
+	if registry == nil {
+		t.Fatal("expected settlement registry to be configured")
+	}
+	if _, ok := registry.Get("MHC"); !ok {
+		t.Fatal("expected MHC in settlement registry")
+	}
+	if _, ok := registry.Get("USDX"); !ok {
+		t.Fatal("expected USDX in settlement registry")
+	}
+	if len(ledgers) != 2 {
+		t.Fatalf("expected 2 settlement ledgers, got %d", len(ledgers))
+	}
+	if ledgers["MHC"] == nil || ledgers["USDX"] == nil {
+		t.Fatal("expected settlement ledgers for MHC and USDX")
+	}
+	if minters["USDX"] != "mint-usdx" {
+		t.Fatalf("unexpected USDX settlement minter: %q", minters["USDX"])
+	}
+}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/bridge"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hybrid"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 )
 
 func TestBridgeTransfer(t *testing.T) {
@@ -208,6 +209,154 @@ func TestBridgeRoutePolicy(t *testing.T) {
 	req.Asset = "DAI"
 	if _, err := engine.VerifyTransfer(req); err == nil {
 		t.Fatal("expected policy asset rejection")
+	}
+}
+
+func TestBridgeSettlementSuccess(t *testing.T) {
+	ledger := token.NewLedger("MHC", "protocol")
+	if _, err := ledger.Mint("protocol", "0xaaa", 10, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+
+	engine := bridge.NewEngine("test-bridge")
+	engine.EnableSettlement(ledger, "protocol")
+	record, err := engine.SettleTransfer(bridge.TransferRequest{
+		SourceChain: "ethereum",
+		TargetChain: "polygon",
+		Asset:       "MHC",
+		Amount:      3,
+		Sender:      "0xaaa",
+		Receiver:    "0xbbb",
+		Nonce:       11,
+		Proof:       "proof-bytes",
+	})
+	if err != nil {
+		t.Fatalf("settlement failed: %v", err)
+	}
+	if record.Status != "completed" {
+		t.Fatalf("unexpected settlement status: %s", record.Status)
+	}
+	if got := ledger.Balance("0xaaa"); got != 7 {
+		t.Fatalf("unexpected sender balance after settlement: %.4f", got)
+	}
+	if got := ledger.Balance("0xbbb"); got != 3 {
+		t.Fatalf("unexpected receiver balance after settlement: %.4f", got)
+	}
+	if record.BurnTx == nil || record.MintTx == nil {
+		t.Fatal("expected burn and mint txs in settlement record")
+	}
+}
+
+func TestBridgeSettlementRefundFallback(t *testing.T) {
+	ledger := token.NewLedger("MHC", "protocol")
+	if _, err := ledger.Mint("protocol", "0xabc", 9, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+	if err := ledger.SetAssetPolicy(token.Asset{Symbol: "MHC", Decimals: 6, MaxSupplyUnits: 9000000}); err != nil {
+		t.Fatalf("set asset policy failed: %v", err)
+	}
+
+	engine := bridge.NewEngine("test-bridge")
+	engine.EnableSettlement(ledger, "attacker")
+	record, err := engine.SettleTransfer(bridge.TransferRequest{
+		SourceChain: "ethereum",
+		TargetChain: "polygon",
+		Asset:       "MHC",
+		Amount:      2,
+		Sender:      "0xabc",
+		Receiver:    "0xdef",
+		Nonce:       12,
+		Proof:       "proof-bytes",
+	})
+	if err == nil {
+		t.Fatal("expected settlement to fail when custom minter is unauthorized")
+	}
+	if record.Status != "refunded" {
+		t.Fatalf("expected refunded status, got %s", record.Status)
+	}
+	if record.RefundTx == nil {
+		t.Fatal("expected refund tx in settlement record")
+	}
+	if got := ledger.Balance("0xabc"); got != 9 {
+		t.Fatalf("unexpected sender balance after refund: %.4f", got)
+	}
+	if got := ledger.Balance("0xdef"); got != 0 {
+		t.Fatalf("unexpected receiver balance after failed settlement: %.4f", got)
+	}
+}
+
+func TestBridgeSettlementMultiAssetRouting(t *testing.T) {
+	mhcLedger := token.NewLedger("MHC", "protocol")
+	usdxLedger := token.NewLedger("USDX", "protocol")
+	if _, err := usdxLedger.Mint("protocol", "cosmos1alice", 8, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+
+	registry := token.NewRegistryWithDefaults()
+	if err := registry.Register(token.Asset{Symbol: "USDX", Decimals: 6}); err != nil {
+		t.Fatalf("register usdx asset failed: %v", err)
+	}
+
+	engine := bridge.NewEngine("test-bridge")
+	engine.SetSettlementRegistry(registry)
+	if err := engine.RegisterSettlementLedger("MHC", mhcLedger, "protocol"); err != nil {
+		t.Fatalf("register MHC ledger failed: %v", err)
+	}
+	if err := engine.RegisterSettlementLedger("USDX", usdxLedger, "protocol"); err != nil {
+		t.Fatalf("register USDX ledger failed: %v", err)
+	}
+
+	record, err := engine.SettleTransfer(bridge.TransferRequest{
+		SourceChain: "cosmos",
+		TargetChain: "ethereum",
+		Asset:       "USDX",
+		Amount:      3,
+		Sender:      "cosmos1alice",
+		Receiver:    "0xreceiver",
+		Nonce:       21,
+		Proof:       "proof-bytes",
+	})
+	if err != nil {
+		t.Fatalf("multi-asset settlement failed: %v", err)
+	}
+	if record.Status != "completed" {
+		t.Fatalf("unexpected settlement status: %s", record.Status)
+	}
+	if got := usdxLedger.Balance("cosmos1alice"); got != 5 {
+		t.Fatalf("unexpected usdx sender balance: %.4f", got)
+	}
+	if got := usdxLedger.Balance("0xreceiver"); got != 3 {
+		t.Fatalf("unexpected usdx receiver balance: %.4f", got)
+	}
+	if got := mhcLedger.Balance("0xreceiver"); got != 0 {
+		t.Fatalf("unexpected mhc receiver balance: %.4f", got)
+	}
+}
+
+func TestBridgeSettlementRegistryRejectsUnknownAsset(t *testing.T) {
+	ledger := token.NewLedger("MHC", "protocol")
+	if _, err := ledger.Mint("protocol", "0xsender", 4, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+
+	registry := token.NewRegistryWithDefaults()
+	engine := bridge.NewEngine("test-bridge")
+	engine.SetSettlementRegistry(registry)
+	if err := engine.RegisterSettlementLedger("MHC", ledger, "protocol"); err != nil {
+		t.Fatalf("register settlement ledger failed: %v", err)
+	}
+
+	if _, err := engine.SettleTransfer(bridge.TransferRequest{
+		SourceChain: "ethereum",
+		TargetChain: "polygon",
+		Asset:       "USDX",
+		Amount:      1,
+		Sender:      "0xsender",
+		Receiver:    "0xreceiver",
+		Nonce:       22,
+		Proof:       "proof-bytes",
+	}); err == nil {
+		t.Fatal("expected unknown asset settlement to fail")
 	}
 }
 

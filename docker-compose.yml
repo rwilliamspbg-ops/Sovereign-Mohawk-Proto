@@ -23,6 +23,7 @@ services:
     environment:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4101
+      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_LEDGER_STATE_PATH=/var/lib/mohawk/utility-ledger/state.json
       - MOHAWK_LEDGER_AUDIT_PATH=/var/lib/mohawk/utility-ledger/audit.jsonl
       - MOHAWK_API_AUTH_MODE=file-only
@@ -36,8 +37,16 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
+      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
+      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
+      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
+      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
+      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
       - ./data/utility-ledger:/var/lib/mohawk/utility-ledger
+      # Optional: persistent storage for additional settlement assets
+      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
     networks:
       - mohawk-net
@@ -118,6 +127,7 @@ services:
       - NODE_ID=node-1
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4001
+      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -129,7 +139,15 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
+      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
+      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
+      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
+      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
+      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
+      # Optional: persistent storage for additional settlement assets
+      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
     depends_on:
       - orchestrator
@@ -148,6 +166,7 @@ services:
       - NODE_ID=node-2
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4002
+      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -159,7 +178,15 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
+      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
+      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
+      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
+      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
+      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
+      # Optional: persistent storage for additional settlement assets
+      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
     depends_on:
       - orchestrator
