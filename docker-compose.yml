@@ -52,10 +52,12 @@ services:
       - mohawk-net
 
   tpm-metrics:
-    image: golang:1.24
+    image: golang:1.25
     container_name: tpm-metrics
     working_dir: /workspace
     command: ["go", "run", "./cmd/tpm-metrics"]
+    environment:
+      - GOTOOLCHAIN=auto
     volumes:
       - .:/workspace
     ports:
