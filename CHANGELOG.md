@@ -61,6 +61,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Environment-driven settlement configuration for multi-asset deployments (`MOHAWK_BRIDGE_SETTLEMENT_ASSETS`, per-asset ledger/minter overrides)
 - Compose rollout templates and operator guidance in `docker-compose.yml` for single-asset defaults and optional multi-asset settlement mode
 - Expanded automated coverage for settlement, multi-asset routing, env parsing/config loading, and ledger migration behavior (`test/bridge_hybrid_test.go`, `internal/pyapi/api_security_test.go`, `test/utility_coin_durability_test.go`)
+- Restored tokenomics dashboard ingestion by exposing orchestrator metrics on internal plaintext listener (`:9091`) while preserving mTLS on the control-plane API (`:8080`)
+- Updated Prometheus orchestrator scrape target to `http://orchestrator:9091/metrics` for reliable in-network collection
+- Added CI monitoring smoke check in `.github/workflows/build-test.yml` to assert `mohawk_utility_coin_total_supply` is queryable after stack startup
+- Aligned containerized Go build/runtime toolchains to 1.25 (`Dockerfile`, `cmd/orchestrator/Dockerfile`, `cmd/node-agent/Dockerfile`, `cmd/api-dashboard/Dockerfile`, `cmd/fl-aggregator/Dockerfile`, `docker-compose.yml`)
 
 ### Benchmarks
 
