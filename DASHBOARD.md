@@ -64,3 +64,16 @@ Configure repository secrets in GitHub Actions:
 * `TEAMS_WEBHOOK_URL`
 
 If unset, the workflow still completes normally and publishes digest artifacts.
+
+### CI Stabilization Notes
+
+Recent reliability hardening in CI:
+
+* `Integrity Guard - Linter` uses Go `1.25.x` to match `go.mod` toolchain requirements.
+* `Mainnet Readiness Gate` now retries target-health and metric-name checks to absorb Prometheus cold-start scrape convergence.
+
+If readiness fails unexpectedly, first inspect scrape target state:
+
+```bash
+curl -fsS http://localhost:9090/api/v1/targets | grep -E '"instance":"orchestrator:9091"|"instance":"tpm-metrics:9102"|"health":"(up|down)"'
+```
