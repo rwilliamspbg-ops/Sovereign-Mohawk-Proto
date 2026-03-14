@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Runs outage/recovery drills for `tpm-metrics`, `orchestrator`, `prometheus`, and `grafana` in CI matrix jobs
   - Requires baseline readiness pass, expected failure during outage, and full readiness recovery post-restart
   - Enforces recovery-latency threshold and publishes per-scenario baseline/failure/recovery/summary reports
+- **Weekly readiness digest** (`.github/workflows/weekly-readiness-digest.yml`, `scripts/generate_readiness_digest.py`):
+  - Runs readiness + all chaos drills on a weekly schedule and on-demand
+  - Produces a consolidated markdown digest and publishes it to job summary + artifacts
 
 ### Changed
 

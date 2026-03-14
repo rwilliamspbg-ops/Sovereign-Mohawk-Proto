@@ -1,0 +1,61 @@
+name: Weekly Readiness Digest
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  digest:
+    name: Weekly Readiness + Chaos Digest
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Start monitoring stack
+        run: |
+          docker compose up -d --build orchestrator prometheus tpm-metrics grafana
+
+      - name: Run readiness gate
+        run: |
+          mkdir -p reports/chaos
+          python3 scripts/mainnet_readiness_gate.py > reports/readiness-report.json
+
+      - name: Run chaos drills
+        run: |
+          for scenario in tpm-metrics orchestrator prometheus grafana; do
+            RECOVERY_LATENCY_MAX_SECONDS=120 bash scripts/chaos_readiness_drill.sh "$scenario" reports/chaos
+          done
+
+      - name: Generate digest markdown
+        run: |
+          python3 scripts/generate_readiness_digest.py \
+            --readiness-report reports/readiness-report.json \
+            --chaos-dir reports/chaos \
+            --output reports/weekly-readiness-digest.md > /tmp/weekly-digest.txt
+
+      - name: Publish digest to job summary
+        run: |
+          cat /tmp/weekly-digest.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload digest artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: weekly-readiness-digest
+          path: |
+            reports/readiness-report.json
+            reports/chaos/*.json
+            reports/weekly-readiness-digest.md
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose down -v
