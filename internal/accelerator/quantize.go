@@ -115,8 +115,8 @@ func f16BitsToF32(h uint16) float32 {
 	mantissa := uint32(h & 0x3ff)
 
 	var bits uint32
-	switch {
-	case rawExp == 0:
+	switch rawExp {
+	case 0:
 		if mantissa == 0 {
 			bits = sign
 		} else {
@@ -129,7 +129,7 @@ func f16BitsToF32(h uint16) float32 {
 			mantissa &= 0x3ff
 			bits = sign | ((e + 127 - 15) << 23) | (mantissa << 13)
 		}
-	case rawExp == 31:
+	case 31:
 		// Inf or NaN
 		bits = sign | 0x7f800000 | (mantissa << 13)
 	default:
