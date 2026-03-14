@@ -95,6 +95,19 @@ func main() {
 	mux.HandleFunc("/p2p/info", server.HandleP2PInfo)
 	mux.Handle("/metrics", promhttp.Handler())
 
+	metricsAddr := os.Getenv("MOHAWK_METRICS_ADDR")
+	if metricsAddr == "" {
+		metricsAddr = ":9091"
+	}
+	go func() {
+		metricsMux := http.NewServeMux()
+		metricsMux.Handle("/metrics", promhttp.Handler())
+		log.Printf("orchestrator metrics listening on %s", metricsAddr)
+		if err := http.ListenAndServe(metricsAddr, metricsMux); err != nil {
+			log.Fatalf("metrics server failed: %v", err)
+		}
+	}()
+
 	tlsConfig, err := tpm.ServerTLSConfig("orchestrator")
 	if err != nil {
 		log.Fatalf("failed to initialize mTLS: %v", err)
