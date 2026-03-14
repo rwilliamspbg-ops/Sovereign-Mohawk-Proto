@@ -245,6 +245,8 @@ class MohawkNode:
         route_policy: Optional[Mapping[str, Any]] = None,
         policy_manifest_path: Optional[str] = None,
         policy_manifest: Optional[Mapping[str, Any]] = None,
+        settle: bool = False,
+        settlement_minter: Optional[str] = None,
         finality_depth: int = 0,
         auth_token: Optional[str] = None,
         role: Optional[str] = None,
@@ -268,6 +270,10 @@ class MohawkNode:
             payload["policy_manifest_path"] = policy_manifest_path
         if policy_manifest is not None:
             payload["policy_manifest"] = dict(policy_manifest)
+        if settle:
+            payload["settle"] = True
+        if settlement_minter is not None:
+            payload["settlement_minter"] = settlement_minter
         if auth_token is not None:
             payload["auth_token"] = auth_token
         if role is not None:

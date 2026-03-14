@@ -5,14 +5,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
-const currentSchemaVersion = 1
+const currentSchemaVersion = 2
 
 // TxType enumerates supported utility coin operations.
 type TxType string
@@ -20,27 +22,36 @@ type TxType string
 const (
 	TxMint     TxType = "mint"
 	TxTransfer TxType = "transfer"
+	TxBurn     TxType = "burn"
 )
 
 // Tx records a utility coin ledger event.
 type Tx struct {
-	Type      TxType    `json:"type"`
-	From      string    `json:"from,omitempty"`
-	To        string    `json:"to,omitempty"`
-	Amount    float64   `json:"amount"`
-	Memo      string    `json:"memo,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
+	Type        TxType    `json:"type"`
+	From        string    `json:"from,omitempty"`
+	To          string    `json:"to,omitempty"`
+	Amount      float64   `json:"amount"`
+	AmountUnits int64     `json:"amount_units,omitempty"`
+	Memo        string    `json:"memo,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
+}
+
+// Asset defines the precision and supply constraints for a utility asset.
+type Asset struct {
+	Symbol         string `json:"symbol"`
+	Decimals       uint8  `json:"decimals"`
+	MaxSupplyUnits int64  `json:"max_supply_units,omitempty"`
 }
 
 // Ledger is a concurrency-safe in-memory utility coin ledger.
 type Ledger struct {
 	schemaVersion int
-	symbol        string
+	asset         Asset
 	minter        string
 	mu            sync.RWMutex
-	balances      map[string]float64
+	balances      map[string]int64
 	txns          []Tx
-	totalSupply   float64
+	totalSupply   int64
 	statePath     string
 	auditPath     string
 	auditPrev     string
@@ -49,40 +60,41 @@ type Ledger struct {
 }
 
 type persistentState struct {
-	SchemaVersion int                `json:"schema_version"`
-	Symbol        string             `json:"symbol"`
-	Minter        string             `json:"minter"`
-	Balances      map[string]float64 `json:"balances"`
-	Txns          []Tx               `json:"txns"`
-	TotalSupply   float64            `json:"total_supply"`
-	AuditPrev     string             `json:"audit_prev,omitempty"`
-	Nonces        map[string]uint64  `json:"nonces,omitempty"`
+	SchemaVersion    int                `json:"schema_version"`
+	Symbol           string             `json:"symbol,omitempty"`
+	Asset            Asset              `json:"asset,omitempty"`
+	Minter           string             `json:"minter"`
+	Balances         map[string]float64 `json:"balances,omitempty"`
+	BalancesUnits    map[string]int64   `json:"balances_units,omitempty"`
+	Txns             []Tx               `json:"txns"`
+	TotalSupply      float64            `json:"total_supply,omitempty"`
+	TotalSupplyUnits int64              `json:"total_supply_units,omitempty"`
+	AuditPrev        string             `json:"audit_prev,omitempty"`
+	Nonces           map[string]uint64  `json:"nonces,omitempty"`
 }
 
 type auditRecord struct {
-	Hash      string  `json:"hash"`
-	PrevHash  string  `json:"prev_hash,omitempty"`
-	Type      TxType  `json:"type"`
-	From      string  `json:"from,omitempty"`
-	To        string  `json:"to,omitempty"`
-	Amount    float64 `json:"amount"`
-	Memo      string  `json:"memo,omitempty"`
-	Timestamp string  `json:"timestamp"`
+	Hash        string  `json:"hash"`
+	PrevHash    string  `json:"prev_hash,omitempty"`
+	Type        TxType  `json:"type"`
+	From        string  `json:"from,omitempty"`
+	To          string  `json:"to,omitempty"`
+	Amount      float64 `json:"amount"`
+	AmountUnits int64   `json:"amount_units,omitempty"`
+	Memo        string  `json:"memo,omitempty"`
+	Timestamp   string  `json:"timestamp"`
 }
 
 // NewLedger creates a new utility coin ledger.
 func NewLedger(symbol string, minter string) *Ledger {
-	if strings.TrimSpace(symbol) == "" {
-		symbol = "MHC"
-	}
 	if strings.TrimSpace(minter) == "" {
 		minter = "protocol"
 	}
 	return &Ledger{
 		schemaVersion: currentSchemaVersion,
-		symbol:        strings.ToUpper(strings.TrimSpace(symbol)),
+		asset:         defaultAsset(symbol),
 		minter:        strings.TrimSpace(minter),
-		balances:      map[string]float64{},
+		balances:      map[string]int64{},
 		txns:          make([]Tx, 0, 64),
 		idempotency:   map[string]Tx{},
 		nonces:        map[string]uint64{},
@@ -107,7 +119,14 @@ func NewPersistentLedger(symbol string, minter string, statePath string, auditPa
 func (l *Ledger) Symbol() string {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	return l.symbol
+	return l.asset.Symbol
+}
+
+// Asset returns the configured utility asset metadata.
+func (l *Ledger) Asset() Asset {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return l.asset
 }
 
 // Minter returns the authorized minter identity.
@@ -127,6 +146,10 @@ func (l *Ledger) MintWithControls(actor string, to string, amount float64, memo 
 	actor = strings.TrimSpace(actor)
 	to = strings.TrimSpace(to)
 	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	amountUnits, err := l.amountToUnits(amount)
+	if err != nil {
+		return Tx{}, err
+	}
 	if actor == "" {
 		actor = l.Minter()
 	}
@@ -135,9 +158,6 @@ func (l *Ledger) MintWithControls(actor string, to string, amount float64, memo 
 	}
 	if to == "" {
 		return Tx{}, fmt.Errorf("to account is required")
-	}
-	if amount <= 0 {
-		return Tx{}, fmt.Errorf("amount must be > 0")
 	}
 
 	l.mu.Lock()
@@ -154,14 +174,18 @@ func (l *Ledger) MintWithControls(actor string, to string, amount float64, memo 
 		}
 		l.nonces[actor] = nonce
 	}
-	l.balances[to] += amount
-	l.totalSupply += amount
+	if l.asset.MaxSupplyUnits > 0 && l.totalSupply > l.asset.MaxSupplyUnits-amountUnits {
+		return Tx{}, fmt.Errorf("mint exceeds max supply for %s", l.asset.Symbol)
+	}
+	l.balances[to] += amountUnits
+	l.totalSupply += amountUnits
 	tx := Tx{
-		Type:      TxMint,
-		To:        to,
-		Amount:    amount,
-		Memo:      memo,
-		Timestamp: time.Now().UTC(),
+		Type:        TxMint,
+		To:          to,
+		Amount:      l.unitsToAmount(amountUnits),
+		AmountUnits: amountUnits,
+		Memo:        memo,
+		Timestamp:   time.Now().UTC(),
 	}
 	l.txns = append(l.txns, tx)
 	if idempotencyKey != "" {
@@ -181,16 +205,22 @@ func (l *Ledger) Transfer(from string, to string, amount float64, memo string) (
 	return l.TransferWithControls(from, to, amount, memo, "", 0)
 }
 
+// Burn removes utility coins from an account.
+func (l *Ledger) Burn(from string, amount float64, memo string) (Tx, error) {
+	return l.BurnWithControls(from, amount, memo, "", 0)
+}
+
 // TransferWithControls transfers coins with optional idempotency and nonce replay controls.
 func (l *Ledger) TransferWithControls(from string, to string, amount float64, memo string, idempotencyKey string, nonce uint64) (Tx, error) {
 	from = strings.TrimSpace(from)
 	to = strings.TrimSpace(to)
 	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	amountUnits, err := l.amountToUnits(amount)
+	if err != nil {
+		return Tx{}, err
+	}
 	if from == "" || to == "" {
 		return Tx{}, fmt.Errorf("from and to accounts are required")
-	}
-	if amount <= 0 {
-		return Tx{}, fmt.Errorf("amount must be > 0")
 	}
 
 	l.mu.Lock()
@@ -207,18 +237,71 @@ func (l *Ledger) TransferWithControls(from string, to string, amount float64, me
 		}
 		l.nonces[from] = nonce
 	}
-	if l.balances[from] < amount {
+	if l.balances[from] < amountUnits {
 		return Tx{}, fmt.Errorf("insufficient balance in %q", from)
 	}
-	l.balances[from] -= amount
-	l.balances[to] += amount
+	l.balances[from] -= amountUnits
+	l.balances[to] += amountUnits
 	tx := Tx{
-		Type:      TxTransfer,
-		From:      from,
-		To:        to,
-		Amount:    amount,
-		Memo:      memo,
-		Timestamp: time.Now().UTC(),
+		Type:        TxTransfer,
+		From:        from,
+		To:          to,
+		Amount:      l.unitsToAmount(amountUnits),
+		AmountUnits: amountUnits,
+		Memo:        memo,
+		Timestamp:   time.Now().UTC(),
+	}
+	l.txns = append(l.txns, tx)
+	if idempotencyKey != "" {
+		l.idempotency[idempotencyKey] = tx
+	}
+	if err := l.appendAuditLocked(tx); err != nil {
+		return Tx{}, err
+	}
+	if err := l.saveStateLocked(); err != nil {
+		return Tx{}, err
+	}
+	return tx, nil
+}
+
+// BurnWithControls burns coins with optional idempotency and nonce replay controls.
+func (l *Ledger) BurnWithControls(from string, amount float64, memo string, idempotencyKey string, nonce uint64) (Tx, error) {
+	from = strings.TrimSpace(from)
+	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	amountUnits, err := l.amountToUnits(amount)
+	if err != nil {
+		return Tx{}, err
+	}
+	if from == "" {
+		return Tx{}, fmt.Errorf("from account is required")
+	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if idempotencyKey != "" {
+		if existing, ok := l.idempotency[idempotencyKey]; ok {
+			return existing, nil
+		}
+	}
+	if nonce > 0 {
+		last := l.nonces[from]
+		if nonce <= last {
+			return Tx{}, fmt.Errorf("replay detected for account %q: nonce %d <= %d", from, nonce, last)
+		}
+		l.nonces[from] = nonce
+	}
+	if l.balances[from] < amountUnits {
+		return Tx{}, fmt.Errorf("insufficient balance in %q", from)
+	}
+	l.balances[from] -= amountUnits
+	l.totalSupply -= amountUnits
+	tx := Tx{
+		Type:        TxBurn,
+		From:        from,
+		Amount:      l.unitsToAmount(amountUnits),
+		AmountUnits: amountUnits,
+		Memo:        memo,
+		Timestamp:   time.Now().UTC(),
 	}
 	l.txns = append(l.txns, tx)
 	if idempotencyKey != "" {
@@ -238,6 +321,14 @@ func (l *Ledger) Balance(account string) float64 {
 	account = strings.TrimSpace(account)
 	l.mu.RLock()
 	defer l.mu.RUnlock()
+	return l.unitsToAmount(l.balances[account])
+}
+
+// BalanceUnits returns the raw base-unit balance for an account.
+func (l *Ledger) BalanceUnits(account string) int64 {
+	account = strings.TrimSpace(account)
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 	return l.balances[account]
 }
 
@@ -246,31 +337,85 @@ func (l *Ledger) Snapshot() map[string]any {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	balances := make(map[string]float64, len(l.balances))
-	for account, amount := range l.balances {
-		balances[account] = amount
+	balancesUnits := make(map[string]int64, len(l.balances))
+	for account, amountUnits := range l.balances {
+		balances[account] = l.unitsToAmount(amountUnits)
+		balancesUnits[account] = amountUnits
 	}
 	return map[string]any{
-		"schema_version": l.schemaVersion,
-		"symbol":         l.symbol,
-		"minter":         l.minter,
-		"total_supply":   l.totalSupply,
-		"balances":       balances,
-		"tx_count":       len(l.txns),
-		"audit_prev":     l.auditPrev,
+		"schema_version":     l.schemaVersion,
+		"symbol":             l.asset.Symbol,
+		"asset":              l.asset,
+		"decimals":           l.asset.Decimals,
+		"unit_scale":         unitScale(l.asset.Decimals),
+		"minter":             l.minter,
+		"total_supply":       l.unitsToAmount(l.totalSupply),
+		"total_supply_units": l.totalSupply,
+		"balances":           balances,
+		"balances_units":     balancesUnits,
+		"tx_count":           len(l.txns),
+		"audit_prev":         l.auditPrev,
 	}
+}
+
+// SetAssetPolicy updates the ledger asset policy.
+func (l *Ledger) SetAssetPolicy(asset Asset) error {
+	normalized := normalizeAsset(asset)
+	if normalized.Symbol == "" {
+		return fmt.Errorf("asset symbol is required")
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if l.totalSupply > 0 && !strings.EqualFold(normalized.Symbol, l.asset.Symbol) {
+		return fmt.Errorf("cannot change asset symbol with non-zero supply")
+	}
+	if normalized.MaxSupplyUnits > 0 && normalized.MaxSupplyUnits < l.totalSupply {
+		return fmt.Errorf("max supply below current total supply")
+	}
+	l.asset = normalized
+	return l.saveStateLocked()
+}
+
+// AmountToUnits converts a decimal amount into integer base units.
+func (l *Ledger) AmountToUnits(amount float64) (int64, error) {
+	l.mu.RLock()
+	asset := l.asset
+	l.mu.RUnlock()
+	return amountToUnitsForAsset(amount, asset)
+}
+
+// UnitsToAmount converts integer base units into a decimal amount.
+func (l *Ledger) UnitsToAmount(amountUnits int64) float64 {
+	l.mu.RLock()
+	asset := l.asset
+	l.mu.RUnlock()
+	return unitsToAmountForAsset(amountUnits, asset)
 }
 
 // Backup copies the current state file to the provided path.
 func (l *Ledger) Backup(backupPath string) error {
 	l.mu.RLock()
-	statePath := l.statePath
-	l.mu.RUnlock()
-	if strings.TrimSpace(statePath) == "" {
+	if strings.TrimSpace(l.statePath) == "" {
+		l.mu.RUnlock()
 		return fmt.Errorf("backup unavailable: persistent state is not configured")
 	}
-	data, err := os.ReadFile(statePath)
+	state := persistentState{
+		SchemaVersion:    currentSchemaVersion,
+		Symbol:           l.asset.Symbol,
+		Asset:            l.asset,
+		Minter:           l.minter,
+		Balances:         l.amountBalancesLocked(),
+		BalancesUnits:    l.copyBalancesUnitsLocked(),
+		Txns:             l.txns,
+		TotalSupply:      l.unitsToAmount(l.totalSupply),
+		TotalSupplyUnits: l.totalSupply,
+		AuditPrev:        l.auditPrev,
+		Nonces:           l.nonces,
+	}
+	l.mu.RUnlock()
+	data, err := json.MarshalIndent(state, "", "  ")
 	if err != nil {
-		return fmt.Errorf("read state for backup: %w", err)
+		return fmt.Errorf("marshal backup state: %w", err)
 	}
 	if err := os.MkdirAll(filepath.Dir(backupPath), 0o755); err != nil {
 		return fmt.Errorf("ensure backup dir: %w", err)
@@ -320,9 +465,13 @@ func (l *Ledger) loadState() error {
 	if err := json.Unmarshal(raw, &state); err != nil {
 		return fmt.Errorf("parse state: %w", err)
 	}
+	needsMigration := state.SchemaVersion != currentSchemaVersion || state.BalancesUnits == nil || (state.TotalSupplyUnits == 0 && state.TotalSupply > 0) || strings.TrimSpace(state.Asset.Symbol) == ""
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.applyStateLocked(state)
+	if needsMigration {
+		return l.saveStateLocked()
+	}
 	return nil
 }
 
@@ -331,18 +480,41 @@ func (l *Ledger) applyStateLocked(state persistentState) {
 		state.SchemaVersion = 1
 	}
 	l.schemaVersion = currentSchemaVersion
-	if strings.TrimSpace(state.Symbol) != "" {
-		l.symbol = strings.ToUpper(strings.TrimSpace(state.Symbol))
+	l.asset = normalizeAsset(state.Asset)
+	if l.asset.Symbol == "" {
+		l.asset = defaultAsset(state.Symbol)
 	}
 	if strings.TrimSpace(state.Minter) != "" {
 		l.minter = strings.TrimSpace(state.Minter)
 	}
-	if state.Balances == nil {
-		state.Balances = map[string]float64{}
+	if state.BalancesUnits == nil {
+		state.BalancesUnits = make(map[string]int64, len(state.Balances))
+		for account, amount := range state.Balances {
+			amountUnits, err := amountToUnitsForAsset(amount, l.asset)
+			if err != nil {
+				continue
+			}
+			state.BalancesUnits[account] = amountUnits
+		}
 	}
-	l.balances = state.Balances
+	for index := range state.Txns {
+		if state.Txns[index].AmountUnits == 0 && state.Txns[index].Amount > 0 {
+			amountUnits, err := amountToUnitsForAsset(state.Txns[index].Amount, l.asset)
+			if err == nil {
+				state.Txns[index].AmountUnits = amountUnits
+			}
+		}
+		state.Txns[index].Amount = unitsToAmountForAsset(state.Txns[index].AmountUnits, l.asset)
+	}
+	l.balances = state.BalancesUnits
 	l.txns = state.Txns
-	l.totalSupply = state.TotalSupply
+	if state.TotalSupplyUnits == 0 && state.TotalSupply > 0 {
+		amountUnits, err := amountToUnitsForAsset(state.TotalSupply, l.asset)
+		if err == nil {
+			state.TotalSupplyUnits = amountUnits
+		}
+	}
+	l.totalSupply = state.TotalSupplyUnits
 	l.auditPrev = strings.TrimSpace(state.AuditPrev)
 	if state.Nonces == nil {
 		state.Nonces = map[string]uint64{}
@@ -356,14 +528,17 @@ func (l *Ledger) saveStateLocked() error {
 		return nil
 	}
 	state := persistentState{
-		SchemaVersion: currentSchemaVersion,
-		Symbol:        l.symbol,
-		Minter:        l.minter,
-		Balances:      l.balances,
-		Txns:          l.txns,
-		TotalSupply:   l.totalSupply,
-		AuditPrev:     l.auditPrev,
-		Nonces:        l.nonces,
+		SchemaVersion:    currentSchemaVersion,
+		Symbol:           l.asset.Symbol,
+		Asset:            l.asset,
+		Minter:           l.minter,
+		Balances:         l.amountBalancesLocked(),
+		BalancesUnits:    l.copyBalancesUnitsLocked(),
+		Txns:             l.txns,
+		TotalSupply:      l.unitsToAmount(l.totalSupply),
+		TotalSupplyUnits: l.totalSupply,
+		AuditPrev:        l.auditPrev,
+		Nonces:           l.nonces,
 	}
 	raw, err := json.MarshalIndent(state, "", "  ")
 	if err != nil {
@@ -383,14 +558,15 @@ func (l *Ledger) appendAuditLocked(tx Tx) error {
 	sum := sha256.Sum256(append([]byte(l.auditPrev), canonical...))
 	hash := hex.EncodeToString(sum[:])
 	rec := auditRecord{
-		Hash:      hash,
-		PrevHash:  l.auditPrev,
-		Type:      tx.Type,
-		From:      tx.From,
-		To:        tx.To,
-		Amount:    tx.Amount,
-		Memo:      tx.Memo,
-		Timestamp: tx.Timestamp.UTC().Format(time.RFC3339Nano),
+		Hash:        hash,
+		PrevHash:    l.auditPrev,
+		Type:        tx.Type,
+		From:        tx.From,
+		To:          tx.To,
+		Amount:      tx.Amount,
+		AmountUnits: tx.AmountUnits,
+		Memo:        tx.Memo,
+		Timestamp:   tx.Timestamp.UTC().Format(time.RFC3339Nano),
 	}
 	line, err := json.Marshal(rec)
 	if err != nil {
@@ -406,4 +582,86 @@ func (l *Ledger) appendAuditLocked(tx Tx) error {
 	}
 	l.auditPrev = hash
 	return nil
+}
+
+func (l *Ledger) amountToUnits(amount float64) (int64, error) {
+	return amountToUnitsForAsset(amount, l.asset)
+}
+
+func (l *Ledger) unitsToAmount(amountUnits int64) float64 {
+	return unitsToAmountForAsset(amountUnits, l.asset)
+}
+
+func (l *Ledger) amountBalancesLocked() map[string]float64 {
+	balances := make(map[string]float64, len(l.balances))
+	for account, amountUnits := range l.balances {
+		balances[account] = l.unitsToAmount(amountUnits)
+	}
+	return balances
+}
+
+func (l *Ledger) copyBalancesUnitsLocked() map[string]int64 {
+	balances := make(map[string]int64, len(l.balances))
+	for account, amountUnits := range l.balances {
+		balances[account] = amountUnits
+	}
+	return balances
+}
+
+func defaultAsset(symbol string) Asset {
+	asset := normalizeAsset(Asset{Symbol: symbol, Decimals: 6})
+	if asset.Symbol == "" {
+		asset.Symbol = "MHC"
+	}
+	return asset
+}
+
+func normalizeAsset(asset Asset) Asset {
+	asset.Symbol = strings.ToUpper(strings.TrimSpace(asset.Symbol))
+	if asset.Decimals == 0 {
+		asset.Decimals = 6
+	}
+	return asset
+}
+
+func amountToUnitsForAsset(amount float64, asset Asset) (int64, error) {
+	asset = normalizeAsset(asset)
+	if math.IsNaN(amount) || math.IsInf(amount, 0) {
+		return 0, fmt.Errorf("amount must be finite")
+	}
+	if amount <= 0 {
+		return 0, fmt.Errorf("amount must be > 0")
+	}
+	formatted := strconv.FormatFloat(amount, 'f', int(asset.Decimals), 64)
+	parts := strings.SplitN(formatted, ".", 2)
+	whole := parts[0]
+	fraction := ""
+	if len(parts) == 2 {
+		fraction = parts[1]
+	}
+	if int(asset.Decimals) > 0 {
+		fraction = fraction + strings.Repeat("0", int(asset.Decimals)-len(fraction))
+	}
+	combined := whole + fraction
+	amountUnits, err := strconv.ParseInt(combined, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("amount exceeds supported range")
+	}
+	if amountUnits <= 0 {
+		return 0, fmt.Errorf("amount must be > 0")
+	}
+	return amountUnits, nil
+}
+
+func unitsToAmountForAsset(amountUnits int64, asset Asset) float64 {
+	asset = normalizeAsset(asset)
+	return float64(amountUnits) / float64(unitScale(asset.Decimals))
+}
+
+func unitScale(decimals uint8) int64 {
+	scale := int64(1)
+	for range decimals {
+		scale *= 10
+	}
+	return scale
 }

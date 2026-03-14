@@ -121,6 +121,18 @@ receipt = node.bridge_transfer(
     nonce=1,
     proof="proof-bytes",
 )
+
+settled = node.bridge_transfer(
+    source_chain="ethereum",
+    target_chain="polygon",
+    asset="MHC",
+    amount=2.0,
+    sender="0xabc",
+    receiver="0xdef",
+    nonce=2,
+    proof="proof-bytes",
+    settle=True,
+)
 ```
 
 See [sdk/python/README.md](sdk/python/README.md) for the complete API reference.
@@ -148,6 +160,34 @@ Stop the stack with:
 ```bash
 docker compose down
 ```
+
+### Multi-Asset Bridge Settlement Configuration
+
+Bridge settlement is optional and disabled by default. Set `settle=true` on `bridge_transfer(...)` requests to execute burn/release settlement after transfer verification.
+
+Use these runtime environment variables to enable registry-backed multi-asset settlement routing:
+
+```bash
+# Comma-separated symbols allowed for settlement
+export MOHAWK_BRIDGE_SETTLEMENT_ASSETS="MHC,USDX"
+
+# Default utility coin ledger (MHC)
+export MOHAWK_LEDGER_STATE_PATH="/var/lib/mohawk/mhc_state.json"
+export MOHAWK_LEDGER_AUDIT_PATH="/var/lib/mohawk/mhc_audit.jsonl"
+export MOHAWK_UTILITY_MINTER="protocol"
+
+# Per-asset ledger overrides (USDX)
+export MOHAWK_LEDGER_STATE_PATH_USDX="/var/lib/mohawk/usdx_state.json"
+export MOHAWK_LEDGER_AUDIT_PATH_USDX="/var/lib/mohawk/usdx_audit.jsonl"
+export MOHAWK_UTILITY_MINTER_USDX="protocol"
+```
+
+When configured, settlement enforces:
+
+* Asset must be present in `MOHAWK_BRIDGE_SETTLEMENT_ASSETS`.
+* Asset must have a configured settlement ledger.
+* Burn on sender occurs before destination mint/release.
+* Refund-to-sender executes if destination release fails.
 
 ---
 

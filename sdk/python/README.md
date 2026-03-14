@@ -151,6 +151,19 @@ receipt = node.bridge_transfer(
 )
 print(receipt)
 
+settled = node.bridge_transfer(
+    source_chain="ethereum",
+    target_chain="polygon",
+    asset="MHC",
+    amount=2.0,
+    sender="0xabc",
+    receiver="0xdef",
+    nonce=2,
+    proof="proof-bytes",
+    settle=True,
+)
+print(settled)
+
 minted = node.mint_utility_coin(
     to="edge-alice",
     amount=100.0,
@@ -212,7 +225,7 @@ Main class for interacting with the MOHAWK runtime.
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
 - **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
-- **`bridge_transfer(..., auth_token=None, role=None)`**: Cross-chain transfer envelope verification + receipt generation
+- **`bridge_transfer(..., settle=False, settlement_minter=None, auth_token=None, role=None)`**: Cross-chain transfer verification with optional settlement execution
 - **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
 - **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
 - **`utility_coin_balance(account)`**: Retrieve utility coin balance
@@ -224,6 +237,13 @@ Bridge policy fallback:
 
 - If no `route_policy`, `policy_manifest`, or `policy_manifest_path` is supplied to `bridge_transfer`, the runtime automatically attempts to load a default manifest from `bridge-policies.json`.
 - Override the default path with environment variable `MOHAWK_BRIDGE_POLICY_MANIFEST`.
+
+Bridge settlement runtime controls:
+
+- Set `settle=True` on `bridge_transfer(...)` to execute settlement after receipt verification.
+- Set `MOHAWK_BRIDGE_SETTLEMENT_ASSETS` (for example `MHC,USDX`) to enforce a settlement asset registry.
+- Use `MOHAWK_LEDGER_STATE_PATH_<SYMBOL>` and `MOHAWK_LEDGER_AUDIT_PATH_<SYMBOL>` for per-asset persistent ledgers.
+- Use `MOHAWK_UTILITY_MINTER_<SYMBOL>` for per-asset settlement mint actors.
 
 Utility coin hardening runtime controls:
 

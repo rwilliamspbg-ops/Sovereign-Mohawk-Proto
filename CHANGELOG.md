@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New Make targets: `strict-auth-smoke-host`, `strict-auth-smoke-container`, and `production-readiness`
 - SDK docs for strict-auth smoke usage and Alpine/musl ctypes troubleshooting with glibc-container fallback
 - README and SDK README refresh covering badges, genesis testnet usage, observability endpoints, and Python SDK v2 feature surface
+- Bridge settlement lifecycle in `internal/bridge/bridge.go`, including burn → release flow, deterministic settlement records, and automatic refund-on-mint-failure handling
+- Multi-asset settlement routing with optional asset registry enforcement via the new `internal/token/registry.go`
+- Utility coin ledger hardening in `internal/token/ledger.go` with integer base-unit accounting, `burn` transactions, and state migration support from legacy float-backed snapshots
+- `bridge_transfer` settlement controls in Python SDK (`settle`, `settlement_minter`) and runtime API wiring in `internal/pyapi/api.go`
+- Environment-driven settlement configuration for multi-asset deployments (`MOHAWK_BRIDGE_SETTLEMENT_ASSETS`, per-asset ledger/minter overrides)
+- Compose rollout templates and operator guidance in `docker-compose.yml` for single-asset defaults and optional multi-asset settlement mode
+- Expanded automated coverage for settlement, multi-asset routing, env parsing/config loading, and ledger migration behavior (`test/bridge_hybrid_test.go`, `internal/pyapi/api_security_test.go`, `test/utility_coin_durability_test.go`)
 
 ### Benchmarks
 
