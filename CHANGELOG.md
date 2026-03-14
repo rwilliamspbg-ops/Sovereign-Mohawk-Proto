@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Strict auth/role smoke runner at `scripts/strict_auth_smoke.py` for deterministic token/role validation (positive and negative paths)
 - New Make targets: `strict-auth-smoke-host`, `strict-auth-smoke-container`, and `production-readiness`
 - SDK docs for strict-auth smoke usage and Alpine/musl ctypes troubleshooting with glibc-container fallback
+- README and SDK README refresh covering badges, genesis testnet usage, observability endpoints, and Python SDK v2 feature surface
+
+### Benchmarks
+
+- Published the latest SDK benchmark snapshot in project docs:
+  - `test_verify_proof_performance`: 10.55 ms mean, 94.77 ops/s
+  - `test_aggregate_nodes_performance`: 30.63 us mean, 32,648 ops/s
+  - `test_gradient_compression_performance`: 995.70 us mean, 1,004 ops/s
 
 ## [0.1.0] - 2026-02-20
 

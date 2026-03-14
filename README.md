@@ -12,26 +12,30 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 ## Sovereign-Mohawk-Proto
 
-![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)
-![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)
-![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)
-![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)
-![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)
+[![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
+[![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
+[![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
+[![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
+[![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
+[![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
 
 ![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-![Python SDK](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)
+![Python SDK v2](https://img.shields.io/badge/SDK-2.0.0a2-blue?logo=python)
+![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
 ![BFT Safety](https://img.shields.io/badge/BFT%20Resilience-55.5%25-green)
-![Protocol](https://img.shields.io/badge/Protocol-MOHAWK%20v1.0-orange)
+![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
+![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
+![Genesis Testnet](https://img.shields.io/badge/Testnet-global--testnet-orange)
 
 ---
 
-**Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. It bridges the gap between theoretical security and production implementation through a suite of interconnected formal proofs and cutting-edge zero-knowledge cryptography.
+**Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability.
 
 ---
 
 ## 🚀 Why Sovereign Mohawk?
 
-Traditional federated learning protocols struggle with linear scaling bottlenecks and Byzantine threats. Sovereign-Mohawk redefines the boundaries of decentralized AI.
+Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines formal verification with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only.
 
 ### 📊 Comparative Analysis
 
@@ -41,20 +45,9 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 | **Communication** | $O(dn)$ | $O(dn)$ | **$O(d \log n)$** |
 | **BFT Proof** | None | Partial | **Full (Theorem 1)** |
 | **Verification** | Re-execution | None | **10ms zk-SNARKs** |
-| **Resilience** | Low | Medium | **99.99% (Straggler)** |
-| **Python SDK** | Native | Native | **✅ C-Shared Bridge** |
-
----
-
-## 🧠 Advancing AI Computing
-
-Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ecosystem:
-
-1. **Hyper-Scale Decentralization:** By moving from $O(dn)$ to $O(d \log n)$ communication complexity, we enable millions of edge devices (phones, IoT, cars) to participate in training without saturating global bandwidth.
-2. **Trustless Aggregation:** With **10ms zk-SNARKs**, the central server can prove to every participant that the model update was computed correctly without revealing private data or requiring re-execution.
-3. **Byzantine Resilience at Scale:** Achieves a record **55.5% malicious node resilience**, ensuring that even under heavy adversarial attack, the global model remains uncorrupted.
-4. **Continental-Level Speed:** Our hierarchical synthesis (10M:1k:100:1) allows for global model updates to be aggregated in milliseconds, bypassing the bottlenecks of traditional flat architectures.
-5. **Multi-Language Support:** Native Go runtime with high-performance Python SDK via C-shared library bridge.
+| **Hybrid Proof Policy** | None | None | **SNARK/STARK** |
+| **SDK Surface** | Python only | Python only | **Go + Python SDK v2** |
+| **Testnet/Observability** | Limited | Limited | **Genesis stack + Grafana** |
 
 ---
 
@@ -63,8 +56,11 @@ Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ec
 * 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
 * 🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
 * ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
-* 📉 **Extreme Efficiency:** 700,000x reduction in metadata overhead (40 TB → 28 MB for 10M nodes).
-* 🐍 **Python SDK:** Full-featured Python interface to the Go runtime via ctypes bridge.
+* 🐍 **Python SDK v2:** Accelerator, bridge, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
+* 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
+* 🌉 **Bridge Policy Enforcement:** Cross-chain route policies with default manifests and typed EVM/Cosmos proof helpers.
+* 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
+* 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
 
 ---
 
@@ -75,11 +71,8 @@ Sovereign-Mohawk is more than just a protocol; it's a leap forward for the AI ec
 Sovereign-Mohawk is built with **Go 1.24**.
 
 ```bash
-# Clone the repository
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
 cd Sovereign-Mohawk-Proto
-
-# Install dependencies and verify module
 go mod tidy
 go build ./...
 ```
@@ -89,14 +82,9 @@ go build ./...
 The Python SDK provides a high-level interface to the MOHAWK runtime:
 
 ```bash
-# Build the Go C-shared library
 make build-python-lib
-
-# Install the Python package
 cd sdk/python
-pip install -e .
-
-# Verify installation
+pip install -e .[dev]
 python -c "import mohawk; print(mohawk.__version__)"
 ```
 
@@ -105,52 +93,82 @@ python -c "import mohawk; print(mohawk.__version__)"
 ```python
 from mohawk import MohawkNode
 
-# Initialize and start a node
 node = MohawkNode()
 result = node.start(config_path="capabilities.json", node_id="node-001")
 
-# Verify a zk-SNARK proof (10ms)
-proof = {"proof": "0x...", "public_inputs": [...]}
+proof = {"proof": "0x1234", "public_inputs": []}
 verification = node.verify_proof(proof)
 
-# Aggregate federated learning updates (O(d log n))
 updates = [{"node_id": "n1", "gradient": [0.1, 0.2]}]
-result = node.aggregate(updates)
+aggregation = node.aggregate(updates)
+
+devices = node.device_info()
+compressed = node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
+
+hybrid = node.verify_hybrid_proof(
+    snark_proof="s" * 128,
+    stark_proof="t" * 64,
+    mode="both",
+)
+
+receipt = node.bridge_transfer(
+    source_chain="ethereum",
+    target_chain="polygon",
+    asset="USDC",
+    amount=12.5,
+    sender="0xabc",
+    receiver="0xdef",
+    nonce=1,
+    proof="proof-bytes",
+)
 ```
 
-See [Python SDK Documentation](sdk/python/README.md) for complete API reference.
+See [sdk/python/README.md](sdk/python/README.md) for the complete API reference.
+
+### Genesis Testnet
+
+Launch the regional genesis testnet with the default `global-testnet` profile:
+
+```bash
+./genesis-launch.sh
+
+# Equivalent Make target
+make regional-shard
+```
+
+Default endpoints after startup:
+
+* Grafana: `http://localhost:3000`
+* Prometheus: `http://localhost:9090`
+* TPM metrics exporter: `http://localhost:9102/metrics`
+* Orchestrator control plane: `https://localhost:8080` (mTLS enforced)
+
+Stop the stack with:
+
+```bash
+docker compose down
+```
 
 ---
 
-## 🛠 Testing & Compliance
+## 🧪 Testing & Compliance
 
 This repository maintains strict adherence to the MOHAWK runtime specifications.
 
 ### Go Runtime Tests
 
-Run the full suite of logic, security, and performance tests:
-
 ```bash
-# Automated test script
-chmod +x test_all.sh
-./test_all.sh
-
-# Or use Make targets
-make test        # Run Go tests
-make verify      # Full verification (lint + test + audit)
+make test
+make verify
+go test ./...
 ```
 
 ### Python SDK Tests
 
 ```bash
-# Run Python SDK tests
 make test-python-sdk
-
-# Run example demos
 make demo-python-sdk
-
-# Complete Python workflow
-make python-all  # Build + Install + Test
+make python-all
 ```
 
 ### Production Readiness Check
@@ -163,22 +181,44 @@ make production-readiness
 
 ---
 
-## 🛡️ Verification & Monitoring
+## 📈 Benchmark Snapshot
 
-The system leverages a proof-driven monitoring strategy. Track real-time safety checks and liveness probabilities:
+Latest SDK benchmark snapshot from `sdk/python/tests/test_benchmarks.py` on March 14, 2026:
+
+| Benchmark | Mean | Median | Throughput |
+| --- | ---: | ---: | ---: |
+| `test_verify_proof_performance` | 10.55 ms | 10.55 ms | 94.77 ops/s |
+| `test_aggregate_nodes_performance` | 30.63 us | 25.20 us | 32,648 ops/s |
+| `test_gradient_compression_performance` | 995.70 us | 944.57 us | 1,004 ops/s |
+
+Reproduce locally:
 
 ```bash
-# Run tests with detailed liveness output
-go test -v ./... | grep "liveness"
+cd sdk/python
+python -m pytest tests/test_benchmarks.py --benchmark-only -q
 ```
+
+---
+
+## 🛡️ Verification & Monitoring
+
+The system leverages a proof-driven monitoring strategy and production CI gates.
 
 ### GitHub Actions
 
 All production-grade safety requirements are verified on every push:
 
-* **Verify Proof Links:** Checks exported functions against Formal Documentation.
-* **Linter:** Ensures zero terminology errors or markdown formatting violations.
-* **Build & Test:** Multi-platform Go compilation and test execution.
+* **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config.
+* **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
+* **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
+* **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
+* **Capability Sync Check:** Runtime capability manifest validation.
+
+### Observability Stack
+
+* [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
+* [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
+* [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
 
 ---
 
@@ -187,51 +227,60 @@ All production-grade safety requirements are verified on every push:
 ```text
 Sovereign-Mohawk-Proto/
 ├── cmd/                    # Main application entry points
+│   ├── orchestrator/      # Control plane + mTLS endpoint
+│   ├── node-agent/        # Edge node runtime + libp2p transport
+│   └── tpm-metrics/       # Prometheus exporter
 ├── internal/               # Core Go implementation
+│   ├── accelerator/       # Device detection + quantization
+│   ├── bridge/            # Route policy engine and typed proofs
+│   ├── hva/               # Hierarchical planning logic
+│   ├── hybrid/            # Hybrid SNARK/STARK verification
+│   ├── ipfs/              # Checkpoint backend
+│   ├── network/           # libp2p transport and gradient protocol
 │   ├── pyapi/             # Python SDK C-shared library exports
-│   ├── aggregator.go      # Federated learning aggregation
-│   ├── zksnark_verifier.go # zk-SNARK proof verification
-│   ├── crypto/            # Cryptographic primitives
-│   ├── tpm/               # TPM attestation
+│   ├── token/             # Utility coin ledger
+│   ├── tpm/               # TPM attestation + mTLS
 │   └── wasmhost/          # WebAssembly runtime
+├── monitoring/            # Prometheus and Grafana assets
 ├── sdk/
-│   └── python/            # Python SDK
-│       ├── Mohawk/        # Python package
+│   └── python/
+│       ├── mohawk/        # Python package
 │       ├── examples/      # Usage examples
-│       └── tests/         # Unit tests
+│       └── tests/         # Unit tests and benchmarks
 ├── proofs/                # Formal verification documents
-├── wasm-modules/          # WebAssembly modules
-├── scripts/               # Build and audit scripts
-├── Makefile               # Build automation
-└── README.md              # This file
+├── scripts/               # Build, audit, and smoke-test scripts
+├── wasm-modules/          # fl_task, flower_task, pytorch_task
+└── README.md
 ```
 
 ---
 
 ## 🎯 What's New in This Release
 
-### Python SDK (v0.1.0)
+### Platform Upgrade (v2.0.0a2)
 
 ✨ **New Features:**
 
-* Full Python interface to MOHAWK runtime via C-shared library bridge
-* Zero-copy ctypes bindings for maximum performance
-* Pythonic API with comprehensive type hints
-* Automatic Go library compilation during `pip install`
-* Complete example suite and unit tests
+* Python SDK v2 with accelerator, bridge, gradient, hybrid-proof, and utility-ledger APIs.
+* libp2p gradient transport between node-agents and orchestrator.
+* Route-policy bridge verification with default manifest fallback.
+* TPM-backed mTLS control plane and strict auth smoke validation.
+* Prometheus/Grafana observability stack and genesis testnet bootstrap.
 
 🔧 **Technical Details:**
 
-* Exported Go functions: `InitializeNode`, `VerifyZKProof`, `AggregateUpdates`, `GetNodeStatus`, `LoadWasmModule`, `AttestNode`
-* JSON-based communication protocol
-* Cross-platform support (Linux, macOS, Windows)
-* Memory-safe string handling
+* Exported Go bridge now includes proof batching, hybrid verification, bridge transfer, device info, gradient compression, and utility-ledger operations.
+* Python package version: `2.0.0a2`.
+* Strict CI gates: build/test, linter, performance gate, capability sync, proof audit, and pages deploy.
+* Benchmarked SDK mean latencies: 10.55 ms verify, 30.63 us aggregate, 995.70 us compression.
 
 📚 **Documentation:**
 
-* [Python SDK README](sdk/python/README.md)
-* [API Reference](sdk/python/mohawk/client.py)
-* [Usage Examples](sdk/python/examples/)
+* [sdk/python/README.md](sdk/python/README.md)
+* [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py)
+* [sdk/python/examples/](sdk/python/examples/)
+* [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
+* [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -241,24 +290,24 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development priorities.
 
-### Current Phase: Python SDK Integration (Q1 2026)
+### Current Phase: Platform Hardening & Testnet Operations (Q1 2026)
 
 **Next Up:**
 
-* Production-ready zk-SNARK integration
-* TPM hardware attestation
-* Advanced WASM module support
-* Multi-chain bridge connectors
+* CI-backed release packaging for the Python SDK
+* Broader regional shard rollout beyond `local-us-east`
+* Deeper hybrid-proof backend integrations
+* Expanded testnet automation and dashboard coverage
 
 ---
 
 ## 📖 Documentation
 
-* [White Paper](WHITE_PAPER.md) - Protocol design and architecture
-* [Academic Paper](ACADEMIC_PAPER.md) - Formal proofs and theorems
-* [Python SDK Guide](sdk/python/README.md) - Python development guide
-* [Contributing Guide](CONTRIBUTING.md) - Development guidelines
-* [API Documentation](docs/API.md) - Complete API reference
+* [WHITE_PAPER.md](WHITE_PAPER.md) - Protocol design and architecture
+* [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md) - Formal proofs and theorems
+* [sdk/python/README.md](sdk/python/README.md) - Python SDK guide
+* [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
+* [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
 
 ---
 
@@ -275,7 +324,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## 📜 License
 
-This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE.md](LICENSE.md) file for details.
 
 ---
 

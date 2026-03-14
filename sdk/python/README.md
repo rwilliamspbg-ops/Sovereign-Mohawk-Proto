@@ -2,14 +2,27 @@
 
 🐍 A Python interface to the high-performance MOHAWK federated learning runtime.
 
+[![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
+[![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
+[![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
+
+![SDK Version](https://img.shields.io/badge/SDK-2.0.0a2-blue?logo=python)
+![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
+![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
+![Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
+
 ## Overview
 
 The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based MOHAWK runtime, enabling Python developers to leverage:
 
 - **10M+ node federated learning** with O(d log n) communication complexity
 - **zk-SNARK verification** with 10ms proof verification
+- **hybrid SNARK/STARK policy checks** with backend selection
 - **55.5% Byzantine fault tolerance** for adversarial resilience
 - **TPM attestation** for secure node identity
+- **utility coin ledger controls** with backup/restore, nonce replay protection, and auth hooks
+- **bridge route policy verification** with typed EVM/Cosmos proof helpers
+- **hardware-aware gradient compression** and streaming aggregation
 - **WebAssembly module loading** for flexible computation
 
 ## Installation
@@ -32,7 +45,10 @@ make build-python-lib
 
 # Install the Python package
 cd sdk/python
-pip install -e .
+pip install -e .[dev]
+
+# Optional extras
+pip install -e .[accelerator]
 ```
 
 ### Verifying Installation
@@ -73,7 +89,7 @@ proof_data = {
 
 verification = node.verify_proof(proof_data)
 print(verification)
-# {'success': True, 'message': 'Proof verified in 10ms'}
+# {'success': True, 'message': 'Proof verified'}
 ```
 
 ### Aggregate Federated Learning Updates
@@ -88,6 +104,73 @@ updates = [
 result = node.aggregate(updates)
 print(result)
 # {'success': True, 'message': 'Updates aggregated successfully'}
+```
+
+### Gradient Compression and Device Discovery
+
+```python
+devices = node.device_info()
+print(devices)
+
+compressed = node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
+print(compressed)
+
+stream = node.stream_aggregate(
+    [[0.1, 0.2, 0.3], [0.11, 0.21, 0.31]],
+    format="int8",
+    max_norm=1.0,
+)
+print(stream)
+```
+
+### Hybrid Proof Verification
+
+```python
+hybrid = node.verify_hybrid_proof(
+    snark_proof="s" * 128,
+    stark_proof="t" * 64,
+    mode="both",
+)
+print(hybrid)
+
+print(node.hybrid_backends())
+```
+
+### Bridge and Utility Coin Operations
+
+```python
+receipt = node.bridge_transfer(
+    source_chain="ethereum",
+    target_chain="polygon",
+    asset="USDC",
+    amount=12.5,
+    sender="0xabc",
+    receiver="0xdef",
+    nonce=1,
+    proof="proof-bytes",
+)
+print(receipt)
+
+minted = node.mint_utility_coin(
+    to="edge-alice",
+    amount=100.0,
+    actor="protocol",
+    idempotency_key="mint-001",
+    nonce=1,
+)
+print(minted)
+
+payment = node.transfer_utility_coin(
+    from_account="edge-alice",
+    to_account="edge-bob",
+    amount=25.0,
+    idempotency_key="tx-001",
+    nonce=2,
+)
+print(payment)
+
+print(node.utility_coin_balance("edge-bob"))
+print(node.utility_coin_ledger())
 ```
 
 ### Load WebAssembly Modules
@@ -118,15 +201,17 @@ Main class for interacting with the MOHAWK runtime.
 
 - **`start(config_path, node_id, capabilities=None)`**: Initialize a node
 - **`verify_proof(proof)`**: Verify a zk-SNARK proof
+- **`batch_verify(proofs)`**: Verify many proofs in parallel
+- **`verify_hybrid_proof(...)`**: Evaluate hybrid SNARK/STARK policies
+- **`hybrid_backends()`**: List available STARK backends
 - **`aggregate(updates)`**: Aggregate federated learning updates
+- **`aggregate_buffer(gradient_buffer)`**: Inspect zero-copy aggregation buffer path
 - **`status(node_id)`**: Get node status
 - **`load_wasm(module_path)`**: Load a WebAssembly module
 - **`attest(node_id)`**: Perform TPM attestation
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
-- **`batch_verify(proofs)`**: Verify many proofs in parallel
 - **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
-- **`verify_hybrid_proof(snark_proof, stark_proof, mode, auth_token=None, role=None)`**: Hybrid zk-SNARK/zk-STARK policy verification
 - **`bridge_transfer(..., auth_token=None, role=None)`**: Cross-chain transfer envelope verification + receipt generation
 - **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
 - **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
@@ -256,12 +341,12 @@ The Python SDK uses a C-shared library bridge:
 ```text
 ┌─────────────────┐
 │  Python Code    │
-│  (Mohawk/)      │
+│  (mohawk/)      │
 └────────┬────────┘
          │ ctypes
          ▼
 ┌─────────────────┐
-│  libMohawk.so   │
+│  libmohawk.so   │
 │  (C-shared)     │
 └────────┬────────┘
          │ cgo
@@ -297,9 +382,18 @@ mypy mohawk/
 
 ## Performance
 
+Benchmark snapshot from `python -m pytest tests/test_benchmarks.py --benchmark-only -q` on March 14, 2026:
+
+| Benchmark | Mean | Median | Throughput |
+| --- | ---: | ---: | ---: |
+| `test_verify_proof_performance` | 10.55 ms | 10.55 ms | 94.77 ops/s |
+| `test_aggregate_nodes_performance` | 30.63 us | 25.20 us | 32,648 ops/s |
+| `test_gradient_compression_performance` | 995.70 us | 944.57 us | 1,004 ops/s |
+
 - **Node initialization**: ~50ms
-- **zk-SNARK verification**: 10ms (per proof)
-- **Aggregation**: O(d log n) complexity
+- **zk-SNARK verification**: 10.55ms mean in the benchmark suite
+- **Aggregation**: O(d log n) complexity with 30.63us mean benchmark latency
+- **Gradient compression**: 995.70us mean for FP16 path in the benchmark suite
 - **Memory overhead**: 28 MB for 10M nodes
 
 ## Contributing
