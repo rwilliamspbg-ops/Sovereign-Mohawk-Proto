@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [tpm-metrics, orchestrator]
+        scenario: [tpm-metrics, orchestrator, prometheus]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
 
       - name: Run chaos readiness drill
         run: |
-          bash scripts/chaos_readiness_drill.sh "${{ matrix.scenario }}" chaos-reports
+          RECOVERY_LATENCY_MAX_SECONDS=120 bash scripts/chaos_readiness_drill.sh "${{ matrix.scenario }}" chaos-reports
 
       - name: Upload chaos reports
         uses: actions/upload-artifact@v4
