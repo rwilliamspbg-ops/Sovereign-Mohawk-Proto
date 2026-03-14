@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: orchestrator
+    metrics_path: /metrics
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+      - targets: ["orchestrator:8080"]
+
+  - job_name: tpm-metrics
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["tpm-metrics:9102"]

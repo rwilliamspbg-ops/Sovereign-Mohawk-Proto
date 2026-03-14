@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "routes": [
+    {
+      "source_chain": "ethereum",
+      "target_chain": "polygon",
+      "policy": {
+        "id": "default-evm-stable-fast-finality",
+        "allowed_assets": ["USDC", "USDT"],
+        "min_amount": 1,
+        "max_amount": 100000,
+        "min_finality_blocks": 12
+      }
+    },
+    {
+      "source_chain": "cosmos",
+      "target_chain": "ethereum",
+      "policy": {
+        "id": "default-cosmos-evm-atom",
+        "allowed_assets": ["ATOM"],
+        "min_amount": 0.1,
+        "max_amount": 50000,
+        "min_finality_blocks": 5
+      }
+    }
+  ]
+}

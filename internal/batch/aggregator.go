@@ -5,7 +5,10 @@ package batch
 import (
 	"fmt"
 
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
 type Mode int
@@ -41,6 +44,16 @@ func NewAggregator(cfg *Config) *Aggregator {
 func (a *Aggregator) ProcessRound(mode Mode) error {
 	a.Verified = false
 	a.FilteredCount = 0
+	honestNodes := a.Config.HonestNodes
+	metrics.ObserveConsensus("batch-round", honestNodes, a.Config.TotalNodes)
+	if _, err := tpm.VerifyByzantineResilience(a.Config.TotalNodes, a.Config.MaliciousNodes); err != nil {
+		return err
+	}
+	plan, err := hva.BuildPlan(a.Config.TotalNodes, maxInt(1, a.Config.RedundancyFactor))
+	if err != nil {
+		return err
+	}
+	metrics.ObserveHVALevels("batch-round", len(plan.Levels))
 
 	// Baseline SHA256 for an empty proof (prototype default)
 	expected := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -62,4 +75,11 @@ func (a *Aggregator) ProcessRound(mode Mode) error {
 	a.Verified = true
 
 	return nil
+}
+
+func maxInt(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

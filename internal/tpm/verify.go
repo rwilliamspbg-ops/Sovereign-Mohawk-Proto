@@ -18,14 +18,17 @@ package tpm
 
 import (
 	"fmt"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 )
 
 // VerifyShardIntegrity ensures that a regional shard has enough participants
 // to meet the local f < n/2 requirement.
 func VerifyShardIntegrity(participants int, faultyNodes int) error {
-	// Active Guard: Enforce Theorem 1 safety threshold at the shard level.
-	if participants <= 2*faultyNodes {
-		return fmt.Errorf("shard security failure: f=%d requires n > %d (violated Theorem 1)", faultyNodes, 2*faultyNodes)
+	minimumHonest := hva.MinimumHonestNodes(participants)
+	honestNodes := participants - faultyNodes
+	if honestNodes < minimumHonest {
+		return fmt.Errorf("shard security failure: honest=%d requires >= %d to satisfy the 55.5%% Theorem 1 boundary", honestNodes, minimumHonest)
 	}
 	return nil
 }

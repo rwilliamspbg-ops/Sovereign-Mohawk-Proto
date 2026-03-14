@@ -7,8 +7,8 @@ import (
 )
 
 func TestVerifyShardIntegrity_Valid(t *testing.T) {
-	// 21 participants, 10 faulty → 21 > 2*10 → passes
-	if err := tpm.VerifyShardIntegrity(21, 10); err != nil {
+	// 23 participants, 10 faulty -> 13 honest, which satisfies the 55.5% boundary.
+	if err := tpm.VerifyShardIntegrity(23, 10); err != nil {
 		t.Fatalf("Expected shard integrity to pass, got: %v", err)
 	}
 }

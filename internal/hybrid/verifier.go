@@ -1,0 +1,240 @@
+package hybrid
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"os"
+	"os/exec"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
+)
+
+// ProofScheme identifies supported proof systems.
+type ProofScheme string
+
+const (
+	SchemeSNARK ProofScheme = "snark"
+	SchemeSTARK ProofScheme = "stark"
+)
+
+// HybridMode controls how SNARK/STARK are combined.
+type HybridMode string
+
+const (
+	// ModeAny accepts when either scheme verifies.
+	ModeAny HybridMode = "any"
+	// ModeBoth requires both schemes to verify.
+	ModeBoth HybridMode = "both"
+	// ModePreferSNARK verifies SNARK first, then STARK on fallback.
+	ModePreferSNARK HybridMode = "prefer_snark"
+)
+
+// VerifyRequest defines a hybrid proof verification operation.
+type VerifyRequest struct {
+	Mode         HybridMode `json:"mode"`
+	SNARKProof   []byte     `json:"snark_proof"`
+	STARKProof   []byte     `json:"stark_proof"`
+	STARKBackend string     `json:"stark_backend"`
+}
+
+// VerifyResult reports per-scheme status and final policy decision.
+type VerifyResult struct {
+	SNARKValid   bool   `json:"snark_valid"`
+	STARKValid   bool   `json:"stark_valid"`
+	Accepted     bool   `json:"accepted"`
+	Policy       string `json:"policy"`
+	STARKBackend string `json:"stark_backend"`
+}
+
+// SNARKVerifier abstracts zk-SNARK verification backend.
+type SNARKVerifier interface {
+	Verify(proof []byte) (bool, error)
+}
+
+// STARKVerifier abstracts zk-STARK verification backend.
+type STARKVerifier interface {
+	BackendName() string
+	Verify(proof []byte) (bool, error)
+}
+
+var (
+	registryMu         sync.RWMutex
+	starkBackends                    = map[string]STARKVerifier{}
+	defaultSNARKBridge SNARKVerifier = snarkVerifier{}
+)
+
+func init() {
+	RegisterSTARKBackend(simulatedFRIVerifier{})
+	RegisterSTARKBackend(winterfellMockVerifier{})
+	if cmd := strings.TrimSpace(os.Getenv("MOHAWK_STARK_VERIFY_CMD")); cmd != "" {
+		RegisterSTARKBackend(externalCommandVerifier{command: cmd})
+	}
+}
+
+// RegisterSTARKBackend adds or replaces a STARK backend in the global registry.
+func RegisterSTARKBackend(verifier STARKVerifier) {
+	if verifier == nil || verifier.BackendName() == "" {
+		return
+	}
+	registryMu.Lock()
+	defer registryMu.Unlock()
+	starkBackends[verifier.BackendName()] = verifier
+}
+
+// AvailableSTARKBackends returns all registered backend names.
+func AvailableSTARKBackends() []string {
+	registryMu.RLock()
+	defer registryMu.RUnlock()
+	out := make([]string, 0, len(starkBackends))
+	for name := range starkBackends {
+		out = append(out, name)
+	}
+	sort.Strings(out)
+	return out
+}
+
+func resolveSTARKBackend(name string) (STARKVerifier, string, error) {
+	registryMu.RLock()
+	defer registryMu.RUnlock()
+	if name == "" {
+		name = strings.TrimSpace(os.Getenv("MOHAWK_DEFAULT_STARK_BACKEND"))
+		if name == "" {
+			name = "simulated_fri"
+		}
+	}
+	verifier, ok := starkBackends[name]
+	if !ok {
+		return nil, "", fmt.Errorf("unknown stark backend %q", name)
+	}
+	return verifier, name, nil
+}
+
+// VerifyHybrid runs both proof verifiers and evaluates according to Mode.
+func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
+	if req.Mode == "" {
+		req.Mode = ModePreferSNARK
+	}
+	starkVerifier, starkBackend, err := resolveSTARKBackend(req.STARKBackend)
+	if err != nil {
+		return VerifyResult{}, err
+	}
+	snarkOK, snarkErr := defaultSNARKBridge.Verify(req.SNARKProof)
+	starkOK, starkErr := starkVerifier.Verify(req.STARKProof)
+
+	result := VerifyResult{
+		SNARKValid:   snarkOK,
+		STARKValid:   starkOK,
+		Policy:       string(req.Mode),
+		STARKBackend: starkBackend,
+	}
+
+	switch req.Mode {
+	case ModeBoth:
+		result.Accepted = snarkOK && starkOK
+	case ModeAny:
+		result.Accepted = snarkOK || starkOK
+	case ModePreferSNARK:
+		result.Accepted = snarkOK || starkOK
+	default:
+		return VerifyResult{}, fmt.Errorf("unsupported hybrid mode: %s", req.Mode)
+	}
+
+	if !result.Accepted {
+		return result, errors.Join(
+			fmt.Errorf("hybrid policy %q rejected proof set", req.Mode),
+			snarkErr,
+			starkErr,
+		)
+	}
+	return result, nil
+}
+
+type snarkVerifier struct{}
+
+func (snarkVerifier) Verify(proof []byte) (bool, error) {
+	if len(proof) == 0 {
+		return false, fmt.Errorf("snark proof missing")
+	}
+	if len(proof) < 128 {
+		proof = append(proof, make([]byte, 128-len(proof))...)
+	}
+	ok, err := internalpkg.VerifyProof(proof, nil)
+	if err != nil {
+		return false, fmt.Errorf("snark verify failed: %w", err)
+	}
+	return ok, nil
+}
+
+// simulatedFRIVerifier is the default placeholder STARK verifier.
+// In production this should be replaced by a concrete FRI backend binding.
+type simulatedFRIVerifier struct{}
+
+func (simulatedFRIVerifier) BackendName() string { return "simulated_fri" }
+
+func (simulatedFRIVerifier) Verify(proof []byte) (bool, error) {
+	if len(proof) == 0 {
+		return false, fmt.Errorf("stark proof missing")
+	}
+	if len(proof) < 64 {
+		return false, fmt.Errorf("stark proof too short")
+	}
+	return true, nil
+}
+
+// winterfellMockVerifier simulates a stricter STARK backend profile.
+type winterfellMockVerifier struct{}
+
+func (winterfellMockVerifier) BackendName() string { return "winterfell_mock" }
+
+func (winterfellMockVerifier) Verify(proof []byte) (bool, error) {
+	if len(proof) == 0 {
+		return false, fmt.Errorf("winterfell stark proof missing")
+	}
+	if len(proof) < 96 {
+		return false, fmt.Errorf("winterfell stark proof too short")
+	}
+	return true, nil
+}
+
+type externalCommandVerifier struct {
+	command string
+}
+
+func (externalCommandVerifier) BackendName() string { return "external_cmd" }
+
+func (v externalCommandVerifier) Verify(proof []byte) (bool, error) {
+	if len(proof) == 0 {
+		return false, fmt.Errorf("external stark proof missing")
+	}
+	if strings.TrimSpace(v.command) == "" {
+		return false, fmt.Errorf("external stark verify command is not configured")
+	}
+	timeout := 5 * time.Second
+	if raw := strings.TrimSpace(os.Getenv("MOHAWK_STARK_VERIFY_TIMEOUT")); raw != "" {
+		if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
+			timeout = parsed
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", v.command)
+	cmd.Stdin = strings.NewReader(string(proof))
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("external stark backend failed: %w (%s)", err, strings.TrimSpace(string(out)))
+	}
+	response := strings.TrimSpace(strings.ToLower(string(out)))
+	if response == "" || response == "ok" || response == "valid" || response == "true" {
+		return true, nil
+	}
+	if strings.Contains(response, "invalid") || strings.Contains(response, "false") {
+		return false, fmt.Errorf("external stark backend reported invalid proof")
+	}
+	return true, nil
+}

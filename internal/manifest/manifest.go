@@ -23,6 +23,8 @@ import (
 	"errors"
 	"fmt"
 	"math"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 )
 
 type Capability string
@@ -79,13 +81,18 @@ func VerifySignature(m *Manifest, orchestratorPub []byte) error {
 // ValidateCommunicationComplexity enforces Theorem 3.
 // Reference: /proofs/communication.md
 func (m *Manifest) ValidateCommunicationComplexity(d int, n int) error {
-	// Theoretical limit: O(d * log10(n))
-	limit := float64(d) * math.Log10(float64(n))
+	plan, err := hva.BuildPlan(n, d)
+	if err != nil {
+		return err
+	}
+
+	// Theoretical limit: O(d * log n)
+	limit := float64(d) * math.Log2(float64(n))
 
 	// Estimate actual size: Metadata + Fixed Overhead
 	actual := float64(len(m.TaskID) + len(m.NodeID) + 200)
 
-	if actual > limit*2.0 {
+	if actual > limit*2.0 || plan.EdgeCount > n*len(plan.Levels) {
 		return fmt.Errorf("communication optimality violated: actual size %.2f exceeds O(d log n) bound", actual)
 	}
 	return nil

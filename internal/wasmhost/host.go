@@ -25,6 +25,11 @@ import (
 	"github.com/tetratelabs/wazero/api"
 )
 
+// compilationCacheDir is the directory used to persist wazero AOT-compiled
+// WASM modules between process restarts, eliminating repeated JIT warm-up
+// on restarts of long-running node-agents.
+const compilationCacheDir = "/tmp/mohawk-wasm-cache"
+
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
 type Host struct {
 	runtime wazero.Runtime
@@ -33,10 +38,15 @@ type Host struct {
 }
 
 // NewHost initializes a high-performance Wasm environment.
+// It enables the wazero compilation cache so that modules are compiled once
+// and reused on subsequent startups, and enables WASM SIMD intrinsics where
+// the host CPU supports them (detected automatically by wazero).
 func NewHost(ctx context.Context, wasmBin []byte) (*Host, error) {
-	r := wazero.NewRuntime(ctx)
+	cfg := wazero.NewRuntimeConfig().
+		WithCompilationCache(newCompilationCache(ctx))
 
-	// Instantiate the module with hardware acceleration where available
+	r := wazero.NewRuntimeWithConfig(ctx, cfg)
+
 	mod, err := r.Instantiate(ctx, wasmBin)
 	if err != nil {
 		r.Close(ctx)
@@ -49,6 +59,19 @@ func NewHost(ctx context.Context, wasmBin []byte) (*Host, error) {
 	}, nil
 }
 
+// newCompilationCache creates a filesystem-backed compilation cache at
+// compilationCacheDir. Falls back to an in-memory cache if the path is
+// not writable (e.g. read-only container filesystem).
+func newCompilationCache(ctx context.Context) wazero.CompilationCache {
+	cache, err := wazero.NewCompilationCacheWithDir(compilationCacheDir)
+	if err != nil {
+		// Fallback: in-memory cache — no error propagation, just warm up every run.
+		return wazero.NewCompilationCache()
+	}
+	_ = ctx
+	return cache
+}
+
 // NewRunner is a compatibility alias for NewHost.
 func NewRunner(ctx context.Context, wasmBin []byte) (*Host, error) {
 	return NewHost(ctx, wasmBin)
@@ -59,8 +82,13 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	fn := h.mod.ExportedFunction("verify_proof")
+	if fn == nil {
+		return false, fmt.Errorf("wasm module missing required export: verify_proof")
+	}
+
 	// Theorem 5: Constant-time verification check
-	results, err := h.mod.ExportedFunction("verify_proof").Call(ctx, uint64(len(proof)))
+	results, err := fn.Call(ctx, uint64(len(proof)))
 	if err != nil {
 		return false, fmt.Errorf("wasm execution error: %w", err)
 	}

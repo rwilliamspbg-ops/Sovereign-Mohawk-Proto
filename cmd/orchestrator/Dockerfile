@@ -1,14 +1,16 @@
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 WORKDIR /app
-COPY go.mod ./
+RUN apk add --no-cache git gcc musl-dev
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o main ./cmd/orchestrator/main.go
+RUN go build -o main ./cmd/orchestrator
 
 # Run stage
 FROM alpine:latest
 WORKDIR /root/
+RUN apk --no-cache add ca-certificates libgcc
 COPY --from=builder /app/main .
-EXPOSE 8080
+EXPOSE 8080 4101
 CMD ["./main"]

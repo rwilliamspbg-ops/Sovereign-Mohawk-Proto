@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard strict-auth-smoke-host strict-auth-smoke-container production-readiness
 
 all: build verify
 
@@ -10,8 +10,12 @@ build:
 
 test:
 	@echo "🧪 Running Proof-Driven Design tests..."
-	chmod +x test_all.sh
-	./test_all.sh
+	@if [ -f test_all.sh ]; then \
+		chmod +x test_all.sh; \
+		./test_all.sh; \
+	else \
+		go test ./...; \
+	fi
 
 audit:
 	@echo "🔍 Running Security Audit..."
@@ -64,3 +68,29 @@ demo-python-sdk: build-python-lib
 
 python-all: build-python-lib install-python-sdk test-python-sdk
 	@echo "🐍 Python SDK fully built, installed, and tested!"
+
+metrics:
+	@echo "📈 Starting TPM metrics exporter..."
+	go run ./cmd/tpm-metrics
+
+regional-shard:
+	@echo "🌐 Launching regional shard profile..."
+	./genesis-launch.sh --regional-shard local-us-east
+
+strict-auth-smoke-host: build-python-lib
+	@echo "🔐 Running strict auth/role smoke checks on host..."
+	MOHAWK_API_AUTH_MODE=file-only \
+	MOHAWK_API_TOKEN_FILE=$$PWD/secrets/mohawk_api_token \
+	MOHAWK_API_ENFORCE_ROLES=true \
+	MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin \
+	MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin \
+	PYTHONPATH=sdk/python python scripts/strict_auth_smoke.py --lib-path ./libmohawk.so --token-file ./secrets/mohawk_api_token
+
+strict-auth-smoke-container: build-python-lib
+	@echo "🐳 Running strict auth/role smoke checks in container (glibc path)..."
+	docker compose run --rm -v "$$PWD":/workspace -w /workspace tpm-metrics \
+		env MOHAWK_API_AUTH_MODE=file-only MOHAWK_API_TOKEN_FILE=/workspace/secrets/mohawk_api_token MOHAWK_API_ENFORCE_ROLES=true MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin \
+		python3 /workspace/scripts/strict_auth_smoke.py --lib-path /workspace/libmohawk.so --token-file /workspace/secrets/mohawk_api_token
+
+production-readiness: verify strict-auth-smoke-host strict-auth-smoke-container
+	@echo "✅ Production readiness checks passed (verify + strict auth smoke host/container)."

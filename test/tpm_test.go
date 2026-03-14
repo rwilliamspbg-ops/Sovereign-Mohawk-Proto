@@ -51,4 +51,20 @@ func TestGetVerifiedQuote(t *testing.T) {
 	if len(quote) == 0 {
 		t.Error("Expected non-empty quote")
 	}
+	if err := tpm.Verify("node-001", quote); err != nil {
+		t.Fatalf("Expected quote verification to succeed, got: %v", err)
+	}
+}
+
+func TestVerifyByzantineResilience_StrictBoundary(t *testing.T) {
+	// 9 total nodes require 5 honest nodes, so 4 Byzantine nodes are the maximum.
+	ok, err := tpm.VerifyByzantineResilience(9, 4)
+	if err != nil || !ok {
+		t.Fatalf("Expected 4 Byzantine nodes out of 9 to pass, got ok=%v err=%v", ok, err)
+	}
+
+	ok, err = tpm.VerifyByzantineResilience(9, 5)
+	if err == nil || ok {
+		t.Fatalf("Expected 5 Byzantine nodes out of 9 to violate the 55.5%% boundary")
+	}
 }

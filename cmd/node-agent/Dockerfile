@@ -1,9 +1,9 @@
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies for CGO (often needed for Wasm runtimes)
+# CGO is required for both the WASM runtime and the Python ctypes bridge.
 RUN apk add --no-cache git gcc musl-dev
 
 COPY go.mod go.sum ./
@@ -11,24 +11,27 @@ RUN go mod download
 
 COPY . .
 
-# Build the Node Agent binary
-RUN go build -o node-agent-bin ./cmd/node-agent/main.go
+# Build the Node Agent binary.
+RUN go build -o node-agent-bin ./cmd/node-agent
+
+# Build the Python ctypes shared library so the SDK can use the real Go bridge.
+RUN CGO_ENABLED=1 go build -o libmohawk.so -buildmode=c-shared ./internal/pyapi/
 
 # Run stage
 FROM alpine:latest
 WORKDIR /root/
 
-# Install libgcc for Wasm compatibility
 RUN apk --no-cache add ca-certificates libgcc
 
-# Copy binary from builder
 COPY --from=builder /app/node-agent-bin .
+COPY --from=builder /app/libmohawk.so .
 
-# Create the directory where the Wasm modules will be mounted
+# WASM module mount-point
 RUN mkdir -p /app/wasm
 
-# The orchestrator and aggregator URLs should be passed via environment variables
-# as seen in your docker-compose.yml
-EXPOSE 8082
+# Tell the Python SDK where to find the compiled bridge library.
+ENV MOHAWK_LIB_PATH=/root/libmohawk.so
+
+EXPOSE 8082 4001
 
 CMD ["./node-agent-bin"]

@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.8'
-
 services:
   orchestrator:
     build:
@@ -20,6 +18,70 @@ services:
     container_name: orchestrator
     ports:
       - "8080:8080"
+      - "4101:4101"
+      - "4101:4101/udp"
+    environment:
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4101
+      - MOHAWK_LEDGER_STATE_PATH=/var/lib/mohawk/utility-ledger/state.json
+      - MOHAWK_LEDGER_AUDIT_PATH=/var/lib/mohawk/utility-ledger/audit.jsonl
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_API_ENFORCE_ROLES=true
+      - MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin
+      - MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin
+      - MOHAWK_UTILITY_RATE_LIMIT_PER_MIN=240
+      - MOHAWK_UTILITY_ENFORCE_ROLES=true
+      - MOHAWK_UTILITY_MINT_ALLOWED_ROLES=minter,admin
+      - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
+      - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
+      - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+    volumes:
+      - ./data/utility-ledger:/var/lib/mohawk/utility-ledger
+      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+    networks:
+      - mohawk-net
+
+  tpm-metrics:
+    image: golang:1.24
+    container_name: tpm-metrics
+    working_dir: /workspace
+    command: ["go", "run", "./cmd/tpm-metrics"]
+    volumes:
+      - .:/workspace
+    ports:
+      - "9102:9102"
+    networks:
+      - mohawk-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - mohawk-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - mohawk-net
+
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ipfs
+    ports:
+      - "5001:5001"
     networks:
       - mohawk-net
 
@@ -28,7 +90,7 @@ services:
       context: .
       dockerfile: cmd/orchestrator/Dockerfile
     container_name: shard-us-east
-    command: ["./aggregator", "--shard-id=us-east-1"]
+    command: ["./main"]
     depends_on:
       - orchestrator
     networks:
@@ -39,7 +101,7 @@ services:
       context: .
       dockerfile: cmd/orchestrator/Dockerfile
     container_name: shard-eu-west
-    command: ["./aggregator", "--shard-id=eu-west-1"]
+    command: ["./main"]
     depends_on:
       - orchestrator
     networks:
@@ -51,10 +113,27 @@ services:
       dockerfile: cmd/node-agent/Dockerfile
     container_name: node-agent-1
     environment:
-      - AGGREGATOR_URL=http://shard-us-east:8080
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
       - NODE_ID=node-1
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4001
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_API_ENFORCE_ROLES=true
+      - MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin
+      - MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin
+      - MOHAWK_UTILITY_RATE_LIMIT_PER_MIN=240
+      - MOHAWK_UTILITY_ENFORCE_ROLES=true
+      - MOHAWK_UTILITY_MINT_ALLOWED_ROLES=minter,admin
+      - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
+      - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
+      - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+    volumes:
+      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
     depends_on:
-      - shard-us-east
+      - orchestrator
+      - ipfs
     networks:
       - mohawk-net
 
@@ -64,10 +143,27 @@ services:
       dockerfile: cmd/node-agent/Dockerfile
     container_name: node-agent-2
     environment:
-      - AGGREGATOR_URL=http://shard-eu-west:8080
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
       - NODE_ID=node-2
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4002
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_API_ENFORCE_ROLES=true
+      - MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin
+      - MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin
+      - MOHAWK_UTILITY_RATE_LIMIT_PER_MIN=240
+      - MOHAWK_UTILITY_ENFORCE_ROLES=true
+      - MOHAWK_UTILITY_MINT_ALLOWED_ROLES=minter,admin
+      - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
+      - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
+      - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+    volumes:
+      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
     depends_on:
-      - shard-eu-west
+      - orchestrator
+      - ipfs
     networks:
       - mohawk-net
 

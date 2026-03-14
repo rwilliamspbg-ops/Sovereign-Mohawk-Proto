@@ -26,6 +26,12 @@ def main():
         print(f"✅ {result['message']}")
         print(f"   Data: {result.get('data', 'N/A')}\n")
 
+        # Show detected compute devices (CPU / GPU / NPU)
+        print("🧩 Enumerating compute devices...")
+        devices = node.device_info()
+        print(f"✅ {devices['message']}")
+        print(f"   Data: {devices.get('data', 'N/A')}\n")
+
         # Check node status
         print("📊 Checking node status...")
         status = node.status("demo-node-001")
@@ -64,6 +70,21 @@ def main():
         aggregation = node.aggregate(updates)
         print(f"✅ {aggregation['message']}")
         print(f"   Result: {aggregation.get('data', 'N/A')}\n")
+
+        # Compress gradients for wire-efficient transport
+        print("🗜️  Compressing gradients (FP16)...")
+        compressed = node.compress_gradients([0.1, 0.2, 0.3, 0.4], format="fp16")
+        print(f"✅ {compressed['message']}")
+        print(f"   Compression: {compressed.get('compression_ratio', 'N/A')}x\n")
+
+        # Verify multiple proofs in batch mode
+        print("📦 Batch verifying proofs...")
+        batch = node.batch_verify([
+            {"id": "proof-1", "proof": "abc"},
+            {"id": "proof-2", "proof": "xyz"},
+        ])
+        print(f"✅ {batch['message']}")
+        print(f"   Data: {batch.get('data', 'N/A')}\n")
 
         # Load a WASM module
         print("🧱 Loading WASM module...")

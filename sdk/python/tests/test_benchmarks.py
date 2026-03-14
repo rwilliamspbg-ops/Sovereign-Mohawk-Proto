@@ -29,3 +29,11 @@ def test_aggregate_nodes_performance(benchmark, node):
 
     result = benchmark(lambda: node.aggregate(updates))
     assert result is not None
+
+
+def test_gradient_compression_performance(benchmark, node):
+    """Benchmark FP16 gradient compression for SDK transport path."""
+    gradients = [0.01 * i for i in range(2048)]
+
+    result = benchmark(lambda: node.compress_gradients(gradients, format="fp16"))
+    assert result is not None

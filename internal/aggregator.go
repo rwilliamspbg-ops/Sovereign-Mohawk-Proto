@@ -18,6 +18,9 @@ package internal
 import (
 	"fmt"
 	"log"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 )
 
 // Tier represents the hierarchical level of the aggregator.
@@ -36,24 +39,43 @@ type Aggregator struct {
 	Accountant  *RDPAccountant
 	Liveness    *StragglerMonitor
 	Convergence *ConvergenceMonitor
+	MeshPlan    hva.Plan
 }
 
 // NewAggregator initializes a tier-specific aggregator with all formal guards.
 func NewAggregator(t Tier) *Aggregator {
+	totalNodes := 1000
+	switch t {
+	case Continental:
+		totalNodes = 100000
+	case Global:
+		totalNodes = 10000000
+	}
+
+	meshPlan, _ := hva.BuildPlan(totalNodes, 1024)
 	return &Aggregator{
 		Tier:        t,
 		Accountant:  NewRDPAccountant(2.0, 1e-5),
 		Liveness:    NewStragglerMonitor(),
 		Convergence: NewConvergenceMonitor(0.1, 0.01),
+		MeshPlan:    meshPlan,
 	}
 }
 
 // ProcessUpdates executes the verified aggregation pipeline.
 func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm float64) error {
+	meshPlan, err := hva.BuildPlan(totalNodes, 1024)
+	if err != nil {
+		return fmt.Errorf("hierarchical mesh planning failed: %w", err)
+	}
+	a.MeshPlan = meshPlan
+	metrics.ObserveHVALevels(fmt.Sprintf("tier-%d", a.Tier), len(meshPlan.Levels))
+
 	// Active Guard: Theorem 4 (Straggler Resilience)
 	if err := a.Liveness.ValidateLiveness(activeNodes, totalNodes); err != nil {
 		return fmt.Errorf("liveness check failed: %w", err)
 	}
+	metrics.ObserveConsensus(fmt.Sprintf("tier-%d", a.Tier), activeNodes, totalNodes)
 
 	// Active Guard: Theorem 2 (Privacy Budget)
 	if err := a.Accountant.CheckBudget(); err != nil {

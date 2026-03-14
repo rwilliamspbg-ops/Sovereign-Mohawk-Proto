@@ -1,0 +1,134 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [{"expr": "sum by (result) (rate(mohawk_tpm_quotes_total[5m]))", "refId": "A"}],
+      "title": "TPM Quote Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "targets": [{"expr": "sum by (result) (rate(mohawk_tpm_verifications_total[5m]))", "refId": "A"}],
+      "title": "TPM Verification Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [{"expr": "mohawk_consensus_honest_ratio", "refId": "A"}],
+      "title": "Consensus Honest Ratio",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "id": 4,
+      "targets": [{"expr": "mohawk_hva_levels", "refId": "A"}],
+      "title": "HVA Levels",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "id": 5,
+      "targets": [{"expr": "sum by (operation, result) (rate(mohawk_ipfs_operations_total[5m]))", "refId": "A"}],
+      "title": "IPFS Ops Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "id": 6,
+      "targets": [{"expr": "sum by (backend, operation, result) (rate(mohawk_accelerator_ops_total[5m]))", "refId": "A"}],
+      "title": "Accelerator Ops Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24},
+      "id": 7,
+      "targets": [{"expr": "mohawk_utility_coin_total_supply", "refId": "A"}],
+      "title": "Utility Coin Total Supply",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24},
+      "id": 8,
+      "targets": [{"expr": "mohawk_utility_coin_tx_count", "refId": "A"}],
+      "title": "Utility Coin Tx Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24},
+      "id": 9,
+      "targets": [{"expr": "mohawk_aggregation_workers", "refId": "A"}],
+      "title": "Aggregation Workers",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+      "id": 10,
+      "targets": [{"expr": "mohawk_utility_coin_mints_total", "refId": "A"}],
+      "title": "Utility Coin Mints Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+      "id": 11,
+      "targets": [{"expr": "mohawk_utility_coin_transfers_total", "refId": "A"}],
+      "title": "Utility Coin Transfers Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+      "id": 12,
+      "targets": [{"expr": "mohawk_utility_coin_minted_amount_total", "refId": "A"}],
+      "title": "Minted Amount Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+      "id": 13,
+      "targets": [{"expr": "mohawk_utility_coin_transferred_amount_total", "refId": "A"}],
+      "title": "Transferred Amount Total",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+      "id": 14,
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(mohawk_proof_batch_size_bucket[5m])) by (le))", "refId": "A"}],
+      "title": "Proof Batch Size P95 (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+      "id": 15,
+      "targets": [{"expr": "sum by (format) (rate(mohawk_gradient_compression_ratio_sum[5m])) / sum by (format) (rate(mohawk_gradient_compression_ratio_count[5m]))", "refId": "A"}],
+      "title": "Gradient Compression Avg Ratio (5m)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["mohawk", "overview", "live"],
+  "templating": {"list": []},
+  "time": {"from": "now-30m", "to": "now"},
+  "title": "MOHAWK Live Overview",
+  "version": 1
+}
