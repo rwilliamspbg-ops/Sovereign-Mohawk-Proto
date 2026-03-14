@@ -61,14 +61,26 @@ async def main() -> None:
         by_b64 = await node.load_wasm(wasm_b64=wasm_b64)
         _print_result("3) Async hot-reload by base64", by_b64, ci_mode)
 
-        if by_path.get("module_hash") and by_bytes.get("module_hash") and by_b64.get("module_hash"):
-            if not (by_path["module_hash"] == by_bytes["module_hash"] == by_b64["module_hash"]):
-                raise RuntimeError("module_hash mismatch across path/bytes/base64 loads")
+        if (
+            by_path.get("module_hash")
+            and by_bytes.get("module_hash")
+            and by_b64.get("module_hash")
+        ):
+            if not (
+                by_path["module_hash"]
+                == by_bytes["module_hash"]
+                == by_b64["module_hash"]
+            ):
+                raise RuntimeError(
+                    "module_hash mismatch across path/bytes/base64 loads"
+                )
 
         status = await node.status("demo-node")
         data = status.get("status_data") or status.get("data")
         if ci_mode:
-            print(f"4) Async status snapshot: {status.get('message')} status_data_present={bool(data)}")
+            print(
+                f"4) Async status snapshot: {status.get('message')} status_data_present={bool(data)}"
+            )
         else:
             print("4) Async status snapshot")
             print(f"  message: {status.get('message')}")

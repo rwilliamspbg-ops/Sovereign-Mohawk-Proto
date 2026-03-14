@@ -69,7 +69,9 @@ def load_chaos_scenarios(chaos_dir: Path) -> list[dict]:
                 "failure_ok": bool(failure.get("ok", False)),
                 "recovery_ok": bool(recovery.get("ok", False)),
                 "latency_seconds": summary.get("recovery_latency_seconds", "n/a"),
-                "latency_threshold_seconds": summary.get("recovery_latency_threshold_seconds", "n/a"),
+                "latency_threshold_seconds": summary.get(
+                    "recovery_latency_threshold_seconds", "n/a"
+                ),
                 "latency_ok": bool(summary.get("recovery_latency_ok", False)),
             }
         )
@@ -86,7 +88,9 @@ def build_chaos_section(chaos_scenarios: list[dict]) -> str:
         lines.append("- No chaos scenario reports found.")
         return "\n".join(lines)
 
-    lines.append("| Scenario | Baseline | Outage Failure Expected | Recovery | Recovery Latency | Threshold | Latency SLO |")
+    lines.append(
+        "| Scenario | Baseline | Outage Failure Expected | Recovery | Recovery Latency | Threshold | Latency SLO |"
+    )
     lines.append("| --- | --- | --- | --- | --- | --- | --- |")
 
     for scenario in chaos_scenarios:
@@ -110,9 +114,17 @@ def build_chaos_section(chaos_scenarios: list[dict]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate markdown digest from readiness and chaos gate reports.")
-    parser.add_argument("--readiness-report", required=True, help="Path to readiness-report.json")
-    parser.add_argument("--chaos-dir", required=True, help="Directory containing chaos report json files")
+    parser = argparse.ArgumentParser(
+        description="Generate markdown digest from readiness and chaos gate reports."
+    )
+    parser.add_argument(
+        "--readiness-report", required=True, help="Path to readiness-report.json"
+    )
+    parser.add_argument(
+        "--chaos-dir",
+        required=True,
+        help="Directory containing chaos report json files",
+    )
     parser.add_argument("--output", required=True, help="Output markdown path")
     args = parser.parse_args()
 

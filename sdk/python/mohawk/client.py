@@ -472,7 +472,9 @@ class MohawkNode:
         if module_path is not None:
             payload["module_path"] = module_path
         if wasm_bytes is not None:
-            payload["wasm_b64"] = base64.b64encode(self.bridge.view(wasm_bytes).tobytes()).decode("ascii")
+            payload["wasm_b64"] = base64.b64encode(
+                self.bridge.view(wasm_bytes).tobytes()
+            ).decode("ascii")
         elif wasm_b64 is not None:
             payload["wasm_b64"] = wasm_b64
         if not payload:
