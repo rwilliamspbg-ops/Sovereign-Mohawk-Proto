@@ -81,6 +81,30 @@ def check_metric_names(prom_url: str, required_metrics: list[str]) -> list[str]:
     return failures
 
 
+def wait_target_health(
+    prom_url: str, required_instances: list[str], retries: int, delay_seconds: float
+) -> list[str]:
+    last_failures: list[str] = []
+    for _ in range(retries):
+        last_failures = check_targets(prom_url, required_instances)
+        if not last_failures:
+            return []
+        time.sleep(delay_seconds)
+    return last_failures
+
+
+def wait_metric_names(
+    prom_url: str, required_metrics: list[str], retries: int, delay_seconds: float
+) -> list[str]:
+    last_failures: list[str] = []
+    for _ in range(retries):
+        last_failures = check_metric_names(prom_url, required_metrics)
+        if not last_failures:
+            return []
+        time.sleep(delay_seconds)
+    return last_failures
+
+
 def check_supply_invariant(prom_url: str, tolerance: float) -> list[str]:
     minted = query_scalar_value(
         prom_url, "mohawk_utility_coin_minted_amount_total", default_if_empty=0.0
@@ -161,14 +185,16 @@ def main() -> int:
         )
         report["checks"]["prometheus_api"] = True
 
-        target_failures = check_targets(
+        target_failures = wait_target_health(
             args.prom_url,
             required_instances=["orchestrator:9091", "tpm-metrics:9102"],
+            retries=args.retries,
+            delay_seconds=args.delay,
         )
         report["checks"]["targets_up"] = len(target_failures) == 0
         failures.extend(target_failures)
 
-        metric_failures = check_metric_names(
+        metric_failures = wait_metric_names(
             args.prom_url,
             required_metrics=[
                 "mohawk_utility_coin_total_supply",
@@ -177,6 +203,8 @@ def main() -> int:
                 "mohawk_utility_coin_tx_count",
                 "mohawk_utility_coin_holders_count",
             ],
+            retries=args.retries,
+            delay_seconds=args.delay,
         )
         report["checks"]["metric_names_present"] = len(metric_failures) == 0
         failures.extend(metric_failures)
