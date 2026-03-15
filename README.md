@@ -374,14 +374,17 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
 See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development priorities.
 
-### Current Phase: Platform Hardening & Testnet Operations (Q1 2026)
+### Current Phase: v1.0.0 GA Closure (Q2 2026)
+
+**Program Stage:** Mainnet-Readiness Gated
 
 **Next Up:**
 
-* CI-backed release packaging for the Python SDK
-* Broader regional shard rollout beyond `local-us-east`
-* Deeper hybrid-proof backend integrations
-* Expanded testnet automation and dashboard coverage
+* External security audit and penetration testing (runtime + SDK + bridge)
+* TPM 2.0 attestation completion and replay-hardening validation
+* Production runbook + readiness/chaos alert escalation playbooks
+* 1M+ node aggregation rehearsal and end-to-end latency sign-off
+* v1.0.0 GA release checklist and deployment guide publication
 
 ---
 

@@ -1,261 +1,115 @@
 # 🗺️ Sovereign-Mohawk Development Roadmap
 
-*Last Updated: February 20, 2026*
+*Last Updated: March 15, 2026*
 
 ---
 
-## Vision
+## Current Program Status
 
-To build the world's most scalable, secure, and verifiable federated learning protocol—capable of coordinating 10 million nodes with provable Byzantine resilience, instant verification, and privacy-preserving computation.
+Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gated operations**:
 
----
-
-## Phase 1: Foundation & Core Protocol ✅ **COMPLETE**
-
-**Timeline:** Q4 2025 - Q1 2026
-
-### Accomplishments
-
-- [x] Hierarchical federated learning architecture (10M:1k:100:1)
-- [x] O(d log n) communication complexity implementation
-- [x] Formal proofs for 5 core theorems
-- [x] Go 1.24 runtime with Wasmtime integration
-- [x] TPM attestation stub
-- [x] Batch verification system
-- [x] RDP differential privacy accountant
-- [x] 28 MB metadata compression (700,000x improvement)
-- [x] Proof-driven design verification system
-- [x] Comprehensive testing infrastructure
-- [x] GitHub Actions CI/CD pipeline
-
-**Status:** Production-ready core protocol
+- [x] Core FL protocol, theorem-backed resilience, and baseline runtime complete
+- [x] Real BN254 Groth16 verifier integrated
+- [x] Hybrid SNARK/STARK verification paths integrated
+- [x] WASM hash registry + hot reload integrated
+- [x] Python SDK v2 surface and structured error-code mapping in place
+- [x] Readiness gate, chaos gate, and weekly digest CI workflows active
+- [x] Tokenomics + operational monitoring dashboards provisioned
 
 ---
 
-## Phase 2: Python SDK & Developer Experience 🚧 **IN PROGRESS**
+## What Is Left to Complete
 
-**Timeline:** Q1 2026 (Current Phase)
+### Current Phase: v1.0.0 GA Closure 🚧 **IN PROGRESS**
 
-### Completed (v0.1.0 - Feb 20, 2026)
+**Program Stage:** Mainnet-Readiness Gated
 
-- [x] Go C-shared library bridge (`internal/pyapi/api.go`)
-- [x] Python client package with ctypes bindings
-- [x] Automatic build system (`setup.py`, `pyproject.toml`)
-- [x] Example scripts and usage demonstrations
-- [x] Unit test suite with pytest
-- [x] Makefile extensions for Python workflows
-- [x] Complete SDK documentation
+**Target:** Q2 2026
 
-### Next Steps (v0.2.0 - Target: March 2026)
+### A1. Security & Assurance (Critical Path)
 
-- [ ] **Connect Real Implementations**
-  - [ ] Wire `VerifyZKProof` to `internal/zksnark_verifier.go`
-  - [ ] Link `AggregateUpdates` to `internal/aggregator.go`
-  - [ ] Integrate `LoadWasmModule` with `internal/wasmhost`
-  - [ ] Connect `AttestNode` to `internal/tpm`
-  - [ ] Add error propagation from Go to Python
+- [ ] External security audit (runtime + SDK + bridge)
+- [ ] Penetration test across orchestrator/API and bridge settlement paths
+- [ ] Threat-model refresh for mTLS control plane + internal metrics plane
+- [ ] Dependency vulnerability baseline and patch SLA policy
 
-- [ ] **Advanced Python Features**
-  - [ ] Async/await support for long-running operations
-  - [ ] Streaming aggregation with `yield` generators
-  - [ ] Context managers for resource cleanup
-  - [ ] NumPy/PyTorch tensor integration
-  - [ ] Pandas DataFrame support for batch operations
+### A2. TPM Attestation Completion
 
-- [ ] **Developer Tooling**
-  - [ ] Type stubs (`.pyi` files) for IDE autocomplete
-  - [ ] Sphinx documentation generation
-  - [ ] Jupyter notebook examples
-  - [ ] Docker container with pre-built libraries
-  - [ ] PyPI package publication
+- [ ] Replace remaining TPM stubs with full TPM 2.0 quote/verify flow
+- [ ] Remote attestation evidence format hardening and replay protection checks
+- [ ] Cross-platform validation matrix for attestation paths (Linux/Windows/macOS)
 
-- [ ] **Testing & Quality**
-  - [ ] Integration tests with real Go runtime
-  - [ ] Performance benchmarks vs pure Go
-  - [ ] Memory leak detection
-  - [ ] Fuzzing tests for C bridge
-  - [ ] Code coverage >90%
+### A3. Readiness-to-Production Operations
 
-**Deliverables:**
-- Production-ready Python SDK v0.2.0
-- Published on PyPI (`pip install sovereign-Mohawk`)
-- Complete API documentation site
-- 5+ end-to-end example notebooks
+- [ ] Publish operator runbook for incident response + recovery drills
+- [ ] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
+- [ ] Add alert routing/escalation playbook for readiness and chaos failures
+
+### A4. Performance and Scale Sign-off
+
+- [ ] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
+- [ ] End-to-end latency validation under failure injection scenarios
+- [ ] Python-vs-Go overhead profiling report with optimization decisions
+
+### A5. Release Packaging
+
+- [ ] Finalize v1.0.0 release candidate checklist and cut GA tag
+- [ ] Publish deployment guide for genesis-to-production rollout path
+
+**Exit Criteria for v1.0.0 GA:**
+- [ ] Security audit completed with no unresolved critical findings
+- [ ] TPM attestation path fully enabled in production mode
+- [ ] 1M-scale rehearsal passed with documented SLO results
+- [ ] Operations runbook published and exercised in drills
 
 ---
 
-## Phase 3: Production Hardening ⏭️ **UPCOMING**
+## Phase B: Blockchain & Incentive Layer ⏭️ **UPCOMING**
 
-**Timeline:** Q2 2026 (April - June)
+**Target:** Q3 2026
 
-### Objectives
-
-- [ ] **zk-SNARK Production Integration**
-  - [ ] Replace mock proofs with real Groth16 implementation
-  - [ ] Trusted setup ceremony automation
-  - [ ] Proof batching for multiple aggregations
-  - [ ] Recursive proof composition
-  - [ ] Circuit optimization for 10M+ nodes
-
-- [ ] **TPM Hardware Attestation**
-  - [ ] Full TPM 2.0 integration
-  - [ ] Remote attestation protocol
-  - [ ] Secure boot verification
-  - [ ] Key derivation and sealing
-  - [ ] Cross-platform support (Linux, Windows, macOS)
-
-- [ ] **WASM Module Ecosystem**
-  - [ ] Module registry and discovery
-  - [ ] Sandboxed execution with resource limits
-  - [ ] Inter-module communication
-  - [ ] Hot-reload for module updates
-  - [ ] Template modules for common tasks
-
-- [ ] **Monitoring & Observability**
-  - [ ] Prometheus metrics exporter
-  - [ ] Grafana dashboard templates
-  - [ ] Distributed tracing with OpenTelemetry
-  - [ ] Anomaly detection for Byzantine behavior
-  - [ ] Real-time convergence monitoring
-
-**Deliverables:**
-- v1.0.0 release candidate
-- Production deployment guide
-- Operations runbook
-- Security audit report
+- [ ] Smart-contract proof verification flow (initial chain set)
+- [ ] Incentive/staking design and validation for node participation
+- [ ] Dispute and slashing/reputation policy implementation
+- [ ] Multi-chain bridge expansion beyond current route-policy baseline
 
 ---
 
-## Phase 4: Blockchain Integration 🔮 **FUTURE**
+## Phase C: Ecosystem Expansion 🔮 **FUTURE**
 
-**Timeline:** Q3 2026 (July - September)
+**Target:** Q4 2026+
 
-### Objectives
-
-- [ ] **Multi-Chain Bridge**
-  - [ ] Ethereum L2 integration (Optimism, Arbitrum)
-  - [ ] Cosmos IBC connectivity
-  - [ ] Polkadot parachain bridge
-  - [ ] Solana program integration
-
-- [ ] **On-Chain Verification**
-  - [ ] Smart contracts for proof verification
-  - [ ] Incentive mechanism for node participation
-  - [ ] Reputation scoring system
-  - [ ] Dispute resolution protocol
-
-- [ ] **Tokenomics**
-  - [ ] MOHAWK utility token design
-  - [ ] Staking for node operators
-  - [ ] Reward distribution mechanisms
-  - [ ] Governance framework
-
-**Deliverables:**
-- Multi-chain deployment toolkit
-- Economic white paper
-- Testnet launch
+- [ ] Additional SDKs (JavaScript/TypeScript first, then Rust/Swift/Java)
+- [ ] Enterprise/reference deployments and case studies
+- [ ] Research partnerships and reproducibility toolkit maturation
+- [ ] Developer ecosystem growth programs
 
 ---
 
-## Phase 5: Ecosystem Expansion 🌍 **FUTURE**
+## Deferred / Optional Backlog
 
-**Timeline:** Q4 2026+ (October onwards)
-
-### Objectives
-
-- [ ] **Additional Language SDKs**
-  - [ ] JavaScript/TypeScript SDK (Node.js + Browser)
-  - [ ] Rust SDK for embedded devices
-  - [ ] Swift SDK for iOS integration
-  - [ ] Java SDK for Android
-
-- [ ] **Industry Partnerships**
-  - [ ] Healthcare: Privacy-preserving medical ML
-  - [ ] Finance: Fraud detection without data sharing
-  - [ ] IoT: Edge AI for smart cities
-  - [ ] Automotive: Federated learning for autonomous vehicles
-
-- [ ] **Research & Academia**
-  - [ ] Open research grants program
-  - [ ] Academic partnership network
-  - [ ] Conference presentations and publications
-  - [ ] Reproducibility toolkit for researchers
-
-- [ ] **Community Growth**
-  - [ ] Developer advocacy program
-  - [ ] Hackathon sponsorship
-  - [ ] Educational content (courses, tutorials)
-  - [ ] Ambassador program
-
-**Deliverables:**
-- Multi-language SDK suite
-- Production case studies
-- Global developer community
-- Industry adoption metrics
+- [ ] Sphinx docs pipeline + hosted API site
+- [ ] Type stubs (`.pyi`) completeness pass for SDK ergonomics
+- [ ] Notebook pack refresh with end-to-end production scenarios
+- [ ] Fuzzing expansion for C bridge + serialization boundaries
+- [ ] Optional OpenTelemetry distributed tracing rollout
 
 ---
 
-## Technical Debt & Ongoing Work
+## 2026 Success Metrics (Remaining)
 
-### High Priority
-1. **Error Handling Improvements**
-   - Standardize error types across Go/Python boundary
-   - Add structured logging
-   - Implement circuit breakers for fault tolerance
+### v1.0.0 GA Metrics
 
-2. **Performance Optimization**
-   - Profile Python SDK overhead
-   - Optimize JSON serialization (consider Protocol Buffers)
-   - Implement connection pooling
+- [ ] 99.99% service uptime over rolling 30-day production window
+- [ ] Zero unresolved critical security vulnerabilities
+- [ ] <100ms end-to-end critical-path latency target under normal load
+- [ ] Successful 1M+ node aggregation exercise with published evidence
 
-3. **Security Hardening**
-   - External security audit
-   - Penetration testing
-   - Dependency vulnerability scanning
+### Ecosystem Metrics
 
-### Medium Priority
-4. **Documentation**
-   - API reference completeness
-   - Architecture decision records (ADRs)
-   - Video tutorials
-
-5. **Testing**
-   - Chaos engineering tests
-   - Load testing at 10M node scale
-   - Adversarial ML attack simulations
-
-### Low Priority
-6. **Developer Experience**
-   - CLI tool for common operations
-   - VS Code extension
-   - GitHub Copilot fine-tuning
-
----
-
-## Success Metrics
-
-### Phase 2 (Python SDK)
-- [ ] 1,000+ PyPI downloads/month
-- [ ] 10+ community contributions
-- [ ] 5+ production deployments
-- [ ] <5ms Python overhead vs Go
-
-### Phase 3 (Production)
-- [ ] 99.99% uptime in production
-- [ ] Successfully process 1M+ node aggregation
-- [ ] Zero critical security vulnerabilities
-- [ ] <100ms end-to-end latency
-
-### Phase 4 (Blockchain)
-- [ ] 3+ blockchain integrations live
-- [ ] 10,000+ nodes in testnet
-- [ ] $1M+ TVL in staking
-
-### Phase 5 (Ecosystem)
-- [ ] 5+ language SDKs released
-- [ ] 50+ enterprise deployments
-- [ ] 10,000+ developers using platform
-- [ ] 3+ peer-reviewed publications
+- [ ] Public release cadence sustained post-v1.0.0
+- [ ] Community contributions trend upward quarter-over-quarter
+- [ ] Initial production adopters running documented deployments
 
 ---
 
@@ -269,10 +123,10 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 - Coding standards
 
 **High-Impact Areas:**
-- Python SDK production integration (Phase 2)
-- zk-SNARK circuit optimization (Phase 3)
-- Multi-chain bridge development (Phase 4)
-- SDK development for other languages (Phase 5)
+- Security hardening and audit remediation (Phase A)
+- TPM attestation completion and validation (Phase A)
+- Scale rehearsal and performance sign-off (Phase A)
+- Blockchain incentive and verification layer work (Phase B)
 
 ---
 
@@ -280,7 +134,8 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 |------|---------|--------|
-| 2026-02-20 | 1.0 | Initial roadmap with Phase 2 Python SDK completion |
+| 2026-03-15 | 2.0 | Roadmap refocused on remaining work from current mainnet-readiness state |
+| 2026-02-20 | 1.0 | Initial roadmap published |
 
 ---
 

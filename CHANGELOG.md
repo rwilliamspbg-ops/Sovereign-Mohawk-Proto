@@ -54,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Documentation alignment: synchronized current phase and program-stage wording across `ROADMAP.md`, `README.md`, and `DASHBOARD.md` to reflect v1.0.0 GA closure under mainnet-readiness gated operations
+
 - `TestVerifyProof_Valid` now uses `internal.GenesisProofBytes()` (real BN254 proof) instead of `make([]byte, 128)`
 - `TestVerifyProof_TooSmall` behaviour unchanged; added `TestVerifyProof_InvalidPoint` and `TestVerifyProof_WrongProof`
 - `TestHybridVerifyModes` updated to construct proofs via `hybrid.GenFRIProof` / `hybrid.GenWinterfellProof`
