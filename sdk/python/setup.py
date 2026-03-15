@@ -6,7 +6,6 @@ from pathlib import Path
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py
 
-
 PACKAGE_NAME = "mohawk"
 PACKAGE_DIR = Path(__file__).resolve().parent / PACKAGE_NAME
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -63,6 +62,7 @@ class BuildGoLibrary(build_py):
         built_library = _build_go_library(package_build_dir)
         print(f"Built shared library: {built_library}")
         super().run()
+
 
 setup(
     version=_package_version(),
