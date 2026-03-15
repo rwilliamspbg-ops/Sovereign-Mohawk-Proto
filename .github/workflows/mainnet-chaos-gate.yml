@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '30 */12 * * *'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   chaos-gate:
     name: Chaos Readiness (${{ matrix.scenario }})
