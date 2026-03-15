@@ -77,6 +77,7 @@ class ZeroCopyBridge:
                 raise InitializationError(f"Shared library not found: {candidate}")
             return str(candidate)
 
+        package_root = Path(__file__).resolve().parent
         repo_root = Path(__file__).resolve().parents[3]
         if sys.platform == "darwin":
             name = "libmohawk.dylib"
@@ -85,9 +86,10 @@ class ZeroCopyBridge:
         else:
             name = "libmohawk.dll"
 
-        candidate = repo_root / name
-        if candidate.exists():
-            return str(candidate)
+        for root in (package_root, repo_root):
+            candidate = root / name
+            if candidate.exists():
+                return str(candidate)
         return None
 
     @staticmethod

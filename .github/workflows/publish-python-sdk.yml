@@ -1,0 +1,82 @@
+name: Publish Python SDK
+
+'on':
+  push:
+    tags:
+      - sdk-v*
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-sdk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Release Tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+
+      - name: Validate SDK Tag Matches Package Version
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GIT_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["GIT_TAG"]
+          expected_prefix = "sdk-v"
+          if not tag.startswith(expected_prefix):
+              raise SystemExit(f"Expected tag to start with {expected_prefix!r}, got {tag!r}")
+
+          version_text = pathlib.Path("sdk/python/mohawk/__init__.py").read_text(encoding="utf-8")
+          match = re.search(r'^__version__ = "([^"]+)"', version_text, re.MULTILINE)
+          if match is None:
+              raise SystemExit("Unable to determine SDK version from sdk/python/mohawk/__init__.py")
+
+          package_version = match.group(1)
+          tag_version = tag[len(expected_prefix):]
+          if package_version != tag_version:
+              raise SystemExit(
+                  f"SDK tag/version mismatch: tag={tag_version!r} package={package_version!r}"
+              )
+
+          print(f"Publishing SDK version {package_version}")
+          PY
+
+      - name: Build SDK Source Distribution
+        working-directory: sdk/python
+        run: python -m build --sdist
+
+      - name: Validate Distribution Metadata
+        working-directory: sdk/python
+        run: python -m twine check dist/*
+
+      - name: Generate Checksums
+        working-directory: sdk/python
+        run: sha256sum dist/* > dist/sha256sums.txt
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Python SDK ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            sdk/python/dist/*

@@ -1,106 +1,76 @@
-"""Setup script for the Sovereign-Mohawk Python SDK."""
-
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 from setuptools import find_packages, setup
-from setuptools.command.build_ext import build_ext
+from setuptools.command.build_py import build_py
 
 
-class BuildGoLibrary(build_ext):
-    """Custom build command to compile the Go shared library."""
+PACKAGE_NAME = "mohawk"
+PACKAGE_DIR = Path(__file__).resolve().parent / PACKAGE_NAME
+REPO_ROOT = Path(__file__).resolve().parents[2]
+GO_API_PATH = REPO_ROOT / "internal" / "pyapi" / "api.go"
+
+
+def _package_version() -> str:
+    init_text = (PACKAGE_DIR / "__init__.py").read_text(encoding="utf-8")
+    match = re.search(r'^__version__ = "([^"]+)"', init_text, re.MULTILINE)
+    if match is None:
+        raise RuntimeError("Unable to determine package version from mohawk/__init__.py")
+    return match.group(1)
+
+
+def _shared_library_name() -> str:
+    if sys.platform == "darwin":
+        return "libmohawk.dylib"
+    if sys.platform.startswith("linux"):
+        return "libmohawk.so"
+    if sys.platform == "win32":
+        return "libmohawk.dll"
+    raise RuntimeError(f"Unsupported platform: {sys.platform}")
+
+
+def _build_go_library(output_dir: Path) -> Path:
+    if not GO_API_PATH.exists():
+        raise RuntimeError(f"Go API file not found: {GO_API_PATH}")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / _shared_library_name()
+    cmd = [
+        "go",
+        "build",
+        "-o",
+        str(output_path),
+        "-buildmode=c-shared",
+        str(GO_API_PATH),
+    ]
+    print(f"Running: {' '.join(cmd)}")
+    try:
+        subprocess.run(cmd, cwd=str(REPO_ROOT), check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        print(f"Build failed:\n{exc.stderr}", file=sys.stderr)
+        raise RuntimeError(f"Failed to build Go library: {exc}") from exc
+    return output_path
+
+
+class BuildGoLibrary(build_py):
+    """Compile the Go shared library into the built Python package."""
 
     def run(self):
-        """Build the Go C-shared library."""
-        print("🏗️  Building MOHAWK Go shared library...")
-
-        # Navigate to repository root (3 levels up from sdk/python/)
-        repo_root = Path(__file__).parent.parent.parent
-        go_api_path = repo_root / "internal" / "pyapi" / "api.go"
-
-        if not go_api_path.exists():
-            raise RuntimeError(f"Go API file not found: {go_api_path}")
-
-        # Determine shared library extension based on platform
-        if sys.platform == "darwin":
-            lib_name = "libmohawk.dylib"
-        elif sys.platform.startswith("linux"):
-            lib_name = "libmohawk.so"
-        elif sys.platform == "win32":
-            lib_name = "libmohawk.dll"
-        else:
-            raise RuntimeError(f"Unsupported platform: {sys.platform}")
-
-        output_path = repo_root / lib_name
-
-        # Build command
-        cmd = [
-            "go",
-            "build",
-            "-o",
-            str(output_path),
-            "-buildmode=c-shared",
-            str(go_api_path),
-        ]
-
-        print(f"Running: {' '.join(cmd)}")
-
-        try:
-            subprocess.run(
-                cmd, cwd=str(repo_root), check=True, capture_output=True, text=True
-            )
-            print(f"✅ Successfully built {lib_name}")
-        except subprocess.CalledProcessError as e:
-            print(f"❌ Build failed:\n{e.stderr}", file=sys.stderr)
-            raise RuntimeError(f"Failed to build Go library: {e}")
-
-        # Continue with regular extension building
+        package_build_dir = Path(self.build_lib) / PACKAGE_NAME
+        print("Building MOHAWK Go shared library...")
+        built_library = _build_go_library(package_build_dir)
+        print(f"Built shared library: {built_library}")
         super().run()
 
-
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
-
 setup(
-    name="sovereign-mohawk",
-    version="2.0.0a1",
-    author="rwilliamspbg-ops",
-    description="Python SDK for Sovereign-Mohawk federated learning protocol",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto",
+    version=_package_version(),
     packages=find_packages(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-    ],
-    python_requires=">=3.8",
-    install_requires=[
-        # No external Python dependencies required
-    ],
-    extras_require={
-        "dev": [
-            "pytest>=7.0",
-            "pytest-cov>=4.0",
-            "black>=23.0",
-            "mypy>=1.0",
-            "ruff>=0.1.0",
-        ],
-    },
     cmdclass={
-        "build_ext": BuildGoLibrary,
+        "build_py": BuildGoLibrary,
     },
-    include_package_data=True,
     package_data={
-        "mohawk": ["*.so", "*.dylib", "*.dll"],
+        PACKAGE_NAME: ["*.so", "*.dylib", "*.dll"],
     },
 )

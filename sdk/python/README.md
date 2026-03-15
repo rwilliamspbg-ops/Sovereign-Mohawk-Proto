@@ -66,6 +66,24 @@ import mohawk
 print(mohawk.__version__)  # Should print: 2.0.0a2
 ```
 
+## GitHub Release Publishing
+
+GitHub does not provide a native Python package registry for this SDK, so the GitHub-native publish path is a tagged GitHub Release carrying the source distribution artifact.
+
+To publish a new SDK package on GitHub:
+
+```bash
+cd sdk/python
+python -m pip install --upgrade build twine
+python -m build --sdist
+python -m twine check dist/*
+
+git tag sdk-v2.0.0a2
+git push origin sdk-v2.0.0a2
+```
+
+Pushing an `sdk-v*` tag triggers `.github/workflows/publish-python-sdk.yml`, which validates that the tag matches `mohawk.__version__`, builds the source package, and uploads it to a GitHub Release.
+
 ## Quick Start
 
 ### Initialize a Node

@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **GitHub SDK release packaging** (`.github/workflows/publish-python-sdk.yml`, `sdk/python/setup.py`):
+  - Added a tag-driven workflow that builds the Python SDK source distribution and publishes it as a GitHub Release asset on `sdk-v*` tags
+  - Enforces SDK tag/version alignment before publishing to avoid mismatched release artifacts
+  - Packaging metadata now uses `mohawk.__version__` as the single SDK version source and prefers packaged shared-library lookup before repository-root fallback
+
 - **Real BN254 Groth16 zk-SNARK verifier** (`internal/zksnark_verifier.go`):
   - Replaced simulation with full four-pairing Miller-loop check using `gnark-crypto v0.20.0`
   - Genesis VK uses canonical BN254 generator points (α=G1, β=G2, γ=G2, δ=G2, IC₀=G1)
