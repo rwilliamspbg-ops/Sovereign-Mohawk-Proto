@@ -1,6 +1,6 @@
 # 🗺️ Sovereign-Mohawk Development Roadmap
 
-*Last Updated: March 15, 2026*
+*Last Updated: Mar 15, 2026*
 
 ---
 
@@ -16,15 +16,28 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Readiness gate, chaos gate, and weekly digest CI workflows active
 - [x] Tokenomics + operational monitoring dashboards provisioned
 
+### Phase Tracker
+
+- [x] **Phase 1 — Core Runtime & Verification:** COMPLETE
+- [x] **Phase 2 — Mainnet-Readiness Gating:** COMPLETE
+- [ ] **Phase 3 — v1.0.0 GA Closure:** IN PROGRESS
+
 ---
 
 ## What Is Left to Complete
 
-### Current Phase: v1.0.0 GA Closure 🚧 **IN PROGRESS**
+### Current Phase: Phase 3 — v1.0.0 GA Closure 🚧 **IN PROGRESS**
 
 **Program Stage:** Mainnet-Readiness Gated
 
 **Target:** Q2 2026
+
+### A0. Mainnet-Readiness CI Gates (Merged)
+
+- [x] Mainnet readiness gate workflow (`.github/workflows/mainnet-readiness-gate.yml`) active
+- [x] Mainnet chaos gate workflow (`.github/workflows/mainnet-chaos-gate.yml`) active
+- [x] Weekly readiness digest workflow (`.github/workflows/weekly-readiness-digest.yml`) active
+- [x] CI monitoring smoke check in build/test workflow (`.github/workflows/build-test.yml`) active
 
 ### A1. Security & Assurance (Critical Path)
 
@@ -64,7 +77,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ---
 
-## Phase B: Blockchain & Incentive Layer ⏭️ **UPCOMING**
+## Phase 4: Blockchain & Incentive Layer ⏭️ **UPCOMING**
 
 **Target:** Q3 2026
 
@@ -75,7 +88,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ---
 
-## Phase C: Ecosystem Expansion 🔮 **FUTURE**
+## Phase 5: Ecosystem Expansion 🔮 **FUTURE**
 
 **Target:** Q4 2026+
 
@@ -123,10 +136,10 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 - Coding standards
 
 **High-Impact Areas:**
-- Security hardening and audit remediation (Phase A)
-- TPM attestation completion and validation (Phase A)
-- Scale rehearsal and performance sign-off (Phase A)
-- Blockchain incentive and verification layer work (Phase B)
+- Security hardening and audit remediation (Phase 3)
+- TPM attestation completion and validation (Phase 3)
+- Scale rehearsal and performance sign-off (Phase 3)
+- Blockchain incentive and verification layer work (Phase 4)
 
 ---
 
@@ -134,6 +147,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 |------|---------|--------|
+| 2026-03-15 | 2.1 | Maintenance refresh: explicit Phase 2 COMPLETE / Phase 3 IN PROGRESS markers and merged CI gates tracked under current phase |
 | 2026-03-15 | 2.0 | Roadmap refocused on remaining work from current mainnet-readiness state |
 | 2026-02-20 | 1.0 | Initial roadmap published |
 
