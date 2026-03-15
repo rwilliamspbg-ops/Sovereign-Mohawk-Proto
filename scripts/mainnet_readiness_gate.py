@@ -23,7 +23,7 @@ def wait_json(url: str, expect_key: str, retries: int, delay_seconds: float) -> 
             if expect_key in payload:
                 return payload
             last_error = f"missing key '{expect_key}'"
-        except (urllib.error.URLError, json.JSONDecodeError) as exc:
+        except Exception as exc:  # noqa: BLE001
             last_error = str(exc)
         time.sleep(delay_seconds)
     raise RuntimeError(f"failed to fetch {url}: {last_error}")
@@ -86,7 +86,10 @@ def wait_target_health(
 ) -> list[str]:
     last_failures: list[str] = []
     for _ in range(retries):
-        last_failures = check_targets(prom_url, required_instances)
+        try:
+            last_failures = check_targets(prom_url, required_instances)
+        except Exception as exc:  # noqa: BLE001
+            last_failures = [str(exc)]
         if not last_failures:
             return []
         time.sleep(delay_seconds)
@@ -98,22 +101,56 @@ def wait_metric_names(
 ) -> list[str]:
     last_failures: list[str] = []
     for _ in range(retries):
-        last_failures = check_metric_names(prom_url, required_metrics)
+        try:
+            last_failures = check_metric_names(prom_url, required_metrics)
+        except Exception as exc:  # noqa: BLE001
+            last_failures = [str(exc)]
         if not last_failures:
             return []
         time.sleep(delay_seconds)
     return last_failures
 
 
-def check_supply_invariant(prom_url: str, tolerance: float) -> list[str]:
-    minted = query_scalar_value(
-        prom_url, "mohawk_utility_coin_minted_amount_total", default_if_empty=0.0
+def wait_query_scalar_value(
+    prom_url: str,
+    expr: str,
+    default_if_empty: float | None,
+    retries: int,
+    delay_seconds: float,
+) -> float:
+    last_error = ""
+    for _ in range(retries):
+        try:
+            return query_scalar_value(prom_url, expr, default_if_empty=default_if_empty)
+        except Exception as exc:  # noqa: BLE001
+            last_error = str(exc)
+            time.sleep(delay_seconds)
+    raise RuntimeError(f"failed to query {expr}: {last_error}")
+
+
+def check_supply_invariant(
+    prom_url: str, tolerance: float, retries: int, delay_seconds: float
+) -> list[str]:
+    minted = wait_query_scalar_value(
+        prom_url,
+        "mohawk_utility_coin_minted_amount_total",
+        default_if_empty=0.0,
+        retries=retries,
+        delay_seconds=delay_seconds,
     )
-    burned = query_scalar_value(
-        prom_url, "mohawk_utility_coin_burned_amount_total", default_if_empty=0.0
+    burned = wait_query_scalar_value(
+        prom_url,
+        "mohawk_utility_coin_burned_amount_total",
+        default_if_empty=0.0,
+        retries=retries,
+        delay_seconds=delay_seconds,
     )
-    supply = query_scalar_value(
-        prom_url, "mohawk_utility_coin_total_supply", default_if_empty=0.0
+    supply = wait_query_scalar_value(
+        prom_url,
+        "mohawk_utility_coin_total_supply",
+        default_if_empty=0.0,
+        retries=retries,
+        delay_seconds=delay_seconds,
     )
 
     expected = minted - burned
@@ -225,13 +262,20 @@ def main() -> int:
         ]
 
         invariant_failures = check_supply_invariant(
-            args.prom_url, args.supply_tolerance
+            args.prom_url,
+            args.supply_tolerance,
+            retries=args.retries,
+            delay_seconds=args.delay,
         )
         report["checks"]["supply_invariant"] = len(invariant_failures) == 0
         failures.extend(invariant_failures)
 
-        tx_count = query_scalar_value(
-            args.prom_url, "mohawk_utility_coin_tx_count", default_if_empty=0.0
+        tx_count = wait_query_scalar_value(
+            args.prom_url,
+            "mohawk_utility_coin_tx_count",
+            default_if_empty=0.0,
+            retries=args.retries,
+            delay_seconds=args.delay,
         )
         report["checks"]["tx_count_non_negative"] = tx_count >= 0
         if tx_count < 0:
