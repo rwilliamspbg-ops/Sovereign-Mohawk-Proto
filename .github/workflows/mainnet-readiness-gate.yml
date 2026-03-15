@@ -32,8 +32,11 @@ jobs:
 
       - name: Run mainnet readiness checks
         run: |
-          python3 scripts/mainnet_readiness_gate.py > readiness-report.json
+          python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 > readiness-report.json || status=$?
           cat readiness-report.json
+          if [ -n "${status:-}" ]; then
+            exit "$status"
+          fi
 
       - name: Upload readiness report
         uses: actions/upload-artifact@v4
