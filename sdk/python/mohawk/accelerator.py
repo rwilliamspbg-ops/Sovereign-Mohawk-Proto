@@ -193,9 +193,7 @@ def fp16_to_fp32(data: bytes) -> List[float]:
     return result
 
 
-def quantize_int8(
-    values: List[float], max_norm: Optional[float] = None
-) -> Tuple[bytes, float]:
+def quantize_int8(values: List[float], max_norm: Optional[float] = None) -> Tuple[bytes, float]:
     """Symmetric uniform INT8 quantization to [-127, 127].
 
     Returns ``(quantized_bytes, scale)`` where scale is needed for

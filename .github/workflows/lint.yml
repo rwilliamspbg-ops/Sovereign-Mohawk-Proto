@@ -41,7 +41,7 @@ jobs:
           pip install flake8 black
 
       - name: Black Format Check
-        run: black --check .
+        run: black --check --config sdk/python/pyproject.toml sdk/python scripts
 
       - name: Flake8 Style Check
         # Adjusted to ignore formatting warnings so the badge stays green

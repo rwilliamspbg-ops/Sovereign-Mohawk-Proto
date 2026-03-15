@@ -36,15 +36,11 @@ def query_vector(prom_url: str, expr: str) -> list[dict]:
         raise RuntimeError(f"prometheus query failed: {expr}")
     data = payload.get("data", {})
     if data.get("resultType") != "vector":
-        raise RuntimeError(
-            f"unexpected result type for {expr}: {data.get('resultType')}"
-        )
+        raise RuntimeError(f"unexpected result type for {expr}: {data.get('resultType')}")
     return data.get("result", [])
 
 
-def query_scalar_value(
-    prom_url: str, expr: str, default_if_empty: float | None = None
-) -> float:
+def query_scalar_value(prom_url: str, expr: str, default_if_empty: float | None = None) -> float:
     result = query_vector(prom_url, expr)
     if not result:
         if default_if_empty is not None:
@@ -175,18 +171,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Mainnet readiness gate checks for monitoring and tokenomics invariants."
     )
-    parser.add_argument(
-        "--prom-url", default="http://localhost:9090", help="Prometheus base URL"
-    )
-    parser.add_argument(
-        "--grafana-url", default="http://localhost:3000", help="Grafana base URL"
-    )
+    parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
+    parser.add_argument("--grafana-url", default="http://localhost:3000", help="Grafana base URL")
     parser.add_argument(
         "--retries", type=int, default=30, help="Number of retries per readiness wait"
     )
-    parser.add_argument(
-        "--delay", type=float, default=2.0, help="Delay between retries in seconds"
-    )
+    parser.add_argument("--delay", type=float, default=2.0, help="Delay between retries in seconds")
     parser.add_argument(
         "--supply-tolerance",
         type=float,
@@ -253,12 +243,9 @@ def main() -> int:
                 "mohawk_proof_verifications_total",
             ],
         )
-        report["checks"]["optional_protocol_metrics_present"] = (
-            len(optional_metric_failures) == 0
-        )
+        report["checks"]["optional_protocol_metrics_present"] = len(optional_metric_failures) == 0
         report["checks"]["optional_protocol_metrics_missing"] = [
-            failure.replace("metric missing: ", "")
-            for failure in optional_metric_failures
+            failure.replace("metric missing: ", "") for failure in optional_metric_failures
         ]
 
         invariant_failures = check_supply_invariant(
