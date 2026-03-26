@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/x509"
 	"encoding/base64"
 	"testing"
 	"time"
@@ -63,7 +64,10 @@ func TestUtilityCoinDualSignatureMigrationCryptographic(t *testing.T) {
 	}
 	pqcSig := ed25519.Sign(pqcPriv, digest)
 
-	legacyPubBytes := elliptic.Marshal(elliptic.P256(), legacyPriv.PublicKey.X, legacyPriv.PublicKey.Y)
+	legacyPubBytes, err := x509.MarshalPKIXPublicKey(&legacyPriv.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal legacy public key failed: %v", err)
+	}
 	bundle := token.MigrationSignatureBundle{
 		LegacyAlgorithm: "ecdsa-p256-sha256",
 		LegacyPublicKey: base64.StdEncoding.EncodeToString(legacyPubBytes),
@@ -209,7 +213,10 @@ func TestUtilityCoinMigrationEpochEnforcesCryptographicPath(t *testing.T) {
 		t.Fatalf("legacy sign failed: %v", err)
 	}
 	pqcSig := ed25519.Sign(pqcPriv, digest)
-	legacyPubBytes := elliptic.Marshal(elliptic.P256(), legacyPriv.PublicKey.X, legacyPriv.PublicKey.Y)
+	legacyPubBytes, err := x509.MarshalPKIXPublicKey(&legacyPriv.PublicKey)
+	if err != nil {
+		t.Fatalf("marshal legacy public key failed: %v", err)
+	}
 	bundle := token.MigrationSignatureBundle{
 		LegacyAlgorithm: "ecdsa-p256-sha256",
 		LegacyPublicKey: base64.StdEncoding.EncodeToString(legacyPubBytes),

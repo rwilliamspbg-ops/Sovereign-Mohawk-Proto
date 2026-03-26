@@ -171,11 +171,16 @@ func parseECDSAP256PublicKey(raw []byte) (*ecdsa.PublicKey, error) {
 			return pub, nil
 		}
 	}
-	x, y := elliptic.Unmarshal(elliptic.P256(), raw)
-	if x == nil || y == nil {
+	if len(raw) != 65 || raw[0] != 0x04 {
 		return nil, fmt.Errorf("invalid uncompressed P-256 public key")
 	}
-	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil
+	x := new(big.Int).SetBytes(raw[1:33])
+	y := new(big.Int).SetBytes(raw[33:65])
+	curve := elliptic.P256()
+	if !curve.IsOnCurve(x, y) {
+		return nil, fmt.Errorf("invalid uncompressed P-256 public key")
+	}
+	return &ecdsa.PublicKey{Curve: curve, X: x, Y: y}, nil
 }
 
 func parseEd25519PublicKey(raw []byte) (ed25519.PublicKey, error) {
