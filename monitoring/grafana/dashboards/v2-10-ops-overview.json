@@ -1,0 +1,90 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Orchestrator scrape availability.",
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:orchestrator_up", "refId": "A"}],
+      "title": "Orchestrator Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Node-agent scrape availability.",
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:node_agents_up:count", "refId": "A"}],
+      "title": "Node Agents Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "All core monitored services available.",
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:services_up:count", "refId": "A"}],
+      "title": "Core Services Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Gradient submit failure ratio over 5m.",
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:gradient_submit:failure_rate_5m", "refId": "A"}],
+      "title": "Gradient Failure Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Golden signal throughput trend.",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5},
+      "id": 5,
+      "targets": [
+        {"expr": "mohawk:bridge_transfers:rate1m", "legendFormat": "bridge", "refId": "A"},
+        {"expr": "mohawk:proof_verifications:rate1m", "legendFormat": "proof", "refId": "B"},
+        {"expr": "mohawk:gradient_submit:rate1m", "legendFormat": "gradient submit", "refId": "C"}
+      ],
+      "title": "Golden Signal Throughput (ops/s)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Primary latency SLO monitor.",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5},
+      "id": 6,
+      "targets": [
+        {"expr": "mohawk:proof_latency_ms:p50", "legendFormat": "proof p50", "refId": "A"},
+        {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "B"},
+        {"expr": "mohawk:proof_latency_ms:p99", "legendFormat": "proof p99", "refId": "C"},
+        {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "D"}
+      ],
+      "title": "Latency Percentiles (ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Availability by Prometheus job.",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 13},
+      "id": 7,
+      "targets": [{"expr": "sum by (job) (up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"})", "legendFormat": "{{job}}", "refId": "A"}],
+      "title": "Service Availability by Job",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["mohawk", "v2", "operations"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "MOHAWK v2 - Operations Overview",
+  "version": 1
+}

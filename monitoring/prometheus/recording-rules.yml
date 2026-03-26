@@ -1,0 +1,50 @@
+groups:
+  - name: mohawk_v2_rates
+    interval: 15s
+    rules:
+      - record: mohawk:bridge_transfers:rate1m
+        expr: sum(rate(mohawk_bridge_transfers_total[1m]))
+      - record: mohawk:proof_verifications:rate1m
+        expr: sum(rate(mohawk_proof_verifications_total[1m]))
+      - record: mohawk:hybrid_proof_verifications:rate1m
+        expr: sum(rate(mohawk_proof_verifications_total{scheme="hybrid"}[1m]))
+      - record: mohawk:accelerator_ops:rate1m
+        expr: sum(rate(mohawk_accelerator_ops_total[1m]))
+      - record: mohawk:gradient_submit:rate1m
+        expr: sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[1m]))
+      - record: mohawk:gradient_submit:success_rate_5m
+        expr: |
+          sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="success"}[5m]))
+          /
+          clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])), 1e-9)
+      - record: mohawk:gradient_submit:failure_rate_5m
+        expr: |
+          sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="failure"}[5m]))
+          /
+          clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])), 1e-9)
+
+  - name: mohawk_v2_latency_quantiles
+    interval: 30s
+    rules:
+      - record: mohawk:proof_latency_ms:p50
+        expr: histogram_quantile(0.50, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))
+      - record: mohawk:proof_latency_ms:p95
+        expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))
+      - record: mohawk:proof_latency_ms:p99
+        expr: histogram_quantile(0.99, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))
+      - record: mohawk:bridge_latency_ms:p50
+        expr: histogram_quantile(0.50, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
+      - record: mohawk:bridge_latency_ms:p95
+        expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
+      - record: mohawk:bridge_latency_ms:p99
+        expr: histogram_quantile(0.99, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
+
+  - name: mohawk_v2_availability
+    interval: 15s
+    rules:
+      - record: mohawk:services_up:count
+        expr: sum(up{job=~"orchestrator|tpm-metrics|node-agents|pyapi-exporter"})
+      - record: mohawk:node_agents_up:count
+        expr: sum(up{job="node-agents"})
+      - record: mohawk:orchestrator_up
+        expr: max(up{job="orchestrator"})

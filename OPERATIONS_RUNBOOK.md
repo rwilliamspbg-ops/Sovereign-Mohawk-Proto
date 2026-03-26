@@ -21,6 +21,23 @@ This runbook covers production operations for the Sovereign Mohawk protocol stac
 3. Verify host kernel tuning:
    - `./scripts/validate_host_network_tuning.sh`
 
+## Observability v2 Validation
+
+Run this after Prometheus/Grafana changes or before release sign-off.
+
+1. Ensure stack is running:
+   - `./scripts/launch_full_stack_3_nodes.sh --no-build`
+2. Confirm Prometheus has loaded recording rules:
+   - `curl -sf http://localhost:9090/api/v1/rules | jq '.status'`
+3. Confirm key recorded metrics are queryable:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=mohawk:gradient_submit:rate1m'`
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=mohawk:proof_latency_ms:p95'`
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=mohawk:services_up:count'`
+4. Open Grafana and validate all v2 dashboards render without panel query errors:
+   - `http://localhost:3000`
+5. Save verification evidence:
+   - `results/metrics/v2_dashboard_validation_report.md`
+
 ## Benchmark Regression Playbook
 
 Run benchmark checks before release cut or after aggregation/runtime changes.
@@ -156,6 +173,7 @@ Accepted PQC algorithm aliases currently include `ml-dsa`, `ml-dsa-44`, `ml-dsa-
 - `results/readiness/readiness-report.json`
 - `chaos-reports/*`
 - `results/metrics/fedavg_benchmark_compare.md`
+- `results/metrics/v2_dashboard_validation_report.md`
 - `test/utility_coin_durability_test.go`
 - `internal/token/ledger.go`
 - `internal/pyapi/api.go`

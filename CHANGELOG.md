@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added base-vs-current benchmark script using temporary git worktree execution
   - Added averaged benchmark row reporting and unmatched-row visibility (`NA`) for non-overlapping benchmark symbols
 
+- **Observability v2 dashboards and recording rules** (`monitoring/prometheus/recording-rules.yml`, `monitoring/prometheus/prometheus.yml`, `docker-compose.yml`, `monitoring/grafana/dashboards/v2-*.json`, `monitoring/grafana/dashboards/README_DASHBOARD_V2.md`):
+  - Added Prometheus recording rules for throughput, failure ratio, latency quantiles, and availability counts
+  - Wired recording rules into compose-mounted Prometheus configuration
+  - Added role-oriented v2 dashboard suite for operations, incidents, engineering drilldowns, and executive reporting
+  - Added dashboard guide with metric map and verification checklist for identifiable metric navigation
+
 - **PQC readiness overhaul release closure** (`internal/network/gradient.go`, `internal/tpm/tpm.go`, `internal/token/ledger.go`, `cmd/orchestrator/server.go`, `scripts/mainnet_readiness_gate.py`):
   - Hardened runtime hybrid transport negotiation and KEX metadata enforcement for `x25519-mlkem768-hybrid`
   - Completed XMSS-bound TPM quote metadata binding and attestation mode visibility in readiness checks

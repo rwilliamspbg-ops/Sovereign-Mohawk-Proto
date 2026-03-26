@@ -300,9 +300,19 @@ PowerShell stop:
 
 Grafana dashboard shortlist:
 
+* `MOHAWK v2 - Start Here`
+* `MOHAWK v2 - Operations Overview`
+* `MOHAWK v2 - Operations Incidents`
+* `MOHAWK v2 - Engineering Latency Drilldown`
+* `MOHAWK v2 - Engineering Node Agents`
+* `MOHAWK v2 - Executive Summary`
 * `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
 * `MOHAWK Live Overview`
 * `TPM Metrics`
+
+v2 dashboard implementation and metric map:
+
+* `monitoring/grafana/dashboards/README_DASHBOARD_V2.md`
 
 ### Weekly Readiness Digest Notifications (Optional)
 

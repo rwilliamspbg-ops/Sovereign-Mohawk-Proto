@@ -1,0 +1,106 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Total healthy monitored services.",
+      "fieldConfig": {"defaults": {"unit": "none", "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 3}, {"color": "green", "value": 6}]}}},
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:services_up:count", "refId": "A"}],
+      "title": "Services Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Number of node-agent scrape targets that are up.",
+      "fieldConfig": {"defaults": {"unit": "none", "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 1}, {"color": "green", "value": 3}]}}},
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:node_agents_up:count", "refId": "A"}],
+      "title": "Node Agents Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Bridge transfer throughput over 1 minute.",
+      "fieldConfig": {"defaults": {"unit": "ops"}},
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:bridge_transfers:rate1m", "refId": "A"}],
+      "title": "Bridge Throughput (ops/s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Proof verification throughput over 1 minute.",
+      "fieldConfig": {"defaults": {"unit": "ops"}},
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:proof_verifications:rate1m", "refId": "A"}],
+      "title": "Proof Throughput (ops/s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Gradient submit success ratio over 5 minutes.",
+      "fieldConfig": {"defaults": {"unit": "percentunit", "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 0.95}, {"color": "green", "value": 0.99}]}}},
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 6},
+      "id": 5,
+      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:gradient_submit:success_rate_5m", "refId": "A"}],
+      "title": "Gradient Submit Success Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Get started quickly: choose your dashboard path.",
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6},
+      "id": 6,
+      "options": {
+        "content": "### Role-Based Navigation\n- **Operations**: v2-10-ops-overview, v2-11-ops-incidents\n- **Engineering**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents\n- **Executive**: v2-30-exec-summary\n\nUse the service/instance variables in each dashboard for drill-down.",
+        "mode": "markdown"
+      },
+      "title": "Where To Go Next",
+      "type": "text"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Top-level throughput trend.",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "id": 7,
+      "targets": [
+        {"expr": "mohawk:bridge_transfers:rate1m", "legendFormat": "bridge", "refId": "A"},
+        {"expr": "mohawk:proof_verifications:rate1m", "legendFormat": "proof", "refId": "B"},
+        {"expr": "mohawk:accelerator_ops:rate1m", "legendFormat": "accelerator", "refId": "C"}
+      ],
+      "title": "Throughput Trend (ops/s)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "description": "Core latency percentile trend for immediate health read.",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "id": 8,
+      "targets": [
+        {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "A"},
+        {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "B"}
+      ],
+      "title": "Latency Trend (ms)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["mohawk", "v2", "start", "roles"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "MOHAWK v2 - Start Here",
+  "version": 1
+}

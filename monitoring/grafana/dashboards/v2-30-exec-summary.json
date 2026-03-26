@@ -1,0 +1,86 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:services_up:count", "refId": "A"}],
+      "title": "Services Healthy",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:node_agents_up:count", "refId": "A"}],
+      "title": "Node Agents Healthy",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "mohawk:gradient_submit:rate1m", "refId": "A"}],
+      "title": "Gradient Throughput (ops/s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
+      "targets": [{"expr": "1 - mohawk:gradient_submit:failure_rate_5m", "refId": "A"}],
+      "title": "Gradient Success Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 6},
+      "id": 5,
+      "targets": [
+        {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "A"},
+        {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "B"}
+      ],
+      "title": "P95 Latency Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 6},
+      "id": 6,
+      "targets": [
+        {"expr": "sum(rate(mohawk_proof_verifications_total{result=\"success\"}[5m]))", "legendFormat": "proof success", "refId": "A"},
+        {"expr": "sum(rate(mohawk_proof_verifications_total{result=\"failure\"}[5m]))", "legendFormat": "proof failure", "refId": "B"}
+      ],
+      "title": "Proof Reliability",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 15},
+      "id": 7,
+      "options": {"showHeader": true},
+      "targets": [
+        {"expr": "up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"}", "format": "table", "instant": true, "legendFormat": "", "refId": "A"}
+      ],
+      "title": "Current Service Status",
+      "transformations": [
+        {"id": "organize", "options": {"excludeByName": {"Time": true}, "indexByName": {}, "renameByName": {"Value": "up"}}}
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["mohawk", "v2", "exec"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "title": "MOHAWK v2 - Executive Summary",
+  "version": 1
+}
