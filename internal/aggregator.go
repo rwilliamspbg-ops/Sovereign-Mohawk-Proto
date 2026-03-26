@@ -44,6 +44,8 @@ type Aggregator struct {
 
 // NewAggregator initializes a tier-specific aggregator with all formal guards.
 func NewAggregator(t Tier) *Aggregator {
+	dp := LoadDPConfig()
+
 	totalNodes := 1000
 	switch t {
 	case Continental:
@@ -55,7 +57,7 @@ func NewAggregator(t Tier) *Aggregator {
 	meshPlan, _ := hva.BuildPlan(totalNodes, 1024)
 	return &Aggregator{
 		Tier:        t,
-		Accountant:  NewRDPAccountant(2.0, 1e-5),
+		Accountant:  NewRDPAccountant(dp.TargetEpsilon, dp.Delta),
 		Liveness:    NewStragglerMonitor(),
 		Convergence: NewConvergenceMonitor(0.1, 0.01),
 		MeshPlan:    meshPlan,

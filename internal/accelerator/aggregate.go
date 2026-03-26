@@ -21,6 +21,40 @@ import (
 	"sync"
 )
 
+const autoParallelMinElements = 262144
+
+// ResolveAggregateWorkers determines the worker count used by AggregateParallel.
+//
+// If requestedWorkers > 0, the value is clamped to [1, numGradients].
+// If requestedWorkers <= 0, a heuristic chooses between single-threaded and
+// parallel execution to avoid overhead on small reductions.
+func ResolveAggregateWorkers(numGradients int, dim int, requestedWorkers int) int {
+	if numGradients <= 0 {
+		return 1
+	}
+
+	if requestedWorkers > 0 {
+		if requestedWorkers > numGradients {
+			return numGradients
+		}
+		return requestedWorkers
+	}
+
+	totalElements := numGradients * dim
+	if totalElements < autoParallelMinElements || numGradients < 4 {
+		return 1
+	}
+
+	workers := runtime.GOMAXPROCS(0)
+	if workers < 1 {
+		workers = 1
+	}
+	if workers > numGradients {
+		workers = numGradients
+	}
+	return workers
+}
+
 // AggregateParallel sums a batch of same-length float32 gradient vectors in
 // parallel, divides by the number of gradients, then applies ℓ₂ clipping to
 // maxNorm (per Theorem 3 – differential privacy sensitivity bound).
@@ -38,19 +72,12 @@ func AggregateParallel(gradients [][]float32, maxNorm float64, workers int) ([]f
 			return nil, fmt.Errorf("gradient %d has length %d, expected %d", i, len(g), dim)
 		}
 	}
-	if workers <= 0 {
-		workers = runtime.GOMAXPROCS(0)
-	}
-	if workers > len(gradients) {
-		workers = len(gradients)
-	}
+	workers = ResolveAggregateWorkers(len(gradients), dim, workers)
 
-	// Reduce: sum all gradient vectors using parallel partial sums.
+	// Reduce: each worker builds a private partial sum, then we merge once.
 	sum := make([]float32, dim)
-	var (
-		mu sync.Mutex
-		wg sync.WaitGroup
-	)
+	partials := make([][]float32, workers)
+	var wg sync.WaitGroup
 	chunkSize := (len(gradients) + workers - 1) / workers
 	for w := 0; w < workers; w++ {
 		start := w * chunkSize
@@ -61,23 +88,23 @@ func AggregateParallel(gradients [][]float32, maxNorm float64, workers int) ([]f
 		if start >= end {
 			break
 		}
+		partials[w] = make([]float32, dim)
 		wg.Add(1)
-		go func(slice [][]float32) {
+		go func(slice [][]float32, local []float32) {
 			defer wg.Done()
-			local := make([]float32, dim)
 			for _, grad := range slice {
-				for i, v := range grad {
-					local[i] += v
-				}
+				accumulateUnrolled(local, grad)
 			}
-			mu.Lock()
-			for i := range local {
-				sum[i] += local[i]
-			}
-			mu.Unlock()
-		}(gradients[start:end])
+		}(gradients[start:end], partials[w])
 	}
 	wg.Wait()
+
+	for _, partial := range partials {
+		if partial == nil {
+			continue
+		}
+		accumulateUnrolled(sum, partial)
+	}
 
 	// Average.
 	count := float32(len(gradients))
@@ -90,6 +117,22 @@ func AggregateParallel(gradients [][]float32, maxNorm float64, workers int) ([]f
 		l2Clip(sum, maxNorm)
 	}
 	return sum, nil
+}
+
+// accumulateUnrolled adds src into dst with loop unrolling to reduce overhead
+// in large-dimensional FedAvg reduction loops.
+func accumulateUnrolled(dst []float32, src []float32) {
+	i := 0
+	n := len(dst)
+	for ; i+3 < n; i += 4 {
+		dst[i] += src[i]
+		dst[i+1] += src[i+1]
+		dst[i+2] += src[i+2]
+		dst[i+3] += src[i+3]
+	}
+	for ; i < n; i++ {
+		dst[i] += src[i]
+	}
 }
 
 // l2Clip scales v in-place so ‖v‖₂ ≤ maxNorm.

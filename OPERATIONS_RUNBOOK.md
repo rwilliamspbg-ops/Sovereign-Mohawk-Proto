@@ -21,6 +21,22 @@ This runbook covers production operations for the Sovereign Mohawk protocol stac
 3. Verify host kernel tuning:
    - `./scripts/validate_host_network_tuning.sh`
 
+## Benchmark Regression Playbook
+
+Run benchmark checks before release cut or after aggregation/runtime changes.
+
+1. Python SDK performance gate baseline:
+   - `cd sdk/python && python -m pytest tests/test_benchmarks.py --benchmark-only -q`
+2. Go FedAvg matrix benchmark:
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms`
+3. Generate base-vs-current FedAvg comparison report:
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
+
+CI automation:
+
+- Workflow: `.github/workflows/fedavg-benchmark-compare.yml`
+- Artifact: `results/metrics/fedavg_benchmark_compare.md`
+
 ## Host Kernel UDP/Socket Buffer Checklist (Production)
 
 Production one-click execution defaults to strict host preflight (`MOHAWK_HOST_PREFLIGHT_MODE=strict`).
@@ -139,6 +155,7 @@ Accepted PQC algorithm aliases currently include `ml-dsa`, `ml-dsa-44`, `ml-dsa-
 - `results/readiness/readiness-digest.md`
 - `results/readiness/readiness-report.json`
 - `chaos-reports/*`
+- `results/metrics/fedavg_benchmark_compare.md`
 - `test/utility_coin_durability_test.go`
 - `internal/token/ledger.go`
 - `internal/pyapi/api.go`
