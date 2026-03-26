@@ -67,6 +67,17 @@ mkdir -p runtime-secrets
 
 TOKEN_PATH="runtime-secrets/mohawk_api_token"
 
+if [[ -d "$TOKEN_PATH" ]]; then
+  cat >&2 <<EOF
+invalid path: $TOKEN_PATH is a directory
+
+Fix:
+  rm -rf "$TOKEN_PATH"
+  ./scripts/launch_full_stack_3_nodes.sh --no-build
+EOF
+  exit 1
+fi
+
 if [[ ! -s "$TOKEN_PATH" ]]; then
   if [[ -e "$TOKEN_PATH" && ! -w "$TOKEN_PATH" ]]; then
     chmod u+w "$TOKEN_PATH" 2>/dev/null || true
