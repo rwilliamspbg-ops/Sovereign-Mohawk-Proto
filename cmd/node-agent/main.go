@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -31,9 +32,11 @@ import (
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	libp2ppeer "github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/ipfs"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/wasmhost"
@@ -46,6 +49,7 @@ type Config struct {
 	OrchestratorURL        string
 	OrchestratorServerName string
 	LibP2PPort             int
+	TransportKEXMode       network.KEXMode
 	RelayAddrs             []string
 	IPFSEndpoint           string
 	TotalNodes             int
@@ -55,7 +59,17 @@ type Config struct {
 func main() {
 	log.Println("Sovereign-Mohawk Node Agent starting...")
 
-	conf := loadConfig()
+	conf, err := loadConfig()
+	if err != nil {
+		log.Fatalf("Critical Failure: Invalid node-agent config: %v", err)
+	}
+	tune := accelerator.BuildAutoTuneProfile(0)
+	if tune.RecommendedWorker > 0 {
+		runtime.GOMAXPROCS(tune.RecommendedWorker)
+	}
+	metrics.ObserveAggregationWorkers(runtime.GOMAXPROCS(0))
+	log.Printf("Node %s autotune selected backend=%s workers=%d format=%s", conf.NodeID, tune.SelectedDevice.Backend, runtime.GOMAXPROCS(0), tune.PreferredFormat)
+	startMetricsServer(conf.NodeID)
 	rootCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -64,12 +78,14 @@ func main() {
 
 	hostCfg := network.DefaultConfig(conf.LibP2PPort)
 	hostCfg.RelayAddrs = conf.RelayAddrs
+	hostCfg.KEXMode = conf.TransportKEXMode
 	peerHost, err := network.NewHost(ctx, hostCfg)
 	if err != nil {
 		log.Fatalf("Critical Failure: Could not initialize libp2p host: %v", err)
 	}
 	defer peerHost.Close()
 	log.Printf("Node %s libp2p peer %s listening on %v", conf.NodeID, peerHost.ID(), peerHost.Addrs())
+	log.Printf("Node %s transport KEX mode=%s expected_key_bytes=%d", conf.NodeID, conf.TransportKEXMode, conf.TransportKEXMode.ExpectedPublicKeyBytes())
 
 	meshPlan, err := hva.BuildPlan(conf.TotalNodes, conf.MeshDimensions)
 	if err != nil {
@@ -107,10 +123,18 @@ func main() {
 	log.Printf("Node %s successfully initialized with zk-SNARK verifier and transport stack", conf.NodeID)
 
 	mockProof := make([]byte, 200)
+	proofStart := time.Now()
 	success, err := runner.Verify(ctx, mockProof)
+	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
 	if err != nil {
+		metrics.ObserveProofVerification("groth16", false, proofLatency)
+		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "proof_verify", proofLatency)
 		log.Printf("Verification Process Executed: %v", err)
 	} else {
+		metrics.ObserveProofVerification("groth16", success, proofLatency)
+		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", success)
+		metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "proof_verify", proofLatency)
 		log.Printf("Theorem 5 Verification Status: %v", success)
 	}
 
@@ -188,8 +212,18 @@ func runSupervisedRound(rootCtx context.Context, conf Config, meshPlan hva.Plan,
 	}
 
 	mockProof := make([]byte, 200)
-	if _, err := runner.Verify(roundCtx, mockProof); err != nil {
-		log.Printf("Supervisor: proof verify failed: %v", err)
+	proofStart := time.Now()
+	proofOK, proofErr := runner.Verify(roundCtx, mockProof)
+	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
+	if proofErr != nil {
+		metrics.ObserveProofVerification("groth16", false, proofLatency)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
+		log.Printf("Supervisor: proof verify failed: %v", proofErr)
+	} else {
+		metrics.ObserveProofVerification("groth16", proofOK, proofLatency)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", proofOK)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
 	}
 
 	sendGradientUpdate(roundCtx, conf, meshPlan, peerHost, round)
@@ -206,8 +240,10 @@ func logAcceleratorDevices() {
 
 // p2pInfo holds the orchestrator's libp2p peer ID and multiaddrs.
 type p2pInfo struct {
-	PeerID string   `json:"peer_id"`
-	Addrs  []string `json:"addrs"`
+	PeerID                 string   `json:"peer_id"`
+	Addrs                  []string `json:"addrs"`
+	KEXMode                string   `json:"kex_mode,omitempty"`
+	ExpectedPublicKeyBytes int      `json:"expected_public_key_bytes,omitempty"`
 }
 
 // fetchP2PInfo retrieves the orchestrator's libp2p peer ID and listen addresses via HTTPS.
@@ -248,13 +284,39 @@ func fetchP2PInfo(ctx context.Context, conf Config) (*p2pInfo, error) {
 // sendGradientUpdate fetches the orchestrator's libp2p address, dials it, and delivers
 // a gradient update message over the /mohawk/gradient/1.0.0 protocol.
 func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHost corehost.Host, round int) {
+	gradStart := time.Now()
 	info, err := fetchP2PInfo(ctx, conf)
 	if err != nil {
+		metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
 		log.Printf("Gradient: could not fetch orchestrator p2p info: %v", err)
 		return
 	}
+	if strings.TrimSpace(info.KEXMode) != "" {
+		remoteMode := network.ParseKEXMode(info.KEXMode)
+		if remoteMode == "" {
+			metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
+			log.Printf("Gradient: orchestrator advertised unsupported KEX mode %q", info.KEXMode)
+			return
+		}
+		if remoteMode != conf.TransportKEXMode {
+			metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
+			log.Printf("Gradient: KEX mismatch local=%s remote=%s; skipping gradient submit", conf.TransportKEXMode, remoteMode)
+			return
+		}
+		if info.ExpectedPublicKeyBytes > 0 && info.ExpectedPublicKeyBytes != conf.TransportKEXMode.ExpectedPublicKeyBytes() {
+			metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
+			log.Printf("Gradient: KEX key-size mismatch local=%d remote=%d; skipping gradient submit", conf.TransportKEXMode.ExpectedPublicKeyBytes(), info.ExpectedPublicKeyBytes)
+			return
+		}
+	}
 	orchPeerID, err := libp2ppeer.Decode(info.PeerID)
 	if err != nil {
+		metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
 		log.Printf("Gradient: invalid orchestrator peer ID %q: %v", info.PeerID, err)
 		return
 	}
@@ -276,24 +338,48 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 	}
 	ack, err := network.SendGradient(ctx, peerHost, orchPeerID, orchAddrs, msg)
 	if err != nil {
+		metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
 		log.Printf("Gradient: submission failed: %v", err)
 		return
 	}
+	metrics.ObserveAcceleratorOp("cpu", "gradient_submit", ack.Accepted)
+	metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
 	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v", msg.Round, len(msg.Gradients), ack.Accepted)
 }
 
-func loadConfig() Config {
+func startMetricsServer(nodeID string) {
+	metricsAddr := strings.TrimSpace(os.Getenv("MOHAWK_NODE_METRICS_ADDR"))
+	if metricsAddr == "" {
+		metricsAddr = ":9100"
+	}
+	go func() {
+		mux := http.NewServeMux()
+		mux.Handle("/metrics", promhttp.Handler())
+		log.Printf("Node %s metrics listening on %s", nodeID, metricsAddr)
+		if err := http.ListenAndServe(metricsAddr, mux); err != nil {
+			log.Printf("Node %s metrics server stopped: %v", nodeID, err)
+		}
+	}()
+}
+
+func loadConfig() (Config, error) {
+	kexMode, err := network.ParseKEXModeStrict(os.Getenv("MOHAWK_TRANSPORT_KEX_MODE"))
+	if err != nil {
+		return Config{}, fmt.Errorf("MOHAWK_TRANSPORT_KEX_MODE: %w", err)
+	}
 	return Config{
 		WasmModulePath:         defaultString(os.Getenv("WASM_MODULE_PATH"), "proof_verifier.wasm"),
 		NodeID:                 defaultString(os.Getenv("NODE_ID"), "edge-node-001"),
 		OrchestratorURL:        os.Getenv("ORCHESTRATOR_URL"),
 		OrchestratorServerName: defaultString(os.Getenv("ORCHESTRATOR_SERVER_NAME"), "orchestrator"),
 		LibP2PPort:             defaultInt(os.Getenv("MOHAWK_LIBP2P_PORT"), 4001),
+		TransportKEXMode:       kexMode,
 		RelayAddrs:             splitCSV(os.Getenv("MOHAWK_RELAY_ADDRS")),
 		IPFSEndpoint:           os.Getenv("IPFS_API_ENDPOINT"),
 		TotalNodes:             defaultInt(os.Getenv("MOHAWK_TOTAL_NODES"), 10000000),
 		MeshDimensions:         defaultInt(os.Getenv("MOHAWK_MESH_DIMENSIONS"), 1024),
-	}
+	}, nil
 }
 
 func submitAttestation(ctx context.Context, conf Config, quote []byte) error {

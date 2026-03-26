@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Formal go-live gate framework** (`scripts/validate_go_live_gates.py`, `results/go-live/attestations/*.json`, `Makefile`):
+  - Added machine-enforced go-live validator combining readiness, chaos, host network preflight, and attestation approvals
+  - Added `make go-live-gate` target for one-command formal validation
+  - Added structured attestation templates and generated status report artifact at `results/go-live/go-live-gate-report.json`
+
+- **Host UDP/socket tuning preflight** (`scripts/validate_host_network_tuning.sh`, `scripts/mainnet_one_click.sh`):
+  - Added strict kernel preflight gate for `net.core.rmem_*` and `net.core.wmem_*`
+  - Wired preflight into one-click pipeline as first-stage hard gate
+
+- **Operations runbook publication** (`OPERATIONS_RUNBOOK.md`):
+  - Published incident response, escalation flow, readiness/chaos preflight sequence, and backup/restore drill procedures
+  - Added evidence references to readiness/chaos artifacts and ledger backup/restore validation paths
+
 - **GitHub SDK release packaging** (`.github/workflows/publish-python-sdk.yml`, `sdk/python/setup.py`):
   - Added a tag-driven workflow that builds the Python SDK source distribution and publishes it as a GitHub Release asset on `sdk-v*` tags
   - Enforces SDK tag/version alignment before publishing to avoid mismatched release artifacts
@@ -58,6 +71,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
+
+- **SDK version baseline** (`sdk/python/mohawk/__init__.py`, `README.md`, `sdk/python/README.md`):
+  - Bumped Python SDK release identifier and badge references to `2.0.1.Alpha`
+
+- **Weekly digest workflow advisory trail** (`.github/workflows/weekly-readiness-digest.yml`):
+  - Added advisory host-preflight marker handling and digest summary annotation path
+- **Readiness/operations documentation alignment** (`README.md`, `ROADMAP.md`, `DASHBOARD.md`):
+  - Updated program-stage language to reflect go-live formalization in progress
+  - Added formal artifact trails for go-live report and attestations
+  - Marked completed operations/runbook/escalation roadmap items as complete
+  - Synced formal gate status to `5/8` approved attestations with only `security_audit`, `penetration_test`, and `soak_scale_rehearsal` pending
 
 - Documentation alignment: synchronized current phase and program-stage wording across `ROADMAP.md`, `README.md`, and `DASHBOARD.md` to reflect v1.0.0 GA closure under mainnet-readiness gated operations
 

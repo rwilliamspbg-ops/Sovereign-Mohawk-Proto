@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
@@ -66,5 +67,44 @@ func TestVerifyByzantineResilience_StrictBoundary(t *testing.T) {
 	ok, err = tpm.VerifyByzantineResilience(9, 5)
 	if err == nil || ok {
 		t.Fatalf("Expected 5 Byzantine nodes out of 9 to violate the 55.5%% boundary")
+	}
+}
+
+func TestAttestationSignatureModeParsing(t *testing.T) {
+	t.Setenv("MOHAWK_TPM_IDENTITY_SIG_MODE", "")
+	if got := tpm.ActiveAttestationSignatureMode(); got != tpm.AttestationSignatureXMSS {
+		t.Fatalf("expected default signature mode %q, got %q", tpm.AttestationSignatureXMSS, got)
+	}
+	if got := tpm.ParseAttestationSignatureMode("xmss"); got != tpm.AttestationSignatureXMSS {
+		t.Fatalf("expected xmss parse mode, got %q", got)
+	}
+}
+
+func TestQuoteRoundTripWithXMSSMode(t *testing.T) {
+	t.Setenv("MOHAWK_TPM_IDENTITY_SIG_MODE", "xmss")
+	nodeID := "node-xmss-quote"
+	quote, err := tpm.GetVerifiedQuote(nodeID)
+	if err != nil {
+		t.Fatalf("quote generation failed: %v", err)
+	}
+	if err := tpm.Verify(nodeID, quote); err != nil {
+		t.Fatalf("xmss quote verification failed: %v", err)
+	}
+}
+
+func TestQuoteIncludesSignatureAlgorithm(t *testing.T) {
+	t.Setenv("MOHAWK_TPM_IDENTITY_SIG_MODE", "rsa")
+	quote, err := tpm.GetVerifiedQuote("node-quote-algo")
+	if err != nil {
+		t.Fatalf("quote generation failed: %v", err)
+	}
+	var envelope struct {
+		SignatureAlgo string `json:"signature_algo"`
+	}
+	if err := json.Unmarshal(quote, &envelope); err != nil {
+		t.Fatalf("quote payload parse failed: %v", err)
+	}
+	if envelope.SignatureAlgo != string(tpm.AttestationSignatureRSA) {
+		t.Fatalf("expected signature_algo %q, got %q", tpm.AttestationSignatureRSA, envelope.SignatureAlgo)
 	}
 }

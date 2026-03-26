@@ -20,6 +20,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -29,9 +30,11 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/ipfs"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
@@ -51,7 +54,12 @@ func main() {
 	orchPriv = priv
 	orchPub = priv.Public().(ed25519.PublicKey)
 
-	workerCount := runtime.NumCPU() * 2
+	tune := accelerator.BuildAutoTuneProfile(0)
+	if tune.RecommendedWorker > 0 {
+		runtime.GOMAXPROCS(tune.RecommendedWorker)
+	}
+	workerCount := runtime.GOMAXPROCS(0)
+	log.Printf("orchestrator autotune selected backend=%s workers=%d", tune.SelectedDevice.Backend, workerCount)
 	StartAttestationWorkers(workerCount)
 
 	_, _ = tpm.GetVerifiedQuote("orchestrator")
@@ -64,6 +72,11 @@ func main() {
 	}
 
 	transportCfg := network.DefaultConfig(defaultPort(os.Getenv("MOHAWK_LIBP2P_PORT"), 4101))
+	kexMode, err := network.ParseKEXModeStrict(os.Getenv("MOHAWK_TRANSPORT_KEX_MODE"))
+	if err != nil {
+		log.Fatalf("MOHAWK_TRANSPORT_KEX_MODE: %v", err)
+	}
+	transportCfg.KEXMode = kexMode
 	transportCfg.RelayAddrs = splitRelayAddrs(os.Getenv("MOHAWK_RELAY_ADDRS"))
 	transportHost, err := network.NewHost(context.Background(), transportCfg)
 	if err != nil {
@@ -71,12 +84,20 @@ func main() {
 	}
 	defer transportHost.Close()
 	log.Printf("orchestrator libp2p peer %s listening on %v", transportHost.ID(), transportHost.Addrs())
+	log.Printf("orchestrator transport KEX mode=%s expected_key_bytes=%d", kexMode, kexMode.ExpectedPublicKeyBytes())
 
 	server := &Server{
-		Checkpoints:    ipfs.NewBackend(os.Getenv("IPFS_API_ENDPOINT")),
-		MeshDimensions: meshDimensions,
-		PeerHost:       transportHost,
+		Checkpoints:      ipfs.NewBackend(os.Getenv("IPFS_API_ENDPOINT")),
+		MeshDimensions:   meshDimensions,
+		PeerHost:         transportHost,
+		TransportKEXMode: kexMode,
+		AdminToken:       strings.TrimSpace(os.Getenv("MOHAWK_ADMIN_TOKEN")),
 	}
+	utilityLedger, err := initUtilityLedger()
+	if err != nil {
+		log.Fatalf("failed to initialize utility ledger: %v", err)
+	}
+	server.UtilityLedger = utilityLedger
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver
 	// gradient updates directly over the encrypted p2p transport.
 	network.RegisterGradientHandler(transportHost, func(msg *network.GradientMessage) *network.GradientAck {
@@ -93,6 +114,9 @@ func main() {
 	mux.HandleFunc("/checkpoints/get", server.HandleCheckpointGet)
 	mux.HandleFunc("/mesh/plan", server.HandleMeshPlan)
 	mux.HandleFunc("/p2p/info", server.HandleP2PInfo)
+	mux.HandleFunc("/ledger/migration/status", server.HandleMigrationStatus)
+	mux.HandleFunc("/ledger/migration/config", server.HandleMigrationConfig)
+	mux.HandleFunc("/ledger/migration/migrate", server.HandleMigrationTransfer)
 	mux.Handle("/metrics", promhttp.Handler())
 
 	metricsAddr := os.Getenv("MOHAWK_METRICS_ADDR")
@@ -199,4 +223,24 @@ func splitRelayAddrs(value string) []string {
 		}
 	}
 	return addrs
+}
+
+func initUtilityLedger() (*token.Ledger, error) {
+	symbol := defaultString(os.Getenv("MOHAWK_UTILITY_SYMBOL"), "MHC")
+	minter := defaultString(os.Getenv("MOHAWK_UTILITY_MINTER"), "protocol")
+	statePath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_STATE_PATH"))
+	auditPath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_AUDIT_PATH"))
+	if statePath == "" {
+		return token.NewLedger(symbol, minter), nil
+	}
+	ledger, err := token.NewPersistentLedger(symbol, minter, statePath, auditPath)
+	if err != nil {
+		return nil, fmt.Errorf("new persistent ledger: %w", err)
+	}
+	if strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ENABLED")), "true") {
+		eta, _ := time.Parse(time.RFC3339, strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ETA")))
+		lockLegacy := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_LOCK_LEGACY_TRANSFERS")), "true")
+		ledger.ConfigurePQCMigration(true, eta, lockLegacy)
+	}
+	return ledger, nil
 }

@@ -23,9 +23,10 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Weekly Readiness Digest](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml)
 
 ![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-![Python SDK v2](https://img.shields.io/badge/SDK-2.0.0a2-blue?logo=python)
+![Python SDK v2](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
 ![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
-![Protocol Stage](https://img.shields.io/badge/Protocol-Mainnet%20Readiness%20Gated-6f42c1)
+![Protocol Stage](https://img.shields.io/badge/Protocol-Go--Live%20Formalization%20Complete-2ea043)
+![Go-Live Gate](https://img.shields.io/badge/Go--Live%20Gate-PASS%20(8%2F8%20Attestations)-2ea043)
 ![BFT Safety](https://img.shields.io/badge/BFT%20Resilience-55.5%25-green)
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
@@ -262,6 +263,56 @@ Run the full production readiness gate (lint + tests + audit + strict auth/role 
 make production-readiness
 ```
 
+### Formal Go-Live Gate
+
+Run the formal production go-live gate validator (readiness + chaos + host tuning + mandatory attestation approvals):
+
+```bash
+make go-live-gate
+```
+
+Gate report artifact:
+
+* `results/go-live/go-live-gate-report.json`
+
+Attestation inputs (must be `"status": "approved"` before go-live):
+
+* `results/go-live/attestations/security_audit.json`
+* `results/go-live/attestations/penetration_test.json`
+* `results/go-live/attestations/threat_model_refresh.json`
+* `results/go-live/attestations/dependency_sla_baseline.json`
+* `results/go-live/attestations/backup_restore_drill.json`
+* `results/go-live/attestations/soak_scale_rehearsal.json`
+* `results/go-live/attestations/incident_escalation_drill.json`
+* `results/go-live/attestations/runbook_published.json`
+
+### One-Click Mainnet + PQC Contract Readiness
+
+Run the full one-click pipeline (PQC config defaults, capability + contract policy gate, build/tests, strict auth, readiness gate, chaos drill, digest):
+
+```bash
+make mainnet-one-click
+```
+
+The one-click run now includes a host kernel UDP/socket preflight. If it fails, apply:
+
+```bash
+sudo sysctl -w net.core.rmem_max=8388608
+sudo sysctl -w net.core.rmem_default=262144
+sudo sysctl -w net.core.wmem_max=8388608
+sudo sysctl -w net.core.wmem_default=262144
+```
+
+Persist these in `/etc/sysctl.conf` or `/etc/sysctl.d/*.conf`, then run `sudo sysctl --system`.
+
+Artifacts are generated at:
+
+* `results/readiness/readiness-report.json`
+* `chaos-reports/tpm-metrics-summary.json`
+* `results/readiness/readiness-digest.md`
+* `results/go-live/go-live-gate-report.json`
+* `results/go-live/attestations/`
+
 ---
 
 ## 📈 Benchmark Snapshot
@@ -376,15 +427,12 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 ### Current Phase: v1.0.0 GA Closure (Q2 2026)
 
-**Program Stage:** Mainnet-Readiness Gated
+**Program Stage:** Go-Live Formalization Complete
 
 **Next Up:**
 
-* External security audit and penetration testing (runtime + SDK + bridge)
-* TPM 2.0 attestation completion and replay-hardening validation
-* Production runbook + readiness/chaos alert escalation playbooks
-* 1M+ node aggregation rehearsal and end-to-end latency sign-off
 * v1.0.0 GA release checklist and deployment guide publication
+* Post-GA operational cadence and ecosystem expansion milestones
 
 ---
 
@@ -395,6 +443,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [sdk/python/README.md](sdk/python/README.md) - Python SDK guide
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
+* [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) - Production operations runbook
+* [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 
 ---
 
@@ -412,6 +462,10 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 ## 📜 License
 
 This project is licensed under the **Apache License 2.0**. See the [LICENSE.md](LICENSE.md) file for details.
+
+IP Notice: Portions of protocol technology are marked **Patent Pending** (U.S. provisional filing, March 2026). This notice is informational and does not modify Apache-2.0 terms.
+
+For a consolidated legal summary, see [NOTICE.md](NOTICE.md).
 
 ---
 

@@ -1,0 +1,1 @@
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"mohawk_proof_verifications_total","instance":"pyapi-metrics-exporter:9104","job":"pyapi-exporter","result":"failure","scheme":"hybrid"},"value":[1774481635.168,"4"]}]}}

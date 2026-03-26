@@ -10,7 +10,13 @@ import base64
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
-from .accelerator import compression_ratio, detect_devices, fp32_to_fp16, quantize_int8
+from .accelerator import (
+    build_auto_tune_profile,
+    compression_ratio,
+    detect_devices,
+    fp32_to_fp16,
+    quantize_int8,
+)
 from .exceptions import (
     AggregationError,
     AttestationError,
@@ -218,7 +224,7 @@ class MohawkNode:
         self,
         gradients: Iterable[float],
         *,
-        format: str = "fp16",  # noqa: A002
+        format: str = "auto",  # noqa: A002
         max_norm: float = 1.0,
     ) -> JsonDict:
         grads = list(gradients)
@@ -227,7 +233,12 @@ class MohawkNode:
         if result.get("success", False):
             return result
 
-        if format == "int8":
+        profile = build_auto_tune_profile(len(grads))
+        selected_format = format
+        if selected_format == "auto":
+            selected_format = profile.preferred_format
+
+        if selected_format == "int8":
             raw, scale = quantize_int8(grads, max_norm)
         else:
             raw = fp32_to_fp16(grads)
@@ -237,7 +248,10 @@ class MohawkNode:
         return {
             "success": True,
             "message": "Gradients compressed (python fallback)",
-            "format": format,
+            "format": selected_format,
+            "autotuned": True,
+            "backend": profile.selected_device.backend,
+            "recommended_worker": profile.recommended_workers,
             "original_bytes": original,
             "compressed_bytes": len(raw),
             "compression_ratio": compression_ratio(original, len(raw)),
@@ -249,11 +263,41 @@ class MohawkNode:
         result = self.bridge.invoke_json("GetDeviceInfo", {})
         if not result.get("success", False):
             devices = detect_devices()
+            profile = build_auto_tune_profile(0, devices=devices)
             return {
                 "success": True,
                 "message": "Device enumeration complete (python fallback)",
-                "data": {"devices": [vars(d) for d in devices]},
+                "data": {
+                    "devices": [vars(d) for d in devices],
+                    "autotune": profile.to_dict(),
+                },
             }
+        return result
+
+    def auto_tune_profile(self, vector_length: int = 0) -> JsonDict:
+        info = self.device_info()
+        if info.get("success", False):
+            data = info.get("data", {})
+            if isinstance(data, str):
+                try:
+                    data = json.loads(data)
+                except json.JSONDecodeError:
+                    data = {}
+            autotune = data.get("autotune")
+            if isinstance(autotune, dict):
+                return {"success": True, "message": "Auto-tune profile", "data": autotune}
+
+        profile = build_auto_tune_profile(vector_length)
+        return {
+            "success": True,
+            "message": "Auto-tune profile (python fallback)",
+            "data": profile.to_dict(),
+        }
+
+    def metrics_snapshot(self) -> JsonDict:
+        result = self.bridge.invoke_json("GetPrometheusMetrics", {})
+        if not result.get("success", False):
+            raise VerificationError(result.get("message", "metrics snapshot failed"))
         return result
 
     def bridge_transfer(

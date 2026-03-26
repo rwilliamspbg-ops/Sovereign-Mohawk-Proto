@@ -41,7 +41,11 @@ SUMMARY_REPORT="$REPORT_DIR/${SCENARIO}-summary.json"
 run_gate() {
   local output_path="$1"
   shift
-  python3 scripts/mainnet_readiness_gate.py "$@" > "$output_path"
+  python3 scripts/mainnet_readiness_gate.py \
+    --min-bridge-transfers 1 \
+    --min-proof-verifications 1 \
+    --min-hybrid-verifications 1 \
+    "$@" > "$output_path"
 }
 
 wait_target_state() {
@@ -115,6 +119,7 @@ echo "[chaos] scenario=$SCENARIO baseline check"
 wait_grafana_health up
 wait_target_state "orchestrator:9091" up
 wait_target_state "tpm-metrics:9102" up
+wait_target_state "pyapi-metrics-exporter:9104" up
 if ! run_gate "$BASELINE_REPORT" --retries 60 --delay 2; then
   cat "$BASELINE_REPORT"
   echo "baseline readiness check failed" >&2
@@ -147,6 +152,7 @@ if [[ "$SCENARIO" == "prometheus" ]]; then
   wait_prometheus_health up
   wait_target_state "orchestrator:9091" up
   wait_target_state "tpm-metrics:9102" up
+  wait_target_state "pyapi-metrics-exporter:9104" up
 elif [[ "$SCENARIO" == "grafana" ]]; then
   wait_grafana_health up
 else

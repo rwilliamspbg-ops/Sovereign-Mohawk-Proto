@@ -1,0 +1,13 @@
+{
+  "gate": "threat_model_refresh",
+  "status": "approved",
+  "owner": "security-architecture",
+  "date": "2026-03-26",
+  "evidence": [
+    "results/go-live/evidence/threat_model_refresh_2026-03-26.md",
+    "SECURITY.md",
+    "scripts/mainnet_readiness_gate.py",
+    ".github/workflows/mainnet-readiness-gate.yml"
+  ],
+  "notes": "Threat-model refresh completed for current go-live baseline; external security audit and penetration test remain separate pending gates."
+}

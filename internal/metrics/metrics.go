@@ -65,6 +65,16 @@ var (
 		[]string{"backend", "operation", "result"}, // backend: cpu|cuda|metal|npu
 	)
 
+	// acceleratorOpLatency records operation latency in milliseconds.
+	acceleratorOpLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_accelerator_op_latency_ms",
+			Help:    "Latency of accelerator operations in milliseconds.",
+			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 20, 50, 100, 250},
+		},
+		[]string{"backend", "operation"},
+	)
+
 	// proofBatchSize records how many proofs are verified in each batch call.
 	proofBatchSize = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
@@ -163,6 +173,16 @@ var (
 		[]string{"source_chain", "target_chain", "result"},
 	)
 
+	// bridgeTransferLatency records bridge transfer processing latency in milliseconds.
+	bridgeTransferLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_bridge_transfer_latency_ms",
+			Help:    "Bridge transfer verification/settlement latency in milliseconds.",
+			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500},
+		},
+		[]string{"source_chain", "target_chain", "result"},
+	)
+
 	// proofVerificationsTotal counts individual zk-SNARK proof verifications by scheme and outcome.
 	proofVerificationsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -192,6 +212,7 @@ func init() {
 		ipfsOperationsTotal,
 		gradientCompressionRatio,
 		acceleratorOpsTotal,
+		acceleratorOpLatency,
 		proofBatchSize,
 		aggregationWorkers,
 		utilityCoinMintsTotal,
@@ -206,6 +227,7 @@ func init() {
 		bridgeSettlementsTotal,
 		bridgeSettlementVolumeTotal,
 		bridgeTransfersTotal,
+		bridgeTransferLatency,
 		proofVerificationsTotal,
 		proofVerificationLatency,
 	)
@@ -253,6 +275,14 @@ func ObserveGradientCompression(format string, ratio float64) {
 // ObserveAcceleratorOp increments the accelerator operation counter.
 func ObserveAcceleratorOp(backend, operation string, success bool) {
 	acceleratorOpsTotal.WithLabelValues(backend, operation, resultLabel(success)).Inc()
+}
+
+// ObserveAcceleratorOpLatency records accelerator operation latency in milliseconds.
+func ObserveAcceleratorOpLatency(backend, operation string, latencyMS float64) {
+	if latencyMS < 0 {
+		return
+	}
+	acceleratorOpLatency.WithLabelValues(backend, operation).Observe(latencyMS)
 }
 
 // ObserveProofBatch records the size of a BatchVerifyProofs invocation.
@@ -339,11 +369,19 @@ func ObserveBridgeSettlement(asset string, status string, amount float64) {
 
 // ObserveBridgeTransfer records a bridge transfer verification.
 func ObserveBridgeTransfer(sourceChain, targetChain string, success bool) {
-	bridgeTransfersTotal.WithLabelValues(
-		strings.ToLower(strings.TrimSpace(sourceChain)),
-		strings.ToLower(strings.TrimSpace(targetChain)),
-		resultLabel(success),
-	).Inc()
+	source := strings.ToLower(strings.TrimSpace(sourceChain))
+	target := strings.ToLower(strings.TrimSpace(targetChain))
+	bridgeTransfersTotal.WithLabelValues(source, target, resultLabel(success)).Inc()
+}
+
+// ObserveBridgeTransferLatency records bridge transfer latency in milliseconds.
+func ObserveBridgeTransferLatency(sourceChain, targetChain string, success bool, latencyMS float64) {
+	if latencyMS < 0 {
+		return
+	}
+	source := strings.ToLower(strings.TrimSpace(sourceChain))
+	target := strings.ToLower(strings.TrimSpace(targetChain))
+	bridgeTransferLatency.WithLabelValues(source, target, resultLabel(success)).Observe(latencyMS)
 }
 
 // ObserveProofVerification records a single zk-proof verification.

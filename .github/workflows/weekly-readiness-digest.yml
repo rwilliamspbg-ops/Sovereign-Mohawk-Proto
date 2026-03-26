@@ -22,14 +22,26 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Advisory host UDP/sysctl preflight (non-blocking)
+        run: |
+          chmod +x scripts/validate_host_network_tuning.sh
+          if ! ./scripts/validate_host_network_tuning.sh; then
+            echo "::warning::Host UDP/sysctl tuning is below production target on this runner (advisory only)."
+            echo "host_udp_sysctl_preflight_failed=true" > /tmp/host-preflight-warning.txt
+          fi
+
       - name: Start monitoring stack
         run: |
-          docker compose up -d --build orchestrator prometheus tpm-metrics grafana
+          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana
 
       - name: Run readiness gate
         run: |
           mkdir -p reports/chaos
-          python3 scripts/mainnet_readiness_gate.py > reports/readiness-report.json
+          python3 scripts/mainnet_readiness_gate.py \
+            --min-bridge-transfers 1 \
+            --min-proof-verifications 1 \
+            --min-hybrid-verifications 1 \
+            > reports/readiness-report.json
 
       - name: Run chaos drills
         run: |
@@ -43,6 +55,13 @@ jobs:
             --readiness-report reports/readiness-report.json \
             --chaos-dir reports/chaos \
             --output reports/weekly-readiness-digest.md > /tmp/weekly-digest.txt
+
+      - name: Append host preflight advisory to digest
+        run: |
+          if [ -f /tmp/host-preflight-warning.txt ]; then
+            printf '\n## Host Preflight Advisory\n\n- Host UDP/socket kernel tuning on the CI runner was below production target during this run.\n- This is advisory-only in CI; production environments should apply the documented `net.core.rmem_*` and `net.core.wmem_*` settings.\n' >> reports/weekly-readiness-digest.md
+            printf '\n## Host Preflight Advisory\n\n- Host UDP/socket kernel tuning on the CI runner was below production target during this run.\n- This is advisory-only in CI; production environments should apply the documented `net.core.rmem_*` and `net.core.wmem_*` settings.\n' >> /tmp/weekly-digest.txt
+          fi
 
       - name: Publish digest to job summary
         run: |

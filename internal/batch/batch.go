@@ -20,6 +20,9 @@ package batch
 import (
 	"crypto/ed25519"
 	"errors"
+	"sync"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 )
 
 // BatchVerifier manages the O(1) verification of node manifests.
@@ -30,6 +33,12 @@ type BatchVerifier struct {
 
 // NewBatchVerifier initializes a verifier with a specific throughput limit.
 func NewBatchVerifier(batchSize int) *BatchVerifier {
+	if batchSize <= 0 {
+		batchSize = accelerator.BuildAutoTuneProfile(0).RecommendedWorker
+		if batchSize <= 0 {
+			batchSize = 1
+		}
+	}
 	return &BatchVerifier{maxBatchSize: batchSize}
 }
 
@@ -38,9 +47,28 @@ func (bv *BatchVerifier) VerifySignatures(pubKeys []ed25519.PublicKey, messages 
 	if len(pubKeys) != len(messages) || len(messages) != len(signatures) {
 		return nil, errors.New("input lengths mismatch")
 	}
-	results := make([]bool, len(pubKeys))
-	for i := range pubKeys {
-		results[i] = ed25519.Verify(pubKeys[i], messages[i], signatures[i])
+	if len(pubKeys) == 0 {
+		return []bool{}, nil
 	}
+	chunkSize := bv.maxBatchSize
+	if chunkSize <= 0 {
+		chunkSize = 1
+	}
+	results := make([]bool, len(pubKeys))
+	var wg sync.WaitGroup
+	for i := 0; i < len(pubKeys); i += chunkSize {
+		end := i + chunkSize
+		if end > len(pubKeys) {
+			end = len(pubKeys)
+		}
+		wg.Add(1)
+		go func(start, stop int) {
+			defer wg.Done()
+			for j := start; j < stop; j++ {
+				results[j] = ed25519.Verify(pubKeys[j], messages[j], signatures[j])
+			}
+		}(i, end)
+	}
+	wg.Wait()
 	return results, nil
 }

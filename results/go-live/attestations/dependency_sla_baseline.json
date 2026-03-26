@@ -1,0 +1,13 @@
+{
+  "gate": "dependency_sla_baseline",
+  "status": "approved",
+  "owner": "platform-engineering",
+  "date": "2026-03-26",
+  "evidence": [
+    "results/go-live/evidence/dependency_sla_baseline_2026-03-26.md",
+    "DEPENDENCIES.md",
+    "SECURITY.md",
+    "scripts/validate_go_live_gates.py"
+  ],
+  "notes": "Dependency vulnerability baseline and patch SLA policy documented for current go-live baseline."
+}

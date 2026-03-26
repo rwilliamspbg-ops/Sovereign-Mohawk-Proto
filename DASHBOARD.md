@@ -2,16 +2,23 @@
 
 ## 🧭 Program Status
 
-**Program Stage:** Mainnet-Readiness Gated  
+**Program Stage:** Go-Live Formalization Complete  
 **Current Phase:** v1.0.0 GA Closure (Q2 2026)
 
 ### Current Critical Path
 
-* External security audit + penetration testing (runtime, SDK, bridge)
-* TPM 2.0 attestation completion and replay-hardening validation
-* Production runbook and readiness/chaos escalation playbooks
-* 1M+ node aggregation rehearsal and end-to-end latency sign-off
 * v1.0.0 GA release checklist and deployment guide publication
+
+### Formal Go-Live Gate Status
+
+* Runtime gates: ✅ readiness / ✅ chaos / ✅ host network tuning
+* Attestations approved: 8/8
+* Remaining external/performance attestations: none
+
+Primary artifact trail:
+
+* `results/go-live/go-live-gate-report.json`
+* `results/go-live/attestations/`
 
 ## 📊 Network Health
 

@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard strict-auth-smoke-host strict-auth-smoke-container production-readiness
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate
 
 all: build verify
 
@@ -80,17 +80,26 @@ regional-shard:
 strict-auth-smoke-host: build-python-lib
 	@echo "🔐 Running strict auth/role smoke checks on host..."
 	MOHAWK_API_AUTH_MODE=file-only \
-	MOHAWK_API_TOKEN_FILE=$$PWD/secrets/mohawk_api_token \
+	MOHAWK_API_TOKEN_FILE=$$PWD/runtime-secrets/mohawk_api_token \
 	MOHAWK_API_ENFORCE_ROLES=true \
 	MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin \
 	MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin \
-	PYTHONPATH=sdk/python python scripts/strict_auth_smoke.py --lib-path ./libmohawk.so --token-file ./secrets/mohawk_api_token
+	PYTHONPATH=sdk/python python scripts/strict_auth_smoke.py --lib-path ./libmohawk.so --token-file ./runtime-secrets/mohawk_api_token
 
 strict-auth-smoke-container: build-python-lib
 	@echo "🐳 Running strict auth/role smoke checks in container (glibc path)..."
 	docker compose run --rm -v "$$PWD":/workspace -w /workspace tpm-metrics \
-		env MOHAWK_API_AUTH_MODE=file-only MOHAWK_API_TOKEN_FILE=/workspace/secrets/mohawk_api_token MOHAWK_API_ENFORCE_ROLES=true MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin \
-		python3 /workspace/scripts/strict_auth_smoke.py --lib-path /workspace/libmohawk.so --token-file /workspace/secrets/mohawk_api_token
+		env MOHAWK_API_AUTH_MODE=file-only MOHAWK_API_TOKEN_FILE=/workspace/runtime-secrets/mohawk_api_token MOHAWK_API_ENFORCE_ROLES=true MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin \
+		python3 /workspace/scripts/strict_auth_smoke.py --lib-path /workspace/libmohawk.so --token-file /workspace/runtime-secrets/mohawk_api_token
 
 production-readiness: verify strict-auth-smoke-host strict-auth-smoke-container
 	@echo "✅ Production readiness checks passed (verify + strict auth smoke host/container)."
+
+mainnet-one-click:
+	@echo "🚀 Running one-click Mainnet + PQC contract readiness pipeline..."
+	chmod +x scripts/mainnet_one_click.sh
+	./scripts/mainnet_one_click.sh
+
+go-live-gate:
+	@echo "📋 Validating formal go-live production gates..."
+	python3 scripts/validate_go_live_gates.py

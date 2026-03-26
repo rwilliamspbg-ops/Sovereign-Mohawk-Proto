@@ -23,6 +23,7 @@ const (
 	TxMint     TxType = "mint"
 	TxTransfer TxType = "transfer"
 	TxBurn     TxType = "burn"
+	TxMigrate  TxType = "migrate"
 )
 
 // Tx records a utility coin ledger event.
@@ -45,32 +46,40 @@ type Asset struct {
 
 // Ledger is a concurrency-safe in-memory utility coin ledger.
 type Ledger struct {
-	schemaVersion int
-	asset         Asset
-	minter        string
-	mu            sync.RWMutex
-	balances      map[string]int64
-	txns          []Tx
-	totalSupply   int64
-	statePath     string
-	auditPath     string
-	auditPrev     string
-	idempotency   map[string]Tx
-	nonces        map[string]uint64
+	schemaVersion       int
+	asset               Asset
+	minter              string
+	pqcMigration        bool
+	migrationETA        time.Time
+	lockLegacyTransfers bool
+	mu                  sync.RWMutex
+	balances            map[string]int64
+	txns                []Tx
+	totalSupply         int64
+	statePath           string
+	auditPath           string
+	auditPrev           string
+	idempotency         map[string]Tx
+	nonces              map[string]uint64
+	migrations          map[string]string
 }
 
 type persistentState struct {
-	SchemaVersion    int                `json:"schema_version"`
-	Symbol           string             `json:"symbol,omitempty"`
-	Asset            Asset              `json:"asset,omitempty"`
-	Minter           string             `json:"minter"`
-	Balances         map[string]float64 `json:"balances,omitempty"`
-	BalancesUnits    map[string]int64   `json:"balances_units,omitempty"`
-	Txns             []Tx               `json:"txns"`
-	TotalSupply      float64            `json:"total_supply,omitempty"`
-	TotalSupplyUnits int64              `json:"total_supply_units,omitempty"`
-	AuditPrev        string             `json:"audit_prev,omitempty"`
-	Nonces           map[string]uint64  `json:"nonces,omitempty"`
+	SchemaVersion       int                `json:"schema_version"`
+	Symbol              string             `json:"symbol,omitempty"`
+	Asset               Asset              `json:"asset,omitempty"`
+	Minter              string             `json:"minter"`
+	Balances            map[string]float64 `json:"balances,omitempty"`
+	BalancesUnits       map[string]int64   `json:"balances_units,omitempty"`
+	Txns                []Tx               `json:"txns"`
+	TotalSupply         float64            `json:"total_supply,omitempty"`
+	TotalSupplyUnits    int64              `json:"total_supply_units,omitempty"`
+	AuditPrev           string             `json:"audit_prev,omitempty"`
+	Nonces              map[string]uint64  `json:"nonces,omitempty"`
+	PQCMigration        bool               `json:"pqc_migration"`
+	MigrationETA        time.Time          `json:"migration_eta,omitempty"`
+	LockLegacyTransfers bool               `json:"lock_legacy_transfers,omitempty"`
+	AddressMap          map[string]string  `json:"address_map,omitempty"`
 }
 
 type auditRecord struct {
@@ -94,10 +103,12 @@ func NewLedger(symbol string, minter string) *Ledger {
 		schemaVersion: currentSchemaVersion,
 		asset:         defaultAsset(symbol),
 		minter:        strings.TrimSpace(minter),
+		pqcMigration:  false,
 		balances:      map[string]int64{},
 		txns:          make([]Tx, 0, 64),
 		idempotency:   map[string]Tx{},
 		nonces:        map[string]uint64{},
+		migrations:    map[string]string{},
 	}
 }
 
@@ -134,6 +145,36 @@ func (l *Ledger) Minter() string {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.minter
+}
+
+// EnablePQCMigration toggles the dual-signature migration period and optional ETA.
+func (l *Ledger) EnablePQCMigration(enabled bool, eta time.Time) {
+	l.ConfigurePQCMigration(enabled, eta, false)
+}
+
+// ConfigurePQCMigration toggles migration period controls and optional legacy transfer lock.
+func (l *Ledger) ConfigurePQCMigration(enabled bool, eta time.Time, lockLegacyTransfers bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.pqcMigration = enabled
+	l.lockLegacyTransfers = lockLegacyTransfers
+	if eta.IsZero() {
+		l.migrationETA = time.Time{}
+	} else {
+		l.migrationETA = eta.UTC()
+	}
+}
+
+// PQCMigrationStatus returns migration controls and migration count.
+func (l *Ledger) PQCMigrationStatus() map[string]any {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return map[string]any{
+		"enabled":               l.pqcMigration,
+		"migration_eta":         l.migrationETA,
+		"lock_legacy_transfers": l.lockLegacyTransfers,
+		"mapped":                len(l.migrations),
+	}
 }
 
 // Mint mints utility coins to the target account.
@@ -205,6 +246,78 @@ func (l *Ledger) Transfer(from string, to string, amount float64, memo string) (
 	return l.TransferWithControls(from, to, amount, memo, "", 0)
 }
 
+// MigrateWithDualSignature moves funds from a legacy account to an ML-DSA account.
+func (l *Ledger) MigrateWithDualSignature(legacyAccount string, pqcAccount string, amount float64, memo string, legacySigned bool, pqcSigned bool) (Tx, error) {
+	return l.MigrateWithDualSignatureControls(legacyAccount, pqcAccount, amount, memo, legacySigned, pqcSigned, "", 0)
+}
+
+// MigrateWithDualSignatureControls moves funds from a legacy account to a PQC account with replay/idempotency controls.
+func (l *Ledger) MigrateWithDualSignatureControls(legacyAccount string, pqcAccount string, amount float64, memo string, legacySigned bool, pqcSigned bool, idempotencyKey string, nonce uint64) (Tx, error) {
+	legacyAccount = strings.TrimSpace(legacyAccount)
+	pqcAccount = strings.TrimSpace(pqcAccount)
+	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	if legacyAccount == "" || pqcAccount == "" {
+		return Tx{}, fmt.Errorf("legacy and pqc accounts are required")
+	}
+	if !legacySigned || !pqcSigned {
+		return Tx{}, fmt.Errorf("dual-signature authorization required for migration")
+	}
+	amountUnits, err := l.amountToUnits(amount)
+	if err != nil {
+		return Tx{}, err
+	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if idempotencyKey != "" {
+		if existing, ok := l.idempotency[idempotencyKey]; ok {
+			return existing, nil
+		}
+	}
+	if nonce > 0 {
+		last := l.nonces[legacyAccount]
+		if nonce <= last {
+			return Tx{}, fmt.Errorf("replay detected for legacy account %q: nonce %d <= %d", legacyAccount, nonce, last)
+		}
+		l.nonces[legacyAccount] = nonce
+	}
+	if !l.pqcMigration {
+		return Tx{}, fmt.Errorf("pqc migration period is not enabled")
+	}
+	if legacyAccount == pqcAccount {
+		return Tx{}, fmt.Errorf("legacy and pqc accounts must differ")
+	}
+	if mapped, exists := l.migrations[legacyAccount]; exists && mapped != pqcAccount {
+		return Tx{}, fmt.Errorf("legacy account %q already mapped to %q", legacyAccount, mapped)
+	}
+	if l.balances[legacyAccount] < amountUnits {
+		return Tx{}, fmt.Errorf("insufficient balance in %q", legacyAccount)
+	}
+	l.balances[legacyAccount] -= amountUnits
+	l.balances[pqcAccount] += amountUnits
+	l.migrations[legacyAccount] = pqcAccount
+	tx := Tx{
+		Type:        TxMigrate,
+		From:        legacyAccount,
+		To:          pqcAccount,
+		Amount:      l.unitsToAmount(amountUnits),
+		AmountUnits: amountUnits,
+		Memo:        memo,
+		Timestamp:   time.Now().UTC(),
+	}
+	l.txns = append(l.txns, tx)
+	if idempotencyKey != "" {
+		l.idempotency[idempotencyKey] = tx
+	}
+	if err := l.appendAuditLocked(tx); err != nil {
+		return Tx{}, err
+	}
+	if err := l.saveStateLocked(); err != nil {
+		return Tx{}, err
+	}
+	return tx, nil
+}
+
 // Burn removes utility coins from an account.
 func (l *Ledger) Burn(from string, amount float64, memo string) (Tx, error) {
 	return l.BurnWithControls(from, amount, memo, "", 0)
@@ -236,6 +349,11 @@ func (l *Ledger) TransferWithControls(from string, to string, amount float64, me
 			return Tx{}, fmt.Errorf("replay detected for account %q: nonce %d <= %d", from, nonce, last)
 		}
 		l.nonces[from] = nonce
+	}
+	if l.lockLegacyTransfers {
+		if mapped, ok := l.migrations[from]; ok && mapped != "" {
+			return Tx{}, fmt.Errorf("legacy account %q is migration-locked; transfer from %q", from, mapped)
+		}
 	}
 	if l.balances[from] < amountUnits {
 		return Tx{}, fmt.Errorf("insufficient balance in %q", from)
@@ -289,6 +407,11 @@ func (l *Ledger) BurnWithControls(from string, amount float64, memo string, idem
 			return Tx{}, fmt.Errorf("replay detected for account %q: nonce %d <= %d", from, nonce, last)
 		}
 		l.nonces[from] = nonce
+	}
+	if l.lockLegacyTransfers {
+		if mapped, ok := l.migrations[from]; ok && mapped != "" {
+			return Tx{}, fmt.Errorf("legacy account %q is migration-locked; burn from %q", from, mapped)
+		}
 	}
 	if l.balances[from] < amountUnits {
 		return Tx{}, fmt.Errorf("insufficient balance in %q", from)
@@ -400,17 +523,21 @@ func (l *Ledger) Backup(backupPath string) error {
 		return fmt.Errorf("backup unavailable: persistent state is not configured")
 	}
 	state := persistentState{
-		SchemaVersion:    currentSchemaVersion,
-		Symbol:           l.asset.Symbol,
-		Asset:            l.asset,
-		Minter:           l.minter,
-		Balances:         l.amountBalancesLocked(),
-		BalancesUnits:    l.copyBalancesUnitsLocked(),
-		Txns:             l.txns,
-		TotalSupply:      l.unitsToAmount(l.totalSupply),
-		TotalSupplyUnits: l.totalSupply,
-		AuditPrev:        l.auditPrev,
-		Nonces:           l.nonces,
+		SchemaVersion:       currentSchemaVersion,
+		Symbol:              l.asset.Symbol,
+		Asset:               l.asset,
+		Minter:              l.minter,
+		Balances:            l.amountBalancesLocked(),
+		BalancesUnits:       l.copyBalancesUnitsLocked(),
+		Txns:                l.txns,
+		TotalSupply:         l.unitsToAmount(l.totalSupply),
+		TotalSupplyUnits:    l.totalSupply,
+		AuditPrev:           l.auditPrev,
+		Nonces:              l.nonces,
+		PQCMigration:        l.pqcMigration,
+		MigrationETA:        l.migrationETA,
+		LockLegacyTransfers: l.lockLegacyTransfers,
+		AddressMap:          l.migrations,
 	}
 	l.mu.RUnlock()
 	data, err := json.MarshalIndent(state, "", "  ")
@@ -516,10 +643,17 @@ func (l *Ledger) applyStateLocked(state persistentState) {
 	}
 	l.totalSupply = state.TotalSupplyUnits
 	l.auditPrev = strings.TrimSpace(state.AuditPrev)
+	l.pqcMigration = state.PQCMigration
+	l.migrationETA = state.MigrationETA.UTC()
+	l.lockLegacyTransfers = state.LockLegacyTransfers
 	if state.Nonces == nil {
 		state.Nonces = map[string]uint64{}
 	}
 	l.nonces = state.Nonces
+	if state.AddressMap == nil {
+		state.AddressMap = map[string]string{}
+	}
+	l.migrations = state.AddressMap
 	l.idempotency = map[string]Tx{}
 }
 
@@ -528,17 +662,21 @@ func (l *Ledger) saveStateLocked() error {
 		return nil
 	}
 	state := persistentState{
-		SchemaVersion:    currentSchemaVersion,
-		Symbol:           l.asset.Symbol,
-		Asset:            l.asset,
-		Minter:           l.minter,
-		Balances:         l.amountBalancesLocked(),
-		BalancesUnits:    l.copyBalancesUnitsLocked(),
-		Txns:             l.txns,
-		TotalSupply:      l.unitsToAmount(l.totalSupply),
-		TotalSupplyUnits: l.totalSupply,
-		AuditPrev:        l.auditPrev,
-		Nonces:           l.nonces,
+		SchemaVersion:       currentSchemaVersion,
+		Symbol:              l.asset.Symbol,
+		Asset:               l.asset,
+		Minter:              l.minter,
+		Balances:            l.amountBalancesLocked(),
+		BalancesUnits:       l.copyBalancesUnitsLocked(),
+		Txns:                l.txns,
+		TotalSupply:         l.unitsToAmount(l.totalSupply),
+		TotalSupplyUnits:    l.totalSupply,
+		AuditPrev:           l.auditPrev,
+		Nonces:              l.nonces,
+		PQCMigration:        l.pqcMigration,
+		MigrationETA:        l.migrationETA,
+		LockLegacyTransfers: l.lockLegacyTransfers,
+		AddressMap:          l.migrations,
 	}
 	raw, err := json.MarshalIndent(state, "", "  ")
 	if err != nil {

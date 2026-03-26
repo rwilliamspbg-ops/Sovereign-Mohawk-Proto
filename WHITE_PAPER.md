@@ -1,4 +1,4 @@
-Sovereign-Mohawk: A Formally Verified 10M-Node Architecture
+# Sovereign-Mohawk: A Formally Verified 10M-Node Architecture
 
 Author: Sovereign-Mohawk Core Team
 
@@ -54,13 +54,13 @@ Result: The system tolerates up to 5,555,555 Byzantine nodes (55.5% of 10M) thro
 
 Implementation: See the hierarchical_krum.go logic.
 
-2. Privacy Composition
+1. Privacy Composition
 
 Theorem 2 (RDP Composition): For $k$ mechanisms with $(\alpha, \epsilon_i)$-RDP, the cumulative composition is $(\alpha, \sum \epsilon_i)$-RDP.
 
 Metric: Tight $(\epsilon=2.0, \delta=1e^{-5})$-DP bounds are maintained across the network using the RDP Accountant.
 
-3. Communication Optimality
+1. Communication Optimality
 
 Theorem 3 (Optimality): The architecture achieves the information-theoretic lower bound of $O(d \log n)$ communication complexity.
 
@@ -96,11 +96,13 @@ This ensures that the global model reaches $\epsilon$-accuracy in $O(1/\epsilon^
 
 VI. Open Source Governance
 
-The Sovereign-Mohawk-Proto is released under a Dual-License model:
+The Sovereign-Mohawk-Proto repository is released under Apache License 2.0.
 
-Core Runtime: Apache 2.0 (Open for community audit and adoption).
+License Reference: See LICENSE.md in the project root for governing terms.
 
-Enterprise Control Plane: Proprietary (Advanced sharding and fleet management).
+Intellectual Property Notice: Portions of protocol implementation are marked Patent Pending (U.S. provisional filing, March 2026). This notice is informational and does not alter Apache-2.0 license grants for this repository.
+
+Legal Summary: See NOTICE.md for consolidated licensing, IP disclosure, and trademark guidance.
 
 VII. Conclusion
 

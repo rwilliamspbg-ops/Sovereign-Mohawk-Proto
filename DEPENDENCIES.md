@@ -1,11 +1,15 @@
-## License
+# License
 
 This project is licensed under the **Apache License 2.0** (unless otherwise noted for third-party components).  
-See the [LICENSE](LICENSE) file for the full text.
+See the [LICENSE.md](LICENSE.md) file for the full text.
+
+Portions of protocol implementation are marked **Patent Pending** (U.S. provisional filing, March 2026). This notice is informational and does not modify third-party or Apache-2.0 license terms.
+
+For consolidated legal context, see [NOTICE.md](NOTICE.md).
 
 Apache 2.0 is permissive: it allows broad use, modification, and distribution (including commercial), with patent grants from contributors and a requirement to preserve copyright notices.
 
-### Third-Party Dependencies and License Implications
+## Third-Party Dependencies and License Implications
 
 We rely on several open-source libraries and tools. Their licenses are compatible with Apache 2.0 in our usage (dynamic linking, no static bundling of GPL code into binaries for distribution). Key ones:
 

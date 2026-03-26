@@ -1,0 +1,104 @@
+{
+  "up_targets": [
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "tpm-metrics:9102",
+        "job": "tpm-metrics"
+      },
+      "value": [
+        1774480200.87,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "orchestrator:9091",
+        "job": "orchestrator"
+      },
+      "value": [
+        1774480200.87,
+        "1"
+      ]
+    }
+  ],
+  "proof_verifications_total": [],
+  "proof_verify_failures_total": [],
+  "bridge_transfers_total": [],
+  "gradient_compression_fp16_count": [],
+  "gradient_compression_int8_count": [],
+  "accelerator_ops_total": [],
+  "utility_tx_total": [
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_tx_count",
+        "instance": "orchestrator:9091",
+        "job": "orchestrator"
+      },
+      "value": [
+        1774480200.882,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_tx_count",
+        "instance": "tpm-metrics:9102",
+        "job": "tpm-metrics"
+      },
+      "value": [
+        1774480200.882,
+        "0"
+      ]
+    }
+  ],
+  "holders": [
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_holders_count",
+        "instance": "orchestrator:9091",
+        "job": "orchestrator"
+      },
+      "value": [
+        1774480200.883,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_holders_count",
+        "instance": "tpm-metrics:9102",
+        "job": "tpm-metrics"
+      },
+      "value": [
+        1774480200.883,
+        "0"
+      ]
+    }
+  ],
+  "supply": [
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_total_supply",
+        "instance": "orchestrator:9091",
+        "job": "orchestrator"
+      },
+      "value": [
+        1774480200.884,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "mohawk_utility_coin_total_supply",
+        "instance": "tpm-metrics:9102",
+        "job": "tpm-metrics"
+      },
+      "value": [
+        1774480200.884,
+        "0"
+      ]
+    }
+  ]
+}

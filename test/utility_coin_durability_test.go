@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 )
@@ -207,5 +208,40 @@ func TestUtilityAssetRegistry(t *testing.T) {
 	items := registry.List()
 	if len(items) < 2 {
 		t.Fatalf("expected at least 2 assets, got %d", len(items))
+	}
+}
+
+func TestUtilityCoinMigrationStatePersists(t *testing.T) {
+	tmp := t.TempDir()
+	statePath := filepath.Join(tmp, "migration_state.json")
+	auditPath := filepath.Join(tmp, "migration_audit.jsonl")
+
+	ledger, err := token.NewPersistentLedger("MHC", "protocol", statePath, auditPath)
+	if err != nil {
+		t.Fatalf("create persistent ledger: %v", err)
+	}
+	if _, err := ledger.Mint("protocol", "legacy-edge", 8, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+	ledger.ConfigurePQCMigration(true, time.Now().Add(48*time.Hour), true)
+	if _, err := ledger.MigrateWithDualSignature("legacy-edge", "mldsa-edge", 3, "migration", true, true); err != nil {
+		t.Fatalf("migration failed: %v", err)
+	}
+
+	reloaded, err := token.NewPersistentLedger("MHC", "protocol", statePath, auditPath)
+	if err != nil {
+		t.Fatalf("reload persistent ledger: %v", err)
+	}
+	status := reloaded.PQCMigrationStatus()
+	enabled, ok := status["enabled"].(bool)
+	if !ok || !enabled {
+		t.Fatalf("expected reloaded migration enabled=true, got %#v", status["enabled"])
+	}
+	locked, ok := status["lock_legacy_transfers"].(bool)
+	if !ok || !locked {
+		t.Fatalf("expected reloaded lock_legacy_transfers=true, got %#v", status["lock_legacy_transfers"])
+	}
+	if _, err := reloaded.Transfer("legacy-edge", "edge-b", 1, "locked transfer"); err == nil {
+		t.Fatal("expected legacy transfer to remain locked after reload")
 	}
 }

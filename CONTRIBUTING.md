@@ -69,6 +69,16 @@ If unset, the notification step is skipped and digest artifacts are still publis
 
 ---
 
+## ⚖️ Licensing & IP Notice for Contributors
+
+* **Project License:** Contributions to this repository are accepted under the Apache License 2.0. See [LICENSE.md](LICENSE.md).
+* **Patent Context:** The protocol includes components marked as **Patent Pending** (U.S. provisional filing, March 2026).
+* **No Additional IP Grant by Docs:** This notice is informational and does not modify Apache-2.0 terms in [LICENSE.md](LICENSE.md).
+* **Canonical Legal Summary:** See [NOTICE.md](NOTICE.md) for consolidated licensing, IP disclosure, and trademark guidance.
+* **By submitting a PR:** You confirm you have rights to submit the contribution and that submission is under repository license terms.
+
+---
+
 ## 🔗 Connect with the Architects
 
 * **Bitcointalk:** [Six-Theorem Formal Verification Thread](https://bitcointalk.org/index.php?topic=5575025.0)

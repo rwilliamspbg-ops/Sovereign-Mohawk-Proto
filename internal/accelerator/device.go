@@ -50,6 +50,7 @@ type DeviceInfo struct {
 func DetectDevices() []DeviceInfo {
 	devices := []DeviceInfo{cpuDevice()}
 	devices = append(devices, cudaDevices()...)
+	devices = append(devices, npuDevices()...)
 	if hasMetal() {
 		devices = append(devices, DeviceInfo{
 			Backend:   BackendMetal,
@@ -124,6 +125,43 @@ func cudaDevices() []DeviceInfo {
 		})
 	}
 	return devices
+}
+
+// npuDevices scans common Linux accelerator paths and optional env override.
+// Set MOHAWK_NPU_AVAILABLE=true to force-enable a generic NPU entry.
+func npuDevices() []DeviceInfo {
+	var devices []DeviceInfo
+	if parseBoolEnv("MOHAWK_NPU_AVAILABLE") {
+		devices = append(devices, DeviceInfo{
+			Backend:   BackendNPU,
+			Name:      "Generic NPU",
+			SIMDWidth: 128,
+		})
+		return devices
+	}
+
+	paths := []string{"/dev/apex_0", "/dev/npu0", "/dev/accel/npu0"}
+	for _, path := range paths {
+		if _, err := os.Stat(path); err == nil {
+			devices = append(devices, DeviceInfo{
+				Backend:   BackendNPU,
+				Name:      "NPU (" + path + ")",
+				SIMDWidth: 128,
+			})
+			break
+		}
+	}
+	return devices
+}
+
+func parseBoolEnv(name string) bool {
+	v := strings.TrimSpace(strings.ToLower(os.Getenv(name)))
+	switch v {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
+	}
 }
 
 // hasMetal returns true on darwin where the Metal framework is available.

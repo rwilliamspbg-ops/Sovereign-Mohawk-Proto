@@ -26,13 +26,26 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Advisory host UDP/sysctl preflight (non-blocking)
+        run: |
+          chmod +x scripts/validate_host_network_tuning.sh
+          if ! ./scripts/validate_host_network_tuning.sh; then
+            echo "::warning::Host UDP/sysctl tuning is below production target on this runner (advisory only)."
+          fi
+
       - name: Start monitoring stack
         run: |
-          docker compose up -d --build orchestrator prometheus tpm-metrics grafana
+          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana
 
       - name: Run mainnet readiness checks
         run: |
-          python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 > readiness-report.json || status=$?
+          python3 scripts/mainnet_readiness_gate.py \
+            --retries 60 \
+            --delay 2 \
+            --min-bridge-transfers 1 \
+            --min-proof-verifications 1 \
+            --min-hybrid-verifications 1 \
+            > readiness-report.json || status=$?
           cat readiness-report.json
           if [ -n "${status:-}" ]; then
             exit "$status"

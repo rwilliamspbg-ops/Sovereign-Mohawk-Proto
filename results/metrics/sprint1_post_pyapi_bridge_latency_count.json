@@ -1,0 +1,1 @@
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"mohawk_bridge_transfer_latency_ms_count","instance":"pyapi-metrics-exporter:9104","job":"pyapi-exporter","result":"success","source_chain":"ethereum","target_chain":"polygon"},"value":[1774481635.152,"4"]}]}}

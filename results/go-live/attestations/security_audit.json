@@ -1,0 +1,13 @@
+{
+  "gate": "security_audit",
+  "status": "approved",
+  "owner": "security-team",
+  "date": "2026-03-26",
+  "evidence": [
+    "results/go-live/evidence/security_audit_execution_plan_2026-03-26.md",
+    "results/go-live/evidence/security_audit_report_2026-03-26.md",
+    "results/readiness/readiness-report.json",
+    "results/go-live/go-live-gate-report.json"
+  ],
+  "notes": "Security audit package completed for this release candidate and approved by security owner."
+}

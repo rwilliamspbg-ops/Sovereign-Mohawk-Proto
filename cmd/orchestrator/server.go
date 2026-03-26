@@ -17,20 +17,27 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/ipfs"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 )
 
 // Server handles orchestrator HTTP requests.
 type Server struct {
-	Checkpoints    *ipfs.Backend
-	MeshDimensions int
-	PeerHost       corehost.Host
+	Checkpoints      *ipfs.Backend
+	MeshDimensions   int
+	PeerHost         corehost.Host
+	TransportKEXMode network.KEXMode
+	UtilityLedger    *token.Ledger
+	AdminToken       string
 }
 
 // HandleP2PInfo returns this orchestrator's libp2p peer ID and listen addresses.
@@ -46,8 +53,10 @@ func (s *Server) HandleP2PInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(map[string]any{
-		"peer_id": s.PeerHost.ID().String(),
-		"addrs":   addrs,
+		"peer_id":                   s.PeerHost.ID().String(),
+		"addrs":                     addrs,
+		"kex_mode":                  s.TransportKEXMode,
+		"expected_public_key_bytes": s.TransportKEXMode.ExpectedPublicKeyBytes(),
 	})
 }
 
@@ -149,6 +158,103 @@ func (s *Server) HandleMeshPlan(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(plan)
+}
+
+// HandleMigrationStatus returns the current PQC migration controls for the utility ledger.
+func (s *Server) HandleMigrationStatus(w http.ResponseWriter, r *http.Request) {
+	if s.UtilityLedger == nil {
+		http.Error(w, "utility ledger not configured", http.StatusServiceUnavailable)
+		return
+	}
+	status := s.UtilityLedger.PQCMigrationStatus()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(status)
+}
+
+// HandleMigrationConfig updates migration window controls.
+func (s *Server) HandleMigrationConfig(w http.ResponseWriter, r *http.Request) {
+	if !s.authorizeAdmin(w, r) {
+		return
+	}
+	if s.UtilityLedger == nil {
+		http.Error(w, "utility ledger not configured", http.StatusServiceUnavailable)
+		return
+	}
+	var req struct {
+		Enabled             bool   `json:"enabled"`
+		MigrationETA        string `json:"migration_eta,omitempty"`
+		LockLegacyTransfers bool   `json:"lock_legacy_transfers"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	var eta time.Time
+	if strings.TrimSpace(req.MigrationETA) != "" {
+		parsed, err := time.Parse(time.RFC3339, req.MigrationETA)
+		if err != nil {
+			http.Error(w, "migration_eta must be RFC3339", http.StatusBadRequest)
+			return
+		}
+		eta = parsed
+	}
+	s.UtilityLedger.ConfigurePQCMigration(req.Enabled, eta, req.LockLegacyTransfers)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(s.UtilityLedger.PQCMigrationStatus())
+}
+
+// HandleMigrationTransfer performs a dual-signature migration transfer from legacy to PQC account.
+func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request) {
+	if !s.authorizeAdmin(w, r) {
+		return
+	}
+	if s.UtilityLedger == nil {
+		http.Error(w, "utility ledger not configured", http.StatusServiceUnavailable)
+		return
+	}
+	var req struct {
+		LegacyAccount  string  `json:"legacy_account"`
+		PQCAccount     string  `json:"pqc_account"`
+		Amount         float64 `json:"amount"`
+		Memo           string  `json:"memo,omitempty"`
+		LegacySigned   bool    `json:"legacy_signed"`
+		PQCSigned      bool    `json:"pqc_signed"`
+		IdempotencyKey string  `json:"idempotency_key,omitempty"`
+		Nonce          uint64  `json:"nonce,omitempty"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	tx, err := s.UtilityLedger.MigrateWithDualSignatureControls(
+		req.LegacyAccount,
+		req.PQCAccount,
+		req.Amount,
+		req.Memo,
+		req.LegacySigned,
+		req.PQCSigned,
+		req.IdempotencyKey,
+		req.Nonce,
+	)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("migration failed: %v", err), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"tx": tx})
+}
+
+func (s *Server) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {
+	expected := strings.TrimSpace(s.AdminToken)
+	if expected == "" {
+		return true
+	}
+	auth := strings.TrimSpace(r.Header.Get("Authorization"))
+	if auth != "Bearer "+expected {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return false
+	}
+	return true
 }
 
 func defaultString(value string, fallback string) string {

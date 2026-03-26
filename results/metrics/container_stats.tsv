@@ -1,0 +1,8 @@
+orchestrator	0.08%	17.38MiB / 15.62GiB	898kB / 234kB
+node-agent-1	0.02%	8.945MiB / 15.62GiB	159kB / 724kB
+node-agent-2	0.00%	9.422MiB / 15.62GiB	158kB / 725kB
+node-agent-3	0.07%	10.71MiB / 15.62GiB	156kB / 724kB
+prometheus	0.00%	48.28MiB / 15.62GiB	1.74MB / 492kB
+grafana	0.26%	147.6MiB / 15.62GiB	22.1MB / 118kB
+tpm-metrics	0.00%	189MiB / 15.62GiB	5.17MB / 71.2kB
+ipfs	0.86%	148.3MiB / 15.62GiB	71.7MB / 80.9MB
