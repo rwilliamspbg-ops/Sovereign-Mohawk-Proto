@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate
 
 all: build verify
 
@@ -76,14 +76,6 @@ metrics:
 regional-shard:
 	@echo "🌐 Launching regional shard profile..."
 	./genesis-launch.sh --regional-shard local-us-east
-
-full-stack-3-nodes:
-	@echo "🌐 Launching full local stack (orchestrator + 3 node agents)..."
-	./scripts/launch_full_stack_3_nodes.sh --no-build
-
-full-stack-3-nodes-down:
-	@echo "🛑 Stopping full local stack..."
-	./scripts/launch_full_stack_3_nodes.sh --down
 
 strict-auth-smoke-host: build-python-lib
 	@echo "🔐 Running strict auth/role smoke checks on host..."
