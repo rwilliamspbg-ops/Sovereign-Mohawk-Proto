@@ -65,42 +65,14 @@ fi
 
 mkdir -p runtime-secrets
 
-TOKEN_PATH="runtime-secrets/mohawk_api_token"
-
-if [[ ! -s "$TOKEN_PATH" ]]; then
-  if [[ -e "$TOKEN_PATH" && ! -w "$TOKEN_PATH" ]]; then
-    chmod u+w "$TOKEN_PATH" 2>/dev/null || true
-  fi
-
-  if [[ -e "$TOKEN_PATH" && ! -w "$TOKEN_PATH" ]]; then
-    cat >&2 <<EOF
-cannot write $TOKEN_PATH
-
-This commonly happens on Windows when the file is read-only or ACL-restricted.
-Fix options:
-  1) Remove the file and rerun:
-     rm -f "$TOKEN_PATH"
-  2) Or grant write permission to your user.
-EOF
-    exit 1
-  fi
-
-  if command -v openssl >/dev/null 2>&1; then
-    umask 077
-    openssl rand -hex 24 > "$TOKEN_PATH"
-    echo "created $TOKEN_PATH"
-  elif command -v python3 >/dev/null 2>&1; then
-    python3 - <<'PY'
+if [[ ! -s runtime-secrets/mohawk_api_token ]]; then
+  python3 - <<'PY'
 import secrets
 from pathlib import Path
 path = Path('runtime-secrets/mohawk_api_token')
 path.write_text(secrets.token_hex(24), encoding='utf-8')
 print(f'created {path}')
 PY
-  else
-    echo "cannot create $TOKEN_PATH (need openssl or python3)" >&2
-    exit 1
-  fi
 fi
 
 if [[ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem || ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]]; then
