@@ -218,6 +218,13 @@ Quick start for a full local network (tested):
 make full-stack-3-nodes
 ```
 
+Windows note (Git Bash): if `runtime-secrets/mohawk_api_token` is read-only, launcher secret generation may fail with `PermissionError`. Fix by removing or unlocking the file, then rerun:
+
+```bash
+rm -f runtime-secrets/mohawk_api_token
+./scripts/launch_full_stack_3_nodes.sh --no-build
+```
+
 This starts:
 
 * `orchestrator`
