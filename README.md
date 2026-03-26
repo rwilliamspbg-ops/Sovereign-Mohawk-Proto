@@ -52,10 +52,10 @@ The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, rou
 
 ```mermaid
 flowchart TB
-    G[Global Layer\nSynthesis & Ledger Finality]
-    C[Continental Layer\nzk-SNARK Verification]
-    R[Regional Layer\nByzantine Filtering (Multi-Krum)]
-    E[Edge Layer\n10M Nodes (Local Differential Privacy)]
+    G["Global Layer<br/>Synthesis & Ledger Finality"]
+    C["Continental Layer<br/>zk-SNARK Verification"]
+    R["Regional Layer<br/>Byzantine Filtering (Multi-Krum)"]
+    E["Edge Layer<br/>10M Nodes (Local Differential Privacy)"]
 
     E --> R --> C --> G
 ```
@@ -66,10 +66,10 @@ Left-to-right (presentation view):
 
 ```mermaid
 flowchart LR
-    E[Edge Layer\n10M Nodes (Local Differential Privacy)]
-    R[Regional Layer\nByzantine Filtering (Multi-Krum)]
-    C[Continental Layer\nzk-SNARK Verification]
-    G[Global Layer\nSynthesis & Ledger Finality]
+    E["Edge Layer<br/>10M Nodes (Local Differential Privacy)"]
+    R["Regional Layer<br/>Byzantine Filtering (Multi-Krum)"]
+    C["Continental Layer<br/>zk-SNARK Verification"]
+    G["Global Layer<br/>Synthesis & Ledger Finality"]
 
     E --> R --> C --> G
 ```
