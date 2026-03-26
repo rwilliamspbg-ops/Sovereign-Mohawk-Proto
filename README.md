@@ -62,18 +62,6 @@ flowchart TB
 
 Trust and verification harden as updates move upward from edge privacy-preserving clients to global finality.
 
-Left-to-right (presentation view):
-
-```mermaid
-flowchart LR
-    E["Edge Layer<br/>10M Nodes (Local Differential Privacy)"]
-    R["Regional Layer<br/>Byzantine Filtering (Multi-Krum)"]
-    C["Continental Layer<br/>zk-SNARK Verification"]
-    G["Global Layer<br/>Synthesis & Ledger Finality"]
-
-    E --> R --> C --> G
-```
-
 ---
 
 ## 🚀 Why Mohawk?
