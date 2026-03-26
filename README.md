@@ -218,6 +218,12 @@ Quick start for a full local network (tested):
 make full-stack-3-nodes
 ```
 
+Native PowerShell (Windows):
+
+```powershell
+./scripts/launch_full_stack_3_nodes.ps1 -NoBuild
+```
+
 Windows note (Git Bash): if `runtime-secrets/mohawk_api_token` is read-only, launcher secret generation may fail with `PermissionError`. Fix by removing or unlocking the file, then rerun:
 
 ```bash
@@ -240,6 +246,12 @@ Stop the stack:
 
 # Equivalent Make target
 make full-stack-3-nodes-down
+```
+
+PowerShell stop:
+
+```powershell
+./scripts/launch_full_stack_3_nodes.ps1 -Down
 ```
 
 Legacy/regional launcher (single node-agent profile):
