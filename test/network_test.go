@@ -77,7 +77,7 @@ func TestGradientProtocol(t *testing.T) {
 	defer receiver.Close()
 
 	received := make(chan *network.GradientMessage, 1)
-	network.RegisterGradientHandler(receiver, func(msg *network.GradientMessage) *network.GradientAck {
+	network.RegisterGradientHandlerWithKEX(receiver, network.KEXModeX25519, func(msg *network.GradientMessage) *network.GradientAck {
 		received <- msg
 		return &network.GradientAck{Accepted: true}
 	})
@@ -95,7 +95,7 @@ func TestGradientProtocol(t *testing.T) {
 		Gradients: []float64{0.1, 0.2, 0.3},
 	}
 
-	ack, err := network.SendGradient(ctx, sender, receiver.ID(), receiver.Addrs(), msg)
+	ack, err := network.SendGradientWithKEX(ctx, sender, receiver.ID(), receiver.Addrs(), msg, network.KEXModeX25519)
 	if err != nil {
 		t.Fatalf("SendGradient: %v", err)
 	}
@@ -110,5 +110,37 @@ func TestGradientProtocol(t *testing.T) {
 		}
 	case <-ctx.Done():
 		t.Fatal("timed out waiting for gradient message")
+	}
+}
+
+func TestGradientProtocolRejectsKEXMismatch(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	receiverCfg := network.DefaultConfig(0)
+	receiverCfg.KEXMode = network.KEXModeHybridX25519MLKEM768
+	receiver, err := network.NewHost(ctx, receiverCfg)
+	if err != nil {
+		t.Fatalf("receiver host: %v", err)
+	}
+	defer receiver.Close()
+
+	network.RegisterGradientHandlerWithKEX(receiver, network.KEXModeHybridX25519MLKEM768, func(msg *network.GradientMessage) *network.GradientAck {
+		return &network.GradientAck{Accepted: true}
+	})
+
+	sender, err := network.NewHost(ctx, network.DefaultConfig(0))
+	if err != nil {
+		t.Fatalf("sender host: %v", err)
+	}
+	defer sender.Close()
+
+	msg := &network.GradientMessage{NodeID: "node-a", TaskID: "task-a", Round: 1, Gradients: []float64{0.1}}
+	ack, err := network.SendGradientWithKEX(ctx, sender, receiver.ID(), receiver.Addrs(), msg, network.KEXModeX25519)
+	if err != nil {
+		t.Fatalf("SendGradientWithKEX: %v", err)
+	}
+	if ack.Accepted {
+		t.Fatalf("expected kex mismatch rejection, got accepted=true")
 	}
 }

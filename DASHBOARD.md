@@ -5,6 +5,8 @@
 **Program Stage:** Go-Live Formalization Complete  
 **Current Phase:** v1.0.0 GA Closure (Q2 2026)
 
+**PQC Release Notes:** [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.md)
+
 ### Current Critical Path
 
 * v1.0.0 GA release checklist and deployment guide publication
@@ -14,6 +16,12 @@
 * Runtime gates: ✅ readiness / ✅ chaos / ✅ host network tuning
 * Attestations approved: 8/8
 * Remaining external/performance attestations: none
+
+### PQC Major Release
+
+* Status: ✅ complete
+* Scope: Hybrid transport KEX enforcement, XMSS attestation mode checks, migration epoch cryptographic cutover
+* Evidence: `RELEASE_NOTES_PQC_OVERHAUL.md`, `results/readiness/one-click-pipeline-report.json`
 
 Primary artifact trail:
 

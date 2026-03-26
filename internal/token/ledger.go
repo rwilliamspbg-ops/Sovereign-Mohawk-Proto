@@ -51,6 +51,8 @@ type Ledger struct {
 	minter              string
 	pqcMigration        bool
 	migrationETA        time.Time
+	migrationEpoch      time.Time
+	requireCryptoEpoch  bool
 	lockLegacyTransfers bool
 	mu                  sync.RWMutex
 	balances            map[string]int64
@@ -78,6 +80,8 @@ type persistentState struct {
 	Nonces              map[string]uint64  `json:"nonces,omitempty"`
 	PQCMigration        bool               `json:"pqc_migration"`
 	MigrationETA        time.Time          `json:"migration_eta,omitempty"`
+	MigrationEpoch      time.Time          `json:"migration_epoch,omitempty"`
+	RequireCryptoEpoch  bool               `json:"require_crypto_epoch,omitempty"`
 	LockLegacyTransfers bool               `json:"lock_legacy_transfers,omitempty"`
 	AddressMap          map[string]string  `json:"address_map,omitempty"`
 }
@@ -165,6 +169,18 @@ func (l *Ledger) ConfigurePQCMigration(enabled bool, eta time.Time, lockLegacyTr
 	}
 }
 
+// ConfigurePQCMigrationEpoch sets migration epoch controls used for cutover enforcement.
+func (l *Ledger) ConfigurePQCMigrationEpoch(epoch time.Time, requireCryptoAfterEpoch bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	if epoch.IsZero() {
+		l.migrationEpoch = time.Time{}
+	} else {
+		l.migrationEpoch = epoch.UTC()
+	}
+	l.requireCryptoEpoch = requireCryptoAfterEpoch
+}
+
 // PQCMigrationStatus returns migration controls and migration count.
 func (l *Ledger) PQCMigrationStatus() map[string]any {
 	l.mu.RLock()
@@ -172,6 +188,9 @@ func (l *Ledger) PQCMigrationStatus() map[string]any {
 	return map[string]any{
 		"enabled":               l.pqcMigration,
 		"migration_eta":         l.migrationETA,
+		"migration_epoch":       l.migrationEpoch,
+		"epoch_active":          !l.migrationEpoch.IsZero() && !time.Now().UTC().Before(l.migrationEpoch),
+		"require_crypto_epoch":  l.requireCryptoEpoch,
 		"lock_legacy_transfers": l.lockLegacyTransfers,
 		"mapped":                len(l.migrations),
 	}
@@ -251,6 +270,28 @@ func (l *Ledger) MigrateWithDualSignature(legacyAccount string, pqcAccount strin
 	return l.MigrateWithDualSignatureControls(legacyAccount, pqcAccount, amount, memo, legacySigned, pqcSigned, "", 0)
 }
 
+// MigrateWithDualSignatureCryptographic moves funds with cryptographic dual-signature verification.
+func (l *Ledger) MigrateWithDualSignatureCryptographic(legacyAccount string, pqcAccount string, amount float64, memo string, signatures MigrationSignatureBundle, idempotencyKey string, nonce uint64) (Tx, error) {
+	legacyAccount = strings.TrimSpace(legacyAccount)
+	pqcAccount = strings.TrimSpace(pqcAccount)
+	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	if legacyAccount == "" || pqcAccount == "" {
+		return Tx{}, fmt.Errorf("legacy and pqc accounts are required")
+	}
+	amountUnits, err := l.amountToUnits(amount)
+	if err != nil {
+		return Tx{}, err
+	}
+	digest, err := MigrationSigningDigest(l.Symbol(), legacyAccount, pqcAccount, amountUnits, memo, idempotencyKey, nonce)
+	if err != nil {
+		return Tx{}, err
+	}
+	if err := verifyMigrationSignatureBundle(digest, signatures); err != nil {
+		return Tx{}, err
+	}
+	return l.migrateWithDualSignatureUnits(legacyAccount, pqcAccount, amountUnits, memo, idempotencyKey, nonce, true)
+}
+
 // MigrateWithDualSignatureControls moves funds from a legacy account to a PQC account with replay/idempotency controls.
 func (l *Ledger) MigrateWithDualSignatureControls(legacyAccount string, pqcAccount string, amount float64, memo string, legacySigned bool, pqcSigned bool, idempotencyKey string, nonce uint64) (Tx, error) {
 	legacyAccount = strings.TrimSpace(legacyAccount)
@@ -266,7 +307,10 @@ func (l *Ledger) MigrateWithDualSignatureControls(legacyAccount string, pqcAccou
 	if err != nil {
 		return Tx{}, err
 	}
+	return l.migrateWithDualSignatureUnits(legacyAccount, pqcAccount, amountUnits, memo, idempotencyKey, nonce, false)
+}
 
+func (l *Ledger) migrateWithDualSignatureUnits(legacyAccount string, pqcAccount string, amountUnits int64, memo string, idempotencyKey string, nonce uint64, cryptographic bool) (Tx, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if idempotencyKey != "" {
@@ -283,6 +327,11 @@ func (l *Ledger) MigrateWithDualSignatureControls(legacyAccount string, pqcAccou
 	}
 	if !l.pqcMigration {
 		return Tx{}, fmt.Errorf("pqc migration period is not enabled")
+	}
+	if l.requireCryptoEpoch && !cryptographic {
+		if !l.migrationEpoch.IsZero() && !time.Now().UTC().Before(l.migrationEpoch) {
+			return Tx{}, fmt.Errorf("post-epoch migration requires cryptographic dual signatures")
+		}
 	}
 	if legacyAccount == pqcAccount {
 		return Tx{}, fmt.Errorf("legacy and pqc accounts must differ")
@@ -536,6 +585,8 @@ func (l *Ledger) Backup(backupPath string) error {
 		Nonces:              l.nonces,
 		PQCMigration:        l.pqcMigration,
 		MigrationETA:        l.migrationETA,
+		MigrationEpoch:      l.migrationEpoch,
+		RequireCryptoEpoch:  l.requireCryptoEpoch,
 		LockLegacyTransfers: l.lockLegacyTransfers,
 		AddressMap:          l.migrations,
 	}
@@ -645,6 +696,8 @@ func (l *Ledger) applyStateLocked(state persistentState) {
 	l.auditPrev = strings.TrimSpace(state.AuditPrev)
 	l.pqcMigration = state.PQCMigration
 	l.migrationETA = state.MigrationETA.UTC()
+	l.migrationEpoch = state.MigrationEpoch.UTC()
+	l.requireCryptoEpoch = state.RequireCryptoEpoch
 	l.lockLegacyTransfers = state.LockLegacyTransfers
 	if state.Nonces == nil {
 		state.Nonces = map[string]uint64{}
@@ -675,6 +728,8 @@ func (l *Ledger) saveStateLocked() error {
 		Nonces:              l.nonces,
 		PQCMigration:        l.pqcMigration,
 		MigrationETA:        l.migrationETA,
+		MigrationEpoch:      l.migrationEpoch,
+		RequireCryptoEpoch:  l.requireCryptoEpoch,
 		LockLegacyTransfers: l.lockLegacyTransfers,
 		AddressMap:          l.migrations,
 	}

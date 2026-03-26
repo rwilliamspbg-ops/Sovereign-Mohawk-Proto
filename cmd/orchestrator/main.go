@@ -100,10 +100,10 @@ func main() {
 	server.UtilityLedger = utilityLedger
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver
 	// gradient updates directly over the encrypted p2p transport.
-	network.RegisterGradientHandler(transportHost, func(msg *network.GradientMessage) *network.GradientAck {
+	network.RegisterGradientHandlerWithKEX(transportHost, kexMode, func(msg *network.GradientMessage) *network.GradientAck {
 		log.Printf("gradient received: node=%s task=%s round=%d len=%d",
 			msg.NodeID, msg.TaskID, msg.Round, len(msg.Gradients))
-		return &network.GradientAck{Accepted: true}
+		return &network.GradientAck{Accepted: true, NegotiatedKEX: string(kexMode), KEXPublicKeyLen: kexMode.ExpectedPublicKeyBytes()}
 	})
 
 	mux := http.NewServeMux()
@@ -116,6 +116,7 @@ func main() {
 	mux.HandleFunc("/p2p/info", server.HandleP2PInfo)
 	mux.HandleFunc("/ledger/migration/status", server.HandleMigrationStatus)
 	mux.HandleFunc("/ledger/migration/config", server.HandleMigrationConfig)
+	mux.HandleFunc("/ledger/migration/digest", server.HandleMigrationDigest)
 	mux.HandleFunc("/ledger/migration/migrate", server.HandleMigrationTransfer)
 	mux.Handle("/metrics", promhttp.Handler())
 
@@ -239,8 +240,11 @@ func initUtilityLedger() (*token.Ledger, error) {
 	}
 	if strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ENABLED")), "true") {
 		eta, _ := time.Parse(time.RFC3339, strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ETA")))
+		epoch, _ := time.Parse(time.RFC3339, strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_EPOCH")))
 		lockLegacy := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_LOCK_LEGACY_TRANSFERS")), "true")
+		requireCryptoEpoch := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH")), "true")
 		ledger.ConfigurePQCMigration(true, eta, lockLegacy)
+		ledger.ConfigurePQCMigrationEpoch(epoch, requireCryptoEpoch)
 	}
 	return ledger, nil
 }

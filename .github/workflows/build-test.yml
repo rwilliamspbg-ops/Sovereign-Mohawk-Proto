@@ -37,6 +37,7 @@ jobs:
           cargo build --target wasm32-unknown-unknown --release
       - name: Go Build and Test
         run: |
+          source scripts/ensure_go_toolchain.sh
           go mod tidy
           go build ./...
           go test ./...

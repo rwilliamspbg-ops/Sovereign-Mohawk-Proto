@@ -1,6 +1,11 @@
 package test
 
 import (
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/elliptic"
+	"crypto/rand"
+	"encoding/base64"
 	"testing"
 	"time"
 
@@ -25,6 +30,57 @@ func TestUtilityCoinMintAndTransfer(t *testing.T) {
 	}
 	if got := ledger.Balance("edge-b"); got != 24.5 {
 		t.Fatalf("unexpected edge-b balance after transfer: %.4f", got)
+	}
+}
+
+func TestUtilityCoinDualSignatureMigrationCryptographic(t *testing.T) {
+	ledger := token.NewLedger("MHC", "protocol")
+	if _, err := ledger.Mint("protocol", "legacy-edge", 10, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+	ledger.EnablePQCMigration(true, time.Now().Add(24*time.Hour))
+
+	legacyPriv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("legacy keygen failed: %v", err)
+	}
+	pqcPub, pqcPriv, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("pqc keygen failed: %v", err)
+	}
+
+	amountUnits, err := ledger.AmountToUnits(2.5)
+	if err != nil {
+		t.Fatalf("amount conversion failed: %v", err)
+	}
+	digest, err := token.MigrationSigningDigest("MHC", "legacy-edge", "mldsa-edge", amountUnits, "migration", "", 11)
+	if err != nil {
+		t.Fatalf("digest build failed: %v", err)
+	}
+	legacySig, err := ecdsa.SignASN1(rand.Reader, legacyPriv, digest)
+	if err != nil {
+		t.Fatalf("legacy sign failed: %v", err)
+	}
+	pqcSig := ed25519.Sign(pqcPriv, digest)
+
+	legacyPubBytes := elliptic.Marshal(elliptic.P256(), legacyPriv.PublicKey.X, legacyPriv.PublicKey.Y)
+	bundle := token.MigrationSignatureBundle{
+		LegacyAlgorithm: "ecdsa-p256-sha256",
+		LegacyPublicKey: base64.StdEncoding.EncodeToString(legacyPubBytes),
+		LegacySignature: base64.StdEncoding.EncodeToString(legacySig),
+		PQCAlgorithm:    "ml-dsa-65",
+		PQCPublicKey:    base64.StdEncoding.EncodeToString(pqcPub),
+		PQCSignature:    base64.StdEncoding.EncodeToString(pqcSig),
+	}
+
+	if _, err := ledger.MigrateWithDualSignatureCryptographic("legacy-edge", "mldsa-edge", 2.5, "migration", bundle, "", 11); err != nil {
+		t.Fatalf("cryptographic migration failed: %v", err)
+	}
+	if got := ledger.Balance("legacy-edge"); got != 7.5 {
+		t.Fatalf("unexpected legacy balance after cryptographic migration: %.4f", got)
+	}
+	if got := ledger.Balance("mldsa-edge"); got != 2.5 {
+		t.Fatalf("unexpected pqc balance after cryptographic migration: %.4f", got)
 	}
 }
 
@@ -117,5 +173,52 @@ func TestUtilityCoinMigrationNonceAndIdempotency(t *testing.T) {
 	}
 	if _, err := ledger.MigrateWithDualSignatureControls("legacy-edge", "mldsa-edge", 1, "replay", true, true, "mig-2", 10); err == nil {
 		t.Fatal("expected migration nonce replay to fail")
+	}
+}
+
+func TestUtilityCoinMigrationEpochEnforcesCryptographicPath(t *testing.T) {
+	ledger := token.NewLedger("MHC", "protocol")
+	if _, err := ledger.Mint("protocol", "legacy-edge", 10, "seed"); err != nil {
+		t.Fatalf("seed mint failed: %v", err)
+	}
+	ledger.ConfigurePQCMigration(true, time.Now().Add(24*time.Hour), false)
+	ledger.ConfigurePQCMigrationEpoch(time.Now().Add(-1*time.Minute), true)
+
+	if _, err := ledger.MigrateWithDualSignature("legacy-edge", "mldsa-edge", 1, "post-epoch", true, true); err == nil {
+		t.Fatal("expected boolean migration to fail after cryptographic epoch")
+	}
+
+	legacyPriv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("legacy keygen failed: %v", err)
+	}
+	pqcPub, pqcPriv, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("pqc keygen failed: %v", err)
+	}
+	amountUnits, err := ledger.AmountToUnits(1)
+	if err != nil {
+		t.Fatalf("amount conversion failed: %v", err)
+	}
+	digest, err := token.MigrationSigningDigest("MHC", "legacy-edge", "mldsa-edge", amountUnits, "post-epoch", "", 101)
+	if err != nil {
+		t.Fatalf("digest build failed: %v", err)
+	}
+	legacySig, err := ecdsa.SignASN1(rand.Reader, legacyPriv, digest)
+	if err != nil {
+		t.Fatalf("legacy sign failed: %v", err)
+	}
+	pqcSig := ed25519.Sign(pqcPriv, digest)
+	legacyPubBytes := elliptic.Marshal(elliptic.P256(), legacyPriv.PublicKey.X, legacyPriv.PublicKey.Y)
+	bundle := token.MigrationSignatureBundle{
+		LegacyAlgorithm: "ecdsa-p256-sha256",
+		LegacyPublicKey: base64.StdEncoding.EncodeToString(legacyPubBytes),
+		LegacySignature: base64.StdEncoding.EncodeToString(legacySig),
+		PQCAlgorithm:    "ml-dsa-65",
+		PQCPublicKey:    base64.StdEncoding.EncodeToString(pqcPub),
+		PQCSignature:    base64.StdEncoding.EncodeToString(pqcSig),
+	}
+	if _, err := ledger.MigrateWithDualSignatureCryptographic("legacy-edge", "mldsa-edge", 1, "post-epoch", bundle, "", 101); err != nil {
+		t.Fatalf("expected cryptographic post-epoch migration to succeed: %v", err)
 	}
 }

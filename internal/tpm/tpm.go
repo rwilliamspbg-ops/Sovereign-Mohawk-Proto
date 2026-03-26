@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -33,6 +34,7 @@ type QuoteEnvelope struct {
 	IssuedAt       time.Time `json:"issued_at"`
 	ExpiresAt      time.Time `json:"expires_at"`
 	SignatureAlgo  string    `json:"signature_algo,omitempty"`
+	HashSigKeyID   string    `json:"hash_sig_key_id,omitempty"`
 	SignatureIndex uint64    `json:"signature_index,omitempty"`
 	HashSigPublic  []byte    `json:"hash_sig_public,omitempty"`
 	Signature      []byte    `json:"signature"`
@@ -75,6 +77,7 @@ type Attestor struct {
 	pcrDigest []byte
 	sigMode   AttestationSignatureMode
 	hashSeed  [32]byte
+	hashKeyID string
 	sigIndex  uint64
 	sigMu     sync.Mutex
 }
@@ -470,7 +473,8 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 	}
 	digest := sha256.Sum256([]byte("pcr:sha256:boot=measured;runtime=verified;node=" + nodeID))
 	var hashSeed [32]byte
-	if _, err := rand.Read(hashSeed[:]); err != nil {
+	hashSeed, hashKeyID, err := loadHashSeed(nodeID)
+	if err != nil {
 		return nil, err
 	}
 	mode := ActiveAttestationSignatureMode()
@@ -486,6 +490,7 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 		pcrDigest: digest[:],
 		sigMode:   mode,
 		hashSeed:  hashSeed,
+		hashKeyID: hashKeyID,
 	}, nil
 }
 
@@ -496,16 +501,17 @@ func (a *Attestor) GenerateQuote() ([]byte, error) {
 		IssuedAt:       time.Now().UTC(),
 		ExpiresAt:      time.Now().Add(5 * time.Minute).UTC(),
 		SignatureAlgo:  string(a.sigMode),
+		HashSigKeyID:   a.hashKeyID,
 		CertificatePEM: pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: a.leafCert.Raw}),
 	}
-
-	digest, err := envelope.payloadDigest()
-	if err != nil {
-		return nil, err
-	}
 	var signature []byte
+	var err error
 	switch a.sigMode {
 	case AttestationSignatureRSA:
+		digest, digestErr := envelope.payloadDigest()
+		if digestErr != nil {
+			return nil, digestErr
+		}
 		signature, err = rsa.SignPSS(rand.Reader, a.key, crypto.SHA256, digest, nil)
 		if err != nil {
 			return nil, err
@@ -515,8 +521,12 @@ func (a *Attestor) GenerateQuote() ([]byte, error) {
 		index := a.sigIndex
 		a.sigIndex++
 		a.sigMu.Unlock()
-		signature, envelope.HashSigPublic = signStatefulHashDigest(a.hashSeed, index, digest)
 		envelope.SignatureIndex = index
+		digest, digestErr := envelope.payloadDigest()
+		if digestErr != nil {
+			return nil, digestErr
+		}
+		signature, envelope.HashSigPublic = signStatefulHashDigest(a.hashSeed, index, digest)
 	default:
 		return nil, fmt.Errorf("unsupported attestation signature mode %q", a.sigMode)
 	}
@@ -610,15 +620,21 @@ func equalFixed32(a []byte, b []byte) bool {
 
 func (q QuoteEnvelope) payloadDigest() ([]byte, error) {
 	payload := struct {
-		NodeID    string    `json:"node_id"`
-		PCRDigest []byte    `json:"pcr_digest"`
-		IssuedAt  time.Time `json:"issued_at"`
-		ExpiresAt time.Time `json:"expires_at"`
+		NodeID         string    `json:"node_id"`
+		PCRDigest      []byte    `json:"pcr_digest"`
+		IssuedAt       time.Time `json:"issued_at"`
+		ExpiresAt      time.Time `json:"expires_at"`
+		SignatureAlgo  string    `json:"signature_algo,omitempty"`
+		HashSigKeyID   string    `json:"hash_sig_key_id,omitempty"`
+		SignatureIndex uint64    `json:"signature_index,omitempty"`
 	}{
-		NodeID:    q.NodeID,
-		PCRDigest: q.PCRDigest,
-		IssuedAt:  q.IssuedAt,
-		ExpiresAt: q.ExpiresAt,
+		NodeID:         q.NodeID,
+		PCRDigest:      q.PCRDigest,
+		IssuedAt:       q.IssuedAt,
+		ExpiresAt:      q.ExpiresAt,
+		SignatureAlgo:  q.SignatureAlgo,
+		HashSigKeyID:   q.HashSigKeyID,
+		SignatureIndex: q.SignatureIndex,
 	}
 	encoded, err := json.Marshal(payload)
 	if err != nil {
@@ -638,4 +654,50 @@ func parseCertificate(pemBytes []byte) (*x509.Certificate, error) {
 		return nil, fmt.Errorf("invalid certificate: %w", err)
 	}
 	return cert, nil
+}
+
+func loadHashSeed(nodeID string) ([32]byte, string, error) {
+	seedHex := strings.TrimSpace(os.Getenv("MOHAWK_TPM_HASHSIG_SEED_HEX"))
+	seedFile := strings.TrimSpace(os.Getenv("MOHAWK_TPM_HASHSIG_SEED_FILE"))
+	requireSeeded := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_TPM_HASHSIG_REQUIRE_SEEDED")), "true")
+
+	var seed [32]byte
+	var raw []byte
+	var err error
+	source := ""
+
+	if seedHex != "" {
+		raw, err = hex.DecodeString(strings.TrimPrefix(seedHex, "0x"))
+		if err != nil {
+			return seed, "", fmt.Errorf("decode MOHAWK_TPM_HASHSIG_SEED_HEX: %w", err)
+		}
+		source = "env-hex"
+	} else if seedFile != "" {
+		content, readErr := os.ReadFile(seedFile)
+		if readErr != nil {
+			return seed, "", fmt.Errorf("read MOHAWK_TPM_HASHSIG_SEED_FILE: %w", readErr)
+		}
+		trimmed := strings.TrimSpace(string(content))
+		raw, err = hex.DecodeString(strings.TrimPrefix(trimmed, "0x"))
+		if err != nil {
+			return seed, "", fmt.Errorf("decode hash-sig seed file %q as hex: %w", seedFile, err)
+		}
+		source = "seed-file"
+	} else {
+		if requireSeeded {
+			return seed, "", fmt.Errorf("hash-signature seed is required but no seed source is configured")
+		}
+		raw = make([]byte, 32)
+		if _, err := rand.Read(raw); err != nil {
+			return seed, "", err
+		}
+		source = "ephemeral-random"
+	}
+
+	if len(raw) != 32 {
+		return seed, "", fmt.Errorf("hash-signature seed must be exactly 32 bytes, got %d", len(raw))
+	}
+	copy(seed[:], raw)
+	idDigest := sha256.Sum256([]byte(nodeID + ":" + source + ":" + hex.EncodeToString(seed[:])))
+	return seed, hex.EncodeToString(idDigest[:8]), nil
 }

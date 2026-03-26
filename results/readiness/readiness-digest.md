@@ -25,6 +25,8 @@ Automated summary generated from readiness and chaos gate runs.
 | proof_verifications_series_present | true |
 | supply_invariant | true |
 | targets_up | true |
+| tpm_attestation_signature_mode | true |
+| tpm_health | true |
 | tx_count_non_negative | true |
 
 ## Chaos Gate
@@ -34,4 +36,4 @@ Automated summary generated from readiness and chaos gate runs.
 | grafana | ✅ | ✅ | ✅ | 4s | 120s | ✅ |
 | orchestrator | ✅ | ✅ | ✅ | 8s | 120s | ✅ |
 | prometheus | ✅ | ✅ | ✅ | 21s | 120s | ✅ |
-| tpm-metrics | ✅ | ✅ | ✅ | 9s | 90s | ✅ |
+| tpm-metrics | ✅ | ✅ | ✅ | 8s | 90s | ✅ |

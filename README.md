@@ -18,6 +18,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
 [![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
+[![Publish Python SDK](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/publish-python-sdk.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/publish-python-sdk.yml)
 [![Mainnet Readiness Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml)
 [![Mainnet Chaos Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml)
 [![Weekly Readiness Digest](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml)
@@ -31,6 +32,10 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
 ![Chaos Recovery SLO](https://img.shields.io/badge/Chaos%20Recovery-SLO%20Enforced-critical)
+![PQC Transport KEX](https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1)
+![TPM Attestation Mode](https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1)
+![PQC Migration Cutover](https://img.shields.io/badge/Migration-Crypto%20After%20Epoch%20Enabled-2ea043)
+![Host Preflight Policy](https://img.shields.io/badge/Host%20Preflight-Strict%20By%20Default-d73a49)
 ![Genesis Testnet](https://img.shields.io/badge/Testnet-global--testnet-orange)
 ![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
 ![Tokenomics Dashboard](https://img.shields.io/badge/Grafana-Tokenomics%20Live-F46800?logo=grafana&logoColor=white)
@@ -71,6 +76,42 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 * 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
 * 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, bridge settlement, and proof cost.
 * 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
+* ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
+
+### Quantum-Ready Defaults
+
+Default stack profiles enforce these PQC-forward controls:
+
+* `MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid`
+* `MOHAWK_TPM_IDENTITY_SIG_MODE=xmss`
+* `MOHAWK_PQC_MIGRATION_ENABLED=true`
+* `MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=true`
+* `MOHAWK_PQC_MIGRATION_EPOCH=2027-12-31T00:00:00Z`
+* `MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH=true`
+
+Migration signing flow:
+
+* Build canonical digest: `POST /ledger/migration/digest`
+* Submit cryptographic transfer: `POST /ledger/migration/migrate`
+
+Migration transfer supports cryptographic dual-signature fields:
+
+* Legacy path: `legacy_algo`, `legacy_pub_key`, `legacy_sig`
+* PQC path: `pqc_algo`, `pqc_pub_key`, `pqc_sig`
+
+The canonical payload digest is produced by `MigrationSigningDigest(...)` in `internal/token`.
+
+### PQC Readiness Overhaul (Major Release)
+
+This release closes the 2026–2027 PQC readiness program from migration scaffolding to production enforcement:
+
+Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.md)
+
+* Hybrid transport negotiation is now policy-bound at runtime (`x25519-mlkem768-hybrid`) with keyshare-size enforcement.
+* TPM quote identity is bound to XMSS-capable attestation metadata and payload digesting.
+* Ledger migration cutover supports epoch-enforced cryptographic dual-signature transfers.
+* Orchestrator exposes digest-first migration signing APIs for deterministic operator workflows.
+* One-click readiness now emits structured PASS/FAIL pipeline artifacts with toolchain alignment metadata.
 
 ---
 
@@ -304,6 +345,11 @@ sudo sysctl -w net.core.wmem_default=262144
 ```
 
 Persist these in `/etc/sysctl.conf` or `/etc/sysctl.d/*.conf`, then run `sudo sysctl --system`.
+
+Host preflight mode defaults to strict in this release:
+
+* Default (production): `MOHAWK_HOST_PREFLIGHT_MODE=strict`
+* Dev-container override: `MOHAWK_HOST_PREFLIGHT_MODE=advisory make mainnet-one-click`
 
 Artifacts are generated at:
 

@@ -174,6 +174,16 @@ def main() -> int:
     parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
     parser.add_argument("--grafana-url", default="http://localhost:3000", help="Grafana base URL")
     parser.add_argument(
+        "--tpm-metrics-url",
+        default="http://localhost:9102",
+        help="TPM metrics exporter base URL",
+    )
+    parser.add_argument(
+        "--expected-attestation-signature-mode",
+        default="xmss",
+        help="Required attestation signature mode reported by TPM metrics health endpoint",
+    )
+    parser.add_argument(
         "--retries", type=int, default=30, help="Number of retries per readiness wait"
     )
     parser.add_argument("--delay", type=float, default=2.0, help="Delay between retries in seconds")
@@ -221,6 +231,24 @@ def main() -> int:
         report["checks"]["grafana_health"] = grafana_health.get("database") == "ok"
         if not report["checks"]["grafana_health"]:
             failures.append(f"grafana database not ok: {grafana_health}")
+
+        tpm_health = wait_json(
+            f"{args.tpm_metrics_url}/healthz",
+            expect_key="status",
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["tpm_health"] = tpm_health.get("status") == "ok"
+        if not report["checks"]["tpm_health"]:
+            failures.append(f"tpm health not ok: {tpm_health}")
+        expected_mode = str(args.expected_attestation_signature_mode).strip().lower()
+        actual_mode = str(tpm_health.get("attestation_signature_mode", "")).strip().lower()
+        report["checks"]["tpm_attestation_signature_mode"] = actual_mode == expected_mode
+        if actual_mode != expected_mode:
+            failures.append(
+                "tpm attestation signature mode mismatch: "
+                f"expected={expected_mode}, got={actual_mode or 'missing'}"
+            )
 
         _ = wait_json(
             f"{args.prom_url}/api/v1/targets",

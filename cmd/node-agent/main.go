@@ -336,7 +336,7 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 		Round:     round,
 		Gradients: mockGradients,
 	}
-	ack, err := network.SendGradient(ctx, peerHost, orchPeerID, orchAddrs, msg)
+	ack, err := network.SendGradientWithKEX(ctx, peerHost, orchPeerID, orchAddrs, msg, conf.TransportKEXMode)
 	if err != nil {
 		metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)

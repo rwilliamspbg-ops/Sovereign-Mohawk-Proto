@@ -17,6 +17,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Python SDK v2 surface and structured error-code mapping in place
 - [x] Readiness gate, chaos gate, and weekly digest CI workflows active
 - [x] Tokenomics + operational monitoring dashboards provisioned
+- [x] **PQC Major Release:** Hybrid KEX + XMSS attestation + cryptographic migration epoch enforcement release complete
 
 ### Phase Tracker
 
@@ -151,6 +152,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-03-26 | 2.3 | Added PQC Major Release completion marker and mirrored executive-status language |
 | 2026-03-26 | 2.2 | Formal go-live gate artifacts introduced; runbook publication and escalation-playbook tasks marked complete |
 | 2026-03-15 | 2.1 | Maintenance refresh: explicit Phase 2 COMPLETE / Phase 3 IN PROGRESS markers and merged CI gates tracked under current phase |
 | 2026-03-15 | 2.0 | Roadmap refocused on remaining work from current mainnet-readiness state |

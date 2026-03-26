@@ -6,7 +6,7 @@ all: build verify
 
 build:
 	@echo "🏗️  Building Sovereign Mohawk binaries..."
-	go build ./...
+	bash -c 'source scripts/ensure_go_toolchain.sh && go build ./...'
 
 test:
 	@echo "🧪 Running Proof-Driven Design tests..."
@@ -14,7 +14,7 @@ test:
 		chmod +x test_all.sh; \
 		./test_all.sh; \
 	else \
-		go test ./...; \
+		bash -c 'source scripts/ensure_go_toolchain.sh && go test ./...'; \
 	fi
 
 audit:
@@ -24,8 +24,8 @@ audit:
 
 lint:
 	@echo "🧹 Running local linting checks..."
-	go fmt ./...
-	go vet ./...
+	bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
+	bash -c 'source scripts/ensure_go_toolchain.sh && go vet ./...'
 
 verify: lint test audit
 	@echo "✅ All Formal Proofs and Lints PASSED."
@@ -43,13 +43,13 @@ clean:
 build-python-lib:
 	@echo "🐍 Building MOHAWK Go C-shared library for Python SDK..."
 	@if [ "$(shell uname)" = "Darwin" ]; then \
-		go build -o libmohawk.dylib -buildmode=c-shared internal/pyapi/api.go; \
+		bash -c 'source scripts/ensure_go_toolchain.sh && go build -o libmohawk.dylib -buildmode=c-shared internal/pyapi/api.go'; \
 		echo "✅ Built libmohawk.dylib"; \
 	elif [ "$(shell uname)" = "Linux" ]; then \
-		go build -o libmohawk.so -buildmode=c-shared internal/pyapi/api.go; \
+		bash -c 'source scripts/ensure_go_toolchain.sh && go build -o libmohawk.so -buildmode=c-shared internal/pyapi/api.go'; \
 		echo "✅ Built libmohawk.so"; \
 	else \
-		go build -o libmohawk.dll -buildmode=c-shared internal/pyapi/api.go; \
+		bash -c 'source scripts/ensure_go_toolchain.sh && go build -o libmohawk.dll -buildmode=c-shared internal/pyapi/api.go'; \
 		echo "✅ Built libmohawk.dll"; \
 	fi
 
@@ -71,7 +71,7 @@ python-all: build-python-lib install-python-sdk test-python-sdk
 
 metrics:
 	@echo "📈 Starting TPM metrics exporter..."
-	go run ./cmd/tpm-metrics
+	bash -c 'source scripts/ensure_go_toolchain.sh && go run ./cmd/tpm-metrics'
 
 regional-shard:
 	@echo "🌐 Launching regional shard profile..."

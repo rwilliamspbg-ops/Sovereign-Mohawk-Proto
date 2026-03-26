@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -38,6 +39,53 @@ type Server struct {
 	TransportKEXMode network.KEXMode
 	UtilityLedger    *token.Ledger
 	AdminToken       string
+}
+
+// HandleMigrationDigest returns the canonical migration digest to be signed by legacy and PQC keys.
+func (s *Server) HandleMigrationDigest(w http.ResponseWriter, r *http.Request) {
+	if !s.authorizeAdmin(w, r) {
+		return
+	}
+	if s.UtilityLedger == nil {
+		http.Error(w, "utility ledger not configured", http.StatusServiceUnavailable)
+		return
+	}
+	var req struct {
+		LegacyAccount  string  `json:"legacy_account"`
+		PQCAccount     string  `json:"pqc_account"`
+		Amount         float64 `json:"amount"`
+		Memo           string  `json:"memo,omitempty"`
+		IdempotencyKey string  `json:"idempotency_key,omitempty"`
+		Nonce          uint64  `json:"nonce,omitempty"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	amountUnits, err := s.UtilityLedger.AmountToUnits(req.Amount)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("invalid amount: %v", err), http.StatusBadRequest)
+		return
+	}
+	digest, err := token.MigrationSigningDigest(
+		s.UtilityLedger.Symbol(),
+		req.LegacyAccount,
+		req.PQCAccount,
+		amountUnits,
+		req.Memo,
+		req.IdempotencyKey,
+		req.Nonce,
+	)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("digest failed: %v", err), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"symbol":       s.UtilityLedger.Symbol(),
+		"amount_units": amountUnits,
+		"digest_hex":   hex.EncodeToString(digest),
+	})
 }
 
 // HandleP2PInfo returns this orchestrator's libp2p peer ID and listen addresses.
@@ -183,6 +231,8 @@ func (s *Server) HandleMigrationConfig(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Enabled             bool   `json:"enabled"`
 		MigrationETA        string `json:"migration_eta,omitempty"`
+		MigrationEpoch      string `json:"migration_epoch,omitempty"`
+		RequireCryptoEpoch  bool   `json:"require_crypto_epoch"`
 		LockLegacyTransfers bool   `json:"lock_legacy_transfers"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -198,7 +248,17 @@ func (s *Server) HandleMigrationConfig(w http.ResponseWriter, r *http.Request) {
 		}
 		eta = parsed
 	}
+	var epoch time.Time
+	if strings.TrimSpace(req.MigrationEpoch) != "" {
+		parsed, err := time.Parse(time.RFC3339, req.MigrationEpoch)
+		if err != nil {
+			http.Error(w, "migration_epoch must be RFC3339", http.StatusBadRequest)
+			return
+		}
+		epoch = parsed
+	}
 	s.UtilityLedger.ConfigurePQCMigration(req.Enabled, eta, req.LockLegacyTransfers)
+	s.UtilityLedger.ConfigurePQCMigrationEpoch(epoch, req.RequireCryptoEpoch)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(s.UtilityLedger.PQCMigrationStatus())
 }
@@ -219,6 +279,12 @@ func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request)
 		Memo           string  `json:"memo,omitempty"`
 		LegacySigned   bool    `json:"legacy_signed"`
 		PQCSigned      bool    `json:"pqc_signed"`
+		LegacyAlgo     string  `json:"legacy_algo,omitempty"`
+		LegacyPubKey   string  `json:"legacy_pub_key,omitempty"`
+		LegacySig      string  `json:"legacy_sig,omitempty"`
+		PQCAlgo        string  `json:"pqc_algo,omitempty"`
+		PQCPubKey      string  `json:"pqc_pub_key,omitempty"`
+		PQCSig         string  `json:"pqc_sig,omitempty"`
 		IdempotencyKey string  `json:"idempotency_key,omitempty"`
 		Nonce          uint64  `json:"nonce,omitempty"`
 	}
@@ -226,16 +292,38 @@ func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
-	tx, err := s.UtilityLedger.MigrateWithDualSignatureControls(
-		req.LegacyAccount,
-		req.PQCAccount,
-		req.Amount,
-		req.Memo,
-		req.LegacySigned,
-		req.PQCSigned,
-		req.IdempotencyKey,
-		req.Nonce,
-	)
+	signatures := token.MigrationSignatureBundle{
+		LegacyAlgorithm: req.LegacyAlgo,
+		LegacyPublicKey: req.LegacyPubKey,
+		LegacySignature: req.LegacySig,
+		PQCAlgorithm:    req.PQCAlgo,
+		PQCPublicKey:    req.PQCPubKey,
+		PQCSignature:    req.PQCSig,
+	}
+	var tx token.Tx
+	var err error
+	if signatures.Enabled() {
+		tx, err = s.UtilityLedger.MigrateWithDualSignatureCryptographic(
+			req.LegacyAccount,
+			req.PQCAccount,
+			req.Amount,
+			req.Memo,
+			signatures,
+			req.IdempotencyKey,
+			req.Nonce,
+		)
+	} else {
+		tx, err = s.UtilityLedger.MigrateWithDualSignatureControls(
+			req.LegacyAccount,
+			req.PQCAccount,
+			req.Amount,
+			req.Memo,
+			req.LegacySigned,
+			req.PQCSigned,
+			req.IdempotencyKey,
+			req.Nonce,
+		)
+	}
 	if err != nil {
 		http.Error(w, fmt.Sprintf("migration failed: %v", err), http.StatusBadRequest)
 		return

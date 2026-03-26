@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **PQC readiness overhaul release closure** (`internal/network/gradient.go`, `internal/tpm/tpm.go`, `internal/token/ledger.go`, `cmd/orchestrator/server.go`, `scripts/mainnet_readiness_gate.py`):
+  - Hardened runtime hybrid transport negotiation and KEX metadata enforcement for `x25519-mlkem768-hybrid`
+  - Completed XMSS-bound TPM quote metadata binding and attestation mode visibility in readiness checks
+  - Added epoch-driven migration cutover with cryptographic dual-signature requirement after cutover
+  - Added digest-first migration signing endpoint to support deterministic operator signing workflows
+  - Added readiness validation coverage for TPM identity signature mode and migration policy defaults
+
 - **Formal go-live gate framework** (`scripts/validate_go_live_gates.py`, `results/go-live/attestations/*.json`, `Makefile`):
   - Added machine-enforced go-live validator combining readiness, chaos, host network preflight, and attestation approvals
   - Added `make go-live-gate` target for one-command formal validation
@@ -71,6 +78,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
+
+- **One-click host preflight policy tightened** (`scripts/mainnet_one_click.sh`, `README.md`, `OPERATIONS_RUNBOOK.md`):
+  - Switched `MOHAWK_HOST_PREFLIGHT_MODE` default from advisory to strict for production-safe execution
+  - Documented dev-container advisory override path and production sysctl persistence checklist
+  - Added structured one-click report references for release evidence trails
 
 - **SDK version baseline** (`sdk/python/mohawk/__init__.py`, `README.md`, `sdk/python/README.md`):
   - Bumped Python SDK release identifier and badge references to `2.0.1.Alpha`

@@ -64,6 +64,8 @@ def validate_compose_pqc_defaults(path: Path) -> tuple[bool, str]:
         "MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}",
         "MOHAWK_PQC_MIGRATION_ENABLED=${MOHAWK_PQC_MIGRATION_ENABLED:-true}",
         "MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=${MOHAWK_PQC_LOCK_LEGACY_TRANSFERS:-true}",
+        "MOHAWK_PQC_MIGRATION_EPOCH=${MOHAWK_PQC_MIGRATION_EPOCH:-2027-12-31T00:00:00Z}",
+        "MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH=${MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH:-true}",
     ]
     for line in required_lines:
         if line not in text:
