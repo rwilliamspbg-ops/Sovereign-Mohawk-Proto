@@ -66,8 +66,6 @@ fi
 mkdir -p runtime-secrets
 
 TOKEN_PATH="runtime-secrets/mohawk_api_token"
-TPM_CERT_PATH="runtime-secrets/mohawk_tpm_ca_cert.pem"
-TPM_KEY_PATH="runtime-secrets/mohawk_tpm_ca_key.pem"
 
 if [[ -d "$TOKEN_PATH" ]]; then
   cat >&2 <<EOF
@@ -75,22 +73,6 @@ invalid path: $TOKEN_PATH is a directory
 
 Fix:
   rm -rf "$TOKEN_PATH"
-  ./scripts/launch_full_stack_3_nodes.sh --no-build
-EOF
-  exit 1
-fi
-
-if [[ -d "$TPM_CERT_PATH" || -d "$TPM_KEY_PATH" ]]; then
-  cat >&2 <<EOF
-invalid secret path type detected under runtime-secrets/
-
-Expected files:
-  $TPM_CERT_PATH
-  $TPM_KEY_PATH
-
-At least one path is currently a directory, which breaks Docker bind mounts.
-Fix:
-  rm -rf "$TPM_CERT_PATH" "$TPM_KEY_PATH"
   ./scripts/launch_full_stack_3_nodes.sh --no-build
 EOF
   exit 1
@@ -132,10 +114,10 @@ PY
   fi
 fi
 
-if [[ ! -s "$TPM_CERT_PATH" || ! -s "$TPM_KEY_PATH" ]]; then
+if [[ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem || ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]]; then
   openssl req -x509 -newkey rsa:3072 \
-    -keyout "$TPM_KEY_PATH" \
-    -out "$TPM_CERT_PATH" \
+    -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
+    -out runtime-secrets/mohawk_tpm_ca_cert.pem \
     -sha256 -days 365 -nodes \
     -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
   echo "created runtime TPM CA secrets"

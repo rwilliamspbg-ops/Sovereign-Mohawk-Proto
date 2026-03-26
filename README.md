@@ -231,22 +231,6 @@ rm -f runtime-secrets/mohawk_api_token
 ./scripts/launch_full_stack_3_nodes.sh --no-build
 ```
 
-Windows Docker bind-mount note: if Docker reports `not a directory` while mounting `runtime-secrets/*` into `/run/secrets/*`, one of the expected secret files exists as a directory. Remove and regenerate:
-
-```bash
-rm -rf runtime-secrets/mohawk_api_token runtime-secrets/mohawk_tpm_ca_cert.pem runtime-secrets/mohawk_tpm_ca_key.pem
-docker compose down
-./scripts/launch_full_stack_3_nodes.sh --no-build
-```
-
-PowerShell equivalent:
-
-```powershell
-Remove-Item -Recurse -Force .\runtime-secrets\mohawk_api_token, .\runtime-secrets\mohawk_tpm_ca_cert.pem, .\runtime-secrets\mohawk_tpm_ca_key.pem
-docker compose down
-.\scripts\launch_full_stack_3_nodes.ps1 -NoBuild
-```
-
 This starts:
 
 * `orchestrator`
