@@ -172,7 +172,9 @@ def _npu_devices() -> List[DeviceInfo]:
         try:
             with open(candidate, "rb"):
                 pass
-            devices.append(DeviceInfo(backend=Backend.NPU, name=f"NPU ({candidate})", simd_width=128))
+            devices.append(
+                DeviceInfo(backend=Backend.NPU, name=f"NPU ({candidate})", simd_width=128)
+            )
             break
         except Exception:
             continue
@@ -233,7 +235,9 @@ def recommend_workers(device: DeviceInfo) -> int:
     return max(1, cpu_count)
 
 
-def build_auto_tune_profile(vector_length: int, devices: Optional[List[DeviceInfo]] = None) -> AutoTuneProfile:
+def build_auto_tune_profile(
+    vector_length: int, devices: Optional[List[DeviceInfo]] = None
+) -> AutoTuneProfile:
     available = devices if devices is not None else detect_devices()
     selected = select_device(available)
     return AutoTuneProfile(

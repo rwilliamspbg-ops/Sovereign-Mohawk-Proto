@@ -16,7 +16,9 @@ from mohawk import MohawkNode  # noqa: E402
 
 
 def _load_token() -> str:
-    token_path = Path(os.getenv("MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token")))
+    token_path = Path(
+        os.getenv("MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token"))
+    )
     if not token_path.is_absolute():
         token_path = ROOT / token_path
     return token_path.read_text(encoding="utf-8").strip()
@@ -73,7 +75,12 @@ class ExporterState:
 
 
 def start_traffic_loop(state: ExporterState) -> None:
-    enabled = os.getenv("MOHAWK_PYAPI_TRAFFIC_ENABLED", "true").lower() in {"1", "true", "yes", "on"}
+    enabled = os.getenv("MOHAWK_PYAPI_TRAFFIC_ENABLED", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
     if not enabled:
         return
     interval = max(2, int(os.getenv("MOHAWK_PYAPI_TRAFFIC_INTERVAL_SECONDS", "10")))

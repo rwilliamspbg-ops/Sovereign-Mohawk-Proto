@@ -61,6 +61,24 @@ jobs:
       - name: Verify Docker Stack
         run: docker compose config
 
+      - name: Prepare runtime secrets
+        run: |
+          mkdir -p runtime-secrets
+          if [ ! -s runtime-secrets/mohawk_api_token ]; then
+            python3 - <<'PY'
+import secrets
+from pathlib import Path
+Path("runtime-secrets/mohawk_api_token").write_text(secrets.token_hex(24), encoding="utf-8")
+PY
+          fi
+          if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
+            openssl req -x509 -newkey rsa:3072 \
+              -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
+              -out runtime-secrets/mohawk_tpm_ca_cert.pem \
+              -sha256 -days 365 -nodes \
+              -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
+          fi
+
       - name: Monitoring Smoke Check
         run: |
           docker compose up -d --build orchestrator prometheus tpm-metrics

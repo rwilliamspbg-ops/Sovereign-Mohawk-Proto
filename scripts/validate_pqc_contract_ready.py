@@ -93,7 +93,9 @@ def main() -> int:
     if not ok:
         return fail(msg)
 
-    print("PQC CONTRACT GATE PASSED: bridge policies, capabilities, and compose PQC defaults validated")
+    print(
+        "PQC CONTRACT GATE PASSED: bridge policies, capabilities, and compose PQC defaults validated"
+    )
     return 0
 
 

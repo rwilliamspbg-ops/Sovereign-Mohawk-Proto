@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 REQUIRED_ATTESTATIONS = {
     "security_audit": "results/go-live/attestations/security_audit.json",
     "penetration_test": "results/go-live/attestations/penetration_test.json",
@@ -115,7 +114,9 @@ def write_report(repo_root: Path, report: dict) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate formal go-live gates for production readiness.")
+    parser = argparse.ArgumentParser(
+        description="Validate formal go-live gates for production readiness."
+    )
     parser.add_argument(
         "--repo-root",
         default=".",
