@@ -209,7 +209,18 @@ See [sdk/python/README.md](sdk/python/README.md) for the complete API reference.
 
 ### Genesis Testnet
 
-Quick start for a full local network (tested):
+Validated startup options:
+
+1) Regional profile (orchestrator + shard + node-agent-1):
+
+```bash
+./genesis-launch.sh
+
+# Equivalent Make target
+make regional-shard
+```
+
+2) Full local stack (orchestrator + 3 node agents):
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --no-build
@@ -221,65 +232,14 @@ make full-stack-3-nodes
 Native PowerShell (Windows):
 
 ```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ./scripts/launch_full_stack_3_nodes.ps1 -NoBuild
 ```
 
-Windows note (Git Bash): if `runtime-secrets/mohawk_api_token` is read-only, launcher secret generation may fail with `PermissionError`. Fix by removing or unlocking the file, then rerun:
+Startup checks validated in this repository:
 
-```bash
-rm -f runtime-secrets/mohawk_api_token
-./scripts/launch_full_stack_3_nodes.sh --no-build
-```
-
-Windows Docker bind-mount note: if Docker reports `not a directory` while mounting `runtime-secrets/*` into `/run/secrets/*`, one of the expected secret files exists as a directory. Remove and regenerate:
-
-```bash
-rm -rf runtime-secrets/mohawk_api_token runtime-secrets/mohawk_tpm_ca_cert.pem runtime-secrets/mohawk_tpm_ca_key.pem
-docker compose down
-./scripts/launch_full_stack_3_nodes.sh --no-build
-```
-
-PowerShell equivalent:
-
-```powershell
-Remove-Item -Recurse -Force .\runtime-secrets\mohawk_api_token, .\runtime-secrets\mohawk_tpm_ca_cert.pem, .\runtime-secrets\mohawk_tpm_ca_key.pem
-docker compose down
-.\scripts\launch_full_stack_3_nodes.ps1 -NoBuild
-```
-
-This starts:
-
-* `orchestrator`
-* `shard-us-east`
-* `node-agent-1`, `node-agent-2`, `node-agent-3`
-* `tpm-metrics`, `pyapi-metrics-exporter`
-* `prometheus`, `grafana`, `ipfs`
-
-Stop the stack:
-
-```bash
-./scripts/launch_full_stack_3_nodes.sh --down
-
-# Equivalent Make target
-make full-stack-3-nodes-down
-```
-
-PowerShell stop:
-
-```powershell
-./scripts/launch_full_stack_3_nodes.ps1 -Down
-```
-
-Legacy/regional launcher (single node-agent profile):
-
-```bash
-./genesis-launch.sh
-
-# Equivalent Make target
-make regional-shard
-```
-
-Note: `genesis-launch.sh` currently starts `node-agent-1` only. Use `scripts/launch_full_stack_3_nodes.sh` for orchestrator + 3 node agents.
+* `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
+* `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
 
 Default endpoints after startup:
 
@@ -296,17 +256,45 @@ curl -fsS http://localhost:9090/-/healthy
 curl -fsS http://localhost:9102/metrics | head
 ```
 
+Windows troubleshooting for launcher secrets:
+
+If Docker reports mount errors (`not a directory`) or token creation/permission failures, reset runtime secret paths and retry:
+
+```bash
+rm -rf runtime-secrets/mohawk_api_token runtime-secrets/mohawk_tpm_ca_cert.pem runtime-secrets/mohawk_tpm_ca_key.pem
+docker compose down
+./scripts/launch_full_stack_3_nodes.sh --no-build
+```
+
+PowerShell equivalent:
+
+```powershell
+Remove-Item -Recurse -Force .\runtime-secrets\mohawk_api_token, .\runtime-secrets\mohawk_tpm_ca_cert.pem, .\runtime-secrets\mohawk_tpm_ca_key.pem
+docker compose down
+.\scripts\launch_full_stack_3_nodes.ps1 -NoBuild
+```
+
+Stop the stack:
+
+```bash
+./scripts/launch_full_stack_3_nodes.sh --down
+
+# Equivalent Make target
+make full-stack-3-nodes-down
+```
+
+PowerShell stop:
+
+```powershell
+./scripts/launch_full_stack_3_nodes.ps1 -Down
+```
+
 Grafana dashboard shortlist:
 
 * `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
 * `MOHAWK Live Overview`
 * `TPM Metrics`
 
-Stop the stack with:
-
-```bash
-./scripts/launch_full_stack_3_nodes.sh --down
-```
 
 ### Weekly Readiness Digest Notifications (Optional)
 
