@@ -78,10 +78,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Weekly digest workflow advisory trail** (`.github/workflows/weekly-readiness-digest.yml`):
   - Added advisory host-preflight marker handling and digest summary annotation path
 - **Readiness/operations documentation alignment** (`README.md`, `ROADMAP.md`, `DASHBOARD.md`):
-  - Updated program-stage language to reflect go-live formalization in progress
+  - Updated program-stage language to reflect go-live formalization complete
   - Added formal artifact trails for go-live report and attestations
   - Marked completed operations/runbook/escalation roadmap items as complete
-  - Synced formal gate status to `5/8` approved attestations with only `security_audit`, `penetration_test`, and `soak_scale_rehearsal` pending
+  - Synced formal gate status to `8/8` approved attestations with all required go-live evidences validated
 
 - Documentation alignment: synchronized current phase and program-stage wording across `ROADMAP.md`, `README.md`, and `DASHBOARD.md` to reflect v1.0.0 GA closure under mainnet-readiness gated operations
 
