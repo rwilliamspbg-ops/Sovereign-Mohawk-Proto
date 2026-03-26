@@ -145,6 +145,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Worker profiles: `workers1`, `workers2`, `workers4`, `workers8`, `workersAuto`
   - Comparison report artifact: `results/metrics/fedavg_benchmark_compare.md`
 
+- Added live 10-minute stress metrics capture artifacts from running stack scope:
+  - JSON report: `results/metrics/stress_metrics_capture_10m.json`
+  - Markdown summary: `results/metrics/stress_metrics_capture_10m.md`
+  - Observed zero gradient submit failures during the capture window (`accel_gradient_submit_failure_total` delta = `0`)
+
 ## [0.1.0] - 2026-02-20
 
 ### Added - Python SDK Foundation

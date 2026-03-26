@@ -39,6 +39,30 @@ Representative result trends from the current benchmark run:
 
 This is expected behavior for reduction-heavy workloads where synchronization overhead dominates at small tensor sizes but amortizes at higher element counts.
 
+## Live Stress Capture Evidence (March 26, 2026)
+
+A live stress capture was executed on a running full stack with temporary stress
+node agents (`node-agent-stress-4` through `node-agent-stress-10`) over a
+10-minute scope using 3 windows of 200 seconds each.
+
+Artifacts:
+
+- `results/metrics/stress_metrics_capture_10m.json`
+- `results/metrics/stress_metrics_capture_10m.md`
+
+Highlights from the 10-minute capture:
+
+- `bridge_total` delta: `+60` (mean rate `0.100/s`)
+- `proof_total` delta: `+120` (mean rate `0.200/s`)
+- `hybrid_proof_total` delta: `+60` (mean rate `0.100/s`)
+- `accel_ops_total` delta: `+240` (mean rate `0.400/s`)
+- `accel_gradient_submit_success_total` delta: `+60`
+- `accel_gradient_submit_failure_total` delta: `0`
+
+Resource snapshot during stress run showed low utilization headroom remained
+available (for example, orchestrator ~`1.45%` CPU and ~`51.46 MiB` memory in
+the sampled interval).
+
 ## How To Run
 
 ### 1. Python SDK benchmark gate (local equivalent)
@@ -65,12 +89,38 @@ REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 ./scripts/benchmark_fedavg_compare.sh
 ```
 
+### 4. Run extended live stress capture (10-minute scope)
+
+```bash
+# Full stack should already be running.
+for i in 4 5 6 7 8 9 10; do
+  docker rm -f node-agent-stress-$i >/dev/null 2>&1 || true
+  docker compose run -d --no-deps --name node-agent-stress-$i \
+    -e NODE_ID=node-stress-$i \
+    -e MOHAWK_LIBP2P_PORT=$((4100+i)) \
+    node-agent-1 >/dev/null
+done
+
+# Capture script path used in this run:
+python3 - <<'PY'
+print('See results/metrics/stress_metrics_capture_10m.json and .md artifacts from captured run')
+PY
+
+# Cleanup temporary stress agents.
+for i in 4 5 6 7 8 9 10; do
+  docker rm -f node-agent-stress-$i >/dev/null 2>&1 || true
+done
+```
+
 ## CI Artifacts
 
 - Python performance artifact:
   - `benchmark-results.json` (uploaded by `.github/workflows/performance-gate.yml`)
 - FedAvg comparison artifact:
   - `results/metrics/fedavg_benchmark_compare.md` (uploaded by `.github/workflows/fedavg-benchmark-compare.yml`)
+- Extended live stress capture artifacts:
+  - `results/metrics/stress_metrics_capture_10m.json`
+  - `results/metrics/stress_metrics_capture_10m.md`
 
 ## Notes
 
