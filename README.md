@@ -209,7 +209,33 @@ See [sdk/python/README.md](sdk/python/README.md) for the complete API reference.
 
 ### Genesis Testnet
 
-Launch the regional genesis testnet with the default `global-testnet` profile:
+Quick start for a full local network (tested):
+
+```bash
+./scripts/launch_full_stack_3_nodes.sh --no-build
+
+# Equivalent Make target
+make full-stack-3-nodes
+```
+
+This starts:
+
+* `orchestrator`
+* `shard-us-east`
+* `node-agent-1`, `node-agent-2`, `node-agent-3`
+* `tpm-metrics`, `pyapi-metrics-exporter`
+* `prometheus`, `grafana`, `ipfs`
+
+Stop the stack:
+
+```bash
+./scripts/launch_full_stack_3_nodes.sh --down
+
+# Equivalent Make target
+make full-stack-3-nodes-down
+```
+
+Legacy/regional launcher (single node-agent profile):
 
 ```bash
 ./genesis-launch.sh
@@ -217,6 +243,8 @@ Launch the regional genesis testnet with the default `global-testnet` profile:
 # Equivalent Make target
 make regional-shard
 ```
+
+Note: `genesis-launch.sh` currently starts `node-agent-1` only. Use `scripts/launch_full_stack_3_nodes.sh` for orchestrator + 3 node agents.
 
 Default endpoints after startup:
 
@@ -242,7 +270,7 @@ Grafana dashboard shortlist:
 Stop the stack with:
 
 ```bash
-docker compose down
+./scripts/launch_full_stack_3_nodes.sh --down
 ```
 
 ### Weekly Readiness Digest Notifications (Optional)
