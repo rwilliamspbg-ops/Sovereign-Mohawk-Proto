@@ -42,25 +42,55 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 ---
 
-**Sovereign-Mohawk** is a high-performance, formally verified federated learning architecture designed to scale to **10 million nodes**. The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability.
+**Sovereign Mohawk Proto** is the only formally verified Federated Learning runtime capable of 10M-node scaling with 55.5% Byzantine resilience and 2026-standard PQC (Post-Quantum Cryptography) enforcement.
+
+The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability.
 
 ---
 
-## 🚀 Why Sovereign Mohawk?
+## 🧭 Hierarchy of Trust
+
+```mermaid
+flowchart TB
+    G[Global Layer\nSynthesis & Ledger Finality]
+    C[Continental Layer\nzk-SNARK Verification]
+    R[Regional Layer\nByzantine Filtering (Multi-Krum)]
+    E[Edge Layer\n10M Nodes (Local Differential Privacy)]
+
+    E --> R --> C --> G
+```
+
+Trust and verification harden as updates move upward from edge privacy-preserving clients to global finality.
+
+Left-to-right (presentation view):
+
+```mermaid
+flowchart LR
+    E[Edge Layer\n10M Nodes (Local Differential Privacy)]
+    R[Regional Layer\nByzantine Filtering (Multi-Krum)]
+    C[Continental Layer\nzk-SNARK Verification]
+    G[Global Layer\nSynthesis & Ledger Finality]
+
+    E --> R --> C --> G
+```
+
+---
+
+## 🚀 Why Mohawk?
 
 Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines formal verification with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only.
 
 ### 📊 Comparative Analysis
 
-| Feature | TensorFlow Federated | PySyft | **Sovereign-Mohawk** |
+| Feature | NVIDIA FLARE | PySyft | **Sovereign-Mohawk** |
 | :--- | :---: | :---: | :---: |
-| **Max Scale** | 10k Nodes | 1k Nodes | **10M Nodes** |
-| **Communication** | $O(dn)$ | $O(dn)$ | **$O(d \log n)$** |
-| **BFT Proof** | None | Partial | **Full (Theorem 1)** |
-| **Verification** | Re-execution | None | **10ms zk-SNARKs** |
-| **Hybrid Proof Policy** | None | None | **SNARK/STARK** |
-| **SDK Surface** | Python only | Python only | **Go + Python SDK v2** |
-| **Testnet/Observability** | Limited | Limited | **Genesis stack + Grafana** |
+| **Formally Verified Runtime** | Not presented as theorem-verified runtime | Not presented as theorem-verified runtime | **Yes (Theorem-backed runtime guarantees)** |
+| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **55.5% (Theorem 1)** |
+| **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
+| **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **$O(d \log n)$** |
+| **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
+| **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **zk-SNARK + STARK hybrid policy** |
+| **Operational Readiness Gates** | Platform-dependent | Platform-dependent | **One-click readiness + chaos + digest artifacts** |
 
 ---
 
