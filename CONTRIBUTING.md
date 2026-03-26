@@ -60,6 +60,32 @@ Configure repository secrets in **Settings → Secrets and variables → Actions
 
 If unset, the notification step is skipped and digest artifacts are still published.
 
+### 5. Benchmark Workflow for Runtime Changes
+
+If your PR changes aggregation, accelerator, or performance-critical paths, include benchmark evidence.
+
+1. Run the Go FedAvg benchmark matrix locally:
+
+```bash
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
+go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
+```
+
+2. Generate base-vs-current benchmark comparison:
+
+```bash
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 \
+REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
+./scripts/benchmark_fedavg_compare.sh
+```
+
+3. Attach or reference benchmark evidence in your PR:
+
+* Local report: `results/metrics/fedavg_benchmark_compare.md`
+* CI artifact: `fedavg-benchmark-report` from workflow `FedAvg Benchmark Compare`
+
 ---
 
 ## 📜 Standards
