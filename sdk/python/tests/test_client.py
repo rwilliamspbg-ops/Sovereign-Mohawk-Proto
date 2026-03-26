@@ -6,8 +6,11 @@ from mohawk import (
     GradientBuffer,
     MohawkNode,
     InitializationError,
+    ProofTooShortError,
+    VerificationError,
     build_evm_log_proof,
     build_cosmos_ibc_proof,
+    build_auto_tune_profile,
 )
 
 
@@ -36,8 +39,8 @@ class TestMohawkNode:
     def test_verify_proof(self, node):
         """Test zk-SNARK proof verification."""
         proof = {"proof": "0xtest", "public_inputs": ["input1"]}
-        result = node.verify_proof(proof)
-        assert result["success"] is True
+        with pytest.raises(ProofTooShortError):
+            node.verify_proof(proof)
 
     def test_aggregate_updates(self, node):
         """Test federated learning aggregation."""
@@ -69,6 +72,11 @@ class TestMohawkNode:
         result = node.device_info()
         assert result["success"] is True
 
+    def test_auto_tune_profile(self, node):
+        result = node.auto_tune_profile(4096)
+        assert result["success"] is True
+        assert "data" in result
+
     def test_compress_gradients_fp16(self, node):
         """Test FP16 gradient compression."""
         result = node.compress_gradients([0.1, -0.2, 0.3], format="fp16")
@@ -94,13 +102,13 @@ class TestMohawkNode:
 
     def test_hybrid_verify(self, node):
         """Test hybrid SNARK/STARK verification API."""
-        result = node.verify_hybrid_proof(
-            snark_proof="s" * 128,
-            stark_proof="t" * 64,
-            mode="both",
-            stark_backend="simulated_fri",
-        )
-        assert result["success"] is True
+        with pytest.raises(VerificationError):
+            node.verify_hybrid_proof(
+                snark_proof="s" * 128,
+                stark_proof="t" * 64,
+                mode="both",
+                stark_backend="simulated_fri",
+            )
 
     def test_hybrid_backends(self, node):
         result = node.hybrid_backends()
@@ -213,6 +221,14 @@ class TestGradientBuffer:
         info = compressed.to_dict()
         assert info["format"] == "int8"
         assert info["compressed_bytes"] > 0
+
+    def test_gradient_buffer_auto_format(self):
+        profile = build_auto_tune_profile(4096)
+        buffer = GradientBuffer(max_norm=1.0, format="auto")
+        buffer.add([0.1] * 4096)
+        compressed = buffer.compress()
+        assert compressed.format in {"fp16", "int8"}
+        assert compressed.backend == profile.selected_device.backend
 
 
 class TestExceptions:

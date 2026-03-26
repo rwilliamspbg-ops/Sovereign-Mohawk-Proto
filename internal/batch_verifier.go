@@ -20,6 +20,8 @@ import (
 	"crypto/ed25519"
 	"errors"
 	"sync"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 )
 
 // BatchVerifier manages parallel verification of node signatures.
@@ -30,6 +32,12 @@ type BatchVerifier struct {
 
 // NewBatchVerifier initializes a verifier with the specified parallelism limit.
 func NewBatchVerifier(batchSize int) *BatchVerifier {
+	if batchSize <= 0 {
+		batchSize = accelerator.BuildAutoTuneProfile(0).RecommendedWorker
+		if batchSize <= 0 {
+			batchSize = 1
+		}
+	}
 	return &BatchVerifier{maxBatchSize: batchSize}
 }
 

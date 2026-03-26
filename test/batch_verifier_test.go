@@ -70,3 +70,26 @@ func TestBatchVerifier_VerifySignatures_LengthMismatch(t *testing.T) {
 		t.Fatal("Expected error for mismatched input lengths, got nil")
 	}
 }
+
+func TestBatchVerifier_VerifySignatures_AutoBatchSize(t *testing.T) {
+	pub, priv, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("Key generation failed: %v", err)
+	}
+
+	msg := []byte("auto-batch")
+	sig := ed25519.Sign(priv, msg)
+
+	bv := batch.NewBatchVerifier(0)
+	results, err := bv.VerifySignatures(
+		[]ed25519.PublicKey{pub},
+		[][]byte{msg},
+		[][]byte{sig},
+	)
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+	if len(results) != 1 || !results[0] {
+		t.Error("Expected valid signature to verify with auto batch size")
+	}
+}

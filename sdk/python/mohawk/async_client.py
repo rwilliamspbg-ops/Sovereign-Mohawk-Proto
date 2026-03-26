@@ -67,6 +67,11 @@ class AsyncMohawkNode:
     async def aggregate(self, updates: Iterable[JsonDict]) -> JsonDict:
         return await self._run(self._node.aggregate, updates)
 
+    async def aggregate_buffer(
+        self, gradient_buffer: Union[bytes, bytearray, memoryview]
+    ) -> JsonDict:
+        return await self._run(self._node.aggregate_buffer, gradient_buffer)
+
     async def stream_aggregate(
         self,
         gradient_stream: Iterable[Iterable[float]],
@@ -85,7 +90,7 @@ class AsyncMohawkNode:
         self,
         gradients: Iterable[float],
         *,
-        format: str = "fp16",  # noqa: A002
+        format: str = "auto",  # noqa: A002
         max_norm: float = 1.0,
     ) -> JsonDict:
         return await self._run(
@@ -94,6 +99,15 @@ class AsyncMohawkNode:
             format=format,
             max_norm=max_norm,
         )
+
+    async def device_info(self) -> JsonDict:
+        return await self._run(self._node.device_info)
+
+    async def auto_tune_profile(self, vector_length: int = 0) -> JsonDict:
+        return await self._run(self._node.auto_tune_profile, vector_length)
+
+    async def metrics_snapshot(self) -> JsonDict:
+        return await self._run(self._node.metrics_snapshot)
 
     async def bridge_transfer(
         self,

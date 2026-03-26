@@ -23,6 +23,13 @@ services:
     environment:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4101
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key
+      - MOHAWK_PQC_MIGRATION_ENABLED=${MOHAWK_PQC_MIGRATION_ENABLED:-true}
+      - MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=${MOHAWK_PQC_LOCK_LEGACY_TRANSFERS:-true}
+      - MOHAWK_PQC_MIGRATION_ETA=${MOHAWK_PQC_MIGRATION_ETA:-2027-12-31T00:00:00Z}
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_LEDGER_STATE_PATH=/var/lib/mohawk/utility-ledger/state.json
       - MOHAWK_LEDGER_AUDIT_PATH=/var/lib/mohawk/utility-ledger/audit.jsonl
@@ -47,7 +54,9 @@ services:
       - ./data/utility-ledger:/var/lib/mohawk/utility-ledger
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert:ro
+      - ./runtime-secrets/mohawk_tpm_ca_key.pem:/run/secrets/mohawk_tpm_ca_key:ro
     networks:
       - mohawk-net
 
@@ -62,6 +71,22 @@ services:
       - .:/workspace
     ports:
       - "9102:9102"
+    networks:
+      - mohawk-net
+
+  pyapi-metrics-exporter:
+    image: golang:1.25
+    container_name: pyapi-metrics-exporter
+    working_dir: /workspace
+    command: ["go", "run", "./cmd/pyapi-metrics-exporter"]
+    environment:
+      - GOTOOLCHAIN=auto
+      - MOHAWK_PYAPI_TRAFFIC_INTERVAL_SECONDS=10
+      - MOHAWK_PYAPI_EXPORTER_PORT=9104
+    volumes:
+      - .:/workspace
+    ports:
+      - "9104:9104"
     networks:
       - mohawk-net
 
@@ -129,6 +154,10 @@ services:
       - NODE_ID=node-1
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4001
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -150,7 +179,9 @@ services:
     volumes:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert:ro
+      - ./runtime-secrets/mohawk_tpm_ca_key.pem:/run/secrets/mohawk_tpm_ca_key:ro
     depends_on:
       - orchestrator
       - ipfs
@@ -168,6 +199,10 @@ services:
       - NODE_ID=node-2
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4002
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -189,7 +224,54 @@ services:
     volumes:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert:ro
+      - ./runtime-secrets/mohawk_tpm_ca_key.pem:/run/secrets/mohawk_tpm_ca_key:ro
+    depends_on:
+      - orchestrator
+      - ipfs
+    networks:
+      - mohawk-net
+
+  node-agent-3:
+    build:
+      context: .
+      dockerfile: cmd/node-agent/Dockerfile
+    container_name: node-agent-3
+    environment:
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
+      - NODE_ID=node-3
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4003
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key
+      # Single-asset default mode: MHC settlement only (no extra env needed)
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_API_ENFORCE_ROLES=true
+      - MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin
+      - MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin
+      - MOHAWK_UTILITY_RATE_LIMIT_PER_MIN=240
+      - MOHAWK_UTILITY_ENFORCE_ROLES=true
+      - MOHAWK_UTILITY_MINT_ALLOWED_ROLES=minter,admin
+      - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
+      - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
+      - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
+      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
+      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
+      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
+      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
+      # - MOHAWK_UTILITY_MINTER_USDX=protocol
+    volumes:
+      # Optional: persistent storage for additional settlement assets
+      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert:ro
+      - ./runtime-secrets/mohawk_tpm_ca_key.pem:/run/secrets/mohawk_tpm_ca_key:ro
     depends_on:
       - orchestrator
       - ipfs

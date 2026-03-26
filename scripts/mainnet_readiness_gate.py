@@ -183,6 +183,24 @@ def main() -> int:
         default=1e-6,
         help="Absolute tolerance for supply invariant: total_supply ~= minted-burned",
     )
+    parser.add_argument(
+        "--min-bridge-transfers",
+        type=float,
+        default=1.0,
+        help="Minimum required sum(mohawk_bridge_transfers_total) for readiness pass",
+    )
+    parser.add_argument(
+        "--min-proof-verifications",
+        type=float,
+        default=1.0,
+        help="Minimum required sum(mohawk_proof_verifications_total) for readiness pass",
+    )
+    parser.add_argument(
+        "--min-hybrid-verifications",
+        type=float,
+        default=1.0,
+        help='Minimum required sum(mohawk_proof_verifications_total{scheme="hybrid"}) for readiness pass',
+    )
     args = parser.parse_args()
 
     report: dict[str, object] = {
@@ -214,7 +232,11 @@ def main() -> int:
 
         target_failures = wait_target_health(
             args.prom_url,
-            required_instances=["orchestrator:9091", "tpm-metrics:9102"],
+            required_instances=[
+                "orchestrator:9091",
+                "tpm-metrics:9102",
+                "pyapi-metrics-exporter:9104",
+            ],
             retries=args.retries,
             delay_seconds=args.delay,
         )
@@ -229,6 +251,8 @@ def main() -> int:
                 "mohawk_utility_coin_burned_amount_total",
                 "mohawk_utility_coin_tx_count",
                 "mohawk_utility_coin_holders_count",
+                "mohawk_bridge_transfers_total",
+                "mohawk_proof_verifications_total",
             ],
             retries=args.retries,
             delay_seconds=args.delay,
@@ -236,17 +260,65 @@ def main() -> int:
         report["checks"]["metric_names_present"] = len(metric_failures) == 0
         failures.extend(metric_failures)
 
-        optional_metric_failures = check_metric_names(
+        bridge_transfer_total = wait_query_scalar_value(
             args.prom_url,
-            required_metrics=[
-                "mohawk_bridge_transfers_total",
-                "mohawk_proof_verifications_total",
-            ],
+            "sum(mohawk_bridge_transfers_total)",
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
         )
-        report["checks"]["optional_protocol_metrics_present"] = len(optional_metric_failures) == 0
-        report["checks"]["optional_protocol_metrics_missing"] = [
-            failure.replace("metric missing: ", "") for failure in optional_metric_failures
-        ]
+        report["checks"]["bridge_transfers_series_present"] = True
+        report["checks"]["bridge_transfers_non_negative"] = bridge_transfer_total >= 0
+        if bridge_transfer_total < 0:
+            failures.append(f"bridge transfers counter negative: {bridge_transfer_total}")
+        report["checks"]["bridge_transfers_min_activity"] = (
+            bridge_transfer_total >= args.min_bridge_transfers
+        )
+        if bridge_transfer_total < args.min_bridge_transfers:
+            failures.append(
+                "bridge transfer activity below minimum: "
+                f"total={bridge_transfer_total}, min={args.min_bridge_transfers}"
+            )
+
+        proof_verification_total = wait_query_scalar_value(
+            args.prom_url,
+            "sum(mohawk_proof_verifications_total)",
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["proof_verifications_series_present"] = True
+        report["checks"]["proof_verifications_non_negative"] = proof_verification_total >= 0
+        if proof_verification_total < 0:
+            failures.append(f"proof verifications counter negative: {proof_verification_total}")
+        report["checks"]["proof_verifications_min_activity"] = (
+            proof_verification_total >= args.min_proof_verifications
+        )
+        if proof_verification_total < args.min_proof_verifications:
+            failures.append(
+                "proof verification activity below minimum: "
+                f"total={proof_verification_total}, min={args.min_proof_verifications}"
+            )
+
+        hybrid_proof_total = wait_query_scalar_value(
+            args.prom_url,
+            'sum(mohawk_proof_verifications_total{scheme="hybrid"})',
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["hybrid_proof_series_present"] = True
+        report["checks"]["hybrid_proof_non_negative"] = hybrid_proof_total >= 0
+        if hybrid_proof_total < 0:
+            failures.append(f"hybrid proof counter negative: {hybrid_proof_total}")
+        report["checks"]["hybrid_proof_min_activity"] = (
+            hybrid_proof_total >= args.min_hybrid_verifications
+        )
+        if hybrid_proof_total < args.min_hybrid_verifications:
+            failures.append(
+                "hybrid proof activity below minimum: "
+                f"total={hybrid_proof_total}, min={args.min_hybrid_verifications}"
+            )
 
         invariant_failures = check_supply_invariant(
             args.prom_url,

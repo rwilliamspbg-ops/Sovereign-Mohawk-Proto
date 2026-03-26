@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "all_attestations_approved": true,
+    "attestation_backup_restore_drill_approved": true,
+    "attestation_dependency_sla_baseline_approved": true,
+    "attestation_incident_escalation_drill_approved": true,
+    "attestation_penetration_test_approved": true,
+    "attestation_runbook_published_approved": true,
+    "attestation_security_audit_approved": true,
+    "attestation_soak_scale_rehearsal_approved": true,
+    "attestation_threat_model_refresh_approved": true,
+    "chaos_summary_ok": true,
+    "host_network_tuning_ok": true,
+    "readiness_report_ok": true
+  },
+  "failures": [],
+  "ok": true
+}

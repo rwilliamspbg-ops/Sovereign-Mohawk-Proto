@@ -13,6 +13,44 @@ func TestDefaultConfigIncludesTCPAndQUIC(t *testing.T) {
 	if len(cfg.ListenAddrs) != 2 {
 		t.Fatalf("expected two default listen addresses, got %d", len(cfg.ListenAddrs))
 	}
+	if cfg.KEXMode != network.KEXModeX25519 {
+		t.Fatalf("expected default KEX mode %q, got %q", network.KEXModeX25519, cfg.KEXMode)
+	}
+}
+
+func TestTransportConfigValidationRejectsUnknownKEXMode(t *testing.T) {
+	cfg := network.DefaultConfig(0)
+	cfg.KEXMode = network.KEXMode("unsupported")
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("expected unsupported KEX mode to fail validation")
+	}
+}
+
+func TestParseKEXModeAliases(t *testing.T) {
+	if got := network.ParseKEXMode("hybrid"); got != network.KEXModeHybridX25519MLKEM768 {
+		t.Fatalf("expected hybrid alias to parse into %q, got %q", network.KEXModeHybridX25519MLKEM768, got)
+	}
+	if got := network.ParseKEXMode("ml-kem-768"); got != network.KEXModeHybridX25519MLKEM768 {
+		t.Fatalf("expected ml-kem-768 alias to parse into %q, got %q", network.KEXModeHybridX25519MLKEM768, got)
+	}
+}
+
+func TestParseKEXModeStrictRejectsUnknown(t *testing.T) {
+	if _, err := network.ParseKEXModeStrict("unknown-kex"); err == nil {
+		t.Fatal("expected strict parser to reject unknown mode")
+	}
+}
+
+func TestTransportConfigNormalizedCanonicalizesAliases(t *testing.T) {
+	cfg := network.DefaultConfig(0)
+	cfg.KEXMode = network.KEXMode("hybrid")
+	normalized, err := cfg.Normalized()
+	if err != nil {
+		t.Fatalf("expected normalization success, got %v", err)
+	}
+	if normalized.KEXMode != network.KEXModeHybridX25519MLKEM768 {
+		t.Fatalf("expected normalized mode %q, got %q", network.KEXModeHybridX25519MLKEM768, normalized.KEXMode)
+	}
 }
 
 func TestNewHost(t *testing.T) {

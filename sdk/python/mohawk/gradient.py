@@ -21,6 +21,8 @@ from .accelerator import (
     fp32_to_fp16,
     l2_norm,
     quantize_int8,
+    recommend_gradient_format,
+    select_device,
 )
 
 __all__ = [
@@ -57,7 +59,7 @@ class GradientBuffer:
     def device(self) -> DeviceInfo:
         if self._device is None:
             devices = detect_devices()
-            self._device = devices[0]
+            self._device = select_device(devices)
         return self._device
 
     def add(self, gradient: Iterable[float]) -> None:
@@ -100,7 +102,11 @@ class GradientBuffer:
         grads = payload["gradients"]
         original_bytes = len(grads) * 4  # FP32
 
-        if self.format == "int8":
+        selected_format = self.format
+        if selected_format == "auto":
+            selected_format = recommend_gradient_format(self.device, len(grads))
+
+        if selected_format == "int8":
             raw, scale = quantize_int8(grads, self.max_norm)
         else:
             raw = fp32_to_fp16(grads)
@@ -109,7 +115,7 @@ class GradientBuffer:
         ratio = compression_ratio(original_bytes, len(raw))
         return CompressedGradient(
             data=raw,
-            format=self.format,
+            format=selected_format,
             original_bytes=original_bytes,
             scale=scale,
             compression_ratio=ratio,

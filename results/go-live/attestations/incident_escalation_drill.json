@@ -1,0 +1,14 @@
+{
+  "gate": "incident_escalation_drill",
+  "status": "approved",
+  "owner": "operations",
+  "date": "2026-03-26",
+  "evidence": [
+    ".github/workflows/mainnet-chaos-gate.yml",
+    ".github/workflows/weekly-readiness-digest.yml",
+    "scripts/chaos_readiness_drill.sh",
+    "results/readiness/readiness-digest.md",
+    "chaos-reports/tpm-metrics-summary.json"
+  ],
+  "notes": "Escalation path is operational via weekly digest notifications and validated multi-scenario chaos drills with recovery SLO enforcement."
+}

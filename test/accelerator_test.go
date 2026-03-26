@@ -51,3 +51,61 @@ func TestAggregateParallel(t *testing.T) {
 		t.Fatalf("expected output dimension 3, got %d", len(out))
 	}
 }
+
+func TestAutoTuneSelectDevicePriority(t *testing.T) {
+	devices := []accelerator.DeviceInfo{
+		{Backend: accelerator.BackendCPU, Name: "cpu", SIMDWidth: 256},
+		{Backend: accelerator.BackendCUDA, Name: "cuda0", SIMDWidth: 128, MemoryMB: 8192},
+		{Backend: accelerator.BackendNPU, Name: "npu0", SIMDWidth: 128},
+	}
+	selected := accelerator.SelectDevice(devices)
+	if selected.Backend != accelerator.BackendNPU {
+		t.Fatalf("expected NPU to be selected by priority, got %s", selected.Backend)
+	}
+}
+
+func TestAutoTuneSelectDeviceEnvOverride(t *testing.T) {
+	t.Setenv("MOHAWK_ACCELERATOR_BACKEND", "cuda")
+	devices := []accelerator.DeviceInfo{
+		{Backend: accelerator.BackendCPU, Name: "cpu", SIMDWidth: 256},
+		{Backend: accelerator.BackendCUDA, Name: "cuda0", SIMDWidth: 128, MemoryMB: 8192},
+	}
+	selected := accelerator.SelectDevice(devices)
+	if selected.Backend != accelerator.BackendCUDA {
+		t.Fatalf("expected CUDA override selection, got %s", selected.Backend)
+	}
+}
+
+func TestAutoTuneRecommendGradientFormat(t *testing.T) {
+	device := accelerator.DeviceInfo{Backend: accelerator.BackendCUDA, Name: "cuda0"}
+	formatLarge := accelerator.RecommendGradientFormat(device, 4096)
+	if formatLarge != "int8" {
+		t.Fatalf("expected int8 for large CUDA workload, got %s", formatLarge)
+	}
+	formatSmall := accelerator.RecommendGradientFormat(device, 256)
+	if formatSmall != "fp16" {
+		t.Fatalf("expected fp16 for small workload, got %s", formatSmall)
+	}
+}
+
+func TestAutoTuneRecommendWorkersByBackend(t *testing.T) {
+	npu := accelerator.DeviceInfo{Backend: accelerator.BackendNPU, Name: "npu0"}
+	cpu := accelerator.DeviceInfo{Backend: accelerator.BackendCPU, Name: "cpu0"}
+	npuWorkers := accelerator.RecommendWorkers(npu)
+	cpuWorkers := accelerator.RecommendWorkers(cpu)
+	if npuWorkers < 2 {
+		t.Fatalf("expected at least 2 workers for NPU, got %d", npuWorkers)
+	}
+	if cpuWorkers < 1 {
+		t.Fatalf("expected at least 1 worker for CPU, got %d", cpuWorkers)
+	}
+}
+
+func TestAutoTuneRecommendWorkersEnvOverride(t *testing.T) {
+	t.Setenv("MOHAWK_ACCELERATOR_WORKERS", "7")
+	device := accelerator.DeviceInfo{Backend: accelerator.BackendNPU, Name: "npu0"}
+	workers := accelerator.RecommendWorkers(device)
+	if workers != 7 {
+		t.Fatalf("expected env override worker count 7, got %d", workers)
+	}
+}

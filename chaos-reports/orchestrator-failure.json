@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "bridge_transfers_min_activity": true,
+    "bridge_transfers_non_negative": true,
+    "bridge_transfers_series_present": true,
+    "grafana_health": true,
+    "hybrid_proof_min_activity": true,
+    "hybrid_proof_non_negative": true,
+    "hybrid_proof_series_present": true,
+    "metric_names_present": true,
+    "prometheus_api": true,
+    "proof_verifications_min_activity": true,
+    "proof_verifications_non_negative": true,
+    "proof_verifications_series_present": true,
+    "supply_invariant": true,
+    "targets_up": false,
+    "tx_count_non_negative": true
+  },
+  "failures": [
+    "target not healthy: orchestrator:9091"
+  ],
+  "ok": false
+}

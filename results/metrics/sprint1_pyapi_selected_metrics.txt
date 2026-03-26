@@ -1,0 +1,16 @@
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="0.1"} 7
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="0.5"} 7
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="1"} 7
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="2"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="5"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="10"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="25"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="50"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="100"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="250"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="500"} 8
+mohawk_bridge_transfer_latency_ms_bucket{result="success",source_chain="ethereum",target_chain="polygon",le="+Inf"} 8
+mohawk_bridge_transfer_latency_ms_sum{result="success",source_chain="ethereum",target_chain="polygon"} 2.072
+mohawk_bridge_transfer_latency_ms_count{result="success",source_chain="ethereum",target_chain="polygon"} 8
+mohawk_bridge_transfers_total{result="success",source_chain="ethereum",target_chain="polygon"} 8
+mohawk_proof_verifications_total{result="failure",scheme="hybrid"} 8

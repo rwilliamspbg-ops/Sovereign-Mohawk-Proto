@@ -1,0 +1,56 @@
+{
+  "release_candidate": "release-candidate-20260326T002929Z",
+  "generated_at": "2026-03-26T00:00:00Z",
+  "files": [
+    {
+      "path": "results/readiness/readiness-report.json",
+      "sha256": "bf5eb0112374aed0d4ad6723c0ae29759625fc04158ddbddad2457ee40c3af19",
+      "size_bytes": 622
+    },
+    {
+      "path": "results/readiness/readiness-digest.md",
+      "sha256": "14b9f24305fe1d1b6d57d0a3783674cd518c6c715e5ab0b877d14ca8c85f8df7",
+      "size_bytes": 1116
+    },
+    {
+      "path": "results/go-live/go-live-gate-report.json",
+      "sha256": "69d5fb6b067ddaf41c73bc4a2059a326bd4778b38378bb592bf2b2d8aef40fb3",
+      "size_bytes": 626
+    },
+    {
+      "path": "results/go-live/attestations/security_audit.json",
+      "sha256": "4a8a667d889eb5cf36f6a8eca3b2e9c64f9e8b7bf384a7baaf0c2769cc576951",
+      "size_bytes": 472
+    },
+    {
+      "path": "results/go-live/attestations/penetration_test.json",
+      "sha256": "8f1101c73fb50071c015c5a4369df644c00ff0ffd9fb2a4f7bc983b403665fad",
+      "size_bytes": 471
+    },
+    {
+      "path": "results/go-live/attestations/soak_scale_rehearsal.json",
+      "sha256": "5ce2bdba195725c08d8929814788dba8d92274b81d9fa3e48bd77e35c6d24bb7",
+      "size_bytes": 496
+    },
+    {
+      "path": "results/go-live/evidence/security_audit_report_2026-03-26.md",
+      "sha256": "bd370444f66370ec04756b2cc50fe78ebd6984490be801b5ee3acbd7c5128e2d",
+      "size_bytes": 839
+    },
+    {
+      "path": "results/go-live/evidence/penetration_test_report_2026-03-26.md",
+      "sha256": "6bb600dd08e098935a6dce476ba8abccf9ffca2cc9412d397841a7f7a5e82738",
+      "size_bytes": 796
+    },
+    {
+      "path": "results/go-live/evidence/soak_scale_rehearsal_report_2026-03-26.md",
+      "sha256": "e88a66b05c0361a72e823f548eda68fc6172c4cc3af6f3dd956ddf1c3e0b0aa2",
+      "size_bytes": 853
+    },
+    {
+      "path": "results/archive/release-candidate-20260326T002929Z/FINAL_RELEASE_NOTE.md",
+      "sha256": "08ace162fe35b0807bdf251b075c76e1606bfb55c1cc895fe94083229f26bf4e",
+      "size_bytes": 1398
+    }
+  ]
+}

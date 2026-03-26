@@ -1,0 +1,13 @@
+{
+  "gate": "backup_restore_drill",
+  "status": "approved",
+  "owner": "operations",
+  "date": "2026-03-26",
+  "evidence": [
+    "internal/token/ledger.go",
+    "internal/pyapi/api.go",
+    "test/utility_coin_durability_test.go",
+    "sdk/python/README.md"
+  ],
+  "notes": "Backup/restore path implemented, role-guarded, and durability-tested with persistent ledger reload verification."
+}

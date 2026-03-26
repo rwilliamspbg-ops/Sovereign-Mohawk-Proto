@@ -7,4 +7,6 @@ authors:
 title: "Sovereign Mohawk Protocol: A Formally Verified 10M-Node Federated Learning Architecture"
 version: 2.0.0a1
 date-released: 2026-02-23
+license: "Apache-2.0"
+abstract: "Open-source protocol/runtime implementation under Apache-2.0; portions of protocol technology are marked Patent Pending (U.S. provisional filing, March 2026)."
 url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto"

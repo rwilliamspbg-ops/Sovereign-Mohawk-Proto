@@ -1,0 +1,6 @@
+{
+  "scenario": "tpm-metrics",
+  "recovery_latency_seconds": 9,
+  "recovery_latency_threshold_seconds": 90,
+  "recovery_latency_ok": true
+}

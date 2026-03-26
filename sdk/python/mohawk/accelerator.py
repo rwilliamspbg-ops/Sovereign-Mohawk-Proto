@@ -11,13 +11,17 @@ import platform
 import struct
 import subprocess
 import sys
-from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 __all__ = [
     "Backend",
     "DeviceInfo",
+    "AutoTuneProfile",
     "detect_devices",
+    "select_device",
+    "recommend_gradient_format",
+    "build_auto_tune_profile",
     "fp32_to_fp16",
     "fp16_to_fp32",
     "quantize_int8",
@@ -56,6 +60,22 @@ class DeviceInfo:
     memory_mb: int = 0
 
 
+@dataclass
+class AutoTuneProfile:
+    selected_device: DeviceInfo
+    preferred_format: str
+    recommended_workers: int
+    detected_devices: List[DeviceInfo]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "selected_device": vars(self.selected_device),
+            "preferred_format": self.preferred_format,
+            "recommended_workers": self.recommended_workers,
+            "detected_devices": [vars(d) for d in self.detected_devices],
+        }
+
+
 # ---------------------------------------------------------------------------
 # Device detection
 # ---------------------------------------------------------------------------
@@ -69,6 +89,7 @@ def detect_devices() -> List[DeviceInfo]:
     """
     devices: List[DeviceInfo] = [_cpu_device()]
     devices.extend(_cuda_devices())
+    devices.extend(_npu_devices())
     if _has_metal():
         devices.append(
             DeviceInfo(
@@ -135,8 +156,104 @@ def _cuda_devices() -> List[DeviceInfo]:
     return devices
 
 
+def _npu_devices() -> List[DeviceInfo]:
+    devices: List[DeviceInfo] = []
+    force = str(_env("MOHAWK_NPU_AVAILABLE", "")).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    if force:
+        devices.append(DeviceInfo(backend=Backend.NPU, name="Generic NPU", simd_width=128))
+        return devices
+
+    for candidate in ("/dev/apex_0", "/dev/npu0", "/dev/accel/npu0"):
+        try:
+            with open(candidate, "rb"):
+                pass
+            devices.append(DeviceInfo(backend=Backend.NPU, name=f"NPU ({candidate})", simd_width=128))
+            break
+        except Exception:
+            continue
+    return devices
+
+
 def _has_metal() -> bool:
     return sys.platform == "darwin"
+
+
+def select_device(devices: Optional[List[DeviceInfo]] = None) -> DeviceInfo:
+    available = devices if devices is not None else detect_devices()
+    if not available:
+        return _cpu_device()
+
+    preferred = str(_env("MOHAWK_ACCELERATOR_BACKEND", "")).strip().lower()
+    if preferred and preferred != "auto":
+        for device in available:
+            if device.backend == preferred:
+                return device
+
+    priority = {
+        Backend.NPU: 400,
+        Backend.CUDA: 300,
+        Backend.METAL: 250,
+        Backend.CPU: 100,
+    }
+
+    def score(device: DeviceInfo) -> int:
+        return (
+            priority.get(device.backend, 0)
+            + (device.simd_width // 8)
+            + (device.memory_mb // 1024)
+            + (50 if device.backend != Backend.CPU else 0)
+        )
+
+    return max(available, key=score)
+
+
+def recommend_gradient_format(device: DeviceInfo, vector_length: int) -> str:
+    forced = str(_env("MOHAWK_GRADIENT_FORMAT", "")).strip().lower()
+    if forced in {"fp16", "int8"}:
+        return forced
+    if vector_length >= 2048 and device.backend in {Backend.CUDA, Backend.NPU}:
+        return "int8"
+    return "fp16"
+
+
+def recommend_workers(device: DeviceInfo) -> int:
+    override = str(_env("MOHAWK_ACCELERATOR_WORKERS", "")).strip()
+    if override.isdigit() and int(override) > 0:
+        return int(override)
+    cpu_count = _cpu_count()
+    if device.backend == Backend.NPU:
+        return max(2, cpu_count * 2)
+    if device.backend in {Backend.CUDA, Backend.METAL}:
+        return max(2, cpu_count)
+    return max(1, cpu_count)
+
+
+def build_auto_tune_profile(vector_length: int, devices: Optional[List[DeviceInfo]] = None) -> AutoTuneProfile:
+    available = devices if devices is not None else detect_devices()
+    selected = select_device(available)
+    return AutoTuneProfile(
+        selected_device=selected,
+        preferred_format=recommend_gradient_format(selected, vector_length),
+        recommended_workers=recommend_workers(selected),
+        detected_devices=available,
+    )
+
+
+def _env(name: str, default: str) -> str:
+    import os
+
+    return os.getenv(name, default)
+
+
+def _cpu_count() -> int:
+    import os
+
+    return max(1, os.cpu_count() or 1)
 
 
 # ---------------------------------------------------------------------------

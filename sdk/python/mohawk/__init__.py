@@ -18,7 +18,15 @@ from .exceptions import (
     ProofTooShortError,
     VerificationError,
 )
-from .accelerator import Backend, DeviceInfo, detect_devices
+from .accelerator import (
+    AutoTuneProfile,
+    Backend,
+    DeviceInfo,
+    build_auto_tune_profile,
+    detect_devices,
+    recommend_gradient_format,
+    select_device,
+)
 from .bridge import (
     RoutePolicy,
     CosmosIBCProof,
@@ -29,7 +37,7 @@ from .bridge import (
 )
 from .gradient import GradientBuffer, CompressedGradient
 
-__version__ = "2.0.0a2"
+__version__ = "2.0.1.Alpha"
 __all__ = [
     # Core client
     "MohawkNode",
@@ -47,7 +55,11 @@ __all__ = [
     # Accelerator
     "Backend",
     "DeviceInfo",
+    "AutoTuneProfile",
     "detect_devices",
+    "select_device",
+    "recommend_gradient_format",
+    "build_auto_tune_profile",
     # Gradient utilities
     "GradientBuffer",
     "CompressedGradient",

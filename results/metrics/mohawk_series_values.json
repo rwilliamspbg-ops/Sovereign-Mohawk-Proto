@@ -1,0 +1,246 @@
+[
+  {
+    "metric": {
+      "__name__": "mohawk_aggregation_workers",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_tpm_quotes_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator",
+      "result": "success"
+    },
+    "value": [
+      1774480223.306,
+      "1"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_burned_amount_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_burns_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_holders_count",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_minted_amount_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_mints_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_total_supply",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_transferred_amount_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_transfers_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_tx_count",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_aggregation_workers",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_burned_amount_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_burns_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_holders_count",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_minted_amount_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_mints_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_total_supply",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_transferred_amount_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_transfers_total",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_utility_coin_tx_count",
+      "instance": "tpm-metrics:9102",
+      "job": "tpm-metrics"
+    },
+    "value": [
+      1774480223.306,
+      "0"
+    ]
+  },
+  {
+    "metric": {
+      "__name__": "mohawk_tpm_verifications_total",
+      "instance": "orchestrator:9091",
+      "job": "orchestrator",
+      "result": "success"
+    },
+    "value": [
+      1774480223.306,
+      "18"
+    ]
+  }
+]

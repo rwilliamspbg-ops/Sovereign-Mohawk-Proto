@@ -6,7 +6,7 @@
 [![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
 [![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
 
-![SDK Version](https://img.shields.io/badge/SDK-2.0.0a2-blue?logo=python)
+![SDK Version](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
 ![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
@@ -63,7 +63,7 @@ pip install -e .[accelerator]
 
 ```python
 import mohawk
-print(mohawk.__version__)  # Should print: 2.0.0a2
+print(mohawk.__version__)  # Should print: 2.0.1.Alpha
 ```
 
 ## GitHub Release Publishing
@@ -78,8 +78,8 @@ python -m pip install --upgrade build twine
 python -m build --sdist
 python -m twine check dist/*
 
-git tag sdk-v2.0.0a2
-git push origin sdk-v2.0.0a2
+git tag sdk-v2.0.1.Alpha
+git push origin sdk-v2.0.1.Alpha
 ```
 
 Pushing an `sdk-v*` tag triggers `.github/workflows/publish-python-sdk.yml`, which validates that the tag matches `mohawk.__version__`, builds the source package, and uploads it to a GitHub Release.
@@ -341,7 +341,10 @@ from mohawk import MohawkNode, GradientBuffer
 node = MohawkNode()
 print(node.device_info())
 
-compressed = node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
+profile = node.auto_tune_profile(vector_length=4096)
+print(profile)
+
+compressed = node.compress_gradients([0.1, 0.2, 0.3], format="auto")
 print(compressed)
 
 batch = node.batch_verify([
@@ -406,6 +409,13 @@ print(node.utility_coin_ledger())
 node.backup_utility_coin_ledger("/tmp/mohawk_ledger_backup.json")
 node.restore_utility_coin_ledger("/tmp/mohawk_ledger_backup.json")
 ```
+
+Auto-tuner environment controls:
+
+- `MOHAWK_ACCELERATOR_BACKEND=auto|cpu|cuda|metal|npu`
+- `MOHAWK_GRADIENT_FORMAT=fp16|int8`
+- `MOHAWK_ACCELERATOR_WORKERS=<positive integer>`
+- `MOHAWK_NPU_AVAILABLE=true` (force-enable generic NPU detection in containerized environments)
 
 ### Exceptions
 

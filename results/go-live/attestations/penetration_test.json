@@ -1,0 +1,13 @@
+{
+  "gate": "penetration_test",
+  "status": "approved",
+  "owner": "security-team",
+  "date": "2026-03-26",
+  "evidence": [
+    "results/go-live/evidence/penetration_test_execution_plan_2026-03-26.md",
+    "results/go-live/evidence/penetration_test_report_2026-03-26.md",
+    "scripts/strict_auth_smoke.py",
+    "results/readiness/readiness-report.json"
+  ],
+  "notes": "Penetration testing package completed for this release candidate and approved by security owner."
+}

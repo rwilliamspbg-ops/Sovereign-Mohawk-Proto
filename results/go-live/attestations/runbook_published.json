@@ -1,0 +1,12 @@
+{
+  "gate": "runbook_published",
+  "status": "approved",
+  "owner": "operations",
+  "date": "2026-03-26",
+  "evidence": [
+    "OPERATIONS_RUNBOOK.md",
+    "README.md",
+    "DASHBOARD.md"
+  ],
+  "notes": "Production operations runbook published with preflight, incident escalation, and backup/restore drill procedures."
+}

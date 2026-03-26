@@ -121,6 +121,55 @@
       "targets": [{"expr": "sum by (format) (rate(mohawk_gradient_compression_ratio_sum[5m])) / sum by (format) (rate(mohawk_gradient_compression_ratio_count[5m]))", "refId": "A"}],
       "title": "Gradient Compression Avg Ratio (5m)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 56},
+      "id": 16,
+      "targets": [{"expr": "max(up{job=\"pyapi-exporter\"})", "refId": "A"}],
+      "title": "PyAPI Exporter Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 56},
+      "id": 17,
+      "targets": [{"expr": "sum(up{job=\"node-agents\"})", "refId": "A"}],
+      "title": "Node Agents Up",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 56},
+      "id": 18,
+      "targets": [
+        {"expr": "sum(rate(mohawk_bridge_transfers_total{result=\"success\"}[5m]))", "refId": "A"},
+        {"expr": "sum(rate(mohawk_bridge_transfers_total{result=\"failure\"}[5m]))", "refId": "B"}
+      ],
+      "title": "Bridge Transfers Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 62},
+      "id": 19,
+      "targets": [
+        {"expr": "sum(rate(mohawk_proof_verifications_total{scheme=\"hybrid\",result=\"success\"}[5m]))", "refId": "A"},
+        {"expr": "sum(rate(mohawk_proof_verifications_total{scheme=\"hybrid\",result=\"failure\"}[5m]))", "refId": "B"}
+      ],
+      "title": "Hybrid Proof Verification Rate (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 62},
+      "id": 20,
+      "targets": [
+        {"expr": "histogram_quantile(0.95, sum(rate(mohawk_bridge_transfer_latency_ms_bucket[5m])) by (le))", "refId": "A"},
+        {"expr": "histogram_quantile(0.50, sum(rate(mohawk_bridge_transfer_latency_ms_bucket[5m])) by (le))", "refId": "B"}
+      ],
+      "title": "Bridge Transfer Latency p50/p95 (5m)",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",

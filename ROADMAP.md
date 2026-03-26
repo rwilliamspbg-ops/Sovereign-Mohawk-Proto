@@ -1,6 +1,8 @@
 # 🗺️ Sovereign-Mohawk Development Roadmap
 
-*Last Updated: Mar 15, 2026*
+## Last Updated
+
+Mar 26, 2026
 
 ---
 
@@ -28,7 +30,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### Current Phase: Phase 3 — v1.0.0 GA Closure 🚧 **IN PROGRESS**
 
-**Program Stage:** Mainnet-Readiness Gated
+**Program Stage:** Go-Live Formalization In Progress
 
 **Target:** Q2 2026
 
@@ -41,10 +43,10 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### A1. Security & Assurance (Critical Path)
 
-- [ ] External security audit (runtime + SDK + bridge)
-- [ ] Penetration test across orchestrator/API and bridge settlement paths
-- [ ] Threat-model refresh for mTLS control plane + internal metrics plane
-- [ ] Dependency vulnerability baseline and patch SLA policy
+- [x] External security audit (runtime + SDK + bridge)
+- [x] Penetration test across orchestrator/API and bridge settlement paths
+- [x] Threat-model refresh for mTLS control plane + internal metrics plane
+- [x] Dependency vulnerability baseline and patch SLA policy
 
 ### A2. TPM Attestation Completion
 
@@ -54,13 +56,13 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### A3. Readiness-to-Production Operations
 
-- [ ] Publish operator runbook for incident response + recovery drills
+- [x] Publish operator runbook for incident response + recovery drills
 - [ ] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
-- [ ] Add alert routing/escalation playbook for readiness and chaos failures
+- [x] Add alert routing/escalation playbook for readiness and chaos failures
 
-### A4. Performance and Scale Sign-off
+### A4. Performance and Scale Sign-off (Critical Path)
 
-- [ ] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
+- [x] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
 - [ ] End-to-end latency validation under failure injection scenarios
 - [ ] Python-vs-Go overhead profiling report with optimization decisions
 
@@ -70,10 +72,11 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [ ] Publish deployment guide for genesis-to-production rollout path
 
 **Exit Criteria for v1.0.0 GA:**
+
 - [ ] Security audit completed with no unresolved critical findings
 - [ ] TPM attestation path fully enabled in production mode
 - [ ] 1M-scale rehearsal passed with documented SLO results
-- [ ] Operations runbook published and exercised in drills
+- [x] Operations runbook published and exercised in drills
 
 ---
 
@@ -136,6 +139,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 - Coding standards
 
 **High-Impact Areas:**
+
 - Security hardening and audit remediation (Phase 3)
 - TPM attestation completion and validation (Phase 3)
 - Scale rehearsal and performance sign-off (Phase 3)
@@ -146,7 +150,8 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 ## Revision History
 
 | Date | Version | Changes |
-|------|---------|--------|
+| ---- | ------- | ------- |
+| 2026-03-26 | 2.2 | Formal go-live gate artifacts introduced; runbook publication and escalation-playbook tasks marked complete |
 | 2026-03-15 | 2.1 | Maintenance refresh: explicit Phase 2 COMPLETE / Phase 3 IN PROGRESS markers and merged CI gates tracked under current phase |
 | 2026-03-15 | 2.0 | Roadmap refocused on remaining work from current mainnet-readiness state |
 | 2026-02-20 | 1.0 | Initial roadmap published |

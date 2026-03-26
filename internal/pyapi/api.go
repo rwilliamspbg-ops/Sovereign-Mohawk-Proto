@@ -6,6 +6,7 @@ package main
 */
 import "C"
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -24,6 +25,8 @@ import (
 	"unsafe"
 
 	corehost "github.com/libp2p/go-libp2p/core/host"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/expfmt"
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/bridge"
@@ -721,8 +724,10 @@ func AttestNode(nodeID *C.char) *C.char {
 //export GetDeviceInfo
 func GetDeviceInfo(_ *C.char) *C.char {
 	devices := accelerator.DetectDevices()
+	profile := accelerator.BuildAutoTuneProfile(0)
 	data, _ := json.Marshal(map[string]any{
 		"devices":    devices,
+		"autotune":   profile,
 		"gomaxprocs": runtime.GOMAXPROCS(0),
 		"goarch":     runtime.GOARCH,
 		"goos":       runtime.GOOS,
@@ -730,8 +735,24 @@ func GetDeviceInfo(_ *C.char) *C.char {
 	return marshalResult(true, "Device enumeration complete", string(data))
 }
 
+//export GetPrometheusMetrics
+func GetPrometheusMetrics(_ *C.char) *C.char {
+	metricFamilies, err := prometheus.DefaultGatherer.Gather()
+	if err != nil {
+		return marshalResult(false, fmt.Sprintf("metrics gather error: %v", err), "")
+	}
+	var buffer bytes.Buffer
+	for _, family := range metricFamilies {
+		if _, err := expfmt.MetricFamilyToText(&buffer, family); err != nil {
+			return marshalResult(false, fmt.Sprintf("metrics encode error: %v", err), "")
+		}
+	}
+	return marshalResult(true, "Prometheus metrics snapshot", buffer.String())
+}
+
 //export CompressGradients
 func CompressGradients(payloadJSON *C.char) *C.char {
+	start := time.Now()
 	raw := C.GoString(payloadJSON)
 	var req struct {
 		Gradients []float64 `json:"gradients"`
@@ -742,13 +763,17 @@ func CompressGradients(payloadJSON *C.char) *C.char {
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	if req.Format == "" {
-		req.Format = "fp16"
+		req.Format = "auto"
 	}
 	fp32 := make([]float32, len(req.Gradients))
 	for i, v := range req.Gradients {
 		fp32[i] = float32(v)
 	}
 	originalBytes := len(fp32) * 4
+	tune := accelerator.BuildAutoTuneProfile(len(fp32))
+	if req.Format == "auto" {
+		req.Format = tune.PreferredFormat
+	}
 
 	var compressed []byte
 	var scale float64
@@ -769,16 +794,21 @@ func CompressGradients(payloadJSON *C.char) *C.char {
 	}
 
 	ratio := accelerator.CompressionRatio(originalBytes, len(compressed))
+	compressionLatency := float64(time.Since(start).Microseconds()) / 1000.0
 	metrics.ObserveGradientCompression(req.Format, ratio)
-	metrics.ObserveAcceleratorOp("cpu", "compress_"+req.Format, true)
+	metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "compress_"+req.Format, true)
+	metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "compress_"+req.Format, compressionLatency)
 
 	data, _ := json.Marshal(map[string]any{
-		"format":            req.Format,
-		"original_bytes":    originalBytes,
-		"compressed_bytes":  len(compressed),
-		"compression_ratio": ratio,
-		"scale":             scale,
-		"data_b64":          base64.StdEncoding.EncodeToString(compressed),
+		"format":             req.Format,
+		"autotuned":          true,
+		"backend":            tune.SelectedDevice.Backend,
+		"recommended_worker": tune.RecommendedWorker,
+		"original_bytes":     originalBytes,
+		"compressed_bytes":   len(compressed),
+		"compression_ratio":  ratio,
+		"scale":              scale,
+		"data_b64":           base64.StdEncoding.EncodeToString(compressed),
 	})
 	return marshalResult(true, "Gradients compressed", string(data))
 }
@@ -802,7 +832,15 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 
 	results := make([]verifyResult, len(proofs))
 	var wg sync.WaitGroup
-	workers := runtime.GOMAXPROCS(0)
+	batchStartAll := time.Now()
+	tune := accelerator.BuildAutoTuneProfile(len(proofs))
+	workers := tune.RecommendedWorker
+	if workers <= 0 {
+		workers = 1
+	}
+	if len(proofs) > 0 && workers > len(proofs) {
+		workers = len(proofs)
+	}
 	sem := make(chan struct{}, workers)
 
 	for i, p := range proofs {
@@ -833,11 +871,16 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 		}
 	}
 	metrics.ObserveProofBatch(len(proofs), success)
-	metrics.ObserveAcceleratorOp("cpu", "batch_verify", success)
+	metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "batch_verify", success)
+	metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "batch_verify", float64(time.Since(batchStartAll).Microseconds())/1000.0)
 
 	data, _ := json.Marshal(map[string]any{
-		"count":   len(proofs),
-		"results": results,
+		"count":              len(proofs),
+		"results":            results,
+		"autotuned":          true,
+		"backend":            tune.SelectedDevice.Backend,
+		"recommended_worker": tune.RecommendedWorker,
+		"active_workers":     workers,
 	})
 	return marshalResult(true, "Batch verification complete", string(data))
 }
@@ -882,12 +925,16 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 		FinalityDepth: payload.FinalityDepth,
 		Proof:         payload.Proof,
 	}
+	bridgeStart := time.Now()
 	engine := bridge.NewEngine("mohawk-bridge-v1")
 	hasExplicitPolicy := payload.PolicyManifestPath != "" || payload.PolicyManifest != nil || payload.RoutePolicy != nil
 	if payload.PolicyManifestPath != "" {
 		manifest, err := bridge.LoadRoutePolicyManifestFile(payload.PolicyManifestPath)
 		if err != nil {
 			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
+			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
 			return marshalResult(false, err.Error(), "")
 		}
 		engine.RegisterRoutePolicyManifest(manifest)
@@ -899,6 +946,9 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 		manifest, loaded, err := bridge.LoadDefaultRoutePolicyManifest()
 		if err != nil {
 			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
+			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
 			return marshalResult(false, err.Error(), "")
 		}
 		if loaded {
@@ -911,21 +961,28 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 	if payload.Settle {
 		if err := configureBridgeSettlement(engine, payload.SettlementMinter); err != nil {
 			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
+			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
 			return marshalResult(false, err.Error(), "")
 		}
 	}
 	receipt, err := engine.VerifyTransfer(req)
 	if err != nil {
 		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
 		metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
+		metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
 		return marshalResult(false, err.Error(), "")
 	}
 	metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, true)
+	metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, true, float64(time.Since(bridgeStart).Microseconds())/1000.0)
 	response := map[string]any{"receipt": receipt}
 	if payload.Settle {
 		settlement, settleErr := engine.SettleVerifiedTransfer(req, receipt)
 		if settleErr != nil {
 			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
 			metrics.ObserveBridgeSettlement(payload.Asset, "failed", payload.Amount)
 			response["settlement"] = settlement
 			data, _ := json.Marshal(response)
@@ -935,6 +992,7 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 		response["settlement"] = settlement
 	}
 	metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", true)
+	metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
 	data, _ := json.Marshal(response)
 	if payload.Settle {
 		return marshalResult(true, "Cross-chain transfer verified and settled", string(data))
@@ -971,6 +1029,9 @@ func VerifyHybridProof(payloadJSON *C.char) *C.char {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 
+	tune := accelerator.BuildAutoTuneProfile(len(req.SNARKProof) + len(req.STARKProof))
+	verifyStart := time.Now()
+
 	result, err := hybrid.VerifyHybrid(hybrid.VerifyRequest{
 		Mode:         hybrid.HybridMode(req.Mode),
 		SNARKProof:   []byte(req.SNARKProof),
@@ -979,17 +1040,29 @@ func VerifyHybridProof(payloadJSON *C.char) *C.char {
 	})
 	available := hybrid.AvailableSTARKBackends()
 	if err != nil {
-		metrics.ObserveAcceleratorOp("cpu", "hybrid_verify", false)
+		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "hybrid_verify", false)
+		latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
+		metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "hybrid_verify", latencyMS)
+		metrics.ObserveProofVerification("hybrid", false, latencyMS)
 		data, _ := json.Marshal(map[string]any{
 			"result":             result,
 			"available_backends": available,
+			"autotuned":          true,
+			"backend":            tune.SelectedDevice.Backend,
+			"recommended_worker": tune.RecommendedWorker,
 		})
 		return marshalResult(false, err.Error(), string(data))
 	}
-	metrics.ObserveAcceleratorOp("cpu", "hybrid_verify", true)
+	metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "hybrid_verify", true)
+	latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
+	metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "hybrid_verify", latencyMS)
+	metrics.ObserveProofVerification("hybrid", true, latencyMS)
 	data, _ := json.Marshal(map[string]any{
 		"result":             result,
 		"available_backends": available,
+		"autotuned":          true,
+		"backend":            tune.SelectedDevice.Backend,
+		"recommended_worker": tune.RecommendedWorker,
 	})
 	return marshalResult(true, "Hybrid SNARK/STARK verification complete", string(data))
 }

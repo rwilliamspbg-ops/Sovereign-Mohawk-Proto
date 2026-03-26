@@ -1,0 +1,13 @@
+{
+  "gate": "soak_scale_rehearsal",
+  "status": "approved",
+  "owner": "performance-engineering",
+  "date": "2026-03-26",
+  "evidence": [
+    "results/go-live/evidence/soak_scale_rehearsal_plan_2026-03-26.md",
+    "results/go-live/evidence/soak_scale_rehearsal_report_2026-03-26.md",
+    "results/readiness/readiness-digest.md",
+    "chaos-reports/tpm-metrics-summary.json"
+  ],
+  "notes": "Scale rehearsal package completed for this release candidate and approved by performance engineering."
+}
