@@ -69,6 +69,21 @@ if (-not (Test-Path $secretsDir)) {
 }
 
 $tokenPath = Join-Path $secretsDir "mohawk_api_token"
+$certPath = Join-Path $secretsDir "mohawk_tpm_ca_cert.pem"
+$keyPath = Join-Path $secretsDir "mohawk_tpm_ca_key.pem"
+
+if ((Test-Path $tokenPath) -and (Get-Item $tokenPath).PSIsContainer) {
+    Write-Die "runtime-secrets/mohawk_api_token is a directory. Remove it and rerun. Example: Remove-Item -Recurse -Force .\runtime-secrets\mohawk_api_token"
+}
+
+if ((Test-Path $certPath) -and (Get-Item $certPath).PSIsContainer) {
+    Write-Die "runtime-secrets/mohawk_tpm_ca_cert.pem is a directory. Remove it and rerun."
+}
+
+if ((Test-Path $keyPath) -and (Get-Item $keyPath).PSIsContainer) {
+    Write-Die "runtime-secrets/mohawk_tpm_ca_key.pem is a directory. Remove it and rerun."
+}
+
 $tokenMissing = (-not (Test-Path $tokenPath)) -or ((Get-Item $tokenPath).Length -eq 0)
 
 if ($tokenMissing) {
@@ -90,9 +105,6 @@ if ($tokenMissing) {
         Write-Die "cannot write runtime-secrets/mohawk_api_token. Check file ACLs and retry."
     }
 }
-
-$certPath = Join-Path $secretsDir "mohawk_tpm_ca_cert.pem"
-$keyPath = Join-Path $secretsDir "mohawk_tpm_ca_key.pem"
 
 if ((-not (Test-Path $certPath)) -or (-not (Test-Path $keyPath)) -or ((Get-Item $certPath).Length -eq 0) -or ((Get-Item $keyPath).Length -eq 0)) {
     if (-not (Test-Command "openssl")) {
