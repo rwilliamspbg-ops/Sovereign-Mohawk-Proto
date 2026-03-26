@@ -1,0 +1,48 @@
+name: FedAvg Benchmark Compare
+
+"on":
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  fedavg-benchmark-compare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.x'
+
+      - name: Run FedAvg benchmark comparison
+        run: |
+          chmod +x scripts/benchmark_fedavg_compare.sh
+
+          BASE="origin/main"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="origin/${{ github.base_ref }}"
+          fi
+
+          git fetch origin "${BASE#origin/}" --depth=1 || true
+
+          BASE_REF="$BASE" \
+          BENCH_TIME="200ms" \
+          BENCH_COUNT="2" \
+          REPORT_PATH="results/metrics/fedavg_benchmark_compare.md" \
+          ./scripts/benchmark_fedavg_compare.sh
+
+      - name: Upload FedAvg benchmark report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fedavg-benchmark-report
+          path: results/metrics/fedavg_benchmark_compare.md

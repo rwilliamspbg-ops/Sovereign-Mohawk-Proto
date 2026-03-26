@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **FedAvg runtime benchmark comparison CI** (`.github/workflows/fedavg-benchmark-compare.yml`, `scripts/benchmark_fedavg_compare.sh`, `results/metrics/fedavg_benchmark_compare.md`):
+  - Added PR/push benchmark comparison workflow with markdown artifact upload (`fedavg-benchmark-report`)
+  - Added base-vs-current benchmark script using temporary git worktree execution
+  - Added averaged benchmark row reporting and unmatched-row visibility (`NA`) for non-overlapping benchmark symbols
+
 - **PQC readiness overhaul release closure** (`internal/network/gradient.go`, `internal/tpm/tpm.go`, `internal/token/ledger.go`, `cmd/orchestrator/server.go`, `scripts/mainnet_readiness_gate.py`):
   - Hardened runtime hybrid transport negotiation and KEX metadata enforcement for `x25519-mlkem768-hybrid`
   - Completed XMSS-bound TPM quote metadata binding and attestation mode visibility in readiness checks
@@ -79,6 +84,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **FedAvg aggregation worker strategy and benchmark surface** (`internal/accelerator/aggregate.go`, `test/accelerator_test.go`, `README.md`, `PERFORMANCE.md`):
+  - Added adaptive worker resolver (`ResolveAggregateWorkers`) with small-workload single-thread fallback and large-workload parallel selection
+  - Expanded runtime benchmark matrix to include 4 workload shapes and 5 worker configurations
+  - Added worker-resolution unit coverage and reproducible benchmark commands in project documentation
+
 - **One-click host preflight policy tightened** (`scripts/mainnet_one_click.sh`, `README.md`, `OPERATIONS_RUNBOOK.md`):
   - Switched `MOHAWK_HOST_PREFLIGHT_MODE` default from advisory to strict for production-safe execution
   - Documented dev-container advisory override path and production sysctl persistence checklist
@@ -128,6 +138,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `test_verify_proof_performance`: 10.55 ms mean, 94.77 ops/s
   - `test_aggregate_nodes_performance`: 30.63 us mean, 32,648 ops/s
   - `test_gradient_compression_performance`: 995.70 us mean, 1,004 ops/s
+
+- Added Go runtime FedAvg benchmark matrix and comparison reporting:
+  - Benchmark symbol: `BenchmarkAggregateParallel`
+  - Workloads: `clients32_dim2048`, `clients128_dim4096`, `clients256_dim8192`, `clients512_dim8192`
+  - Worker profiles: `workers1`, `workers2`, `workers4`, `workers8`, `workersAuto`
+  - Comparison report artifact: `results/metrics/fedavg_benchmark_compare.md`
 
 ## [0.1.0] - 2026-02-20
 
