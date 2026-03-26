@@ -211,7 +211,7 @@ See [sdk/python/README.md](sdk/python/README.md) for the complete API reference.
 
 Validated startup options:
 
-1) Regional profile (orchestrator + shard + node-agent-1):
+1. Regional profile (orchestrator + shard + node-agent-1):
 
 ```bash
 ./genesis-launch.sh
@@ -220,7 +220,7 @@ Validated startup options:
 make regional-shard
 ```
 
-2) Full local stack (orchestrator + 3 node agents):
+1. Full local stack (orchestrator + 3 node agents):
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --no-build
@@ -294,7 +294,6 @@ Grafana dashboard shortlist:
 * `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
 * `MOHAWK Live Overview`
 * `TPM Metrics`
-
 
 ### Weekly Readiness Digest Notifications (Optional)
 
