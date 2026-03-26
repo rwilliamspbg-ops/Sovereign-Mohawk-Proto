@@ -256,6 +256,15 @@ curl -fsS http://localhost:9090/-/healthy
 curl -fsS http://localhost:9102/metrics | head
 ```
 
+Control-plane mTLS verification (expected behavior):
+
+```bash
+# This should fail without a client certificate.
+curl -kfsS https://localhost:8080/p2p/info || echo "expected: mTLS client certificate required"
+```
+
+The orchestrator control plane enforces client-certificate authentication. A plain curl without client cert should be rejected.
+
 Windows troubleshooting for launcher secrets:
 
 If Docker reports mount errors (`not a directory`) or token creation/permission failures, reset runtime secret paths and retry:
