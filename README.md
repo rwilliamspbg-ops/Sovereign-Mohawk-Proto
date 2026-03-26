@@ -15,7 +15,6 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
 [![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
 [![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
-[![FedAvg Benchmark Compare](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml)
 [![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
 [![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
@@ -397,34 +396,6 @@ cd sdk/python
 python -m pytest tests/test_benchmarks.py --benchmark-only -q
 ```
 
-### FedAvg Aggregation Benchmark Matrix (Go Runtime)
-
-Latest runtime microbenchmark matrix for `AggregateParallel` includes:
-
-* Workloads: `32x2048`, `128x4096`, `256x8192`, `512x8192`
-* Worker configs: `workers1`, `workers2`, `workers4`, `workers8`, `workersAuto`
-
-Run locally:
-
-```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
-GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
-go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
-```
-
-Generate a base-vs-current comparison report:
-
-```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
-BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 \
-REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
-./scripts/benchmark_fedavg_compare.sh
-```
-
-Comparison artifact:
-
-* `results/metrics/fedavg_benchmark_compare.md`
-
 ---
 
 ## 🛡️ Verification & Monitoring
@@ -438,7 +409,6 @@ All production-grade safety requirements are verified on every push:
 * **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config.
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
-* **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
 * **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
 * **Capability Sync Check:** Runtime capability manifest validation.
 

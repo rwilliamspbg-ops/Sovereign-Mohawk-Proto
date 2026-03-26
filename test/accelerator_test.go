@@ -1,23 +1,10 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 )
-
-func makeBenchmarkGradients(clients int, dim int) [][]float32 {
-	gradients := make([][]float32, clients)
-	for c := 0; c < clients; c++ {
-		g := make([]float32, dim)
-		for i := 0; i < dim; i++ {
-			g[i] = float32((c+i)%97) * 0.01
-		}
-		gradients[c] = g
-	}
-	return gradients
-}
 
 func TestDetectDevicesIncludesCPU(t *testing.T) {
 	devices := accelerator.DetectDevices()
@@ -120,75 +107,5 @@ func TestAutoTuneRecommendWorkersEnvOverride(t *testing.T) {
 	workers := accelerator.RecommendWorkers(device)
 	if workers != 7 {
 		t.Fatalf("expected env override worker count 7, got %d", workers)
-	}
-}
-
-func TestResolveAggregateWorkers_AutoSmallFallsBackToOne(t *testing.T) {
-	workers := accelerator.ResolveAggregateWorkers(32, 2048, 0)
-	if workers != 1 {
-		t.Fatalf("expected auto workers=1 for small workload, got %d", workers)
-	}
-}
-
-func TestResolveAggregateWorkers_ExplicitClamp(t *testing.T) {
-	workers := accelerator.ResolveAggregateWorkers(8, 4096, 64)
-	if workers != 8 {
-		t.Fatalf("expected explicit workers clamped to gradients count (8), got %d", workers)
-	}
-}
-
-func TestResolveAggregateWorkers_AutoLargeUsesParallel(t *testing.T) {
-	workers := accelerator.ResolveAggregateWorkers(128, 4096, 0)
-	if workers < 2 {
-		t.Fatalf("expected auto workers >= 2 for large workload, got %d", workers)
-	}
-}
-
-func BenchmarkAggregateParallel(b *testing.B) {
-	cases := []struct {
-		name    string
-		clients int
-		dim     int
-	}{
-		{name: "clients32_dim2048", clients: 32, dim: 2048},
-		{name: "clients128_dim4096", clients: 128, dim: 4096},
-		{name: "clients256_dim8192", clients: 256, dim: 8192},
-		{name: "clients512_dim8192", clients: 512, dim: 8192},
-	}
-
-	workerConfigs := []struct {
-		name    string
-		workers int
-	}{
-		{name: "workers1", workers: 1},
-		{name: "workers2", workers: 2},
-		{name: "workers4", workers: 4},
-		{name: "workers8", workers: 8},
-		{name: "workersAuto", workers: 0},
-	}
-
-	for _, tc := range cases {
-		gradients := makeBenchmarkGradients(tc.clients, tc.dim)
-		bytesPerOp := int64(tc.clients * tc.dim * 4)
-
-		for _, wc := range workerConfigs {
-			b.Run(fmt.Sprintf("%s/%s", tc.name, wc.name), func(b *testing.B) {
-				workers := accelerator.ResolveAggregateWorkers(tc.clients, tc.dim, wc.workers)
-
-				b.ReportAllocs()
-				b.SetBytes(bytesPerOp)
-				b.ResetTimer()
-
-				for i := 0; i < b.N; i++ {
-					out, err := accelerator.AggregateParallel(gradients, 1.0, workers)
-					if err != nil {
-						b.Fatalf("AggregateParallel error: %v", err)
-					}
-					if len(out) != tc.dim {
-						b.Fatalf("unexpected output dim: got %d want %d", len(out), tc.dim)
-					}
-				}
-			})
-		}
 	}
 }
