@@ -57,6 +57,12 @@ services:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets:/run/secrets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     networks:
       - mohawk-net
 
@@ -132,7 +138,8 @@ services:
     container_name: shard-us-east
     command: ["./main"]
     depends_on:
-      - orchestrator
+      orchestrator:
+        condition: service_healthy
     networks:
       - mohawk-net
 
@@ -143,7 +150,8 @@ services:
     container_name: shard-eu-west
     command: ["./main"]
     depends_on:
-      - orchestrator
+      orchestrator:
+        condition: service_healthy
     networks:
       - mohawk-net
 
@@ -185,8 +193,10 @@ services:
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets:/run/secrets:ro
     depends_on:
-      - orchestrator
-      - ipfs
+      orchestrator:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
     networks:
       - mohawk-net
 
@@ -228,8 +238,10 @@ services:
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets:/run/secrets:ro
     depends_on:
-      - orchestrator
-      - ipfs
+      orchestrator:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
     networks:
       - mohawk-net
 
@@ -271,8 +283,10 @@ services:
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets:/run/secrets:ro
     depends_on:
-      - orchestrator
-      - ipfs
+      orchestrator:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
     networks:
       - mohawk-net
 

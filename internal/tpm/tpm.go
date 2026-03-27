@@ -312,16 +312,21 @@ func getAuthority() (*Authority, error) {
 	if externalCertPath != "" && externalKeyPath != "" {
 		authority, err := loadAuthorityFromFiles(externalCertPath, externalKeyPath)
 		if err != nil {
-			return nil, err
+			if !allowAuthorityFallback(externalCertPath, externalKeyPath, err) {
+				return nil, err
+			}
+			externalCertPath = ""
+			externalKeyPath = ""
+		} else {
+			if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
+				defaultAuthority = authority
+				defaultAuthorityE = nil
+				cacheMutex.Lock()
+				quoteCache = make(map[string]CachedQuote)
+				cacheMutex.Unlock()
+			}
+			return defaultAuthority, nil
 		}
-		if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
-			defaultAuthority = authority
-			defaultAuthorityE = nil
-			cacheMutex.Lock()
-			quoteCache = make(map[string]CachedQuote)
-			cacheMutex.Unlock()
-		}
-		return defaultAuthority, nil
 	}
 
 	if defaultAuthority != nil && defaultAuthorityE == nil && !authorityNeedsRotation(defaultAuthority.cert) {
@@ -377,6 +382,27 @@ func loadAuthorityFromFiles(certPath string, keyPath string) (*Authority, error)
 	}
 
 	return &Authority{cert: cert, key: parsedKey}, nil
+}
+
+func allowAuthorityFallback(certPath string, keyPath string, loadErr error) bool {
+	if os.IsNotExist(loadErr) {
+		return true
+	}
+	if pathStatMissingOrDir(certPath) {
+		return true
+	}
+	if pathStatMissingOrDir(keyPath) {
+		return true
+	}
+	return false
+}
+
+func pathStatMissingOrDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return os.IsNotExist(err)
+	}
+	return info.IsDir()
 }
 
 func authorityNeedsRotation(cert *x509.Certificate) bool {

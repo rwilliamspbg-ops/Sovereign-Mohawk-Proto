@@ -67,8 +67,10 @@ services:
     volumes:
       - ./runtime-secrets:/run/secrets:ro
     depends_on:
-      - orchestrator
-      - ipfs
+      orchestrator:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
     networks:
       - mohawk-net
 
