@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
+COMPOSE_CMD="$ROOT_DIR/scripts/docker-compose-wrapper.sh"
 
 REPORT_JSON="results/readiness/one-click-pipeline-report.json"
 REPORT_MD="results/readiness/one-click-pipeline-report.md"
@@ -181,7 +182,7 @@ run_step 2 "Host kernel network preflight" "if [[ \"$MOHAWK_HOST_PREFLIGHT_MODE\
 run_step 3 "Static gates (capabilities + PQC contract)" "python3 scripts/validate_capabilities.py && python3 scripts/validate_pqc_contract_ready.py"
 run_step 4 "Build + tests + strict auth smoke" "unset MOHAWK_ACCELERATOR_BACKEND MOHAWK_GRADIENT_FORMAT || true; make production-readiness"
 run_step 5 "Python SDK regression" "unset MOHAWK_API_AUTH_MODE MOHAWK_API_TOKEN_FILE MOHAWK_API_ENFORCE_ROLES MOHAWK_API_BRIDGE_ALLOWED_ROLES MOHAWK_API_HYBRID_ALLOWED_ROLES || true; cd sdk/python && pytest tests/test_client.py"
-run_step 6 "Boot observability + control plane stack" "export MOHAWK_ACCELERATOR_BACKEND=\"$RUNTIME_ACCELERATOR_BACKEND\"; export MOHAWK_GRADIENT_FORMAT=\"$RUNTIME_GRADIENT_FORMAT\"; docker compose up -d orchestrator tpm-metrics prometheus grafana ipfs && docker compose up -d node-agent-1 node-agent-2 node-agent-3 && docker compose up -d pyapi-metrics-exporter"
+run_step 6 "Boot observability + control plane stack" "export MOHAWK_ACCELERATOR_BACKEND=\"$RUNTIME_ACCELERATOR_BACKEND\"; export MOHAWK_GRADIENT_FORMAT=\"$RUNTIME_GRADIENT_FORMAT\"; \"$COMPOSE_CMD\" up -d orchestrator tpm-metrics prometheus grafana ipfs && \"$COMPOSE_CMD\" up -d node-agent-1 node-agent-2 node-agent-3 && \"$COMPOSE_CMD\" up -d pyapi-metrics-exporter"
 run_step 7 "Mainnet readiness gate" "python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 > results/readiness/readiness-report.json && cat results/readiness/readiness-report.json"
 run_step 8 "Chaos readiness drill" "./scripts/chaos_readiness_drill.sh tpm-metrics chaos-reports"
 run_step 9 "Readiness digest generation" "python3 scripts/generate_readiness_digest.py --readiness-report results/readiness/readiness-report.json --chaos-dir chaos-reports --output results/readiness/readiness-digest.md"

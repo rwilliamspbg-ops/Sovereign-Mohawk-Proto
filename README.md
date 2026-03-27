@@ -216,6 +216,9 @@ Validated startup options:
 ```bash
 ./genesis-launch.sh
 
+# Start orchestrator + shard + node-agent-1..3
+./genesis-launch.sh --all-nodes
+
 # Equivalent Make target
 make regional-shard
 ```

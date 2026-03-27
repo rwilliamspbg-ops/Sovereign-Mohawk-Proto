@@ -3,6 +3,9 @@ set -e
 
 echo "🚀 Starting Sovereign-Mohawk-Proto Setup..."
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_CMD="$ROOT_DIR/scripts/docker-compose-wrapper.sh"
+
 # 1. Build the Rust Wasm Module
 echo "📦 Building Wasm modules..."
 cd wasm-modules/fl_task
@@ -16,7 +19,7 @@ go mod tidy
 
 # 3. Launch Docker Compose
 echo "🐳 Launching containers..."
-docker compose up --build -d
+"$COMPOSE_CMD" up --build -d
 
 echo "✅ All services are starting!"
 echo "Orchestrator: http://localhost:8080"

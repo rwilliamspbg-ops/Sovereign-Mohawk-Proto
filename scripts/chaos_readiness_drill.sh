@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+COMPOSE_CMD="$ROOT_DIR/scripts/docker-compose-wrapper.sh"
+
 SCENARIO="${1:-tpm-metrics}"
 REPORT_DIR="${2:-chaos-reports}"
 RECOVERY_LATENCY_MAX_SECONDS="${RECOVERY_LATENCY_MAX_SECONDS:-90}"
@@ -128,7 +132,7 @@ fi
 cat "$BASELINE_REPORT"
 
 echo "[chaos] scenario=$SCENARIO injecting outage"
-docker compose stop "$SCENARIO"
+"$COMPOSE_CMD" stop "$SCENARIO"
 if [[ "$SCENARIO" == "prometheus" ]]; then
   wait_prometheus_health down
 elif [[ "$SCENARIO" == "grafana" ]]; then
@@ -147,7 +151,7 @@ cat "$FAILURE_REPORT"
 
 echo "[chaos] scenario=$SCENARIO recovering service"
 recovery_start_epoch="$(date +%s)"
-docker compose start "$SCENARIO"
+"$COMPOSE_CMD" start "$SCENARIO"
 if [[ "$SCENARIO" == "prometheus" ]]; then
   wait_prometheus_health up
   wait_target_state "orchestrator:9091" up

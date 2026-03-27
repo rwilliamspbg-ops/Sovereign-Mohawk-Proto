@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+COMPOSE_CMD="$ROOT_DIR/scripts/docker-compose-wrapper.sh"
+
 usage() {
   cat <<'EOF'
 Usage: scripts/launch_full_stack_3_nodes.sh [--down] [--no-build]
@@ -58,7 +62,7 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 if [[ "$MODE" == "down" ]]; then
-  docker compose down
+  "$COMPOSE_CMD" down
   echo "stack stopped"
   exit 0
 fi
@@ -144,7 +148,7 @@ fi
 export MOHAWK_TRANSPORT_KEX_MODE="${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}"
 export MOHAWK_TPM_IDENTITY_SIG_MODE="${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}"
 
-docker compose up -d ${BUILD_FLAG} \
+"$COMPOSE_CMD" up -d ${BUILD_FLAG} \
   orchestrator shard-us-east \
   tpm-metrics pyapi-metrics-exporter prometheus grafana ipfs
 
@@ -155,7 +159,7 @@ for i in {1..30}; do
   sleep 2
 done
 
-docker compose up -d ${BUILD_FLAG} node-agent-1 node-agent-2 node-agent-3
+"$COMPOSE_CMD" up -d ${BUILD_FLAG} node-agent-1 node-agent-2 node-agent-3
 
 # Simple readiness checks to confirm orchestration and agent footprint.
 for i in {1..30}; do
