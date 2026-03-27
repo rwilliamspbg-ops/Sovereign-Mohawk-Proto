@@ -244,6 +244,12 @@ Startup checks validated in this repository:
 * `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
 * `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
 
+Scalable full-stack profile (single `node-agent` service with replicas):
+
+```bash
+docker compose -f docker-compose.full.yml up -d --scale node-agent=10
+```
+
 Default endpoints after startup:
 
 * Grafana: `http://localhost:3000`
@@ -370,6 +376,16 @@ When configured, settlement enforces:
 ## 🧪 Testing & Compliance
 
 This repository maintains strict adherence to the MOHAWK runtime specifications.
+
+### Lint
+
+Run all repository lint checks locally:
+
+```bash
+make lint
+```
+
+`make lint` runs `go fmt ./...` and `go vet ./...`.
 
 ### Go Runtime Tests
 

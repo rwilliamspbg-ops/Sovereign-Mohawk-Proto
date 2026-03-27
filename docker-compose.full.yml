@@ -1,0 +1,77 @@
+# Full-stack compose variant with scalable node-agent service.
+# Usage:
+#   docker compose -f docker-compose.full.yml up -d --scale node-agent=10
+
+services:
+  orchestrator:
+    extends:
+      file: docker-compose.yml
+      service: orchestrator
+
+  tpm-metrics:
+    extends:
+      file: docker-compose.yml
+      service: tpm-metrics
+
+  pyapi-metrics-exporter:
+    extends:
+      file: docker-compose.yml
+      service: pyapi-metrics-exporter
+
+  prometheus:
+    extends:
+      file: docker-compose.yml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: docker-compose.yml
+      service: grafana
+
+  ipfs:
+    extends:
+      file: docker-compose.yml
+      service: ipfs
+
+  shard-us-east:
+    extends:
+      file: docker-compose.yml
+      service: shard-us-east
+
+  node-agent:
+    build:
+      context: .
+      dockerfile: cmd/node-agent/Dockerfile
+    environment:
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4001
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_API_ENFORCE_ROLES=true
+      - MOHAWK_API_BRIDGE_ALLOWED_ROLES=bridge,admin
+      - MOHAWK_API_HYBRID_ALLOWED_ROLES=verifier,admin
+      - MOHAWK_UTILITY_RATE_LIMIT_PER_MIN=240
+      - MOHAWK_UTILITY_ENFORCE_ROLES=true
+      - MOHAWK_UTILITY_MINT_ALLOWED_ROLES=minter,admin
+      - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
+      - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
+      - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+    # Make each replica unique without hard-coding node IDs.
+    command: ["/bin/sh", "-lc", "NODE_ID=$${HOSTNAME} exec ./node-agent-bin"]
+    volumes:
+      - ./runtime-secrets:/run/secrets:ro
+    depends_on:
+      - orchestrator
+      - ipfs
+    networks:
+      - mohawk-net
+
+networks:
+  mohawk-net:
+    driver: bridge
