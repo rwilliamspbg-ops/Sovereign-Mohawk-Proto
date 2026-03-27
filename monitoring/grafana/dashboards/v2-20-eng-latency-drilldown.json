@@ -1,6 +1,7 @@
 {
   "annotations": {"list": []},
   "editable": true,
+  "uid": "mohawk-v2-eng-latency-drilldown",
   "panels": [
     {
       "datasource": {"type": "prometheus", "uid": "grafana"},
