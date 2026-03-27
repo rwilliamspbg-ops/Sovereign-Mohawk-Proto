@@ -104,6 +104,9 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    environment:
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_LOG_FILTERS=dashboard-service:warn live:warn
     ports:
       - "3000:3000"
     volumes:
