@@ -3,6 +3,11 @@
 #   docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 
 services:
+  runtime-secrets-init:
+    extends:
+      file: docker-compose.yml
+      service: runtime-secrets-init
+
   orchestrator:
     extends:
       file: docker-compose.yml

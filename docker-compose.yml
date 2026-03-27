@@ -11,6 +11,33 @@
 # limitations under the License.
 
 services:
+  runtime-secrets-init:
+    image: alpine:3.22
+    container_name: runtime-secrets-init
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        apk add --no-cache openssl >/dev/null
+        mkdir -p /run/secrets
+        if [ ! -s /run/secrets/mohawk_api_token ]; then
+          umask 077
+          openssl rand -hex 24 > /run/secrets/mohawk_api_token
+        fi
+        if [ ! -s /run/secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s /run/secrets/mohawk_tpm_ca_key.pem ]; then
+          openssl req -x509 -newkey rsa:3072 \
+            -keyout /run/secrets/mohawk_tpm_ca_key.pem \
+            -out /run/secrets/mohawk_tpm_ca_cert.pem \
+            -sha256 -days 365 -nodes \
+            -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
+        fi
+    volumes:
+      - ./runtime-secrets:/run/secrets
+    networks:
+      - mohawk-net
+    restart: "no"
+
   orchestrator:
     build:
       context: .
@@ -57,6 +84,9 @@ services:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets:/run/secrets:ro
+    depends_on:
+      runtime-secrets-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
       interval: 10s
@@ -195,6 +225,8 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
       ipfs:
         condition: service_healthy
     networks:
@@ -240,6 +272,8 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
       ipfs:
         condition: service_healthy
     networks:
@@ -285,6 +319,8 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
       ipfs:
         condition: service_healthy
     networks:
