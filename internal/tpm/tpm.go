@@ -315,8 +315,6 @@ func getAuthority() (*Authority, error) {
 			if !allowAuthorityFallback(externalCertPath, externalKeyPath, err) {
 				return nil, err
 			}
-			externalCertPath = ""
-			externalKeyPath = ""
 		} else {
 			if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
 				defaultAuthority = authority
