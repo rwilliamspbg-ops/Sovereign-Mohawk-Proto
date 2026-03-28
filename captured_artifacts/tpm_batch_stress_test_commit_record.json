@@ -1,0 +1,25 @@
+{
+  "block_name": "tpm_batch_stress_test",
+  "section": "test",
+  "status": "new",
+  "committed_at": "2026-02-23T21:59:01Z",
+  "author": "Zerve Agent",
+  "commit_message": "[test] tpm_batch_stress_test",
+  "inline_comments": {
+    "what_tested": [
+      "BATCH SIZES: 50, 100, 250, 500 items",
+      "PATHS: uncached (unique node IDs + nonces, forced cache miss every time) AND cached (fixed IDs + fixed nonce, TTL=30s hit after warm-up)",
+      "WORKERS: 16 parallel threads per batch; peak thread concurrency tracked",
+      "CACHE METRICS: hits, misses, hit-rate per batch/path combination",
+      "SUCCESS ASSERTIONS: zero failures asserted for all 8 combinations; assertion raised on any non-zero failure count"
+    ],
+    "results": [
+      "0% failure rate across all 8 batch/path combinations \u2014 assertions passed",
+      "Uncached throughput (500 items): ~12,255 att/s",
+      "Cached   throughput (500 items): ~13,201 att/s  (cache-hit rate \u226595%)",
+      "Cached path consistently faster than uncached at every batch size",
+      "Peak thread concurrency tracked correctly per batch",
+      "4 stress charts rendered: latency scaling, throughput scaling, cached vs uncached per-item latency, success/failure rate"
+    ]
+  }
+}

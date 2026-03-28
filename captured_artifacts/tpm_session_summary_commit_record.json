@@ -1,0 +1,19 @@
+{
+  "block_name": "tpm_session_summary",
+  "section": "docs",
+  "status": "new",
+  "committed_at": "2026-02-23T21:59:01Z",
+  "author": "Zerve Agent",
+  "commit_message": "[docs] tpm_session_summary",
+  "inline_comments": {
+    "what_documented": [
+      "BLOCK 1 (fix): tpm_attestation_verification \u2014 6-row fix table with issue + remedy for each; results: 57/57 SDK tests pass, batch demo PASS",
+      "BLOCK 2 (perf): tpm_attestation_benchmark \u2014 before/after metrics table (mean latency, P99, throughput, speedup); 6 optimisations listed with mechanism descriptions; chart inventory",
+      "BLOCK 3 (test): tpm_batch_stress_test \u2014 8-row results table; 0% failure rate assertion; peak throughput; cache hit rates; chart inventory",
+      "BLOCK 4 (integration): tpm_gated_fl_pipeline \u2014 5-step per-round pipeline architecture; configuration params; 10 key results with assertion outcomes",
+      "BLOCK 5 (test): tpm_fl_stress_validation \u2014 configuration (50n \u00d7 10r \u00d7 15% Byzantine); 8 key results including TPR criterion; chart inventory",
+      "BLOCK 6 (docs): self-reference section",
+      "COMMIT TABLE: all 6 blocks with section tags [fix/perf/test/integration/docs]"
+    ]
+  }
+}

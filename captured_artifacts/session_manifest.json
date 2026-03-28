@@ -1,0 +1,66 @@
+{
+  "session_date": "2026-02-23",
+  "committed_at": "2026-02-23T21:59:01Z",
+  "author": "Zerve Agent",
+  "repo": "rwilliamspbg-ops/Sovereign-Mohawk-Proto",
+  "branch": "main",
+  "sections": [
+    "fix",
+    "perf",
+    "test",
+    "integration",
+    "docs"
+  ],
+  "blocks": [
+    {
+      "name": "tpm_attestation_verification",
+      "section": "fix",
+      "status": "modified",
+      "record": "results/tpm/tpm_attestation_verification_commit_record.json",
+      "sha256": "3021cee8659d0574"
+    },
+    {
+      "name": "tpm_attestation_benchmark",
+      "section": "perf",
+      "status": "new",
+      "record": "results/tpm/tpm_attestation_benchmark_commit_record.json",
+      "sha256": "d85ab5bbc2dbfb13"
+    },
+    {
+      "name": "tpm_batch_stress_test",
+      "section": "test",
+      "status": "new",
+      "record": "results/tpm/tpm_batch_stress_test_commit_record.json",
+      "sha256": "00cf943bc26a2cd3"
+    },
+    {
+      "name": "tpm_gated_fl_pipeline",
+      "section": "integration",
+      "status": "new",
+      "record": "results/tpm/tpm_gated_fl_pipeline_commit_record.json",
+      "sha256": "b266733bddfcb7eb"
+    },
+    {
+      "name": "tpm_fl_stress_validation",
+      "section": "test",
+      "status": "new",
+      "record": "results/tpm/tpm_fl_stress_validation_commit_record.json",
+      "sha256": "f1722bf1ee2d47ea"
+    },
+    {
+      "name": "tpm_session_summary",
+      "section": "docs",
+      "status": "new",
+      "record": "results/tpm/tpm_session_summary_commit_record.json",
+      "sha256": "25db691520945f6f"
+    }
+  ],
+  "commit_summary": {
+    "total_blocks": 6,
+    "fix_count": 1,
+    "perf_count": 1,
+    "test_count": 2,
+    "integration_count": 1,
+    "docs_count": 1
+  }
+}

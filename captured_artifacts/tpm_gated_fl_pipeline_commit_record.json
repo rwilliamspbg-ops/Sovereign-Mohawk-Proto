@@ -1,0 +1,31 @@
+{
+  "block_name": "tpm_gated_fl_pipeline",
+  "section": "integration",
+  "status": "new",
+  "committed_at": "2026-02-23T21:59:01Z",
+  "author": "Zerve Agent",
+  "commit_message": "[integration] tpm_gated_fl_pipeline",
+  "inline_comments": {
+    "what_integrated": [
+      "ARCHITECTURE: optimised batch TPM attestation engine (self-contained, independent node pool) embedded inside every FL round as dual gates",
+      "PRE-ROUND GATE: fl_batch_attest() called on all 50 nodes (20 active + 30 standby) before training; failing active nodes quarantined and excluded from gradient collection",
+      "POST-ROUND GATE: fl_batch_attest() re-attests all gradient contributors after aggregation; post-round failures quarantined",
+      "QUARANTINE REGISTRY: persistent per-node quarantine log with round + gate metadata; quarantine_node() / is_quarantined() helpers",
+      "FL SIMULATION: 20 active nodes, 8 rounds, logistic regression on synthetic 4000-sample dataset (80/20 split), LR=0.05, local epochs=5",
+      "FAILURE INJECTION: 10% of active nodes (2/round) have PCR mismatch injected in rotating fashion to exercise quarantine logic",
+      "UNGATED COMPARISON: parallel ungated FedAvg run tracks accuracy without attestation enforcement for \u0394 annotation on convergence chart"
+    ],
+    "results": [
+      "8/8 FL rounds completed",
+      "16 TPM gates enforced (pre + post every round)",
+      "16 quarantine events fired (assert verified > 0)",
+      "Quarantine correctly excluded failing nodes from FedAvg aggregation",
+      "Participants \u2264 20 per round (assert verified)",
+      "Batch size \u2265 50 requirement met (assert verified)",
+      "FL convergence: test accuracy trajectory matches ungated baseline",
+      "Avg attestation overhead: quantified per-round (pre + post combined ms)",
+      "4 charts rendered: FL convergence (gated vs ungated with \u0394 annotation), attestation overhead per round, quarantine events timeline, gated vs ungated accuracy comparison with per-round \u0394 labels",
+      "All 6 success assertions passed"
+    ]
+  }
+}
