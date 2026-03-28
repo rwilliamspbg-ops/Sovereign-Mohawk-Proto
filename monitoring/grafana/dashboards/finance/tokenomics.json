@@ -1422,11 +1422,11 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -1741,12 +1741,11 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "max",
-            "lastNotNull"
+            "lastNotNull",
+            "max"
           ],
           "displayMode": "table",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -2088,7 +2087,10 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "max": 1
         },
         "overrides": []
       },
@@ -2101,14 +2103,17 @@
       "id": 107,
       "options": {
         "colorMode": "background",
-        "graphMode": "none",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2127,7 +2132,22 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops"
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.2
+              }
+            ]
+          },
+          "decimals": 3,
+          "min": 0
         },
         "overrides": []
       },
@@ -2139,15 +2159,18 @@
       },
       "id": 108,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2168,7 +2191,25 @@
         "defaults": {
           "unit": "percentunit",
           "min": 0,
-          "max": 1
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.03
+              }
+            ]
+          },
+          "decimals": 4
         },
         "overrides": []
       },
@@ -2182,13 +2223,16 @@
       "options": {
         "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2207,7 +2251,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ms"
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 75
+              }
+            ]
+          },
+          "decimals": 2,
+          "min": 0
         },
         "overrides": []
       },
@@ -2219,15 +2282,18 @@
       },
       "id": 110,
       "options": {
-        "colorMode": "value",
+        "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2248,7 +2314,25 @@
         "defaults": {
           "unit": "percentunit",
           "min": 0,
-          "max": 1
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.75
+              },
+              {
+                "color": "green",
+                "value": 0.9
+              }
+            ]
+          },
+          "decimals": 3
         },
         "overrides": []
       },
@@ -2262,13 +2346,16 @@
       "options": {
         "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2287,7 +2374,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "ops"
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          },
+          "decimals": 4,
+          "min": 0
         },
         "overrides": []
       },
@@ -2301,13 +2407,16 @@
       "options": {
         "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -2339,7 +2448,24 @@
         }
       ],
       "title": "Migration Endpoints Throughput",
-      "type": "timeseries"
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "min": 0
+        }
+      }
     }
   ],
   "refresh": "30s",
@@ -2374,5 +2500,5 @@
   "timezone": "browser",
   "title": "MOHAWK Tokenomics",
   "uid": "mohawk-tokenomics-v1",
-  "version": 2
+  "version": 3
 }
