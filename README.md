@@ -731,6 +731,9 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
 * [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix
 * [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) - TPM closure validator status report
+* [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) - TPM closure dashboard summary
+* [results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md) - Windows TPM evidence capture guide
+* [results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md) - macOS TPM evidence capture guide
 * [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md) - Release benchmark evidence index
 
 PQC migration and transport helper scripts:
@@ -739,6 +742,8 @@ PQC migration and transport helper scripts:
 * `python scripts/validate_transport_kex_mode.py --help`
 * `python scripts/render_human_readable_proof.py --help`
 * `python scripts/validate_tpm_attestation_closure.py --help`
+* `python scripts/generate_tpm_closure_summary.py --help`
+* `python scripts/enforce_ga_tag_safety.py --tag v1.0.0`
 
 ---
 

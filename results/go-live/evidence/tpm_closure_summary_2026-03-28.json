@@ -1,0 +1,42 @@
+{
+  "attestation_status": "pending",
+  "closure_ok": false,
+  "closure_validation_artifact": "results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json",
+  "ga_ready": false,
+  "generated_utc": "2026-03-28T19:47:47+00:00",
+  "go_live_advisory_ok": true,
+  "go_live_gate_advisory_artifact": "results/go-live/evidence/go_live_gate_advisory_2026-03-28.json",
+  "go_live_gate_strict_artifact": "results/go-live/evidence/go_live_gate_strict_2026-03-28.json",
+  "go_live_strict_ok": false,
+  "matrix_artifact": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json",
+  "platform_completion_percent": 33.33,
+  "platform_status": {
+    "linux": {
+      "evidence_count": 1,
+      "ok": true,
+      "present": true,
+      "status": "pass"
+    },
+    "macos": {
+      "evidence_count": 0,
+      "ok": false,
+      "present": true,
+      "status": "pending"
+    },
+    "windows": {
+      "evidence_count": 0,
+      "ok": false,
+      "present": true,
+      "status": "pending"
+    }
+  },
+  "platforms_passed": 1,
+  "platforms_total": 3,
+  "remaining_failures": [
+    "platform not passing: windows status=pending",
+    "platform missing evidence attachment: windows",
+    "platform not passing: macos status=pending",
+    "platform missing evidence attachment: macos",
+    "attestation status is not approved: pending"
+  ]
+}

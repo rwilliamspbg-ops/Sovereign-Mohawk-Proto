@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check release-performance-evidence openapi-spec capability-dashboard-matrix
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix
 
 all: build verify
 
@@ -131,6 +131,14 @@ failure-injection-latency-check:
 tpm-attestation-closure-check:
 	@echo "🔐 Validating TPM attestation production-closure evidence matrix..."
 	python3 scripts/validate_tpm_attestation_closure.py
+
+tpm-closure-summary:
+	@echo "📊 Generating TPM closure dashboard summary artifacts..."
+	python3 scripts/generate_tpm_closure_summary.py
+
+ga-tag-ready-check:
+	@echo "🛡️ Enforcing GA tag safety policy..."
+	python3 scripts/enforce_ga_tag_safety.py --tag v1.0.0
 
 release-performance-evidence:
 	@echo "📈 Building release performance evidence index..."

@@ -1,0 +1,22 @@
+{
+  "platform": "windows-or-macos",
+  "status": "pending",
+  "host_details": {
+    "os_version": "",
+    "tpm_device": "",
+    "runtime_mode": "production-or-fallback"
+  },
+  "commands_executed": [
+    ""
+  ],
+  "results": {
+    "quote_verify_roundtrip": "pass-or-fail",
+    "replay_protection_check": "pass-or-fail",
+    "signature_metadata_check": "pass-or-fail",
+    "nonce_freshness_check": "pass-or-fail"
+  },
+  "evidence_files": [
+    "results/go-live/evidence/<platform>_tpm_validation_<date>.md"
+  ],
+  "notes": ""
+}

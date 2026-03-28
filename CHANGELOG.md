@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Linux execution evidence and machine/human closure validation reports
   - Added pending TPM closure attestation state to keep remaining blocker explicit
 
+- **GA tag safety enforcement and TPM closure dashboard** (`.github/workflows/ga-tag-safety.yml`, `scripts/enforce_ga_tag_safety.py`, `scripts/generate_tpm_closure_summary.py`, `results/go-live/evidence/tpm_closure_summary_2026-03-28.md`, `results/go-live/evidence/tpm_closure_summary_2026-03-28.json`, `results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md`, `results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md`, `results/go-live/evidence/templates/tpm_platform_evidence_template.json`):
+  - Added tag-triggered safety workflow to block final GA tags when TPM closure or strict gate evidence is not passing
+  - Added consolidated TPM closure summary artifacts for release dashboarding and audit handoff
+  - Added operator-ready Windows/macOS evidence capture packs with standardized schema
+
 - **Monitoring smoke gate CI** (`.github/workflows/monitoring-smoke-gate.yml`):
   - Added compose-based Prometheus/Grafana smoke workflow for push/PR
   - Verifies `up` targets are healthy and theorem dashboard is registered via Grafana API
