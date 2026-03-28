@@ -1,0 +1,34 @@
+{
+  "version": "v1.0.0-rc1",
+  "updated": "2026-03-28",
+  "owner": "runtime-security",
+  "objective": "TPM attestation production-mode closure",
+  "requirements": [
+    "TPM 2.0 quote/verify flow exercised",
+    "Replay protection checks validated",
+    "Evidence format and signature metadata validated",
+    "Production-mode attestation checks enabled"
+  ],
+  "platforms": [
+    {
+      "platform": "linux",
+      "status": "pass",
+      "evidence": [
+        "results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md"
+      ],
+      "notes": "Linux validation completed in repository dev container with TPM quote/verify regression tests."
+    },
+    {
+      "platform": "windows",
+      "status": "pending",
+      "evidence": [],
+      "notes": "Awaiting Windows host validation run and evidence attachment."
+    },
+    {
+      "platform": "macos",
+      "status": "pending",
+      "evidence": [],
+      "notes": "Awaiting macOS host validation run and evidence attachment."
+    }
+  ]
+}

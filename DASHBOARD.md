@@ -9,7 +9,13 @@
 
 ### Current Critical Path
 
-* v1.0.0 GA release checklist and deployment guide publication
+* TPM attestation production-path completion (TPM 2.0 quote/verify + evidence hardening)
+* v1.0.0 GA tag cut after TPM closure sign-off
+
+Current TPM closure evidence:
+
+* `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md`
+* `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md`
 
 ### Formal Go-Live Gate Status
 

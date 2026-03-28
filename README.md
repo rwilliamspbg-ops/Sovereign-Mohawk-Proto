@@ -706,7 +706,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 **Next Up:**
 
-* v1.0.0 GA release checklist and deployment guide publication
+* TPM attestation production-path completion (TPM 2.0 quote/verify and cross-platform validation)
+* v1.0.0 GA tag cut after TPM closure sign-off
 * Post-GA operational cadence and ecosystem expansion milestones
 
 ---
@@ -719,11 +720,17 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
 * [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) - Production operations runbook
+* [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
+* [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
 * [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
+* [results/go-live/evidence/slo_sli_baseline_2026-03-28.md](results/go-live/evidence/slo_sli_baseline_2026-03-28.md) - Versioned SLO/SLI definitions for Phase 3 closure
+* [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
+* [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix
+* [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) - TPM closure validator status report
 * [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md) - Release benchmark evidence index
 
 PQC migration and transport helper scripts:
@@ -731,6 +738,7 @@ PQC migration and transport helper scripts:
 * `python scripts/pqc_migration_payload_cli.py --help`
 * `python scripts/validate_transport_kex_mode.py --help`
 * `python scripts/render_human_readable_proof.py --help`
+* `python scripts/validate_tpm_attestation_closure.py --help`
 
 ---
 

@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Versioned SLO/SLI baseline and failure-injection latency validator** (`results/go-live/evidence/slo_sli_baseline_2026-03-28.md`, `results/go-live/evidence/slo_sli_baseline_2026-03-28.json`, `scripts/validate_failure_injection_latency.py`, `results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md`, `results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json`):
+  - Added formal SLO/SLI contract for readiness, chaos recovery latency thresholds, and proof-latency target
+  - Added executable validator that consumes readiness + chaos artifacts and emits pass/fail release evidence
+
+- **v1.0.0 release closure docs** (`RELEASE_CHECKLIST_v1.0.0_RC.md`, `DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md`):
+  - Added explicit RC sign-off checklist tied to gate evidence and TPM closure requirements
+  - Added staged genesis-to-production rollout guide with preflight, validation, and rollback criteria
+
+- **TPM closure-prep matrix and validator artifacts** (`results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md`, `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json`, `results/go-live/attestations/tpm_attestation_production_closure.json`, `scripts/validate_tpm_attestation_closure.py`, `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md`, `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json`, `results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md`):
+  - Added formal cross-platform closure matrix for TPM attestation production readiness
+  - Added Linux execution evidence and machine/human closure validation reports
+  - Added pending TPM closure attestation state to keep remaining blocker explicit
+
 - **Monitoring smoke gate CI** (`.github/workflows/monitoring-smoke-gate.yml`):
   - Added compose-based Prometheus/Grafana smoke workflow for push/PR
   - Verifies `up` targets are healthy and theorem dashboard is registered via Grafana API
@@ -120,6 +133,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
+
+- **Roadmap/dashboard/readme Phase 3 status alignment** (`ROADMAP.md`, `DASHBOARD.md`, `README.md`, `results/go-live/README.md`, `Makefile`):
+  - Marked SLO/SLI definition, failure-injection latency validation, RC checklist publication, and deployment-guide publication as complete
+  - Updated critical-path messaging to focus remaining work on TPM attestation completion and GA tag cut
+  - Added `make failure-injection-latency-check` for repeatable evidence generation
+  - Added `make tpm-attestation-closure-check` for repeatable TPM closure-state validation
 
 - **Formal go-live validator strict/advisory mode semantics** (`scripts/validate_go_live_gates.py`, `Makefile`, `README.md`, `results/go-live/README.md`):
   - Added explicit `--host-preflight-mode` (`strict` or `advisory`) with audited report metadata

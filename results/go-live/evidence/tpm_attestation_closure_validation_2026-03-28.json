@@ -1,0 +1,39 @@
+{
+  "attestation": "results/go-live/attestations/tpm_attestation_production_closure.json",
+  "checks": {
+    "all_platforms_have_evidence": false,
+    "all_platforms_pass": false,
+    "all_platforms_present": true,
+    "attestation_approved": false
+  },
+  "failures": [
+    "platform not passing: windows status=pending",
+    "platform missing evidence attachment: windows",
+    "platform not passing: macos status=pending",
+    "platform missing evidence attachment: macos",
+    "attestation status is not approved: pending"
+  ],
+  "generated_utc": "2026-03-28T19:26:43+00:00",
+  "matrix": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json",
+  "ok": false,
+  "platform_status": {
+    "linux": {
+      "evidence_count": 1,
+      "ok": true,
+      "present": true,
+      "status": "pass"
+    },
+    "macos": {
+      "evidence_count": 0,
+      "ok": false,
+      "present": true,
+      "status": "pending"
+    },
+    "windows": {
+      "evidence_count": 0,
+      "ok": false,
+      "present": true,
+      "status": "pending"
+    }
+  }
+}

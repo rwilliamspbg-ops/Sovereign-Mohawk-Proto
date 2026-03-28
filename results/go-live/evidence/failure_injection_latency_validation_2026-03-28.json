@@ -1,0 +1,51 @@
+{
+  "baseline_version": "v1.0.0-rc1",
+  "checks": {
+    "all_scenarios_within_threshold": true,
+    "chaos_scenarios_found": true,
+    "readiness_gate_ok": true
+  },
+  "failures": [],
+  "generated_utc": "2026-03-28T19:28:36+00:00",
+  "ok": true,
+  "readiness_report": "results/readiness/readiness-report.json",
+  "scenarios": [
+    {
+      "artifact": "chaos-reports/grafana-summary.json",
+      "gate_reported_ok": true,
+      "latency_seconds": 4,
+      "ok": true,
+      "scenario": "grafana",
+      "threshold_ok": true,
+      "threshold_seconds": 120
+    },
+    {
+      "artifact": "chaos-reports/orchestrator-summary.json",
+      "gate_reported_ok": true,
+      "latency_seconds": 8,
+      "ok": true,
+      "scenario": "orchestrator",
+      "threshold_ok": true,
+      "threshold_seconds": 120
+    },
+    {
+      "artifact": "chaos-reports/prometheus-summary.json",
+      "gate_reported_ok": true,
+      "latency_seconds": 21,
+      "ok": true,
+      "scenario": "prometheus",
+      "threshold_ok": true,
+      "threshold_seconds": 120
+    },
+    {
+      "artifact": "chaos-reports/tpm-metrics-summary.json",
+      "gate_reported_ok": true,
+      "latency_seconds": 9,
+      "ok": true,
+      "scenario": "tpm-metrics",
+      "threshold_ok": true,
+      "threshold_seconds": 90
+    }
+  ],
+  "slo_baseline": "results/go-live/evidence/slo_sli_baseline_2026-03-28.json"
+}

@@ -1,0 +1,11 @@
+{
+  "gate": "tpm_attestation_production_closure",
+  "status": "pending",
+  "owner": "runtime-security",
+  "date": "2026-03-28",
+  "evidence": [
+    "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md",
+    "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json"
+  ],
+  "notes": "Pending until Windows and macOS attestation validations are complete and attached."
+}

@@ -55,17 +55,25 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [ ] Remote attestation evidence format hardening and replay protection checks
 - [ ] Cross-platform validation matrix for attestation paths (Linux/Windows/macOS)
 
+Current closure-prep evidence:
+
+- Matrix (md): [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md)
+- Matrix (json): [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json)
+- Linux validation evidence: [results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md)
+- Closure validator report (md): [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md)
+- Closure validator report (json): [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json)
+
 ### A3. Readiness-to-Production Operations
 
 - [x] Publish operator runbook for incident response + recovery drills
-- [ ] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
+- [x] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
 - [x] Add alert routing/escalation playbook for readiness and chaos failures
 - [x] Add per-alert runbook links for fail-fast remediation
 
 ### A4. Performance and Scale Sign-off (Critical Path)
 
 - [x] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
-- [ ] End-to-end latency validation under failure injection scenarios
+- [x] End-to-end latency validation under failure injection scenarios
 - [x] Python-vs-Go bridge compression overhead profiling report with optimization decisions
 - [x] CI automation for bridge compression benchmark artifact publishing
 - [x] Release benchmark evidence index automation
@@ -73,8 +81,9 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### A5. Release Packaging
 
-- [ ] Finalize v1.0.0 release candidate checklist and cut GA tag
-- [ ] Publish deployment guide for genesis-to-production rollout path
+- [x] Finalize v1.0.0 release candidate checklist
+- [ ] Cut GA tag
+- [x] Publish deployment guide for genesis-to-production rollout path
 
 ### Phase 3 Closure Checklist (Current Evidence)
 
@@ -88,12 +97,22 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Multi-Krum internal runtime enforcement in aggregation path:
   - Runtime: [internal/aggregator.go](internal/aggregator.go)
   - Bridge usage: [internal/pyapi/api.go](internal/pyapi/api.go)
+- [x] Versioned SLO/SLI baseline published:
+  - Baseline (md): [results/go-live/evidence/slo_sli_baseline_2026-03-28.md](results/go-live/evidence/slo_sli_baseline_2026-03-28.md)
+  - Baseline (json): [results/go-live/evidence/slo_sli_baseline_2026-03-28.json](results/go-live/evidence/slo_sli_baseline_2026-03-28.json)
+- [x] Failure-injection latency validation artifacts published:
+  - Validator: [scripts/validate_failure_injection_latency.py](scripts/validate_failure_injection_latency.py)
+  - Report (md): [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md)
+  - Report (json): [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json)
+- [x] v1.0.0 RC checklist and rollout guide published:
+  - Checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md)
+  - Deployment guide: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
 
 **Exit Criteria for v1.0.0 GA:**
 
-- [ ] Security audit completed with no unresolved critical findings
+- [x] Security audit completed with no unresolved critical findings
 - [ ] TPM attestation path fully enabled in production mode
-- [ ] 1M-scale rehearsal passed with documented SLO results
+- [x] 1M-scale rehearsal passed with documented SLO results
 - [x] Operations runbook published and exercised in drills
 
 ---
@@ -169,6 +188,8 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-03-28 | 2.8 | Added TPM attestation closure-prep artifacts: cross-platform matrix, Linux validation evidence, closure attestation state, and validator reports |
+| 2026-03-28 | 2.7 | Added versioned SLO/SLI baseline, failure-injection latency validation artifacts, v1.0.0 RC checklist, and genesis-to-production deployment guide; marked related Phase 3 items complete |
 | 2026-03-28 | 2.6 | Added strict/advisory go-live mode reporting, monitoring smoke CI, release performance evidence workflow, and golden-path E2E artifact generation |
 | 2026-03-28 | 2.5 | Added Phase 3 closure checklist with direct evidence links for benchmark CI/report and aggregate integration coverage |
 | 2026-03-28 | 2.4 | Added bridge compression benchmark CI + artifact publication and marked profiling/reporting milestones complete |

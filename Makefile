@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence openapi-spec capability-dashboard-matrix
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check release-performance-evidence openapi-spec capability-dashboard-matrix
 
 all: build verify
 
@@ -123,6 +123,14 @@ go-live-gate-advisory:
 golden-path-e2e:
 	@echo "🧪 Running end-to-end golden path evidence scenario..."
 	bash scripts/golden_path_e2e.sh
+
+failure-injection-latency-check:
+	@echo "⏱️ Validating failure-injection latency evidence against SLO baseline..."
+	python3 scripts/validate_failure_injection_latency.py
+
+tpm-attestation-closure-check:
+	@echo "🔐 Validating TPM attestation production-closure evidence matrix..."
+	python3 scripts/validate_tpm_attestation_closure.py
 
 release-performance-evidence:
 	@echo "📈 Building release performance evidence index..."

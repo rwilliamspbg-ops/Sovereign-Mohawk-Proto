@@ -1,0 +1,54 @@
+{
+  "version": "v1.0.0-rc1",
+  "updated": "2026-03-28",
+  "owner": "platform-engineering",
+  "scope": "Phase 3 v1.0.0 GA closure",
+  "sli_definitions": [
+    {
+      "id": "readiness_gate_ok",
+      "description": "Readiness gate overall pass/fail",
+      "source_artifact": "results/readiness/readiness-report.json",
+      "source_field": "ok",
+      "target": "true for each release-candidate run"
+    },
+    {
+      "id": "recovery_latency_seconds",
+      "description": "Service recovery latency under failure injection",
+      "source_artifact": "chaos-reports/*-summary.json",
+      "source_field": "recovery_latency_seconds",
+      "target": "<= threshold for every scenario"
+    },
+    {
+      "id": "proof_latency_p95_ms",
+      "description": "Proof verification p95 latency",
+      "source_artifact": "Prometheus recording rule mohawk:proof_latency_ms:p95",
+      "source_field": "instant query value",
+      "target": "< 100ms under normal load"
+    }
+  ],
+  "slo_targets": {
+    "readiness_gate_ok": true,
+    "recovery_latency_threshold_seconds": {
+      "default": 120,
+      "scenarios": {
+        "tpm-metrics": 90,
+        "orchestrator": 120,
+        "prometheus": 120,
+        "grafana": 120
+      }
+    },
+    "proof_latency_p95_ms_max": 100
+  },
+  "evidence_policy": {
+    "evaluation_frequency": "every release candidate and weekly digest cycle",
+    "required_artifacts": [
+      "results/readiness/readiness-report.json",
+      "results/readiness/readiness-digest.md",
+      "chaos-reports/grafana-summary.json",
+      "chaos-reports/orchestrator-summary.json",
+      "chaos-reports/prometheus-summary.json",
+      "chaos-reports/tpm-metrics-summary.json"
+    ],
+    "failure_action": "Open incident, block GA promotion, attach remediation evidence"
+  }
+}
