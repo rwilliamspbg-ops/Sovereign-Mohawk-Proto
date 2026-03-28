@@ -2,9 +2,9 @@ goos: linux
 goarch: amd64
 pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi
 cpu: AMD EPYC 7763 64-Core Processor                
-BenchmarkCompressGradientsJSON/dim2048-4         	     390	    602861 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-4         	     100	   2573750 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-4     	   33710	      7885 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-4     	    7659	     27030 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-4         	     420	    590268 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-4         	     100	   2483990 ns/op	  308763 B/op	      27 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-4     	   33289	      7118 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-4     	    8883	     28437 ns/op	   16384 B/op	       1 allocs/op
 PASS
-ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	1.128s
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	1.310s
