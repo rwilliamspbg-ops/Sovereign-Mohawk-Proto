@@ -21,7 +21,7 @@
     "to": "now"
   },
   "title": "MOHAWK v2 - Security & PQC Compliance",
-  "version": 2,
+  "version": 3,
   "panels": [
     {
       "id": 9,
@@ -33,7 +33,11 @@
         "w": 24,
         "x": 0,
         "y": 0
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "id": 1,
@@ -248,7 +252,11 @@
         "w": 24,
         "x": 0,
         "y": 6
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "id": 5,
@@ -276,11 +284,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     },
@@ -310,11 +336,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     },
@@ -328,7 +372,11 @@
         "w": 24,
         "x": 0,
         "y": 17
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "id": 7,
@@ -361,11 +409,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     },
@@ -400,11 +466,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     }

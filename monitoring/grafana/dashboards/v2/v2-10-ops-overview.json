@@ -14,7 +14,11 @@
         "w": 24,
         "x": 0,
         "y": 0
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "datasource": {
@@ -197,7 +201,11 @@
         "w": 24,
         "x": 0,
         "y": 6
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "datasource": {
@@ -235,11 +243,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     },
@@ -284,11 +310,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     },
@@ -302,7 +346,11 @@
         "w": 24,
         "x": 0,
         "y": 16
-      }
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
     },
     {
       "datasource": {
@@ -330,11 +378,29 @@
         "legend": {
           "calcs": [
             "lastNotNull",
+            "min",
             "max"
           ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
         }
       }
     }
@@ -355,5 +421,5 @@
     "to": "now"
   },
   "title": "MOHAWK v2 - Operations Overview",
-  "version": 2
+  "version": 4
 }
