@@ -2469,6 +2469,399 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "id": 114,
+      "type": "row",
+      "title": "Operational Risk Drivers",
+      "collapsed": false,
+      "description": "Execution-layer cost and risk signals that influence token utility economics.",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      }
+    },
+    {
+      "id": 115,
+      "type": "timeseries",
+      "title": "Bridge Transfer Latency (p50/p95/p99)",
+      "description": "Latency curve for bridge verification/settlement path, a key economic UX driver.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 76
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
+    },
+    {
+      "id": 116,
+      "type": "timeseries",
+      "title": "Migration Endpoint Latency (p95)",
+      "description": "Per-endpoint p95 latency for migration control-plane operations.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 76
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, endpoint) (rate(mohawk_migration_request_latency_ms_bucket[5m])))",
+          "legendFormat": "{{endpoint}} p95",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
+    },
+    {
+      "id": 117,
+      "type": "timeseries",
+      "title": "Authz Denials by Endpoint & Reason",
+      "description": "Raw authorization denial stream as an economic-risk and abuse-pressure signal.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 84
+      },
+      "targets": [
+        {
+          "expr": "sum by (endpoint, reason) (rate(mohawk_authz_denials_total[5m]))",
+          "legendFormat": "{{endpoint}} {{reason}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
+    },
+    {
+      "id": 118,
+      "type": "timeseries",
+      "title": "PQC Policy Mode & Epoch Visibility",
+      "description": "Raw policy mode and epoch observability supporting compliance-grade tokenomic operations.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 84
+      },
+      "targets": [
+        {
+          "expr": "mohawk_pqc_policy_enabled",
+          "legendFormat": "{{policy}} enabled",
+          "refId": "A"
+        },
+        {
+          "expr": "mohawk_pqc_policy_epoch_unix",
+          "legendFormat": "{{policy}} epoch",
+          "refId": "B"
+        },
+        {
+          "expr": "mohawk_pqc_policy_mode_info",
+          "legendFormat": "{{policy}} {{mode}}",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
+    },
+    {
+      "id": 119,
+      "type": "row",
+      "title": "Compute Efficiency & Cost Drivers",
+      "collapsed": false,
+      "description": "Performance and governance signals that directly affect cost-to-utility economics.",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 92
+      }
+    },
+    {
+      "id": 120,
+      "type": "timeseries",
+      "title": "Model & Proof Efficiency Signals",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 93
+      },
+      "targets": [
+        {
+          "expr": "avg(mohawk_gradient_compression_ratio)",
+          "legendFormat": "gradient compression ratio",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(mohawk_proof_batch_size)",
+          "legendFormat": "proof batch size",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))",
+          "legendFormat": "proof verify p95",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total[5m]))",
+          "legendFormat": "accelerator ops/s",
+          "refId": "D"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(mohawk_accelerator_op_latency_ms_bucket[5m])))",
+          "legendFormat": "accelerator latency p95",
+          "refId": "E"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "proof verify p95"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "accelerator latency p95"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "accelerator ops/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
+    },
+    {
+      "id": 121,
+      "type": "timeseries",
+      "title": "Governance & Reliability Inputs",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 93
+      },
+      "targets": [
+        {
+          "expr": "sum by (clause,status) (mohawk_thinker_clause_config)",
+          "legendFormat": "{{clause}}={{status}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(mohawk_aggregation_workers)",
+          "legendFormat": "aggregation workers",
+          "refId": "B"
+        },
+        {
+          "expr": "avg(mohawk_consensus_honest_ratio)",
+          "legendFormat": "consensus honest ratio",
+          "refId": "C"
+        },
+        {
+          "expr": "sum by (operation,status) (rate(mohawk_ipfs_operations_total[5m]))",
+          "legendFormat": "ipfs {{operation}} {{status}}",
+          "refId": "D"
+        },
+        {
+          "expr": "sum by (mode,endpoint) (rate(mohawk_tpm_verifications_total[5m]))",
+          "legendFormat": "tpm verify {{mode}} {{endpoint}}",
+          "refId": "E"
+        },
+        {
+          "expr": "sum by (status,path) (rate(mohawk_tpm_quotes_total[5m]))",
+          "legendFormat": "tpm quote {{status}} {{path}}",
+          "refId": "F"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "aggregation workers"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "consensus honest ratio"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
     }
   ],
   "refresh": "30s",
@@ -2503,5 +2896,5 @@
   "timezone": "browser",
   "title": "MOHAWK Tokenomics",
   "uid": "mohawk-tokenomics-v1",
-  "version": 4
+  "version": 6
 }
