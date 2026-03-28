@@ -96,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ProofTooShortError`, `ProofStructureError`, `ProofPairingError`, `ProofDegenerateError` as `VerificationError` subclasses
   - `verification_error_for_code(code, message)` mapper used by `MohawkNode.verify_proof()` to raise the most specific type
 - **gnark-crypto** `v0.20.0` added as a direct dependency
-- **Grafana tokenomics dashboard** (`monitoring/grafana/dashboards/tokenomics.json`):
+- **Grafana tokenomics dashboard** (`monitoring/grafana/dashboards/finance/tokenomics.json`):
   - Supply, holder count, tx count, burn/mint rates
   - Bridge settlement volume/success tracking
   - Proof verification throughput and p50/p95/p99 latency views

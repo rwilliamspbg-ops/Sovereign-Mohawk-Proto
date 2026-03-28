@@ -612,7 +612,7 @@ bash scripts/apply_branch_protection.sh
 * [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
 * [monitoring/alertmanager/alertmanager.yml](monitoring/alertmanager/alertmanager.yml)
 * [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
-* [monitoring/grafana/dashboards/tokenomics.json](monitoring/grafana/dashboards/tokenomics.json)
+* [monitoring/grafana/dashboards/finance/tokenomics.json](monitoring/grafana/dashboards/finance/tokenomics.json)
 * [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
 
 ---

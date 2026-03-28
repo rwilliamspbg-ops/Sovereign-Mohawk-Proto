@@ -4,30 +4,56 @@ This guide defines the v2 observability layout so metrics are easy to find and i
 
 ## Dashboard Map
 
-- `v2-00-start-here.json`
+Dashboards are organized by folder so Grafana renders a clean, role-oriented navigation tree.
+
+### v2/
+
+- `v2/v2-00-start-here.json`
   - Audience: all users
   - Purpose: fast orientation and navigation
-- `v2-10-ops-overview.json`
+- `v2/v2-10-ops-overview.json`
   - Audience: operations
   - Purpose: service health, throughput, and latency baseline
-- `v2-11-ops-incidents.json`
+- `v2/v2-11-ops-incidents.json`
   - Audience: operations/on-call
   - Purpose: failure-centric triage and incident timelines
-- `v2-12-security-pqc-compliance.json`
+- `v2/v2-12-security-pqc-compliance.json`
   - Audience: security/compliance/on-call
   - Purpose: PQC enforcement, auth-denial, and governance compliance posture
-- `v2-20-eng-latency-drilldown.json`
+- `v2/v2-20-eng-latency-drilldown.json`
   - Audience: engineering
   - Purpose: histogram quantile deep dive for proof and bridge paths
-- `v2-22-eng-migration-control-plane.json`
+- `v2/v2-22-eng-migration-control-plane.json`
   - Audience: engineering/security
   - Purpose: migration API throughput, latency, auth pressure, and signature-path reliability
-- `v2-21-eng-node-agents.json`
+- `v2/v2-21-eng-node-agents.json`
   - Audience: engineering
   - Purpose: per-agent availability and success/failure throughput
-- `v2-30-exec-summary.json`
+- `v2/v2-30-exec-summary.json`
   - Audience: leadership
   - Purpose: high-level service status, reliability, and p95 latency trend
+
+### finance/
+
+- `finance/tokenomics.json`
+  - Audience: operations/finance
+  - Purpose: utility coin and bridge-settlement economics
+
+### verification/
+
+- `verification/byzantine-resilience-theorem1.json`
+- `verification/consensus-trust-monitoring.json`
+  - Audience: verification/security
+  - Purpose: theorem-driven consensus and trust monitoring views
+
+### legacy/
+
+- `legacy/mohawk-live-overview.json`
+- `legacy/mohawk-live-rounds.json`
+- `legacy/mohawk-noc-wallboard.json`
+- `legacy/tpm-metrics.json`
+  - Audience: backward-compatible operators
+  - Purpose: legacy operational views retained during migration to v2 dashboards
 
 ## Metric Naming
 
