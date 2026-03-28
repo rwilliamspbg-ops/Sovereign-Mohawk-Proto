@@ -120,6 +120,8 @@ func main() {
 	}
 	defer runner.Close(ctx)
 
+	activeVerifier := runner
+
 	log.Printf("Node %s successfully initialized with zk-SNARK verifier and transport stack", conf.NodeID)
 
 	mockProof := make([]byte, 200)
@@ -127,10 +129,15 @@ func main() {
 	success, err := runner.Verify(ctx, mockProof)
 	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
 	if err != nil {
-		metrics.ObserveProofVerification("groth16", false, proofLatency)
-		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", false)
-		metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "proof_verify", proofLatency)
-		log.Printf("Verification Process Executed: %v", err)
+		if isMissingVerifyProofExportErr(err) {
+			activeVerifier = nil
+			log.Printf("Warning: Wasm verifier at %s does not export verify_proof; proof verification disabled for this run", conf.WasmModulePath)
+		} else {
+			metrics.ObserveProofVerification("groth16", false, proofLatency)
+			metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", false)
+			metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "proof_verify", proofLatency)
+			log.Printf("Verification Process Executed: %v", err)
+		}
 	} else {
 		metrics.ObserveProofVerification("groth16", success, proofLatency)
 		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", success)
@@ -145,7 +152,7 @@ func main() {
 	logAcceleratorDevices()
 
 	log.Println("Node Agent operational. Entering supervised runtime loop...")
-	runSupervisor(rootCtx, conf, meshPlan, peerHost, runner)
+	runSupervisor(rootCtx, conf, meshPlan, peerHost, activeVerifier)
 }
 
 func runSupervisor(rootCtx context.Context, conf Config, meshPlan hva.Plan, peerHost corehost.Host, runner *wasmhost.Host) {
@@ -211,23 +218,32 @@ func runSupervisedRound(rootCtx context.Context, conf Config, meshPlan hva.Plan,
 		log.Printf("Supervisor: checkpoint deferred: %v", err)
 	}
 
-	mockProof := make([]byte, 200)
-	proofStart := time.Now()
-	proofOK, proofErr := runner.Verify(roundCtx, mockProof)
-	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
-	if proofErr != nil {
-		metrics.ObserveProofVerification("groth16", false, proofLatency)
-		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
-		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
-		log.Printf("Supervisor: proof verify failed: %v", proofErr)
-	} else {
-		metrics.ObserveProofVerification("groth16", proofOK, proofLatency)
-		metrics.ObserveAcceleratorOp("cpu", "proof_verify", proofOK)
-		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
+	if runner != nil {
+		mockProof := make([]byte, 200)
+		proofStart := time.Now()
+		proofOK, proofErr := runner.Verify(roundCtx, mockProof)
+		proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
+		if proofErr != nil {
+			metrics.ObserveProofVerification("groth16", false, proofLatency)
+			metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+			metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
+			log.Printf("Supervisor: proof verify failed: %v", proofErr)
+		} else {
+			metrics.ObserveProofVerification("groth16", proofOK, proofLatency)
+			metrics.ObserveAcceleratorOp("cpu", "proof_verify", proofOK)
+			metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", proofLatency)
+		}
 	}
 
 	sendGradientUpdate(roundCtx, conf, meshPlan, peerHost, round)
 	return nil
+}
+
+func isMissingVerifyProofExportErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(err.Error(), "missing required export: verify_proof")
 }
 
 // logAcceleratorDevices detects and logs hardware compute backends.
