@@ -436,6 +436,29 @@ Gate report artifact:
 
 The report now includes `host_preflight_mode`, `warnings`, and enforcement state (`host_network_tuning_enforced`) so strict vs advisory execution is machine-auditable.
 
+### Release Checklist (Operator Quick Run)
+
+Use this compact sequence before release/tag cut:
+
+1. Run strict formal gate on a production-tuned host:
+    - `make go-live-gate-strict`
+2. Run full golden path execution and evidence generation:
+    - `make golden-path-e2e`
+3. Run monitoring smoke checks (local equivalent of CI gate):
+    - `docker compose up -d --build orchestrator alertmanager prometheus tpm-metrics pyapi-metrics-exporter grafana`
+    - `curl -fsS http://localhost:9090/-/healthy`
+    - `curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' | jq '.'`
+4. Regenerate benchmark sign-off index:
+    - `make release-performance-evidence`
+
+Required evidence bundle:
+
+* `results/go-live/go-live-gate-report.json`
+* `results/go-live/strict-host-evidence.md`
+* `results/go-live/golden-path-report.json`
+* `results/go-live/golden-path-report.md`
+* `results/metrics/release_performance_evidence.md`
+
 Attestation inputs (must be `"status": "approved"` before go-live):
 
 * `results/go-live/attestations/security_audit.json`
@@ -574,9 +597,20 @@ All production-grade safety requirements are verified on every push:
 * **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
 * **Capability Sync Check:** Runtime capability manifest validation.
 
+### Branch Protection Baseline
+
+Recommended protected-branch policy for `main` requires the release and safety gates listed above.
+
+Admin automation helper (requires repo-admin token permissions):
+
+```bash
+bash scripts/apply_branch_protection.sh
+```
+
 ### Observability Stack
 
 * [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
+* [monitoring/alertmanager/alertmanager.yml](monitoring/alertmanager/alertmanager.yml)
 * [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
 * [monitoring/grafana/dashboards/tokenomics.json](monitoring/grafana/dashboards/tokenomics.json)
 * [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
@@ -673,6 +707,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
+* [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
 * [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
 * [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md) - Release benchmark evidence index
 

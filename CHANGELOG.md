@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added one-command stack-up, readiness, integration-test, and metrics-assertion execution path
   - Produces machine and human-readable evidence artifacts under `results/go-live/`
 
+- **Strict-host evidence artifact** (`results/go-live/strict-host-evidence.md`):
+  - Added strict go-live validation evidence template/output for production-host sign-off
+  - Documents expected strict failure behavior on non-tuned development hosts and remediation commands
+
+- **Branch protection automation helper** (`scripts/apply_branch_protection.sh`):
+  - Added admin-ready script to enforce required status checks and PR review baseline on `main`
+  - Includes required contexts for Integrity Guard, monitoring smoke, readiness/chaos, and release evidence gates
+
 - **Bridge compression benchmark CI and report artifacts** (`.github/workflows/bridge-compression-benchmark.yml`, `scripts/benchmark_bridge_compression_compare.sh`, `results/metrics/bridge_compression_benchmark_compare.md`):
   - Added PR/push workflow for JSON-vs-zero-copy bridge compression benchmarking
   - Added markdown summary artifact and raw benchmark output artifact upload
@@ -121,6 +129,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Alert remediation linkage** (`monitoring/prometheus/alerting-rules.yml`, `OPERATIONS_RUNBOOK.md`):
   - Added `runbook_url` annotations for each resilience/liveness/attestation alert
   - Added explicit runbook playbooks for all alert names to reduce on-call triage latency
+
+- **Prometheus to Alertmanager routing** (`monitoring/prometheus/prometheus.yml`, `monitoring/alertmanager/alertmanager.yml`, `docker-compose.yml`):
+  - Added Alertmanager service and Prometheus alertmanager target wiring
+  - Added severity-based routing for `critical` and `warning` alerts
 
 - **FedAvg aggregation worker strategy and benchmark surface** (`internal/accelerator/aggregate.go`, `test/accelerator_test.go`, `README.md`, `PERFORMANCE.md`):
   - Added adaptive worker resolver (`ResolveAggregateWorkers`) with small-workload single-thread fallback and large-workload parallel selection

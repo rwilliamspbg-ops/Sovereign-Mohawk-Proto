@@ -135,6 +135,19 @@ services:
       - ./monitoring/prometheus/alerting-rules.yml:/etc/prometheus/alerting-rules.yml:ro
     ports:
       - "9090:9090"
+    depends_on:
+      - alertmanager
+    networks:
+      - mohawk-net
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml"]
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports:
+      - "9093:9093"
     networks:
       - mohawk-net
 

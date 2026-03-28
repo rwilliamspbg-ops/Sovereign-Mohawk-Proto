@@ -1,0 +1,30 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: default-sink
+  group_by: ['alertname', 'domain', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: critical-route
+      continue: true
+    - matchers:
+        - severity="warning"
+      receiver: warning-route
+
+receivers:
+  - name: default-sink
+
+  - name: critical-route
+    webhook_configs:
+      - url: http://orchestrator:9091/alerts/critical
+        send_resolved: true
+
+  - name: warning-route
+    webhook_configs:
+      - url: http://orchestrator:9091/alerts/warning
+        send_resolved: true

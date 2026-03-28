@@ -41,6 +41,21 @@ Run this after Prometheus/Grafana changes or before release sign-off.
 5. Save verification evidence:
    - `results/metrics/v2_dashboard_validation_report.md`
 
+## Alert Routing (Critical and Warning)
+
+Alertmanager is wired in compose and Prometheus alerting config.
+
+1. Start alerting stack:
+   - `docker compose up -d alertmanager prometheus`
+2. Validate Alertmanager API health:
+   - `curl -sf http://localhost:9093/-/healthy`
+3. Validate Prometheus has active alertmanager target:
+   - `curl -sf http://localhost:9090/api/v1/alertmanagers | jq '.'`
+4. Receiver mapping in this repository:
+   - `severity=critical` -> `critical-route`
+   - `severity=warning` -> `warning-route`
+   - default -> `default-sink`
+
 ## Benchmark Regression Playbook
 
 Run benchmark checks before release cut or after aggregation/runtime changes.
@@ -83,6 +98,10 @@ Persist across reboots:
 Development-only override (non-production):
 
 - `MOHAWK_HOST_PREFLIGHT_MODE=advisory make mainnet-one-click`
+
+Release-signoff requirement:
+
+- A strict gate report (`make go-live-gate-strict`) generated on a production-tuned host must be archived alongside advisory/development evidence when preparing release approvals.
 
 ## Incident Escalation
 
@@ -211,6 +230,7 @@ Accepted PQC algorithm aliases currently include `ml-dsa`, `ml-dsa-44`, `ml-dsa-
 
 - `results/readiness/readiness-digest.md`
 - `results/readiness/readiness-report.json`
+- `results/go-live/strict-host-evidence.md`
 - `chaos-reports/*`
 - `results/metrics/fedavg_benchmark_compare.md`
 - `results/metrics/v2_dashboard_validation_report.md`
