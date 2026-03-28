@@ -28,6 +28,11 @@ services:
       file: docker-compose.yml
       service: prometheus
 
+  alertmanager:
+    extends:
+      file: docker-compose.yml
+      service: alertmanager
+
   grafana:
     extends:
       file: docker-compose.yml
