@@ -46,15 +46,6 @@ Dashboards are organized by folder so Grafana renders a clean, role-oriented nav
   - Audience: verification/security
   - Purpose: theorem-driven consensus and trust monitoring views
 
-### legacy/
-
-- `legacy/mohawk-live-overview.json`
-- `legacy/mohawk-live-rounds.json`
-- `legacy/mohawk-noc-wallboard.json`
-- `legacy/tpm-metrics.json`
-  - Audience: backward-compatible operators
-  - Purpose: legacy operational views retained during migration to v2 dashboards
-
 ## Metric Naming
 
 v2 dashboards primarily consume recorded series from `monitoring/prometheus/recording-rules.yml`:
@@ -94,7 +85,7 @@ Run this checklist after deployment or dashboard edits:
 
   `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=mohawk:services_up:count'`
 
-1. Grafana panels render without query errors for all six v2 dashboards.
+1. Grafana panels render without query errors for all v2 dashboards.
 
 1. At least one panel in each dashboard shows non-empty data for active load periods.
 
