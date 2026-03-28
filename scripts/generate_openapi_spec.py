@@ -31,11 +31,7 @@ def build_spec(server_url: str) -> dict:
                     "responses": {
                         "200": {
                             "description": "Hex encoded ed25519 public key",
-                            "content": {
-                                "text/plain": {
-                                    "schema": {"type": "string"}
-                                }
-                            },
+                            "content": {"text/plain": {"schema": {"type": "string"}}},
                         }
                     },
                 }
@@ -126,9 +122,7 @@ def build_spec(server_url: str) -> dict:
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "properties": {
-                                            "cid": {"type": "string"}
-                                        },
+                                        "properties": {"cid": {"type": "string"}},
                                         "required": ["cid"],
                                     }
                                 }
@@ -155,9 +149,7 @@ def build_spec(server_url: str) -> dict:
                                 "application/json": {
                                     "schema": {
                                         "type": "object",
-                                        "properties": {
-                                            "payload": {"type": "string"}
-                                        },
+                                        "properties": {"payload": {"type": "string"}},
                                         "required": ["payload"],
                                     }
                                 }
@@ -215,9 +207,7 @@ def build_spec(server_url: str) -> dict:
                                                 "items": {"type": "string"},
                                             },
                                             "kex_mode": {"type": "string"},
-                                            "expected_public_key_bytes": {
-                                                "type": "integer"
-                                            },
+                                            "expected_public_key_bytes": {"type": "integer"},
                                         },
                                     }
                                 }
@@ -393,9 +383,7 @@ def build_spec(server_url: str) -> dict:
                     "responses": {
                         "200": {
                             "description": "Prometheus exposition format",
-                            "content": {
-                                "text/plain": {"schema": {"type": "string"}}
-                            },
+                            "content": {"text/plain": {"schema": {"type": "string"}}},
                         }
                     },
                 }

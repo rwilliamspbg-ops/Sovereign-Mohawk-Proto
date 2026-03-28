@@ -12,14 +12,14 @@ def build_matrix() -> str:
         (
             "PQC transport enforcement",
             "MOHAWK_TRANSPORT_KEX_MODE + runtime mode metrics",
-            "mohawk_pqc_policy_mode_info{policy=\"transport_kex\"}",
+            'mohawk_pqc_policy_mode_info{policy="transport_kex"}',
             "v2-12-security-pqc-compliance.json",
             "Panel: PQC Mode and Epoch Controls",
         ),
         (
             "TPM identity signature mode",
             "MOHAWK_TPM_IDENTITY_SIG_MODE",
-            "mohawk_pqc_policy_mode_info{policy=\"tpm_identity_sig_mode\"}",
+            'mohawk_pqc_policy_mode_info{policy="tpm_identity_sig_mode"}',
             "v2-12-security-pqc-compliance.json",
             "Panel: PQC Mode and Epoch Controls",
         ),
