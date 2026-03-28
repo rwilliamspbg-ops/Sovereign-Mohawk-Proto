@@ -61,7 +61,9 @@ def build_report(repo_root: Path, readiness_path: Path, chaos_dir: Path, slo_pat
         "checks": {
             "readiness_gate_ok": readiness_ok,
             "chaos_scenarios_found": len(scenarios) > 0,
-            "all_scenarios_within_threshold": all(s["ok"] for s in scenarios) if scenarios else False,
+            "all_scenarios_within_threshold": (
+                all(s["ok"] for s in scenarios) if scenarios else False
+            ),
         },
         "scenarios": scenarios,
         "failures": failures,

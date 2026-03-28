@@ -12,7 +12,6 @@ import datetime as dt
 import json
 from pathlib import Path
 
-
 REQUIRED_PLATFORMS = ("linux", "windows", "macos")
 
 
@@ -89,9 +88,7 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
     attestation_approved = attestation_status == "approved"
 
     if not attestation_approved:
-        failures.append(
-            f"attestation status is not approved: {attestation_status or 'missing'}"
-        )
+        failures.append(f"attestation status is not approved: {attestation_status or 'missing'}")
 
     checks["all_platforms_present"] = all_platforms_present
     checks["all_platforms_pass"] = all_platforms_pass
