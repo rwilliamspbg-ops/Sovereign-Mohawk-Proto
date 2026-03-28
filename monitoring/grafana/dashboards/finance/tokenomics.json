@@ -79,8 +79,9 @@
         "y": 0
       },
       "id": 100,
-      "title": "Supply Overview",
-      "type": "row"
+      "title": "Executive Snapshot",
+      "type": "row",
+      "description": "Top-line economic health KPIs for fast executive and operator read."
     },
     {
       "datasource": {
@@ -477,8 +478,424 @@
         "x": 0,
         "y": 5
       },
+      "id": 106,
+      "title": "Security, PQC & Migration Risk",
+      "type": "row",
+      "description": "Security and migration risk posture with PQC enforcement and control-plane integrity signals."
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "id": 107,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "mohawk:pqc_policy_enforced:min",
+          "legendFormat": "PQC Composite",
+          "refId": "A"
+        }
+      ],
+      "title": "PQC Enforcement Composite",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.2
+              }
+            ]
+          },
+          "decimals": 3,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "id": 108,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "mohawk:migration_requests:rate1m",
+          "legendFormat": "Requests",
+          "refId": "A"
+        }
+      ],
+      "title": "Migration Requests (ops/s)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.03
+              }
+            ]
+          },
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "id": 109,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "mohawk:migration_requests:failure_rate_5m",
+          "legendFormat": "Failure Ratio",
+          "refId": "A"
+        }
+      ],
+      "title": "Migration Failure Ratio (5m)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 75
+              }
+            ]
+          },
+          "decimals": 2,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "id": 110,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "mohawk:migration_latency_ms:p95",
+          "legendFormat": "p95",
+          "refId": "A"
+        }
+      ],
+      "title": "Migration p95 Latency (ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.75
+              },
+              {
+                "color": "green",
+                "value": 0.9
+              }
+            ]
+          },
+          "decimals": 3
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "id": 111,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_migration_signature_path_total{path=\"dual_crypto\"}[5m])) / clamp_min(sum(rate(mohawk_migration_signature_path_total[5m])), 1e-9)",
+          "legendFormat": "Dual-Crypto Share",
+          "refId": "A"
+        }
+      ],
+      "title": "Dual-Crypto Path Share",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.05
+              },
+              {
+                "color": "red",
+                "value": 0.2
+              }
+            ]
+          },
+          "decimals": 4,
+          "min": 0
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "id": 112,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "mohawk:authz_denials:rate5m",
+          "legendFormat": "Authz Denials",
+          "refId": "A"
+        }
+      ],
+      "title": "Authz Denials Rate (5m)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 113,
+      "targets": [
+        {
+          "expr": "sum by (endpoint, result) (rate(mohawk_migration_requests_total[5m]))",
+          "legendFormat": "{{endpoint}} {{result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Migration Endpoints Throughput",
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "min": 0
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
       "id": 101,
-      "title": "Mint / Transfer / Burn Rates",
+      "title": "Monetary Flow Rates",
       "type": "row"
     },
     {
@@ -539,7 +956,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 6
+        "y": 19
       },
       "id": 10,
       "options": {
@@ -630,7 +1047,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 6
+        "y": 19
       },
       "id": 11,
       "options": {
@@ -725,7 +1142,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 6
+        "y": 19
       },
       "id": 12,
       "options": {
@@ -764,10 +1181,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 27
       },
       "id": 102,
-      "title": "Cumulative Volume",
+      "title": "Monetary Stock",
       "type": "row"
     },
     {
@@ -828,7 +1245,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 15
+        "y": 28
       },
       "id": 20,
       "options": {
@@ -917,7 +1334,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 15
+        "y": 28
       },
       "id": 21,
       "options": {
@@ -1006,7 +1423,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 15
+        "y": 28
       },
       "id": 22,
       "options": {
@@ -1043,10 +1460,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 36
       },
       "id": 103,
-      "title": "Supply Dynamics",
+      "title": "Monetary Dynamics",
       "type": "row"
     },
     {
@@ -1107,7 +1524,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 37
       },
       "id": 30,
       "options": {
@@ -1216,7 +1633,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 37
       },
       "id": 31,
       "options": {
@@ -1263,10 +1680,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 45
       },
       "id": 104,
-      "title": "Bridge Settlements",
+      "title": "Bridge & Settlement Economics",
       "type": "row"
     },
     {
@@ -1327,7 +1744,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 46
       },
       "id": 40,
       "options": {
@@ -1416,7 +1833,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 46
       },
       "id": 41,
       "options": {
@@ -1505,7 +1922,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 41
+        "y": 54
       },
       "id": 42,
       "options": {
@@ -1573,7 +1990,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 41
+        "y": 54
       },
       "id": 43,
       "options": {
@@ -1633,7 +2050,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 41
+        "y": 54
       },
       "id": 44,
       "options": {
@@ -1671,11 +2088,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 58
       },
       "id": 105,
-      "title": "zk-Proof Cost & Throughput",
-      "type": "row"
+      "title": "Proof Verification Economics",
+      "type": "row",
+      "description": "Proof verification throughput and latency cost profile for runtime assurance."
     },
     {
       "datasource": {
@@ -1735,7 +2153,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 59
       },
       "id": 50,
       "options": {
@@ -1848,7 +2266,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 59
       },
       "id": 51,
       "options": {
@@ -1984,7 +2402,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 67
       },
       "id": 52,
       "options": {
@@ -2051,421 +2469,6 @@
         }
       ],
       "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 62
-      },
-      "id": 106,
-      "title": "PQC & Migration Economics",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none",
-          "decimals": 0,
-          "min": 0,
-          "max": 1
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 63
-      },
-      "id": 107,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "mohawk:pqc_policy_enforced:min",
-          "legendFormat": "PQC Composite",
-          "refId": "A"
-        }
-      ],
-      "title": "PQC Enforcement Composite",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 0.2
-              }
-            ]
-          },
-          "decimals": 3,
-          "min": 0
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 63
-      },
-      "id": 108,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "mohawk:migration_requests:rate1m",
-          "legendFormat": "Requests",
-          "refId": "A"
-        }
-      ],
-      "title": "Migration Requests (ops/s)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.01
-              },
-              {
-                "color": "red",
-                "value": 0.03
-              }
-            ]
-          },
-          "decimals": 4
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 63
-      },
-      "id": 109,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "mohawk:migration_requests:failure_rate_5m",
-          "legendFormat": "Failure Ratio",
-          "refId": "A"
-        }
-      ],
-      "title": "Migration Failure Ratio (5m)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 75
-              }
-            ]
-          },
-          "decimals": 2,
-          "min": 0
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 63
-      },
-      "id": 110,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "mohawk:migration_latency_ms:p95",
-          "legendFormat": "p95",
-          "refId": "A"
-        }
-      ],
-      "title": "Migration p95 Latency (ms)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.75
-              },
-              {
-                "color": "green",
-                "value": 0.9
-              }
-            ]
-          },
-          "decimals": 3
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 63
-      },
-      "id": 111,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(mohawk_migration_signature_path_total{path=\"dual_crypto\"}[5m])) / clamp_min(sum(rate(mohawk_migration_signature_path_total[5m])), 1e-9)",
-          "legendFormat": "Dual-Crypto Share",
-          "refId": "A"
-        }
-      ],
-      "title": "Dual-Crypto Path Share",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.05
-              },
-              {
-                "color": "red",
-                "value": 0.2
-              }
-            ]
-          },
-          "decimals": 4,
-          "min": 0
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 63
-      },
-      "id": 112,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "expr": "mohawk:authz_denials:rate5m",
-          "legendFormat": "Authz Denials",
-          "refId": "A"
-        }
-      ],
-      "title": "Authz Denials Rate (5m)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 67
-      },
-      "id": 113,
-      "targets": [
-        {
-          "expr": "sum by (endpoint, result) (rate(mohawk_migration_requests_total[5m]))",
-          "legendFormat": "{{endpoint}} {{result}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Migration Endpoints Throughput",
-      "type": "timeseries",
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        }
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ops",
-          "min": 0
-        }
-      }
     }
   ],
   "refresh": "30s",
@@ -2500,5 +2503,5 @@
   "timezone": "browser",
   "title": "MOHAWK Tokenomics",
   "uid": "mohawk-tokenomics-v1",
-  "version": 3
+  "version": 4
 }
