@@ -57,7 +57,7 @@ jobs:
           from pathlib import Path
 
           endpoint = "http://localhost:9090/api/v1/query"
-          query = urllib.parse.urlencode({"query": "up"})
+          query = urllib.parse.urlencode({"query": 'up{job=~"orchestrator|tpm-metrics|pyapi-exporter"}'})
           url = f"{endpoint}?{query}"
 
           last_payload = None
