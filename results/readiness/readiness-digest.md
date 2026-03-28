@@ -36,4 +36,4 @@ Automated summary generated from readiness and chaos gate runs.
 | grafana | ✅ | ✅ | ✅ | 4s | 120s | ✅ |
 | orchestrator | ✅ | ✅ | ✅ | 8s | 120s | ✅ |
 | prometheus | ✅ | ✅ | ✅ | 21s | 120s | ✅ |
-| tpm-metrics | ✅ | ✅ | ✅ | 8s | 90s | ✅ |
+| tpm-metrics | ✅ | ✅ | ✅ | 9s | 90s | ✅ |

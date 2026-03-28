@@ -1,0 +1,530 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sovereign Mohawk Orchestrator API",
+    "version": "1.0.0",
+    "description": "Baseline contract for orchestrator control-plane endpoints.",
+    "x-generated-at": "2026-03-28T13:57:17.065428+00:00"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/orchestrator/pubkey": {
+      "get": {
+        "summary": "Get orchestrator public key",
+        "responses": {
+          "200": {
+            "description": "Hex encoded ed25519 public key",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/next": {
+      "get": {
+        "summary": "Get next federated job",
+        "parameters": [
+          {
+            "name": "node_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WASM payload and signed manifest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "wasm": {
+                      "type": "string",
+                      "description": "Binary bytes serialized by Go JSON encoder"
+                    },
+                    "manifest": {
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing node_id"
+          }
+        }
+      }
+    },
+    "/attest": {
+      "post": {
+        "summary": "Submit node attestation quote",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "node_id",
+                  "quote"
+                ],
+                "properties": {
+                  "node_id": {
+                    "type": "string"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "description": "Base64 bytes as JSON"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Attestation accepted"
+          },
+          "403": {
+            "description": "Attestation failed"
+          }
+        }
+      }
+    },
+    "/checkpoints/put": {
+      "post": {
+        "summary": "Store checkpoint payload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "payload"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "payload": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkpoint stored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cid": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cid"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkpoints/get": {
+      "get": {
+        "summary": "Fetch checkpoint payload",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Checkpoint payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payload": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "payload"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mesh/plan": {
+      "get": {
+        "summary": "Build mesh plan",
+        "parameters": [
+          {
+            "name": "total_nodes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "dimensions",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mesh plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/p2p/info": {
+      "get": {
+        "summary": "Get orchestrator libp2p details",
+        "responses": {
+          "200": {
+            "description": "Peer host details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "peer_id": {
+                      "type": "string"
+                    },
+                    "addrs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "kex_mode": {
+                      "type": "string"
+                    },
+                    "expected_public_key_bytes": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ledger/migration/status": {
+      "get": {
+        "summary": "Get migration policy status",
+        "responses": {
+          "200": {
+            "description": "Current migration status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ledger/migration/config": {
+      "post": {
+        "summary": "Update migration policy",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "enabled",
+                  "require_crypto_epoch",
+                  "lock_legacy_transfers"
+                ],
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "migration_eta": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "migration_epoch": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "require_crypto_epoch": {
+                    "type": "boolean"
+                  },
+                  "lock_legacy_transfers": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated migration status"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ledger/migration/digest": {
+      "post": {
+        "summary": "Build signing digest for migration",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "legacy_account",
+                  "pqc_account",
+                  "amount"
+                ],
+                "properties": {
+                  "legacy_account": {
+                    "type": "string"
+                  },
+                  "pqc_account": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "idempotency_key": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Digest response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "symbol",
+                    "amount_units",
+                    "digest_hex"
+                  ],
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "amount_units": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "digest_hex": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/ledger/migration/migrate": {
+      "post": {
+        "summary": "Execute migration transfer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "legacy_account",
+                  "pqc_account",
+                  "amount"
+                ],
+                "properties": {
+                  "legacy_account": {
+                    "type": "string"
+                  },
+                  "pqc_account": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "memo": {
+                    "type": "string"
+                  },
+                  "legacy_signed": {
+                    "type": "boolean"
+                  },
+                  "pqc_signed": {
+                    "type": "boolean"
+                  },
+                  "legacy_algo": {
+                    "type": "string"
+                  },
+                  "legacy_pub_key": {
+                    "type": "string"
+                  },
+                  "legacy_sig": {
+                    "type": "string"
+                  },
+                  "pqc_algo": {
+                    "type": "string"
+                  },
+                  "pqc_pub_key": {
+                    "type": "string"
+                  },
+                  "pqc_sig": {
+                    "type": "string"
+                  },
+                  "idempotency_key": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Migration transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tx": {
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "tx"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "Prometheus exposition format",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Opaque token"
+      }
+    }
+  }
+}
