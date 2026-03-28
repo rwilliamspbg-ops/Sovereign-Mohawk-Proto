@@ -1,0 +1,36 @@
+name: OpenAPI Spec Generation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  generate-openapi:
+    name: Generate Orchestrator OpenAPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate OpenAPI JSON
+        run: |
+          python3 scripts/generate_openapi_spec.py \
+            --output results/api/openapi.json \
+            --server-url https://localhost:8080
+
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestrator-openapi-spec
+          path: results/api/openapi.json

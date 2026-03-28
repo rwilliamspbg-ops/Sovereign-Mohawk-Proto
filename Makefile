@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence openapi-spec
 
 all: build verify
 
@@ -127,3 +127,7 @@ golden-path-e2e:
 release-performance-evidence:
 	@echo "📈 Building release performance evidence index..."
 	python3 scripts/generate_release_performance_evidence.py
+
+openapi-spec:
+	@echo "📘 Generating OpenAPI spec artifact..."
+	python3 scripts/generate_openapi_spec.py --output results/api/openapi.json --server-url https://localhost:8080
