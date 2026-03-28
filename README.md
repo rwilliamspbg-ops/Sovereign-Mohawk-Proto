@@ -253,6 +253,21 @@ Scalable full-stack profile (single `node-agent` service with replicas):
 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 ```
 
+Adding nodes after genesis start:
+
+```bash
+# Add node-agent-2 and node-agent-3 to an existing regional start
+./scripts/docker-compose-wrapper.sh up -d node-agent-2 node-agent-3
+
+# Equivalent direct Compose invocation
+docker compose up -d node-agent-2 node-agent-3
+```
+
+Git Bash / Windows note:
+
+* Use `./scripts/docker-compose-wrapper.sh ...` (with the `./scripts/` path).
+* Running `docker-compose-wrapper.sh ...` without the path will fail with `command not found`.
+
 Default endpoints after startup:
 
 * Grafana: `http://localhost:3000`
