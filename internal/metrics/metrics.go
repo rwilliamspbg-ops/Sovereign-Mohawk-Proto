@@ -201,6 +201,79 @@ var (
 		},
 		[]string{"scheme"},
 	)
+
+	// pqcPolicyEnabled exposes whether critical PQC controls are currently enforced.
+	pqcPolicyEnabled = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_pqc_policy_enabled",
+			Help: "Boolean state (1/0) for critical PQC enforcement controls.",
+		},
+		[]string{"policy"},
+	)
+
+	// pqcPolicyModeInfo encodes active mode labels for runtime policy controls.
+	pqcPolicyModeInfo = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_pqc_policy_mode_info",
+			Help: "Info metric exposing active policy mode labels (value is always 1).",
+		},
+		[]string{"policy", "mode"},
+	)
+
+	// pqcPolicyEpochUnix stores active epoch boundaries as unix timestamps.
+	pqcPolicyEpochUnix = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_pqc_policy_epoch_unix",
+			Help: "Configured unix epoch value for PQC cutover controls.",
+		},
+		[]string{"policy"},
+	)
+
+	// thinkerClauseConfig surfaces thinker-clause governance knobs for policy verification.
+	thinkerClauseConfig = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_thinker_clause_config",
+			Help: "Thinker-clause configuration values exported as gauges.",
+		},
+		[]string{"setting"},
+	)
+
+	// migrationRequestsTotal counts migration API requests by endpoint and result.
+	migrationRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_migration_requests_total",
+			Help: "Total migration control-plane API requests by endpoint and result.",
+		},
+		[]string{"endpoint", "result"},
+	)
+
+	// migrationRequestLatency records migration API request latency in milliseconds.
+	migrationRequestLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_migration_request_latency_ms",
+			Help:    "Migration control-plane API request latency in milliseconds.",
+			Buckets: []float64{0.5, 1, 2, 5, 10, 20, 50, 100, 250, 500},
+		},
+		[]string{"endpoint"},
+	)
+
+	// migrationSignaturePathTotal tracks usage and outcome of migration signing paths.
+	migrationSignaturePathTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_migration_signature_path_total",
+			Help: "Total migration operations by signature path and result.",
+		},
+		[]string{"path", "result"},
+	)
+
+	// authzDenialsTotal records authorization denials for protected API paths.
+	authzDenialsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_authz_denials_total",
+			Help: "Total authorization denials by endpoint and reason.",
+		},
+		[]string{"endpoint", "reason"},
+	)
 )
 
 func init() {
@@ -230,6 +303,14 @@ func init() {
 		bridgeTransferLatency,
 		proofVerificationsTotal,
 		proofVerificationLatency,
+		pqcPolicyEnabled,
+		pqcPolicyModeInfo,
+		pqcPolicyEpochUnix,
+		thinkerClauseConfig,
+		migrationRequestsTotal,
+		migrationRequestLatency,
+		migrationSignaturePathTotal,
+		authzDenialsTotal,
 	)
 
 	utilityCoinMintsTotal.Add(0)
@@ -396,9 +477,68 @@ func ObserveProofVerification(scheme string, success bool, latencyMS float64) {
 	}
 }
 
+// ObservePQCPolicyEnabled records whether a policy control is enforced.
+func ObservePQCPolicyEnabled(policy string, enabled bool) {
+	policy = sanitizeLabel(policy, "unknown")
+	if enabled {
+		pqcPolicyEnabled.WithLabelValues(policy).Set(1)
+		return
+	}
+	pqcPolicyEnabled.WithLabelValues(policy).Set(0)
+}
+
+// ObservePQCPolicyMode records the active mode for a given policy control.
+func ObservePQCPolicyMode(policy string, mode string) {
+	policy = sanitizeLabel(policy, "unknown")
+	mode = sanitizeLabel(mode, "unknown")
+	pqcPolicyModeInfo.WithLabelValues(policy, mode).Set(1)
+}
+
+// ObservePQCEpochUnix records configured epoch values as unix timestamps.
+func ObservePQCEpochUnix(policy string, epoch int64) {
+	policy = sanitizeLabel(policy, "unknown")
+	pqcPolicyEpochUnix.WithLabelValues(policy).Set(float64(epoch))
+}
+
+// ObserveThinkerClauseValue exports thinker-clause configuration values.
+func ObserveThinkerClauseValue(setting string, value float64) {
+	setting = sanitizeLabel(setting, "unknown")
+	thinkerClauseConfig.WithLabelValues(setting).Set(value)
+}
+
+// ObserveMigrationRequest records migration endpoint request result and latency.
+func ObserveMigrationRequest(endpoint string, success bool, latencyMS float64) {
+	endpoint = sanitizeLabel(endpoint, "unknown")
+	migrationRequestsTotal.WithLabelValues(endpoint, resultLabel(success)).Inc()
+	if latencyMS >= 0 {
+		migrationRequestLatency.WithLabelValues(endpoint).Observe(latencyMS)
+	}
+}
+
+// ObserveMigrationSignaturePath records migration signature path outcomes.
+func ObserveMigrationSignaturePath(path string, success bool) {
+	path = sanitizeLabel(path, "unknown")
+	migrationSignaturePathTotal.WithLabelValues(path, resultLabel(success)).Inc()
+}
+
+// ObserveAuthzDenial records authorization denials for API endpoints.
+func ObserveAuthzDenial(endpoint string, reason string) {
+	endpoint = sanitizeLabel(endpoint, "unknown")
+	reason = sanitizeLabel(reason, "unknown")
+	authzDenialsTotal.WithLabelValues(endpoint, reason).Inc()
+}
+
 func resultLabel(success bool) string {
 	if success {
 		return "success"
 	}
 	return "failure"
+}
+
+func sanitizeLabel(value string, fallback string) string {
+	v := strings.TrimSpace(strings.ToLower(value))
+	if v == "" {
+		return fallback
+	}
+	return v
 }

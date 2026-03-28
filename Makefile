@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence openapi-spec
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence openapi-spec capability-dashboard-matrix
 
 all: build verify
 
@@ -131,3 +131,7 @@ release-performance-evidence:
 openapi-spec:
 	@echo "📘 Generating OpenAPI spec artifact..."
 	python3 scripts/generate_openapi_spec.py --output results/api/openapi.json --server-url https://localhost:8080
+
+capability-dashboard-matrix:
+	@echo "🧭 Generating capability-to-dashboard verification matrix..."
+	python3 scripts/generate_capability_dashboard_matrix.py --output results/go-live/capability_dashboard_matrix.md

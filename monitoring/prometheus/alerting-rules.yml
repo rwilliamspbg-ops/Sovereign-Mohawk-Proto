@@ -66,3 +66,61 @@ groups:
           summary: "TPM verification failure ratio is high"
           description: "TPM verification failures exceed 1% over 10m."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawktpmfailureratiohigh"
+
+      - alert: MohawkMigrationFailureBudgetBurnFast
+        expr: |
+          (
+            sum(rate(mohawk_migration_requests_total{result="failure"}[5m]))
+            /
+            clamp_min(sum(rate(mohawk_migration_requests_total[5m])), 1e-9)
+          ) > 0.05
+          and
+          sum(rate(mohawk_migration_requests_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          domain: migration
+        annotations:
+          summary: "Migration error budget burn rate is high (fast window)"
+          description: "Migration request failure ratio exceeded 5% in the last 5m under active traffic."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkMigrationFailureBudgetBurnSlow
+        expr: |
+          (
+            sum(rate(mohawk_migration_requests_total{result="failure"}[1h]))
+            /
+            clamp_min(sum(rate(mohawk_migration_requests_total[1h])), 1e-9)
+          ) > 0.02
+          and
+          sum(rate(mohawk_migration_requests_total[1h])) > 0.05
+        for: 15m
+        labels:
+          severity: warning
+          domain: migration
+        annotations:
+          summary: "Migration error budget burn rate is elevated (slow window)"
+          description: "Migration request failure ratio exceeded 2% over the last hour under active traffic."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkAuthzDenialsSpike
+        expr: sum(rate(mohawk_authz_denials_total[10m])) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+          domain: security
+        annotations:
+          summary: "Authorization denials are spiking"
+          description: "Sustained authorization denials detected for protected control-plane endpoints."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkPQCPolicyDrift
+        expr: mohawk:pqc_policy_enforced:min < 1
+        for: 2m
+        labels:
+          severity: critical
+          domain: pqc
+        annotations:
+          summary: "One or more critical PQC enforcement controls are disabled"
+          description: "PQC policy enforcement is below required baseline for migration or crypto cutover controls."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"

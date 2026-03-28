@@ -13,9 +13,15 @@ This guide defines the v2 observability layout so metrics are easy to find and i
 - `v2-11-ops-incidents.json`
   - Audience: operations/on-call
   - Purpose: failure-centric triage and incident timelines
+- `v2-12-security-pqc-compliance.json`
+  - Audience: security/compliance/on-call
+  - Purpose: PQC enforcement, auth-denial, and governance compliance posture
 - `v2-20-eng-latency-drilldown.json`
   - Audience: engineering
   - Purpose: histogram quantile deep dive for proof and bridge paths
+- `v2-22-eng-migration-control-plane.json`
+  - Audience: engineering/security
+  - Purpose: migration API throughput, latency, auth pressure, and signature-path reliability
 - `v2-21-eng-node-agents.json`
   - Audience: engineering
   - Purpose: per-agent availability and success/failure throughput
@@ -41,6 +47,12 @@ v2 dashboards primarily consume recorded series from `monitoring/prometheus/reco
 - `mohawk:services_up:count`
 - `mohawk:node_agents_up:count`
 - `mohawk:orchestrator_up`
+- `mohawk:migration_requests:rate1m`
+- `mohawk:migration_requests:failure_rate_5m`
+- `mohawk:migration_latency_ms:p95`
+- `mohawk:authz_denials:rate5m`
+- `mohawk:pqc_policy_enforced:min`
+- `mohawk:thinker_clause:manual_review_threshold`
 
 ## Validation Checklist
 

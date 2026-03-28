@@ -33,6 +33,7 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/ipfs"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
@@ -76,6 +77,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("MOHAWK_TRANSPORT_KEX_MODE: %v", err)
 	}
+	metrics.ObservePQCPolicyMode("transport_kex", string(kexMode))
 	transportCfg.KEXMode = kexMode
 	transportCfg.RelayAddrs = splitRelayAddrs(os.Getenv("MOHAWK_RELAY_ADDRS"))
 	transportHost, err := network.NewHost(context.Background(), transportCfg)
@@ -97,6 +99,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to initialize utility ledger: %v", err)
 	}
+	observePQCPolicyMetrics()
+	observeThinkerClausesFromCapabilities(defaultString(os.Getenv("MOHAWK_CAPABILITIES_PATH"), "capabilities.json"))
 	server.UtilityLedger = utilityLedger
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver
 	// gradient updates directly over the encrypted p2p transport.
@@ -247,4 +251,59 @@ func initUtilityLedger() (*token.Ledger, error) {
 		ledger.ConfigurePQCMigrationEpoch(epoch, requireCryptoEpoch)
 	}
 	return ledger, nil
+}
+
+func observePQCPolicyMetrics() {
+	migrationEnabled := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ENABLED")), "true")
+	lockLegacy := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_LOCK_LEGACY_TRANSFERS")), "true")
+	requireCrypto := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH")), "true")
+
+	metrics.ObservePQCPolicyEnabled("migration_enabled", migrationEnabled)
+	metrics.ObservePQCPolicyEnabled("migration_lock_legacy_transfers", lockLegacy)
+	metrics.ObservePQCPolicyEnabled("require_crypto_after_epoch", requireCrypto)
+	metrics.ObservePQCPolicyMode("tpm_identity_sig_mode", defaultString(os.Getenv("MOHAWK_TPM_IDENTITY_SIG_MODE"), "xmss"))
+
+	if epoch, err := time.Parse(time.RFC3339, strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_EPOCH"))); err == nil {
+		metrics.ObservePQCEpochUnix("migration_epoch", epoch.Unix())
+	}
+	if eta, err := time.Parse(time.RFC3339, strings.TrimSpace(os.Getenv("MOHAWK_PQC_MIGRATION_ETA"))); err == nil {
+		metrics.ObservePQCEpochUnix("migration_eta", eta.Unix())
+	}
+}
+
+func observeThinkerClausesFromCapabilities(path string) {
+	type thinkerClauses struct {
+		Enabled                         bool    `json:"enabled"`
+		PreserveOutliers                bool    `json:"preserve_outliers"`
+		MinorityRetentionMin            float64 `json:"minority_retention_min"`
+		MinorityRetentionMax            float64 `json:"minority_retention_max"`
+		OutlierDistanceZScoreCap        float64 `json:"outlier_distance_zscore_cap"`
+		ManualReviewRequiredAboveZScore float64 `json:"manual_review_required_above_zscore"`
+	}
+	type capabilities struct {
+		Thinker thinkerClauses `json:"thinker_clauses"`
+	}
+
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	var cfg capabilities
+	if err := json.Unmarshal(raw, &cfg); err != nil {
+		return
+	}
+	if cfg.Thinker.Enabled {
+		metrics.ObserveThinkerClauseValue("enabled", 1)
+	} else {
+		metrics.ObserveThinkerClauseValue("enabled", 0)
+	}
+	if cfg.Thinker.PreserveOutliers {
+		metrics.ObserveThinkerClauseValue("preserve_outliers", 1)
+	} else {
+		metrics.ObserveThinkerClauseValue("preserve_outliers", 0)
+	}
+	metrics.ObserveThinkerClauseValue("minority_retention_min", cfg.Thinker.MinorityRetentionMin)
+	metrics.ObserveThinkerClauseValue("minority_retention_max", cfg.Thinker.MinorityRetentionMax)
+	metrics.ObserveThinkerClauseValue("outlier_distance_zscore_cap", cfg.Thinker.OutlierDistanceZScoreCap)
+	metrics.ObserveThinkerClauseValue("manual_review_required_above_zscore", cfg.Thinker.ManualReviewRequiredAboveZScore)
 }

@@ -22,6 +22,17 @@ groups:
           sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="failure"}[5m]))
           /
           clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])), 1e-9)
+      - record: mohawk:migration_requests:rate1m
+        expr: sum(rate(mohawk_migration_requests_total[1m]))
+      - record: mohawk:migration_requests:failure_rate_5m
+        expr: |
+          sum(rate(mohawk_migration_requests_total{result="failure"}[5m]))
+          /
+          clamp_min(sum(rate(mohawk_migration_requests_total[5m])), 1e-9)
+      - record: mohawk:authz_denials:rate5m
+        expr: sum(rate(mohawk_authz_denials_total[5m]))
+      - record: mohawk:migration_signature_path:rate1m
+        expr: sum by (path) (rate(mohawk_migration_signature_path_total[1m]))
 
   - name: mohawk_v2_latency_quantiles
     interval: 30s
@@ -48,3 +59,13 @@ groups:
         expr: sum(up{job="node-agents"})
       - record: mohawk:orchestrator_up
         expr: max(up{job="orchestrator"})
+
+  - name: mohawk_v2_compliance
+    interval: 30s
+    rules:
+      - record: mohawk:pqc_policy_enforced:min
+        expr: min(mohawk_pqc_policy_enabled{policy=~"migration_enabled|migration_lock_legacy_transfers|require_crypto_after_epoch"})
+      - record: mohawk:thinker_clause:manual_review_threshold
+        expr: max(mohawk_thinker_clause_config{setting="manual_review_required_above_zscore"})
+      - record: mohawk:migration_latency_ms:p95
+        expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_migration_request_latency_ms_bucket[5m])))

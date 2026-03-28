@@ -124,6 +124,16 @@ def check_attestations(repo_root: Path, failures: list[str], checks: dict[str, b
     checks["all_attestations_approved"] = all_ok
 
 
+def check_capability_dashboard_matrix(
+    repo_root: Path, failures: list[str], checks: dict[str, bool]
+) -> None:
+    path = repo_root / "results/go-live/capability_dashboard_matrix.md"
+    exists = path.exists()
+    checks["capability_dashboard_matrix_present"] = exists
+    if not exists:
+        failures.append(f"missing capability-to-dashboard matrix artifact: {path}")
+
+
 def write_report(repo_root: Path, report: dict) -> Path:
     out = repo_root / "results/go-live/go-live-gate-report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -157,6 +167,7 @@ def main() -> int:
     check_chaos(repo_root, failures, checks)
     check_host_tuning(repo_root, failures, checks, args.host_preflight_mode, warnings)
     check_attestations(repo_root, failures, checks)
+    check_capability_dashboard_matrix(repo_root, failures, checks)
 
     ok = len(failures) == 0
     report = {

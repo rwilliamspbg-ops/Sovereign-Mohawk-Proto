@@ -63,7 +63,7 @@
       "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6},
       "id": 6,
       "options": {
-        "content": "### Role-Based Navigation\n- **Operations**: v2-10-ops-overview, v2-11-ops-incidents\n- **Engineering**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents\n- **Executive**: v2-30-exec-summary\n\nUse the service/instance variables in each dashboard for drill-down.",
+        "content": "### Role-Based Navigation\n- **Operations**: v2-10-ops-overview, v2-11-ops-incidents\n- **Security/Compliance**: v2-12-security-pqc-compliance\n- **Engineering**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents, v2-22-eng-migration-control-plane\n- **Executive**: v2-30-exec-summary\n\nUse the service/instance variables in each dashboard for drill-down.",
         "mode": "markdown"
       },
       "title": "Where To Go Next",

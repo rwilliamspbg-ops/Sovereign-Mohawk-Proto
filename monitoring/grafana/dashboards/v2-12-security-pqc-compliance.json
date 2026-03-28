@@ -1,0 +1,136 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["mohawk", "v2", "security", "pqc", "compliance"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "MOHAWK v2 - Security & PQC Compliance",
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "PQC Enforcement Composite",
+      "description": "Minimum enforcement state across critical PQC controls (1=fully enforced).",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}
+      },
+      "targets": [{"expr": "mohawk:pqc_policy_enforced:min", "refId": "A"}]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Authz Denials Rate (5m)",
+      "description": "Authorization denial pressure on protected endpoints.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}
+      },
+      "targets": [{"expr": "mohawk:authz_denials:rate5m", "refId": "A"}]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Migration Failure Ratio (5m)",
+      "description": "Control-plane migration failure ratio over rolling 5m.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}
+      },
+      "targets": [{"expr": "mohawk:migration_requests:failure_rate_5m", "refId": "A"}]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Thinker Manual Review Threshold",
+      "description": "Governance threshold from active thinker-clause configuration.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}
+      },
+      "targets": [{"expr": "mohawk:thinker_clause:manual_review_threshold", "refId": "A"}]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "PQC Policy States",
+      "description": "Per-policy enforcement state (1=enabled, 0=disabled).",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 5},
+      "targets": [
+        {"expr": "mohawk_pqc_policy_enabled", "legendFormat": "{{policy}}", "refId": "A"}
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Authz Denials by Endpoint",
+      "description": "Unauthorized attempts grouped by endpoint and reason.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 5},
+      "targets": [
+        {
+          "expr": "sum by (endpoint,reason) (rate(mohawk_authz_denials_total[5m]))",
+          "legendFormat": "{{endpoint}} {{reason}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Migration Reliability and SLO Burn",
+      "description": "Dual-window burn indicators for migration control-plane reliability.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 14},
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_migration_requests_total{result=\"failure\"}[5m])) / clamp_min(sum(rate(mohawk_migration_requests_total[5m])), 1e-9)",
+          "legendFormat": "failure ratio 5m",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(mohawk_migration_requests_total{result=\"failure\"}[1h])) / clamp_min(sum(rate(mohawk_migration_requests_total[1h])), 1e-9)",
+          "legendFormat": "failure ratio 1h",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "PQC Mode and Epoch Controls",
+      "description": "Tracks mode labels and epoch cutover timestamps used in policy enforcement.",
+      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 14},
+      "targets": [
+        {
+          "expr": "mohawk_pqc_policy_mode_info",
+          "legendFormat": "{{policy}} {{mode}}",
+          "refId": "A"
+        },
+        {
+          "expr": "mohawk_pqc_policy_epoch_unix",
+          "legendFormat": "{{policy}} epoch",
+          "refId": "B"
+        }
+      ]
+    }
+  ]
+}

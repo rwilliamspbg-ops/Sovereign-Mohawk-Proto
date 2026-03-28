@@ -185,7 +185,7 @@ run_step 5 "Python SDK regression" "unset MOHAWK_API_AUTH_MODE MOHAWK_API_TOKEN_
 run_step 6 "Boot observability + control plane stack" "export MOHAWK_ACCELERATOR_BACKEND=\"$RUNTIME_ACCELERATOR_BACKEND\"; export MOHAWK_GRADIENT_FORMAT=\"$RUNTIME_GRADIENT_FORMAT\"; \"$COMPOSE_CMD\" up -d orchestrator tpm-metrics prometheus grafana ipfs && \"$COMPOSE_CMD\" up -d node-agent-1 node-agent-2 node-agent-3 && \"$COMPOSE_CMD\" up -d pyapi-metrics-exporter"
 run_step 7 "Mainnet readiness gate" "python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 > results/readiness/readiness-report.json && cat results/readiness/readiness-report.json"
 run_step 8 "Chaos readiness drill" "./scripts/chaos_readiness_drill.sh tpm-metrics chaos-reports"
-run_step 9 "Readiness digest generation" "python3 scripts/generate_readiness_digest.py --readiness-report results/readiness/readiness-report.json --chaos-dir chaos-reports --output results/readiness/readiness-digest.md"
+run_step 9 "Readiness digest generation" "python3 scripts/generate_readiness_digest.py --readiness-report results/readiness/readiness-report.json --chaos-dir chaos-reports --output results/readiness/readiness-digest.md && python3 scripts/generate_capability_dashboard_matrix.py --output results/go-live/capability_dashboard_matrix.md"
 
 PIPELINE_STATUS="pass"
 
