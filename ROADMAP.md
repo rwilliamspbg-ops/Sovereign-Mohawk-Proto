@@ -60,6 +60,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Publish operator runbook for incident response + recovery drills
 - [ ] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
 - [x] Add alert routing/escalation playbook for readiness and chaos failures
+- [x] Add per-alert runbook links for fail-fast remediation
 
 ### A4. Performance and Scale Sign-off (Critical Path)
 
@@ -67,6 +68,8 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [ ] End-to-end latency validation under failure injection scenarios
 - [x] Python-vs-Go bridge compression overhead profiling report with optimization decisions
 - [x] CI automation for bridge compression benchmark artifact publishing
+- [x] Release benchmark evidence index automation
+- [x] Golden-path end-to-end execution artifact generation
 
 ### A5. Release Packaging
 
@@ -166,6 +169,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-03-28 | 2.6 | Added strict/advisory go-live mode reporting, monitoring smoke CI, release performance evidence workflow, and golden-path E2E artifact generation |
 | 2026-03-28 | 2.5 | Added Phase 3 closure checklist with direct evidence links for benchmark CI/report and aggregate integration coverage |
 | 2026-03-28 | 2.4 | Added bridge compression benchmark CI + artifact publication and marked profiling/reporting milestones complete |
 | 2026-03-26 | 2.3 | Added PQC Major Release completion marker and mirrored executive-status language |

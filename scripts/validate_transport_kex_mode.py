@@ -30,9 +30,7 @@ def _check_compose_file(path: Path, expected_mode: str) -> CheckResult:
         return CheckResult(path.name, False, {"error": "file not found"})
 
     text = path.read_text(encoding="utf-8")
-    expected_snippet = (
-        f"MOHAWK_TRANSPORT_KEX_MODE=${{MOHAWK_TRANSPORT_KEX_MODE:-{expected_mode}}}"
-    )
+    expected_snippet = f"MOHAWK_TRANSPORT_KEX_MODE=${{MOHAWK_TRANSPORT_KEX_MODE:-{expected_mode}}}"
     hits = text.count(expected_snippet)
     return CheckResult(
         path.name,
@@ -49,9 +47,7 @@ def _check_shell_export(path: Path, expected_mode: str) -> CheckResult:
         return CheckResult(path.name, False, {"error": "file not found"})
 
     text = path.read_text(encoding="utf-8")
-    pattern = re.compile(
-        r'MOHAWK_TRANSPORT_KEX_MODE="\$\{MOHAWK_TRANSPORT_KEX_MODE:-([^}]+)\}"'
-    )
+    pattern = re.compile(r'MOHAWK_TRANSPORT_KEX_MODE="\$\{MOHAWK_TRANSPORT_KEX_MODE:-([^}]+)\}"')
     matches = pattern.findall(text)
     ok = expected_mode in matches
     return CheckResult(
@@ -89,7 +85,9 @@ def _fetch_json(url: str, timeout: float) -> Dict[str, Any]:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def _check_p2p_endpoint(url: str, expected_mode: str, expected_key_bytes: int, timeout: float) -> CheckResult:
+def _check_p2p_endpoint(
+    url: str, expected_mode: str, expected_key_bytes: int, timeout: float
+) -> CheckResult:
     try:
         payload = _fetch_json(url, timeout)
     except urllib.error.HTTPError as exc:
@@ -157,7 +155,9 @@ def main() -> int:
     checks.append(_check_compose_file(root / "docker-compose.yml", args.expected_mode))
     checks.append(_check_compose_file(root / "docker-compose.full.yml", args.expected_mode))
 
-    checks.append(_check_shell_export(root / "scripts" / "mainnet_one_click.sh", args.expected_mode))
+    checks.append(
+        _check_shell_export(root / "scripts" / "mainnet_one_click.sh", args.expected_mode)
+    )
     checks.append(
         _check_shell_export(root / "scripts" / "launch_full_stack_3_nodes.sh", args.expected_mode)
     )

@@ -149,7 +149,7 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 	if err != nil {
 		return VerifyResult{}, err
 	}
-	snarkOK, snarkErr, snarkBackend := verifySNARKWithAcceleration(req.SNARKProof)
+	snarkOK, snarkBackend, snarkErr := verifySNARKWithAcceleration(req.SNARKProof)
 	starkOK, starkErr := starkVerifier.Verify(req.STARKProof)
 
 	result := VerifyResult{
@@ -181,7 +181,7 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 	return result, nil
 }
 
-func verifySNARKWithAcceleration(proof []byte) (bool, error, string) {
+func verifySNARKWithAcceleration(proof []byte) (bool, string, error) {
 	accel := currentSNARKAccelerator()
 	if accel != nil {
 		timeout := 2 * time.Second
@@ -194,13 +194,13 @@ func verifySNARKWithAcceleration(proof []byte) (bool, error, string) {
 		defer cancel()
 		ok, err := accel.Verify(ctx, proof)
 		if err == nil {
-			return ok, nil, accel.BackendName()
+			return ok, accel.BackendName(), nil
 		}
 		cpuOK, cpuErr := defaultSNARKBridge.Verify(proof)
-		return cpuOK, errors.Join(fmt.Errorf("snark accelerator %s failed: %w", accel.BackendName(), err), cpuErr), "cpu_fallback"
+		return cpuOK, "cpu_fallback", errors.Join(fmt.Errorf("snark accelerator %s failed: %w", accel.BackendName(), err), cpuErr)
 	}
 	ok, err := defaultSNARKBridge.Verify(proof)
-	return ok, err, "cpu"
+	return ok, "cpu", err
 }
 
 type snarkVerifier struct{}

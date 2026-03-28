@@ -10,9 +10,14 @@
     "attestation_soak_scale_rehearsal_approved": true,
     "attestation_threat_model_refresh_approved": true,
     "chaos_summary_ok": true,
-    "host_network_tuning_ok": true,
+    "host_network_tuning_enforced": false,
+    "host_network_tuning_ok": false,
     "readiness_report_ok": true
   },
   "failures": [],
-  "ok": true
+  "host_preflight_mode": "advisory",
+  "ok": true,
+  "warnings": [
+    "host UDP/sysctl tuning preflight failed"
+  ]
 }

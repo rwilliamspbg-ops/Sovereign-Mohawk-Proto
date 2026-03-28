@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Monitoring smoke gate CI** (`.github/workflows/monitoring-smoke-gate.yml`):
+  - Added compose-based Prometheus/Grafana smoke workflow for push/PR
+  - Verifies `up` targets are healthy and theorem dashboard is registered via Grafana API
+  - Publishes smoke query artifacts for incident/debug traces
+
+- **Release performance evidence index automation** (`scripts/generate_release_performance_evidence.py`, `.github/workflows/release-performance-evidence.yml`, `results/metrics/release_performance_evidence.md`):
+  - Added machine-generated release sign-off index for benchmark artifacts
+  - Added CI workflow that regenerates benchmark reports and uploads consolidated evidence
+
+- **Golden-path end-to-end evidence runner** (`scripts/golden_path_e2e.sh`, `results/go-live/golden-path-report.json`, `results/go-live/golden-path-report.md`):
+  - Added one-command stack-up, readiness, integration-test, and metrics-assertion execution path
+  - Produces machine and human-readable evidence artifacts under `results/go-live/`
+
 - **Bridge compression benchmark CI and report artifacts** (`.github/workflows/bridge-compression-benchmark.yml`, `scripts/benchmark_bridge_compression_compare.sh`, `results/metrics/bridge_compression_benchmark_compare.md`):
   - Added PR/push workflow for JSON-vs-zero-copy bridge compression benchmarking
   - Added markdown summary artifact and raw benchmark output artifact upload
@@ -99,6 +112,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
+
+- **Formal go-live validator strict/advisory mode semantics** (`scripts/validate_go_live_gates.py`, `Makefile`, `README.md`, `results/go-live/README.md`):
+  - Added explicit `--host-preflight-mode` (`strict` or `advisory`) with audited report metadata
+  - Reports now include mode, warnings list, and host-tuning enforcement status
+  - Added mode-specific make targets (`go-live-gate-strict`, `go-live-gate-advisory`)
+
+- **Alert remediation linkage** (`monitoring/prometheus/alerting-rules.yml`, `OPERATIONS_RUNBOOK.md`):
+  - Added `runbook_url` annotations for each resilience/liveness/attestation alert
+  - Added explicit runbook playbooks for all alert names to reduce on-call triage latency
 
 - **FedAvg aggregation worker strategy and benchmark surface** (`internal/accelerator/aggregate.go`, `test/accelerator_test.go`, `README.md`, `PERFORMANCE.md`):
   - Added adaptive worker resolver (`ResolveAggregateWorkers`) with small-workload single-thread fallback and large-workload parallel selection

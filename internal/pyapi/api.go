@@ -645,7 +645,7 @@ func parseAggregateUpdatesRequest(updatesStr string) ([]aggregateUpdatePayload, 
 
 	var updates []aggregateUpdatePayload
 	if err := json.Unmarshal([]byte(updatesStr), &updates); err != nil {
-		return nil, 0, 0, fmt.Errorf("Failed to parse updates: %v", err)
+		return nil, 0, 0, fmt.Errorf("failed to parse updates: %v", err)
 	}
 	return updates, 0, 0, nil
 }

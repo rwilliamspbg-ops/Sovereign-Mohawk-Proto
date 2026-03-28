@@ -11,6 +11,7 @@ groups:
         annotations:
           summary: "Consensus honest ratio below Theorem 1 threshold"
           description: "Observed mohawk_consensus_honest_ratio fell below 0.555 for at least 5m."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawkbyzantineresiliencethresholdbreach"
 
       - alert: MohawkStragglerFailureRateHigh
         expr: |
@@ -26,6 +27,7 @@ groups:
         annotations:
           summary: "Straggler risk raised above 99.99% success target"
           description: "Gradient submit failure rate exceeded 0.01% over 10m, reducing theoretical liveness margin."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawkstragglerfailureratehigh"
 
       - alert: MohawkNodeAgentsDown
         expr: sum(up{job="node-agents"}) < 3
@@ -36,6 +38,7 @@ groups:
         annotations:
           summary: "One or more node agents are down"
           description: "The node-agent job reports fewer than 3 healthy instances for at least 5m."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawknodeagentsdown"
 
       - alert: MohawkTPMAttestationFailuresPresent
         expr: increase(mohawk_tpm_verifications_total{result="failure"}[10m]) > 0
@@ -46,6 +49,7 @@ groups:
         annotations:
           summary: "TPM attestation failures detected"
           description: "At least one TPM verification failure occurred in the last 10m."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawktpmattestationfailurespresent"
 
       - alert: MohawkTPMFailureRatioHigh
         expr: |
@@ -61,3 +65,4 @@ groups:
         annotations:
           summary: "TPM verification failure ratio is high"
           description: "TPM verification failures exceed 1% over 10m."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawktpmfailureratiohigh"

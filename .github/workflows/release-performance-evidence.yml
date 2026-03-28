@@ -1,0 +1,57 @@
+name: Release Performance Evidence
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  release-performance-evidence:
+    name: Build Performance Evidence Index
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build SDK benchmark artifact
+        run: |
+          pip install pytest pytest-benchmark numpy
+          cd sdk/python && pip install -e .
+          cd ../..
+          pytest sdk/python/tests/test_benchmarks.py --benchmark-only --benchmark-json=benchmark-results.json
+
+      - name: Build bridge benchmark report
+        run: |
+          chmod +x scripts/benchmark_bridge_compression_compare.sh
+          BENCH_TIME=100ms ./scripts/benchmark_bridge_compression_compare.sh
+
+      - name: Build FedAvg benchmark report
+        run: |
+          chmod +x scripts/benchmark_fedavg_compare.sh
+          BASE_REF=origin/main BENCH_TIME=100ms BENCH_COUNT=1 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh
+
+      - name: Generate release performance evidence index
+        run: |
+          python3 scripts/generate_release_performance_evidence.py
+
+      - name: Upload release evidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-performance-evidence
+          path: |
+            benchmark-results.json
+            results/metrics/bridge_compression_benchmark_compare.md
+            results/metrics/bridge_compression_benchmark_raw.txt
+            results/metrics/fedavg_benchmark_compare.md
+            results/metrics/release_performance_evidence.md

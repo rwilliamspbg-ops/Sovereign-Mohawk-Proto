@@ -103,7 +103,12 @@ class ZeroCopyBridge:
             }
 
         func = getattr(self.lib, "CompressGradientsZeroCopy")
-        func.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_char_p, ctypes.c_double]
+        func.argtypes = [
+            ctypes.POINTER(ctypes.c_float),
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_double,
+        ]
         func.restype = ctypes.c_void_p
 
         holder = bytearray(float_view.tobytes())

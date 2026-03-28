@@ -57,11 +57,24 @@ def check_chaos(repo_root: Path, failures: list[str], checks: dict[str, bool]) -
         failures.append("chaos summary indicates recovery latency SLO failure")
 
 
-def check_host_tuning(repo_root: Path, failures: list[str], checks: dict[str, bool]) -> None:
+def check_host_tuning(
+    repo_root: Path,
+    failures: list[str],
+    checks: dict[str, bool],
+    mode: str,
+    warnings: list[str],
+) -> None:
     script = repo_root / "scripts/validate_host_network_tuning.sh"
     if not script.exists():
-        failures.append(f"missing host tuning script: {script}")
+        message = f"missing host tuning script: {script}"
+        if mode == "advisory":
+            warnings.append(message)
+            checks["host_network_tuning_ok"] = False
+            checks["host_network_tuning_enforced"] = False
+            return
+        failures.append(message)
         checks["host_network_tuning_ok"] = False
+        checks["host_network_tuning_enforced"] = True
         return
 
     proc = subprocess.run(
@@ -74,8 +87,13 @@ def check_host_tuning(repo_root: Path, failures: list[str], checks: dict[str, bo
     )
     ok = proc.returncode == 0
     checks["host_network_tuning_ok"] = ok
+    checks["host_network_tuning_enforced"] = mode == "strict"
     if not ok:
-        failures.append("host UDP/sysctl tuning preflight failed")
+        message = "host UDP/sysctl tuning preflight failed"
+        if mode == "advisory":
+            warnings.append(message)
+        else:
+            failures.append(message)
 
 
 def check_attestations(repo_root: Path, failures: list[str], checks: dict[str, bool]) -> None:
@@ -122,21 +140,30 @@ def main() -> int:
         default=".",
         help="Repository root directory",
     )
+    parser.add_argument(
+        "--host-preflight-mode",
+        choices=["strict", "advisory"],
+        default="strict",
+        help="Host network preflight mode. strict fails the gate; advisory records warning only.",
+    )
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
     failures: list[str] = []
+    warnings: list[str] = []
     checks: dict[str, bool] = {}
 
     check_readiness(repo_root, failures, checks)
     check_chaos(repo_root, failures, checks)
-    check_host_tuning(repo_root, failures, checks)
+    check_host_tuning(repo_root, failures, checks, args.host_preflight_mode, warnings)
     check_attestations(repo_root, failures, checks)
 
     ok = len(failures) == 0
     report = {
         "ok": ok,
+        "host_preflight_mode": args.host_preflight_mode,
         "checks": checks,
+        "warnings": warnings,
         "failures": failures,
     }
     out = write_report(repo_root, report)

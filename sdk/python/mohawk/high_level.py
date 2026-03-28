@@ -190,6 +190,10 @@ class HybridVerificationReceipt:
                 if data_obj.get("selected_scheme") is not None
                 else None
             ),
-            backend=(str(data_obj.get("stark_backend")) if data_obj.get("stark_backend") is not None else None),
+            backend=(
+                str(data_obj.get("stark_backend"))
+                if data_obj.get("stark_backend") is not None
+                else None
+            ),
             raw=dict(result),
         )

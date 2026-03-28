@@ -17,6 +17,8 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
 [![FedAvg Benchmark Compare](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml)
 [![Bridge Compression Benchmark](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml)
+[![Monitoring Smoke Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/monitoring-smoke-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/monitoring-smoke-gate.yml)
+[![Release Performance Evidence](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
 [![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
 [![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
@@ -421,9 +423,18 @@ Run the formal production go-live gate validator (readiness + chaos + host tunin
 make go-live-gate
 ```
 
+Run explicit modes:
+
+```bash
+make go-live-gate-strict
+make go-live-gate-advisory
+```
+
 Gate report artifact:
 
 * `results/go-live/go-live-gate-report.json`
+
+The report now includes `host_preflight_mode`, `warnings`, and enforcement state (`host_network_tuning_enforced`) so strict vs advisory execution is machine-auditable.
 
 Attestation inputs (must be `"status": "approved"` before go-live):
 
@@ -466,6 +477,8 @@ Artifacts are generated at:
 * `chaos-reports/tpm-metrics-summary.json`
 * `results/readiness/readiness-digest.md`
 * `results/go-live/go-live-gate-report.json`
+* `results/go-live/golden-path-report.json`
+* `results/go-live/golden-path-report.md`
 * `results/go-live/attestations/`
 
 ---
@@ -529,6 +542,18 @@ Artifacts:
 * `results/metrics/bridge_compression_benchmark_compare.md`
 * `results/metrics/bridge_compression_benchmark_raw.txt`
 
+### Release Performance Evidence Index
+
+Build a release-grade performance evidence index from benchmark artifacts:
+
+```bash
+make release-performance-evidence
+```
+
+Artifact:
+
+* `results/metrics/release_performance_evidence.md`
+
 ---
 
 ## 🛡️ Verification & Monitoring
@@ -544,6 +569,8 @@ All production-grade safety requirements are verified on every push:
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
+* **Monitoring Smoke Gate:** Compose-based Prometheus/Grafana health and dashboard registration checks.
+* **Release Performance Evidence:** Aggregates benchmark artifacts into a release sign-off index.
 * **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
 * **Capability Sync Check:** Runtime capability manifest validation.
 
@@ -646,6 +673,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
+* [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
+* [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md) - Release benchmark evidence index
 
 PQC migration and transport helper scripts:
 

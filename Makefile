@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e release-performance-evidence
 
 all: build verify
 
@@ -111,3 +111,19 @@ mainnet-one-click:
 go-live-gate:
 	@echo "📋 Validating formal go-live production gates..."
 	python3 scripts/validate_go_live_gates.py
+
+go-live-gate-strict:
+	@echo "📋 Validating formal go-live production gates (strict host preflight)..."
+	python3 scripts/validate_go_live_gates.py --host-preflight-mode strict
+
+go-live-gate-advisory:
+	@echo "📋 Validating formal go-live production gates (advisory host preflight)..."
+	python3 scripts/validate_go_live_gates.py --host-preflight-mode advisory
+
+golden-path-e2e:
+	@echo "🧪 Running end-to-end golden path evidence scenario..."
+	bash scripts/golden_path_e2e.sh
+
+release-performance-evidence:
+	@echo "📈 Building release performance evidence index..."
+	python3 scripts/generate_release_performance_evidence.py

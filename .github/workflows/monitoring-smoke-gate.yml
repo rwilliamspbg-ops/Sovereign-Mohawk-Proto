@@ -1,0 +1,93 @@
+name: Monitoring Smoke Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  monitoring-smoke:
+    name: Grafana and Prometheus Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare runtime secrets
+        run: |
+          mkdir -p runtime-secrets
+          if [ ! -s runtime-secrets/mohawk_api_token ]; then
+            python3 -c 'import pathlib, secrets; pathlib.Path("runtime-secrets/mohawk_api_token").write_text(secrets.token_hex(24), encoding="utf-8")'
+          fi
+          if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
+            openssl req -x509 -newkey rsa:3072 \
+              -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
+              -out runtime-secrets/mohawk_tpm_ca_cert.pem \
+              -sha256 -days 365 -nodes \
+              -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
+          fi
+
+      - name: Start monitoring stack
+        run: |
+          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana
+
+      - name: Wait for Prometheus and Grafana
+        run: |
+          for _ in $(seq 1 60); do
+            if curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/health >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Prometheus/Grafana did not become healthy in time"
+          exit 1
+
+      - name: Verify Prometheus targets
+        run: |
+          curl -fsSG http://localhost:9090/api/v1/query --data-urlencode 'query=up' > /tmp/up.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/up.json').read_text(encoding='utf-8'))
+          results = payload.get('data', {}).get('result', [])
+          if not results:
+              raise SystemExit('No Prometheus up samples found')
+          down = [r for r in results if r.get('value', ['','0'])[1] != '1']
+          if down:
+              raise SystemExit(f'Found down targets: {down}')
+          print(f'All targets up: {len(results)}')
+          PY
+
+      - name: Verify theorem dashboard registration
+        run: |
+          curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          dashboards = json.loads(Path('/tmp/grafana_dashboards.json').read_text(encoding='utf-8'))
+          wanted = 'Byzantine Resilience - Theorem 1'
+          if not any(d.get('title') == wanted for d in dashboards):
+              raise SystemExit(f'Missing dashboard: {wanted}')
+          print('Dashboard present:', wanted)
+          PY
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monitoring-smoke-artifacts
+          path: |
+            /tmp/up.json
+            /tmp/grafana_dashboards.json
+
+      - name: Stop stack
+        if: always()
+        run: |
+          docker compose down -v

@@ -20,6 +20,9 @@ This runbook covers production operations for the Sovereign Mohawk protocol stac
    - `RECOVERY_LATENCY_MAX_SECONDS=120 bash scripts/chaos_readiness_drill.sh grafana chaos-reports`
 3. Verify host kernel tuning:
    - `./scripts/validate_host_network_tuning.sh`
+4. Validate formal go-live gate:
+   - Strict production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode strict`
+   - Advisory non-production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode advisory`
 
 ## Observability v2 Validation
 
@@ -101,6 +104,43 @@ Development-only override (non-production):
    - Runtime owner (orchestrator/node-agent)
    - Platform owner (Prometheus/Grafana/host tuning)
    - Security owner (if auth, threat, or policy failure)
+
+## Alert Playbooks
+
+### Alert: MohawkByzantineResilienceThresholdBreach
+
+1. Confirm signal:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=min_over_time(mohawk_consensus_honest_ratio[10m])' | jq '.'`
+2. Check active node-agent health and regional shard logs.
+3. If ratio remains below threshold for >10m, fail over or drain unstable participants and open SEV-1.
+
+### Alert: MohawkStragglerFailureRateHigh
+
+1. Confirm failure ratio:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="failure"}[5m]))/clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])),1e-9))' | jq '.'`
+2. Inspect recent node-agent disconnects and shard backpressure.
+3. Mitigate by reducing batch pressure, then verify ratio returns below `0.0001`.
+
+### Alert: MohawkNodeAgentsDown
+
+1. Verify target status:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=up{job="node-agents"}' | jq '.'`
+2. Restart affected node-agent container and validate registration.
+3. Escalate to SEV-2 if fewer than 3 healthy instances persist for >5m.
+
+### Alert: MohawkTPMAttestationFailuresPresent
+
+1. Confirm failure increments:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=increase(mohawk_tpm_verifications_total{result="failure"}[10m])' | jq '.'`
+2. Inspect TPM quote source integrity and CA material at `runtime-secrets/`.
+3. If repeated failures continue, isolate failing nodes and open SEV-1.
+
+### Alert: MohawkTPMFailureRatioHigh
+
+1. Confirm ratio breach:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=(sum(rate(mohawk_tpm_verifications_total{result="failure"}[10m]))/clamp_min(sum(rate(mohawk_tpm_verifications_total[10m])),1e-9))' | jq '.'`
+2. Compare against recent cert/key rotation or host TPM firmware changes.
+3. Roll back recent attestation-plane changes or rotate certificates if compromise is suspected.
 
 ## Backup / Restore Drill Procedure
 

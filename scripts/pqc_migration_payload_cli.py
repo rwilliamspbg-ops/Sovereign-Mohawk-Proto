@@ -91,7 +91,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--legacy-account", required=True, help="Legacy account identifier")
     parser.add_argument("--pqc-account", required=True, help="Post-quantum account identifier")
     parser.add_argument("--asset", default="MHC", help="Asset symbol (default: MHC)")
-    parser.add_argument("--amount-units", type=int, required=True, help="Transfer amount in base units")
+    parser.add_argument(
+        "--amount-units", type=int, required=True, help="Transfer amount in base units"
+    )
     parser.add_argument("--memo", default="", help="Optional migration memo")
     parser.add_argument("--idempotency-key", default="", help="Optional idempotency key")
     parser.add_argument("--nonce", type=int, required=True, help="Anti-replay nonce")
