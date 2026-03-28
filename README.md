@@ -16,6 +16,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
 [![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
 [![FedAvg Benchmark Compare](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml)
+[![Bridge Compression Benchmark](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml)
 [![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
 [![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
@@ -318,6 +319,7 @@ Grafana dashboard shortlist:
 * `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
 * `MOHAWK Live Overview`
 * `TPM Metrics`
+* `Byzantine Resilience - Theorem 1`
 
 v2 dashboard implementation and metric map:
 
@@ -513,6 +515,20 @@ Comparison artifact:
 
 * `results/metrics/fedavg_benchmark_compare.md`
 
+### Bridge Compression Benchmark (JSON vs Zero-Copy)
+
+Run the bridge compression microbenchmark and generate a comparison report:
+
+```bash
+BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md \
+./scripts/benchmark_bridge_compression_compare.sh
+```
+
+Artifacts:
+
+* `results/metrics/bridge_compression_benchmark_compare.md`
+* `results/metrics/bridge_compression_benchmark_raw.txt`
+
 ---
 
 ## 🛡️ Verification & Monitoring
@@ -527,6 +543,7 @@ All production-grade safety requirements are verified on every push:
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
+* **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
 * **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
 * **Capability Sync Check:** Runtime capability manifest validation.
 
@@ -626,7 +643,15 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
 * [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) - Production operations runbook
+* [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
+* [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
+
+PQC migration and transport helper scripts:
+
+* `python scripts/pqc_migration_payload_cli.py --help`
+* `python scripts/validate_transport_kex_mode.py --help`
+* `python scripts/render_human_readable_proof.py --help`
 
 ---
 

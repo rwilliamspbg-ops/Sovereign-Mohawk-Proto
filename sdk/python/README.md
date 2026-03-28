@@ -33,6 +33,7 @@ The SDK now includes:
 - automatic Go string deallocation via exported `FreeString` (prevents bridge-response leaks)
 - context-managed lifecycle (`with MohawkNode(...) as node:`)
 - async context-managed lifecycle (`async with AsyncMohawkNode(...) as node:`)
+- high-level wrapper models for bridge and hybrid proof flows (`BridgeTransferIntent`, `HybridProofCheck`)
 
 ## Installation
 
@@ -159,6 +160,36 @@ print(hybrid)
 print(node.hybrid_backends())
 ```
 
+### Pythonic High-Level Wrappers
+
+```python
+from mohawk import MohawkNode, BridgeTransferIntent, HybridProofCheck
+
+with MohawkNode() as node:
+    transfer = BridgeTransferIntent(
+        source_chain="ethereum",
+        target_chain="polygon",
+        asset="USDC",
+        amount=5.0,
+        sender="0xabc",
+        receiver="0xdef",
+        nonce=10,
+        proof={"proof": "typed-proof"},
+        finality_depth=12,
+    )
+    bridge_receipt = node.transfer_asset(transfer)
+
+    hybrid_receipt = node.verify_hybrid(
+        HybridProofCheck(
+            snark_proof="s" * 128,
+            stark_proof="t" * 64,
+            mode="both",
+        )
+    )
+
+print(bridge_receipt.success, hybrid_receipt.success)
+```
+
 ### Bridge and Utility Coin Operations
 
 ```python
@@ -235,6 +266,12 @@ Runnable demo:
 python sdk/python/examples/wasm_hot_reload_demo.py
 ```
 
+Notebook tutorial (full FL cycle through hybrid verification):
+
+```bash
+jupyter notebook sdk/python/examples/federated_learning_hybrid_verification_tutorial.ipynb
+```
+
 Async variant:
 
 ```bash
@@ -262,6 +299,7 @@ Main class for interacting with the MOHAWK runtime.
 - **`verify_proof(proof)`**: Verify a zk-SNARK proof
 - **`batch_verify(proofs)`**: Verify many proofs in parallel
 - **`verify_hybrid_proof(...)`**: Evaluate hybrid SNARK/STARK policies
+- **`verify_hybrid(check, **overrides)`**: High-level hybrid verification wrapper returning `HybridVerificationReceipt`
 - **`hybrid_backends()`**: List available STARK backends
 - **`aggregate(updates)`**: Aggregate federated learning updates
 - **`aggregate_buffer(gradient_buffer)`**: Inspect zero-copy aggregation buffer path
@@ -273,6 +311,7 @@ Main class for interacting with the MOHAWK runtime.
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
 - **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
 - **`bridge_transfer(..., settle=False, settlement_minter=None, auth_token=None, role=None)`**: Cross-chain transfer verification with optional settlement execution
+- **`transfer_asset(intent, **overrides)`**: High-level bridge wrapper returning `BridgeTransferReceipt`
 - **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
 - **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
 - **`burn_utility_coin(from_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Burn utility coin balances with optional API auth + replay controls

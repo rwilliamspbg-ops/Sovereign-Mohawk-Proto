@@ -36,6 +36,12 @@ from .bridge import (
     build_evm_log_proof,
 )
 from .gradient import GradientBuffer, CompressedGradient
+from .high_level import (
+    BridgeTransferIntent,
+    BridgeTransferReceipt,
+    HybridProofCheck,
+    HybridVerificationReceipt,
+)
 
 __version__ = "2.0.1.Alpha"
 __all__ = [
@@ -63,6 +69,11 @@ __all__ = [
     # Gradient utilities
     "GradientBuffer",
     "CompressedGradient",
+    # High-level wrappers
+    "BridgeTransferIntent",
+    "BridgeTransferReceipt",
+    "HybridProofCheck",
+    "HybridVerificationReceipt",
     # Bridge proof helpers
     "EVMLogProof",
     "CosmosIBCProof",

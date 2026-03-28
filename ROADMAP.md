@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Mar 26, 2026
+Mar 28, 2026
 
 ---
 
@@ -65,12 +65,26 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 - [x] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
 - [ ] End-to-end latency validation under failure injection scenarios
-- [ ] Python-vs-Go overhead profiling report with optimization decisions
+- [x] Python-vs-Go bridge compression overhead profiling report with optimization decisions
+- [x] CI automation for bridge compression benchmark artifact publishing
 
 ### A5. Release Packaging
 
 - [ ] Finalize v1.0.0 release candidate checklist and cut GA tag
 - [ ] Publish deployment guide for genesis-to-production rollout path
+
+### Phase 3 Closure Checklist (Current Evidence)
+
+- [x] Bridge compression benchmark automation active:
+  - Workflow: [.github/workflows/bridge-compression-benchmark.yml](.github/workflows/bridge-compression-benchmark.yml)
+  - Local runner: [scripts/benchmark_bridge_compression_compare.sh](scripts/benchmark_bridge_compression_compare.sh)
+- [x] Bridge compression profiling report published:
+  - Report: [results/metrics/bridge_compression_benchmark_compare.md](results/metrics/bridge_compression_benchmark_compare.md)
+- [x] Aggregate endpoint-style integration coverage in place:
+  - Tests: [internal/pyapi/api_aggregate_integration_test.go](internal/pyapi/api_aggregate_integration_test.go)
+- [x] Multi-Krum internal runtime enforcement in aggregation path:
+  - Runtime: [internal/aggregator.go](internal/aggregator.go)
+  - Bridge usage: [internal/pyapi/api.go](internal/pyapi/api.go)
 
 **Exit Criteria for v1.0.0 GA:**
 
@@ -152,6 +166,8 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-03-28 | 2.5 | Added Phase 3 closure checklist with direct evidence links for benchmark CI/report and aggregate integration coverage |
+| 2026-03-28 | 2.4 | Added bridge compression benchmark CI + artifact publication and marked profiling/reporting milestones complete |
 | 2026-03-26 | 2.3 | Added PQC Major Release completion marker and mirrored executive-status language |
 | 2026-03-26 | 2.2 | Formal go-live gate artifacts introduced; runbook publication and escalation-playbook tasks marked complete |
 | 2026-03-15 | 2.1 | Maintenance refresh: explicit Phase 2 COMPLETE / Phase 3 IN PROGRESS markers and merged CI gates tracked under current phase |

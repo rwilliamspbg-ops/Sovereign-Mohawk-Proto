@@ -25,6 +25,12 @@ from .exceptions import (
     verification_error_for_code,
 )
 from .gradient import CompressedGradient, GradientBuffer
+from .high_level import (
+    BridgeTransferIntent,
+    BridgeTransferReceipt,
+    HybridProofCheck,
+    HybridVerificationReceipt,
+)
 
 JsonDict = Dict[str, Any]
 BufferLike = Union[bytes, bytearray, memoryview]
@@ -68,6 +74,60 @@ class ZeroCopyBridge:
         finally:
             if self._free_string is not None:
                 self._free_string(result_ptr)
+
+    def has_symbol(self, symbol: str) -> bool:
+        return self.lib is not None and hasattr(self.lib, symbol)
+
+    def compress_gradients_zero_copy(
+        self,
+        gradients: BufferLike,
+        *,
+        format: str = "auto",  # noqa: A002
+        max_norm: float = 1.0,
+    ) -> JsonDict:
+        view = self.view(gradients)
+        if view.format in {"f", "=f", "<f"}:
+            float_view = view
+        elif view.format in {"B", "b", "c"}:
+            float_view = view.cast("f")
+        else:
+            float_view = memoryview(bytearray(view.tobytes())).cast("f")
+
+        if self.lib is None or not self.has_symbol("CompressGradientsZeroCopy"):
+            return {
+                "success": True,
+                "message": "Gradients compressed (python zero-copy fallback)",
+                "zero_copy": False,
+                "format": format,
+                "count": len(float_view),
+            }
+
+        func = getattr(self.lib, "CompressGradientsZeroCopy")
+        func.argtypes = [ctypes.POINTER(ctypes.c_float), ctypes.c_int, ctypes.c_char_p, ctypes.c_double]
+        func.restype = ctypes.c_void_p
+
+        holder = bytearray(float_view.tobytes())
+        array_type = ctypes.c_float * len(float_view)
+        grad_array = array_type.from_buffer(holder)
+        ptr = ctypes.cast(grad_array, ctypes.POINTER(ctypes.c_float))
+
+        result_ptr = func(ptr, len(float_view), format.encode("utf-8"), max_norm)
+        if not result_ptr:
+            return {
+                "success": False,
+                "message": "CompressGradientsZeroCopy returned no data",
+            }
+
+        try:
+            raw = ctypes.string_at(result_ptr)
+            parsed = json.loads(raw.decode("utf-8"))
+        finally:
+            if self._free_string is not None:
+                self._free_string(result_ptr)
+
+        parsed.setdefault("zero_copy", True)
+        parsed.setdefault("count", len(float_view))
+        return parsed
 
     def view(self, payload: BufferLike) -> memoryview:
         view = memoryview(payload)
@@ -178,6 +238,20 @@ class MohawkNode:
             raise VerificationError(result.get("message", "hybrid verification failed"))
         return result
 
+    def verify_hybrid(
+        self,
+        check: Union[HybridProofCheck, Mapping[str, Any]],
+        **overrides: Any,
+    ) -> HybridVerificationReceipt:
+        """Pythonic wrapper around verify_hybrid_proof with normalized receipt output."""
+        request = (
+            check if isinstance(check, HybridProofCheck) else HybridProofCheck.from_mapping(check)
+        )
+        payload = request.to_api_kwargs()
+        payload.update(overrides)
+        result = self.verify_hybrid_proof(**payload)
+        return HybridVerificationReceipt.from_api_result(result)
+
     def hybrid_backends(self) -> JsonDict:
         result = self.bridge.invoke_json("GetHybridBackends", {})
         if not result.get("success", False):
@@ -258,6 +332,22 @@ class MohawkNode:
             "scale": scale,
             "data_b64": base64.b64encode(raw).decode(),
         }
+
+    def compress_gradients_zero_copy(
+        self,
+        gradient_buffer: BufferLike,
+        *,
+        format: str = "auto",  # noqa: A002
+        max_norm: float = 1.0,
+    ) -> JsonDict:
+        result = self.bridge.compress_gradients_zero_copy(
+            gradient_buffer,
+            format=format,
+            max_norm=max_norm,
+        )
+        if not result.get("success", False):
+            raise AggregationError(result.get("message", "zero-copy compression failed"))
+        return result
 
     def device_info(self) -> JsonDict:
         result = self.bridge.invoke_json("GetDeviceInfo", {})
@@ -351,6 +441,22 @@ class MohawkNode:
         if not result.get("success", False):
             raise AggregationError(result.get("message", "bridge transfer failed"))
         return result
+
+    def transfer_asset(
+        self,
+        intent: Union[BridgeTransferIntent, Mapping[str, Any]],
+        **overrides: Any,
+    ) -> BridgeTransferReceipt:
+        """Pythonic wrapper around bridge_transfer with a typed transfer receipt."""
+        request = (
+            intent
+            if isinstance(intent, BridgeTransferIntent)
+            else BridgeTransferIntent.from_mapping(intent)
+        )
+        payload = request.to_api_kwargs()
+        payload.update(overrides)
+        result = self.bridge_transfer(**payload)
+        return BridgeTransferReceipt.from_api_result(result)
 
     def mint_utility_coin(
         self,

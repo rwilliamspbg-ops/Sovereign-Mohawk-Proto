@@ -1,0 +1,63 @@
+groups:
+  - name: mohawk_resilience_alerts
+    interval: 30s
+    rules:
+      - alert: MohawkByzantineResilienceThresholdBreach
+        expr: min_over_time(mohawk_consensus_honest_ratio[10m]) < 0.555
+        for: 5m
+        labels:
+          severity: critical
+          domain: resilience
+        annotations:
+          summary: "Consensus honest ratio below Theorem 1 threshold"
+          description: "Observed mohawk_consensus_honest_ratio fell below 0.555 for at least 5m."
+
+      - alert: MohawkStragglerFailureRateHigh
+        expr: |
+          (
+            sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="failure"}[5m]))
+            /
+            clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])), 1e-9)
+          ) > 0.0001
+        for: 10m
+        labels:
+          severity: warning
+          domain: liveness
+        annotations:
+          summary: "Straggler risk raised above 99.99% success target"
+          description: "Gradient submit failure rate exceeded 0.01% over 10m, reducing theoretical liveness margin."
+
+      - alert: MohawkNodeAgentsDown
+        expr: sum(up{job="node-agents"}) < 3
+        for: 5m
+        labels:
+          severity: warning
+          domain: liveness
+        annotations:
+          summary: "One or more node agents are down"
+          description: "The node-agent job reports fewer than 3 healthy instances for at least 5m."
+
+      - alert: MohawkTPMAttestationFailuresPresent
+        expr: increase(mohawk_tpm_verifications_total{result="failure"}[10m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          domain: attestation
+        annotations:
+          summary: "TPM attestation failures detected"
+          description: "At least one TPM verification failure occurred in the last 10m."
+
+      - alert: MohawkTPMFailureRatioHigh
+        expr: |
+          (
+            sum(rate(mohawk_tpm_verifications_total{result="failure"}[10m]))
+            /
+            clamp_min(sum(rate(mohawk_tpm_verifications_total[10m])), 1e-9)
+          ) > 0.01
+        for: 10m
+        labels:
+          severity: critical
+          domain: attestation
+        annotations:
+          summary: "TPM verification failure ratio is high"
+          description: "TPM verification failures exceed 1% over 10m."

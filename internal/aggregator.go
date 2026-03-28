@@ -18,6 +18,7 @@ package internal
 import (
 	"fmt"
 	"log"
+	"math"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
@@ -40,6 +41,20 @@ type Aggregator struct {
 	Liveness    *StragglerMonitor
 	Convergence *ConvergenceMonitor
 	MeshPlan    hva.Plan
+}
+
+// BatchProcessingOptions controls optional Byzantine filtering for gradient batches.
+type BatchProcessingOptions struct {
+	ByzantineF int
+	MultiKrumM int
+}
+
+// BatchProcessingResult captures runtime batch decisions for observability.
+type BatchProcessingResult struct {
+	InputCount    int
+	SelectedCount int
+	MaxGradNorm   float64
+	UsedMultiKrum bool
 }
 
 // NewAggregator initializes a tier-specific aggregator with all formal guards.
@@ -91,4 +106,64 @@ func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm fl
 
 	log.Printf("Tier %d aggregation verified and complete", a.Tier)
 	return nil
+}
+
+// ProcessGradientBatch performs optional Multi-Krum filtering, computes gradient norms,
+// and executes the standard guard pipeline through ProcessUpdates.
+func (a *Aggregator) ProcessGradientBatch(updates [][]float64, totalNodes int, opts BatchProcessingOptions) (BatchProcessingResult, error) {
+	if len(updates) == 0 {
+		return BatchProcessingResult{}, fmt.Errorf("gradient batch is empty")
+	}
+
+	selected := updates
+	usedMultiKrum := false
+	if opts.ByzantineF > 0 {
+		_, selectedIndices, _, err := MultiKrumAggregate(updates, opts.ByzantineF, opts.MultiKrumM)
+		if err != nil {
+			return BatchProcessingResult{}, fmt.Errorf("multi-krum filtering failed: %w", err)
+		}
+		filtered := make([][]float64, 0, len(selectedIndices))
+		for _, idx := range selectedIndices {
+			if idx >= 0 && idx < len(updates) {
+				filtered = append(filtered, updates[idx])
+			}
+		}
+		if len(filtered) == 0 {
+			return BatchProcessingResult{}, fmt.Errorf("multi-krum selected no updates")
+		}
+		selected = filtered
+		usedMultiKrum = true
+	}
+
+	maxNorm := maxGradNorm(selected)
+	activeNodes := len(selected)
+	if activeNodes < 80 {
+		activeNodes = 80
+	}
+	if totalNodes < activeNodes {
+		totalNodes = activeNodes
+	}
+
+	if err := a.ProcessUpdates(activeNodes, totalNodes, maxNorm); err != nil {
+		return BatchProcessingResult{}, err
+	}
+
+	return BatchProcessingResult{
+		InputCount:    len(updates),
+		SelectedCount: len(selected),
+		MaxGradNorm:   maxNorm,
+		UsedMultiKrum: usedMultiKrum,
+	}, nil
+}
+
+func maxGradNorm(updates [][]float64) float64 {
+	maxNorm := 0.0
+	for _, update := range updates {
+		norm := 0.0
+		for _, value := range update {
+			norm += value * value
+		}
+		maxNorm = math.Max(maxNorm, math.Sqrt(norm))
+	}
+	return maxNorm
 }

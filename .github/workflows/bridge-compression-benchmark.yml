@@ -1,0 +1,40 @@
+name: Bridge Compression Benchmark
+
+"on":
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  bridge-compression-benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.x"
+
+      - name: Run bridge compression comparison
+        run: |
+          chmod +x scripts/benchmark_bridge_compression_compare.sh
+          BENCH_TIME="200ms" \
+          USE_DOCKER="0" \
+          REPORT_PATH="results/metrics/bridge_compression_benchmark_compare.md" \
+          RAW_PATH="results/metrics/bridge_compression_benchmark_raw.txt" \
+          ./scripts/benchmark_bridge_compression_compare.sh
+
+      - name: Upload bridge compression benchmark artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bridge-compression-benchmark-report
+          path: |
+            results/metrics/bridge_compression_benchmark_compare.md
+            results/metrics/bridge_compression_benchmark_raw.txt

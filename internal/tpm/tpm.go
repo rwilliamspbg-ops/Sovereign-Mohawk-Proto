@@ -85,6 +85,8 @@ type Attestor struct {
 var (
 	quoteCache        = make(map[string]CachedQuote)
 	cacheMutex        sync.RWMutex
+	refreshInFlight   = map[string]bool{}
+	refreshMutex      sync.Mutex
 	defaultAuthority  *Authority
 	defaultAuthorityE error
 	authorityMutex    sync.Mutex
@@ -97,42 +99,129 @@ var (
 const (
 	defaultAuthorityTTL          = 24 * time.Hour
 	defaultAuthorityRotateBefore = 30 * time.Minute
+	defaultQuoteLeaseTTL         = 5 * time.Minute
+	defaultQuoteRefreshAhead     = 45 * time.Second
 )
 
 func GetVerifiedQuote(nodeID string) ([]byte, error) {
+	quote, _, _, err := GetVerifiedQuoteLease(nodeID)
+	return quote, err
+}
+
+// GetVerifiedQuoteLease returns a quote and lease metadata.
+//
+// If a valid lease is present it is returned immediately. When the lease is
+// close to expiry, a non-blocking refresh is triggered in the background.
+func GetVerifiedQuoteLease(nodeID string) ([]byte, time.Time, bool, error) {
 	mode := ActiveAttestationSignatureMode()
+	now := time.Now()
+	leaseTTL := quoteLeaseTTL()
+	refreshAhead := quoteRefreshAhead(leaseTTL)
 	if mode != AttestationSignatureXMSS {
 		cacheMutex.RLock()
 		entry, found := quoteCache[nodeID]
 		cacheMutex.RUnlock()
 
-		if found && time.Now().Before(entry.ExpiresAt) {
-			return entry.Quote, nil
+		if found && now.Before(entry.ExpiresAt) {
+			if entry.ExpiresAt.Sub(now) <= refreshAhead {
+				triggerQuoteRefresh(nodeID)
+			}
+			return entry.Quote, entry.ExpiresAt, true, nil
 		}
 	}
 
-	attestor, err := getAttestor(nodeID)
+	quote, expiresAt, err := generateAndCacheQuote(nodeID, mode, leaseTTL)
 	if err != nil {
 		metrics.ObserveQuote(false)
-		return nil, err
+		return nil, time.Time{}, false, err
+	}
+	metrics.ObserveQuote(true)
+	return quote, expiresAt, false, nil
+}
+
+func quoteLeaseTTL() time.Duration {
+	raw := strings.TrimSpace(os.Getenv("MOHAWK_TPM_QUOTE_LEASE_TTL"))
+	if raw == "" {
+		return defaultQuoteLeaseTTL
+	}
+	parsed, err := time.ParseDuration(raw)
+	if err != nil || parsed <= 0 {
+		return defaultQuoteLeaseTTL
+	}
+	return parsed
+}
+
+func quoteRefreshAhead(ttl time.Duration) time.Duration {
+	raw := strings.TrimSpace(os.Getenv("MOHAWK_TPM_QUOTE_REFRESH_AHEAD"))
+	if raw == "" {
+		if ttl/6 > defaultQuoteRefreshAhead {
+			return ttl / 6
+		}
+		return defaultQuoteRefreshAhead
+	}
+	parsed, err := time.ParseDuration(raw)
+	if err != nil || parsed <= 0 {
+		if ttl/6 > defaultQuoteRefreshAhead {
+			return ttl / 6
+		}
+		return defaultQuoteRefreshAhead
+	}
+	if parsed >= ttl {
+		return ttl / 2
+	}
+	return parsed
+}
+
+func triggerQuoteRefresh(nodeID string) {
+	refreshMutex.Lock()
+	if refreshInFlight[nodeID] {
+		refreshMutex.Unlock()
+		return
+	}
+	refreshInFlight[nodeID] = true
+	refreshMutex.Unlock()
+
+	go func() {
+		defer func() {
+			refreshMutex.Lock()
+			delete(refreshInFlight, nodeID)
+			refreshMutex.Unlock()
+		}()
+		_, _, err := generateAndCacheQuote(nodeID, ActiveAttestationSignatureMode(), quoteLeaseTTL())
+		if err != nil {
+			metrics.ObserveQuote(false)
+			return
+		}
+		metrics.ObserveQuote(true)
+	}()
+}
+
+func generateAndCacheQuote(nodeID string, mode AttestationSignatureMode, ttl time.Duration) ([]byte, time.Time, error) {
+	attestor, err := getAttestor(nodeID)
+	if err != nil {
+		return nil, time.Time{}, err
 	}
 
 	quote, err := attestor.GenerateQuote()
 	if err != nil {
-		metrics.ObserveQuote(false)
-		return nil, err
+		return nil, time.Time{}, err
+	}
+
+	var envelope QuoteEnvelope
+	expiresAt := time.Now().Add(ttl)
+	if err := json.Unmarshal(quote, &envelope); err == nil && !envelope.ExpiresAt.IsZero() {
+		expiresAt = envelope.ExpiresAt
 	}
 
 	if mode != AttestationSignatureXMSS {
 		cacheMutex.Lock()
 		quoteCache[nodeID] = CachedQuote{
 			Quote:     quote,
-			ExpiresAt: time.Now().Add(5 * time.Minute),
+			ExpiresAt: expiresAt,
 		}
 		cacheMutex.Unlock()
 	}
-	metrics.ObserveQuote(true)
-	return quote, nil
+	return quote, expiresAt, nil
 }
 
 func Verify(nodeID string, quote []byte) error {

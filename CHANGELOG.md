@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Bridge compression benchmark CI and report artifacts** (`.github/workflows/bridge-compression-benchmark.yml`, `scripts/benchmark_bridge_compression_compare.sh`, `results/metrics/bridge_compression_benchmark_compare.md`):
+  - Added PR/push workflow for JSON-vs-zero-copy bridge compression benchmarking
+  - Added markdown summary artifact and raw benchmark output artifact upload
+  - Added reproducible benchmark command surface for local and CI parity
+
+- **PyAPI aggregation integration test coverage** (`internal/pyapi/api_aggregate_integration_test.go`):
+  - Added endpoint-style coverage for list and wrapped aggregate payloads
+  - Added negative-path validation for malformed JSON and empty update batches
+  - Added assertions for Multi-Krum selection behavior (`selected_count`, `multi_krum`)
+
 - **FedAvg runtime benchmark comparison CI** (`.github/workflows/fedavg-benchmark-compare.yml`, `scripts/benchmark_fedavg_compare.sh`, `results/metrics/fedavg_benchmark_compare.md`):
   - Added PR/push benchmark comparison workflow with markdown artifact upload (`fedavg-benchmark-report`)
   - Added base-vs-current benchmark script using temporary git worktree execution

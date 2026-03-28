@@ -1,0 +1,23 @@
+{
+  "date": "2026-03-28",
+  "status": "pass-with-host-go-caveat",
+  "summary": {
+    "python_sdk_tests": "pass",
+    "python_sdk_benchmarks": "pass",
+    "python_scripts": "pass",
+    "notebook_structure": "pass",
+    "prometheus_yaml": "pass",
+    "docker_compose_config": "pass",
+    "go_tests_host": "blocked-toolchain-mismatch",
+    "go_tests_container": "pass"
+  },
+  "commands": {
+    "python_sdk_tests": "PYTHONPATH=sdk/python /usr/bin/python3 -m pytest -q sdk/python/tests",
+    "kex_validation": "/usr/bin/python3 scripts/validate_transport_kex_mode.py --repo-root .",
+    "go_tests_container": "docker run --rm --platform linux/amd64 -v $PWD:/workspace -w /workspace golang:1.25-bookworm sh -lc '/usr/local/go/bin/go test ./...'"
+  },
+  "notes": [
+    "Host Go toolchain still reports a mixed-version internal package mismatch (go1.25.4 vs go1.25.7).",
+    "Containerized Go 1.25 baseline is clean and should be used as the reproducible pre-performance reference in this environment."
+  ]
+}

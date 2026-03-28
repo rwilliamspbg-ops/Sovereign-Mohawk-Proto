@@ -18,5 +18,14 @@
   "performance_targets": {
     "verification_p99_ms": 11.0,
     "aggregation_mean_ms": 25.0
+  },
+  "thinker_clauses": {
+    "enabled": true,
+    "preserve_outliers": true,
+    "minority_retention_min": 0.05,
+    "minority_retention_max": 0.2,
+    "outlier_distance_zscore_cap": 4.0,
+    "manual_review_required_above_zscore": 3.5,
+    "escalation_label": "thinker-review"
   }
 }

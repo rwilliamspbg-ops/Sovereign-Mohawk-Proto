@@ -49,6 +49,7 @@ type VerifyResult struct {
 	STARKValid   bool   `json:"stark_valid"`
 	Accepted     bool   `json:"accepted"`
 	Policy       string `json:"policy"`
+	SNARKBackend string `json:"snark_backend,omitempty"`
 	STARKBackend string `json:"stark_backend"`
 }
 
@@ -63,10 +64,18 @@ type STARKVerifier interface {
 	Verify(proof []byte) (bool, error)
 }
 
+// SNARKAccelerator provides an optional fast-path verifier for SNARK proofs.
+type SNARKAccelerator interface {
+	BackendName() string
+	Verify(ctx context.Context, proof []byte) (bool, error)
+}
+
 var (
 	registryMu         sync.RWMutex
 	starkBackends                    = map[string]STARKVerifier{}
 	defaultSNARKBridge SNARKVerifier = snarkVerifier{}
+	snarkAccelMu       sync.RWMutex
+	snarkAccelerator   SNARKAccelerator
 )
 
 func init() {
@@ -75,6 +84,22 @@ func init() {
 	if cmd := strings.TrimSpace(os.Getenv("MOHAWK_STARK_VERIFY_CMD")); cmd != "" {
 		RegisterSTARKBackend(externalCommandVerifier{command: cmd})
 	}
+	if cmd := strings.TrimSpace(os.Getenv("MOHAWK_SNARK_ACCEL_VERIFY_CMD")); cmd != "" {
+		RegisterSNARKAccelerator(externalSNARKAccelerator{command: cmd})
+	}
+}
+
+// RegisterSNARKAccelerator sets the optional accelerator used before CPU fallback.
+func RegisterSNARKAccelerator(accelerator SNARKAccelerator) {
+	snarkAccelMu.Lock()
+	defer snarkAccelMu.Unlock()
+	snarkAccelerator = accelerator
+}
+
+func currentSNARKAccelerator() SNARKAccelerator {
+	snarkAccelMu.RLock()
+	defer snarkAccelMu.RUnlock()
+	return snarkAccelerator
 }
 
 // RegisterSTARKBackend adds or replaces a STARK backend in the global registry.
@@ -124,13 +149,14 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 	if err != nil {
 		return VerifyResult{}, err
 	}
-	snarkOK, snarkErr := defaultSNARKBridge.Verify(req.SNARKProof)
+	snarkOK, snarkErr, snarkBackend := verifySNARKWithAcceleration(req.SNARKProof)
 	starkOK, starkErr := starkVerifier.Verify(req.STARKProof)
 
 	result := VerifyResult{
 		SNARKValid:   snarkOK,
 		STARKValid:   starkOK,
 		Policy:       string(req.Mode),
+		SNARKBackend: snarkBackend,
 		STARKBackend: starkBackend,
 	}
 
@@ -153,6 +179,28 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 		)
 	}
 	return result, nil
+}
+
+func verifySNARKWithAcceleration(proof []byte) (bool, error, string) {
+	accel := currentSNARKAccelerator()
+	if accel != nil {
+		timeout := 2 * time.Second
+		if raw := strings.TrimSpace(os.Getenv("MOHAWK_SNARK_ACCEL_TIMEOUT")); raw != "" {
+			if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
+				timeout = parsed
+			}
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		ok, err := accel.Verify(ctx, proof)
+		if err == nil {
+			return ok, nil, accel.BackendName()
+		}
+		cpuOK, cpuErr := defaultSNARKBridge.Verify(proof)
+		return cpuOK, errors.Join(fmt.Errorf("snark accelerator %s failed: %w", accel.BackendName(), err), cpuErr), "cpu_fallback"
+	}
+	ok, err := defaultSNARKBridge.Verify(proof)
+	return ok, err, "cpu"
 }
 
 type snarkVerifier struct{}
@@ -300,6 +348,35 @@ func (v externalCommandVerifier) Verify(proof []byte) (bool, error) {
 	}
 	if strings.Contains(response, "invalid") || strings.Contains(response, "false") {
 		return false, fmt.Errorf("external stark backend reported invalid proof")
+	}
+	return true, nil
+}
+
+type externalSNARKAccelerator struct {
+	command string
+}
+
+func (externalSNARKAccelerator) BackendName() string { return "external_accelerator" }
+
+func (v externalSNARKAccelerator) Verify(ctx context.Context, proof []byte) (bool, error) {
+	if len(proof) == 0 {
+		return false, fmt.Errorf("accelerated snark proof missing")
+	}
+	if strings.TrimSpace(v.command) == "" {
+		return false, fmt.Errorf("accelerated snark command is not configured")
+	}
+	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", v.command)
+	cmd.Stdin = strings.NewReader(string(proof))
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return false, fmt.Errorf("accelerated snark backend failed: %w (%s)", err, strings.TrimSpace(string(out)))
+	}
+	response := strings.TrimSpace(strings.ToLower(string(out)))
+	if response == "" || response == "ok" || response == "valid" || response == "true" {
+		return true, nil
+	}
+	if strings.Contains(response, "invalid") || strings.Contains(response, "false") {
+		return false, nil
 	}
 	return true, nil
 }

@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"runtime"
 	"strconv"
@@ -53,6 +52,17 @@ type Result struct {
 	Message   string `json:"message"`
 	Data      string `json:"data,omitempty"`
 	ErrorCode string `json:"error_code,omitempty"`
+}
+
+type aggregateUpdatePayload struct {
+	NodeID   string    `json:"node_id"`
+	Gradient []float64 `json:"gradient"`
+}
+
+type aggregateUpdatesRequest struct {
+	Updates    []aggregateUpdatePayload `json:"updates"`
+	ByzantineF int                      `json:"byzantine_f,omitempty"`
+	MultiKrumM int                      `json:"multi_krum_m,omitempty"`
 }
 
 type runtimeState struct {
@@ -587,14 +597,6 @@ func VerifyZKProof(proofJSON *C.char) *C.char {
 //export AggregateUpdates
 func AggregateUpdates(updatesJSON *C.char) *C.char {
 	updatesStr := C.GoString(updatesJSON)
-	var updates []struct {
-		NodeID   string    `json:"node_id"`
-		Gradient []float64 `json:"gradient"`
-	}
-	if err := json.Unmarshal([]byte(updatesStr), &updates); err != nil {
-		return marshalResult(false, fmt.Sprintf("Failed to parse updates: %v", err), "")
-	}
-
 	state.mu.Lock()
 	if state.aggregator == nil {
 		state.aggregator = internalpkg.NewAggregator(internalpkg.Regional)
@@ -602,20 +604,50 @@ func AggregateUpdates(updatesJSON *C.char) *C.char {
 	aggregator := state.aggregator
 	state.mu.Unlock()
 
-	maxNorm := 0.0
-	for _, update := range updates {
-		norm := 0.0
-		for _, value := range update.Gradient {
-			norm += value * value
-		}
-		maxNorm = math.Max(maxNorm, math.Sqrt(norm))
-	}
-	effectiveActiveNodes := maxInt(len(updates), 80)
-	if err := aggregator.ProcessUpdates(effectiveActiveNodes, effectiveActiveNodes, maxNorm); err != nil {
+	response, err := aggregateUpdatesCore(updatesStr, aggregator)
+	if err != nil {
 		return marshalResult(false, err.Error(), "")
 	}
-	data, _ := json.Marshal(map[string]any{"count": len(updates), "max_grad_norm": maxNorm})
+	data, _ := json.Marshal(response)
 	return marshalResult(true, "Updates aggregated successfully", string(data))
+}
+
+func aggregateUpdatesCore(updatesStr string, aggregator *internalpkg.Aggregator) (map[string]any, error) {
+	updates, byzantineF, multiKrumM, err := parseAggregateUpdatesRequest(updatesStr)
+	if err != nil {
+		return nil, err
+	}
+
+	vectors := make([][]float64, 0, len(updates))
+	for _, update := range updates {
+		vectors = append(vectors, update.Gradient)
+	}
+	batchResult, err := aggregator.ProcessGradientBatch(vectors, maxInt(len(vectors), 80), internalpkg.BatchProcessingOptions{
+		ByzantineF: byzantineF,
+		MultiKrumM: multiKrumM,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{
+		"count":          batchResult.InputCount,
+		"selected_count": batchResult.SelectedCount,
+		"max_grad_norm":  batchResult.MaxGradNorm,
+		"multi_krum":     batchResult.UsedMultiKrum,
+	}, nil
+}
+
+func parseAggregateUpdatesRequest(updatesStr string) ([]aggregateUpdatePayload, int, int, error) {
+	var wrapped aggregateUpdatesRequest
+	if err := json.Unmarshal([]byte(updatesStr), &wrapped); err == nil && len(wrapped.Updates) > 0 {
+		return wrapped.Updates, wrapped.ByzantineF, wrapped.MultiKrumM, nil
+	}
+
+	var updates []aggregateUpdatePayload
+	if err := json.Unmarshal([]byte(updatesStr), &updates); err != nil {
+		return nil, 0, 0, fmt.Errorf("Failed to parse updates: %v", err)
+	}
+	return updates, 0, 0, nil
 }
 
 //export GetNodeStatus
@@ -703,9 +735,9 @@ func LoadWasmModule(modulePath *C.char) *C.char {
 
 //export AttestNode
 func AttestNode(nodeID *C.char) *C.char {
-	node := C.GoString(nodeID)
+	node := extractNodeIDArg(C.GoString(nodeID))
 
-	quote, err := tpm.GetVerifiedQuote(node)
+	quote, leaseExpiresAt, fromCache, err := tpm.GetVerifiedQuoteLease(node)
 	if err != nil {
 		return marshalResult(false, fmt.Sprintf("TPM quote generation failed: %v", err), "")
 	}
@@ -714,9 +746,11 @@ func AttestNode(nodeID *C.char) *C.char {
 	}
 	digest := sha256.Sum256(quote)
 	data, _ := json.Marshal(map[string]any{
-		"node_id":    node,
-		"quote_size": len(quote),
-		"quote_sha":  hex.EncodeToString(digest[:]),
+		"node_id":          node,
+		"quote_size":       len(quote),
+		"quote_sha":        hex.EncodeToString(digest[:]),
+		"lease_expires_at": leaseExpiresAt.Format(time.RFC3339Nano),
+		"lease_cached":     fromCache,
 	})
 	return marshalResult(true, "Attestation successful", string(data))
 }
@@ -811,6 +845,69 @@ func CompressGradients(payloadJSON *C.char) *C.char {
 		"data_b64":           base64.StdEncoding.EncodeToString(compressed),
 	})
 	return marshalResult(true, "Gradients compressed", string(data))
+}
+
+//export CompressGradientsZeroCopy
+func CompressGradientsZeroCopy(gradPtr *C.float, gradLen C.int, format *C.char, maxNorm C.double) *C.char {
+	if gradPtr == nil || gradLen <= 0 {
+		return marshalResult(false, "invalid gradient pointer or length", "")
+	}
+	start := time.Now()
+	requestedFormat := strings.TrimSpace(strings.ToLower(C.GoString(format)))
+	if requestedFormat == "" {
+		requestedFormat = "auto"
+	}
+
+	gradSlice := unsafe.Slice(gradPtr, int(gradLen))
+	fp32 := make([]float32, len(gradSlice))
+	for i := range gradSlice {
+		fp32[i] = float32(gradSlice[i])
+	}
+
+	originalBytes := len(fp32) * 4
+	tune := accelerator.BuildAutoTuneProfile(len(fp32))
+	if requestedFormat == "auto" {
+		requestedFormat = tune.PreferredFormat
+	}
+
+	var compressed []byte
+	var scale float64
+	switch requestedFormat {
+	case "int8":
+		effectiveMaxNorm := float64(maxNorm)
+		if effectiveMaxNorm <= 0 {
+			effectiveMaxNorm = float64(accelerator.L2Norm(fp32))
+		}
+		quantized, s := accelerator.QuantizeINT8(fp32, effectiveMaxNorm)
+		scale = s
+		compressed = make([]byte, len(quantized))
+		for i, q := range quantized {
+			compressed[i] = byte(q)
+		}
+	default:
+		requestedFormat = "fp16"
+		compressed = accelerator.FP32ToFP16(fp32)
+	}
+
+	ratio := accelerator.CompressionRatio(originalBytes, len(compressed))
+	compressionLatency := float64(time.Since(start).Microseconds()) / 1000.0
+	metrics.ObserveGradientCompression(requestedFormat, ratio)
+	metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "compress_"+requestedFormat+"_zerocopy", true)
+	metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "compress_"+requestedFormat+"_zerocopy", compressionLatency)
+
+	data, _ := json.Marshal(map[string]any{
+		"format":             requestedFormat,
+		"autotuned":          true,
+		"zero_copy":          true,
+		"backend":            tune.SelectedDevice.Backend,
+		"recommended_worker": tune.RecommendedWorker,
+		"original_bytes":     originalBytes,
+		"compressed_bytes":   len(compressed),
+		"compression_ratio":  ratio,
+		"scale":              scale,
+		"data_b64":           base64.StdEncoding.EncodeToString(compressed),
+	})
+	return marshalResult(true, "Gradients compressed (zero-copy)", string(data))
 }
 
 //export BatchVerifyProofs
@@ -1039,29 +1136,33 @@ func VerifyHybridProof(payloadJSON *C.char) *C.char {
 		STARKBackend: req.STARKBackend,
 	})
 	available := hybrid.AvailableSTARKBackends()
+	observedBackend := string(tune.SelectedDevice.Backend)
+	if strings.TrimSpace(result.SNARKBackend) != "" {
+		observedBackend = result.SNARKBackend
+	}
 	if err != nil {
-		metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "hybrid_verify", false)
+		metrics.ObserveAcceleratorOp(observedBackend, "hybrid_verify", false)
 		latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
-		metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "hybrid_verify", latencyMS)
+		metrics.ObserveAcceleratorOpLatency(observedBackend, "hybrid_verify", latencyMS)
 		metrics.ObserveProofVerification("hybrid", false, latencyMS)
 		data, _ := json.Marshal(map[string]any{
 			"result":             result,
 			"available_backends": available,
 			"autotuned":          true,
-			"backend":            tune.SelectedDevice.Backend,
+			"backend":            observedBackend,
 			"recommended_worker": tune.RecommendedWorker,
 		})
 		return marshalResult(false, err.Error(), string(data))
 	}
-	metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "hybrid_verify", true)
+	metrics.ObserveAcceleratorOp(observedBackend, "hybrid_verify", true)
 	latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
-	metrics.ObserveAcceleratorOpLatency(string(tune.SelectedDevice.Backend), "hybrid_verify", latencyMS)
+	metrics.ObserveAcceleratorOpLatency(observedBackend, "hybrid_verify", latencyMS)
 	metrics.ObserveProofVerification("hybrid", true, latencyMS)
 	data, _ := json.Marshal(map[string]any{
 		"result":             result,
 		"available_backends": available,
 		"autotuned":          true,
-		"backend":            tune.SelectedDevice.Backend,
+		"backend":            observedBackend,
 		"recommended_worker": tune.RecommendedWorker,
 	})
 	return marshalResult(true, "Hybrid SNARK/STARK verification complete", string(data))
@@ -1403,6 +1504,22 @@ func decodeProofString(s string) []byte {
 	}
 	// Raw string fallback
 	return []byte(s)
+}
+
+func extractNodeIDArg(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return "default-node"
+	}
+	if strings.HasPrefix(raw, "{") {
+		var payload map[string]any
+		if err := json.Unmarshal([]byte(raw), &payload); err == nil {
+			if value, ok := payload["node_id"].(string); ok && strings.TrimSpace(value) != "" {
+				return strings.TrimSpace(value)
+			}
+		}
+	}
+	return raw
 }
 
 // classifyProofError maps a VerifyProof error to a machine-readable error code

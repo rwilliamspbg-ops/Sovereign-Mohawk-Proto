@@ -1,9 +1,13 @@
 """Unit tests for the MOHAWK Python client."""
 
+import array
+
 import pytest
 from mohawk import (
     AggregationError,
+    BridgeTransferIntent,
     GradientBuffer,
+    HybridProofCheck,
     MohawkNode,
     InitializationError,
     ProofTooShortError,
@@ -70,6 +74,13 @@ class TestMohawkNode:
         result = node.attest("test-node")
         assert result["success"] is True
 
+    def test_attestation_includes_lease_fields(self, node):
+        result = node.attest("test-node")
+        assert result["success"] is True
+        data = result.get("data")
+        if isinstance(data, str):
+            assert "lease_expires_at" in data or '"node_id": "test-node"' in data
+
     def test_device_info(self, node):
         """Test device enumeration API."""
         result = node.device_info()
@@ -88,6 +99,11 @@ class TestMohawkNode:
     def test_compress_gradients_int8(self, node):
         """Test INT8 gradient compression."""
         result = node.compress_gradients([0.1, -0.2, 0.3], format="int8", max_norm=1.0)
+        assert result["success"] is True
+
+    def test_compress_gradients_zero_copy(self, node):
+        gradients = array.array("f", [0.1, -0.2, 0.3, 0.4])
+        result = node.compress_gradients_zero_copy(memoryview(gradients), format="fp16")
         assert result["success"] is True
 
     def test_batch_verify(self, node):
@@ -185,6 +201,33 @@ class TestMohawkNode:
             finality_depth=5,
         )
         assert result["success"] is True
+
+    def test_transfer_asset_wrapper(self, node):
+        intent = BridgeTransferIntent(
+            source_chain="ethereum",
+            target_chain="polygon",
+            asset="USDC",
+            amount=3.0,
+            sender="0xabc",
+            receiver="0xdef",
+            nonce=4,
+            proof={"proof": "typed"},
+            finality_depth=12,
+        )
+        receipt = node.transfer_asset(intent)
+        assert receipt.success is True
+        assert isinstance(receipt.raw, dict)
+
+    def test_verify_hybrid_wrapper(self, node):
+        check = HybridProofCheck(
+            snark_proof="s" * 128,
+            stark_proof="t" * 64,
+            mode="both",
+            stark_backend="simulated_fri",
+        )
+        receipt = node.verify_hybrid(check)
+        assert receipt.success is True
+        assert isinstance(receipt.raw, dict)
 
     def test_utility_coin_workflow(self, node):
         minted = node.mint_utility_coin(
