@@ -1,77 +1,303 @@
 {
-  "annotations": {"list": []},
+  "annotations": {
+    "list": []
+  },
   "editable": true,
   "panels": [
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "id": 7,
+      "type": "row",
+      "title": "Incident Triage Snapshot",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Failure-rate indicator for rapid incident triage.",
-      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
       "id": 1,
-      "options": {"colorMode": "background", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
-      "targets": [{"expr": "mohawk:gradient_submit:failure_rate_5m", "refId": "A"}],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "mohawk:gradient_submit:failure_rate_5m",
+          "refId": "A"
+        }
+      ],
       "title": "Current Failure Ratio",
-      "type": "stat"
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.03
+              }
+            ]
+          }
+        }
+      }
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Absolute failure throughput.",
-      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
       "id": 2,
-      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
-      "targets": [{"expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m]))", "refId": "A"}],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m]))",
+          "refId": "A"
+        }
+      ],
       "title": "Gradient Submit Failures (ops/s)",
-      "type": "stat"
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Successful throughput for comparison.",
-      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
       "id": 3,
-      "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
-      "targets": [{"expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"success\"}[5m]))", "refId": "A"}],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"success\"}[5m]))",
+          "refId": "A"
+        }
+      ],
       "title": "Gradient Submit Success (ops/s)",
-      "type": "stat"
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "id": 8,
+      "type": "row",
+      "title": "Failure Timelines",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Incident timeline: failures vs successes.",
-      "gridPos": {"h": 10, "w": 12, "x": 0, "y": 6},
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
       "id": 4,
       "targets": [
-        {"expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m]))", "legendFormat": "submit failures", "refId": "A"},
-        {"expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"success\"}[5m]))", "legendFormat": "submit success", "refId": "B"}
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m]))",
+          "legendFormat": "submit failures",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"success\"}[5m]))",
+          "legendFormat": "submit success",
+          "refId": "B"
+        }
       ],
       "title": "Gradient Incident Timeline",
-      "type": "timeseries"
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Proof pipeline reliability trend.",
-      "gridPos": {"h": 10, "w": 12, "x": 12, "y": 6},
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
       "id": 5,
       "targets": [
-        {"expr": "sum(rate(mohawk_proof_verifications_total{result=\"failure\"}[5m]))", "legendFormat": "proof failures", "refId": "A"},
-        {"expr": "sum(rate(mohawk_proof_verifications_total{result=\"success\"}[5m]))", "legendFormat": "proof success", "refId": "B"}
+        {
+          "expr": "sum(rate(mohawk_proof_verifications_total{result=\"failure\"}[5m]))",
+          "legendFormat": "proof failures",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(mohawk_proof_verifications_total{result=\"success\"}[5m]))",
+          "legendFormat": "proof success",
+          "refId": "B"
+        }
       ],
       "title": "Proof Verification Incident Timeline",
-      "type": "timeseries"
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "id": 9,
+      "type": "row",
+      "title": "Impact Scope",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
       "description": "Availability by monitored instance for triage.",
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 16},
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
       "id": 6,
-      "targets": [{"expr": "up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"}", "legendFormat": "{{job}} {{instance}}", "refId": "A"}],
+      "targets": [
+        {
+          "expr": "up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"}",
+          "legendFormat": "{{job}} {{instance}}",
+          "refId": "A"
+        }
+      ],
       "title": "Instance Availability",
-      "type": "timeseries"
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        }
+      }
     }
   ],
   "refresh": "10s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["mohawk", "v2", "operations", "incidents"],
-  "templating": {"list": []},
-  "time": {"from": "now-6h", "to": "now"},
+  "tags": [
+    "mohawk",
+    "v2",
+    "operations",
+    "incidents"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "title": "MOHAWK v2 - Operations Incidents",
-  "version": 1
+  "version": 2
 }
