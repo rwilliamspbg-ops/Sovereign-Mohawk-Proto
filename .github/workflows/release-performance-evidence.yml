@@ -95,10 +95,10 @@ jobs:
           set -euo pipefail
           required=(
             "release-performance-evidence/benchmark-results.json"
-            "release-performance-evidence/bridge_compression_benchmark_compare.md"
-            "release-performance-evidence/bridge_compression_benchmark_raw.txt"
-            "release-performance-evidence/fedavg_benchmark_compare.md"
-            "release-performance-evidence/release_performance_evidence.md"
+            "release-performance-evidence/results/metrics/bridge_compression_benchmark_compare.md"
+            "release-performance-evidence/results/metrics/bridge_compression_benchmark_raw.txt"
+            "release-performance-evidence/results/metrics/fedavg_benchmark_compare.md"
+            "release-performance-evidence/results/metrics/release_performance_evidence.md"
           )
           for path in "${required[@]}"; do
             if [ ! -s "$path" ]; then
@@ -128,10 +128,10 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           gh release upload "$TAG" \
             release-performance-evidence/benchmark-results.json \
-            release-performance-evidence/bridge_compression_benchmark_compare.md \
-            release-performance-evidence/bridge_compression_benchmark_raw.txt \
-            release-performance-evidence/fedavg_benchmark_compare.md \
-            release-performance-evidence/release_performance_evidence.md \
+            release-performance-evidence/results/metrics/bridge_compression_benchmark_compare.md \
+            release-performance-evidence/results/metrics/bridge_compression_benchmark_raw.txt \
+            release-performance-evidence/results/metrics/fedavg_benchmark_compare.md \
+            release-performance-evidence/results/metrics/release_performance_evidence.md \
             --clobber
 
       - name: Append performance evidence summary to release notes
