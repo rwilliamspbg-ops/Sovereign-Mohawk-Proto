@@ -41,7 +41,7 @@ jobs:
 
       - name: Upload swarm integration artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: swarm-integration-artifacts
           path: |
@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload FedAvg benchmark report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fedavg-benchmark-report
           path: results/metrics/fedavg_benchmark_compare.md

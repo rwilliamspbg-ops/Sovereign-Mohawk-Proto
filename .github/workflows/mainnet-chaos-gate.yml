@@ -53,7 +53,7 @@ jobs:
           RECOVERY_LATENCY_MAX_SECONDS=120 bash scripts/chaos_readiness_drill.sh "${{ matrix.scenario }}" chaos-reports
 
       - name: Upload chaos reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mainnet-chaos-report-${{ matrix.scenario }}
