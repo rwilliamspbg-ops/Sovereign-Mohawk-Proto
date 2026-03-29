@@ -102,6 +102,28 @@ REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 * Local report: `results/metrics/fedavg_benchmark_compare.md`
 * CI artifact: `fedavg-benchmark-report` from workflow `FedAvg Benchmark Compare`
 
+### 6. Run the Full 10-Node Stack Locally
+
+Use this when validating swarm-scale behavior before opening a PR:
+
+```bash
+./genesis-launch.sh --all-nodes
+docker compose -f docker-compose.full.yml up -d --scale node-agent=10
+```
+
+Common pitfalls and fixes:
+
+* TPM secret material missing in Docker volume:
+	* Run `docker compose run --rm runtime-secrets-init` before starting the stack.
+* Port conflicts (`3000`, `8080`, `9090`, `9093`, `9102`, `9104`):
+	* Run `docker compose down -v` and stop local processes already bound to those ports.
+* Stale runtime secrets from previous runs:
+	* Remove old files under `runtime-secrets/` and re-run `./genesis-launch.sh --all-nodes`.
+* Low host UDP/socket buffers causing readiness warnings:
+	* Run `scripts/validate_host_network_tuning.sh` and apply suggested sysctl values.
+* Docker Desktop + TPM flow mismatch on non-Linux hosts:
+	* Use `make strict-auth-smoke-container` to validate the glibc path in a reproducible container.
+
 ---
 
 ## 📜 Standards

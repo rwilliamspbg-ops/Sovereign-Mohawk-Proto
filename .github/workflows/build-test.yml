@@ -12,6 +12,8 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -37,10 +39,12 @@ jobs:
           cargo build --target wasm32-unknown-unknown --release
       - name: Go Build and Test
         run: |
+          mkdir -p test-results
           source scripts/ensure_go_toolchain.sh
           go mod tidy
           go build ./...
-          go test ./...
+          set -o pipefail
+          go test -json ./... | tee test-results/go-test-report.jsonl
       - name: Validate Capabilities
         run: python3 scripts/validate_capabilities.py
 
@@ -51,8 +55,9 @@ jobs:
 
       - name: Python SDK Tests
         run: |
+          mkdir -p test-results
           cd sdk/python
-          pytest -q
+          pytest -q --junitxml=../../test-results/python-sdk-junit.xml
 
       - name: Verify Python SDK WASM Examples
         run: |
@@ -78,6 +83,7 @@ jobs:
 
       - name: Monitoring Smoke Check
         run: |
+          mkdir -p test-results
           docker compose up -d --build orchestrator prometheus tpm-metrics
           for i in {1..30}; do
             if curl -fsS http://localhost:9090/-/healthy >/dev/null; then
@@ -91,5 +97,38 @@ jobs:
             fi
             sleep 2
           done
-          curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep 'mohawk_utility_coin_total_supply'
+          curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | tee test-results/monitoring-smoke-query.json
+          grep 'mohawk_utility_coin_total_supply' test-results/monitoring-smoke-query.json
           docker compose down -v
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build OCI image artifacts for workflow downloads
+        run: |
+          mkdir -p test-results/docker-images
+          docker buildx build \
+            --file cmd/orchestrator/Dockerfile \
+            --tag mohawk/orchestrator:ci \
+            --output type=oci,dest=test-results/docker-images/orchestrator-ci.oci.tar \
+            .
+          docker buildx build \
+            --file cmd/node-agent/Dockerfile \
+            --tag mohawk/node-agent:ci \
+            --output type=oci,dest=test-results/docker-images/node-agent-ci.oci.tar \
+            .
+          sha256sum test-results/docker-images/*.tar > test-results/docker-images/sha256sums.txt
+
+      - name: Generate source SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: test-results/sbom-source.spdx.json
+
+      - name: Upload build and test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-test-artifacts
+          path: |
+            test-results/

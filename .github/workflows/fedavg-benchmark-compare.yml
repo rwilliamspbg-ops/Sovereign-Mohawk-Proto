@@ -10,7 +10,47 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
+  swarm-integration-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.x'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run large-scale swarm + Byzantine edge integration suite
+        run: |
+          mkdir -p test-results
+          set -o pipefail
+          go test -json ./test -run 'TestSwarmIntegration500To1000Nodes|TestByzantineEdgeCasesOver55PercentMalicious|TestHardwareAgnosticBackendProfiles' | tee test-results/swarm-integration-go-test.jsonl
+
+      - name: Build CPU vs GPU vs NPU benchmark report
+        run: |
+          mkdir -p results/metrics
+          python3 scripts/benchmark_accelerator_backends.py \
+            --output-md results/metrics/accelerator_backend_compare.md \
+            --output-json results/metrics/accelerator_backend_compare.json
+
+      - name: Upload swarm integration artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swarm-integration-artifacts
+          path: |
+            test-results/swarm-integration-go-test.jsonl
+            results/metrics/accelerator_backend_compare.md
+            results/metrics/accelerator_backend_compare.json
+
   fedavg-benchmark-compare:
+    needs: swarm-integration-suite
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

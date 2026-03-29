@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Release asset and image publication workflow** (`.github/workflows/release-assets.yml`):
+  - Publishes pre-built tagged Docker images to GHCR using `docker/build-push-action`
+  - Attaches OCI image archives, digest metadata, source/image SBOMs, benchmark reports, and `sovereign-map-testnet.tar.gz` to tagged releases
+  - Packages npm artifacts when `package.json` files are present and attaches those tarballs to release assets
+
+- **Artifacts Included (Stable Release Bundle)**:
+  - Docker images: GHCR tags + downloadable OCI archives (`orchestrator`, `node-agent`, `fl-aggregator`, `api-dashboard`)
+  - SBOMs: source SPDX JSON + per-image SPDX JSON
+  - Runtime benchmark evidence: bridge compression, FedAvg compare, accelerator backend compare
+  - Testnet package: `sovereign-map-testnet.tar.gz` (config + genesis + launch scripts)
+  - npm package tarballs when applicable
+
+- **Expanded CI artifact downloads** (`.github/workflows/build-test.yml`, `.github/workflows/fedavg-benchmark-compare.yml`):
+  - Uploads `test-results/` outputs (Go JSON test stream, Python JUnit XML, monitoring smoke query output)
+  - Uploads downloadable OCI image archives from CI runs for fast evaluator testing
+  - Uploads swarm integration and accelerator benchmark artifacts tied to FedAvg benchmark workflow
+
+- **Large-scale swarm integration + Byzantine edge-case suite** (`test/swarm_integration_large_scale_test.go`):
+  - Adds 500 and 1000 node integration checks under safe Byzantine envelope
+  - Adds edge-case rejection tests for malicious ratios above 55%
+  - Adds hardware-agnostic backend profile checks for CPU/CUDA/NPU policy paths
+
+- **CPU vs GPU vs NPU benchmark automation** (`scripts/benchmark_accelerator_backends.py`, `Makefile`):
+  - Adds `make benchmark-gpu` target that generates side-by-side backend comparison markdown/json evidence
+  - Integrates backend benchmark report generation into FedAvg benchmark CI
+
+- **Pre-packaged dashboard JSONs and accelerator observability view** (`grafana/*.json`, `monitoring/grafana/dashboards/performance/accelerator-backend-compare.json`):
+  - Adds quick-import dashboard bundles for node health, Byzantine detection, and tokenomics flow
+  - Adds backend comparison dashboard for accelerator throughput/latency/error tracking
+
+- **Alert coverage expansion for performance/resilience thresholds** (`monitoring/prometheus/alerting-rules.yml`):
+  - Adds aggregation latency threshold alert (`MohawkAggregationLatencyHigh`)
+  - Adds malicious-node-ratio alert (`MohawkMaliciousNodeRatioHigh`)
+
 - **Versioned SLO/SLI baseline and failure-injection latency validator** (`results/go-live/evidence/slo_sli_baseline_2026-03-28.md`, `results/go-live/evidence/slo_sli_baseline_2026-03-28.json`, `scripts/validate_failure_injection_latency.py`, `results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md`, `results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json`):
   - Added formal SLO/SLI contract for readiness, chaos recovery latency thresholds, and proof-latency target
   - Added executable validator that consumes readiness + chaos artifacts and emits pass/fail release evidence

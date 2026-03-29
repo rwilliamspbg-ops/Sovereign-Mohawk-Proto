@@ -1,0 +1,53 @@
+{
+  "title": "MOHAWK Accelerator Backend Compare",
+  "uid": "mohawk-accelerator-backend-compare",
+  "schemaVersion": 39,
+  "version": 1,
+  "timezone": "browser",
+  "refresh": "30s",
+  "tags": ["mohawk", "performance", "accelerator"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Gradient Submit Throughput by Backend",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\"}[5m])) by (backend)",
+          "legendFormat": "{{backend}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Aggregation Duration p95 by Backend (ms)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(mohawk_accelerator_op_duration_seconds_bucket{operation=\"aggregate\"}[10m])) by (backend, le)) * 1000",
+          "legendFormat": "{{backend}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Aggregation Error Ratio by Backend",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(mohawk_accelerator_ops_total{operation=\"aggregate\", result=\"failure\"}[5m])) by (backend) / clamp_min(sum(rate(mohawk_accelerator_ops_total{operation=\"aggregate\"}[5m])) by (backend), 1e-9)",
+          "legendFormat": "{{backend}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" }
+}

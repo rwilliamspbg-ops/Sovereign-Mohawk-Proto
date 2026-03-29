@@ -124,3 +124,29 @@ groups:
           summary: "One or more critical PQC enforcement controls are disabled"
           description: "PQC policy enforcement is below required baseline for migration or crypto cutover controls."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkAggregationLatencyHigh
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(mohawk_accelerator_op_duration_seconds_bucket{operation="aggregate"}[10m])) by (le)
+          ) > 0.25
+        for: 5m
+        labels:
+          severity: warning
+          domain: performance
+        annotations:
+          summary: "Aggregation latency p95 is above threshold"
+          description: "The 10m aggregation p95 exceeded 250ms for at least 5m."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkMaliciousNodeRatioHigh
+        expr: (1 - min_over_time(mohawk_consensus_honest_ratio[10m])) > 0.45
+        for: 5m
+        labels:
+          severity: critical
+          domain: resilience
+        annotations:
+          summary: "Malicious node ratio above safe envelope"
+          description: "Estimated malicious ratio crossed 45% in the last 10m and is approaching beyond-theorem ranges."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawkbyzantineresiliencethresholdbreach"

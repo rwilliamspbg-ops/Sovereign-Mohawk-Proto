@@ -46,6 +46,12 @@ Dashboards are organized by folder so Grafana renders a clean, role-oriented nav
   - Audience: verification/security
   - Purpose: theorem-driven consensus and trust monitoring views
 
+### performance/
+
+- `performance/accelerator-backend-compare.json`
+  - Audience: performance engineering
+  - Purpose: side-by-side throughput, latency, and error ratio by CPU/GPU/NPU backend labels
+
 ## Metric Naming
 
 v2 dashboards primarily consume recorded series from `monitoring/prometheus/recording-rules.yml`:

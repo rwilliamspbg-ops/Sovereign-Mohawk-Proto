@@ -26,6 +26,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Mainnet Readiness Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml)
 [![Mainnet Chaos Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml)
 [![Weekly Readiness Digest](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml)
+[![Release Assets and Images](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml)
 
 ![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
 ![Python SDK v2](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
@@ -43,6 +44,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ![Genesis Testnet](https://img.shields.io/badge/Testnet-global--testnet-orange)
 ![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
 ![Tokenomics Dashboard](https://img.shields.io/badge/Grafana-Tokenomics%20Live-F46800?logo=grafana&logoColor=white)
+[![Test-Net Status](https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&label=Test-Net%20Status)](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/)
 
 ---
 
@@ -86,6 +88,19 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 
 ---
 
+## 🎬 PySyft Integration Demo (5 Minutes)
+
+Watch the short walkthrough showing MOHAWK orchestration + PySyft-style FL flow:
+
+* Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
+* Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
+
+Preview graphic:
+
+![PySyft integration demo preview](assets/img/impact-diagram.png)
+
+---
+
 ## ✨ Key Capabilities
 
 * 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
@@ -122,6 +137,21 @@ Migration transfer supports cryptographic dual-signature fields:
 * PQC path: `pqc_algo`, `pqc_pub_key`, `pqc_sig`
 
 The canonical payload digest is produced by `MigrationSigningDigest(...)` in `internal/token`.
+
+### Quantum-Proofing Primitives In Use
+
+The current stack pairs classical and post-quantum controls so migration can happen with explicit cryptographic continuity:
+
+* Transport key exchange: `x25519-mlkem768-hybrid` (classical ECDH + ML-KEM 768 hybrid).
+* Attestation identity signatures: XMSS mode for TPM-backed identity metadata.
+* Proof path for model verification: BN254 Groth16 zk-SNARK + SHA256 commitment-backed STARK transcript path.
+* Migration signing: dual-signature transfer payloads (`legacy_*` + `pqc_*`) with epoch policy enforcement.
+
+Reference docs:
+
+* `RELEASE_NOTES_PQC_OVERHAUL.md`
+* `SECURITY.md`
+* `proofs/HUMAN_READABLE_PROOFS.md`
 
 ### PQC Readiness Overhaul (Major Release)
 
@@ -395,6 +425,13 @@ v2 dashboard implementation and metric map:
 
 * `monitoring/grafana/dashboards/README_DASHBOARD_V2.md`
 
+Quick-import dashboard pack for fast local/testnet setup:
+
+* `grafana/node-health-overview.json`
+* `grafana/byzantine-detection.json`
+* `grafana/tokenomics-flow.json`
+* `grafana/README.md`
+
 Forensics and hardware validation quick metric links (Prometheus):
 
 * Honest ratio (10m min): `http://localhost:9090/graph?g0.expr=min_over_time(mohawk_consensus_honest_ratio%5B10m%5D)&g0.tab=0`
@@ -472,6 +509,12 @@ make lint
 make test
 make verify
 go test ./...
+```
+
+Large-scale integration suite (500-1k swarm + Byzantine edge cases + backend profile checks):
+
+```bash
+go test ./test -run 'TestSwarmIntegration500To1000Nodes|TestByzantineEdgeCasesOver55PercentMalicious|TestHardwareAgnosticBackendProfiles'
 ```
 
 ### Python SDK Tests
@@ -626,6 +669,23 @@ Comparison artifact:
 
 * `results/metrics/fedavg_benchmark_compare.md`
 
+### CPU vs GPU vs NPU Side-by-Side Benchmark
+
+Run the hardware-policy benchmark report (used by CI and release assets):
+
+```bash
+make benchmark-gpu
+```
+
+Artifacts:
+
+* `results/metrics/accelerator_backend_compare.md`
+* `results/metrics/accelerator_backend_compare.json`
+
+Live observability companion dashboard:
+
+* `monitoring/grafana/dashboards/performance/accelerator-backend-compare.json`
+
 ### Bridge Compression Benchmark (JSON vs Zero-Copy)
 
 Run the bridge compression microbenchmark and generate a comparison report:
@@ -669,6 +729,7 @@ All production-grade safety requirements are verified on every push:
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
 * **Monitoring Smoke Gate:** Compose-based Prometheus/Grafana health and dashboard registration checks.
 * **Release Performance Evidence:** Aggregates benchmark artifacts into a release sign-off index.
+* **Release Assets and Images:** Builds release bundles with SBOMs, benchmark reports, downloadable OCI archives, and GHCR-published tagged images.
 * **Byzantine Forensics Weekly:** Runs Mini-Mohawk sandbox, extracts rejected-gradient forensics report, computes baseline deltas, and publishes artifacts.
 * **Byzantine Forensics Daily Short-Run:** Lightweight daily window with stricter alert threshold for faster anomaly detection.
 * **Forensics Automation Smoke:** Pull-request guard for forensics scripts/workflows and Make target command resolution.
@@ -702,8 +763,27 @@ bash scripts/apply_branch_protection.sh
 * [monitoring/prometheus/prometheus.yml](monitoring/prometheus/prometheus.yml)
 * [monitoring/alertmanager/alertmanager.yml](monitoring/alertmanager/alertmanager.yml)
 * [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
+* [grafana/](grafana/)
 * [monitoring/grafana/dashboards/finance/tokenomics.json](monitoring/grafana/dashboards/finance/tokenomics.json)
 * [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
+
+### Release and CI Artifacts
+
+Stable release tags now attach a downloadable artifact bundle with:
+
+* GHCR-published tagged images (`orchestrator`, `node-agent`, `fl-aggregator`, `api-dashboard`)
+* OCI image archives and image digest files
+* Source + image SBOMs (SPDX JSON)
+* Runtime benchmark reports
+* `sovereign-map-testnet.tar.gz`
+* npm package tarballs when package manifests are present
+
+CI workflow runs now upload:
+
+* `test-results/` output bundle
+* Swarm integration suite outputs
+* Benchmark markdown/json artifacts
+* Downloadable CI OCI image archives
 
 ---
 

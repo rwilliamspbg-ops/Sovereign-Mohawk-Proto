@@ -1,0 +1,185 @@
+name: Release Assets and Images
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  prepare-release-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node (for npm package assets)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.x"
+
+      - name: Build benchmark reports for release bundle
+        run: |
+          mkdir -p release-assets/benchmarks
+          chmod +x scripts/benchmark_bridge_compression_compare.sh
+          BENCH_TIME="200ms" \
+          REPORT_PATH="release-assets/benchmarks/bridge_compression_benchmark_compare.md" \
+          RAW_PATH="release-assets/benchmarks/bridge_compression_benchmark_raw.txt" \
+          ./scripts/benchmark_bridge_compression_compare.sh
+
+          chmod +x scripts/benchmark_fedavg_compare.sh
+          BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=1 \
+          REPORT_PATH="release-assets/benchmarks/fedavg_benchmark_compare.md" \
+          ./scripts/benchmark_fedavg_compare.sh
+
+          python3 scripts/benchmark_accelerator_backends.py \
+            --output-md release-assets/benchmarks/accelerator_backend_compare.md \
+            --output-json release-assets/benchmarks/accelerator_backend_compare.json
+
+      - name: Generate source SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: release-assets/sbom-source.spdx.json
+
+      - name: Package npm artifacts (if present)
+        run: |
+          mkdir -p release-assets/npm
+          mapfile -t PKG_FILES < <(find . -name package.json -not -path './node_modules/*' -not -path './sdk/python/*')
+          if [ "${#PKG_FILES[@]}" -eq 0 ]; then
+            echo "No npm package.json files found in this release." > release-assets/npm/npm-packages-none.txt
+            exit 0
+          fi
+
+          for pkg_json in "${PKG_FILES[@]}"; do
+            pkg_dir="$(dirname "$pkg_json")"
+            echo "Packing npm package from $pkg_dir"
+            (cd "$pkg_dir" && npm pack --pack-destination "$GITHUB_WORKSPACE/release-assets/npm")
+          done
+
+      - name: Build sovereign-map testnet tarball
+        run: |
+          mkdir -p release-assets
+          tar -czf release-assets/sovereign-map-testnet.tar.gz \
+            capabilities.json \
+            bridge-policies.json \
+            docker-compose.yml \
+            docker-compose.full.yml \
+            docker-compose.sandbox.yml \
+            genesis-launch.sh \
+            scripts/launch_full_stack_3_nodes.sh \
+            scripts/launch_sandbox.sh \
+            scripts/docker-compose-wrapper.sh \
+            monitoring/prometheus/prometheus.yml \
+            monitoring/prometheus/recording-rules.yml \
+            monitoring/prometheus/alerting-rules.yml
+
+      - name: Upload release prep artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-prep-assets
+          path: release-assets/
+
+  build-and-push-release-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image_name: orchestrator
+            dockerfile: cmd/orchestrator/Dockerfile
+          - image_name: node-agent
+            dockerfile: cmd/node-agent/Dockerfile
+          - image_name: fl-aggregator
+            dockerfile: cmd/fl-aggregator/Dockerfile
+          - image_name: api-dashboard
+            dockerfile: cmd/api-dashboard/Dockerfile
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image to GHCR
+        id: build_push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/sovereign-mohawk-${{ matrix.image_name }}:${{ github.ref_name }}
+
+      - name: Build downloadable OCI archive
+        run: |
+          mkdir -p release-assets/docker
+          docker buildx build \
+            --file "${{ matrix.dockerfile }}" \
+            --tag "ghcr.io/${{ github.repository_owner }}/sovereign-mohawk-${{ matrix.image_name }}:${{ github.ref_name }}" \
+            --output "type=oci,dest=release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.oci.tar" \
+            .
+
+      - name: Generate container image SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/${{ github.repository_owner }}/sovereign-mohawk-${{ matrix.image_name }}:${{ github.ref_name }}
+          format: spdx-json
+          output-file: release-assets/docker/sbom-${{ matrix.image_name }}.spdx.json
+
+      - name: Write digest metadata
+        run: |
+          printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
+
+      - name: Upload docker release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-release-assets-${{ matrix.image_name }}
+          path: release-assets/docker/
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-release-assets
+      - build-and-push-release-images
+    steps:
+      - name: Download release prep assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-prep-assets
+          path: release-assets
+
+      - name: Download docker release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-release-assets-*
+          path: release-assets/docker
+          merge-multiple: true
+
+      - name: Publish release with attached artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release-assets/benchmarks/*
+            release-assets/npm/*
+            release-assets/sbom-source.spdx.json
+            release-assets/sovereign-map-testnet.tar.gz
+            release-assets/docker/*

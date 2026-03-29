@@ -1,0 +1,41 @@
+{
+  "title": "Tokenomics Flow",
+  "uid": "mohawk-tokenomics-flow",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": ["mohawk", "finance"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Total Supply",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "mohawk_utility_coin_total_supply"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Minted vs Burned",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "mohawk_utility_coin_minted_amount_total",
+          "legendFormat": "minted"
+        },
+        {
+          "expr": "mohawk_utility_coin_burned_amount_total",
+          "legendFormat": "burned"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" }
+}

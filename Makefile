@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu
 
 all: build verify
 
@@ -179,3 +179,7 @@ openapi-spec:
 capability-dashboard-matrix:
 	@echo "🧭 Generating capability-to-dashboard verification matrix..."
 	python3 scripts/generate_capability_dashboard_matrix.py --output results/go-live/capability_dashboard_matrix.md
+
+benchmark-gpu:
+	@echo "⚡ Running CPU vs GPU vs NPU benchmark matrix..."
+	python3 scripts/benchmark_accelerator_backends.py --output-md results/metrics/accelerator_backend_compare.md --output-json results/metrics/accelerator_backend_compare.json

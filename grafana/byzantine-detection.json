@@ -1,0 +1,38 @@
+{
+  "title": "Byzantine Detection",
+  "uid": "mohawk-byzantine-detection",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": ["mohawk", "security", "resilience"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Honest Ratio (10m Min)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "min_over_time(mohawk_consensus_honest_ratio[10m])",
+          "legendFormat": "honest_ratio"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Estimated Malicious Ratio",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "1 - min_over_time(mohawk_consensus_honest_ratio[10m])",
+          "legendFormat": "malicious_ratio"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" }
+}

@@ -1,0 +1,96 @@
+name: Swarm Runtime Matrix
+
+on:
+  workflow_dispatch:
+    inputs:
+      node_counts:
+        description: "Comma-separated node counts"
+        required: false
+        default: "500,1000"
+      timeout_seconds:
+        description: "Per-profile timeout budget"
+        required: false
+        default: "900"
+      safe_ratio:
+        description: "Malicious ratio expected to pass"
+        required: false
+        default: "0.44"
+      edge_ratio:
+        description: "Malicious ratio expected to fail (>0.555)"
+        required: false
+        default: "0.56"
+  schedule:
+    - cron: "0 */12 * * *"
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  swarm-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.x"
+
+      - name: Run runtime swarm profile matrix
+        env:
+          INPUT_NODE_COUNTS: ${{ github.event.inputs.node_counts || '500,1000' }}
+          INPUT_TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '900' }}
+          INPUT_SAFE_RATIO: ${{ github.event.inputs.safe_ratio || '0.44' }}
+          INPUT_EDGE_RATIO: ${{ github.event.inputs.edge_ratio || '0.56' }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p test-results/swarm-runtime
+
+          IFS=',' read -ra NODE_COUNTS <<< "${INPUT_NODE_COUNTS}"
+          TIMEOUT_SECONDS="${INPUT_TIMEOUT_SECONDS}"
+
+          for n in "${NODE_COUNTS[@]}"; do
+            NODE_COUNT="$(echo "$n" | xargs)"
+            if [ -z "$NODE_COUNT" ]; then
+              continue
+            fi
+
+            echo "Running safe-profile runtime test for ${NODE_COUNT} nodes"
+            timeout "${TIMEOUT_SECONDS}"s env \
+              MOHAWK_SWARM_NODE_COUNT="$NODE_COUNT" \
+              MOHAWK_SWARM_MALICIOUS_RATIO="${INPUT_SAFE_RATIO}" \
+              MOHAWK_SWARM_EXPECT_FAILURE=false \
+              go test -json ./test -run '^TestSwarmRuntimeProfileFromEnv$' \
+              | tee "test-results/swarm-runtime/${NODE_COUNT}_safe.jsonl"
+
+            echo "Running edge-profile runtime test for ${NODE_COUNT} nodes"
+            timeout "${TIMEOUT_SECONDS}"s env \
+              MOHAWK_SWARM_NODE_COUNT="$NODE_COUNT" \
+              MOHAWK_SWARM_MALICIOUS_RATIO="${INPUT_EDGE_RATIO}" \
+              MOHAWK_SWARM_EXPECT_FAILURE=true \
+              go test -json ./test -run '^TestSwarmRuntimeProfileFromEnv$' \
+              | tee "test-results/swarm-runtime/${NODE_COUNT}_edge.jsonl"
+          done
+
+          {
+            echo "# Swarm Runtime Matrix Summary"
+            echo
+            echo "- Node counts: ${INPUT_NODE_COUNTS}"
+            echo "- Per-profile timeout: ${TIMEOUT_SECONDS}s"
+            echo "- Safe malicious ratio: ${INPUT_SAFE_RATIO}"
+            echo "- Edge malicious ratio: ${INPUT_EDGE_RATIO}"
+            echo "- Output path: test-results/swarm-runtime/"
+          } > test-results/swarm-runtime/summary.md
+
+      - name: Upload swarm runtime artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swarm-runtime-matrix-artifacts
+          path: test-results/swarm-runtime/

@@ -1,0 +1,36 @@
+{
+  "title": "Node Health Overview",
+  "uid": "mohawk-node-health-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": ["mohawk", "ops"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Healthy Node Agents",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(up{job=\"node-agents\"})"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Gradient Submit Success Rate",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "1 - (sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m])) / clamp_min(sum(rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\"}[5m])), 1e-9))"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" }
+}
