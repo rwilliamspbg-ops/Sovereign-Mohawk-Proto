@@ -1,0 +1,531 @@
+name: Byzantine Forensics Weekly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 6 * * *'
+    - cron: '30 6 * * 2'
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  byzantine-forensics:
+    name: Extract Rejected Gradient Forensics
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine run profile
+        id: profile
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" && "${{ github.event.schedule }}" == "30 6 * * 2" ]]; then
+            echo "profile=weekly" >> "$GITHUB_OUTPUT"
+            echo "since=30m" >> "$GITHUB_OUTPUT"
+            echo "threshold=25" >> "$GITHUB_OUTPUT"
+          else
+            echo "profile=daily-short" >> "$GITHUB_OUTPUT"
+            echo "since=10m" >> "$GITHUB_OUTPUT"
+            echo "threshold=10" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare runtime secrets
+        run: |
+          mkdir -p runtime-secrets
+          if [ ! -s runtime-secrets/mohawk_api_token ]; then
+            python3 -c 'import pathlib, secrets; pathlib.Path("runtime-secrets/mohawk_api_token").write_text(secrets.token_hex(24), encoding="utf-8")'
+          fi
+          if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
+            openssl req -x509 -newkey rsa:3072 \
+              -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
+              -out runtime-secrets/mohawk_tpm_ca_cert.pem \
+              -sha256 -days 365 -nodes \
+              -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
+          fi
+
+      - name: Start Mini-Mohawk sandbox
+        run: |
+          chmod +x scripts/launch_sandbox.sh scripts/extract_byzantine_forensics.sh
+          ./scripts/launch_sandbox.sh --no-build || ./scripts/launch_sandbox.sh
+
+      - name: Wait for sandbox logs
+        run: |
+          sleep 25
+          docker logs --tail=120 node-agent-1 > /tmp/node-agent-1.log 2>&1 || true
+          docker logs --tail=120 node-agent-2 > /tmp/node-agent-2.log 2>&1 || true
+          docker logs --tail=120 orchestrator > /tmp/orchestrator.log 2>&1 || true
+
+      - name: Extract byzantine forensics report
+        run: |
+          mkdir -p results/forensics
+          bash scripts/extract_byzantine_forensics.sh \
+            --since "${{ steps.profile.outputs.since }}" \
+            --output results/forensics/byzantine_rejections_weekly.md \
+            --metrics-json results/forensics/byzantine_forensics_metrics.json
+
+      - name: Fetch previous run baseline metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import io
+          import json
+          import os
+          import pathlib
+          import urllib.request
+          import zipfile
+
+          out_dir = pathlib.Path("results/forensics")
+          out_dir.mkdir(parents=True, exist_ok=True)
+          baseline_path = out_dir / "baseline_byzantine_forensics_metrics.json"
+
+          token = os.environ.get("GITHUB_TOKEN", "")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          current_run_id = int(os.environ["GITHUB_RUN_ID"])
+
+          def api_get(url):
+            req = urllib.request.Request(url)
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            with urllib.request.urlopen(req, timeout=20) as resp:
+              return json.loads(resp.read().decode("utf-8"))
+
+          try:
+            runs_url = f"https://api.github.com/repos/{repo}/actions/workflows/byzantine-forensics-weekly.yml/runs?status=success&per_page=20"
+            runs = api_get(runs_url).get("workflow_runs", [])
+            prior = next((r for r in runs if int(r.get("id", 0)) != current_run_id), None)
+            if not prior:
+              print("No prior successful workflow run found; baseline skipped.")
+              raise SystemExit(0)
+
+            artifacts_url = prior.get("artifacts_url")
+            artifacts = api_get(artifacts_url).get("artifacts", []) if artifacts_url else []
+            target = next((a for a in artifacts if a.get("name") == "byzantine-forensics-weekly" and not a.get("expired", True)), None)
+            if not target:
+              print("No reusable artifact found from prior run; baseline skipped.")
+              raise SystemExit(0)
+
+            download_url = target.get("archive_download_url")
+            req = urllib.request.Request(download_url)
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+              zip_bytes = resp.read()
+
+            with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+              names = zf.namelist()
+              metrics_name = next((n for n in names if n.endswith("byzantine_forensics_metrics.json")), None)
+              if not metrics_name:
+                print("Prior artifact has no metrics JSON; baseline skipped.")
+                raise SystemExit(0)
+              baseline_path.write_bytes(zf.read(metrics_name))
+              print(f"Baseline metrics restored from prior run: {baseline_path}")
+          except Exception as exc:
+            print(f"Baseline retrieval skipped due to error: {exc}")
+          PY
+
+      - name: Compute delta and threshold
+        id: analysis
+        run: |
+          python3 - <<'PY'
+          import json
+          import pathlib
+
+          metrics_path = pathlib.Path("results/forensics/byzantine_forensics_metrics.json")
+          baseline_path = pathlib.Path("results/forensics/baseline_byzantine_forensics_metrics.json")
+          summary_path = pathlib.Path("results/forensics/byzantine_forensics_delta.md")
+
+          current = json.loads(metrics_path.read_text(encoding="utf-8"))
+          baseline = json.loads(baseline_path.read_text(encoding="utf-8")) if baseline_path.exists() else None
+
+          cur_events = int(current.get("total_events", 0))
+          threshold = int("${{ steps.profile.outputs.threshold }}")
+          exceeded = cur_events > threshold
+
+          lines = []
+          lines.append("## Forensics Delta")
+          lines.append("")
+          lines.append(f"- Profile: ${{ steps.profile.outputs.profile }}")
+          lines.append(f"- Window: {current.get('since', 'unknown')}")
+          lines.append(f"- Current events: {cur_events}")
+          lines.append(f"- Threshold: {threshold}")
+          lines.append(f"- Threshold status: {'BREACH' if exceeded else 'within limit'}")
+
+          if baseline:
+            base_events = int(baseline.get("total_events", 0))
+            delta_events = cur_events - base_events
+            lines.append(f"- Baseline events: {base_events}")
+            lines.append(f"- Delta events: {delta_events:+d}")
+
+            lines.append("")
+            lines.append("| Bucket | Current | Baseline | Delta |")
+            lines.append("| --- | ---: | ---: | ---: |")
+            keys = [
+              "accepted_false",
+              "submission_failed",
+              "kex_mismatch",
+              "unsupported_kex_mode",
+              "kex_key_size_mismatch",
+            ]
+            cur_b = current.get("buckets", {})
+            base_b = baseline.get("buckets", {})
+            for k in keys:
+              c = int(cur_b.get(k, 0))
+              b = int(base_b.get(k, 0))
+              lines.append(f"| {k} | {c} | {b} | {c-b:+d} |")
+          else:
+            lines.append("- Baseline: unavailable (first run or no reusable artifact)")
+
+          summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+          with open(pathlib.Path("$GITHUB_OUTPUT"), "a", encoding="utf-8") as out:
+            out.write(f"threshold_exceeded={'true' if exceeded else 'false'}\n")
+            out.write(f"total_events={cur_events}\n")
+            out.write(f"threshold={threshold}\n")
+          PY
+
+      - name: Open issue on threshold breach
+        if: steps.analysis.outputs.threshold_exceeded == 'true'
+        uses: actions/github-script@v7
+        env:
+          BREACH_LABELS: ${{ vars.BYZANTINE_FORENSICS_ISSUE_LABELS }}
+          BREACH_ASSIGNEES: ${{ vars.BYZANTINE_FORENSICS_ISSUE_ASSIGNEES }}
+        with:
+          script: |
+            const fs = require('fs');
+            const profile = '${{ steps.profile.outputs.profile }}';
+            const totalEvents = '${{ steps.analysis.outputs.total_events }}';
+            const threshold = '${{ steps.analysis.outputs.threshold }}';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const marker = `<!-- byzantine-forensics-breach:${profile} -->`;
+            const profileLabel = `byzantine-forensics-${profile}`;
+            const labels = (process.env.BREACH_LABELS || 'security,operations,automated-alert')
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean);
+            labels.push(profileLabel);
+            const assignees = (process.env.BREACH_ASSIGNEES || '')
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean);
+            const bodyParts = [];
+            bodyParts.push('Automated Byzantine forensics threshold breach detected.');
+            bodyParts.push('');
+            bodyParts.push(`- Profile: ${profile}`);
+            bodyParts.push(`- Total rejection events: ${totalEvents}`);
+            bodyParts.push(`- Threshold: ${threshold}`);
+            bodyParts.push(`- Run: ${runUrl}`);
+            bodyParts.push('');
+            bodyParts.push('See attached workflow artifacts for detailed report and logs.');
+            if (fs.existsSync('results/forensics/byzantine_forensics_delta.md')) {
+              bodyParts.push('');
+              bodyParts.push('---');
+              bodyParts.push('');
+              bodyParts.push(fs.readFileSync('results/forensics/byzantine_forensics_delta.md', 'utf8'));
+            }
+            bodyParts.push('');
+            bodyParts.push(marker);
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            const existing = openIssues.find(issue => !issue.pull_request && (issue.body || '').includes(marker));
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: bodyParts.join('\n')
+              });
+
+              if (labels.length > 0) {
+                try {
+                  for (const label of labels) {
+                    try {
+                      await github.rest.issues.getLabel({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        name: label
+                      });
+                    } catch (_) {
+                      try {
+                        await github.rest.issues.createLabel({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          name: label,
+                          color: 'B60205'
+                        });
+                      } catch (createErr) {
+                        console.warn(`Label create skipped for ${label}: ${createErr.message}`);
+                      }
+                    }
+                  }
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existing.number,
+                    labels: Array.from(new Set(labels))
+                  });
+                } catch (e) {
+                  console.warn(`Label add skipped: ${e.message}`);
+                }
+              }
+
+              if (assignees.length > 0) {
+                try {
+                  await github.rest.issues.addAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existing.number,
+                    assignees
+                  });
+                } catch (e) {
+                  console.warn(`Assignee add skipped: ${e.message}`);
+                }
+              }
+
+              core.setOutput('issue_action', 'commented-existing');
+              core.setOutput('issue_number', String(existing.number));
+              return;
+            }
+
+            const created = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Byzantine Forensics Threshold Breach (${profile})`,
+              body: bodyParts.join('\n')
+            });
+
+            if (labels.length > 0) {
+              try {
+                for (const label of labels) {
+                  try {
+                    await github.rest.issues.getLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label
+                    });
+                  } catch (_) {
+                    try {
+                      await github.rest.issues.createLabel({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        name: label,
+                        color: 'B60205'
+                      });
+                    } catch (createErr) {
+                      console.warn(`Label create skipped for ${label}: ${createErr.message}`);
+                    }
+                  }
+                }
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: created.data.number,
+                  labels: Array.from(new Set(labels))
+                });
+              } catch (e) {
+                console.warn(`Label add skipped: ${e.message}`);
+              }
+            }
+
+            if (assignees.length > 0) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: created.data.number,
+                  assignees
+                });
+              } catch (e) {
+                console.warn(`Assignee add skipped: ${e.message}`);
+              }
+            }
+
+            core.setOutput('issue_action', 'created-new');
+            core.setOutput('issue_number', String(created.data.number));
+
+      - name: Auto-close breach issue on healthy streak
+        if: steps.analysis.outputs.threshold_exceeded != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          PROFILE: ${{ steps.profile.outputs.profile }}
+          SINCE_WINDOW: ${{ steps.profile.outputs.since }}
+          THRESHOLD: ${{ steps.analysis.outputs.threshold }}
+          HEALTHY_STREAK_REQUIRED: ${{ vars.BYZANTINE_FORENSICS_AUTO_CLOSE_HEALTHY_RUNS }}
+        run: |
+          python3 - <<'PY'
+          import io
+          import json
+          import os
+          import urllib.request
+          import zipfile
+
+          token = os.environ.get("GITHUB_TOKEN", "")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          current_run_id = int(os.environ["GITHUB_RUN_ID"])
+          profile = os.environ.get("PROFILE", "daily-short").strip()
+          since_window = os.environ.get("SINCE_WINDOW", "10m").strip()
+          threshold = int(os.environ.get("THRESHOLD", "10"))
+          streak_required_raw = os.environ.get("HEALTHY_STREAK_REQUIRED", "").strip()
+          streak_required = int(streak_required_raw) if streak_required_raw.isdigit() and int(streak_required_raw) > 0 else 3
+          marker = f"<!-- byzantine-forensics-breach:{profile} -->"
+
+          def api_get(url):
+            req = urllib.request.Request(url)
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+              return json.loads(resp.read().decode("utf-8"))
+
+          def download_json_artifact(artifact_url):
+            req = urllib.request.Request(artifact_url)
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            with urllib.request.urlopen(req, timeout=30) as resp:
+              zip_bytes = resp.read()
+            with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+              names = zf.namelist()
+              metrics_name = next((n for n in names if n.endswith("byzantine_forensics_metrics.json")), None)
+              if not metrics_name:
+                return None
+              return json.loads(zf.read(metrics_name).decode("utf-8"))
+
+          try:
+            open_issues = api_get(f"https://api.github.com/repos/{repo}/issues?state=open&per_page=100")
+            target_issue = next((i for i in open_issues if "pull_request" not in i and marker in (i.get("body") or "")), None)
+            if not target_issue:
+              print("No open breach issue to auto-close for this profile.")
+              raise SystemExit(0)
+
+            healthy_streak = 0
+
+            current_metrics_path = "results/forensics/byzantine_forensics_metrics.json"
+            current_metrics = None
+            if os.path.exists(current_metrics_path):
+              with open(current_metrics_path, "r", encoding="utf-8") as f:
+                current_metrics = json.load(f)
+
+            if current_metrics and str(current_metrics.get("since", "")).strip() == since_window:
+              current_events = int(current_metrics.get("total_events", 0))
+              if current_events <= threshold:
+                healthy_streak += 1
+
+            runs = api_get(f"https://api.github.com/repos/{repo}/actions/workflows/byzantine-forensics-weekly.yml/runs?status=success&per_page=30").get("workflow_runs", [])
+
+            for run in runs:
+              if healthy_streak >= streak_required:
+                break
+              run_id = int(run.get("id", 0))
+              if run_id == current_run_id:
+                continue
+              artifacts_url = run.get("artifacts_url")
+              artifacts = api_get(artifacts_url).get("artifacts", []) if artifacts_url else []
+              artifact = next((a for a in artifacts if a.get("name") == "byzantine-forensics-weekly" and not a.get("expired", True)), None)
+              if not artifact:
+                continue
+
+              metrics = download_json_artifact(artifact.get("archive_download_url"))
+              if not metrics:
+                continue
+
+              if str(metrics.get("since", "")).strip() != since_window:
+                continue
+
+              events = int(metrics.get("total_events", 0))
+              if events <= threshold:
+                healthy_streak += 1
+              else:
+                break
+
+            print(f"Healthy streak for profile={profile}: {healthy_streak}/{streak_required}")
+            if healthy_streak < streak_required:
+              raise SystemExit(0)
+
+            issue_number = int(target_issue["number"])
+            close_body = (
+              f"Auto-closing after {healthy_streak} consecutive healthy {profile} runs "
+              f"(threshold={threshold})."
+            )
+
+            req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/issues/{issue_number}/comments",
+              data=json.dumps({"body": close_body}).encode("utf-8"),
+              method="POST",
+            )
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            req.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(req, timeout=30):
+              pass
+
+            req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/issues/{issue_number}",
+              data=json.dumps({"state": "closed"}).encode("utf-8"),
+              method="PATCH",
+            )
+            req.add_header("Authorization", f"Bearer {token}")
+            req.add_header("Accept", "application/vnd.github+json")
+            req.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(req, timeout=30):
+              pass
+
+            print(f"Closed breach issue #{issue_number} after healthy streak.")
+          except Exception as exc:
+            print(f"Auto-close step skipped due to error: {exc}")
+          PY
+
+      - name: Publish summary
+        run: |
+          {
+            echo "## Byzantine Forensics Weekly"
+            echo
+            echo "Profile: ${{ steps.profile.outputs.profile }}"
+            echo "Window: ${{ steps.profile.outputs.since }}"
+            echo "Threshold: ${{ steps.analysis.outputs.threshold }}"
+            echo "Total events: ${{ steps.analysis.outputs.total_events }}"
+            echo "Threshold status: ${{ steps.analysis.outputs.threshold_exceeded }}"
+            echo
+            echo "Generated report: results/forensics/byzantine_rejections_weekly.md"
+            echo "Metrics: results/forensics/byzantine_forensics_metrics.json"
+            echo
+            if [ -f results/forensics/byzantine_forensics_delta.md ]; then
+              sed -n '1,80p' results/forensics/byzantine_forensics_delta.md
+              echo
+            fi
+            sed -n '1,80p' results/forensics/byzantine_rejections_weekly.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload forensics artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: byzantine-forensics-weekly
+          path: |
+            results/forensics/byzantine_rejections_weekly.md
+            results/forensics/byzantine_forensics_metrics.json
+            results/forensics/byzantine_forensics_delta.md
+            /tmp/node-agent-1.log
+            /tmp/node-agent-2.log
+            /tmp/orchestrator.log
+
+      - name: Stop sandbox
+        if: always()
+        run: |
+          ./scripts/launch_sandbox.sh --down

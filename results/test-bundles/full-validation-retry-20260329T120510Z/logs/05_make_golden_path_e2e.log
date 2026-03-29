@@ -1,0 +1,328 @@
+🧪 Running end-to-end golden path evidence scenario...
+bash scripts/golden_path_e2e.sh
+[golden-path] ensuring runtime secrets
+[golden-path] starting stack
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.12kB done
+#1 DONE 0.0s
+
+#2 [orchestrator internal] load build definition from Dockerfile
+#2 transferring dockerfile: 389B done
+#2 DONE 0.0s
+
+#3 [node-agent-3 internal] load build definition from Dockerfile
+#3 transferring dockerfile: 888B 0.0s done
+#3 DONE 0.0s
+
+#4 [auth] library/alpine:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#5 [auth] library/golang:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [node-agent-3 internal] load metadata for docker.io/library/golang:1.25-alpine
+#6 DONE 0.5s
+
+#7 [shard-eu-west internal] load metadata for docker.io/library/alpine:latest
+#7 DONE 0.5s
+
+#8 [shard-eu-west internal] load .dockerignore
+#8 transferring context: 2B done
+#8 DONE 0.0s
+
+#9 [node-agent-3 stage-1 1/6] FROM docker.io/library/alpine:latest@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+#9 DONE 0.0s
+
+#10 [shard-us-east builder 1/8] FROM docker.io/library/golang:1.25-alpine@sha256:8e02eb337d9e0ea459e041f1ee5eece41cbb61f1d83e7d883a3e2fb4862063fa
+#10 DONE 0.0s
+
+#11 [shard-eu-west internal] load build context
+#11 transferring context: 170.63kB 0.3s done
+#11 DONE 0.3s
+
+#12 [orchestrator builder 2/8] WORKDIR /app
+#12 CACHED
+
+#13 [orchestrator builder 3/8] RUN apk add --no-cache git gcc musl-dev
+#13 CACHED
+
+#14 [orchestrator builder 4/8] COPY go.mod go.sum ./
+#14 CACHED
+
+#15 [node-agent-2 builder 5/8] RUN go mod download
+#15 CACHED
+
+#16 [node-agent-2 builder 6/8] COPY . .
+#16 DONE 1.2s
+
+#17 [node-agent-2 builder 7/8] RUN go build -o node-agent-bin ./cmd/node-agent
+#17 ...
+
+#18 [shard-us-east builder 7/7] RUN go build -o main ./cmd/orchestrator
+#18 DONE 76.2s
+
+#19 [shard-us-east stage-1 2/6] WORKDIR /root/
+#19 CACHED
+
+#20 [shard-us-east stage-1 3/6] RUN apk --no-cache add ca-certificates libgcc
+#20 CACHED
+
+#21 [shard-us-east stage-1 4/4] COPY --from=builder /app/main .
+#21 CACHED
+
+#22 [orchestrator] exporting to image
+#22 exporting layers done
+#22 writing image sha256:cd26c44d3d9ca5a82048e8050560fa57b2cf890b70ac986065815f536c26c5fa done
+#22 naming to docker.io/library/sovereign-mohawk-proto-orchestrator done
+#22 DONE 0.0s
+
+#23 [shard-us-east] exporting to image
+#23 exporting layers done
+#23 writing image sha256:d1d64007c00454483b8dc74e92b852f5012f3a42766e5a2d2d517ac686d101c0 done
+#23 naming to docker.io/library/sovereign-mohawk-proto-shard-us-east done
+#23 DONE 0.0s
+
+#24 [shard-eu-west] exporting to image
+#24 exporting layers done
+#24 writing image sha256:5d7a540202c10a1b1a0660a75c9532233d63476cafcb6ceec945d614fe7a85c6 done
+#24 naming to docker.io/library/sovereign-mohawk-proto-shard-eu-west done
+#24 DONE 0.0s
+
+#25 [shard-us-east] resolving provenance for metadata file
+#25 DONE 0.0s
+
+#26 [orchestrator] resolving provenance for metadata file
+#26 DONE 0.0s
+
+#27 [shard-eu-west] resolving provenance for metadata file
+#27 DONE 0.0s
+
+#17 [node-agent-2 builder 7/8] RUN go build -o node-agent-bin ./cmd/node-agent
+#17 DONE 77.4s
+
+#28 [node-agent-3 builder 8/8] RUN CGO_ENABLED=1 go build -o libmohawk.so -buildmode=c-shared ./internal/pyapi/
+#28 DONE 39.3s
+
+#19 [node-agent-3 stage-1 2/6] WORKDIR /root/
+#19 CACHED
+
+#20 [node-agent-3 stage-1 3/6] RUN apk --no-cache add ca-certificates libgcc
+#20 CACHED
+
+#29 [node-agent-3 stage-1 4/6] COPY --from=builder /app/node-agent-bin .
+#29 CACHED
+
+#30 [node-agent-3 stage-1 5/6] COPY --from=builder /app/libmohawk.so .
+#30 CACHED
+
+#31 [node-agent-3 stage-1 6/6] RUN mkdir -p /app/wasm
+#31 CACHED
+
+#19 [node-agent-2 stage-1 2/6] WORKDIR /root/
+#19 CACHED
+
+#30 [node-agent-2 stage-1 5/6] COPY --from=builder /app/libmohawk.so .
+#30 CACHED
+
+#20 [node-agent-2 stage-1 3/6] RUN apk --no-cache add ca-certificates libgcc
+#20 CACHED
+
+#29 [node-agent-2 stage-1 4/6] COPY --from=builder /app/node-agent-bin .
+#29 CACHED
+
+#31 [node-agent-2 stage-1 6/6] RUN mkdir -p /app/wasm
+#31 CACHED
+
+#32 [node-agent-3] exporting to image
+#32 exporting layers done
+#32 writing image sha256:3d02d164b75f35dfdce760eaed468056b674fc7fad3b8351fc7b3c732c9c69c2 done
+#32 naming to docker.io/library/sovereign-mohawk-proto-node-agent-3 done
+#32 DONE 0.0s
+
+#33 [node-agent-1] exporting to image
+#33 exporting layers done
+#33 writing image sha256:74a2ad0fe4f8e11fa587a145bcfc6c4dac83214f07c1019ad0d2b43f9d8210bb done
+#33 naming to docker.io/library/sovereign-mohawk-proto-node-agent-1 done
+#33 DONE 0.0s
+
+#34 [node-agent-2] exporting to image
+#34 exporting layers done
+#34 writing image sha256:816f51228f67bfd0c086289c3fd54e7ab7f1b8ba89fb4cdf9dcf24d64708fb24 done
+#34 naming to docker.io/library/sovereign-mohawk-proto-node-agent-2 done
+#34 DONE 0.0s
+
+#35 [node-agent-3] resolving provenance for metadata file
+#35 DONE 0.0s
+
+#36 [node-agent-1] resolving provenance for metadata file
+#36 DONE 0.0s
+
+#37 [node-agent-2] resolving provenance for metadata file
+#37 DONE 0.0s
+ sovereign-mohawk-proto-shard-us-east  Built
+ sovereign-mohawk-proto-shard-eu-west  Built
+ sovereign-mohawk-proto-node-agent-1  Built
+ sovereign-mohawk-proto-node-agent-2  Built
+ sovereign-mohawk-proto-node-agent-3  Built
+ sovereign-mohawk-proto-orchestrator  Built
+ Network sovereign-mohawk-proto_mohawk-net  Creating
+ Network sovereign-mohawk-proto_mohawk-net  Created
+ Container runtime-secrets-init  Creating
+ Container pyapi-metrics-exporter  Creating
+ Container alertmanager  Creating
+ Container tpm-metrics  Creating
+ Container ipfs  Creating
+ Container pyapi-metrics-exporter  Created
+ Container runtime-secrets-init  Created
+ Container orchestrator  Creating
+ Container tpm-metrics  Created
+ Container alertmanager  Created
+ Container prometheus  Creating
+ Container ipfs  Created
+ Container orchestrator  Created
+ Container node-agent-2  Creating
+ Container node-agent-1  Creating
+ Container shard-us-east  Creating
+ Container shard-eu-west  Creating
+ Container node-agent-3  Creating
+ Container prometheus  Created
+ Container grafana  Creating
+ Container node-agent-2  Created
+ Container shard-eu-west  Created
+ Container node-agent-3  Created
+ Container node-agent-1  Created
+ Container shard-us-east  Created
+ Container grafana  Created
+ Container runtime-secrets-init  Starting
+ Container alertmanager  Starting
+ Container ipfs  Starting
+ Container pyapi-metrics-exporter  Starting
+ Container tpm-metrics  Starting
+ Container runtime-secrets-init  Started
+ Container runtime-secrets-init  Waiting
+ Container ipfs  Started
+ Container alertmanager  Started
+ Container prometheus  Starting
+ Container pyapi-metrics-exporter  Started
+ Container tpm-metrics  Started
+ Container prometheus  Started
+ Container grafana  Starting
+ Container grafana  Started
+ Container runtime-secrets-init  Exited
+ Container orchestrator  Starting
+ Container orchestrator  Started
+ Container orchestrator  Waiting
+ Container runtime-secrets-init  Waiting
+ Container ipfs  Waiting
+ Container orchestrator  Waiting
+ Container orchestrator  Waiting
+ Container runtime-secrets-init  Waiting
+ Container ipfs  Waiting
+ Container orchestrator  Waiting
+ Container runtime-secrets-init  Waiting
+ Container orchestrator  Waiting
+ Container ipfs  Waiting
+ Container runtime-secrets-init  Exited
+ Container runtime-secrets-init  Exited
+ Container runtime-secrets-init  Exited
+ Container ipfs  Healthy
+ Container ipfs  Healthy
+ Container ipfs  Healthy
+ Container orchestrator  Healthy
+ Container node-agent-2  Starting
+ Container orchestrator  Healthy
+ Container node-agent-1  Starting
+ Container orchestrator  Healthy
+ Container shard-us-east  Starting
+ Container orchestrator  Healthy
+ Container node-agent-3  Starting
+ Container orchestrator  Healthy
+ Container shard-eu-west  Starting
+ Container shard-eu-west  Started
+ Container node-agent-2  Started
+ Container node-agent-3  Started
+ Container node-agent-1  Started
+ Container shard-us-east  Started
+[golden-path] waiting for monitoring endpoints
+[golden-path] readiness gate
+[golden-path] integration and runtime checks
+go: downloading github.com/consensys/gnark-crypto v0.20.1
+go: downloading github.com/bits-and-blooms/bitset v1.24.4
+go: downloading github.com/libp2p/go-libp2p v0.48.0
+go: downloading github.com/consensys/gnark-crypto v0.20.1
+go: downloading github.com/multiformats/go-multiaddr v0.16.1
+go: downloading github.com/tetratelabs/wazero v1.11.0
+go: downloading github.com/ipfs/go-cid v0.6.0
+go: downloading github.com/mr-tron/base58 v1.2.0
+go: downloading github.com/multiformats/go-multicodec v0.10.0
+go: downloading github.com/multiformats/go-multihash v0.2.3
+go: downloading github.com/multiformats/go-multistream v0.6.1
+go: downloading go.uber.org/fx v1.24.0
+go: downloading github.com/multiformats/go-multibase v0.2.0
+go: downloading github.com/multiformats/go-varint v0.1.0
+go: downloading golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
+go: downloading github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1
+go: downloading github.com/libp2p/go-buffer-pool v0.1.0
+go: downloading github.com/quic-go/quic-go v0.59.0
+go: downloading golang.org/x/crypto v0.49.0
+go: downloading github.com/libp2p/go-flow-metrics v0.3.0
+go: downloading github.com/libp2p/go-msgio v0.3.0
+go: downloading golang.org/x/sync v0.20.0
+go: downloading github.com/benbjohnson/clock v1.3.5
+go: downloading github.com/multiformats/go-multiaddr-fmt v0.1.0
+go: downloading github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
+go: downloading github.com/libp2p/go-yamux/v5 v5.1.0
+go: downloading github.com/multiformats/go-multiaddr-dns v0.5.0
+go: downloading github.com/jbenet/go-temp-err-catcher v0.1.0
+go: downloading github.com/libp2p/go-libp2p-asn-util v0.4.1
+go: downloading github.com/flynn/noise v1.1.0
+go: downloading github.com/libp2p/go-netroute v0.4.0
+go: downloading golang.org/x/time v0.15.0
+go: downloading github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd
+go: downloading github.com/mikioh/tcpinfo v0.0.0-20190314235526-30a79bb1804b
+go: downloading github.com/pion/datachannel v1.6.0
+go: downloading github.com/pion/logging v0.2.4
+go: downloading github.com/pion/sctp v1.9.4
+go: downloading github.com/pion/webrtc/v4 v4.2.11
+go: downloading github.com/gorilla/websocket v1.5.3
+go: downloading filippo.io/keygen v0.0.0-20260114151900-8e2790ea4c5b
+go: downloading github.com/quic-go/webtransport-go v0.10.0
+go: downloading go.uber.org/dig v1.19.0
+go: downloading go.uber.org/multierr v1.11.0
+go: downloading github.com/multiformats/go-base32 v0.1.0
+go: downloading github.com/multiformats/go-base36 v0.2.0
+go: downloading github.com/libp2p/go-reuseport v0.4.0
+go: downloading go.uber.org/zap v1.27.1
+go: downloading golang.org/x/net v0.52.0
+go: downloading github.com/filecoin-project/go-clock v0.1.0
+go: downloading github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c
+go: downloading github.com/mikioh/tcpopt v0.0.0-20190314235656-172688c1accc
+go: downloading github.com/pion/ice/v4 v4.2.2
+go: downloading github.com/pion/stun/v3 v3.1.1
+go: downloading github.com/pion/randutil v0.1.0
+go: downloading github.com/pion/transport/v4 v4.0.1
+go: downloading filippo.io/bigmod v0.1.1-0.20260103110540-f8a47775ebe5
+go: downloading github.com/quic-go/qpack v0.6.0
+go: downloading github.com/pion/dtls/v3 v3.1.2
+go: downloading github.com/pion/interceptor v0.1.44
+go: downloading github.com/pion/rtp v1.10.1
+go: downloading github.com/pion/rtcp v1.2.16
+go: downloading github.com/pion/sdp/v3 v3.0.18
+go: downloading github.com/pion/srtp/v3 v3.0.10
+go: downloading github.com/dunglas/httpsfv v1.1.0
+go: downloading github.com/bits-and-blooms/bitset v1.24.4
+go: downloading lukechampine.com/blake3 v1.4.1
+go: downloading github.com/spaolacci/murmur3 v1.1.0
+go: downloading github.com/huin/goupnp v1.3.0
+go: downloading github.com/jackpal/go-nat-pmp v1.0.2
+go: downloading github.com/koron/go-ssdp v0.1.0
+go: downloading github.com/google/uuid v1.6.0
+go: downloading github.com/pion/mdns/v2 v2.1.0
+go: downloading github.com/pion/turn/v4 v4.1.4
+go: downloading golang.org/x/text v0.35.0
+go: downloading github.com/wlynxg/anet v0.0.5
+go: downloading github.com/klauspost/cpuid/v2 v2.3.0
+[golden-path] collecting metric assertions
+wrote /workspaces/Sovereign-Mohawk-Proto/results/go-live/golden-path-report.json
+wrote /workspaces/Sovereign-Mohawk-Proto/results/go-live/golden-path-report.md
+[golden-path] complete

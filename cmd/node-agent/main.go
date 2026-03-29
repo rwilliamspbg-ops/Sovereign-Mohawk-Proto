@@ -361,7 +361,11 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 	}
 	metrics.ObserveAcceleratorOp("cpu", "gradient_submit", ack.Accepted)
 	metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
-	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v", msg.Round, len(msg.Gradients), ack.Accepted)
+	if !ack.Accepted {
+		log.Printf("Gradient: sent round=%d len=%d -> accepted=%v reason=%q negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, ack.Reason, ack.NegotiatedKEX, ack.KEXPublicKeyLen)
+		return
+	}
+	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, ack.NegotiatedKEX, ack.KEXPublicKeyLen)
 }
 
 func startMetricsServer(nodeID string) {

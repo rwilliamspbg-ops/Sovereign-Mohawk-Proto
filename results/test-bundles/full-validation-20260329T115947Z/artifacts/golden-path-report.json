@@ -1,0 +1,15 @@
+{
+  "artifacts": {
+    "internal_test_log": "/tmp/mohawk_golden_internal_tests.log",
+    "pyapi_test_log": "/tmp/mohawk_golden_pyapi_tests.log",
+    "readiness_report": "results/readiness/readiness-report.json"
+  },
+  "checks": {
+    "consensus_ratio_query_ok": true,
+    "internal_runtime_tests_ok": true,
+    "prometheus_up_query_ok": true,
+    "pyapi_integration_tests_ok": true,
+    "readiness_gate_ok": true
+  },
+  "ok": true
+}

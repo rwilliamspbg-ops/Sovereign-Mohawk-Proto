@@ -1,0 +1,5 @@
+make lint (toolchain pinned)
+make verify (toolchain pinned)
+make test-python-sdk
+make forensics-rehearsal
+make golden-path-e2e

@@ -1,0 +1,57 @@
+🐍 Building MOHAWK Go C-shared library for Python SDK...
+go: go.mod requires go >= 1.25.7 (running go 1.25.4; GOTOOLCHAIN=local)
+✅ Built libmohawk.so
+🧪 Running Python SDK tests...
+cd sdk/python && python -m pytest tests/ -v
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.0.2, pluggy-1.6.0 -- /home/codespace/.python/current/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /workspaces/Sovereign-Mohawk-Proto/sdk/python
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, anyio-4.11.0
+collecting ... collected 29 items
+
+tests/test_benchmarks.py::test_verify_proof_performance PASSED           [  3%]
+tests/test_benchmarks.py::test_aggregate_nodes_performance PASSED        [  6%]
+tests/test_benchmarks.py::test_gradient_compression_performance PASSED   [ 10%]
+tests/test_client.py::TestMohawkNode::test_initialization PASSED         [ 13%]
+tests/test_client.py::TestMohawkNode::test_start_node PASSED             [ 17%]
+tests/test_client.py::TestMohawkNode::test_verify_proof PASSED           [ 20%]
+tests/test_client.py::TestMohawkNode::test_aggregate_updates PASSED      [ 24%]
+tests/test_client.py::TestMohawkNode::test_node_status PASSED            [ 27%]
+tests/test_client.py::TestMohawkNode::test_load_wasm PASSED              [ 31%]
+tests/test_client.py::TestMohawkNode::test_attestation PASSED            [ 34%]
+tests/test_client.py::TestMohawkNode::test_attestation_includes_lease_fields PASSED [ 37%]
+tests/test_client.py::TestMohawkNode::test_device_info PASSED            [ 41%]
+tests/test_client.py::TestMohawkNode::test_auto_tune_profile PASSED      [ 44%]
+tests/test_client.py::TestMohawkNode::test_compress_gradients_fp16 PASSED [ 48%]
+tests/test_client.py::TestMohawkNode::test_compress_gradients_int8 PASSED [ 51%]
+tests/test_client.py::TestMohawkNode::test_compress_gradients_zero_copy PASSED [ 55%]
+tests/test_client.py::TestMohawkNode::test_batch_verify PASSED           [ 58%]
+tests/test_client.py::TestMohawkNode::test_stream_aggregate PASSED       [ 62%]
+tests/test_client.py::TestMohawkNode::test_hybrid_verify PASSED          [ 65%]
+tests/test_client.py::TestMohawkNode::test_hybrid_backends PASSED        [ 68%]
+tests/test_client.py::TestMohawkNode::test_bridge_transfer PASSED        [ 72%]
+tests/test_client.py::TestMohawkNode::test_bridge_transfer_typed_evm_proof PASSED [ 75%]
+tests/test_client.py::TestMohawkNode::test_bridge_transfer_typed_cosmos_proof PASSED [ 79%]
+tests/test_client.py::TestMohawkNode::test_transfer_asset_wrapper PASSED [ 82%]
+tests/test_client.py::TestMohawkNode::test_verify_hybrid_wrapper PASSED  [ 86%]
+tests/test_client.py::TestMohawkNode::test_utility_coin_workflow PASSED  [ 89%]
+tests/test_client.py::TestGradientBuffer::test_gradient_buffer_compress PASSED [ 93%]
+tests/test_client.py::TestGradientBuffer::test_gradient_buffer_auto_format PASSED [ 96%]
+tests/test_client.py::TestExceptions::test_initialization_error PASSED   [100%]
+
+
+------------------------------------------------------------------------------------------------------- benchmark: 3 tests ------------------------------------------------------------------------------------------------------
+Name (time in us)                                 Min                    Max                   Mean              StdDev                 Median                 IQR            Outliers          OPS            Rounds  Iterations
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_aggregate_nodes_performance              25.9780 (1.0)       3,005.5630 (1.0)          61.6970 (1.0)      101.4895 (1.0)          51.3760 (1.0)       17.0505 (1.0)        73;270  16,208.2455 (1.0)        3387           1
+test_gradient_compression_performance      1,085.0260 (41.77)    13,165.2310 (4.38)      1,654.9051 (26.82)    731.7337 (7.21)      1,501.7070 (29.23)    907.5050 (53.22)        31;9     604.2643 (0.04)        703           1
+test_verify_proof_performance             10,541.3960 (405.78)   13,998.0140 (4.66)     10,904.1781 (176.74)   598.3494 (5.90)     10,656.6800 (207.43)   340.2750 (19.96)         8;9      91.7080 (0.01)         86           1
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+============================== 29 passed in 3.80s ==============================

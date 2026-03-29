@@ -2,16 +2,39 @@
 
 set -euo pipefail
 
-fail_toolchain() {
-  local code="${1:-1}"
-  if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
-    return "$code"
-  fi
-  exit "$code"
-}
-
 # Source this script before running Go commands to avoid mixed toolchain state
 # (e.g., go=1.25.7 with compile=1.25.4 from /usr/local/go).
+
+version_lt() {
+  local a="$1"
+  local b="$2"
+  local a_major a_minor a_patch b_major b_minor b_patch
+
+  IFS='.' read -r a_major a_minor a_patch <<<"${a}"
+  IFS='.' read -r b_major b_minor b_patch <<<"${b}"
+
+  a_patch="${a_patch:-0}"
+  b_patch="${b_patch:-0}"
+
+  ((10#${a_major} < 10#${b_major})) && return 0
+  ((10#${a_major} > 10#${b_major})) && return 1
+  ((10#${a_minor} < 10#${b_minor})) && return 0
+  ((10#${a_minor} > 10#${b_minor})) && return 1
+  ((10#${a_patch} < 10#${b_patch})) && return 0
+  return 1
+}
+
+normalize_uname_arch() {
+  case "$(uname -m)" in
+    x86_64) echo "amd64" ;;
+    aarch64|arm64) echo "arm64" ;;
+    *) echo "$(uname -m)" ;;
+  esac
+}
+
+required_go_version="$(awk '/^go[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
+required_go_version="${required_go_version:-1.25.7}"
+required_go_version="${required_go_version#go}"
 
 GO_BIN="$(command -v go)"
 GO_BIN_DIR="$(cd "$(dirname "$GO_BIN")" && pwd)"
@@ -22,10 +45,39 @@ if [[ -x "$TOOLCHAIN_ROOT/pkg/tool/$(go env GOOS)_$(go env GOARCH)/compile" ]]; 
   export PATH="$GOROOT/bin:$PATH"
 fi
 
-export GOTOOLCHAIN="${GOTOOLCHAIN:-local}"
+current_go_version_raw="$(GOTOOLCHAIN=local go env GOVERSION 2>/dev/null || true)"
+current_go_version="${current_go_version_raw#go}"
+arch="$(normalize_uname_arch)"
+toolchain_cache="/go/pkg/mod/golang.org/toolchain@v0.0.1-go${required_go_version}.linux-${arch}"
+
+if [[ -n "$current_go_version" ]] && version_lt "$current_go_version" "$required_go_version"; then
+  if [[ -x "$toolchain_cache/bin/go" ]]; then
+    export GOROOT="$toolchain_cache"
+    export PATH="$GOROOT/bin:$PATH"
+    export GOTOOLCHAIN="local"
+  else
+    # Allow Go to resolve and install the required toolchain automatically.
+    export GOTOOLCHAIN="auto"
+  fi
+else
+  export GOTOOLCHAIN="${GOTOOLCHAIN:-local}"
+fi
 
 go_version="$(go env GOVERSION)"
 compile_version="$("$(go env GOTOOLDIR)/compile" -V=full | grep -o 'go[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' | head -n1)"
+
+if version_lt "${go_version#go}" "$required_go_version"; then
+  cat >&2 <<EOF
+Go toolchain too old for this repository:
+  required : go$required_go_version
+  detected : $go_version
+  GOROOT   : $(go env GOROOT)
+EOF
+  if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    return 1
+  fi
+  exit 1
+fi
 
 if [[ "$go_version" != "$compile_version" ]]; then
   cat >&2 <<EOF
@@ -35,5 +87,8 @@ Go toolchain mismatch detected:
   GOROOT   : $(go env GOROOT)
   GOTOOLDIR: $(go env GOTOOLDIR)
 EOF
-  fail_toolchain 1
+  if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    return 1
+  fi
+  exit 1
 fi

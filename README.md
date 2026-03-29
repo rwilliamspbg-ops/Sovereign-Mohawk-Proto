@@ -275,6 +275,59 @@ Default endpoints after startup:
 * TPM metrics exporter: `http://localhost:9102/metrics`
 * Orchestrator control plane: `https://localhost:8080` (mTLS enforced)
 
+### Quick-Start Sandbox (Mini-Mohawk)
+
+For a lightweight research/dev on-ramp, use the sandbox profile:
+
+```bash
+docker compose -f docker-compose.sandbox.yml up -d --build
+
+# or use the wrapper script
+./scripts/launch_sandbox.sh
+
+# or use Make targets
+make sandbox-up
+```
+
+Sandbox topology:
+
+* 1 orchestrator (`orchestrator`)
+* 1 shard (`shard-us-east`)
+* 2 node agents (`node-agent-1`, `node-agent-2`)
+* bundled Hello World FL WASM task build (`wasm-hello-world-build`)
+
+Quick checks:
+
+```bash
+docker compose -f docker-compose.sandbox.yml ps
+docker logs --tail=100 node-agent-1
+docker logs --tail=100 node-agent-2
+```
+
+Stop sandbox:
+
+```bash
+docker compose -f docker-compose.sandbox.yml down
+
+# or use the wrapper script
+./scripts/launch_sandbox.sh --down
+
+# or use Make targets
+make sandbox-down
+```
+
+Local forensics drill:
+
+```bash
+make forensics-drill
+
+# optional cleanup
+make forensics-drill-down
+
+# compact rehearsal (drill + automatic cleanup)
+make forensics-rehearsal
+```
+
 Quick health checks:
 
 ```bash
@@ -341,6 +394,13 @@ Grafana dashboard shortlist:
 v2 dashboard implementation and metric map:
 
 * `monitoring/grafana/dashboards/README_DASHBOARD_V2.md`
+
+Forensics and hardware validation quick metric links (Prometheus):
+
+* Honest ratio (10m min): `http://localhost:9090/graph?g0.expr=min_over_time(mohawk_consensus_honest_ratio%5B10m%5D)&g0.tab=0`
+* Gradient failure ratio (5m): `http://localhost:9090/graph?g0.expr=(sum(rate(mohawk_accelerator_ops_total%7Boperation%3D%22gradient_submit%22%2Cresult%3D%22failure%22%7D%5B5m%5D))%2Fclamp_min(sum(rate(mohawk_accelerator_ops_total%7Boperation%3D%22gradient_submit%22%7D%5B5m%5D))%2C1e-9))&g0.tab=0`
+* Proof verification p95 (10m): `http://localhost:9090/graph?g0.expr=histogram_quantile(0.95%2Csum(rate(mohawk_proof_verification_latency_ms_bucket%5B10m%5D))%20by%20(le))&g0.tab=0`
+* TPM verification failures (10m increase): `http://localhost:9090/graph?g0.expr=increase(mohawk_tpm_verifications_total%7Bresult%3D%22failure%22%7D%5B10m%5D)&g0.tab=0`
 
 ### Weekly Readiness Digest Notifications (Optional)
 
@@ -456,15 +516,15 @@ The report now includes `host_preflight_mode`, `warnings`, and enforcement state
 Use this compact sequence before release/tag cut:
 
 1. Run strict formal gate on a production-tuned host:
-    - `make go-live-gate-strict`
+    * `make go-live-gate-strict`
 2. Run full golden path execution and evidence generation:
-    - `make golden-path-e2e`
+    * `make golden-path-e2e`
 3. Run monitoring smoke checks (local equivalent of CI gate):
-    - `docker compose up -d --build orchestrator alertmanager prometheus tpm-metrics pyapi-metrics-exporter grafana`
-    - `curl -fsS http://localhost:9090/-/healthy`
-    - `curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' | jq '.'`
+    * `docker compose up -d --build orchestrator alertmanager prometheus tpm-metrics pyapi-metrics-exporter grafana`
+    * `curl -fsS http://localhost:9090/-/healthy`
+    * `curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' | jq '.'`
 4. Regenerate benchmark sign-off index:
-    - `make release-performance-evidence`
+    * `make release-performance-evidence`
 
 Required evidence bundle:
 
@@ -609,6 +669,21 @@ All production-grade safety requirements are verified on every push:
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
 * **Monitoring Smoke Gate:** Compose-based Prometheus/Grafana health and dashboard registration checks.
 * **Release Performance Evidence:** Aggregates benchmark artifacts into a release sign-off index.
+* **Byzantine Forensics Weekly:** Runs Mini-Mohawk sandbox, extracts rejected-gradient forensics report, computes baseline deltas, and publishes artifacts.
+* **Byzantine Forensics Daily Short-Run:** Lightweight daily window with stricter alert threshold for faster anomaly detection.
+* **Forensics Automation Smoke:** Pull-request guard for forensics scripts/workflows and Make target command resolution.
+
+Optional issue-routing variables for forensics threshold breaches:
+
+* `BYZANTINE_FORENSICS_ISSUE_LABELS` (comma-separated labels, default: `security,operations,automated-alert`)
+* `BYZANTINE_FORENSICS_ISSUE_ASSIGNEES` (comma-separated GitHub usernames)
+* `BYZANTINE_FORENSICS_AUTO_CLOSE_HEALTHY_RUNS` (integer streak target, default: `3`)
+
+Behavior notes:
+
+* Breach issues are deduplicated per profile (`daily-short` vs `weekly`) and updated via comments.
+* The workflow auto-applies a profile label (`byzantine-forensics-daily-short` or `byzantine-forensics-weekly`) on breach.
+* Open breach issues are auto-closed after the configured count of consecutive healthy runs for the same profile.
 * **Proof-Driven Design Verification:** Capability and proof audit via `scripts/audit_proofs.sh`.
 * **Capability Sync Check:** Runtime capability manifest validation.
 
@@ -720,6 +795,9 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
 * [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) - Production operations runbook
+* [HARDWARE_COMPATIBILITY.md](HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and 10 ms validation criteria
+* [EDGE_LITE_RESOURCE_PROFILE.md](EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
+* [COMPLIANCE_MAPPING.md](COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
@@ -731,9 +809,13 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
 * [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix
 * [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) - TPM closure validator status report
+* [results/go-live/evidence/tpm_attestation_local_sandbox_2026-03-29.md](results/go-live/evidence/tpm_attestation_local_sandbox_2026-03-29.md) - Local sandbox TPM/forensics validation snapshot for Mini-Mohawk profile
 * [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) - TPM closure dashboard summary
+* [results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md](results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md) - Day 2 forensics and recovery rehearsal validation record
+* [results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md](results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md) - Consolidated release-candidate evidence checkpoint index
 * [results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md) - Windows TPM evidence capture guide
 * [results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md) - macOS TPM evidence capture guide
+* [results/go-live/evidence/templates/hardware_validation_capture_template.md](results/go-live/evidence/templates/hardware_validation_capture_template.md) - Standardized hardware validation capture template
 * [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md) - Release benchmark evidence index
 
 PQC migration and transport helper scripts:
@@ -744,6 +826,12 @@ PQC migration and transport helper scripts:
 * `python scripts/validate_tpm_attestation_closure.py --help`
 * `python scripts/generate_tpm_closure_summary.py --help`
 * `python scripts/enforce_ga_tag_safety.py --tag v1.0.0`
+* `bash scripts/quantum_kex_rotation_drill.sh --help`
+* `bash scripts/extract_byzantine_forensics.sh --help`
+* `bash scripts/launch_sandbox.sh --help`
+* `make sandbox-up`
+* `make sandbox-down`
+* `make forensics-rehearsal`
 
 ---
 

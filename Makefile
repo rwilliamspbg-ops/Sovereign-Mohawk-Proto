@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix
+.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix
 
 all: build verify
 
@@ -84,6 +84,34 @@ full-stack-3-nodes:
 full-stack-3-nodes-down:
 	@echo "🛑 Stopping full local stack..."
 	./scripts/launch_full_stack_3_nodes.sh --down
+
+sandbox-up:
+	@echo "🧪 Launching Mini-Mohawk sandbox..."
+	./scripts/launch_sandbox.sh --no-build
+
+sandbox-down:
+	@echo "🛑 Stopping Mini-Mohawk sandbox..."
+	./scripts/launch_sandbox.sh --down
+
+forensics-drill:
+	@echo "🔎 Running local Byzantine forensics drill..."
+	./scripts/launch_sandbox.sh --no-build || ./scripts/launch_sandbox.sh
+	bash scripts/extract_byzantine_forensics.sh --since 15m --output results/forensics/byzantine_rejections_local.md --metrics-json results/forensics/byzantine_forensics_metrics_local.json
+	@echo "✅ Forensics artifacts:"
+	@echo "   - results/forensics/byzantine_rejections_local.md"
+	@echo "   - results/forensics/byzantine_forensics_metrics_local.json"
+
+forensics-drill-down:
+	@echo "🛑 Stopping sandbox after forensics drill..."
+	./scripts/launch_sandbox.sh --down
+
+forensics-rehearsal:
+	@echo "🧪 Running compact forensics rehearsal (drill + cleanup)..."
+	@set -e; \
+	cleanup() { ./scripts/launch_sandbox.sh --down >/dev/null 2>&1 || true; }; \
+	trap cleanup EXIT; \
+	$(MAKE) forensics-drill
+	@echo "✅ Forensics rehearsal complete (sandbox cleaned up)."
 
 strict-auth-smoke-host: build-python-lib
 	@echo "🔐 Running strict auth/role smoke checks on host..."

@@ -49,6 +49,22 @@ Your PR must include a completed template to be eligible for points:
 3. **Lint & Test**: Run `black`, `ruff`, and `mypy` on any Python changes to ensure they pass the [CI/CD Workflow](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions).
 4. **Submit PR**: Tag your PR with `[AUDIT]` to trigger the verification runner.
 
+### Go Toolchain Guard (Required)
+
+This repository requires Go `1.25.7` from `go.mod`.
+
+Before running `go`, `make lint`, `make verify`, or benchmark commands, source:
+
+```bash
+source scripts/ensure_go_toolchain.sh
+```
+
+Why:
+
+* Prevents mixed `go`/`compile` toolchains.
+* Enforces minimum required Go version.
+* Automatically selects the cached repository-compatible toolchain path when available.
+
 ### 4. Optional Chat Notifications for Weekly Readiness Digest
 
 Maintainers can wire the `Weekly Readiness Digest` workflow to Slack and/or Teams.

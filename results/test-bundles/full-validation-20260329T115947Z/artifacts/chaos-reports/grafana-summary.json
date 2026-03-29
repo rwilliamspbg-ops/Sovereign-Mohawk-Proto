@@ -1,0 +1,6 @@
+{
+  "scenario": "grafana",
+  "recovery_latency_seconds": 4,
+  "recovery_latency_threshold_seconds": 120,
+  "recovery_latency_ok": true
+}

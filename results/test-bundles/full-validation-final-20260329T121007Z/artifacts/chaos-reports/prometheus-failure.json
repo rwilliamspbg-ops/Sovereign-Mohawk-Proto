@@ -1,0 +1,9 @@
+{
+  "checks": {
+    "grafana_health": true
+  },
+  "failures": [
+    "failed to fetch http://localhost:9090/api/v1/targets: <urlopen error [Errno 111] Connection refused>"
+  ],
+  "ok": false
+}

@@ -1,0 +1,3 @@
+🧹 Running local linting checks...
+bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
+bash -c 'source scripts/ensure_go_toolchain.sh && go vet ./...'

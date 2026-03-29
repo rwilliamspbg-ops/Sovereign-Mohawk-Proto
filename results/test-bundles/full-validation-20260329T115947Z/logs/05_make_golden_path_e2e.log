@@ -1,0 +1,172 @@
+🧪 Running end-to-end golden path evidence scenario...
+bash scripts/golden_path_e2e.sh
+[golden-path] ensuring runtime secrets
+[golden-path] starting stack
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.12kB done
+#1 DONE 0.0s
+
+#2 [node-agent-3 internal] load build definition from Dockerfile
+#2 transferring dockerfile: 888B done
+#2 DONE 0.0s
+
+#3 [orchestrator internal] load build definition from Dockerfile
+#3 transferring dockerfile: 389B done
+#3 DONE 0.0s
+
+#4 [shard-us-east internal] load metadata for docker.io/library/golang:1.25-alpine
+#4 ...
+
+#5 [node-agent-1 internal] load metadata for docker.io/library/alpine:latest
+#5 DONE 0.3s
+
+#4 [shard-us-east internal] load metadata for docker.io/library/golang:1.25-alpine
+#4 DONE 1.5s
+
+#6 [shard-us-east stage-1 1/4] FROM docker.io/library/alpine:latest@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+#6 DONE 0.0s
+
+#7 [shard-us-east builder 1/7] FROM docker.io/library/golang:1.25-alpine@sha256:8e02eb337d9e0ea459e041f1ee5eece41cbb61f1d83e7d883a3e2fb4862063fa
+#7 DONE 0.0s
+
+#8 [shard-us-east internal] load .dockerignore
+#8 transferring context: 2B done
+#8 DONE 0.0s
+
+#9 [shard-us-east internal] load build context
+#9 transferring context: 44.85MB 2.6s done
+#9 DONE 2.6s
+
+#10 [orchestrator builder 5/7] RUN go mod download
+#10 CACHED
+
+#11 [orchestrator builder 4/7] COPY go.mod go.sum ./
+#11 CACHED
+
+#12 [orchestrator builder 5/7] RUN go mod download
+#12 CACHED
+
+#13 [orchestrator builder 2/7] WORKDIR /app
+#13 CACHED
+
+#14 [orchestrator builder 3/7] RUN apk add --no-cache git gcc musl-dev
+#14 CACHED
+
+#15 [orchestrator builder 6/7] COPY . .
+#15 DONE 2.2s
+
+#16 [orchestrator builder 7/7] RUN go build -o main ./cmd/orchestrator
+#16 ...
+
+#17 [node-agent-2 builder 7/8] RUN go build -o node-agent-bin ./cmd/node-agent
+#17 ...
+
+#16 [orchestrator builder 7/7] RUN go build -o main ./cmd/orchestrator
+#16 DONE 160.7s
+
+#18 [node-agent-1 stage-1 2/4] WORKDIR /root/
+#18 CACHED
+
+#19 [node-agent-1 stage-1 3/4] RUN apk --no-cache add ca-certificates libgcc
+#19 CACHED
+
+#18 [shard-eu-west stage-1 2/4] WORKDIR /root/
+#18 CACHED
+
+#20 [orchestrator stage-1 4/4] COPY --from=builder /app/main .
+#20 DONE 0.9s
+
+#21 [orchestrator] exporting to image
+#21 exporting layers
+#21 exporting layers 0.9s done
+#21 writing image sha256:cd26c44d3d9ca5a82048e8050560fa57b2cf890b70ac986065815f536c26c5fa
+#21 writing image sha256:cd26c44d3d9ca5a82048e8050560fa57b2cf890b70ac986065815f536c26c5fa 0.0s done
+#21 naming to docker.io/library/sovereign-mohawk-proto-orchestrator 0.0s done
+#21 DONE 1.1s
+
+#22 [shard-eu-west] exporting to image
+#22 exporting layers 0.9s done
+#22 writing image sha256:5d7a540202c10a1b1a0660a75c9532233d63476cafcb6ceec945d614fe7a85c6 done
+#22 naming to docker.io/library/sovereign-mohawk-proto-shard-eu-west 0.1s done
+#22 DONE 1.1s
+
+#23 [shard-us-east] exporting to image
+#23 exporting layers 0.9s done
+#23 writing image sha256:d1d64007c00454483b8dc74e92b852f5012f3a42766e5a2d2d517ac686d101c0 0.0s done
+#23 naming to docker.io/library/sovereign-mohawk-proto-shard-us-east 0.1s done
+#23 DONE 1.1s
+
+#17 [node-agent-2 builder 7/8] RUN go build -o node-agent-bin ./cmd/node-agent
+#17 ...
+
+#24 [orchestrator] resolving provenance for metadata file
+#24 DONE 0.0s
+
+#25 [shard-eu-west] resolving provenance for metadata file
+#25 DONE 0.0s
+
+#26 [shard-us-east] resolving provenance for metadata file
+#26 DONE 0.0s
+
+#17 [node-agent-2 builder 7/8] RUN go build -o node-agent-bin ./cmd/node-agent
+#17 DONE 164.5s
+
+#27 [node-agent-1 builder 8/8] RUN CGO_ENABLED=1 go build -o libmohawk.so -buildmode=c-shared ./internal/pyapi/
+#27 DONE 82.2s
+
+#28 [node-agent-3 stage-1 4/6] COPY --from=builder /app/node-agent-bin .
+#28 DONE 0.8s
+
+#29 [node-agent-3 stage-1 5/6] COPY --from=builder /app/libmohawk.so .
+#29 DONE 0.6s
+
+#30 [node-agent-2 stage-1 6/6] RUN mkdir -p /app/wasm
+#30 DONE 0.4s
+
+#31 [node-agent-3] exporting to image
+#31 exporting layers
+#31 exporting layers 0.5s done
+#31 writing image sha256:3d02d164b75f35dfdce760eaed468056b674fc7fad3b8351fc7b3c732c9c69c2
+#31 ...
+
+#32 [node-agent-2] exporting to image
+#32 exporting layers 0.5s done
+#32 writing image sha256:816f51228f67bfd0c086289c3fd54e7ab7f1b8ba89fb4cdf9dcf24d64708fb24 done
+#32 naming to docker.io/library/sovereign-mohawk-proto-node-agent-2 0.1s done
+#32 DONE 0.7s
+
+#31 [node-agent-3] exporting to image
+#31 writing image sha256:3d02d164b75f35dfdce760eaed468056b674fc7fad3b8351fc7b3c732c9c69c2 0.1s done
+#31 naming to docker.io/library/sovereign-mohawk-proto-node-agent-3 0.0s done
+#31 DONE 0.7s
+
+#33 [node-agent-1] exporting to image
+#33 exporting layers 0.5s done
+#33 writing image sha256:74a2ad0fe4f8e11fa587a145bcfc6c4dac83214f07c1019ad0d2b43f9d8210bb done
+#33 naming to docker.io/library/sovereign-mohawk-proto-node-agent-1 0.1s done
+#33 DONE 0.7s
+
+#34 [node-agent-2] resolving provenance for metadata file
+#34 DONE 0.1s
+
+#35 [node-agent-1] resolving provenance for metadata file
+#35 DONE 0.0s
+
+#36 [node-agent-3] resolving provenance for metadata file
+#36 DONE 0.0s
+ sovereign-mohawk-proto-node-agent-3  Built
+ sovereign-mohawk-proto-shard-us-east  Built
+ sovereign-mohawk-proto-shard-eu-west  Built
+ sovereign-mohawk-proto-node-agent-1  Built
+ sovereign-mohawk-proto-node-agent-2  Built
+ sovereign-mohawk-proto-orchestrator  Built
+ Network sovereign-mohawk-proto_mohawk-net  Creating
+ Network sovereign-mohawk-proto_mohawk-net  Error
+ Container tpm-metrics  Creating
+ Container alertmanager  Creating
+ Container runtime-secrets-init  Creating
+ Container ipfs  Creating
+ Container pyapi-metrics-exporter  Creating
+ Container pyapi-metrics-exporter  Error response from daemon: Conflict. The container name "/pyapi-metrics-exporter" is already in use by container "d34706520f8f3538ca262c2c1976b50d5823baae156ed24514506210d1b25142". You have to remove (or rename) that container to be able to reuse that name.
+Error response from daemon: Conflict. The container name "/pyapi-metrics-exporter" is already in use by container "d34706520f8f3538ca262c2c1976b50d5823baae156ed24514506210d1b25142". You have to remove (or rename) that container to be able to reuse that name.
+make: *** [Makefile:153: golden-path-e2e] Error 1

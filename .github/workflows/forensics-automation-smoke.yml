@@ -1,0 +1,79 @@
+name: Forensics Automation Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/byzantine-forensics-weekly.yml'
+      - '.github/workflows/forensics-automation-smoke.yml'
+      - 'scripts/extract_byzantine_forensics.sh'
+      - 'scripts/launch_sandbox.sh'
+      - 'Makefile'
+      - 'README.md'
+      - 'OPERATIONS_RUNBOOK.md'
+      - 'COMPLIANCE_MAPPING.md'
+      - 'HARDWARE_COMPATIBILITY.md'
+      - 'EDGE_LITE_RESOURCE_PROFILE.md'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  smoke:
+    name: Workflow and Script Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install YAML parser dependency
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Validate shell scripts
+        run: |
+          bash -n scripts/extract_byzantine_forensics.sh
+          bash -n scripts/launch_sandbox.sh
+          bash -n scripts/quantum_kex_rotation_drill.sh
+
+      - name: Validate workflow YAML syntax
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import yaml
+
+          files = [
+              pathlib.Path('.github/workflows/byzantine-forensics-weekly.yml'),
+              pathlib.Path('.github/workflows/forensics-automation-smoke.yml'),
+          ]
+          for p in files:
+              with p.open('r', encoding='utf-8') as f:
+                  yaml.safe_load(f)
+              print(f'YAML parse OK: {p}')
+          PY
+
+      - name: Validate Make targets resolve
+        run: |
+          make -n sandbox-up >/tmp/make_sandbox_up.txt
+          make -n sandbox-down >/tmp/make_sandbox_down.txt
+          make -n forensics-drill >/tmp/make_forensics_drill.txt
+          make -n forensics-drill-down >/tmp/make_forensics_drill_down.txt
+
+      - name: Upload smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensics-automation-smoke
+          path: |
+            /tmp/make_sandbox_up.txt
+            /tmp/make_sandbox_down.txt
+            /tmp/make_forensics_drill.txt
+            /tmp/make_forensics_drill_down.txt

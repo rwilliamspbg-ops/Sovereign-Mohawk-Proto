@@ -1,0 +1,109 @@
+# Mini-Mohawk sandbox profile.
+# Launches a small local topology for researchers:
+# - orchestrator
+# - shard-us-east
+# - node-agent-1
+# - node-agent-2
+# - ipfs
+# - runtime-secrets-init
+#
+# Usage:
+#   docker compose -f docker-compose.sandbox.yml up -d --build
+
+services:
+  runtime-secrets-init:
+    extends:
+      file: docker-compose.yml
+      service: runtime-secrets-init
+
+  ipfs:
+    extends:
+      file: docker-compose.yml
+      service: ipfs
+
+  orchestrator:
+    extends:
+      file: docker-compose.yml
+      service: orchestrator
+    depends_on:
+      runtime-secrets-init:
+        condition: service_completed_successfully
+      wasm-hello-world-build:
+        condition: service_completed_successfully
+
+  shard-us-east:
+    extends:
+      file: docker-compose.yml
+      service: shard-us-east
+
+  node-agent-1:
+    extends:
+      file: docker-compose.yml
+      service: node-agent-1
+    environment:
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
+      - NODE_ID=sandbox-node-1
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4001
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
+      - MOHAWK_SUPERVISOR_INTERVAL_SECONDS=${MOHAWK_SUPERVISOR_INTERVAL_SECONDS:-45}
+      - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+    volumes:
+      - .:/workspace
+      - ./runtime-secrets:/run/secrets:ro
+
+  node-agent-2:
+    extends:
+      file: docker-compose.yml
+      service: node-agent-2
+    environment:
+      - ORCHESTRATOR_URL=https://orchestrator:8080
+      - ORCHESTRATOR_SERVER_NAME=orchestrator
+      - NODE_ID=sandbox-node-2
+      - IPFS_API_ENDPOINT=http://ipfs:5001
+      - MOHAWK_LIBP2P_PORT=4002
+      - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
+      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_API_AUTH_MODE=file-only
+      - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
+      - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
+      - MOHAWK_SUPERVISOR_INTERVAL_SECONDS=${MOHAWK_SUPERVISOR_INTERVAL_SECONDS:-45}
+      - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+    volumes:
+      - .:/workspace
+      - ./runtime-secrets:/run/secrets:ro
+
+  wasm-hello-world-build:
+    image: rust:1.76
+    container_name: wasm-hello-world-build
+    working_dir: /workspace/wasm-modules/fl_task
+    command:
+      - /bin/bash
+      - -lc
+      - |
+        set -e
+        if command -v rustup >/dev/null 2>&1; then
+          rustup target add wasm32-unknown-unknown >/dev/null 2>&1 || true
+        fi
+        if cargo build --release --target wasm32-unknown-unknown; then
+          exit 0
+        fi
+        echo "warning: wasm32 target build unavailable; generating minimal wasm fallback artifact"
+        mkdir -p target/wasm32-unknown-unknown/release
+        printf '\x00\x61\x73\x6d\x01\x00\x00\x00' > target/wasm32-unknown-unknown/release/fl_task.wasm
+    volumes:
+      - .:/workspace
+    restart: "no"
+
+networks:
+  mohawk-net:
+    driver: bridge

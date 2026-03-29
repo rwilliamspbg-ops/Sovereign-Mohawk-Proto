@@ -1,0 +1,68 @@
+🧪 Running compact forensics rehearsal (drill + cleanup)...
+make[1]: Entering directory '/workspaces/Sovereign-Mohawk-Proto'
+🔎 Running local Byzantine forensics drill...
+./scripts/launch_sandbox.sh --no-build || ./scripts/launch_sandbox.sh
+ Network sovereign-mohawk-proto_mohawk-net  Creating
+ Network sovereign-mohawk-proto_mohawk-net  Created
+ Network sovereign-mohawk-proto_default  Creating
+ Network sovereign-mohawk-proto_default  Created
+ Container wasm-hello-world-build  Creating
+ Container runtime-secrets-init  Creating
+ Container runtime-secrets-init  Created
+ Container wasm-hello-world-build  Created
+ Container wasm-hello-world-build  Starting
+ Container runtime-secrets-init  Starting
+ Container runtime-secrets-init  Started
+ Container wasm-hello-world-build  Started
+ Container ipfs  Creating
+ Container runtime-secrets-init  Running
+ Container orchestrator  Creating
+ Container orchestrator  Created
+ Container ipfs  Created
+ Container shard-us-east  Creating
+ Container node-agent-1  Creating
+ Container node-agent-2  Creating
+ Container shard-us-east  Created
+ Container node-agent-1  Created
+ Container node-agent-2  Created
+ Container ipfs  Starting
+ Container wasm-hello-world-build  Starting
+ Container ipfs  Started
+ Container wasm-hello-world-build  Started
+ Container runtime-secrets-init  Waiting
+ Container wasm-hello-world-build  Waiting
+ Container wasm-hello-world-build  Exited
+ Container runtime-secrets-init  Exited
+ Container orchestrator  Starting
+ Container orchestrator  Started
+ Container runtime-secrets-init  Waiting
+ Container ipfs  Waiting
+ Container orchestrator  Waiting
+ Container ipfs  Waiting
+ Container orchestrator  Waiting
+ Container runtime-secrets-init  Waiting
+ Container orchestrator  Waiting
+ Container runtime-secrets-init  Exited
+ Container ipfs  Healthy
+ Container ipfs  Healthy
+ Container runtime-secrets-init  Exited
+ Container orchestrator  Healthy
+ Container orchestrator  Healthy
+ Container shard-us-east  Starting
+ Container node-agent-2  Starting
+ Container orchestrator  Healthy
+ Container node-agent-1  Starting
+ Container node-agent-2  Started
+ Container shard-us-east  Started
+ Container node-agent-1  Started
+Mini-Mohawk sandbox is running
+Services: orchestrator, shard-us-east, node-agent-1, node-agent-2, ipfs
+Use: docker compose -f docker-compose.sandbox.yml ps
+bash scripts/extract_byzantine_forensics.sh --since 15m --output results/forensics/byzantine_rejections_local.md --metrics-json results/forensics/byzantine_forensics_metrics_local.json
+forensics metrics written to results/forensics/byzantine_forensics_metrics_local.json
+forensics report written to results/forensics/byzantine_rejections_local.md
+✅ Forensics artifacts:
+   - results/forensics/byzantine_rejections_local.md
+   - results/forensics/byzantine_forensics_metrics_local.json
+make[1]: Leaving directory '/workspaces/Sovereign-Mohawk-Proto'
+✅ Forensics rehearsal complete (sandbox cleaned up).

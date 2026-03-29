@@ -24,6 +24,53 @@ This runbook covers production operations for the Sovereign Mohawk protocol stac
    - Strict production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode strict`
    - Advisory non-production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode advisory`
 
+## Day 2 Recovery Drills
+
+### Quantum KEX Rotation Drill (No Global Drop)
+
+Run staged KEX policy rotation with rolling restarts:
+
+1. Dry run:
+   - `bash scripts/quantum_kex_rotation_drill.sh --mode x25519-mlkem768-hybrid --dry-run`
+2. Execute rolling drill:
+   - `bash scripts/quantum_kex_rotation_drill.sh --mode x25519-mlkem768-hybrid`
+3. Optional custom order:
+   - `bash scripts/quantum_kex_rotation_drill.sh --services node-agent-1,node-agent-2,node-agent-3,orchestrator`
+
+Operational notes:
+
+- Keep restarts one service at a time.
+- Watch gradient failure ratio during rotation to ensure aggregate availability remains within SLO.
+- If mismatch rejections spike, complete remaining restarts quickly to converge all services on one KEX mode.
+
+### Byzantine Forensics Extraction Drill
+
+Generate an auditable report of rejected gradient submissions:
+
+1. Capture the last 30 minutes:
+   - `bash scripts/extract_byzantine_forensics.sh --since 30m`
+2. Capture a longer window with explicit output path:
+   - `bash scripts/extract_byzantine_forensics.sh --since 2h --output results/forensics/byzantine_rejections_2h.md`
+3. Correlate with resilience metrics:
+   - `curl -sfG http://localhost:9090/api/v1/query --data-urlencode 'query=min_over_time(mohawk_consensus_honest_ratio[10m])' | jq '.'`
+
+Threat-intel workflow:
+
+- Attach report output from `results/forensics/` to the incident issue.
+- Compare rejection categories (mode mismatch, unsupported mode, submission errors) against expected adversarial budget.
+- Escalate to SEV-1 if rejection trends coincide with sustained honest-ratio threshold breaches.
+
+### Byzantine Rejection Triage Matrix
+
+| Rejection Signal | Primary Owner | First Action | Escalation Trigger |
+| --- | --- | --- | --- |
+| `accepted=false` | Runtime owner | Pull top rejection lines and correlate with round/task IDs | > threshold in two consecutive runs |
+| `KEX mismatch` / `unsupported kex mode` | Platform owner | Run `scripts/quantum_kex_rotation_drill.sh` and normalize transport mode | Persistent mismatch after completed rolling convergence |
+| `submission failed` | Runtime + Platform | Inspect node-agent connectivity, orchestrator stream handler logs, and relay path | Failure ratio remains elevated for >10m |
+| `kex public key bytes mismatch` | Security owner | Validate negotiated mode key-size expectations and recent policy changes | Any recurrence after policy rollback |
+
+Use this matrix with `results/forensics/byzantine_forensics_delta.md` to classify whether drift is policy/config, transport, or adversarial.
+
 ## Observability v2 Validation
 
 Run this after Prometheus/Grafana changes or before release sign-off.
@@ -237,3 +284,22 @@ Accepted PQC algorithm aliases currently include `ml-dsa`, `ml-dsa-44`, `ml-dsa-
 - `test/utility_coin_durability_test.go`
 - `internal/token/ledger.go`
 - `internal/pyapi/api.go`
+- `HARDWARE_COMPATIBILITY.md`
+- `EDGE_LITE_RESOURCE_PROFILE.md`
+- `COMPLIANCE_MAPPING.md`
+
+## Artifact Retention Policy
+
+Recommended retention windows:
+
+1. Routine forensics runs (`results/forensics/byzantine_rejections_*.md`, metrics JSON):
+   - Keep workflow artifacts for at least 30 days.
+2. Release-signoff evidence (`results/go-live/**`, strict host and TPM closure reports):
+   - Keep for at least 1 year or per organizational compliance policy.
+3. Incident-linked forensic reports:
+   - Keep for the full incident record lifetime and legal hold windows.
+
+Archival guidance:
+
+- Upload finalized evidence bundles to immutable storage with release/incident identifiers.
+- Keep checksums for archived bundles and link them from incident tickets.

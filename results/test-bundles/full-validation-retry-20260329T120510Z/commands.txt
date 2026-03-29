@@ -1,0 +1,5 @@
+make lint
+make verify
+make test-python-sdk
+make forensics-rehearsal
+make golden-path-e2e

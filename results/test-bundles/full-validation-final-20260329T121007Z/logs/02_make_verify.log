@@ -1,0 +1,37 @@
+🧹 Running local linting checks...
+bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
+bash -c 'source scripts/ensure_go_toolchain.sh && go vet ./...'
+🧪 Running Proof-Driven Design tests...
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/aggregator	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/api-dashboard	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/fl-aggregator	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/node-agent	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/orchestrator	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/pyapi-metrics-exporter	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/simulate	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/cmd/tpm-metrics	[no test files]
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	(cached)
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/bridge	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/crypto	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hybrid	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/ipfs	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs	[no test files]
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	(cached)
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token	[no test files]
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm	(cached)
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/wasmhost	[no test files]
+?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/scripts	[no test files]
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test	(cached)
+🔍 Running Security Audit...
+chmod +x scripts/audit_proofs.sh
+./scripts/audit_proofs.sh
+🔍 Starting Security Audit...
+⚠️  WARNING: Proofs are from a previous date (2026-03-14). Consider rerunning tests.
+✅ AUDIT PASSED: All formal proofs are present and valid.
+✅ All Formal Proofs and Lints PASSED.

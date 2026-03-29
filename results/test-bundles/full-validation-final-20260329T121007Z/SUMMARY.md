@@ -1,0 +1,12 @@
+# Full Validation Final Summary
+
+| Command | Exit Code | Duration (s) |
+| --- | ---: | ---: |
+| 01_make_lint | 0 | 5 |
+| 02_make_verify | 0 | 3 |
+| 03_make_test_python_sdk | 0 | 6 |
+| 04_make_forensics_rehearsal | 0 | 14 |
+| 05_make_golden_path_e2e | 0 | 240 |
+
+- Total commands: 5
+- Failures: 0

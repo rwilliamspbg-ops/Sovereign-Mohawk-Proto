@@ -1,0 +1,7 @@
+timestamp_utc=20260329T115940Z
+repo=Sovereign-Mohawk-Proto
+branch=main
+commit=4ae7b891faf9fa04b599c3f223202d7eb8df6137
+go_version=go version go1.25.7 linux/amd64
+python_version=Python 3.12.3
+docker_version=Docker version 28.5.1-1, build e180ab8ab82d22b7895a3e6e110cf6dd5c45f1d7

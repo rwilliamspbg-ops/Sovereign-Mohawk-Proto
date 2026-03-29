@@ -1,0 +1,4 @@
+🧹 Running local linting checks...
+bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
+go: go.mod requires go >= 1.25.7 (running go 1.25.4; GOTOOLCHAIN=local)
+make: *** [Makefile:27: lint] Error 1

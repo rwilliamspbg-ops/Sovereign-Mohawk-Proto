@@ -44,6 +44,28 @@ function Wait-HttpOk {
     return $false
 }
 
+function Get-ComposeServiceImages {
+    param([string[]]$Services)
+
+    $images = & docker compose config --images @Services 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Die "failed to resolve compose image names. Ensure docker compose is available and compose config is valid."
+    }
+
+    return @(
+        $images |
+            ForEach-Object { $_.Trim() } |
+            Where-Object { $_ -match "node-agent-(1|2|3)" }
+    )
+}
+
+function Test-DockerImageExists {
+    param([string]$Image)
+
+    & docker image inspect $Image *> $null
+    return ($LASTEXITCODE -eq 0)
+}
+
 if (-not (Test-Command "docker")) {
     Write-Die "docker is required but not installed"
 }
@@ -130,6 +152,22 @@ if (-not $env:MOHAWK_TPM_IDENTITY_SIG_MODE) {
 $buildFlag = @()
 if ($NoBuild) {
     $buildFlag = @("--no-build")
+
+    $requiredImages = Get-ComposeServiceImages @("node-agent-1", "node-agent-2", "node-agent-3")
+    if ($requiredImages.Count -eq 0) {
+        Write-Die "failed to determine node-agent image names from compose config"
+    }
+    $missingImages = @()
+    foreach ($img in $requiredImages) {
+        if (-not (Test-DockerImageExists $img)) {
+            $missingImages += $img
+        }
+    }
+
+    if ($missingImages.Count -gt 0) {
+        $missingList = ($missingImages | ForEach-Object { " - $_" }) -join "`n"
+        Write-Die "-NoBuild was requested, but required node-agent images are missing:`n$missingList`nBuild once with: docker compose build node-agent-1 node-agent-2 node-agent-3`nOr rerun without -NoBuild."
+    }
 }
 
 & docker compose up -d @buildFlag orchestrator shard-us-east tpm-metrics pyapi-metrics-exporter prometheus grafana ipfs

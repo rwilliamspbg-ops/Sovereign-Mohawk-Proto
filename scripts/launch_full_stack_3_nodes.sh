@@ -61,6 +61,33 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+if [[ -n "$BUILD_FLAG" ]]; then
+  mapfile -t required_images < <("$COMPOSE_CMD" config --images node-agent-1 node-agent-2 node-agent-3 2>/dev/null | sed '/^[[:space:]]*$/d')
+  mapfile -t required_images < <(printf '%s\n' "${required_images[@]}" | grep -E 'node-agent-(1|2|3)' || true)
+
+  if [[ ${#required_images[@]} -eq 0 ]]; then
+    echo "failed to resolve compose image names; check docker compose availability and compose config" >&2
+    exit 1
+  fi
+
+  missing_images=()
+  for image in "${required_images[@]}"; do
+    if ! docker image inspect "$image" >/dev/null 2>&1; then
+      missing_images+=("$image")
+    fi
+  done
+
+  if [[ ${#missing_images[@]} -gt 0 ]]; then
+    {
+      echo "--no-build was requested, but required node-agent images are missing:"
+      printf '  - %s\n' "${missing_images[@]}"
+      echo "Build once with: $COMPOSE_CMD build node-agent-1 node-agent-2 node-agent-3"
+      echo "Or rerun without --no-build."
+    } >&2
+    exit 1
+  fi
+fi
+
 if [[ "$MODE" == "down" ]]; then
   "$COMPOSE_CMD" down
   echo "stack stopped"
