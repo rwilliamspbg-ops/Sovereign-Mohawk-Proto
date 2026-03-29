@@ -17,7 +17,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o aggregator ./cmd/aggregator/main.go
 
 # Stage 2: Final lightweight image
 # Using explicit alpine version (3.20) instead of :latest
-FROM alpine:3.20
+FROM alpine:3.23
 
 # Pin versions for final image runtime dependencies
 RUN apk add --no-cache ca-certificates=20240203-r0
