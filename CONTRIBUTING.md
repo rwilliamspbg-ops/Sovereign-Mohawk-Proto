@@ -1,5 +1,7 @@
 # Contributing to Sovereign Mohawk Protocol (SMP)
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/raBz79CJ)
+
 Thank you for your interest in the **Sovereign Mohawk Protocol**! We are building
 a decentralized spatial operating system where data sovereignty is a right, not
 a feature. By contributing, you are helping scale a coordinator-less,

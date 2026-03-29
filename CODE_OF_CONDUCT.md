@@ -1,14 +1,20 @@
 # Contributor Covenant Code of Conduct
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/raBz79CJ)
+
 ## Our Pledge
+
 We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ## Our Standards
+
 Examples of behavior that contributes to a positive environment include:
+
 * Using welcoming and inclusive language.
 * Being respectful of differing viewpoints and experiences.
 * Gracefully accepting constructive criticism.
 * Focusing on what is best for the community.
 
 ## Enforcement
+
 Responsibilities for clarification of standards of professional behavior and enforcement rest with the project maintainers.
