@@ -120,7 +120,7 @@ jobs:
           sha256sum test-results/docker-images/*.tar > test-results/docker-images/sha256sums.txt
 
       - name: Generate source SBOM
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@v0.24.0
         with:
           format: spdx-json
           output-file: test-results/sbom-source.spdx.json

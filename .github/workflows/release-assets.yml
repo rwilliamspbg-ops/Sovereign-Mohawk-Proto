@@ -55,11 +55,10 @@ jobs:
             --output-json release-assets/benchmarks/accelerator_backend_compare.json
 
       - name: Generate source SBOM
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@v0.24.0
         with:
           format: spdx-json
           output-file: release-assets/sbom-source.spdx.json
-
       - name: Package npm artifacts (if present)
         run: |
           mkdir -p release-assets/npm
@@ -145,12 +144,11 @@ jobs:
             .
 
       - name: Generate container image SBOM
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@v0.24.0
         with:
           image: ghcr.io/${{ github.repository_owner }}/sovereign-mohawk-${{ matrix.image_name }}:${{ github.ref_name }}
           format: spdx-json
           output-file: release-assets/docker/sbom-${{ matrix.image_name }}.spdx.json
-
       - name: Write digest metadata
         run: |
           printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
