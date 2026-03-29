@@ -5,6 +5,12 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+    inputs:
+      dry_run_only:
+        description: "Skip GitHub Release publish and only validate build/artifact outputs"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -90,6 +96,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: release-prep-assets
+          retention-days: 30
           path: release-assets/
 
   build-and-push-release-images:
@@ -152,14 +159,53 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: docker-release-assets-${{ matrix.image_name }}
+          retention-days: 30
           path: release-assets/docker/
 
-  publish-release:
-    if: startsWith(github.ref, 'refs/tags/')
+  validate-release-bundle:
+    name: Validate Release Bundle Dry Run
     runs-on: ubuntu-latest
     needs:
       - prepare-release-assets
       - build-and-push-release-images
+    steps:
+      - name: Download release prep assets
+        uses: actions/download-artifact@v8
+        with:
+          name: release-prep-assets
+          path: release-assets
+
+      - name: Download docker release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: docker-release-assets-*
+          path: release-assets/docker
+          merge-multiple: true
+
+      - name: Validate expected release files
+        run: |
+          set -euo pipefail
+          required=(
+            "release-assets/benchmarks/bridge_compression_benchmark_compare.md"
+            "release-assets/benchmarks/fedavg_benchmark_compare.md"
+            "release-assets/benchmarks/accelerator_backend_compare.md"
+            "release-assets/sbom-source.spdx.json"
+            "release-assets/sovereign-map-testnet.tar.gz"
+          )
+          for path in "${required[@]}"; do
+            if [ ! -s "$path" ]; then
+              echo "Missing expected release asset: $path"
+              exit 1
+            fi
+          done
+
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || inputs.dry_run_only != true)
+    runs-on: ubuntu-latest
+    needs:
+      - prepare-release-assets
+      - build-and-push-release-images
+      - validate-release-bundle
     steps:
       - name: Download release prep assets
         uses: actions/download-artifact@v8

@@ -1,0 +1,89 @@
+name: Update Release Performance Badge
+
+on:
+  workflow_run:
+    workflows: ["Release Performance Evidence"]
+    types: [completed]
+  schedule:
+    - cron: "15 */12 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  update-badge:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Compute latest release performance runtime badge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          run_json="$(gh api repos/${GITHUB_REPOSITORY}/actions/workflows/release-performance-evidence.yml/runs -f status=completed -f conclusion=success -f per_page=1)"
+          created_at="$(echo "$run_json" | jq -r '.workflow_runs[0].created_at')"
+          updated_at="$(echo "$run_json" | jq -r '.workflow_runs[0].updated_at')"
+
+          if [ "$created_at" = "null" ] || [ "$updated_at" = "null" ]; then
+            echo "No completed successful runs found for release-performance-evidence workflow."
+            exit 0
+          fi
+
+          CREATED_AT="$created_at" UPDATED_AT="$updated_at" python3 - <<'PY'
+          from datetime import datetime
+          import json
+          from pathlib import Path
+          import os
+
+          created = datetime.fromisoformat(os.environ["CREATED_AT"].replace("Z", "+00:00"))
+          updated = datetime.fromisoformat(os.environ["UPDATED_AT"].replace("Z", "+00:00"))
+          seconds = max(0, int((updated - created).total_seconds()))
+          mins, secs = divmod(seconds, 60)
+          message = f"{mins}m {secs}s"
+
+          if seconds <= 90:
+              color = "2ea043"
+          elif seconds <= 180:
+              color = "d29922"
+          else:
+              color = "d73a49"
+
+          payload = {
+              "schemaVersion": 1,
+              "label": "Latest Release Performance Gate",
+              "message": message,
+              "color": color,
+          }
+
+          out = Path("results/metrics/latest_release_performance_badge.json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(f"badge message: {message}")
+          PY
+
+      - name: Ensure README badge points to dynamic endpoint
+        run: |
+          set -euo pipefail
+          perl -0pi -e 's|\[!\[Latest Release Performance Gate:[^\]]*\]\([^\)]*\)\]\([^\)]*\)|[![Latest Release Performance Gate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)|g' README.md
+
+      - name: Commit badge update if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- results/metrics/latest_release_performance_badge.json README.md; then
+            echo "No badge update needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/metrics/latest_release_performance_badge.json README.md
+          git commit -m "docs: refresh release performance gate badge"
+          git push

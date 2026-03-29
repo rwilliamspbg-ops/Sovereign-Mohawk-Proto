@@ -27,7 +27,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 [![Mainnet Chaos Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml)
 [![Weekly Readiness Digest](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml)
 [![Release Assets and Images](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml)
-[![Latest Release Performance Gate: 1m 2s](https://img.shields.io/badge/Latest%20Release%20Performance%20Gate-1m%202s-2ea043)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
+[![Latest Release Performance Gate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
 
 ![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
 ![Python SDK v2](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
@@ -734,6 +734,13 @@ All production-grade safety requirements are verified on every push:
 * **Byzantine Forensics Weekly:** Runs Mini-Mohawk sandbox, extracts rejected-gradient forensics report, computes baseline deltas, and publishes artifacts.
 * **Byzantine Forensics Daily Short-Run:** Lightweight daily window with stricter alert threshold for faster anomaly detection.
 * **Forensics Automation Smoke:** Pull-request guard for forensics scripts/workflows and Make target command resolution.
+
+Quick green-board verification command:
+
+```bash
+gh run list --limit 20 --json workflowName,conclusion,status \
+| jq -r '.[] | "\(.workflowName): \(.status)/\(.conclusion // "in_progress")"'
+```
 
 Optional issue-routing variables for forensics threshold breaches:
 
