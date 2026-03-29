@@ -134,7 +134,9 @@ def write_markdown(path: Path, rows: list[dict[str, object]]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build CPU/GPU/NPU benchmark comparison artifacts.")
+    parser = argparse.ArgumentParser(
+        description="Build CPU/GPU/NPU benchmark comparison artifacts."
+    )
     parser.add_argument(
         "--output-md",
         default="results/metrics/accelerator_backend_compare.md",
