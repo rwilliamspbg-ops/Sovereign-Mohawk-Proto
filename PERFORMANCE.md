@@ -120,8 +120,11 @@ done
 
 ```bash
 BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md \
+BENCH_COUNT=5 BENCHSTAT_ALPHA=0.01 \
 ./scripts/benchmark_bridge_compression_compare.sh
 ```
+
+This benchmark report compares JSON vs zero-copy serialization formats on the same commit. It is not a base-ref regression report.
 
 ## CI Artifacts
 
@@ -133,6 +136,8 @@ BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compar
 - Bridge compression comparison artifacts:
   - `results/metrics/bridge_compression_benchmark_compare.md`
   - `results/metrics/bridge_compression_benchmark_raw.txt`
+  - PR regression artifact: `results/metrics/bridge_compression_regression_compare.md`
+  - Baseline source in CI: cached `main` raw benchmark output (`bridge-main-*` cache key prefix) and artifact `bridge-baseline-main`
 - Extended live stress capture artifacts:
   - `results/metrics/stress_metrics_capture_10m.json`
   - `results/metrics/stress_metrics_capture_10m.md`

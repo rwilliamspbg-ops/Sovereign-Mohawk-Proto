@@ -76,7 +76,7 @@ func runZeroCopyCompressionPath(fp32 []float32) []byte {
 }
 
 func BenchmarkCompressGradientsJSON(b *testing.B) {
-	for _, dim := range []int{2048, 8192} {
+	for _, dim := range []int{512, 2048, 8192, 16384} {
 		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
 			payload := benchJSONPayload(dim)
 			b.ReportAllocs()
@@ -89,7 +89,7 @@ func BenchmarkCompressGradientsJSON(b *testing.B) {
 }
 
 func BenchmarkCompressGradientsZeroCopy(b *testing.B) {
-	for _, dim := range []int{2048, 8192} {
+	for _, dim := range []int{512, 2048, 8192, 16384} {
 		b.Run(fmt.Sprintf("dim%d", dim), func(b *testing.B) {
 			fp32 := benchGradientFloat32(dim)
 			b.ReportAllocs()

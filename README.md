@@ -706,13 +706,21 @@ Run the bridge compression microbenchmark and generate a comparison report:
 
 ```bash
 BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md \
+BENCH_COUNT=5 BENCHSTAT_ALPHA=0.01 \
 ./scripts/benchmark_bridge_compression_compare.sh
 ```
+
+This report is a JSON-vs-zero-copy format comparison on the same commit, not a base-ref regression diff.
 
 Artifacts:
 
 * `results/metrics/bridge_compression_benchmark_compare.md`
 * `results/metrics/bridge_compression_benchmark_raw.txt`
+
+CI baseline pinning behavior:
+
+* On `main` pushes, workflow `Bridge Compression Benchmark` stores the raw benchmark output as cache (`bridge-main-*`) and uploads `bridge-baseline-main`.
+* On PRs, the same workflow restores the cached main baseline and generates regression evidence in `bridge-compression-regression-report`.
 
 ### Release Performance Evidence Index
 

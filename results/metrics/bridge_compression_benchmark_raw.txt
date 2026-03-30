@@ -2,9 +2,27 @@ goos: linux
 goarch: amd64
 pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi
 cpu: AMD EPYC 7763 64-Core Processor                
-BenchmarkCompressGradientsJSON/dim2048-4         	     420	    590268 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-4         	     100	   2483990 ns/op	  308763 B/op	      27 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-4     	   33289	      7118 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-4     	    8883	     28437 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsJSON/dim512-4         	     358	    177125 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-4         	     344	    167831 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-4        	     104	    641303 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-4        	     100	    706645 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-4        	      25	   2267431 ns/op	  308764 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-4        	      26	   2470003 ns/op	  308764 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-4       	      13	   4459386 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-4       	      12	   5547562 ns/op	  587289 B/op	      29 allocs/op
 PASS
-ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	1.310s
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	0.690s
+goos: linux
+goarch: amd64
+pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkCompressGradientsZeroCopy/dim512-4         	   28219	      2348 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-4         	   22154	      2704 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-4        	    6946	     11952 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-4        	    8970	     11027 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-4        	    1634	     38913 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-4        	    1777	     34047 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-4       	    1130	     55183 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-4       	    1063	     63426 ns/op	   32768 B/op	       1 allocs/op
+PASS
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	0.773s

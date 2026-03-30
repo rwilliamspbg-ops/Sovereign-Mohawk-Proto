@@ -10,7 +10,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  bridge-compression-benchmark:
+  bridge-compression-format-compare:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,10 +21,17 @@ jobs:
         with:
           go-version: "1.25.x"
 
+      - name: Install benchstat
+        run: |
+          go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Run bridge compression comparison
         run: |
           chmod +x scripts/benchmark_bridge_compression_compare.sh
           BENCH_TIME="200ms" \
+          BENCH_COUNT="5" \
+          BENCHSTAT_ALPHA="0.01" \
           USE_DOCKER="0" \
           REPORT_PATH="results/metrics/bridge_compression_benchmark_compare.md" \
           RAW_PATH="results/metrics/bridge_compression_benchmark_raw.txt" \
@@ -34,7 +41,102 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: bridge-compression-benchmark-report
+          name: bridge-compression-format-artifacts
           path: |
             results/metrics/bridge_compression_benchmark_compare.md
             results/metrics/bridge_compression_benchmark_raw.txt
+
+  bridge-baseline-main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: bridge-compression-format-compare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download bridge format artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: bridge-compression-format-artifacts
+          path: .benchmarks/bridge/current_artifacts
+
+      - name: Save bridge benchmark baseline file
+        run: |
+          mkdir -p .benchmarks/bridge
+          cp .benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt .benchmarks/bridge/base_main_raw.txt
+
+      - name: Save baseline in GitHub Actions cache
+        uses: actions/cache/save@v4
+        with:
+          path: .benchmarks/bridge/base_main_raw.txt
+          key: bridge-main-${{ github.sha }}
+
+      - name: Upload bridge baseline artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: bridge-baseline-main
+          path: .benchmarks/bridge/base_main_raw.txt
+
+  bridge-regression-compare:
+    if: github.event_name == 'pull_request'
+    needs: bridge-compression-format-compare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.x"
+
+      - name: Install benchstat
+        run: |
+          go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Download bridge format artifacts
+        uses: actions/download-artifact@v6
+        with:
+          name: bridge-compression-format-artifacts
+          path: .benchmarks/bridge/current_artifacts
+
+      - name: Restore bridge baseline cache from main
+        uses: actions/cache/restore@v4
+        with:
+          path: .benchmarks/bridge/base_main_raw.txt
+          key: bridge-main-${{ github.sha }}
+          restore-keys: |
+            bridge-main-
+
+      - name: Require cached bridge baseline
+        run: |
+          if [ ! -s .benchmarks/bridge/base_main_raw.txt ]; then
+            echo "error: missing cached bridge baseline from main"
+            echo "hint: run this workflow on main to seed bridge-main-* cache"
+            exit 1
+          fi
+
+      - name: Build bridge regression report
+        run: |
+          mkdir -p results/metrics
+          CURRENT_RAW=.benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt
+          {
+            echo "# Bridge Compression Regression Compare"
+            echo
+            echo "- Baseline source: cached main benchmark"
+            echo "- Baseline cache key prefix: bridge-main-"
+            echo "- PR ref: ${{ github.head_ref }}"
+            echo "- Alpha: 0.01"
+            echo
+            echo '```text'
+            benchstat -alpha 0.01 .benchmarks/bridge/base_main_raw.txt "$CURRENT_RAW"
+            echo '```'
+          } > results/metrics/bridge_compression_regression_compare.md
+
+      - name: Upload bridge regression artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bridge-compression-regression-report
+          path: |
+            results/metrics/bridge_compression_regression_compare.md
+            .benchmarks/bridge/base_main_raw.txt
+            .benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt
