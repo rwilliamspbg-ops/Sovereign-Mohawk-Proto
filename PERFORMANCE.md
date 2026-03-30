@@ -85,10 +85,13 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 
 ```bash
 TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
-BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 \
+BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
+USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 ./scripts/benchmark_fedavg_compare.sh
 ```
+
+This enforces `benchstat` output and uses a stricter significance threshold (`alpha=0.01`).
 
 ### 4. Run extended live stress capture (10-minute scope)
 

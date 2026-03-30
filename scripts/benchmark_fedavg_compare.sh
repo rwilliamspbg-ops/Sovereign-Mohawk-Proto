@@ -5,10 +5,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASE_REF="${BASE_REF:-HEAD~1}"
 BENCH_TIME="${BENCH_TIME:-200ms}"
-BENCH_COUNT="${BENCH_COUNT:-1}"
+BENCH_COUNT="${BENCH_COUNT:-10}"
 GO_TEST_TARGET="${GO_TEST_TARGET:-./test}"
 BENCH_REGEX="${BENCH_REGEX:-BenchmarkAggregateParallel}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/fedavg_benchmark_compare.md}"
+BENCHSTAT_ALPHA="${BENCHSTAT_ALPHA:-0.01}"
+USE_BENCHSTAT="${USE_BENCHSTAT:-always}"
 
 if [[ -n "${TOOLROOT:-}" ]]; then
   export GOROOT="$TOOLROOT"
@@ -49,54 +51,83 @@ run_bench() {
 run_bench "$BASE_WORKTREE" "$BASE_OUT"
 run_bench "$ROOT_DIR" "$CURR_OUT"
 
-aggregate_bench_ns() {
-  local in_file="$1"
-  local out_file="$2"
-  awk '
-    /^BenchmarkAggregateParallel\// {
-      sum[$1] += $3
-      cnt[$1] += 1
-    }
-    END {
-      for (k in sum) {
-        printf "%s\t%.0f\n", k, (sum[k] / cnt[k])
-      }
-    }
-  ' "$in_file" | sort > "$out_file"
-}
-
-aggregate_bench_ns "$BASE_OUT" "$BASE_TSV"
-aggregate_bench_ns "$CURR_OUT" "$CURR_TSV"
-
-join -t $'\t' -a1 -a2 -e "NA" -o 0,1.2,2.2 "$BASE_TSV" "$CURR_TSV" > "$JOINED_TSV" || true
-
 mkdir -p "$(dirname "$ROOT_DIR/$REPORT_PATH")"
 
-{
-  echo "# FedAvg Benchmark Comparison"
-  echo
-  echo "- Base ref: $BASE_REF"
-  echo "- Benchtime: $BENCH_TIME"
-  echo "- Count: $BENCH_COUNT"
-  echo "- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-  echo
-  echo "| Benchmark | Base ns/op | Current ns/op | Speedup (x) | Delta % |"
-  echo "|---|---:|---:|---:|---:|"
-
-  if [[ ! -s "$JOINED_TSV" ]]; then
-    echo "| (no benchmark rows found) | - | - | - | - |"
-  else
-    while IFS=$'\t' read -r name base_ns curr_ns; do
-      if [[ "$base_ns" == "NA" || "$curr_ns" == "NA" ]]; then
-        speedup="-"
-        delta="-"
-      else
-        speedup="$(awk -v b="$base_ns" -v c="$curr_ns" 'BEGIN { if (c == 0) { print "inf" } else { printf "%.2f", b/c } }')"
-        delta="$(awk -v b="$base_ns" -v c="$curr_ns" 'BEGIN { if (b == 0) { print "0.00" } else { printf "%.2f", ((c-b)/b)*100 } }')"
-      fi
-      echo "| $name | $base_ns | $curr_ns | $speedup | $delta |"
-    done < "$JOINED_TSV"
+can_use_benchstat=false
+if [[ "$USE_BENCHSTAT" == "always" ]]; then
+  if ! command -v benchstat >/dev/null 2>&1; then
+    echo "error: USE_BENCHSTAT=always but 'benchstat' was not found in PATH"
+    exit 1
   fi
-} > "$ROOT_DIR/$REPORT_PATH"
+  can_use_benchstat=true
+elif [[ "$USE_BENCHSTAT" == "never" ]]; then
+  can_use_benchstat=false
+elif command -v benchstat >/dev/null 2>&1; then
+  can_use_benchstat=true
+fi
+
+if [[ "$can_use_benchstat" == "true" ]]; then
+  {
+    echo "# FedAvg Benchmark Comparison"
+    echo
+    echo "- Base ref: $BASE_REF"
+    echo "- Benchtime: $BENCH_TIME"
+    echo "- Count: $BENCH_COUNT"
+    echo "- Tool: benchstat (alpha=$BENCHSTAT_ALPHA)"
+    echo "- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo
+    echo '```text'
+    benchstat -alpha "$BENCHSTAT_ALPHA" "$BASE_OUT" "$CURR_OUT"
+    echo '```'
+  } > "$ROOT_DIR/$REPORT_PATH"
+else
+  aggregate_bench_ns() {
+    local in_file="$1"
+    local out_file="$2"
+    awk '
+      /^BenchmarkAggregateParallel\// {
+        sum[$1] += $3
+        cnt[$1] += 1
+      }
+      END {
+        for (k in sum) {
+          printf "%s\t%.0f\n", k, (sum[k] / cnt[k])
+        }
+      }
+    ' "$in_file" | sort > "$out_file"
+  }
+
+  aggregate_bench_ns "$BASE_OUT" "$BASE_TSV"
+  aggregate_bench_ns "$CURR_OUT" "$CURR_TSV"
+  join -t $'\t' -a1 -a2 -e "NA" -o 0,1.2,2.2 "$BASE_TSV" "$CURR_TSV" > "$JOINED_TSV" || true
+
+  {
+    echo "# FedAvg Benchmark Comparison"
+    echo
+    echo "- Base ref: $BASE_REF"
+    echo "- Benchtime: $BENCH_TIME"
+    echo "- Count: $BENCH_COUNT"
+    echo "- Tool: fallback (mean ns/op table)"
+    echo "- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo
+    echo "| Benchmark | Base ns/op | Current ns/op | Speedup (x) | Delta % |"
+    echo "|---|---:|---:|---:|---:|"
+
+    if [[ ! -s "$JOINED_TSV" ]]; then
+      echo "| (no benchmark rows found) | - | - | - | - |"
+    else
+      while IFS=$'\t' read -r name base_ns curr_ns; do
+        if [[ "$base_ns" == "NA" || "$curr_ns" == "NA" ]]; then
+          speedup="-"
+          delta="-"
+        else
+          speedup="$(awk -v b="$base_ns" -v c="$curr_ns" 'BEGIN { if (c == 0) { print "inf" } else { printf "%.2f", b/c } }')"
+          delta="$(awk -v b="$base_ns" -v c="$curr_ns" 'BEGIN { if (b == 0) { print "0.00" } else { printf "%.2f", ((c-b)/b)*100 } }')"
+        fi
+        echo "| $name | $base_ns | $curr_ns | $speedup | $delta |"
+      done < "$JOINED_TSV"
+    fi
+  } > "$ROOT_DIR/$REPORT_PATH"
+fi
 
 echo "wrote benchmark comparison report to $REPORT_PATH"
