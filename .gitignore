@@ -3,3 +3,7 @@ libmohawk.so
 libmohawk.h
 runtime-secrets/
 data/
+
+# Python cache artifacts
+__pycache__/
+*.pyc
