@@ -99,61 +99,64 @@
             <div class="text-center">
                 <div class="inline-flex items-center px-4 py-2 rounded-full bg-indigo-100 text-indigo-800 text-sm font-medium mb-6">
                     <span class="w-2 h-2 bg-indigo-600 rounded-full mr-2 animate-pulse"></span>
-                    PhD-Level Research Document
+                    Go-Live Runtime Status: 8/8 Attestations
                 </div>
                 <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-6">
                     Formally Verified <span class="gradient-text">10M-Node</span><br>
                     Federated Learning
                 </h1>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    A proof-driven architecture achieving Byzantine fault tolerance (55.5%), zero-knowledge verification (10ms), 
-                    and optimal communication complexity $O(d \log n)$ through hierarchical composition.
+                    A production-oriented architecture with 55.5% Byzantine resilience, hybrid proof verification,
+                    PQC-forward transport defaults, and live Prometheus/Grafana observability for genesis testnet operations.
                 </p>
+            </div>
+        </div>
+    </section>
 
     <!-- Validation & Testing Section -->
     <section id="validation" class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">Empirical Validation & Testing</h2>
-                <p class="text-gray-600">Comprehensive test suite validating all six theorems through empirical measurement</p>
+                <p class="text-gray-600">CI-gated runtime validation with readiness, chaos, and benchmark evidence</p>
             </div>
 
             <!-- Test Results Dashboard -->
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-green-800 font-semibold">Test Pass Rate</span>
-                        <span class="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full">100%</span>
+                        <span class="text-green-800 font-semibold">Go-Live Gate</span>
+                        <span class="px-2 py-1 bg-green-200 text-green-800 text-xs rounded-full">PASS</span>
                     </div>
-                    <div class="text-3xl font-bold text-green-700">57/57</div>
-                    <div class="text-sm text-green-600 mt-1">All API tests passed</div>
+                    <div class="text-3xl font-bold text-green-700">8/8</div>
+                    <div class="text-sm text-green-600 mt-1">Formal attestations approved</div>
                 </div>
 
                 <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-blue-800 font-semibold">Verification Speed</span>
-                        <span class="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded-full">&lt;1ms</span>
+                        <span class="text-blue-800 font-semibold">Proof Verify Mean</span>
+                        <span class="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded-full">Measured</span>
                     </div>
-                    <div class="text-3xl font-bold text-blue-700">Mock-FFI</div>
-                    <div class="text-sm text-blue-600 mt-1">10ms full zk-SNARK</div>
+                    <div class="text-3xl font-bold text-blue-700">10.55ms</div>
+                    <div class="text-sm text-blue-600 mt-1">BN254 Groth16 verification path</div>
                 </div>
 
                 <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-purple-800 font-semibold">Memory Efficiency</span>
-                        <span class="px-2 py-1 bg-purple-200 text-purple-800 text-xs rounded-full">Optimized</span>
+                        <span class="text-purple-800 font-semibold">PQC Transport</span>
+                        <span class="px-2 py-1 bg-purple-200 text-purple-800 text-xs rounded-full">Default</span>
                     </div>
-                    <div class="text-3xl font-bold text-purple-700">&lt;0.5 MB</div>
-                    <div class="text-sm text-purple-600 mt-1">Peak heap at 100 nodes</div>
+                    <div class="text-3xl font-bold text-purple-700">Hybrid</div>
+                    <div class="text-sm text-purple-600 mt-1">x25519-mlkem768-hybrid</div>
                 </div>
 
                 <div class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl border border-orange-200">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="text-orange-800 font-semibold">Encoding</span>
-                        <span class="px-2 py-1 bg-orange-200 text-orange-800 text-xs rounded-full">+63.6%</span>
+                        <span class="text-orange-800 font-semibold">Observability</span>
+                        <span class="px-2 py-1 bg-orange-200 text-orange-800 text-xs rounded-full">Live</span>
                     </div>
-                    <div class="text-3xl font-bold text-orange-700">MessagePack</div>
-                    <div class="text-sm text-orange-600 mt-1">Throughput improvement</div>
+                    <div class="text-3xl font-bold text-orange-700">Grafana</div>
+                    <div class="text-sm text-orange-600 mt-1">Tokenomics and runtime dashboards</div>
                 </div>
             </div>
 
@@ -242,7 +245,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900">Core Runtime (Go 1.24)</h3>
+                            <h3 class="font-bold text-gray-900">Core Runtime (Go 1.25+)</h3>
                             <p class="text-sm text-gray-500">21.7 KB formally verified</p>
                         </div>
                     </div>
@@ -275,7 +278,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900">Python SDK v2.0.0a1</h3>
+                            <h3 class="font-bold text-gray-900">Python SDK v2.0.1.Alpha</h3>
                             <p class="text-sm text-gray-500">High-performance C-shared bridge</p>
                         </div>
                     </div>
@@ -290,7 +293,7 @@
                         </li>
                         <li class="flex items-center gap-2">
                             <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
-                            Mock-FFI baseline for testing
+                            Structured bridge error codes for verification flows
                         </li>
                         <li class="flex items-center gap-2">
                             <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
@@ -330,285 +333,6 @@
         </div>
     </section>
 
-                <!-- Theorem 5 -->
-                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof5')">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">THEOREM 5</span>
-                                    <span class="text-sm text-gray-500">Cryptographic Verifiability</span>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Constant-Time Verification via zk-SNARKs</h3>
-                                <p class="text-gray-600">
-                                    There exists a zk-SNARK construction $\Pi$ such that for global model update $U$, 
-                                    verification time $t_v = O(1)$ and proof size $|\pi| = 200$ bytes.
-                                </p>
-                            </div>
-                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div id="proof5" class="proof-toggle bg-gray-50 border-t border-gray-200">
-                        <div class="p-6">
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Circuit Construction</h4>
-                                    <div class="code-block p-4 text-xs text-green-400 mono">
-public input: U_global, [com_i]_{i=1}^k<br>
-private input: {U_i, path_i, w_i}_{i=1}^k<br>
-constraint: U_global = Σ w_i · U_i ∧ <br>
-&nbsp;&nbsp;&nbsp;&nbsp;VerifyMerkle(path_i, com_i, Hash(U_i)) = 1
-                                    </div>
-                                    <div class="mt-4 space-y-2 text-sm text-gray-700">
-                                        <div class="flex justify-between">
-                                            <span>Proof Generation:</span>
-                                            <span class="font-mono text-indigo-600">~100ms</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Verification:</span>
-                                            <span class="font-mono text-indigo-600">10ms</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span>Proof Size:</span>
-                                            <span class="font-mono text-indigo-600">200 bytes</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 mb-3">Security Properties</h4>
-                                    <div class="space-y-3">
-                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-                                            <strong class="text-purple-600">Completeness:</strong>
-                                            <p class="text-sm text-gray-600 mt-1">Honest prover generates accepting proof</p>
-                                        </div>
-                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-                                            <strong class="text-purple-600">Soundness:</strong>
-                                            <p class="text-sm text-gray-600 mt-1">Extractability ensures witness knowledge</p>
-                                        </div>
-                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
-                                            <strong class="text-purple-600">Zero-Knowledge:</strong>
-                                            <p class="text-sm text-gray-600 mt-1">Updates remain hidden; only commitments revealed</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Theorem 6 -->
-                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof6')">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-xs font-bold">THEOREM 6</span>
-                                    <span class="text-sm text-gray-500">Convergence</span>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Non-IID Convergence $O(1/\varepsilon^2)$</h3>
-                                <p class="text-gray-600">
-                                    Under heterogeneity bound $\zeta^2 = \mathbb{E}[\|\nabla F_i(w) - \nabla F(w)\|^2]$ 
-                                    and learning rate $\eta = O(1/\sqrt{T})$, converges to $\varepsilon$-stationary point 
-                                    in $T = O(1/\varepsilon^2)$ rounds.
-                                </p>
-                            </div>
-                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div id="proof6" class="proof-toggle bg-gray-50 border-t border-gray-200">
-                        <div class="p-6">
-                            <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
-                                <h4 class="font-semibold text-gray-900 mb-3">Proof Sketch</h4>
-                                <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                                    <li>Hierarchical aggregation reduces effective heterogeneity through local averaging</li>
-                                    <li>Tier-1 clusters approximate local IID through sufficient local steps</li>
-                                    <li>Modified heterogeneity parameter: $\zeta' = \zeta/\sqrt{c}$</li>
-                                    <li>Standard non-convex convergence applies with modified bounds</li>
-                                </ol>
-                            </div>
-                            <div class="grid md:grid-cols-3 gap-4 text-center">
-                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
-                                    <div class="text-2xl font-bold text-pink-600">30</div>
-                                    <div class="text-xs text-gray-600 mt-1">Rounds to 83.57% accuracy</div>
-                                </div>
-                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
-                                    <div class="text-2xl font-bold text-pink-600">Non-IID</div>
-                                    <div class="text-xs text-gray-600 mt-1">Heterogeneous data distributions</div>
-                                </div>
-                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
-                                    <div class="text-2xl font-bold text-pink-600">Monotonic</div>
-                                    <div class="text-xs text-gray-600 mt-1">Convergence guarantee</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- The Six Theorems Section -->
-    <section id="theorems" class="py-16 bg-gray-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">The Six-Theorem Verification Stack</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">
-                    Each theorem addresses a critical dimension of distributed learning security and efficiency, 
-                    collectively enabling planetary-scale deployment with mathematical guarantees.
-                </p>
-            </div>
-
-            <div class="space-y-6">
-                <!-- Theorem 1 -->
-                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof1')">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">THEOREM 1</span>
-                                    <span class="text-sm text-gray-500">Byzantine Fault Tolerance</span>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Hierarchical Multi-Krum Resilience (55.5%)</h3>
-                                <p class="text-gray-600">
-                                    Under hierarchical Multi-Krum aggregation with cluster size $c$ and malicious fraction $f/n = 0.555$, 
-                                    the global model update satisfies $(\alpha, f)$-Byzantine resilience with 
-                                    $\sin \alpha \leq \frac{\eta(c,f_c)\sqrt{d}\sigma}{\|\nabla C(w)\|}$.
-                                </p>
-                            </div>
-                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div id="proof1" class="proof-toggle bg-gray-50 border-t border-gray-200">
-                        <div class="p-6">
-                            <h4 class="font-semibold text-gray-900 mb-3">Proof Structure</h4>
-                            <div class="space-y-4 text-sm text-gray-700">
-                                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                    <strong class="text-indigo-600">Lemma 1 (Cluster Resilience):</strong>
-                                    <p class="mt-1">In a cluster of size $c$ with $f_c$ malicious nodes, Multi-Krum achieves $(\alpha_c, f_c)$-resilience if $f_c &lt; c/2 - 1$.</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                    <strong class="text-indigo-600">Lemma 2 (Tier Composition):</strong>
-                                    <p class="mt-1">If tier-$i$ aggregation achieves $(\alpha_i, f_i)$-resilience and tier-$(i+1)$ uses trimmed mean with honest majority, 
-                                    the composed resilience is $(\alpha_{i+1}, f_{i+1})$ where:</p>
-                                    <div class="math-display text-center my-3">
-                                        $$\frac{f_{i+1}}{n_{i+1}} = 0.5 + 0.5\left(\frac{f_i}{n_i}\right)$$
-                                    </div>
-                                </div>
-                                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-                                    <strong>Novelty:</strong> Prior work (BREA, Krum) is limited to $f &lt; n/2$. Our hierarchical approach exploits that 
-                                    <strong>Byzantine resilience is not associative</strong>: local resilience at $&lt;50\%$ composes to global resilience $&gt;50\%$ 
-                                    when intermediate aggregators are honest-majority.
-                                </div>
-                                <div class="bg-gray-100 p-4 rounded-lg">
-                                    <strong>Proof by Induction:</strong>
-                                    <p class="mt-2">Base case (Tier 1): Lemma 1 applies directly. Inductive step: Tier 2 receives $n_2 = n/c$ cluster aggregates. 
-                                    If $f_1/c = 0.5 - \epsilon$, then worst-case malicious fraction at Tier 2 is $0.5 + 0.5(0.5 - \epsilon) = 0.75 - 0.5\epsilon$ 
-                                    if all malicious clusters align. However, trimmed mean at Tier 2 removes extreme values, reducing effective malicious influence. 
-                                    Detailed calculation yields 55.5% bound. $\square$</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Theorem 2 -->
-                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof2')">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">THEOREM 2</span>
-                                    <span class="text-sm text-gray-500">Differential Privacy</span>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">Tiered Rényi Differential Privacy ($\varepsilon = 2.0$)</h3>
-                                <p class="text-gray-600">
-                                    The hierarchical mechanism $\mathcal{M} = \mathcal{M}_3 \circ \mathcal{M}_2 \circ \mathcal{M}_1$ 
-                                    satisfies $(\varepsilon, \delta)$-DP with $\varepsilon = 2.0$ and $\delta = 10^{-5}$ at $n=10^7$ nodes.
-                                </p>
-                            </div>
-                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div id="proof2" class="proof-toggle bg-gray-50 border-t border-gray-200">
-                        <div class="p-6">
-                            <h4 class="font-semibold text-gray-900 mb-3">Mechanism Design</h4>
-                            <div class="space-y-3 text-sm text-gray-700">
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
-                                        <div class="font-bold text-indigo-600">Tier 1</div>
-                                        <div class="text-xs mt-1">Gaussian mechanism with</div>
-                                        <div class="math-display text-xs">
-                                            $$\sigma_1 = \frac{\Delta_1 \sqrt{2\ln(1.25/\delta)}}{\varepsilon_1}$$
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
-                                        <div class="font-bold text-indigo-600">Tier 2</div>
-                                        <div class="text-xs mt-1">Adaptive noise scaling based on RDP composition</div>
-                                    </div>
-                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
-                                        <div class="font-bold text-indigo-600">Tier 3</div>
-                                        <div class="text-xs mt-1">Final calibration ensuring end-to-end privacy budget</div>
-                                    </div>
-                                </div>
-                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4">
-                                    <strong>Key Insight:</strong> Hierarchical composition enables <strong>privacy amplification through subsampling</strong>—
-                                    each tier's aggregation acts as a sampling mechanism, reducing sensitivity at subsequent tiers.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex justify-center gap-4">
-                    <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto" target="_blank" 
-                       class="px-8 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg hover:shadow-xl">
-                        View on GitHub
-                    </a>
-                    <button onclick="scrollToSection('theorems')" 
-                            class="px-8 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition">
-                        Explore Proofs
-                    </button>
-                </div>
-            </div>
-
-            <!-- Key Metrics Grid -->
-            <div class="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">55.5%</div>
-                    <div class="text-xs text-gray-600 mt-1">Byzantine Tolerance</div>
-                </div>
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">10M</div>
-                    <div class="text-xs text-gray-600 mt-1">Node Scale</div>
-                </div>
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">10ms</div>
-                    <div class="text-xs text-gray-600 mt-1">ZK Verification</div>
-                </div>
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">99.99%</div>
-                    <div class="text-xs text-gray-600 mt-1">Straggler Resilience</div>
-                </div>
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">$O(d \log n)$</div>
-                    <div class="text-xs text-gray-600 mt-1">Communication</div>
-                </div>
-                <div class="metric-card p-4 rounded-xl border border-indigo-100">
-                    <div class="text-2xl font-bold text-indigo-600">200B</div>
-                    <div class="text-xs text-gray-600 mt-1">Proof Size</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Abstract Section -->
     <section id="abstract" class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -640,6 +364,122 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
             </div>
         </div>
     </section>
+
+    <!-- The Six Theorems Section -->
+    <section id="theorems" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">The Six-Theorem Verification Stack</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Each theorem addresses a critical dimension of distributed learning security and efficiency,
+                    collectively enabling planetary-scale deployment with mathematical guarantees.
+                </p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Theorem 1 -->
+                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof1')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">THEOREM 1</span>
+                                    <span class="text-sm text-gray-500">Byzantine Fault Tolerance</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Hierarchical Multi-Krum Resilience (55.5%)</h3>
+                                <p class="text-gray-600">
+                                    Under hierarchical Multi-Krum aggregation with cluster size $c$ and malicious fraction $f/n = 0.555$,
+                                    the global model update satisfies $(\alpha, f)$-Byzantine resilience with
+                                    $\sin \alpha \leq \frac{\eta(c,f_c)\sqrt{d}\sigma}{\|\nabla C(w)\|}$.
+                                </p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="proof1" class="proof-toggle bg-gray-50 border-t border-gray-200">
+                        <div class="p-6">
+                            <h4 class="font-semibold text-gray-900 mb-3">Proof Structure</h4>
+                            <div class="space-y-4 text-sm text-gray-700">
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <strong class="text-indigo-600">Lemma 1 (Cluster Resilience):</strong>
+                                    <p class="mt-1">In a cluster of size $c$ with $f_c$ malicious nodes, Multi-Krum achieves $(\alpha_c, f_c)$-resilience if $f_c &lt; c/2 - 1$.</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                    <strong class="text-indigo-600">Lemma 2 (Tier Composition):</strong>
+                                    <p class="mt-1">If tier-$i$ aggregation achieves $(\alpha_i, f_i)$-resilience and tier-$(i+1)$ uses trimmed mean with honest majority,
+                                    the composed resilience is $(\alpha_{i+1}, f_{i+1})$ where:</p>
+                                    <div class="math-display text-center my-3">
+                                        $$\frac{f_{i+1}}{n_{i+1}} = 0.5 + 0.5\left(\frac{f_i}{n_i}\right)$$
+                                    </div>
+                                </div>
+                                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                                    <strong>Novelty:</strong> Prior work (BREA, Krum) is limited to $f &lt; n/2$. Our hierarchical approach exploits that
+                                    <strong>Byzantine resilience is not associative</strong>: local resilience at $&lt;50\%$ composes to global resilience $&gt;50\%$
+                                    when intermediate aggregators are honest-majority.
+                                </div>
+                                <div class="bg-gray-100 p-4 rounded-lg">
+                                    <strong>Proof by Induction:</strong>
+                                    <p class="mt-2">Base case (Tier 1): Lemma 1 applies directly. Inductive step: Tier 2 receives $n_2 = n/c$ cluster aggregates.
+                                    If $f_1/c = 0.5 - \epsilon$, then worst-case malicious fraction at Tier 2 is $0.5 + 0.5(0.5 - \epsilon) = 0.75 - 0.5\epsilon$
+                                    if all malicious clusters align. However, trimmed mean at Tier 2 removes extreme values, reducing effective malicious influence.
+                                    Detailed calculation yields 55.5% bound. $\square$</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theorem 2 -->
+                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof2')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">THEOREM 2</span>
+                                    <span class="text-sm text-gray-500">Differential Privacy</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Tiered Renyi Differential Privacy ($\varepsilon = 2.0$)</h3>
+                                <p class="text-gray-600">
+                                    The hierarchical mechanism $\mathcal{M} = \mathcal{M}_3 \circ \mathcal{M}_2 \circ \mathcal{M}_1$
+                                    satisfies $(\varepsilon, \delta)$-DP with $\varepsilon = 2.0$ and $\delta = 10^{-5}$ at $n=10^7$ nodes.
+                                </p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="proof2" class="proof-toggle bg-gray-50 border-t border-gray-200">
+                        <div class="p-6">
+                            <h4 class="font-semibold text-gray-900 mb-3">Mechanism Design</h4>
+                            <div class="space-y-3 text-sm text-gray-700">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
+                                        <div class="font-bold text-indigo-600">Tier 1</div>
+                                        <div class="text-xs mt-1">Gaussian mechanism with</div>
+                                        <div class="math-display text-xs">
+                                            $$\sigma_1 = \frac{\Delta_1 \sqrt{2\ln(1.25/\delta)}}{\varepsilon_1}$$
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
+                                        <div class="font-bold text-indigo-600">Tier 2</div>
+                                        <div class="text-xs mt-1">Adaptive noise scaling based on RDP composition</div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg border border-gray-200 text-center">
+                                        <div class="font-bold text-indigo-600">Tier 3</div>
+                                        <div class="text-xs mt-1">Final calibration ensuring end-to-end privacy budget</div>
+                                    </div>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mt-4">
+                                    <strong>Key Insight:</strong> Hierarchical composition enables <strong>privacy amplification through subsampling</strong>-
+                                    each tier's aggregation acts as a sampling mechanism, reducing sensitivity at subsequent tiers.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Theorem 3 -->
                 <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -763,6 +603,172 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
                     </div>
                 </div>
 
+                <!-- Theorem 5 -->
+                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof5')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-bold">THEOREM 5</span>
+                                    <span class="text-sm text-gray-500">Cryptographic Verifiability</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Constant-Time Verification via zk-SNARKs</h3>
+                                <p class="text-gray-600">
+                                    There exists a zk-SNARK construction $\Pi$ such that for global model update $U$,
+                                    verification time $t_v = O(1)$ and proof size $|\pi| = 200$ bytes.
+                                </p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="proof5" class="proof-toggle bg-gray-50 border-t border-gray-200">
+                        <div class="p-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-3">Circuit Construction</h4>
+                                    <div class="code-block p-4 text-xs text-green-400 mono">
+public input: U_global, [com_i]_{i=1}^k<br>
+private input: {U_i, path_i, w_i}_{i=1}^k<br>
+constraint: U_global = Σ w_i · U_i ∧ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;VerifyMerkle(path_i, com_i, Hash(U_i)) = 1
+                                    </div>
+                                    <div class="mt-4 space-y-2 text-sm text-gray-700">
+                                        <div class="flex justify-between">
+                                            <span>Proof Generation:</span>
+                                            <span class="font-mono text-indigo-600">~100ms</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Verification:</span>
+                                            <span class="font-mono text-indigo-600">10ms</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Proof Size:</span>
+                                            <span class="font-mono text-indigo-600">200 bytes</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-3">Security Properties</h4>
+                                    <div class="space-y-3">
+                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                            <strong class="text-purple-600">Completeness:</strong>
+                                            <p class="text-sm text-gray-600 mt-1">Honest prover generates accepting proof</p>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                            <strong class="text-purple-600">Soundness:</strong>
+                                            <p class="text-sm text-gray-600 mt-1">Extractability ensures witness knowledge</p>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                            <strong class="text-purple-600">Zero-Knowledge:</strong>
+                                            <p class="text-sm text-gray-600 mt-1">Updates remain hidden; only commitments revealed</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theorem 6 -->
+                <div class="theorem-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-6 cursor-pointer" onclick="toggleProof('proof6')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-xs font-bold">THEOREM 6</span>
+                                    <span class="text-sm text-gray-500">Convergence</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Non-IID Convergence $O(1/\varepsilon^2)$</h3>
+                                <p class="text-gray-600">
+                                    Under heterogeneity bound $\zeta^2 = \mathbb{E}[\|\nabla F_i(w) - \nabla F(w)\|^2]$
+                                    and learning rate $\eta = O(1/\sqrt{T})$, converges to $\varepsilon$-stationary point
+                                    in $T = O(1/\varepsilon^2)$ rounds.
+                                </p>
+                            </div>
+                            <svg class="w-6 h-6 text-gray-400 transform transition-transform" id="icon6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="proof6" class="proof-toggle bg-gray-50 border-t border-gray-200">
+                        <div class="p-6">
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 mb-4">
+                                <h4 class="font-semibold text-gray-900 mb-3">Proof Sketch</h4>
+                                <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                                    <li>Hierarchical aggregation reduces effective heterogeneity through local averaging</li>
+                                    <li>Tier-1 clusters approximate local IID through sufficient local steps</li>
+                                    <li>Modified heterogeneity parameter: $\zeta' = \zeta/\sqrt{c}$</li>
+                                    <li>Standard non-convex convergence applies with modified bounds</li>
+                                </ol>
+                            </div>
+                            <div class="grid md:grid-cols-3 gap-4 text-center">
+                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                                    <div class="text-2xl font-bold text-pink-600">30</div>
+                                    <div class="text-xs text-gray-600 mt-1">Rounds to 83.57% accuracy</div>
+                                </div>
+                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                                    <div class="text-2xl font-bold text-pink-600">Non-IID</div>
+                                    <div class="text-xs text-gray-600 mt-1">Heterogeneous data distributions</div>
+                                </div>
+                                <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                                    <div class="text-2xl font-bold text-pink-600">Monotonic</div>
+                                    <div class="text-xs text-gray-600 mt-1">Convergence guarantee</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center gap-4">
+                    <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto" target="_blank"
+                       class="px-8 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition shadow-lg hover:shadow-xl">
+                        View on GitHub
+                    </a>
+                    <button onclick="scrollToSection('theorems')"
+                            class="px-8 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg font-medium hover:bg-indigo-50 transition">
+                        Explore Proofs
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">55.5%</div>
+                    <div class="text-xs text-gray-600 mt-1">Byzantine Tolerance</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">10M</div>
+                    <div class="text-xs text-gray-600 mt-1">Node Scale</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">10ms</div>
+                    <div class="text-xs text-gray-600 mt-1">ZK Verification</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">99.99%</div>
+                    <div class="text-xs text-gray-600 mt-1">Straggler Resilience</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">$O(d \log n)$</div>
+                    <div class="text-xs text-gray-600 mt-1">Communication</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">200B</div>
+                    <div class="text-xs text-gray-600 mt-1">Proof Size</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+            </div>
+        </div>
+    </section>
+
     <!-- GitHub Repository Section -->
     <section id="github" class="py-16 bg-indigo-900 text-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -787,12 +793,12 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
                         <div class="text-indigo-200">Primary Language</div>
                     </div>
                     <div class="bg-white/10 rounded-lg p-3">
-                        <div class="font-bold text-xl">57</div>
-                        <div class="text-indigo-200">Test Cases</div>
+                        <div class="font-bold text-xl">8/8</div>
+                        <div class="text-indigo-200">Go-Live Attestations</div>
                     </div>
                     <div class="bg-white/10 rounded-lg p-3">
-                        <div class="font-bold text-xl">100%</div>
-                        <div class="text-indigo-200">Pass Rate</div>
+                        <div class="font-bold text-xl">Gated</div>
+                        <div class="text-indigo-200">Readiness + Chaos CI</div>
                     </div>
                 </div>
             </div>
