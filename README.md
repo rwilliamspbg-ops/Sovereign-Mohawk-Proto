@@ -443,22 +443,25 @@ Forensics and hardware validation quick metric links (Prometheus):
 
 ### Weekly Readiness Digest Notifications (Optional)
 
-The weekly digest workflow can post readiness/chaos summaries to Slack and/or Teams.
+The weekly digest workflow can post readiness/chaos summaries to Slack, Teams, and/or Discord.
 
 Required repository secrets:
 
 * `SLACK_WEBHOOK_URL`
 * `TEAMS_WEBHOOK_URL`
+* `DISCORD_WEBHOOK_URL`
 
 Configure in GitHub:
 
 1. Open **Settings → Secrets and variables → Actions**
-2. Add one or both webhook secrets above
+2. Add one or more webhook secrets above
 3. Run `Weekly Readiness Digest` manually (or wait for schedule) to verify delivery
 
 Notes:
 
-* If neither secret is set, notification step is skipped automatically.
+* If no webhook secret is set, notification step is skipped automatically.
+* Slack/Teams receive payloads with `{"text": "..."}`; Discord receives payloads with `{"content": "..."}`.
+* Discord messages are split into multiple posts to fit webhook content limits.
 * Digest is always published to workflow summary and uploaded as an artifact.
 
 ### Multi-Asset Bridge Settlement Configuration
