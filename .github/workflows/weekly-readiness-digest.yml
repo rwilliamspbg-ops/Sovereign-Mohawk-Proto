@@ -89,40 +89,40 @@ jobs:
           run_url = f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
           text = f"Weekly Mainnet Readiness Digest\nRun: {run_url}\n\n{digest}"
 
-            def post_json(webhook: str, payload: dict, label: str) -> None:
+          def post_json(webhook: str, payload: dict, label: str) -> None:
               req = request.Request(
-                webhook,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
+                  webhook,
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={"Content-Type": "application/json"},
               )
               with request.urlopen(req, timeout=10) as resp:
-                print(f"{label}: {resp.status}")
+                  print(f"{label}: {resp.status}")
 
-            def chunk_for_discord(message: str, limit: int = 1900) -> list[str]:
+          def chunk_for_discord(message: str, limit: int = 1900) -> list[str]:
               lines = message.splitlines(keepends=True)
               chunks: list[str] = []
               current = ""
               for line in lines:
-                if len(line) > limit:
-                  if current:
-                    chunks.append(current)
-                    current = ""
-                  start = 0
-                  while start < len(line):
-                    chunks.append(line[start : start + limit])
-                    start += limit
-                  continue
-                if len(current) + len(line) <= limit:
-                  current += line
-                else:
-                  chunks.append(current)
-                  current = line
+                  if len(line) > limit:
+                      if current:
+                          chunks.append(current)
+                          current = ""
+                      start = 0
+                      while start < len(line):
+                          chunks.append(line[start : start + limit])
+                          start += limit
+                      continue
+                  if len(current) + len(line) <= limit:
+                      current += line
+                  else:
+                      chunks.append(current)
+                      current = line
               if current:
-                chunks.append(current)
+                  chunks.append(current)
               return chunks or [message[:limit]]
 
-            slack_teams_text = text
-            if len(slack_teams_text) > 3500:
+          slack_teams_text = text
+          if len(slack_teams_text) > 3500:
               slack_teams_text = slack_teams_text[:3500] + "\n\n[truncated] See workflow artifacts for full digest."
 
           for env_name in ("SLACK_WEBHOOK_URL", "TEAMS_WEBHOOK_URL"):
