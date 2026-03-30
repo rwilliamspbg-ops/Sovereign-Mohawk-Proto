@@ -28,11 +28,15 @@ jobs:
           mkdir -p test-results
           source scripts/ensure_go_toolchain.sh
           set -o pipefail
-          go test -json ./... | tee test-results/go-test-report.jsonl
+          go test -json -covermode=atomic -coverprofile=test-results/go-coverage.out ./... | tee test-results/go-test-report.jsonl
+          go tool cover -func=test-results/go-coverage.out > test-results/go-coverage-summary.txt
 
       - name: Upload Go test artifact
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: go-test-report
-          path: test-results/go-test-report.jsonl
+          path: |
+            test-results/go-test-report.jsonl
+            test-results/go-coverage.out
+            test-results/go-coverage-summary.txt

@@ -7,3 +7,7 @@ data/
 # Python cache artifacts
 __pycache__/
 *.pyc
+
+# Generated result outputs should be committed only when intentionally curated evidence.
+# Use `git add -f <path>` for deliberate snapshots.
+results/**
