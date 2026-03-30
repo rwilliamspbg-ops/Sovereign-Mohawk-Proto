@@ -88,9 +88,21 @@ jobs:
           out_dir.mkdir(parents=True, exist_ok=True)
           baseline_path = out_dir / "baseline_byzantine_forensics_metrics.json"
 
+          def to_int(value, default=0):
+            try:
+              text = str(value).strip()
+            except Exception:
+              return default
+            if not text:
+              return default
+            try:
+              return int(text)
+            except ValueError:
+              return default
+
           token = os.environ.get("GITHUB_TOKEN", "")
           repo = os.environ["GITHUB_REPOSITORY"]
-          current_run_id = int(os.environ["GITHUB_RUN_ID"])
+          current_run_id = to_int(os.environ.get("GITHUB_RUN_ID", ""), 0)
 
           def api_get(url):
             req = urllib.request.Request(url)
@@ -102,7 +114,7 @@ jobs:
           try:
             runs_url = f"https://api.github.com/repos/{repo}/actions/workflows/byzantine-forensics-weekly.yml/runs?status=success&per_page=20"
             runs = api_get(runs_url).get("workflow_runs", [])
-            prior = next((r for r in runs if int(r.get("id", 0)) != current_run_id), None)
+            prior = next((r for r in runs if to_int(r.get("id", 0), 0) != current_run_id), None)
             if not prior:
               print("No prior successful workflow run found; baseline skipped.")
               raise SystemExit(0)
@@ -144,11 +156,27 @@ jobs:
           baseline_path = pathlib.Path("results/forensics/baseline_byzantine_forensics_metrics.json")
           summary_path = pathlib.Path("results/forensics/byzantine_forensics_delta.md")
 
+          def to_int(value, default=0):
+            try:
+              text = str(value).strip()
+            except Exception:
+              return default
+            if not text:
+              return default
+            try:
+              return int(text)
+            except ValueError:
+              return default
+
           current = json.loads(metrics_path.read_text(encoding="utf-8"))
           baseline = json.loads(baseline_path.read_text(encoding="utf-8")) if baseline_path.exists() else None
 
-          cur_events = int(current.get("total_events", 0))
-          threshold = int("${{ steps.profile.outputs.threshold }}")
+          cur_events = to_int(current.get("total_events", 0), 0)
+          threshold_raw = "${{ steps.profile.outputs.threshold }}".strip()
+          try:
+            threshold = int(threshold_raw) if threshold_raw else 10
+          except ValueError:
+            threshold = 10
           exceeded = cur_events > threshold
 
           lines = []
@@ -161,7 +189,7 @@ jobs:
           lines.append(f"- Threshold status: {'BREACH' if exceeded else 'within limit'}")
 
           if baseline:
-            base_events = int(baseline.get("total_events", 0))
+            base_events = to_int(baseline.get("total_events", 0), 0)
             delta_events = cur_events - base_events
             lines.append(f"- Baseline events: {base_events}")
             lines.append(f"- Delta events: {delta_events:+d}")
@@ -179,8 +207,8 @@ jobs:
             cur_b = current.get("buckets", {})
             base_b = baseline.get("buckets", {})
             for k in keys:
-              c = int(cur_b.get(k, 0))
-              b = int(base_b.get(k, 0))
+              c = to_int(cur_b.get(k, 0), 0)
+              b = to_int(base_b.get(k, 0), 0)
               lines.append(f"| {k} | {c} | {b} | {c-b:+d} |")
           else:
             lines.append("- Baseline: unavailable (first run or no reusable artifact)")
@@ -377,14 +405,29 @@ jobs:
           import urllib.request
           import zipfile
 
+          def to_int(value, default=0):
+            try:
+              text = str(value).strip()
+            except Exception:
+              return default
+            if not text:
+              return default
+            try:
+              return int(text)
+            except ValueError:
+              return default
+
           token = os.environ.get("GITHUB_TOKEN", "")
           repo = os.environ["GITHUB_REPOSITORY"]
-          current_run_id = int(os.environ["GITHUB_RUN_ID"])
+          current_run_id = to_int(os.environ.get("GITHUB_RUN_ID", ""), 0)
           profile = os.environ.get("PROFILE", "daily-short").strip()
           since_window = os.environ.get("SINCE_WINDOW", "10m").strip()
-          threshold = int(os.environ.get("THRESHOLD", "10"))
+          threshold_raw = os.environ.get("THRESHOLD", "").strip()
+          threshold = to_int(threshold_raw, 10)
           streak_required_raw = os.environ.get("HEALTHY_STREAK_REQUIRED", "").strip()
-          streak_required = int(streak_required_raw) if streak_required_raw.isdigit() and int(streak_required_raw) > 0 else 3
+          streak_required = to_int(streak_required_raw, 3)
+          if streak_required <= 0:
+            streak_required = 3
           marker = f"<!-- byzantine-forensics-breach:{profile} -->"
 
           def api_get(url):
@@ -423,7 +466,7 @@ jobs:
                 current_metrics = json.load(f)
 
             if current_metrics and str(current_metrics.get("since", "")).strip() == since_window:
-              current_events = int(current_metrics.get("total_events", 0))
+              current_events = to_int(current_metrics.get("total_events", 0), 0)
               if current_events <= threshold:
                 healthy_streak += 1
 
@@ -432,7 +475,7 @@ jobs:
             for run in runs:
               if healthy_streak >= streak_required:
                 break
-              run_id = int(run.get("id", 0))
+              run_id = to_int(run.get("id", 0), 0)
               if run_id == current_run_id:
                 continue
               artifacts_url = run.get("artifacts_url")
@@ -448,7 +491,7 @@ jobs:
               if str(metrics.get("since", "")).strip() != since_window:
                 continue
 
-              events = int(metrics.get("total_events", 0))
+              events = to_int(metrics.get("total_events", 0), 0)
               if events <= threshold:
                 healthy_streak += 1
               else:
@@ -458,7 +501,7 @@ jobs:
             if healthy_streak < streak_required:
               raise SystemExit(0)
 
-            issue_number = int(target_issue["number"])
+            issue_number = to_int(target_issue.get("number", 0), 0)
             close_body = (
               f"Auto-closing after {healthy_streak} consecutive healthy {profile} runs "
               f"(threshold={threshold})."

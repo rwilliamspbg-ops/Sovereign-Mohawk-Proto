@@ -24,11 +24,24 @@ def _load_token() -> str:
     return token_path.read_text(encoding="utf-8").strip()
 
 
+def _int_env(name: str, default: int) -> int:
+    raw = os.getenv(name, "")
+    if raw is None:
+        return default
+    raw = raw.strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
 class ExporterState:
     def __init__(self) -> None:
         self.node = MohawkNode(lib_path=os.getenv("MOHAWK_LIB_PATH", str(ROOT / "libmohawk.so")))
         self.token = _load_token()
-        self.bridge_nonce = int(os.getenv("MOHAWK_PYAPI_BRIDGE_START_NONCE", "1000"))
+        self.bridge_nonce = _int_env("MOHAWK_PYAPI_BRIDGE_START_NONCE", 1000)
         self.lock = threading.Lock()
         self.last_error = ""
 
@@ -83,7 +96,7 @@ def start_traffic_loop(state: ExporterState) -> None:
     }
     if not enabled:
         return
-    interval = max(2, int(os.getenv("MOHAWK_PYAPI_TRAFFIC_INTERVAL_SECONDS", "10")))
+    interval = max(2, _int_env("MOHAWK_PYAPI_TRAFFIC_INTERVAL_SECONDS", 10))
 
     def worker() -> None:
         while True:
@@ -142,7 +155,7 @@ def main() -> int:
     start_traffic_loop(state)
 
     addr = os.getenv("MOHAWK_PYAPI_EXPORTER_ADDR", "0.0.0.0")
-    port = int(os.getenv("MOHAWK_PYAPI_EXPORTER_PORT", "9104"))
+    port = _int_env("MOHAWK_PYAPI_EXPORTER_PORT", 9104)
     server = HTTPServer((addr, port), MetricsHandler)
     print(f"pyapi metrics exporter listening on {addr}:{port}")
     server.serve_forever()
