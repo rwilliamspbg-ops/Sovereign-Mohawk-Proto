@@ -15,7 +15,7 @@ cd ../..
 
 # 2. Ensure Go dependencies are current
 echo "🐹 Tidying Go modules..."
-go mod tidy
+"$ROOT_DIR/scripts/go_with_toolchain.sh" go mod tidy
 
 # 3. Launch Docker Compose
 echo "🐳 Launching containers..."

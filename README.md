@@ -729,6 +729,7 @@ All production-grade safety requirements are verified on every push:
 
 * **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config.
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
+* **Local Toolchain Consistency:** Run `make go-env` before local Go lint/test commands to confirm `go` and `compile` resolve to the same toolchain root.
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.

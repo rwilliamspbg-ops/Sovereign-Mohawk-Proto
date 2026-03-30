@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu
+.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu
 
 all: build verify
 
@@ -32,11 +32,15 @@ verify: lint test audit
 
 clean:
 	@echo "🧹 Cleaning build artifacts..."
-	go clean
+	bash -c 'source scripts/ensure_go_toolchain.sh && go clean'
 	rm -f proofs/VERIFICATION_LOG.md
 	rm -f libmohawk.so libmohawk.dylib libmohawk.dll libmohawk.h
 	@echo "🐍 Cleaning Python artifacts..."
 	cd sdk/python && rm -rf build/ dist/ *.egg-info/ __pycache__/ .pytest_cache/
+
+go-env:
+	@echo "🔧 Active Go toolchain context..."
+	bash scripts/go_with_toolchain.sh
 
 # Python SDK Targets
 
