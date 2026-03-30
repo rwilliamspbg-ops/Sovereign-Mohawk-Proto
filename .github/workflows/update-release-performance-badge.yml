@@ -93,7 +93,9 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results/metrics/latest_release_performance_badge.json README.md
+          # results/** is gitignored; force-add only this curated badge artifact.
+          git add -f results/metrics/latest_release_performance_badge.json
+          git add README.md
           git commit -m "docs: refresh release performance gate badge"
 
           target_branch="${GITHUB_REF_NAME:-main}"
