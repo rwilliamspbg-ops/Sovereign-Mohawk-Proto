@@ -627,6 +627,7 @@ Artifacts are generated at:
 * `results/go-live/golden-path-report.json`
 * `results/go-live/golden-path-report.md`
 * `results/go-live/attestations/`
+* `PUBLIC_ARTIFACTS.md` (public, searchable artifact index)
 
 ---
 
