@@ -19,6 +19,14 @@ if [[ -n "${TOOLROOT:-}" ]]; then
   export GOTOOLCHAIN="${GOTOOLCHAIN:-local}"
 fi
 
+# Include GOPATH/bin when available so tools installed with `go install` are discoverable.
+if command -v go >/dev/null 2>&1; then
+  GOPATH_BIN="$(go env GOPATH 2>/dev/null)/bin"
+  if [[ -n "$GOPATH_BIN" && -d "$GOPATH_BIN" ]]; then
+    export PATH="$GOPATH_BIN:$PATH"
+  fi
+fi
+
 if ! git -C "$ROOT_DIR" rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
   echo "error: base ref '$BASE_REF' not found"
   exit 1
@@ -57,8 +65,20 @@ mkdir -p "$(dirname "$ROOT_DIR/$REPORT_PATH")"
 can_use_benchstat=false
 if [[ "$USE_BENCHSTAT" == "always" ]]; then
   if ! command -v benchstat >/dev/null 2>&1; then
-    echo "error: USE_BENCHSTAT=always but 'benchstat' was not found in PATH"
-    exit 1
+    if command -v go >/dev/null 2>&1; then
+      echo "benchstat not found in PATH; attempting automatic install via go install"
+      go install golang.org/x/perf/cmd/benchstat@latest >/dev/null 2>&1 || true
+      if command -v go >/dev/null 2>&1; then
+        GOPATH_BIN="$(go env GOPATH 2>/dev/null)/bin"
+        if [[ -n "$GOPATH_BIN" && -d "$GOPATH_BIN" ]]; then
+          export PATH="$GOPATH_BIN:$PATH"
+        fi
+      fi
+    fi
+    if ! command -v benchstat >/dev/null 2>&1; then
+      echo "error: USE_BENCHSTAT=always but 'benchstat' was not found in PATH"
+      exit 1
+    fi
   fi
   can_use_benchstat=true
 elif [[ "$USE_BENCHSTAT" == "never" ]]; then

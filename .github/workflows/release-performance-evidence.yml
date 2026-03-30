@@ -29,6 +29,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install benchstat
+        run: |
+          go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
       - name: Build SDK benchmark artifact
         run: |
           pip install pytest pytest-benchmark numpy
@@ -44,7 +49,7 @@ jobs:
       - name: Build FedAvg benchmark report
         run: |
           chmod +x scripts/benchmark_fedavg_compare.sh
-          BASE_REF=origin/main BENCH_TIME=100ms BENCH_COUNT=1 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh
+          BASE_REF=origin/main BENCH_TIME=100ms BENCH_COUNT=1 BENCH_CPU=2 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh
 
       - name: Generate release performance evidence index
         run: |
