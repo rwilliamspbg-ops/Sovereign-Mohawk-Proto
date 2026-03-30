@@ -1,0 +1,50 @@
+name: Artifact Sync Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  artifact-sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Verify captured benchmark artifacts are synced
+        run: |
+          set -euo pipefail
+
+          pairs=(
+            "results/metrics/fedavg_benchmark_compare.md captured_artifacts/fedavg_benchmark_compare.md"
+            "results/metrics/bridge_compression_benchmark_compare.md captured_artifacts/bridge_compression_benchmark_compare.md"
+          )
+
+          failed=0
+          for pair in "${pairs[@]}"; do
+            left="${pair%% *}"
+            right="${pair##* }"
+
+            if [ ! -f "$left" ] || [ ! -f "$right" ]; then
+              echo "error: missing file in pair: $left <-> $right"
+              failed=1
+              continue
+            fi
+
+            if ! cmp -s "$left" "$right"; then
+              echo "error: artifact drift detected: $left != $right"
+              echo "hint: sync with: cp $left $right"
+              failed=1
+            else
+              echo "ok: $left == $right"
+            fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
