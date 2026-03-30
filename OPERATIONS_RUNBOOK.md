@@ -20,6 +20,7 @@ This runbook covers production operations for the Sovereign Mohawk protocol stac
    - `RECOVERY_LATENCY_MAX_SECONDS=120 bash scripts/chaos_readiness_drill.sh grafana chaos-reports`
 3. Verify host kernel tuning:
    - `./scripts/validate_host_network_tuning.sh`
+   - `sudo bash scripts/host_tuning.sh --persist`
 4. Validate formal go-live gate:
    - Strict production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode strict`
    - Advisory non-production mode: `python3 scripts/validate_go_live_gates.py --host-preflight-mode advisory`
@@ -112,7 +113,7 @@ Run benchmark checks before release cut or after aggregation/runtime changes.
 2. Go FedAvg matrix benchmark:
    - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms`
 3. Generate base-vs-current FedAvg comparison report:
-   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
 
 CI automation:
 
@@ -136,6 +137,10 @@ Apply immediately (root required):
 - `sudo sysctl -w net.core.rmem_default=262144`
 - `sudo sysctl -w net.core.wmem_max=8388608`
 - `sudo sysctl -w net.core.wmem_default=262144`
+
+One-command apply helper (recommended):
+
+- `sudo bash scripts/host_tuning.sh --persist`
 
 Persist across reboots:
 

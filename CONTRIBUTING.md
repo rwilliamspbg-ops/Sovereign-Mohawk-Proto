@@ -51,6 +51,34 @@ Your PR must include a completed template to be eligible for points:
 3. **Lint & Test**: Run `black`, `ruff`, and `mypy` on any Python changes to ensure they pass the [CI/CD Workflow](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions).
 4. **Submit PR**: Tag your PR with `[AUDIT]` to trigger the verification runner.
 
+### Local Run and Test Quickstart
+
+Use these commands before opening a PR:
+
+```bash
+source scripts/ensure_go_toolchain.sh
+make lint
+make test
+```
+
+If you touched Python SDK code:
+
+```bash
+cd sdk/python
+python -m pip install -e .[dev]
+pytest -q
+```
+
+### Branch Naming Conventions
+
+Use short, scoped branch names:
+
+* `feat/<topic>` for new functionality
+* `fix/<topic>` for bug fixes
+* `perf/<topic>` for benchmark or latency work
+* `docs/<topic>` for documentation only
+* `ci/<topic>` for workflow and automation changes
+
 ### Go Toolchain Guard (Required)
 
 This repository requires Go `1.25.7` from `go.mod`.
@@ -94,7 +122,8 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 
 ```bash
 TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
-BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=2 \
+BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
+USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 ./scripts/benchmark_fedavg_compare.sh
 ```
@@ -116,15 +145,15 @@ docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 Common pitfalls and fixes:
 
 * TPM secret material missing in Docker volume:
-	* Run `docker compose run --rm runtime-secrets-init` before starting the stack.
+  * Run `docker compose run --rm runtime-secrets-init` before starting the stack.
 * Port conflicts (`3000`, `8080`, `9090`, `9093`, `9102`, `9104`):
-	* Run `docker compose down -v` and stop local processes already bound to those ports.
+  * Run `docker compose down -v` and stop local processes already bound to those ports.
 * Stale runtime secrets from previous runs:
-	* Remove old files under `runtime-secrets/` and re-run `./genesis-launch.sh --all-nodes`.
+  * Remove old files under `runtime-secrets/` and re-run `./genesis-launch.sh --all-nodes`.
 * Low host UDP/socket buffers causing readiness warnings:
-	* Run `scripts/validate_host_network_tuning.sh` and apply suggested sysctl values.
+  * Run `scripts/validate_host_network_tuning.sh` and then apply via `sudo bash scripts/host_tuning.sh --persist`.
 * Docker Desktop + TPM flow mismatch on non-Linux hosts:
-	* Use `make strict-auth-smoke-container` to validate the glibc path in a reproducible container.
+  * Use `make strict-auth-smoke-container` to validate the glibc path in a reproducible container.
 
 ---
 

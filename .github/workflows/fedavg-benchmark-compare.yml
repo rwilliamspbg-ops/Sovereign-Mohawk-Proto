@@ -49,7 +49,38 @@ jobs:
             results/metrics/accelerator_backend_compare.md
             results/metrics/accelerator_backend_compare.json
 
+  fedavg-baseline-main:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: swarm-integration-suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25.x'
+
+      - name: Capture FedAvg benchmark baseline on main
+        run: |
+          mkdir -p .benchmarks/fedavg
+          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime=200ms -count=10 > .benchmarks/fedavg/base_main.txt
+
+      - name: Save baseline in GitHub Actions cache
+        uses: actions/cache/save@v4
+        with:
+          path: .benchmarks/fedavg/base_main.txt
+          key: fedavg-main-${{ github.sha }}
+
+      - name: Upload FedAvg baseline artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: fedavg-baseline-main
+          path: .benchmarks/fedavg/base_main.txt
+
   fedavg-benchmark-compare:
+    if: github.event_name == 'pull_request'
     needs: swarm-integration-suite
     runs-on: ubuntu-latest
     steps:
@@ -63,26 +94,55 @@ jobs:
         with:
           go-version: '1.25.x'
 
-      - name: Run FedAvg benchmark comparison
+      - name: Install benchstat
         run: |
-          chmod +x scripts/benchmark_fedavg_compare.sh
+          go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-          BASE="origin/main"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="origin/${{ github.base_ref }}"
+      - name: Restore FedAvg baseline cache from main
+        id: restore-fedavg-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .benchmarks/fedavg/base_main.txt
+          key: fedavg-main-${{ github.sha }}
+          restore-keys: |
+            fedavg-main-
+
+      - name: Require cached baseline
+        run: |
+          if [ ! -s .benchmarks/fedavg/base_main.txt ]; then
+            echo "error: missing cached FedAvg baseline from main"
+            echo "hint: run this workflow on main to seed fedavg-main-* cache"
+            exit 1
           fi
 
-          git fetch origin "${BASE#origin/}" --depth=1 || true
+      - name: Run current FedAvg benchmark
+        run: |
+          mkdir -p .benchmarks/fedavg
+          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime=200ms -count=10 > .benchmarks/fedavg/current_pr.txt
 
-          BASE_REF="$BASE" \
-          BENCH_TIME="200ms" \
-          BENCH_COUNT="2" \
-          REPORT_PATH="results/metrics/fedavg_benchmark_compare.md" \
-          ./scripts/benchmark_fedavg_compare.sh
+      - name: Build FedAvg benchmark comparison report
+        run: |
+          mkdir -p results/metrics
+          {
+            echo "# FedAvg Benchmark Comparison"
+            echo
+            echo "- Baseline source: cached main benchmark"
+            echo "- Baseline cache key prefix: fedavg-main-"
+            echo "- PR ref: ${{ github.head_ref }}"
+            echo "- Alpha: 0.01"
+            echo
+            echo '```text'
+            benchstat -alpha 0.01 .benchmarks/fedavg/base_main.txt .benchmarks/fedavg/current_pr.txt
+            echo '```'
+          } > results/metrics/fedavg_benchmark_compare.md
 
       - name: Upload FedAvg benchmark report
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: fedavg-benchmark-report
-          path: results/metrics/fedavg_benchmark_compare.md
+          path: |
+            results/metrics/fedavg_benchmark_compare.md
+            .benchmarks/fedavg/base_main.txt
+            .benchmarks/fedavg/current_pr.txt

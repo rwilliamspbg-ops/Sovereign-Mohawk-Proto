@@ -129,6 +129,7 @@ BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compar
   - `benchmark-results.json` (uploaded by `.github/workflows/performance-gate.yml`)
 - FedAvg comparison artifact:
   - `results/metrics/fedavg_benchmark_compare.md` (uploaded by `.github/workflows/fedavg-benchmark-compare.yml`)
+  - Baseline source in CI: cached `main` benchmark output (`fedavg-main-*` cache key prefix) and artifact `fedavg-baseline-main`
 - Bridge compression comparison artifacts:
   - `results/metrics/bridge_compression_benchmark_compare.md`
   - `results/metrics/bridge_compression_benchmark_raw.txt`

@@ -13,6 +13,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ## Sovereign-Mohawk-Proto
 
 [![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
+[![Go Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml)
 [![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
 [![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
 [![FedAvg Benchmark Compare](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml)
@@ -676,6 +677,11 @@ This enforces `benchstat` output and uses a stricter significance threshold (`al
 Comparison artifact:
 
 * `results/metrics/fedavg_benchmark_compare.md`
+
+CI baseline pinning behavior:
+
+* On `main` pushes, workflow `FedAvg Benchmark Compare` captures and caches a benchmark baseline (`fedavg-main-*`) and uploads `fedavg-baseline-main`.
+* On PRs, the same workflow restores the cached main baseline and diffs against PR benchmark output using `benchstat`.
 
 ### CPU vs GPU vs NPU Side-by-Side Benchmark
 
