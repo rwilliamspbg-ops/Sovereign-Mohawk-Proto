@@ -16,13 +16,14 @@ PAYLOAD=$(cat <<'JSON'
     "strict": true,
     "contexts": [
       "Build and Test / build-and-test",
+      "Go Test / go-test",
       "Integrity Guard - Linter / lint",
       "Mainnet Readiness Gate / readiness-gate",
       "Mainnet Chaos Gate / chaos-matrix",
       "Performance Gate / performance-gate",
       "Monitoring Smoke Gate / monitoring-smoke",
       "Release Performance Evidence / release-performance-evidence",
-      "Bridge Compression Benchmark / bridge-compression-benchmark",
+      "Bridge Compression Benchmark / bridge-regression-compare",
       "FedAvg Benchmark Compare / fedavg-benchmark-compare",
       "Proof-Driven Design Verification / proof-audit",
       "Capability Sync / sync-check"

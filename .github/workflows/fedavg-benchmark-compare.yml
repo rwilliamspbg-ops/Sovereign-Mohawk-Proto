@@ -5,9 +5,16 @@ name: FedAvg Benchmark Compare
     branches: [main]
   push:
     branches: [main]
+  schedule:
+    - cron: '30 4 * * 1'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FEDAVG_BENCH_TIME: "200ms"
+  FEDAVG_BENCH_COUNT: "10"
+  FEDAVG_BENCH_CPU: "2"
+  FEDAVG_BENCHSTAT_ALPHA: "0.01"
+  FEDAVG_REGRESSION_THRESHOLD_PCT: "5.0"
 
 jobs:
   swarm-integration-suite:
@@ -50,7 +57,7 @@ jobs:
             results/metrics/accelerator_backend_compare.json
 
   fedavg-baseline-main:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: swarm-integration-suite
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +72,7 @@ jobs:
       - name: Capture FedAvg benchmark baseline on main
         run: |
           mkdir -p .benchmarks/fedavg
-          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime=200ms -count=10 > .benchmarks/fedavg/base_main.txt
+          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
 
       - name: Save baseline in GitHub Actions cache
         uses: actions/cache/save@v4
@@ -119,23 +126,58 @@ jobs:
       - name: Run current FedAvg benchmark
         run: |
           mkdir -p .benchmarks/fedavg
-          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime=200ms -count=10 > .benchmarks/fedavg/current_pr.txt
+          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/current_pr.txt
 
       - name: Build FedAvg benchmark comparison report
         run: |
           mkdir -p results/metrics
+          benchstat -alpha "${FEDAVG_BENCHSTAT_ALPHA}" .benchmarks/fedavg/base_main.txt .benchmarks/fedavg/current_pr.txt > .benchmarks/fedavg/benchstat.txt
           {
             echo "# FedAvg Benchmark Comparison"
             echo
             echo "- Baseline source: cached main benchmark"
             echo "- Baseline cache key prefix: fedavg-main-"
             echo "- PR ref: ${{ github.head_ref }}"
-            echo "- Alpha: 0.01"
+            echo "- Alpha: ${FEDAVG_BENCHSTAT_ALPHA}"
+            echo "- Regression fail threshold: +${FEDAVG_REGRESSION_THRESHOLD_PCT}% geomean sec/op"
             echo
             echo '```text'
-            benchstat -alpha 0.01 .benchmarks/fedavg/base_main.txt .benchmarks/fedavg/current_pr.txt
+            cat .benchmarks/fedavg/benchstat.txt
             echo '```'
           } > results/metrics/fedavg_benchmark_compare.md
+
+      - name: Enforce FedAvg regression threshold
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          threshold = float(os.environ["FEDAVG_REGRESSION_THRESHOLD_PCT"])
+          text = Path(".benchmarks/fedavg/benchstat.txt").read_text(encoding="utf-8")
+
+          in_sec_block = False
+          delta = None
+          for line in text.splitlines():
+            if "sec/op" in line and "vs base" in line:
+              in_sec_block = True
+              continue
+            if in_sec_block and line.strip().startswith("geomean"):
+              m = re.search(r"([+-]?[0-9]+(?:\.[0-9]+)?)%", line)
+              if m:
+                delta = float(m.group(1))
+              break
+
+          if delta is None:
+            print("error: unable to parse geomean sec/op regression from benchstat output")
+            sys.exit(1)
+
+          print(f"parsed geomean sec/op delta: {delta:.2f}% (threshold: +{threshold:.2f}%)")
+          if delta > threshold:
+            print("error: FedAvg regression threshold exceeded")
+            sys.exit(1)
+          PY
 
       - name: Upload FedAvg benchmark report
         if: always()
@@ -144,5 +186,6 @@ jobs:
           name: fedavg-benchmark-report
           path: |
             results/metrics/fedavg_benchmark_compare.md
+            .benchmarks/fedavg/benchstat.txt
             .benchmarks/fedavg/base_main.txt
             .benchmarks/fedavg/current_pr.txt

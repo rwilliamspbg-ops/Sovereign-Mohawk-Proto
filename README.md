@@ -667,6 +667,7 @@ Generate a base-vs-current comparison report:
 ```bash
 TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
+BENCH_CPU=2 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 ./scripts/benchmark_fedavg_compare.sh
@@ -706,7 +707,7 @@ Run the bridge compression microbenchmark and generate a comparison report:
 
 ```bash
 BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md \
-BENCH_COUNT=5 BENCHSTAT_ALPHA=0.01 \
+BENCH_COUNT=5 BENCH_CPU=2 BENCHSTAT_ALPHA=0.01 \
 ./scripts/benchmark_bridge_compression_compare.sh
 ```
 
@@ -720,7 +721,7 @@ Artifacts:
 CI baseline pinning behavior:
 
 * On `main` pushes, workflow `Bridge Compression Benchmark` stores the raw benchmark output as cache (`bridge-main-*`) and uploads `bridge-baseline-main`.
-* On PRs, the same workflow restores the cached main baseline and generates regression evidence in `bridge-compression-regression-report`.
+* On PRs, the same workflow restores the cached main baseline and generates regression evidence in `bridge-compression-regression-report` (`results/metrics/bridge_compression_regression_compare.md`).
 
 ### Release Performance Evidence Index
 

@@ -86,6 +86,7 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 ```bash
 TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
+BENCH_CPU=2 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 ./scripts/benchmark_fedavg_compare.sh
@@ -120,7 +121,7 @@ done
 
 ```bash
 BENCH_TIME=200ms REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md \
-BENCH_COUNT=5 BENCHSTAT_ALPHA=0.01 \
+BENCH_COUNT=5 BENCH_CPU=2 BENCHSTAT_ALPHA=0.01 \
 ./scripts/benchmark_bridge_compression_compare.sh
 ```
 

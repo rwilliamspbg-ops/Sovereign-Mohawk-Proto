@@ -5,9 +5,16 @@ name: Bridge Compression Benchmark
     branches: [main]
   push:
     branches: [main]
+  schedule:
+    - cron: '45 4 * * 1'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  BRIDGE_BENCH_TIME: "200ms"
+  BRIDGE_BENCH_COUNT: "5"
+  BRIDGE_BENCH_CPU: "2"
+  BRIDGE_BENCHSTAT_ALPHA: "0.01"
+  BRIDGE_REGRESSION_THRESHOLD_PCT: "5.0"
 
 jobs:
   bridge-compression-format-compare:
@@ -29,9 +36,10 @@ jobs:
       - name: Run bridge compression comparison
         run: |
           chmod +x scripts/benchmark_bridge_compression_compare.sh
-          BENCH_TIME="200ms" \
-          BENCH_COUNT="5" \
-          BENCHSTAT_ALPHA="0.01" \
+          BENCH_TIME="${BRIDGE_BENCH_TIME}" \
+          BENCH_COUNT="${BRIDGE_BENCH_COUNT}" \
+          BENCHSTAT_ALPHA="${BRIDGE_BENCHSTAT_ALPHA}" \
+          BENCH_CPU="${BRIDGE_BENCH_CPU}" \
           USE_DOCKER="0" \
           REPORT_PATH="results/metrics/bridge_compression_benchmark_compare.md" \
           RAW_PATH="results/metrics/bridge_compression_benchmark_raw.txt" \
@@ -47,7 +55,7 @@ jobs:
             results/metrics/bridge_compression_benchmark_raw.txt
 
   bridge-baseline-main:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: bridge-compression-format-compare
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +68,13 @@ jobs:
       - name: Save bridge benchmark baseline file
         run: |
           mkdir -p .benchmarks/bridge
-          cp .benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt .benchmarks/bridge/base_main_raw.txt
+          CURRENT_RAW="$(find .benchmarks/bridge/current_artifacts -type f -name 'bridge_compression_benchmark_raw.txt' | head -n 1)"
+          if [ -z "$CURRENT_RAW" ]; then
+            echo "error: bridge_compression_benchmark_raw.txt not found after artifact download"
+            find .benchmarks/bridge/current_artifacts -maxdepth 4 -type f | sort || true
+            exit 1
+          fi
+          cp "$CURRENT_RAW" .benchmarks/bridge/base_main_raw.txt
 
       - name: Save baseline in GitHub Actions cache
         uses: actions/cache/save@v4
@@ -117,19 +131,59 @@ jobs:
       - name: Build bridge regression report
         run: |
           mkdir -p results/metrics
-          CURRENT_RAW=.benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt
+          CURRENT_RAW="$(find .benchmarks/bridge/current_artifacts -type f -name 'bridge_compression_benchmark_raw.txt' | head -n 1)"
+          if [ -z "$CURRENT_RAW" ]; then
+            echo "error: bridge current raw benchmark file not found"
+            find .benchmarks/bridge/current_artifacts -maxdepth 4 -type f | sort || true
+            exit 1
+          fi
+          benchstat -alpha "${BRIDGE_BENCHSTAT_ALPHA}" .benchmarks/bridge/base_main_raw.txt "$CURRENT_RAW" > .benchmarks/bridge/benchstat.txt
           {
             echo "# Bridge Compression Regression Compare"
             echo
             echo "- Baseline source: cached main benchmark"
             echo "- Baseline cache key prefix: bridge-main-"
             echo "- PR ref: ${{ github.head_ref }}"
-            echo "- Alpha: 0.01"
+            echo "- Alpha: ${BRIDGE_BENCHSTAT_ALPHA}"
+            echo "- Regression fail threshold: +${BRIDGE_REGRESSION_THRESHOLD_PCT}% geomean sec/op"
             echo
             echo '```text'
-            benchstat -alpha 0.01 .benchmarks/bridge/base_main_raw.txt "$CURRENT_RAW"
+            cat .benchmarks/bridge/benchstat.txt
             echo '```'
           } > results/metrics/bridge_compression_regression_compare.md
+
+      - name: Enforce bridge regression threshold
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import sys
+          from pathlib import Path
+
+          threshold = float(os.environ["BRIDGE_REGRESSION_THRESHOLD_PCT"])
+          text = Path(".benchmarks/bridge/benchstat.txt").read_text(encoding="utf-8")
+
+          in_sec_block = False
+          delta = None
+          for line in text.splitlines():
+            if "sec/op" in line and "vs base" in line:
+              in_sec_block = True
+              continue
+            if in_sec_block and line.strip().startswith("geomean"):
+              m = re.search(r"([+-]?[0-9]+(?:\.[0-9]+)?)%", line)
+              if m:
+                delta = float(m.group(1))
+              break
+
+          if delta is None:
+            print("error: unable to parse geomean sec/op regression from benchstat output")
+            sys.exit(1)
+
+          print(f"parsed geomean sec/op delta: {delta:.2f}% (threshold: +{threshold:.2f}%)")
+          if delta > threshold:
+            print("error: bridge regression threshold exceeded")
+            sys.exit(1)
+          PY
 
       - name: Upload bridge regression artifacts
         if: always()
@@ -138,5 +192,6 @@ jobs:
           name: bridge-compression-regression-report
           path: |
             results/metrics/bridge_compression_regression_compare.md
+            .benchmarks/bridge/benchstat.txt
             .benchmarks/bridge/base_main_raw.txt
-            .benchmarks/bridge/current_artifacts/results/metrics/bridge_compression_benchmark_raw.txt
+            .benchmarks/bridge/current_artifacts/

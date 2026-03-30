@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BASE_REF="${BASE_REF:-HEAD~1}"
 BENCH_TIME="${BENCH_TIME:-200ms}"
 BENCH_COUNT="${BENCH_COUNT:-10}"
+BENCH_CPU="${BENCH_CPU:-2}"
 GO_TEST_TARGET="${GO_TEST_TARGET:-./test}"
 BENCH_REGEX="${BENCH_REGEX:-BenchmarkAggregateParallel}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/fedavg_benchmark_compare.md}"
@@ -44,7 +45,7 @@ run_bench() {
   local out_file="$2"
   (
     cd "$repo_dir"
-    go test "$GO_TEST_TARGET" -run '^$' -bench "$BENCH_REGEX" -benchmem -benchtime="$BENCH_TIME" -count "$BENCH_COUNT"
+    go test "$GO_TEST_TARGET" -run '^$' -bench "$BENCH_REGEX" -benchmem -benchtime="$BENCH_TIME" -count "$BENCH_COUNT" -cpu "$BENCH_CPU"
   ) | tee "$out_file"
 }
 

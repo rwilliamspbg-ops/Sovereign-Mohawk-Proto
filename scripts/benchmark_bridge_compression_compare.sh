@@ -3,6 +3,7 @@ set -euo pipefail
 
 BENCH_TIME="${BENCH_TIME:-200ms}"
 BENCH_COUNT="${BENCH_COUNT:-5}"
+BENCH_CPU="${BENCH_CPU:-2}"
 BENCHSTAT_ALPHA="${BENCHSTAT_ALPHA:-0.01}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/bridge_compression_benchmark_compare.md}"
 RAW_PATH="${RAW_PATH:-results/metrics/bridge_compression_benchmark_raw.txt}"
@@ -26,10 +27,10 @@ run_go_bench() {
   local out_file="$2"
   if [[ "$USE_DOCKER" == "1" ]]; then
     docker run --rm -v "$PWD":/src -w /src "$GO_IMAGE" sh -lc \
-      "/usr/local/go/bin/go test ./internal/pyapi -run '^$' -bench '${bench_regex}' -benchmem -benchtime=${BENCH_TIME} -count=${BENCH_COUNT}" \
+            "/usr/local/go/bin/go test ./internal/pyapi -run '^$' -bench '${bench_regex}' -benchmem -benchtime=${BENCH_TIME} -count=${BENCH_COUNT} -cpu=${BENCH_CPU}" \
       > "$out_file"
   else
-    go test ./internal/pyapi -run '^$' -bench "$bench_regex" -benchmem -benchtime="$BENCH_TIME" -count="$BENCH_COUNT" > "$out_file"
+        go test ./internal/pyapi -run '^$' -bench "$bench_regex" -benchmem -benchtime="$BENCH_TIME" -count="$BENCH_COUNT" -cpu "$BENCH_CPU" > "$out_file"
   fi
 }
 
