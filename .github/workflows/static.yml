@@ -2,6 +2,7 @@ name: Deploy static content to Pages
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -24,6 +25,41 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
+      - name: Prepare deploy metadata
+        run: |
+          set -euo pipefail
+          SHORT_SHA="${GITHUB_SHA::12}"
+          BUILD_TIME_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          printf "%s\n" "${GITHUB_SHA}" > .build-sha.txt
+          printf "%s\n" "${BUILD_TIME_UTC}" > .build-time-utc.txt
+          cat > .build-metadata.json <<EOF
+          {
+            "sha": "${GITHUB_SHA}",
+            "sha_short": "${SHORT_SHA}",
+            "built_at_utc": "${BUILD_TIME_UTC}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "run_number": "${GITHUB_RUN_NUMBER}",
+            "run_attempt": "${GITHUB_RUN_ATTEMPT}"
+          }
+          EOF
+          touch .nojekyll
+      - name: Validate deploy metadata files
+        run: |
+          set -euo pipefail
+          test -s .build-sha.txt
+          test -s .build-time-utc.txt
+          test -s .build-metadata.json
+          grep -q '"sha"' .build-metadata.json
+          grep -q '"built_at_utc"' .build-metadata.json
+          grep -q '"run_number"' .build-metadata.json
+      - name: Log deploy metadata for audit trail
+        run: |
+          set -euo pipefail
+          echo "Deploy metadata JSON:"
+          cat .build-metadata.json
+          echo ""
+          echo "Deploy metadata SHA-256:"
+          sha256sum .build-metadata.json
       - name: Upload artifact
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
         with:

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="google-site-verification" content="OfRG1PZblNsYFmZ8bOL8Mgjidg-sz_1ZSnfbqEfLNWs" />
     <title>Sovereign Mohawk: Formally Verified 10M-Node Federated Learning</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -879,6 +882,7 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
             </div>
             <div class="border-t border-gray-800 pt-8 text-sm text-center">
                 <p>&copy; 2026 Sovereign Mohawk Protocol. Licensed under Apache 2.0.</p>
+                <p id="buildStamp" class="mt-2 text-xs text-gray-500">Build: loading deploy metadata...</p>
                 <p class="mt-2 text-xs">
                     The "Mohawk" nomenclature acknowledges principles of sovereignty and decentralized governance while respecting 
                     that it makes no claims to Kanienʼkehá꞉ka cultural IP.
@@ -1037,6 +1041,39 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
                 }
             }
         });
+
+        // Show deployed build metadata so stale pages are easy to spot.
+        (async function loadBuildStamp() {
+            const buildStamp = document.getElementById('buildStamp');
+            if (!buildStamp) {
+                return;
+            }
+
+            const bust = Date.now();
+            try {
+                const metadataResp = await fetch(`.build-metadata.json?v=${bust}`, { cache: 'no-store' });
+
+                if (!metadataResp.ok) {
+                    buildStamp.textContent = 'Build: metadata unavailable';
+                    return;
+                }
+
+                const metadata = await metadataResp.json();
+                const builtAt = (metadata.built_at_utc || '').trim();
+                const shaShort = (metadata.sha_short || '').trim();
+                const runNumber = (metadata.run_number || '').trim();
+
+                if (!builtAt || !shaShort) {
+                    buildStamp.textContent = 'Build: metadata unavailable';
+                    return;
+                }
+
+                const runSuffix = runNumber ? ` | Run #${runNumber}` : '';
+                buildStamp.textContent = `Build: ${builtAt} | ${shaShort}${runSuffix}`;
+            } catch (error) {
+                buildStamp.textContent = 'Build: metadata unavailable';
+            }
+        })();
     </script>
 </body>
 </html>
