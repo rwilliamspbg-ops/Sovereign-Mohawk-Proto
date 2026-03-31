@@ -7,9 +7,9 @@
   "failed_step": null,
   "finished_at": "2026-03-28T13:52:11Z",
   "go": {
-    "compile_version": "go1.25.7",
-    "go_version": "go1.25.7",
-    "goroot": "/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64",
+    "compile_version": "go1.25.8",
+    "go_version": "go1.25.8",
+    "goroot": "/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64",
     "toolchain_aligned": true
   },
   "ok": true,

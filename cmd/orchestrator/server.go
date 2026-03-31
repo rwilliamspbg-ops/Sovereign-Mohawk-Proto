@@ -16,10 +16,12 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -41,6 +43,8 @@ type Server struct {
 	UtilityLedger    *token.Ledger
 	AdminToken       string
 }
+
+const maxJSONRequestBodyBytes int64 = 1 << 20
 
 // HandleMigrationDigest returns the canonical migration digest to be signed by legacy and PQC keys.
 func (s *Server) HandleMigrationDigest(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +68,7 @@ func (s *Server) HandleMigrationDigest(w http.ResponseWriter, r *http.Request) {
 		IdempotencyKey string  `json:"idempotency_key,omitempty"`
 		Nonce          uint64  `json:"nonce,omitempty"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxJSONRequestBodyBytes)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -128,6 +133,7 @@ func (s *Server) HandleAttest(w http.ResponseWriter, r *http.Request) {
 		NodeID string `json:"node_id"`
 		Quote  []byte `json:"quote"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxJSONRequestBodyBytes)
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -159,6 +165,7 @@ func (s *Server) HandleCheckpointPut(w http.ResponseWriter, r *http.Request) {
 		Name    string `json:"name"`
 		Payload string `json:"payload"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxJSONRequestBodyBytes)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -253,6 +260,7 @@ func (s *Server) HandleMigrationConfig(w http.ResponseWriter, r *http.Request) {
 		RequireCryptoEpoch  bool   `json:"require_crypto_epoch"`
 		LockLegacyTransfers bool   `json:"lock_legacy_transfers"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxJSONRequestBodyBytes)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -323,6 +331,7 @@ func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request)
 		IdempotencyKey string  `json:"idempotency_key,omitempty"`
 		Nonce          uint64  `json:"nonce,omitempty"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxJSONRequestBodyBytes)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
@@ -372,10 +381,21 @@ func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request)
 func (s *Server) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {
 	expected := strings.TrimSpace(s.AdminToken)
 	if expected == "" {
-		return true
+		if strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_ALLOW_UNAUTH_ADMIN")), "true") {
+			return true
+		}
+		metrics.ObserveAuthzDenial(strings.TrimSpace(r.URL.Path), "admin_token_not_configured")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return false
 	}
 	auth := strings.TrimSpace(r.Header.Get("Authorization"))
-	if auth != "Bearer "+expected {
+	if len(auth) < 7 || !strings.EqualFold(auth[:7], "Bearer ") {
+		metrics.ObserveAuthzDenial(strings.TrimSpace(r.URL.Path), "invalid_bearer_token")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return false
+	}
+	provided := strings.TrimSpace(auth[7:])
+	if subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) != 1 {
 		metrics.ObserveAuthzDenial(strings.TrimSpace(r.URL.Path), "invalid_bearer_token")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return false

@@ -81,7 +81,7 @@ Use short, scoped branch names:
 
 ### Go Toolchain Guard (Required)
 
-This repository requires Go `1.25.7` from `go.mod`.
+This repository requires Go `1.25.8` from `go.mod`.
 
 Before running `go`, `make lint`, `make verify`, or benchmark commands, source:
 
@@ -113,7 +113,7 @@ If your PR changes aggregation, accelerator, or performance-critical paths, incl
 1. Run the Go FedAvg benchmark matrix locally:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
 go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
 ```
@@ -121,7 +121,7 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 1. Generate base-vs-current benchmark comparison:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
@@ -141,6 +141,14 @@ Use this when validating swarm-scale behavior before opening a PR:
 ./genesis-launch.sh --all-nodes
 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 ```
+
+When scaling `node-agent`, set cert pool size to at least the replica count:
+
+```bash
+MOHAWK_TPM_CLIENT_CERT_POOL_SIZE=10 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
+```
+
+The scaled profile is fail-fast: replicas exit if their per-replica cert/key is missing.
 
 Common pitfalls and fixes:
 

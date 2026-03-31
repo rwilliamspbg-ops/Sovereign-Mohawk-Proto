@@ -14,6 +14,8 @@ services:
   runtime-secrets-init:
     image: alpine:3.22
     container_name: runtime-secrets-init
+    environment:
+      - MOHAWK_TPM_CLIENT_CERT_POOL_SIZE=${MOHAWK_TPM_CLIENT_CERT_POOL_SIZE:-128}
     command:
       - /bin/sh
       - -lc
@@ -32,6 +34,45 @@ services:
             -sha256 -days 365 -nodes \
             -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
         fi
+        issue_leaf() {
+          cn="$$1"
+          cert="$$2"
+          key="$$3"
+          csr="$${cert}.csr"
+          if [ ! -s "$$cert" ] || [ ! -s "$$key" ]; then
+            openssl req -new -newkey rsa:3072 -nodes \
+              -keyout "$$key" \
+              -out "$$csr" \
+              -subj "/CN=$${cn}/O=Sovereign-Mohawk Nodes" >/dev/null 2>&1
+            openssl x509 -req \
+              -in "$$csr" \
+              -CA /run/secrets/mohawk_tpm_ca_cert.pem \
+              -CAkey /run/secrets/mohawk_tpm_ca_key.pem \
+              -CAcreateserial \
+              -out "$$cert" \
+              -days 30 \
+              -sha256 >/dev/null 2>&1
+            rm -f "$$csr"
+            chmod 600 "$$cert" "$$key"
+          fi
+        }
+        issue_leaf orchestrator /run/secrets/mohawk_tpm_orchestrator_cert.pem /run/secrets/mohawk_tpm_orchestrator_key.pem
+        issue_leaf node-agent /run/secrets/mohawk_tpm_client_cert.pem /run/secrets/mohawk_tpm_client_key.pem
+        mkdir -p /run/secrets/node-agent-certs
+        pool_size="$${MOHAWK_TPM_CLIENT_CERT_POOL_SIZE:-128}"
+        case "$$pool_size" in
+          ''|*[!0-9]*) pool_size=128 ;;
+        esac
+        if [ "$$pool_size" -lt 1 ]; then
+          pool_size=1
+        fi
+        i=1
+        while [ "$$i" -le "$$pool_size" ]; do
+          issue_leaf "node-agent-$${i}" \
+            "/run/secrets/node-agent-certs/mohawk_tpm_client_$${i}_cert.pem" \
+            "/run/secrets/node-agent-certs/mohawk_tpm_client_$${i}_key.pem"
+          i=$$((i+1))
+        done
     volumes:
       - ./runtime-secrets:/run/secrets
     networks:
@@ -53,7 +94,9 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
+      - MOHAWK_ADMIN_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_PQC_MIGRATION_ENABLED=${MOHAWK_PQC_MIGRATION_ENABLED:-true}
       - MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=${MOHAWK_PQC_LOCK_LEGACY_TRANSFERS:-true}
       - MOHAWK_PQC_MIGRATION_ETA=${MOHAWK_PQC_MIGRATION_ETA:-2027-12-31T00:00:00Z}
@@ -83,7 +126,10 @@ services:
       - ./data/utility-ledger:/var/lib/mohawk/utility-ledger
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_orchestrator_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_orchestrator_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
@@ -213,7 +259,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -235,7 +282,10 @@ services:
     volumes:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
     depends_on:
       orchestrator:
         condition: service_healthy
@@ -260,7 +310,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -282,7 +333,10 @@ services:
     volumes:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
     depends_on:
       orchestrator:
         condition: service_healthy
@@ -307,7 +361,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -329,7 +384,10 @@ services:
     volumes:
       # Optional: persistent storage for additional settlement assets
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
     depends_on:
       orchestrator:
         condition: service_healthy

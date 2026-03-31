@@ -111,9 +111,9 @@ Run benchmark checks before release cut or after aggregation/runtime changes.
 1. Python SDK performance gate baseline:
    - `cd sdk/python && python -m pytest tests/test_benchmarks.py --benchmark-only -q`
 2. Go FedAvg matrix benchmark:
-   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms`
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms`
 3. Generate base-vs-current FedAvg comparison report:
-   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
 
 CI automation:
 

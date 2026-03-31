@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 )
@@ -318,6 +319,21 @@ type externalCommandVerifier struct {
 	command string
 }
 
+func parseExternalCommand(raw string) (string, []string, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return "", nil, fmt.Errorf("external command is not configured")
+	}
+	if strings.ContainsAny(raw, "|&;<>`\\n\\r") {
+		return "", nil, fmt.Errorf("external command contains shell metacharacters")
+	}
+	parts := strings.FieldsFunc(raw, unicode.IsSpace)
+	if len(parts) == 0 {
+		return "", nil, fmt.Errorf("external command is empty")
+	}
+	return parts[0], parts[1:], nil
+}
+
 func (externalCommandVerifier) BackendName() string { return "external_cmd" }
 
 func (v externalCommandVerifier) Verify(proof []byte) (bool, error) {
@@ -336,7 +352,11 @@ func (v externalCommandVerifier) Verify(proof []byte) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", v.command)
+	bin, args, err := parseExternalCommand(v.command)
+	if err != nil {
+		return false, err
+	}
+	cmd := exec.CommandContext(ctx, bin, args...)
 	cmd.Stdin = strings.NewReader(string(proof))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -365,7 +385,11 @@ func (v externalSNARKAccelerator) Verify(ctx context.Context, proof []byte) (boo
 	if strings.TrimSpace(v.command) == "" {
 		return false, fmt.Errorf("accelerated snark command is not configured")
 	}
-	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", v.command)
+	bin, args, err := parseExternalCommand(v.command)
+	if err != nil {
+		return false, err
+	}
+	cmd := exec.CommandContext(ctx, bin, args...)
 	cmd.Stdin = strings.NewReader(string(proof))
 	out, err := cmd.CombinedOutput()
 	if err != nil {

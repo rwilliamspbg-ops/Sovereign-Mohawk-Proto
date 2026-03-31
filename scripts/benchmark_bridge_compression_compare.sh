@@ -8,7 +8,7 @@ BENCHSTAT_ALPHA="${BENCHSTAT_ALPHA:-0.01}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/bridge_compression_benchmark_compare.md}"
 RAW_PATH="${RAW_PATH:-results/metrics/bridge_compression_benchmark_raw.txt}"
 USE_DOCKER="${USE_DOCKER:-1}"
-GO_IMAGE="${GO_IMAGE:-golang:1.25.7}"
+GO_IMAGE="${GO_IMAGE:-golang:1.25.8}"
 
 mkdir -p "$(dirname "$REPORT_PATH")"
 mkdir -p "$(dirname "$RAW_PATH")"

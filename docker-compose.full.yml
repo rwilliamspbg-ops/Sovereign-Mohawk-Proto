@@ -60,7 +60,6 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -72,13 +71,39 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
-    # Make each replica unique without hard-coding node IDs.
-    command: ["/bin/sh", "-lc", "NODE_ID=$${HOSTNAME} exec ./node-agent-bin"]
+    # Make each replica unique without hard-coding node IDs and pick per-replica mTLS cert/key.
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        set -e
+        idx="${HOSTNAME##*-}"
+        case "$idx" in
+          ''|*[!0-9]*)
+            echo "error: unable to derive numeric replica index from HOSTNAME=$HOSTNAME" >&2
+            exit 1
+            ;;
+        esac
+        cert="/run/secrets/node-agent-certs/mohawk_tpm_client_${idx}_cert.pem"
+        key="/run/secrets/node-agent-certs/mohawk_tpm_client_${idx}_key.pem"
+        if [ ! -s "$cert" ] || [ ! -s "$key" ]; then
+          echo "error: missing per-replica mTLS cert/key for replica index ${idx}" >&2
+          echo "hint: increase MOHAWK_TPM_CLIENT_CERT_POOL_SIZE to at least the scale count" >&2
+          exit 1
+        fi
+        export MOHAWK_TPM_CERT_FILE="$cert"
+        export MOHAWK_TPM_KEY_FILE="$key"
+        export NODE_ID="${HOSTNAME}"
+        exec ./node-agent-bin
     volumes:
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/node-agent-certs:/run/secrets/node-agent-certs:ro
     depends_on:
       orchestrator:
         condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
       ipfs:
         condition: service_healthy
     networks:

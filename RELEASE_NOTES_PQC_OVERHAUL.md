@@ -62,6 +62,7 @@ Performance Evidence: [Release performance index](results/metrics/release_perfor
 
 - `results/readiness/one-click-pipeline-report.json`
 - `results/readiness/one-click-pipeline-report.md`
+- `results/go-live/evidence/go_toolchain_alignment_2026-03-31.md`
 - `results/readiness/readiness-report.json`
 - `results/readiness/readiness-digest.md`
 - `chaos-reports/*-summary.json`
@@ -70,4 +71,4 @@ Performance Evidence: [Release performance index](results/metrics/release_perfor
 
 - Strict mode correctly blocks on insufficient host buffers in this dev container.
 - Advisory override completes full pipeline with `PASS` and generated artifacts.
-- Go runtime/compiler alignment verified in one-click report (`go1.25.7` / `go1.25.7`).
+- Go runtime/compiler alignment verified in one-click report (`go1.25.8` / `go1.25.8`).

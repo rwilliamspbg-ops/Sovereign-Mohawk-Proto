@@ -21,15 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
           go-version: '1.25.x'
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.12'
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Upload swarm integration artifacts
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: swarm-integration-artifacts
           path: |
@@ -62,10 +62,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
           go-version: '1.25.x'
 
@@ -75,13 +75,13 @@ jobs:
           go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
 
       - name: Save baseline in GitHub Actions cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .benchmarks/fedavg/base_main.txt
           key: fedavg-main-${{ github.sha }}
 
       - name: Upload FedAvg baseline artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: fedavg-baseline-main
           path: .benchmarks/fedavg/base_main.txt
@@ -92,12 +92,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
           go-version: '1.25.x'
 
@@ -108,7 +108,7 @@ jobs:
 
       - name: Restore FedAvg baseline cache from main
         id: restore-fedavg-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: .benchmarks/fedavg/base_main.txt
           key: fedavg-main-${{ github.sha }}
@@ -181,7 +181,7 @@ jobs:
 
       - name: Upload FedAvg benchmark report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: fedavg-benchmark-report
           path: |

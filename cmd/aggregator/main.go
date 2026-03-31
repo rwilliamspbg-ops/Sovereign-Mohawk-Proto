@@ -1,11 +1,13 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Update struct {
@@ -13,11 +15,31 @@ type Update struct {
 	Value float64 `json:"value"`
 }
 
+const maxRequestBodyBytes int64 = 1 << 20
+
+func authorizeRequest(r *http.Request) bool {
+	expected := strings.TrimSpace(os.Getenv("AGGREGATOR_AUTH_TOKEN"))
+	if expected == "" {
+		return true
+	}
+	auth := strings.TrimSpace(r.Header.Get("Authorization"))
+	if len(auth) < 7 || !strings.EqualFold(auth[:7], "Bearer ") {
+		return false
+	}
+	provided := strings.TrimSpace(auth[7:])
+	return subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) == 1
+}
+
 func aggregateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	if !authorizeRequest(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodyBytes)
 
 	var updates []Update
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {

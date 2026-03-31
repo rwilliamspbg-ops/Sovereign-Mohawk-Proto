@@ -35,6 +35,18 @@ If you discover a vulnerability that circumvents our formal proofs or "Active Gu
 
 ---
 
+## 🧾 Audit Handoff (CertiK)
+
+Current external-audit handoff artifacts:
+
+* [results/security-audit/audit_handoff_certik_2026-03-31.md](./results/security-audit/audit_handoff_certik_2026-03-31.md)
+* [results/security-audit/control_to_evidence_matrix_2026-03-31.md](./results/security-audit/control_to_evidence_matrix_2026-03-31.md)
+* [results/security-audit/audit_closure_report_2026-03-31.md](./results/security-audit/audit_closure_report_2026-03-31.md)
+* [results/security-audit/auditor_kickoff_checklist_2026-03-31.md](./results/security-audit/auditor_kickoff_checklist_2026-03-31.md)
+* [results/security-audit/audit_baseline_manifest_2026-03-31.md](./results/security-audit/audit_baseline_manifest_2026-03-31.md)
+
+---
+
 ## ⚖️ Licensing and Patent Notice
 
 This repository is distributed under Apache License 2.0. See [LICENSE.md](./LICENSE.md).

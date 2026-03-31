@@ -16,6 +16,7 @@ Current TPM closure evidence:
 
 * `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md`
 * `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md`
+* `results/go-live/evidence/go_toolchain_alignment_2026-03-31.md`
 
 ### Formal Go-Live Gate Status
 

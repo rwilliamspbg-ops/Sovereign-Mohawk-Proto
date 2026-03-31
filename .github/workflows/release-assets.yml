@@ -24,15 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Node (for npm package assets)
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f
         with:
           node-version: "22"
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
           go-version: "1.25.x"
 
@@ -97,7 +97,7 @@ jobs:
             monitoring/prometheus/alerting-rules.yml
 
       - name: Upload release prep artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: release-prep-assets
           retention-days: 30
@@ -118,7 +118,7 @@ jobs:
             dockerfile: cmd/api-dashboard/Dockerfile
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
@@ -159,7 +159,7 @@ jobs:
           printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
 
       - name: Upload docker release artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: docker-release-assets-${{ matrix.image_name }}
           retention-days: 30
@@ -173,13 +173,13 @@ jobs:
       - build-and-push-release-images
     steps:
       - name: Download release prep assets
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: release-prep-assets
           path: release-assets
 
       - name: Download docker release artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           pattern: docker-release-assets-*
           path: release-assets/docker
@@ -211,13 +211,13 @@ jobs:
       - validate-release-bundle
     steps:
       - name: Download release prep assets
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: release-prep-assets
           path: release-assets
 
       - name: Download docker release artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           pattern: docker-release-assets-*
           path: release-assets/docker

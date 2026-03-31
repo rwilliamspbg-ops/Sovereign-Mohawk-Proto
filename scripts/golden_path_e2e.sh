@@ -20,7 +20,7 @@ trap cleanup EXIT
 echo "[golden-path] ensuring runtime secrets"
 mkdir -p runtime-secrets
 if [[ ! -s runtime-secrets/mohawk_api_token ]]; then
-  python3 -c 'import pathlib, secrets; pathlib.Path("runtime-secrets/mohawk_api_token").write_text(secrets.token_hex(24), encoding="utf-8")'
+  python3 -c 'import os, pathlib, secrets; p = pathlib.Path("runtime-secrets/mohawk_api_token"); p.write_text(secrets.token_hex(24), encoding="utf-8"); os.chmod(p, 0o600)'
 fi
 if [[ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem || ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]]; then
   openssl req -x509 -newkey rsa:3072 \

@@ -93,7 +93,7 @@ func main() {
 		MeshDimensions:   meshDimensions,
 		PeerHost:         transportHost,
 		TransportKEXMode: kexMode,
-		AdminToken:       strings.TrimSpace(os.Getenv("MOHAWK_ADMIN_TOKEN")),
+		AdminToken:       loadSecretValue("MOHAWK_ADMIN_TOKEN", "MOHAWK_ADMIN_TOKEN_FILE"),
 	}
 	utilityLedger, err := initUtilityLedger()
 	if err != nil {
@@ -228,6 +228,22 @@ func splitRelayAddrs(value string) []string {
 		}
 	}
 	return addrs
+}
+
+func loadSecretValue(envKey string, fileEnvKey string) string {
+	if value := strings.TrimSpace(os.Getenv(envKey)); value != "" {
+		return value
+	}
+	secretFile := strings.TrimSpace(os.Getenv(fileEnvKey))
+	if secretFile == "" {
+		return ""
+	}
+	content, err := os.ReadFile(secretFile)
+	if err != nil {
+		log.Printf("warning: failed to read %s: %v", fileEnvKey, err)
+		return ""
+	}
+	return strings.TrimSpace(string(content))
 }
 
 func initUtilityLedger() (*token.Ledger, error) {

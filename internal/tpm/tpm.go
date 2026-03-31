@@ -71,6 +71,8 @@ type Authority struct {
 type Attestor struct {
 	nodeID    string
 	authority *Authority
+	certPath  string
+	keyPath   string
 	tlsCert   tls.Certificate
 	leafCert  *x509.Certificate
 	key       *rsa.PrivateKey
@@ -377,14 +379,25 @@ func getAttestor(nodeID string) (*Attestor, error) {
 	attestorMutex.Lock()
 	defer attestorMutex.Unlock()
 
+	leafCertPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_CERT_FILE"))
+	leafKeyPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_KEY_FILE"))
+	if (leafCertPath == "") != (leafKeyPath == "") {
+		return nil, fmt.Errorf("MOHAWK_TPM_CERT_FILE and MOHAWK_TPM_KEY_FILE must be set together")
+	}
+
 	authority, err := getAuthority()
 	if err != nil {
 		return nil, err
 	}
-	if attestor, ok := attestors[nodeID]; ok && attestor.authority == authority {
+	if attestor, ok := attestors[nodeID]; ok && attestor.authority == authority && attestor.certPath == leafCertPath && attestor.keyPath == leafKeyPath {
 		return attestor, nil
 	}
-	attestor, err := newAttestor(nodeID, authority)
+	var attestor *Attestor
+	if leafCertPath != "" {
+		attestor, err = newAttestorFromFiles(nodeID, authority, leafCertPath, leafKeyPath)
+	} else {
+		attestor, err = newAttestor(nodeID, authority)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -398,21 +411,43 @@ func getAuthority() (*Authority, error) {
 
 	externalCertPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_CA_CERT_FILE"))
 	externalKeyPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_CA_KEY_FILE"))
-	if externalCertPath != "" && externalKeyPath != "" {
-		authority, err := loadAuthorityFromFiles(externalCertPath, externalKeyPath)
-		if err != nil {
-			if !allowAuthorityFallback(externalCertPath, externalKeyPath, err) {
-				return nil, err
+	if externalCertPath != "" {
+		var (
+			authority *Authority
+			err       error
+		)
+		if externalKeyPath != "" {
+			authority, err = loadAuthorityFromFiles(externalCertPath, externalKeyPath)
+			if err != nil {
+				if !allowAuthorityFallback(externalCertPath, externalKeyPath, err) {
+					return nil, err
+				}
+			} else {
+				if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
+					defaultAuthority = authority
+					defaultAuthorityE = nil
+					cacheMutex.Lock()
+					quoteCache = make(map[string]CachedQuote)
+					cacheMutex.Unlock()
+				}
+				return defaultAuthority, nil
 			}
 		} else {
-			if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
-				defaultAuthority = authority
-				defaultAuthorityE = nil
-				cacheMutex.Lock()
-				quoteCache = make(map[string]CachedQuote)
-				cacheMutex.Unlock()
+			authority, err = loadAuthorityCertFromFile(externalCertPath)
+			if err != nil {
+				if !allowAuthorityFallback(externalCertPath, externalKeyPath, err) {
+					return nil, err
+				}
+			} else {
+				if defaultAuthority == nil || defaultAuthority.cert == nil || !defaultAuthority.cert.Equal(authority.cert) {
+					defaultAuthority = authority
+					defaultAuthorityE = nil
+					cacheMutex.Lock()
+					quoteCache = make(map[string]CachedQuote)
+					cacheMutex.Unlock()
+				}
+				return defaultAuthority, nil
 			}
-			return defaultAuthority, nil
 		}
 	}
 
@@ -471,14 +506,33 @@ func loadAuthorityFromFiles(certPath string, keyPath string) (*Authority, error)
 	return &Authority{cert: cert, key: parsedKey}, nil
 }
 
+func loadAuthorityCertFromFile(certPath string) (*Authority, error) {
+	certPEM, err := os.ReadFile(certPath)
+	if err != nil {
+		return nil, fmt.Errorf("read tpm ca cert %q: %w", certPath, err)
+	}
+	certBlock, _ := pem.Decode(certPEM)
+	if certBlock == nil {
+		return nil, fmt.Errorf("decode tpm ca cert pem %q", certPath)
+	}
+	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("parse tpm ca cert %q: %w", certPath, err)
+	}
+	if !cert.IsCA {
+		return nil, fmt.Errorf("tpm ca cert %q is not a CA certificate", certPath)
+	}
+	return &Authority{cert: cert, key: nil}, nil
+}
+
 func allowAuthorityFallback(certPath string, keyPath string, loadErr error) bool {
 	if os.IsNotExist(loadErr) {
 		return true
 	}
-	if pathStatMissingOrDir(certPath) {
+	if strings.TrimSpace(certPath) != "" && pathStatMissingOrDir(certPath) {
 		return true
 	}
-	if pathStatMissingOrDir(keyPath) {
+	if strings.TrimSpace(keyPath) != "" && pathStatMissingOrDir(keyPath) {
 		return true
 	}
 	return false
@@ -553,6 +607,12 @@ func newAuthority(commonName string) (*Authority, error) {
 }
 
 func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
+	if authority == nil || authority.cert == nil {
+		return nil, fmt.Errorf("authority is not configured")
+	}
+	if authority.key == nil {
+		return nil, fmt.Errorf("authority signing key is required to mint node certs; configure MOHAWK_TPM_CERT_FILE and MOHAWK_TPM_KEY_FILE for this node")
+	}
 	key, err := rsa.GenerateKey(rand.Reader, 3072)
 	if err != nil {
 		return nil, err
@@ -597,9 +657,72 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 	return &Attestor{
 		nodeID:    nodeID,
 		authority: authority,
+		certPath:  "",
+		keyPath:   "",
 		tlsCert:   tlsCert,
 		leafCert:  leaf,
 		key:       key,
+		pcrDigest: digest[:],
+		sigMode:   mode,
+		hashSeed:  hashSeed,
+		hashKeyID: hashKeyID,
+	}, nil
+}
+
+func newAttestorFromFiles(nodeID string, authority *Authority, certPath string, keyPath string) (*Attestor, error) {
+	if authority == nil || authority.cert == nil {
+		return nil, fmt.Errorf("authority is not configured")
+	}
+	certPEM, err := os.ReadFile(certPath)
+	if err != nil {
+		return nil, fmt.Errorf("read tpm cert %q: %w", certPath, err)
+	}
+	keyPEM, err := os.ReadFile(keyPath)
+	if err != nil {
+		return nil, fmt.Errorf("read tpm key %q: %w", keyPath, err)
+	}
+	tlsCert, err := tls.X509KeyPair(certPEM, keyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("parse node tls keypair: %w", err)
+	}
+	if len(tlsCert.Certificate) == 0 {
+		return nil, fmt.Errorf("node tls keypair has no certificate")
+	}
+	leaf, err := x509.ParseCertificate(tlsCert.Certificate[0])
+	if err != nil {
+		return nil, fmt.Errorf("parse node tls certificate: %w", err)
+	}
+	pool := x509.NewCertPool()
+	pool.AddCert(authority.cert)
+	if _, err := leaf.Verify(x509.VerifyOptions{Roots: pool, CurrentTime: time.Now()}); err != nil {
+		return nil, fmt.Errorf("node tls certificate is not signed by configured TPM CA: %w", err)
+	}
+
+	var rsaKey *rsa.PrivateKey
+	if parsed, ok := tlsCert.PrivateKey.(*rsa.PrivateKey); ok {
+		rsaKey = parsed
+	}
+	mode := ActiveAttestationSignatureMode()
+	if mode == "" {
+		return nil, fmt.Errorf("unsupported MOHAWK_TPM_IDENTITY_SIG_MODE %q", os.Getenv("MOHAWK_TPM_IDENTITY_SIG_MODE"))
+	}
+	if mode == AttestationSignatureRSA && rsaKey == nil {
+		return nil, fmt.Errorf("rsa attestation mode requires an RSA node key")
+	}
+	digest := sha256.Sum256([]byte("pcr:sha256:boot=measured;runtime=verified;node=" + nodeID))
+	hashSeed, hashKeyID, err := loadHashSeed(nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Attestor{
+		nodeID:    nodeID,
+		authority: authority,
+		certPath:  certPath,
+		keyPath:   keyPath,
+		tlsCert:   tlsCert,
+		leafCert:  leaf,
+		key:       rsaKey,
 		pcrDigest: digest[:],
 		sigMode:   mode,
 		hashSeed:  hashSeed,
@@ -621,6 +744,9 @@ func (a *Attestor) GenerateQuote() ([]byte, error) {
 	var err error
 	switch a.sigMode {
 	case AttestationSignatureRSA:
+		if a.key == nil {
+			return nil, fmt.Errorf("rsa attestation mode requires rsa node key")
+		}
 		digest, digestErr := envelope.payloadDigest()
 		if digestErr != nil {
 			return nil, digestErr

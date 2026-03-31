@@ -81,10 +81,12 @@ if [[ ! -s "$TOKEN_PATH" ]]; then
     echo "created $TOKEN_PATH"
   elif command -v python3 >/dev/null 2>&1; then
     python3 - <<'PY'
+import os
 import secrets
 from pathlib import Path
 path = Path('runtime-secrets/mohawk_api_token')
 path.write_text(secrets.token_hex(24), encoding='utf-8')
+os.chmod(path, 0o600)
 print(f'created {path}')
 PY
   else

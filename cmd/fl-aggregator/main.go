@@ -14,16 +14,34 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"io"
 	"log"
 	"math"
 	"net/http"
+	"os"
+	"strings"
 )
 
 type GradPayload struct {
 	NodeID string    `json:"node_id"`
 	Grads  []float64 `json:"grads"`
+}
+
+const maxRequestBodyBytes int64 = 1 << 20
+
+func authorizeRequest(r *http.Request) bool {
+	expected := strings.TrimSpace(os.Getenv("FL_AGGREGATOR_AUTH_TOKEN"))
+	if expected == "" {
+		return true
+	}
+	auth := strings.TrimSpace(r.Header.Get("Authorization"))
+	if len(auth) < 7 || !strings.EqualFold(auth[:7], "Bearer ") {
+		return false
+	}
+	provided := strings.TrimSpace(auth[7:])
+	return subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) == 1
 }
 
 func main() {
@@ -33,7 +51,16 @@ func main() {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	body, _ := io.ReadAll(r.Body)
+	if !authorizeRequest(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxRequestBodyBytes)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "failed to read request body", http.StatusBadRequest)
+		return
+	}
 	var p GradPayload
 	if err := json.Unmarshal(body, &p); err != nil {
 		http.Error(w, "bad json", http.StatusBadRequest)

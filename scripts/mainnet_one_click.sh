@@ -21,7 +21,7 @@ finalize_report() {
   local compile_version="unknown"
   local goroot_value="unknown"
   if command -v go >/dev/null 2>&1; then
-    go_info="$(bash -c 'source scripts/ensure_go_toolchain.sh >/dev/null 2>&1 || true; gv="$(go env GOVERSION 2>/dev/null || true)"; gr="$(go env GOROOT 2>/dev/null || true)"; cv="$("$(go env GOTOOLDIR 2>/dev/null)/compile" -V=full 2>/dev/null | grep -o "go[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?" | head -n1 || true)"; printf "%s|%s|%s" "$gv" "$gr" "$cv"')"
+    go_info="$(bash -c 'gv="$(scripts/go_with_toolchain.sh go env GOVERSION 2>/dev/null || true)"; gr="$(scripts/go_with_toolchain.sh go env GOROOT 2>/dev/null || true)"; td="$(scripts/go_with_toolchain.sh go env GOTOOLDIR 2>/dev/null || true)"; cv=""; if [[ -n "$td" && -x "$td/compile" ]]; then cv="$($td/compile -V=full 2>/dev/null | grep -o "go[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?" | head -n1 || true)"; fi; printf "%s|%s|%s" "$gv" "$gr" "$cv"')"
     go_version="$(printf '%s' "$go_info" | cut -d'|' -f1)"
     goroot_value="$(printf '%s' "$go_info" | cut -d'|' -f2)"
     compile_version="$(printf '%s' "$go_info" | cut -d'|' -f3)"
@@ -159,11 +159,13 @@ RUNTIME_GRADIENT_FORMAT="${MOHAWK_GRADIENT_FORMAT:-int8}"
 
 if [[ ! -s runtime-secrets/mohawk_api_token ]]; then
   python3 - <<'PY'
+import os
 import secrets
 from pathlib import Path
 
 path = Path("runtime-secrets/mohawk_api_token")
 path.write_text(secrets.token_hex(24), encoding="utf-8")
+os.chmod(path, 0o600)
 print(f"created {path}")
 PY
 fi

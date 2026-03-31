@@ -287,6 +287,14 @@ Scalable full-stack profile (single `node-agent` service with replicas):
 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 ```
 
+For per-replica mTLS identities, ensure the cert pool size is >= replica count:
+
+```bash
+MOHAWK_TPM_CLIENT_CERT_POOL_SIZE=10 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
+```
+
+`node-agent` replicas now fail fast at startup if their per-replica cert/key is missing.
+
 Adding nodes after genesis start:
 
 ```bash
@@ -659,7 +667,7 @@ Latest runtime microbenchmark matrix for `AggregateParallel` includes:
 Run locally:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
 go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
 ```
@@ -667,7 +675,7 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 Generate a base-vs-current comparison report:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
 BENCH_CPU=2 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
@@ -926,6 +934,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) - TPM closure dashboard summary
 * [results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md](results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md) - Day 2 forensics and recovery rehearsal validation record
 * [results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md](results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md) - Consolidated release-candidate evidence checkpoint index
+* [results/go-live/evidence/go_toolchain_alignment_2026-03-31.md](results/go-live/evidence/go_toolchain_alignment_2026-03-31.md) - Launcher-aligned Go 1.25.8 toolchain evidence snapshot
 * [results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md) - Windows TPM evidence capture guide
 * [results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md) - macOS TPM evidence capture guide
 * [results/go-live/evidence/templates/hardware_validation_capture_template.md](results/go-live/evidence/templates/hardware_validation_capture_template.md) - Standardized hardware validation capture template

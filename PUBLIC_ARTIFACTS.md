@@ -7,6 +7,10 @@ This index provides direct, public links to versioned evidence committed in this
 - Release performance evidence: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
 - Captured artifacts index: [captured_artifacts/README.md](captured_artifacts/README.md)
 - Go-live evidence index: [results/go-live/README.md](results/go-live/README.md)
+- Security audit handoff pack: [results/security-audit/audit_handoff_certik_2026-03-31.md](results/security-audit/audit_handoff_certik_2026-03-31.md)
+- Security control-to-evidence matrix: [results/security-audit/control_to_evidence_matrix_2026-03-31.md](results/security-audit/control_to_evidence_matrix_2026-03-31.md)
+- Auditor kickoff checklist: [results/security-audit/auditor_kickoff_checklist_2026-03-31.md](results/security-audit/auditor_kickoff_checklist_2026-03-31.md)
+- Audit baseline manifest (SHA-256): [results/security-audit/audit_baseline_manifest_2026-03-31.md](results/security-audit/audit_baseline_manifest_2026-03-31.md)
 
 ## Benchmark Evidence
 
@@ -19,6 +23,7 @@ This index provides direct, public links to versioned evidence committed in this
 ## Readiness and Operations Evidence
 
 - Go-live gate report: [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json)
+- Go toolchain alignment (2026-03-31): [results/go-live/evidence/go_toolchain_alignment_2026-03-31.md](results/go-live/evidence/go_toolchain_alignment_2026-03-31.md)
 - Golden path report (JSON): [results/go-live/golden-path-report.json](results/go-live/golden-path-report.json)
 - Golden path report (Markdown): [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md)
 - Stress capture report: [results/metrics/stress_metrics_capture_10m.md](results/metrics/stress_metrics_capture_10m.md)

@@ -49,7 +49,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
@@ -57,7 +58,10 @@ services:
       - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
     volumes:
       - .:/workspace
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
 
   node-agent-2:
     extends:
@@ -72,7 +76,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CA_KEY_FILE=/run/secrets/mohawk_tpm_ca_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
@@ -80,7 +85,10 @@ services:
       - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
     volumes:
       - .:/workspace
-      - ./runtime-secrets:/run/secrets:ro
+      - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
 
   wasm-hello-world-build:
     image: rust:1.76

@@ -7,9 +7,9 @@
 
 ## Go Toolchain
 
-- Go version: `go1.25.7`
-- Compile version: `go1.25.7`
-- GOROOT: `/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.7.linux-amd64`
+- Go version: `go1.25.8`
+- Compile version: `go1.25.8`
+- GOROOT: `/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64`
 - Aligned: `True`
 
 ## Steps

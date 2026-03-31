@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Source this script before running Go commands to avoid mixed toolchain state
-# (e.g., go=1.25.7 with compile=1.25.4 from /usr/local/go).
+# (e.g., go=1.25.8 with compile=1.25.4 from /usr/local/go).
 
 version_lt() {
   local a="$1"
@@ -33,7 +33,7 @@ normalize_uname_arch() {
 }
 
 required_go_version="$(awk '/^go[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
-required_go_version="${required_go_version:-1.25.7}"
+required_go_version="${required_go_version:-1.25.8}"
 required_go_version="${required_go_version#go}"
 
 GO_BIN="$(command -v go)"
@@ -56,11 +56,11 @@ if [[ -n "$current_go_version" ]] && version_lt "$current_go_version" "$required
     export PATH="$GOROOT/bin:$PATH"
     export GOTOOLCHAIN="local"
   else
-    # Allow Go to resolve and install the required toolchain automatically.
-    export GOTOOLCHAIN="auto"
+    # Force selection of the required toolchain and allow auto-updates beyond it.
+    export GOTOOLCHAIN="go${required_go_version}+auto"
   fi
 else
-  export GOTOOLCHAIN="${GOTOOLCHAIN:-local}"
+  export GOTOOLCHAIN="${GOTOOLCHAIN:-go${required_go_version}+auto}"
 fi
 
 go_version="$(go env GOVERSION)"

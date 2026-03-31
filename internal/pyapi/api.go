@@ -351,6 +351,37 @@ func validateAPIAccess(op string, role string, providedToken string) error {
 	return nil
 }
 
+func validateUtilityAccess(op string, role string, providedToken string) error {
+	switch apiAuthMode {
+	case apiAuthModeRequired:
+		if apiAuthToken == "" {
+			return fmt.Errorf("api auth mode is required but token is not configured")
+		}
+		if !verifyAPIToken(providedToken) {
+			return fmt.Errorf("invalid API token")
+		}
+	case apiAuthModeFileOnly:
+		if strings.TrimSpace(os.Getenv("MOHAWK_API_TOKEN_FILE")) == "" {
+			return fmt.Errorf("api auth mode file-only requires MOHAWK_API_TOKEN_FILE")
+		}
+		if apiAuthToken == "" {
+			return fmt.Errorf("api auth token file is configured but unreadable")
+		}
+		if !verifyAPIToken(providedToken) {
+			return fmt.Errorf("invalid API token")
+		}
+	default:
+		if apiAuthToken != "" && !verifyAPIToken(providedToken) {
+			return fmt.Errorf("invalid API token")
+		}
+	}
+
+	if err := authorizeUtilityRole(op, role); err != nil {
+		return err
+	}
+	return nil
+}
+
 func initUtilityCoinLedger() *token.Ledger {
 	statePath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_STATE_PATH"))
 	auditPath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_AUDIT_PATH"))
@@ -1190,10 +1221,7 @@ func MintUtilityCoin(payloadJSON *C.char) *C.char {
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
-	if !verifyAPIToken(providedToken) {
-		return marshalResult(false, "unauthorized: invalid API token", "")
-	}
-	if err := authorizeUtilityRole("mint", req.Role); err != nil {
+	if err := validateUtilityAccess("mint", req.Role, providedToken); err != nil {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	to := req.To
@@ -1249,10 +1277,7 @@ func TransferUtilityCoin(payloadJSON *C.char) *C.char {
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
-	if !verifyAPIToken(providedToken) {
-		return marshalResult(false, "unauthorized: invalid API token", "")
-	}
-	if err := authorizeUtilityRole("transfer", req.Role); err != nil {
+	if err := validateUtilityAccess("transfer", req.Role, providedToken); err != nil {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	from := req.From
@@ -1301,10 +1326,7 @@ func BurnUtilityCoin(payloadJSON *C.char) *C.char {
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
-	if !verifyAPIToken(providedToken) {
-		return marshalResult(false, "unauthorized: invalid API token", "")
-	}
-	if err := authorizeUtilityRole("burn", req.Role); err != nil {
+	if err := validateUtilityAccess("burn", req.Role, providedToken); err != nil {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	if err := enforceUtilityRateLimit(req.From); err != nil {
@@ -1375,10 +1397,7 @@ func BackupUtilityCoinLedger(payloadJSON *C.char) *C.char {
 		return marshalResult(false, "path is required", "")
 	}
 	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
-	if !verifyAPIToken(providedToken) {
-		return marshalResult(false, "unauthorized: invalid API token", "")
-	}
-	if err := authorizeUtilityRole("backup", req.Role); err != nil {
+	if err := validateUtilityAccess("backup", req.Role, providedToken); err != nil {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	if err := enforceUtilityRateLimit("utility-admin"); err != nil {
@@ -1408,10 +1427,7 @@ func RestoreUtilityCoinLedger(payloadJSON *C.char) *C.char {
 		return marshalResult(false, "path is required", "")
 	}
 	providedToken := extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)
-	if !verifyAPIToken(providedToken) {
-		return marshalResult(false, "unauthorized: invalid API token", "")
-	}
-	if err := authorizeUtilityRole("restore", req.Role); err != nil {
+	if err := validateUtilityAccess("restore", req.Role, providedToken); err != nil {
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	if err := enforceUtilityRateLimit("utility-admin"); err != nil {
