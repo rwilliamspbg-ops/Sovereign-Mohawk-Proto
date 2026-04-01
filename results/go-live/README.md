@@ -63,6 +63,11 @@ python3 scripts/validate_go_live_gates.py
 - `evidence/failure_injection_latency_validation_2026-03-28.md`
   - Human-readable summary table of failure-injection latency validation outcomes
 
+## certiK Metrics Evidence
+
+- `evidence/certiK_metrics_evidence.md`
+  - Benchmark rerun and observability evidence pack covering bridge/FedAvg comparisons, 10-minute stress capture, and v2 dashboard validation
+
 ## TPM Attestation Closure Evidence
 
 - `evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json`

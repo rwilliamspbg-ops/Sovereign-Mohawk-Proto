@@ -211,6 +211,18 @@ def main() -> int:
         default=1.0,
         help='Minimum required sum(mohawk_proof_verifications_total{scheme="hybrid"}) for readiness pass',
     )
+    parser.add_argument(
+        "--min-accelerator-ops",
+        type=float,
+        default=1.0,
+        help="Minimum required sum(mohawk_accelerator_ops_total) for readiness pass",
+    )
+    parser.add_argument(
+        "--min-gradient-compression-observations",
+        type=float,
+        default=1.0,
+        help="Minimum required sum(mohawk_gradient_compression_ratio_count) for readiness pass",
+    )
     args = parser.parse_args()
 
     report: dict[str, object] = {
@@ -281,6 +293,8 @@ def main() -> int:
                 "mohawk_utility_coin_holders_count",
                 "mohawk_bridge_transfers_total",
                 "mohawk_proof_verifications_total",
+                "mohawk_accelerator_ops_total",
+                "mohawk_gradient_compression_ratio_count",
             ],
             retries=args.retries,
             delay_seconds=args.delay,
@@ -346,6 +360,49 @@ def main() -> int:
             failures.append(
                 "hybrid proof activity below minimum: "
                 f"total={hybrid_proof_total}, min={args.min_hybrid_verifications}"
+            )
+
+        accelerator_ops_total = wait_query_scalar_value(
+            args.prom_url,
+            "sum(mohawk_accelerator_ops_total)",
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["accelerator_ops_series_present"] = True
+        report["checks"]["accelerator_ops_non_negative"] = accelerator_ops_total >= 0
+        if accelerator_ops_total < 0:
+            failures.append(f"accelerator ops counter negative: {accelerator_ops_total}")
+        report["checks"]["accelerator_ops_min_activity"] = (
+            accelerator_ops_total >= args.min_accelerator_ops
+        )
+        if accelerator_ops_total < args.min_accelerator_ops:
+            failures.append(
+                "accelerator ops activity below minimum: "
+                f"total={accelerator_ops_total}, min={args.min_accelerator_ops}"
+            )
+
+        gradient_compression_count = wait_query_scalar_value(
+            args.prom_url,
+            "sum(mohawk_gradient_compression_ratio_count)",
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["gradient_compression_series_present"] = True
+        report["checks"]["gradient_compression_non_negative"] = gradient_compression_count >= 0
+        if gradient_compression_count < 0:
+            failures.append(
+                "gradient compression observation count negative: "
+                f"{gradient_compression_count}"
+            )
+        report["checks"]["gradient_compression_min_activity"] = (
+            gradient_compression_count >= args.min_gradient_compression_observations
+        )
+        if gradient_compression_count < args.min_gradient_compression_observations:
+            failures.append(
+                "gradient compression activity below minimum: "
+                f"total={gradient_compression_count}, min={args.min_gradient_compression_observations}"
             )
 
         invariant_failures = check_supply_invariant(

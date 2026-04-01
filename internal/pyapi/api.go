@@ -599,25 +599,35 @@ func InitializeNode(configJSON *C.char) *C.char {
 
 //export VerifyZKProof
 func VerifyZKProof(proofJSON *C.char) *C.char {
+	started := time.Now()
 	proofStr := C.GoString(proofJSON)
 	var payload map[string]any
 	if err := json.Unmarshal([]byte(proofStr), &payload); err != nil {
+		latencyMS := float64(time.Since(started).Microseconds()) / 1000.0
+		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
 		return marshalResultEC(false, "PROOF_PARSE_ERROR",
 			fmt.Sprintf("Failed to parse proof payload: %v", err), "")
 	}
 	proofBytes := extractProofBytes(payload)
-	started := time.Now()
 	valid, err := internalpkg.VerifyProof(proofBytes, nil)
 	latencyMS := float64(time.Since(started).Microseconds()) / 1000.0
 	if err != nil {
 		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
 		return marshalResultEC(false, classifyProofError(err), err.Error(), "")
 	}
 	if !valid {
 		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
 		return marshalResultEC(false, "PROOF_INVALID", "pairing check failed: proof does not satisfy genesis VK", "")
 	}
 	metrics.ObserveProofVerification("groth16", true, latencyMS)
+	metrics.ObserveAcceleratorOp("cpu", "proof_verify", true)
+	metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
 	data, _ := json.Marshal(map[string]any{
 		"valid":                valid,
 		"verification_time_ms": latencyMS,
@@ -1015,7 +1025,15 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 
 //export BridgeTransfer
 func BridgeTransfer(payloadJSON *C.char) *C.char {
+	bridgeStart := time.Now()
 	raw := C.GoString(payloadJSON)
+	observeBridgeFailure := func(sourceChain, targetChain string) {
+		latencyMS := float64(time.Since(bridgeStart).Microseconds()) / 1000.0
+		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", latencyMS)
+		metrics.ObserveBridgeTransfer(sourceChain, targetChain, false)
+		metrics.ObserveBridgeTransferLatency(sourceChain, targetChain, false, latencyMS)
+	}
 	var payload struct {
 		SourceChain        string                      `json:"source_chain"`
 		TargetChain        string                      `json:"target_chain"`
@@ -1037,9 +1055,11 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 		Role               string                      `json:"role,omitempty"`
 	}
 	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+		observeBridgeFailure("unknown", "unknown")
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	if err := validateAPIAccess("bridge", payload.Role, extractProvidedToken(payload.AuthToken, payload.Authorization, payload.APIToken)); err != nil {
+		observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 	req := bridge.TransferRequest{
@@ -1053,16 +1073,12 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 		FinalityDepth: payload.FinalityDepth,
 		Proof:         payload.Proof,
 	}
-	bridgeStart := time.Now()
 	engine := bridge.NewEngine("mohawk-bridge-v1")
 	hasExplicitPolicy := payload.PolicyManifestPath != "" || payload.PolicyManifest != nil || payload.RoutePolicy != nil
 	if payload.PolicyManifestPath != "" {
 		manifest, err := bridge.LoadRoutePolicyManifestFile(payload.PolicyManifestPath)
 		if err != nil {
-			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
-			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
-			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 			return marshalResult(false, err.Error(), "")
 		}
 		engine.RegisterRoutePolicyManifest(manifest)
@@ -1073,10 +1089,7 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 	if !hasExplicitPolicy {
 		manifest, loaded, err := bridge.LoadDefaultRoutePolicyManifest()
 		if err != nil {
-			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
-			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
-			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 			return marshalResult(false, err.Error(), "")
 		}
 		if loaded {
@@ -1088,19 +1101,13 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 	}
 	if payload.Settle {
 		if err := configureBridgeSettlement(engine, payload.SettlementMinter); err != nil {
-			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
-			metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
-			metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 			return marshalResult(false, err.Error(), "")
 		}
 	}
 	receipt, err := engine.VerifyTransfer(req)
 	if err != nil {
-		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-		metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
-		metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, false)
-		metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, false, float64(time.Since(bridgeStart).Microseconds())/1000.0)
+		observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 		return marshalResult(false, err.Error(), "")
 	}
 	metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, true)
@@ -1109,8 +1116,7 @@ func BridgeTransfer(payloadJSON *C.char) *C.char {
 	if payload.Settle {
 		settlement, settleErr := engine.SettleVerifiedTransfer(req, receipt)
 		if settleErr != nil {
-			metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-			metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
+			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
 			metrics.ObserveBridgeSettlement(payload.Asset, "failed", payload.Amount)
 			response["settlement"] = settlement
 			data, _ := json.Marshal(response)
@@ -1139,7 +1145,14 @@ func GetHybridBackends(_ *C.char) *C.char {
 
 //export VerifyHybridProof
 func VerifyHybridProof(payloadJSON *C.char) *C.char {
+	verifyStart := time.Now()
 	raw := C.GoString(payloadJSON)
+	observeHybridFailure := func(backend string) {
+		latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
+		metrics.ObserveAcceleratorOp(backend, "hybrid_verify", false)
+		metrics.ObserveAcceleratorOpLatency(backend, "hybrid_verify", latencyMS)
+		metrics.ObserveProofVerification("hybrid", false, latencyMS)
+	}
 	var req struct {
 		Mode          string `json:"mode"`
 		SNARKProof    string `json:"snark_proof"`
@@ -1151,14 +1164,15 @@ func VerifyHybridProof(payloadJSON *C.char) *C.char {
 		Role          string `json:"role,omitempty"`
 	}
 	if err := json.Unmarshal([]byte(raw), &req); err != nil {
+		observeHybridFailure("cpu")
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
 	}
 	if err := validateAPIAccess("hybrid", req.Role, extractProvidedToken(req.AuthToken, req.Authorization, req.APIToken)); err != nil {
+		observeHybridFailure("cpu")
 		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
 	}
 
 	tune := accelerator.BuildAutoTuneProfile(len(req.SNARKProof) + len(req.STARKProof))
-	verifyStart := time.Now()
 
 	result, err := hybrid.VerifyHybrid(hybrid.VerifyRequest{
 		Mode:         hybrid.HybridMode(req.Mode),
@@ -1172,10 +1186,7 @@ func VerifyHybridProof(payloadJSON *C.char) *C.char {
 		observedBackend = result.SNARKBackend
 	}
 	if err != nil {
-		metrics.ObserveAcceleratorOp(observedBackend, "hybrid_verify", false)
-		latencyMS := float64(time.Since(verifyStart).Microseconds()) / 1000.0
-		metrics.ObserveAcceleratorOpLatency(observedBackend, "hybrid_verify", latencyMS)
-		metrics.ObserveProofVerification("hybrid", false, latencyMS)
+		observeHybridFailure(observedBackend)
 		data, _ := json.Marshal(map[string]any{
 			"result":             result,
 			"available_backends": available,

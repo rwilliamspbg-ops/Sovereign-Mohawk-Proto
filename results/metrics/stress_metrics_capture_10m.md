@@ -1,29 +1,17 @@
-# Extended Stress Metrics Capture (10m)
+# 10-Minute Stress Metrics Capture
 
-- Captured at: 2026-03-26T23:16:17.582521+00:00
-- Window plan (s): [200, 200, 200]
-- Total elapsed (s): 600.1
+- Start (UTC): 2026-04-01T00:31:17.285815+00:00
+- End (UTC): 2026-04-01T00:41:17.285940+00:00
+- Duration seconds: 600
 
-## Window Rates
+| Signal | PromQL | Value |
+| --- | --- | --- |
+| honest_ratio_min_10m | `min_over_time(mohawk_consensus_honest_ratio[10m])` | `NA` |
+| gradient_failure_ratio_5m | `(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit",result="failure"}[5m]))/clamp_min(sum(rate(mohawk_accelerator_ops_total{operation="gradient_submit"}[5m])),1e-9))` | `1` |
+| proof_p95_ms_10m | `histogram_quantile(0.95, sum(rate(mohawk_proof_verification_latency_ms_bucket[10m])) by (le))` | `0.095` |
+| tpm_failures_increase_10m | `increase(mohawk_tpm_verifications_total{result="failure"}[10m])` | `NA` |
+| bridge_transfer_rate_5m | `sum(rate(mohawk_bridge_transfers_total[5m]))` | `0.10175438596491226` |
+| hybrid_verifications_10m | `sum(increase(mohawk_proof_verifications_total{scheme="hybrid"}[10m]))` | `60.51282051282051` |
+| compression_observations_10m | `sum(increase(mohawk_gradient_compression_ratio_count[10m]))` | `60.51282051282051` |
 
-| Metric | W1 rate/s | W2 rate/s | W3 rate/s | Total delta |
-|---|---:|---:|---:|---:|
-| bridge_total | 0.100 | 0.105 | 0.095 | 60.000 |
-| proof_total | 0.205 | 0.210 | 0.185 | 120.000 |
-| hybrid_proof_total | 0.100 | 0.105 | 0.095 | 60.000 |
-| accel_ops_total | 0.410 | 0.420 | 0.370 | 240.000 |
-| accel_gradient_submit_total | 0.105 | 0.105 | 0.090 | 60.000 |
-| accel_gradient_submit_success_total | 0.105 | 0.105 | 0.090 | 60.000 |
-| accel_gradient_submit_failure_total | 0.000 | 0.000 | 0.000 | 0.000 |
-
-## Percentile Trend Summary (rates/sec)
-
-| Metric | mean | median | p95 | p99 | min | max |
-|---|---:|---:|---:|---:|---:|---:|
-| bridge_total | 0.100 | 0.100 | 0.104 | 0.105 | 0.095 | 0.105 |
-| proof_total | 0.200 | 0.205 | 0.209 | 0.210 | 0.185 | 0.210 |
-| hybrid_proof_total | 0.100 | 0.100 | 0.104 | 0.105 | 0.095 | 0.105 |
-| accel_ops_total | 0.400 | 0.410 | 0.419 | 0.420 | 0.370 | 0.420 |
-| accel_gradient_submit_total | 0.100 | 0.105 | 0.105 | 0.105 | 0.090 | 0.105 |
-| accel_gradient_submit_success_total | 0.100 | 0.105 | 0.105 | 0.105 | 0.090 | 0.105 |
-| accel_gradient_submit_failure_total | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 | 0.000 |
+Notes: values captured from live local stack after continuous 10-minute window.

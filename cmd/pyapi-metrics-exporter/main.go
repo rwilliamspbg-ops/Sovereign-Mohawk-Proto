@@ -51,6 +51,12 @@ func emitSyntheticBridgeAndHybrid(interval time.Duration) {
 		metrics.ObserveAcceleratorOp("cpu", "hybrid_verify", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "hybrid_verify", hybridLatency)
 
+		compressionStart := time.Now()
+		compressionLatency := float64(time.Since(compressionStart).Microseconds()) / 1000.0
+		metrics.ObserveGradientCompression("int8", 2.25)
+		metrics.ObserveAcceleratorOp("cpu", "compress_int8", true)
+		metrics.ObserveAcceleratorOpLatency("cpu", "compress_int8", compressionLatency)
+
 		<-ticker.C
 	}
 }
