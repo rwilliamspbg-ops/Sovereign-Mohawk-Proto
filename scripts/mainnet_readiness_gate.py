@@ -393,8 +393,7 @@ def main() -> int:
         report["checks"]["gradient_compression_non_negative"] = gradient_compression_count >= 0
         if gradient_compression_count < 0:
             failures.append(
-                "gradient compression observation count negative: "
-                f"{gradient_compression_count}"
+                "gradient compression observation count negative: " f"{gradient_compression_count}"
             )
         report["checks"]["gradient_compression_min_activity"] = (
             gradient_compression_count >= args.min_gradient_compression_observations
