@@ -54,7 +54,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 **Sovereign Mohawk Proto** is the only formally verified Federated Learning runtime capable of 10M-node scaling with 55.5% Byzantine resilience and 2026-standard PQC (Post-Quantum Cryptography) enforcement.
 
-The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability.
+The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability. Ecosystem dashboards: [Proto Runtime](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/), [Map Federated Learning](https://rwilliamspbg-ops.github.io/Sovereign_Map_Federated_Learning/), [Oncology Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Oncology_Global/), [Agriculture Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Agriculture_Global/), [Climate Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Climate_Global/), and [Supply Chain Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_SupplyChain_Global/). Ecosystem overview and capabilities: [Dashboard Overview](DASHBOARD.md), [Capabilities Matrix](capabilities.json), [Compliance Mapping](COMPLIANCE_MAPPING.md), and [Architecture White Paper](WHITE_PAPER.md).
 
 ---
 
