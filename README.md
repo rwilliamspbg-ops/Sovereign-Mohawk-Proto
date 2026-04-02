@@ -4,6 +4,8 @@
 
 The "Sovereign Mohawk Protocol" name draws inspiration from principles of sovereignty, resilience, and decentralized governance—reflecting the protocol's design for edge/node self-determination and resistance to centralized control. It is **not** intended to appropriate, claim, or represent the cultural, intellectual, or traditional knowledge/property of the Kanienʼkehá꞉ka (Mohawk) people or any Indigenous nations.
 
+Within this technical ecosystem, MOHAWK also denotes **Mobile Offloading Heterogeneous Adaptive Weights for Knowledge** as the runtime design shorthand used across protocol, SDK, and dashboard artifacts.
+
 We acknowledge and respect the ongoing sovereignty and self-determination of Indigenous peoples, including the Kanienʼkehá꞉ka as Keepers of the Eastern Door in the Haudenosaunee Confederacy. This project is a technical implementation in AI/privacy and makes no claims to Indigenous cultural IP, protocols, or heritage.
 
 If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
