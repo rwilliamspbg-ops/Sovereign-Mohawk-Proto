@@ -198,9 +198,7 @@ class MohawkNode:
         }
         result = self.bridge.invoke_json("InitializeNode", payload)
         if not result.get("success", False):
-            raise InitializationError(
-                result.get("message", "node initialization failed")
-            )
+            raise InitializationError(result.get("message", "node initialization failed"))
         return result
 
     def verify_proof(self, proof: JsonDict) -> JsonDict:
@@ -252,9 +250,7 @@ class MohawkNode:
     ) -> HybridVerificationReceipt:
         """Pythonic wrapper around verify_hybrid_proof with normalized receipt output."""
         request = (
-            check
-            if isinstance(check, HybridProofCheck)
-            else HybridProofCheck.from_mapping(check)
+            check if isinstance(check, HybridProofCheck) else HybridProofCheck.from_mapping(check)
         )
         payload = request.to_api_kwargs()
         payload.update(overrides)
@@ -264,9 +260,7 @@ class MohawkNode:
     def hybrid_backends(self) -> JsonDict:
         result = self.bridge.invoke_json("GetHybridBackends", {})
         if not result.get("success", False):
-            raise VerificationError(
-                result.get("message", "failed to list hybrid backends")
-            )
+            raise VerificationError(result.get("message", "failed to list hybrid backends"))
         return result
 
     def aggregate(self, updates: Iterable[JsonDict]) -> JsonDict:
@@ -357,9 +351,7 @@ class MohawkNode:
             max_norm=max_norm,
         )
         if not result.get("success", False):
-            raise AggregationError(
-                result.get("message", "zero-copy compression failed")
-            )
+            raise AggregationError(result.get("message", "zero-copy compression failed"))
         return result
 
     def device_info(self) -> JsonDict:
@@ -534,9 +526,7 @@ class MohawkNode:
             payload["role"] = role
         result = self.bridge.invoke_json("TransferUtilityCoin", payload)
         if not result.get("success", False):
-            raise AggregationError(
-                result.get("message", "utility coin transfer failed")
-            )
+            raise AggregationError(result.get("message", "utility coin transfer failed"))
         return result
 
     def burn_utility_coin(
@@ -571,17 +561,13 @@ class MohawkNode:
     def utility_coin_balance(self, account: str) -> JsonDict:
         result = self.bridge.invoke_json("GetUtilityCoinBalance", {"account": account})
         if not result.get("success", False):
-            raise AggregationError(
-                result.get("message", "utility coin balance lookup failed")
-            )
+            raise AggregationError(result.get("message", "utility coin balance lookup failed"))
         return result
 
     def utility_coin_ledger(self) -> JsonDict:
         result = self.bridge.invoke_json("GetUtilityCoinLedger", {})
         if not result.get("success", False):
-            raise AggregationError(
-                result.get("message", "utility coin ledger lookup failed")
-            )
+            raise AggregationError(result.get("message", "utility coin ledger lookup failed"))
         return result
 
     def backup_utility_coin_ledger(
@@ -621,9 +607,7 @@ class MohawkNode:
     def status(self, node_id: str) -> JsonDict:
         result = self.bridge.invoke_json("GetNodeStatus", {"node_id": node_id})
         if "status_data" not in result:
-            result["status_data"] = result.get(
-                "data", {"node_id": node_id, "status": "running"}
-            )
+            result["status_data"] = result.get("data", {"node_id": node_id, "status": "running"})
         return result
 
     def load_wasm(
@@ -640,9 +624,9 @@ class MohawkNode:
         if module_path is not None:
             payload["module_path"] = module_path
         if wasm_bytes is not None:
-            payload["wasm_b64"] = base64.b64encode(
-                self.bridge.view(wasm_bytes).tobytes()
-            ).decode("ascii")
+            payload["wasm_b64"] = base64.b64encode(self.bridge.view(wasm_bytes).tobytes()).decode(
+                "ascii"
+            )
         elif wasm_b64 is not None:
             payload["wasm_b64"] = wasm_b64
         if module_sha256 is not None:
@@ -652,15 +636,11 @@ class MohawkNode:
         if module_public_key is not None:
             payload["module_public_key"] = module_public_key
         if not payload:
-            raise InitializationError(
-                "load_wasm requires module_path, wasm_bytes, or wasm_b64"
-            )
+            raise InitializationError("load_wasm requires module_path, wasm_bytes, or wasm_b64")
 
         result = self.bridge.invoke_json("LoadWasmModule", payload)
         if not result.get("success", False):
-            raise InitializationError(
-                result.get("message", "wasm module loading failed")
-            )
+            raise InitializationError(result.get("message", "wasm module loading failed"))
 
         data = result.get("data")
         if isinstance(data, str) and data:

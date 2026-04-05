@@ -84,14 +84,8 @@ async def main() -> None:
                 and by_bytes.get("module_hash")
                 and by_b64.get("module_hash")
             ):
-                if not (
-                    by_path["module_hash"]
-                    == by_bytes["module_hash"]
-                    == by_b64["module_hash"]
-                ):
-                    raise RuntimeError(
-                        "module_hash mismatch across path/bytes/base64 loads"
-                    )
+                if not (by_path["module_hash"] == by_bytes["module_hash"] == by_b64["module_hash"]):
+                    raise RuntimeError("module_hash mismatch across path/bytes/base64 loads")
         else:
             print(
                 "2) Skipping inline hot-reload: set MOHAWK_WASM_MODULE_SIGNATURE and MOHAWK_WASM_MODULE_PUBLIC_KEY"

@@ -84,14 +84,8 @@ def main() -> None:
                 and by_bytes.get("module_hash")
                 and by_b64.get("module_hash")
             ):
-                if not (
-                    by_path["module_hash"]
-                    == by_bytes["module_hash"]
-                    == by_b64["module_hash"]
-                ):
-                    raise RuntimeError(
-                        "module_hash mismatch across path/bytes/base64 loads"
-                    )
+                if not (by_path["module_hash"] == by_bytes["module_hash"] == by_b64["module_hash"]):
+                    raise RuntimeError("module_hash mismatch across path/bytes/base64 loads")
         else:
             print(
                 "2) Skipping inline hot-reload: set MOHAWK_WASM_MODULE_SIGNATURE and MOHAWK_WASM_MODULE_PUBLIC_KEY"
@@ -100,9 +94,7 @@ def main() -> None:
         status = node.status("demo-node")
         data = status.get("status_data") or status.get("data")
         if ci_mode:
-            print(
-                f"4) Status snapshot: {status.get('message')} status_data_present={bool(data)}"
-            )
+            print(f"4) Status snapshot: {status.get('message')} status_data_present={bool(data)}")
         else:
             print("4) Status snapshot")
             print(f"  message: {status.get('message')}")

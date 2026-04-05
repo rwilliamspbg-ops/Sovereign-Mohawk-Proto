@@ -165,9 +165,7 @@ def _npu_devices() -> List[DeviceInfo]:
         "on",
     }
     if force:
-        devices.append(
-            DeviceInfo(backend=Backend.NPU, name="Generic NPU", simd_width=128)
-        )
+        devices.append(DeviceInfo(backend=Backend.NPU, name="Generic NPU", simd_width=128))
         return devices
 
     for candidate in ("/dev/apex_0", "/dev/npu0", "/dev/accel/npu0"):
@@ -175,9 +173,7 @@ def _npu_devices() -> List[DeviceInfo]:
             with open(candidate, "rb"):
                 pass
             devices.append(
-                DeviceInfo(
-                    backend=Backend.NPU, name=f"NPU ({candidate})", simd_width=128
-                )
+                DeviceInfo(backend=Backend.NPU, name=f"NPU ({candidate})", simd_width=128)
             )
             break
         except Exception:
@@ -318,9 +314,7 @@ def fp16_to_fp32(data: bytes) -> List[float]:
     return result
 
 
-def quantize_int8(
-    values: List[float], max_norm: Optional[float] = None
-) -> Tuple[bytes, float]:
+def quantize_int8(values: List[float], max_norm: Optional[float] = None) -> Tuple[bytes, float]:
     """Symmetric uniform INT8 quantization to [-127, 127].
 
     Returns ``(quantized_bytes, scale)`` where scale is needed for
