@@ -53,7 +53,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 - [ ] Publish FIPS profile target and scope (FIPS 140-2 transitional baseline, FIPS 140-3 target state)
 - [ ] Add cryptographic module inventory with boundary mapping and algorithm usage table
-- [ ] Add OpenSSL/FIPS provider runtime self-check in startup and CI evidence artifacts
+- [x] Add Go `crypto/fips140` runtime self-check in startup and CI evidence artifacts
 - [ ] Add FIPS mode regression tests for TLS/keygen/signing flows used by orchestrator and node-agent
 - [ ] Add operator runbook section for FIPS deployment posture, exceptions, and audit evidence capture
 - [ ] Add release-gate checklist item requiring FIPS evidence bundle before GA tag cut

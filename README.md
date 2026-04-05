@@ -38,7 +38,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 ![Python SDK v2](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
 ![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
 ![Protocol Stage](https://img.shields.io/badge/Protocol-Go--Live%20Formalization%20Complete-2ea043)
-![Go-Live Gate](https://img.shields.io/badge/Go--Live%20Gate-PASS%20(8%2F8%20Attestations)-2ea043)
+![Go-Live Gate](https://img.shields.io/badge/Go--Live%20Gate-Advisory%20PASS%20%7C%20TPM%20Closure%20Pending-f59e0b)
 ![BFT Safety](https://img.shields.io/badge/BFT%20Resilience-55.5%25-green)
 ![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
@@ -56,7 +56,7 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 
 **Sovereign Mohawk Proto** is the only formally verified Federated Learning runtime capable of 10M-node scaling with 55.5% Byzantine resilience and 2026-standard PQC (Post-Quantum Cryptography) enforcement.
 
-The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability. Ecosystem dashboards: [Proto Runtime](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/), [Map Federated Learning](https://rwilliamspbg-ops.github.io/Sovereign_Map_Federated_Learning/), [Oncology Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Oncology_Global/), [Agriculture Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Agriculture_Global/), [Climate Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Climate_Global/), and [Supply Chain Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_SupplyChain_Global/). Ecosystem overview and capabilities: [Dashboard Overview](DASHBOARD.md), [Capabilities Matrix](capabilities.json), [Compliance Mapping](COMPLIANCE_MAPPING.md), and [Architecture White Paper](WHITE_PAPER.md).
+The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability. Current gate posture is advisory go-live pass with TPM closure still pending before GA cutover (see `results/go-live/evidence/tpm_closure_summary_2026-03-28.md`). Ecosystem dashboards: [Proto Runtime](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/), [Map Federated Learning](https://rwilliamspbg-ops.github.io/Sovereign_Map_Federated_Learning/), [Oncology Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Oncology_Global/), [Agriculture Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Agriculture_Global/), [Climate Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Climate_Global/), and [Supply Chain Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_SupplyChain_Global/). Ecosystem overview and capabilities: [Dashboard Overview](DASHBOARD.md), [Capabilities Matrix](capabilities.json), [Compliance Mapping](COMPLIANCE_MAPPING.md), and [Architecture White Paper](WHITE_PAPER.md).
 
 ---
 

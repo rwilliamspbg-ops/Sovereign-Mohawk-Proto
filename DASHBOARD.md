@@ -20,9 +20,9 @@ Current TPM closure evidence:
 
 ### Formal Go-Live Gate Status
 
-* Runtime gates: ✅ readiness / ✅ chaos / ✅ host network tuning
+* Runtime gates: ✅ readiness / ✅ chaos / ⚠️ host network tuning advisory-only (strict host preflight currently fails)
 * Attestations approved: 8/8
-* Remaining external/performance attestations: none
+* TPM closure status: pending (GA ready = NO until Windows/macOS TPM evidence is complete)
 
 ### PQC Major Release
 
