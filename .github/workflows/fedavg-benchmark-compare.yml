@@ -28,19 +28,6 @@ jobs:
         with:
           go-version: '1.25.x'
 
-      - name: Detect performance-impacting changes
-        id: perf_changes
-        run: |
-          git fetch --no-tags origin "${{ github.base_ref }}"
-          CHANGED_FILES="$(git diff --name-only "origin/${{ github.base_ref }}...${{ github.sha }}")"
-          echo "$CHANGED_FILES"
-
-          if echo "$CHANGED_FILES" | grep -Eq '^(cmd/|internal/|node/|src/|test/|go\.mod$|go\.sum$)'; then
-            echo "run_benchmark=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_benchmark=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -118,6 +105,29 @@ jobs:
         run: |
           go install golang.org/x/perf/cmd/benchstat@latest
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Detect performance-impacting changes
+        id: perf_changes
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA"
+
+          if git merge-base "$BASE_SHA" "$HEAD_SHA" >/dev/null 2>&1; then
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+          else
+            echo "warning: no merge base for $BASE_SHA and $HEAD_SHA; using two-dot diff fallback"
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA..$HEAD_SHA")"
+          fi
+
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -Eq '^(cmd/|internal/|node/|src/|test/|go\.mod$|go\.sum$)'; then
+            echo "run_benchmark=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_benchmark=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Restore FedAvg baseline cache from main
         if: steps.perf_changes.outputs.run_benchmark == 'true'
