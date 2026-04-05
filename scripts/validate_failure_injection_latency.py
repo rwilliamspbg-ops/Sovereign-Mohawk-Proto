@@ -13,7 +13,9 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build_report(repo_root: Path, readiness_path: Path, chaos_dir: Path, slo_path: Path) -> dict:
+def build_report(
+    repo_root: Path, readiness_path: Path, chaos_dir: Path, slo_path: Path
+) -> dict:
     readiness = _load_json(repo_root / readiness_path)
     slo = _load_json(repo_root / slo_path)
 
@@ -26,7 +28,9 @@ def build_report(repo_root: Path, readiness_path: Path, chaos_dir: Path, slo_pat
 
     for summary_path in sorted((repo_root / chaos_dir).glob("*-summary.json")):
         payload = _load_json(summary_path)
-        scenario = str(payload.get("scenario", summary_path.stem.replace("-summary", "")))
+        scenario = str(
+            payload.get("scenario", summary_path.stem.replace("-summary", ""))
+        )
         latency = int(payload.get("recovery_latency_seconds", 0))
         threshold = int(scenario_thresholds.get(scenario, default_threshold))
         gate_ok = bool(payload.get("recovery_latency_ok", False))
@@ -54,7 +58,9 @@ def build_report(repo_root: Path, readiness_path: Path, chaos_dir: Path, slo_pat
         failures.append("readiness gate reported ok=false")
 
     report = {
-        "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+        "generated_utc": dt.datetime.now(dt.timezone.utc)
+        .replace(microsecond=0)
+        .isoformat(),
         "baseline_version": str(slo.get("version", "unknown")),
         "readiness_report": str(readiness_path).replace("\\", "/"),
         "slo_baseline": str(slo_path).replace("\\", "/"),
@@ -165,7 +171,9 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    out_json.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     out_md.write_text(render_markdown(report), encoding="utf-8")
 
     print(f"wrote {out_json}")

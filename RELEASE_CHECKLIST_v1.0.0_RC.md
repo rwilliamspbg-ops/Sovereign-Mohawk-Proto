@@ -17,6 +17,7 @@ This checklist is the formal release-candidate sign-off gate before cutting the 
 - [ ] Penetration test report attached for orchestrator/API and bridge settlement.
 - [ ] Threat-model refresh evidence attached for mTLS and metrics planes.
 - [ ] Dependency baseline and patch-SLA evidence attached.
+- [ ] FIPS evidence bundle attached and approved (`results/go-live/evidence/fips_evidence_bundle_2026-04-05.md`, `results/go-live/attestations/fips_evidence_bundle.json`).
 
 ## Gate 3: Operations and SLOs
 

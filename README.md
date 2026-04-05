@@ -7,13 +7,7 @@
 
 ## Note on Naming
 
-The "Sovereign Mohawk Protocol" name draws inspiration from principles of sovereignty, resilience, and decentralized governance—reflecting the protocol's design for edge/node self-determination and resistance to centralized control. It is **not** intended to appropriate, claim, or represent the cultural, intellectual, or traditional knowledge/property of the Kanienʼkehá꞉ka (Mohawk) people or any Indigenous nations.
-
-Within this technical ecosystem, MOHAWK also denotes **Mobile Offloading Heterogeneous Adaptive Weights for Knowledge** as the runtime design shorthand used across protocol, SDK, and dashboard artifacts.
-
-We acknowledge and respect the ongoing sovereignty and self-determination of Indigenous peoples, including the Kanienʼkehá꞉ka as Keepers of the Eastern Door in the Haudenosaunee Confederacy. This project is a technical implementation in AI/privacy and makes no claims to Indigenous cultural IP, protocols, or heritage.
-
-If this naming raises concerns or if you'd like to suggest alternatives, please open an issue or contact @RyanWill98382—we're open to dialogue and updates.
+Naming context and attribution are documented in [NAMING.md](NAMING.md).
 
 ⚠️ Intellectual Property Notice: This project implements the Sovereign Mohawk Protocol. Portions of this technology are Patent Pending (U.S. Provisional Patent Application Filed March 2026).
 
@@ -62,6 +56,26 @@ If this naming raises concerns or if you'd like to suggest alternatives, please 
 **Sovereign Mohawk Proto** is the only formally verified Federated Learning runtime capable of 10M-node scaling with 55.5% Byzantine resilience and 2026-standard PQC (Post-Quantum Cryptography) enforcement.
 
 The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability. Current gate posture is advisory go-live pass with TPM closure still pending before GA cutover (see `results/go-live/evidence/tpm_closure_summary_2026-03-28.md`). Ecosystem dashboards: [Proto Runtime](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/), [Map Federated Learning](https://rwilliamspbg-ops.github.io/Sovereign_Map_Federated_Learning/), [Oncology Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Oncology_Global/), [Agriculture Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Agriculture_Global/), [Climate Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Climate_Global/), and [Supply Chain Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_SupplyChain_Global/). Ecosystem overview and capabilities: [Dashboard Overview](DASHBOARD.md), [Capabilities Matrix](capabilities.json), [Compliance Mapping](COMPLIANCE_MAPPING.md), and [Architecture White Paper](WHITE_PAPER.md).
+
+Security/governance references: [FIPS profile scope](FIPS_PROFILE_SCOPE.md), [Security settings verification checklist](SECURITY_SETTINGS_VERIFICATION.md), and [Release checklist](RELEASE_CHECKLIST_v1.0.0_RC.md).
+
+## Quick Sandbox Try Path
+
+Run a local mini-sandbox to validate the stack quickly:
+
+```bash
+make sandbox-up
+python3 tests/scripts/python/run_full_validation_suite.py --profile fast
+make sandbox-down
+```
+
+For Python API examples after building the shared library:
+
+```bash
+make build-python-lib
+python3 sdk/python/examples/wasm_hot_reload_demo.py
+python3 sdk/python/examples/pqc_migration_demo.py
+```
 
 ---
 

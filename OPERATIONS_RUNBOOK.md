@@ -155,6 +155,48 @@ Release-signoff requirement:
 
 - A strict gate report (`make go-live-gate-strict`) generated on a production-tuned host must be archived alongside advisory/development evidence when preparing release approvals.
 
+## FIPS Deployment Posture and Evidence Capture
+
+Runtime posture:
+
+1. FIPS mode is required in production: `GODEBUG=fips140=on`
+2. FIPS mode is required in production: `MOHAWK_FIPS_REQUIRED=true`
+3. Startup gate behavior: orchestrator startup fails if FIPS is required and runtime FIPS is disabled.
+
+Operational checks:
+
+1. Runtime self-check:
+    - `make fips-runtime-check`
+2. Regression checks for crypto flows used operationally:
+    - `make fips-regression`
+3. Capture and archive evidence bundle:
+    - `results/go-live/evidence/fips_evidence_bundle_2026-04-05.md`
+    - `results/go-live/attestations/fips_evidence_bundle.json`
+
+Exception handling:
+
+- Any temporary exception to FIPS-required mode must include owner, expiration date, and compensating controls in incident/change records.
+- Exceptions are not allowed for GA release signoff.
+
+## XMSS Stateful Operations Guidance
+
+### Rotation Cadence and Index-Limit Alerting
+
+- Recommended cadence:
+   1. Rotate XMSS signing seed quarterly in production or immediately after suspected key-state compromise.
+- Index thresholds:
+   1. Warn when index consumption exceeds 80% of approved budget for a seed.
+   2. Trigger SEV-2 review at 90%.
+   3. Enforce hard rollover before 100% usage.
+
+### Secondary Tree Rollover Procedure
+
+1. Prepare secondary XMSS seed and public key material in secure secret storage.
+2. Enable dual-publish window where verifiers trust both current and next public keys.
+3. Switch signing to secondary tree during a low-traffic maintenance window.
+4. Validate attestation success and failure ratios stay inside SLO bounds for 30 minutes.
+5. Revoke old tree trust and archive rollover evidence with timestamp and operator signoff.
+
 ## Incident Escalation
 
 ### Severity Levels

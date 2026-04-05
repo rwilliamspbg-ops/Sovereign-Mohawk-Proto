@@ -1,5 +1,6 @@
-- [![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python)
-+ [![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/feature/python-sdk/sdk/python)
+# MOHAWK Python SDK
+
+[![Python SDK](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/tree/main/sdk/python)
 
 🐍 A Python interface to the high-performance MOHAWK federated learning runtime.
 
@@ -249,12 +250,26 @@ print(result["module_hash"])
 
 # 2) Hot-reload inline bytes
 with open("wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm", "rb") as f:
-    hot = node.load_wasm(wasm_bytes=f.read())
+    wasm_bytes = f.read()
+
+# Sign sha256(wasm_bytes) with your approved signing workflow and pass
+# module_sha256 + module_signature + module_public_key.
+hot = node.load_wasm(
+    wasm_bytes=wasm_bytes,
+    module_sha256="<sha256-hex>",
+    module_signature="<base64-or-hex-signature-over-sha256-bytes>",
+    module_public_key="<base64-or-hex-ed25519-public-key>",
+)
 
 # 3) Hot-reload pre-encoded base64 payload
 import base64
 wasm_b64 = base64.b64encode(b"\x00asm\x01\x00\x00\x00").decode("ascii")
-hot2 = node.load_wasm(wasm_b64=wasm_b64)
+hot2 = node.load_wasm(
+    wasm_b64=wasm_b64,
+    module_sha256="<sha256-hex>",
+    module_signature="<base64-or-hex-signature-over-sha256-bytes>",
+    module_public_key="<base64-or-hex-ed25519-public-key>",
+)
 
 print(hot["module_hash"], hot2["module_hash"])
 # {'success': True, 'message': 'WASM module loaded', 'module_hash': '...'}
@@ -276,6 +291,12 @@ Async variant:
 
 ```bash
 python sdk/python/examples/wasm_hot_reload_async_demo.py
+```
+
+PQC migration digest-flow demo:
+
+```bash
+python sdk/python/examples/pqc_migration_demo.py
 ```
 
 ### TPM Attestation
@@ -304,7 +325,7 @@ Main class for interacting with the MOHAWK runtime.
 - **`aggregate(updates)`**: Aggregate federated learning updates
 - **`aggregate_buffer(gradient_buffer)`**: Inspect zero-copy aggregation buffer path
 - **`status(node_id)`**: Get node status
-- **`load_wasm(module_path=None, wasm_bytes=None, wasm_b64=None)`**: Load or hot-reload a WebAssembly module and return `module_hash`
+- **`load_wasm(module_path=None, wasm_bytes=None, wasm_b64=None, module_sha256=None, module_signature=None, module_public_key=None)`**: Load or hot-reload a WebAssembly module and return `module_hash` (inline hot-reload requires hash+signature+public key)
 - **`attest(node_id)`**: Perform TPM attestation
 - **`close()`**: Release SDK bridge references; also available through `with MohawkNode(...) as node:`
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends

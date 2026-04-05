@@ -72,7 +72,9 @@ def main() -> int:
         c_dur = c["duration_seconds"] if c else "NA"
 
         if p and c:
-            delta = round(float(c["duration_seconds"]) - float(p["duration_seconds"]), 3)
+            delta = round(
+                float(c["duration_seconds"]) - float(p["duration_seconds"]), 3
+            )
         else:
             delta = "NA"
 

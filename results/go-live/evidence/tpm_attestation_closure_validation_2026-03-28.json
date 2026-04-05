@@ -13,7 +13,7 @@
     "platform missing evidence attachment: macos",
     "attestation status is not approved: pending"
   ],
-  "generated_utc": "2026-04-05T12:52:34+00:00",
+  "generated_utc": "2026-04-05T13:34:01+00:00",
   "matrix": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json",
   "ok": false,
   "platform_status": {

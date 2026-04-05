@@ -114,7 +114,11 @@ class BridgeTransferReceipt:
                 if data_obj.get("transfer_id") is not None
                 else None
             ),
-            status=(str(data_obj.get("status")) if data_obj.get("status") is not None else None),
+            status=(
+                str(data_obj.get("status"))
+                if data_obj.get("status") is not None
+                else None
+            ),
             settled=settled,
             raw=dict(result),
         )
@@ -184,7 +188,9 @@ class HybridVerificationReceipt:
         return cls(
             success=bool(result.get("success", False)),
             message=str(result.get("message", "")),
-            mode=(str(data_obj.get("mode")) if data_obj.get("mode") is not None else None),
+            mode=(
+                str(data_obj.get("mode")) if data_obj.get("mode") is not None else None
+            ),
             selected_scheme=(
                 str(data_obj.get("selected_scheme"))
                 if data_obj.get("selected_scheme") is not None

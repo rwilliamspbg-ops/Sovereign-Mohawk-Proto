@@ -722,8 +722,11 @@ func LoadWasmModule(modulePath *C.char) *C.char {
 
 	if strings.HasPrefix(raw, "{") {
 		var req struct {
-			ModulePath string `json:"module_path"`
-			WasmB64    string `json:"wasm_b64,omitempty"`
+			ModulePath      string `json:"module_path"`
+			WasmB64         string `json:"wasm_b64,omitempty"`
+			ModuleSHA256    string `json:"module_sha256,omitempty"`
+			ModuleSignature string `json:"module_signature,omitempty"`
+			ModulePublicKey string `json:"module_public_key,omitempty"`
 		}
 		if err := json.Unmarshal([]byte(raw), &req); err == nil {
 			path = strings.TrimSpace(req.ModulePath)
@@ -731,6 +734,9 @@ func LoadWasmModule(modulePath *C.char) *C.char {
 				decoded, decErr := base64.StdEncoding.DecodeString(req.WasmB64)
 				if decErr != nil {
 					return marshalResult(false, fmt.Sprintf("invalid wasm_b64 payload: %v", decErr), "")
+				}
+				if verifyErr := wasmhost.VerifyHotReloadIntegrity(decoded, req.ModuleSHA256, req.ModuleSignature, req.ModulePublicKey); verifyErr != nil {
+					return marshalResult(false, fmt.Sprintf("WASM hot-reload integrity check failed: %v", verifyErr), "")
 				}
 				wasmBytes = decoded
 			}

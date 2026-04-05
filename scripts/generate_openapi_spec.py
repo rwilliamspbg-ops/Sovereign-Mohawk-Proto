@@ -207,7 +207,9 @@ def build_spec(server_url: str) -> dict:
                                                 "items": {"type": "string"},
                                             },
                                             "kex_mode": {"type": "string"},
-                                            "expected_public_key_bytes": {"type": "integer"},
+                                            "expected_public_key_bytes": {
+                                                "type": "integer"
+                                            },
                                         },
                                     }
                                 }
@@ -282,7 +284,11 @@ def build_spec(server_url: str) -> dict:
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["legacy_account", "pqc_account", "amount"],
+                                    "required": [
+                                        "legacy_account",
+                                        "pqc_account",
+                                        "amount",
+                                    ],
                                     "properties": {
                                         "legacy_account": {"type": "string"},
                                         "pqc_account": {"type": "string"},
@@ -336,7 +342,11 @@ def build_spec(server_url: str) -> dict:
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["legacy_account", "pqc_account", "amount"],
+                                    "required": [
+                                        "legacy_account",
+                                        "pqc_account",
+                                        "amount",
+                                    ],
                                     "properties": {
                                         "legacy_account": {"type": "string"},
                                         "pqc_account": {"type": "string"},

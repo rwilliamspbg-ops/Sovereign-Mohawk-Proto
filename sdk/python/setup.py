@@ -16,7 +16,9 @@ def _package_version() -> str:
     init_text = (PACKAGE_DIR / "__init__.py").read_text(encoding="utf-8")
     match = re.search(r'^__version__ = "([^"]+)"', init_text, re.MULTILINE)
     if match is None:
-        raise RuntimeError("Unable to determine package version from mohawk/__init__.py")
+        raise RuntimeError(
+            "Unable to determine package version from mohawk/__init__.py"
+        )
     return match.group(1)
 
 
@@ -46,7 +48,9 @@ def _build_go_library(output_dir: Path) -> Path:
     ]
     print(f"Running: {' '.join(cmd)}")
     try:
-        subprocess.run(cmd, cwd=str(REPO_ROOT), check=True, capture_output=True, text=True)
+        subprocess.run(
+            cmd, cwd=str(REPO_ROOT), check=True, capture_output=True, text=True
+        )
     except subprocess.CalledProcessError as exc:
         print(f"Build failed:\n{exc.stderr}", file=sys.stderr)
         raise RuntimeError(f"Failed to build Go library: {exc}") from exc

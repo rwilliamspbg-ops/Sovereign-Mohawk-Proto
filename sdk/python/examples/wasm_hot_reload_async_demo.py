@@ -3,6 +3,7 @@
 
 import asyncio
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -54,16 +55,47 @@ async def main() -> None:
         else:
             wasm_bytes = b"\x00asm\x01\x00\x00\x00"
 
-        by_bytes = await node.load_wasm(wasm_bytes=wasm_bytes)
-        _print_result("2) Async hot-reload by bytes", by_bytes, ci_mode)
+        module_signature = os.getenv("MOHAWK_WASM_MODULE_SIGNATURE", "")
+        module_public_key = os.getenv("MOHAWK_WASM_MODULE_PUBLIC_KEY", "")
+        by_bytes = {}
+        by_b64 = {}
+        if module_signature and module_public_key:
+            module_sha256 = hashlib.sha256(wasm_bytes).hexdigest()
 
-        wasm_b64 = base64.b64encode(wasm_bytes).decode("ascii")
-        by_b64 = await node.load_wasm(wasm_b64=wasm_b64)
-        _print_result("3) Async hot-reload by base64", by_b64, ci_mode)
+            by_bytes = await node.load_wasm(
+                wasm_bytes=wasm_bytes,
+                module_sha256=module_sha256,
+                module_signature=module_signature,
+                module_public_key=module_public_key,
+            )
+            _print_result("2) Async hot-reload by bytes", by_bytes, ci_mode)
 
-        if by_path.get("module_hash") and by_bytes.get("module_hash") and by_b64.get("module_hash"):
-            if not (by_path["module_hash"] == by_bytes["module_hash"] == by_b64["module_hash"]):
-                raise RuntimeError("module_hash mismatch across path/bytes/base64 loads")
+            wasm_b64 = base64.b64encode(wasm_bytes).decode("ascii")
+            by_b64 = await node.load_wasm(
+                wasm_b64=wasm_b64,
+                module_sha256=module_sha256,
+                module_signature=module_signature,
+                module_public_key=module_public_key,
+            )
+            _print_result("3) Async hot-reload by base64", by_b64, ci_mode)
+
+            if (
+                by_path.get("module_hash")
+                and by_bytes.get("module_hash")
+                and by_b64.get("module_hash")
+            ):
+                if not (
+                    by_path["module_hash"]
+                    == by_bytes["module_hash"]
+                    == by_b64["module_hash"]
+                ):
+                    raise RuntimeError(
+                        "module_hash mismatch across path/bytes/base64 loads"
+                    )
+        else:
+            print(
+                "2) Skipping inline hot-reload: set MOHAWK_WASM_MODULE_SIGNATURE and MOHAWK_WASM_MODULE_PUBLIC_KEY"
+            )
 
         status = await node.status("demo-node")
         data = status.get("status_data") or status.get("data")

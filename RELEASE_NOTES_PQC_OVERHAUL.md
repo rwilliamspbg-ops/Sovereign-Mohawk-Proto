@@ -54,6 +54,19 @@ Persist:
 2. Run `sudo sysctl --system`
 3. Verify with `./scripts/validate_host_network_tuning.sh`
 
+## XMSS Stateful Operations Addendum
+
+- Rotation cadence: quarterly in production, or immediately after suspected key-state compromise.
+- Index-limit alerting thresholds:
+  - warning at 80%
+  - escalation at 90%
+  - mandatory rollover before 100%
+- Secondary tree rollover:
+  - pre-stage secondary seed/public key
+  - temporary dual-trust verification window
+  - controlled signer switch and SLO observation
+  - old-tree trust revocation with archived evidence
+
 ## Release Evidence Artifacts
 
 ## Performance Evidence

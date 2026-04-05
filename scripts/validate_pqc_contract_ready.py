@@ -40,7 +40,10 @@ def validate_bridge_policies(path: Path) -> tuple[bool, str]:
         if not policy_id:
             return False, f"route[{index}] policy.id is required"
         if not isinstance(allowed_assets, list) or len(allowed_assets) == 0:
-            return False, f"route[{index}] policy.allowed_assets must be a non-empty list"
+            return (
+                False,
+                f"route[{index}] policy.allowed_assets must be a non-empty list",
+            )
         if not isinstance(min_finality, (int, float)) or min_finality <= 0:
             return False, f"route[{index}] policy.min_finality_blocks must be > 0"
     return True, "ok"

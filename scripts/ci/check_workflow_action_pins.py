@@ -30,7 +30,9 @@ def main() -> int:
     violations: list[str] = []
 
     for workflow in sorted(WORKFLOWS_DIR.glob("*.yml")):
-        for i, line in enumerate(workflow.read_text(encoding="utf-8").splitlines(), start=1):
+        for i, line in enumerate(
+            workflow.read_text(encoding="utf-8").splitlines(), start=1
+        ):
             match = USES_RE.match(line)
             if not match:
                 continue

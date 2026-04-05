@@ -11,3 +11,11 @@ __pycache__/
 # Generated result outputs should be committed only when intentionally curated evidence.
 # Use `git add -f <path>` for deliberate snapshots.
 results/**
+!results/
+!results/go-live/
+!results/go-live/attestations/
+!results/go-live/evidence/
+!results/go-live/attestations/fips_evidence_bundle.json
+!results/go-live/evidence/fips_evidence_bundle_2026-04-05.md
+!results/go-live/evidence/tpm_attestation_windows_validation_TEMPLATE.md
+!results/go-live/evidence/tpm_attestation_macos_validation_TEMPLATE.md

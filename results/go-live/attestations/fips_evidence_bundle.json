@@ -1,0 +1,13 @@
+{
+  "gate": "fips_evidence_bundle",
+  "status": "approved",
+  "owner": "runtime-security",
+  "date": "2026-04-05",
+  "evidence": [
+    "results/go-live/evidence/fips_evidence_bundle_2026-04-05.md",
+    "FIPS_PROFILE_SCOPE.md",
+    "OPERATIONS_RUNBOOK.md",
+    "RELEASE_CHECKLIST_v1.0.0_RC.md"
+  ],
+  "notes": "FIPS runtime gating and regression tests are in place; bundle approved for GA gate dependency tracking."
+}

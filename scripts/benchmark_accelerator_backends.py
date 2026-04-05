@@ -63,7 +63,9 @@ def run_backend_case(name: str, backend: str, npu_available: bool) -> dict[str, 
 
     synthetic_devices = [
         DeviceInfo(backend=Backend.CPU, name="CPU", simd_width=256),
-        DeviceInfo(backend=Backend.CUDA, name="CUDA GPU", simd_width=128, memory_mb=16384),
+        DeviceInfo(
+            backend=Backend.CUDA, name="CUDA GPU", simd_width=128, memory_mb=16384
+        ),
         DeviceInfo(backend=Backend.NPU, name="NPU", simd_width=128),
     ]
 

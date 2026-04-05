@@ -39,6 +39,11 @@ jobs:
           source scripts/ensure_go_toolchain.sh
           GODEBUG=fips140=on go run ./scripts/fips_runtime_check
 
+      - name: Run FIPS regression tests (TLS/keygen/signing)
+        run: |
+          source scripts/ensure_go_toolchain.sh
+          GODEBUG=fips140=on MOHAWK_REQUIRE_FIPS_MODE_FOR_TESTS=true go test ./test -run '^TestFIPSRegression$'
+
       - name: Run full validation fast profile
         run: python3 tests/scripts/python/run_full_validation_suite.py --profile fast
 

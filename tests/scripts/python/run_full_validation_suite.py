@@ -38,6 +38,7 @@ def utc_now_iso() -> str:
 def profile_commands(profile: str) -> List[str]:
     fast = [
         "make verify",
+        "make fips-regression",
         "make openapi-spec",
         "make capability-dashboard-matrix",
     ]
