@@ -76,9 +76,7 @@ def main() -> int:
         else:
             delta = "NA"
 
-        lines.append(
-            f"| `{cmd}` | {p_exit} | {c_exit} | {p_dur} | {c_dur} | {delta} |"
-        )
+        lines.append(f"| `{cmd}` | {p_exit} | {c_exit} | {p_dur} | {c_dur} | {delta} |")
 
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Wrote: {output}")
