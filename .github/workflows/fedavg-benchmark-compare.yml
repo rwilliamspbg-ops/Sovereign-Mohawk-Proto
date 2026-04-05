@@ -75,7 +75,7 @@ jobs:
           go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
 
       - name: Save baseline in GitHub Actions cache
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: .benchmarks/fedavg/base_main.txt
           key: fedavg-main-${{ github.sha }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: Restore FedAvg baseline cache from main
         id: restore-fedavg-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: .benchmarks/fedavg/base_main.txt
           key: fedavg-main-${{ github.sha }}
