@@ -49,6 +49,15 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Threat-model refresh for mTLS control plane + internal metrics plane
 - [x] Dependency vulnerability baseline and patch SLA policy
 
+#### A1a. FIPS Compliance Hardening (Gap Alignment)
+
+- [ ] Publish FIPS profile target and scope (FIPS 140-2 transitional baseline, FIPS 140-3 target state)
+- [ ] Add cryptographic module inventory with boundary mapping and algorithm usage table
+- [ ] Add OpenSSL/FIPS provider runtime self-check in startup and CI evidence artifacts
+- [ ] Add FIPS mode regression tests for TLS/keygen/signing flows used by orchestrator and node-agent
+- [ ] Add operator runbook section for FIPS deployment posture, exceptions, and audit evidence capture
+- [ ] Add release-gate checklist item requiring FIPS evidence bundle before GA tag cut
+
 ### A2. TPM Attestation Completion
 
 - [ ] Replace remaining TPM stubs with full TPM 2.0 quote/verify flow
@@ -188,6 +197,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-04-05 | 2.9 | Added A1a FIPS compliance hardening TODOs to align roadmap with ecosystem compliance tracking |
 | 2026-03-28 | 2.8 | Added TPM attestation closure-prep artifacts: cross-platform matrix, Linux validation evidence, closure attestation state, and validator reports |
 | 2026-03-28 | 2.7 | Added versioned SLO/SLI baseline, failure-injection latency validation artifacts, v1.0.0 RC checklist, and genesis-to-production deployment guide; marked related Phase 3 items complete |
 | 2026-03-28 | 2.6 | Added strict/advisory go-live mode reporting, monitoring smoke CI, release performance evidence workflow, and golden-path E2E artifact generation |

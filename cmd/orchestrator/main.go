@@ -35,6 +35,7 @@ import (
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/network"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/startup"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/token"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
@@ -42,12 +43,21 @@ import (
 var orchPriv ed25519.PrivateKey
 var orchPub ed25519.PublicKey
 
+var buildVersion = "dev"
+var buildCommit = "unknown"
+var buildDate = "unknown"
+
 type NextJobResponse struct {
 	Wasm []byte            `json:"wasm"`
 	Man  manifest.Manifest `json:"manifest"`
 }
 
 func main() {
+	startup.LogRuntimeMetadata("orchestrator", buildVersion, buildCommit, buildDate)
+	if err := startup.EnforceFIPSGate("orchestrator"); err != nil {
+		log.Fatal(err)
+	}
+
 	_, priv, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		log.Fatal(err)

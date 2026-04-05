@@ -50,6 +50,11 @@ current_go_version="${current_go_version_raw#go}"
 arch="$(normalize_uname_arch)"
 toolchain_cache="/go/pkg/mod/golang.org/toolchain@v0.0.1-go${required_go_version}.linux-${arch}"
 
+current_compile_version=""
+if [[ -x "$(go env GOTOOLDIR 2>/dev/null)/compile" ]]; then
+  current_compile_version="$("$(go env GOTOOLDIR)/compile" -V=full | grep -o 'go[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' | head -n1 || true)"
+fi
+
 if [[ -n "$current_go_version" ]] && version_lt "$current_go_version" "$required_go_version"; then
   if [[ -x "$toolchain_cache/bin/go" ]]; then
     export GOROOT="$toolchain_cache"
@@ -61,6 +66,14 @@ if [[ -n "$current_go_version" ]] && version_lt "$current_go_version" "$required
   fi
 else
   export GOTOOLCHAIN="${GOTOOLCHAIN:-go${required_go_version}+auto}"
+fi
+
+# If the system Go install reports matching version but has stale/mixed compiler
+# artifacts, force the cached required toolchain to restore consistency.
+if [[ -x "$toolchain_cache/bin/go" ]] && [[ -n "$current_compile_version" ]] && [[ "$current_go_version_raw" != "$current_compile_version" ]]; then
+  export GOROOT="$toolchain_cache"
+  export PATH="$GOROOT/bin:$PATH"
+  export GOTOOLCHAIN="local"
 fi
 
 go_version="$(go env GOVERSION)"

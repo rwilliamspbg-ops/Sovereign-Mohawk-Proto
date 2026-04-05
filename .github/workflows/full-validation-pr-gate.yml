@@ -1,0 +1,56 @@
+name: Full Validation PR Gate
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  full-validation-fast:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version: '1.25.x'
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Verify orchestrator FIPS build metadata wiring
+        run: |
+          source scripts/ensure_go_toolchain.sh
+          go build \
+            -ldflags "-X main.buildVersion=ci-fips -X main.buildCommit=${GITHUB_SHA} -X main.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            ./cmd/orchestrator
+
+      - name: Verify FIPS runtime mode (fail-fast)
+        run: |
+          source scripts/ensure_go_toolchain.sh
+          GODEBUG=fips140=on go run ./scripts/fips_runtime_check
+
+      - name: Run full validation fast profile
+        run: python3 tests/scripts/python/run_full_validation_suite.py --profile fast
+
+      - name: Check validation trends
+        run: python3 tests/scripts/ci/check_validation_trends.py
+
+      - name: Write validation diff summary
+        run: python3 tests/scripts/ci/write_validation_diff_summary.py
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: full-validation-fast-artifacts
+          path: "test-results/full-validation/"

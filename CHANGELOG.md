@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Map-parity CI/security/validation upgrade pack** (`.github/workflows/codeql-analysis.yml`, `.github/workflows/security-supply-chain.yml`, `.github/workflows/workflow-action-pin-check.yml`, `.github/workflows/full-validation-pr-gate.yml`, `.github/workflows/full-validation-scheduled-deep.yml`, `tests/scripts/python/run_full_validation_suite.py`, `tests/scripts/ci/check_validation_trends.py`, `tests/scripts/ci/write_validation_diff_summary.py`, `scripts/ci/check_workflow_action_pins.py`):
+  - Added CodeQL analysis workflow for Go and Python security scanning on push/PR and scheduled runs
+  - Added supply-chain workflow with `govulncheck` and dependency-review enforcement for PRs
+  - Added workflow action pin policy enforcement to require full-SHA action references
+  - Added profile-based full validation runner (`fast`, `deep`) with machine/human artifacts and history tracking
+  - Added trend SLO checker and previous-vs-current diff summary generation for validation artifact governance
+
 - **Release asset and image publication workflow** (`.github/workflows/release-assets.yml`):
   - Publishes pre-built tagged Docker images to GHCR using `docker/build-push-action`
   - Attaches OCI image archives, digest metadata, source/image SBOMs, benchmark reports, and `sovereign-map-testnet.tar.gz` to tagged releases

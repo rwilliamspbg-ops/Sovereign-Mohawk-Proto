@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu
+.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check
 
 all: build verify
 
@@ -187,3 +187,27 @@ capability-dashboard-matrix:
 benchmark-gpu:
 	@echo "⚡ Running CPU vs GPU vs NPU benchmark matrix..."
 	python3 scripts/benchmark_accelerator_backends.py --output-md results/metrics/accelerator_backend_compare.md --output-json results/metrics/accelerator_backend_compare.json
+
+full-validation-fast:
+	@echo "🧪 Running full validation suite (fast profile)..."
+	python3 tests/scripts/python/run_full_validation_suite.py --profile fast
+
+full-validation-deep:
+	@echo "🧪 Running full validation suite (deep profile)..."
+	python3 tests/scripts/python/run_full_validation_suite.py --profile deep
+
+validation-trends:
+	@echo "📉 Checking validation trend thresholds..."
+	python3 tests/scripts/ci/check_validation_trends.py
+
+validation-diff-summary:
+	@echo "📝 Writing validation diff summary..."
+	python3 tests/scripts/ci/write_validation_diff_summary.py
+
+workflow-pin-check:
+	@echo "📌 Validating workflow action pin policy..."
+	python3 scripts/ci/check_workflow_action_pins.py
+
+fips-runtime-check:
+	@echo "🛡️ Verifying Go runtime is in FIPS mode..."
+	bash -c 'source scripts/ensure_go_toolchain.sh && GODEBUG=fips140=on go run ./scripts/fips_runtime_check'
