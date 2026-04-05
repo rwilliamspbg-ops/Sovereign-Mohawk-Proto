@@ -10,9 +10,9 @@ name: FedAvg Benchmark Compare
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  FEDAVG_BENCH_TIME: "200ms"
+  FEDAVG_BENCH_TIME: "300ms"
   FEDAVG_BENCH_COUNT: "10"
-  FEDAVG_BENCH_CPU: "2"
+  FEDAVG_BENCH_CPU: "1"
   FEDAVG_BENCHSTAT_ALPHA: "0.01"
   FEDAVG_REGRESSION_THRESHOLD_PCT: "5.0"
 
@@ -27,6 +27,19 @@ jobs:
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
           go-version: '1.25.x'
+
+      - name: Detect performance-impacting changes
+        id: perf_changes
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          CHANGED_FILES="$(git diff --name-only "origin/${{ github.base_ref }}...${{ github.sha }}")"
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -Eq '^(cmd/|internal/|node/|src/|test/|go\.mod$|go\.sum$)'; then
+            echo "run_benchmark=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_benchmark=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
@@ -107,6 +120,7 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Restore FedAvg baseline cache from main
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         id: restore-fedavg-cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
@@ -116,6 +130,7 @@ jobs:
             fedavg-main-
 
       - name: Require cached baseline
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           if [ ! -s .benchmarks/fedavg/base_main.txt ]; then
             echo "error: missing cached FedAvg baseline from main"
@@ -124,11 +139,13 @@ jobs:
           fi
 
       - name: Run current FedAvg benchmark
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           mkdir -p .benchmarks/fedavg
           go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/current_pr.txt
 
       - name: Build FedAvg benchmark comparison report
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           mkdir -p results/metrics
           benchstat -alpha "${FEDAVG_BENCHSTAT_ALPHA}" .benchmarks/fedavg/base_main.txt .benchmarks/fedavg/current_pr.txt > .benchmarks/fedavg/benchstat.txt
@@ -146,7 +163,20 @@ jobs:
             echo '```'
           } > results/metrics/fedavg_benchmark_compare.md
 
+      - name: Write skipped benchmark report
+        if: steps.perf_changes.outputs.run_benchmark != 'true'
+        run: |
+          mkdir -p results/metrics
+          {
+            echo "# FedAvg Benchmark Comparison"
+            echo
+            echo "Benchmark gate skipped because no performance-impacting paths changed in this PR."
+            echo
+            echo "Paths considered performance-impacting: cmd/, internal/, node/, src/, test/, go.mod, go.sum"
+          } > results/metrics/fedavg_benchmark_compare.md
+
       - name: Enforce FedAvg regression threshold
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           python3 - <<'PY'
           import os
