@@ -39,6 +39,8 @@ If you discover a vulnerability that circumvents our formal proofs or "Active Gu
 
 Current external-audit handoff artifacts:
 
+* [CERTIK_AUDIT_SUMMARY.md](./CERTIK_AUDIT_SUMMARY.md)
+
 * [results/security-audit/audit_handoff_certik_2026-03-31.md](./results/security-audit/audit_handoff_certik_2026-03-31.md)
 * [results/security-audit/control_to_evidence_matrix_2026-03-31.md](./results/security-audit/control_to_evidence_matrix_2026-03-31.md)
 * [results/security-audit/audit_closure_report_2026-03-31.md](./results/security-audit/audit_closure_report_2026-03-31.md)

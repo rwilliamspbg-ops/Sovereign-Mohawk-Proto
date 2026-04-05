@@ -1,5 +1,10 @@
 # 🦅 Sovereign Mohawk Proto
 
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8.svg)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+[![CI](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
+[![CodeQL](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml)
+
 ## Note on Naming
 
 The "Sovereign Mohawk Protocol" name draws inspiration from principles of sovereignty, resilience, and decentralized governance—reflecting the protocol's design for edge/node self-determination and resistance to centralized control. It is **not** intended to appropriate, claim, or represent the cultural, intellectual, or traditional knowledge/property of the Kanienʼkehá꞉ka (Mohawk) people or any Indigenous nations.
@@ -921,6 +926,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [HARDWARE_COMPATIBILITY.md](HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and 10 ms validation criteria
 * [EDGE_LITE_RESOURCE_PROFILE.md](EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
 * [COMPLIANCE_MAPPING.md](COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
+* [CERTIK_AUDIT_SUMMARY.md](CERTIK_AUDIT_SUMMARY.md) - Redacted external-audit findings and mitigation summary
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
