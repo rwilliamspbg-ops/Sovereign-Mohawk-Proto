@@ -62,6 +62,15 @@ services:
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
+      ipfs:
+        condition: service_healthy
+      wasm-hello-world-build:
+        condition: service_completed_successfully
 
   node-agent-2:
     extends:
@@ -89,6 +98,15 @@ services:
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+      runtime-secrets-init:
+        condition: service_completed_successfully
+      ipfs:
+        condition: service_healthy
+      wasm-hello-world-build:
+        condition: service_completed_successfully
 
   wasm-hello-world-build:
     image: rust:1.76

@@ -124,8 +124,8 @@ services:
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
-      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
-      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
+      - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_orchestrator_cert.pem
+      - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_orchestrator_key.pem
       - MOHAWK_ADMIN_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_PQC_MIGRATION_ENABLED=${MOHAWK_PQC_MIGRATION_ENABLED:-true}
       - MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=${MOHAWK_PQC_LOCK_LEGACY_TRANSFERS:-true}
@@ -158,8 +158,8 @@ services:
       # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
-      - ./runtime-secrets/mohawk_tpm_orchestrator_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
-      - ./runtime-secrets/mohawk_tpm_orchestrator_key.pem:/run/secrets/mohawk_tpm_node_key.pem:ro
+      - ./runtime-secrets/mohawk_tpm_orchestrator_cert.pem:/run/secrets/mohawk_tpm_orchestrator_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_orchestrator_key.pem:/run/secrets/mohawk_tpm_orchestrator_key.pem:ro
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
