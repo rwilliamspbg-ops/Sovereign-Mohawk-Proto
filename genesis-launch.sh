@@ -20,10 +20,20 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --regional-shard)
+      if [[ $# -lt 2 ]]; then
+        echo "missing value for --regional-shard" >&2
+        usage
+        exit 1
+      fi
       REGIONAL_SHARD="$2"
       shift 2
       ;;
     --metrics-profile)
+      if [[ $# -lt 2 ]]; then
+        echo "missing value for --metrics-profile" >&2
+        usage
+        exit 1
+      fi
       METRICS_PROFILE="$2"
       shift 2
       ;;
@@ -84,6 +94,10 @@ PY
 fi
 
 if [[ ! -s "$TPM_CERT_PATH" || ! -s "$TPM_KEY_PATH" ]]; then
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "cannot create TPM CA secrets (openssl is required)" >&2
+    exit 1
+  fi
   openssl req -x509 -newkey rsa:3072 \
     -keyout "$TPM_KEY_PATH" \
     -out "$TPM_CERT_PATH" \
