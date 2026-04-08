@@ -9,6 +9,14 @@ fn host_log(level: i32, msg: &str) {
 }
 
 #[no_mangle]
+pub extern "C" fn verify_proof(_proof_len: i32) -> i32 {
+    // Sandbox verifier stub: return success so node-agent can keep proof
+    // verification path enabled during local development runs.
+    host_log(1, "verify_proof stub called");
+    1
+}
+
+#[no_mangle]
 pub extern "C" fn run_task() {
     host_log(1, "FL Wasm task started");
     let grads: [f32; 3] = [0.1, 0.2, 0.3];

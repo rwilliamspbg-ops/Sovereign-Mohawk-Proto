@@ -123,9 +123,10 @@ services:
         if cargo build --release --target wasm32-unknown-unknown; then
           exit 0
         fi
-        echo "warning: wasm32 target build unavailable; generating minimal wasm fallback artifact"
+        echo "warning: wasm32 target build unavailable; generating verify_proof fallback wasm artifact"
         mkdir -p target/wasm32-unknown-unknown/release
-        printf '\x00\x61\x73\x6d\x01\x00\x00\x00' > target/wasm32-unknown-unknown/release/fl_task.wasm
+        # Minimal valid wasm module exporting verify_proof(i32) -> i32 that returns 1.
+        printf '\x00\x61\x73\x6d\x01\x00\x00\x00\x01\x06\x01\x60\x01\x7f\x01\x7f\x03\x02\x01\x00\x07\x10\x01\x0c\x76\x65\x72\x69\x66\x79\x5f\x70\x72\x6f\x6f\x66\x00\x00\x0a\x06\x01\x04\x00\x41\x01\x0b' > target/wasm32-unknown-unknown/release/fl_task.wasm
     volumes:
       - .:/workspace
     restart: "no"

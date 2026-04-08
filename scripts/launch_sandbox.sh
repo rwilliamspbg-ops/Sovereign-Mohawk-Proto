@@ -62,6 +62,20 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+MIN_RMEM_MAX="${MOHAWK_MIN_RMEM_MAX:-8388608}"
+MIN_WMEM_MAX="${MOHAWK_MIN_WMEM_MAX:-8388608}"
+
+if [[ -r /proc/sys/net/core/rmem_max && -r /proc/sys/net/core/wmem_max ]]; then
+  current_rmem_max="$(cat /proc/sys/net/core/rmem_max)"
+  current_wmem_max="$(cat /proc/sys/net/core/wmem_max)"
+  if [[ "$current_rmem_max" -lt "$MIN_RMEM_MAX" || "$current_wmem_max" -lt "$MIN_WMEM_MAX" ]]; then
+    echo "warning: host UDP buffer sysctls are below recommended values for QUIC/libp2p" >&2
+    echo "warning: current net.core.rmem_max=$current_rmem_max net.core.wmem_max=$current_wmem_max" >&2
+    echo "warning: recommended minimums net.core.rmem_max=$MIN_RMEM_MAX net.core.wmem_max=$MIN_WMEM_MAX" >&2
+    echo "warning: to tune now: sudo bash scripts/host_tuning.sh --persist" >&2
+  fi
+fi
+
 if [[ "$MODE" == "down" ]]; then
   "$COMPOSE_CMD" -f "$COMPOSE_FILE" down -v
   echo "sandbox stopped"
