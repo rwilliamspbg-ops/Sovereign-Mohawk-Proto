@@ -32,9 +32,14 @@ services:
           /run/secrets/mohawk_tpm_client_cert.pem \
           /run/secrets/mohawk_tpm_client_key.pem; do
           if [ -d "$$p" ]; then
-            echo "error: expected file but found directory at $$p" >&2
-            echo "hint: remove the directory and re-run compose (for example: rm -rf $$p)" >&2
-            exit 1
+            if [ -z "$(ls -A "$$p" 2>/dev/null)" ]; then
+              rmdir "$$p"
+              echo "warning: removed empty directory placeholder at $$p" >&2
+            else
+              echo "error: expected file but found non-empty directory at $$p" >&2
+              echo "hint: inspect and remove/rename the directory, then re-run compose (for example: rm -rf $$p)" >&2
+              exit 1
+            fi
           fi
         done
         if [ ! -s /run/secrets/mohawk_api_token ]; then
@@ -57,8 +62,17 @@ services:
           ext="$${cert}.ext"
           regen=false
           if [ -d "$$cert" ] || [ -d "$$key" ]; then
-            echo "error: expected certificate/key files but found directory (cert=$$cert key=$$key)" >&2
-            exit 1
+            for path in "$$cert" "$$key"; do
+              if [ -d "$$path" ]; then
+                if [ -z "$(ls -A "$$path" 2>/dev/null)" ]; then
+                  rmdir "$$path"
+                  echo "warning: removed empty directory placeholder at $$path" >&2
+                else
+                  echo "error: expected file but found non-empty directory at $$path" >&2
+                  exit 1
+                fi
+              fi
+            done
           fi
           if [ -s "$$cert" ] && [ -n "$$san" ]; then
             if ! openssl x509 -in "$$cert" -noout -text | grep -q "Subject Alternative Name"; then
