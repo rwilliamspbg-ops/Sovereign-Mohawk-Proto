@@ -80,15 +80,18 @@ services:
         idx="$${HOSTNAME##*-}"
         case "$$idx" in
           ''|*[!0-9]*)
-            echo "error: unable to derive numeric replica index from HOSTNAME=$$HOSTNAME" >&2
-            exit 1
+            cert="/run/secrets/mohawk_tpm_client_cert.pem"
+            key="/run/secrets/mohawk_tpm_client_key.pem"
+            echo "warning: unable to derive numeric replica index from HOSTNAME=$$HOSTNAME; using shared node-agent mTLS cert" >&2
+            ;;
+          *)
+            cert="/run/secrets/node-agent-certs/mohawk_tpm_client_$${idx}_cert.pem"
+            key="/run/secrets/node-agent-certs/mohawk_tpm_client_$${idx}_key.pem"
             ;;
         esac
-        cert="/run/secrets/node-agent-certs/mohawk_tpm_client_$${idx}_cert.pem"
-        key="/run/secrets/node-agent-certs/mohawk_tpm_client_$${idx}_key.pem"
         if [ ! -s "$$cert" ] || [ ! -s "$$key" ]; then
-          echo "error: missing per-replica mTLS cert/key for replica index $${idx}" >&2
-          echo "hint: increase MOHAWK_TPM_CLIENT_CERT_POOL_SIZE to at least the scale count" >&2
+          echo "error: missing node-agent mTLS cert/key (cert=$$cert key=$$key)" >&2
+          echo "hint: ensure runtime-secrets-init completed and cert files exist" >&2
           exit 1
         fi
         export MOHAWK_TPM_CERT_FILE="$$cert"
@@ -98,6 +101,8 @@ services:
     volumes:
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_client_cert.pem:ro
+      - ./runtime-secrets/mohawk_tpm_client_key.pem:/run/secrets/mohawk_tpm_client_key.pem:ro
       - ./runtime-secrets/node-agent-certs:/run/secrets/node-agent-certs:ro
     depends_on:
       orchestrator:

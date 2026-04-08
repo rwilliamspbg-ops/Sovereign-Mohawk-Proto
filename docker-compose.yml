@@ -52,16 +52,27 @@ services:
           cn="$$1"
           cert="$$2"
           key="$$3"
+          san="$${4:-}"
           csr="$${cert}.csr"
+          ext="$${cert}.ext"
+          regen=false
           if [ -d "$$cert" ] || [ -d "$$key" ]; then
             echo "error: expected certificate/key files but found directory (cert=$$cert key=$$key)" >&2
             exit 1
           fi
-          if [ ! -s "$$cert" ] || [ ! -s "$$key" ]; then
+          if [ -s "$$cert" ] && [ -n "$$san" ]; then
+            if ! openssl x509 -in "$$cert" -noout -text | grep -q "Subject Alternative Name"; then
+              regen=true
+            fi
+          fi
+          if [ ! -s "$$cert" ] || [ ! -s "$$key" ] || [ "$$regen" = true ]; then
             openssl req -new -newkey rsa:3072 -nodes \
               -keyout "$$key" \
               -out "$$csr" \
               -subj "/CN=$${cn}/O=Sovereign-Mohawk Nodes" >/dev/null 2>&1
+            if [ -n "$$san" ]; then
+              printf 'subjectAltName=%s\nextendedKeyUsage=serverAuth,clientAuth\n' "$$san" > "$$ext"
+            fi
             openssl x509 -req \
               -in "$$csr" \
               -CA /run/secrets/mohawk_tpm_ca_cert.pem \
@@ -69,12 +80,13 @@ services:
               -CAcreateserial \
               -out "$$cert" \
               -days 30 \
-              -sha256 >/dev/null 2>&1
-            rm -f "$$csr"
+              -sha256 \
+              $${san:+-extfile "$$ext"} >/dev/null 2>&1
+            rm -f "$$csr" "$$ext"
             chmod 600 "$$cert" "$$key"
           fi
         }
-        issue_leaf orchestrator /run/secrets/mohawk_tpm_orchestrator_cert.pem /run/secrets/mohawk_tpm_orchestrator_key.pem
+        issue_leaf orchestrator /run/secrets/mohawk_tpm_orchestrator_cert.pem /run/secrets/mohawk_tpm_orchestrator_key.pem "DNS:orchestrator,DNS:localhost,IP:127.0.0.1"
         issue_leaf node-agent /run/secrets/mohawk_tpm_client_cert.pem /run/secrets/mohawk_tpm_client_key.pem
         mkdir -p /run/secrets/node-agent-certs
         pool_size="$${MOHAWK_TPM_CLIENT_CERT_POOL_SIZE:-128}"
