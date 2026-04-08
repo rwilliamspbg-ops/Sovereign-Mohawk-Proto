@@ -32,8 +32,11 @@ normalize_uname_arch() {
   esac
 }
 
-required_go_version="$(awk '/^go[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
-required_go_version="${required_go_version:-1.25.8}"
+required_go_version="$(awk '/^toolchain[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
+if [[ -z "$required_go_version" ]]; then
+  required_go_version="$(awk '/^go[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
+fi
+required_go_version="${required_go_version:-1.25.9}"
 required_go_version="${required_go_version#go}"
 
 GO_BIN="$(command -v go)"
