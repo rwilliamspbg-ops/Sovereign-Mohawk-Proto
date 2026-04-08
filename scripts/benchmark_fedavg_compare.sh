@@ -53,7 +53,7 @@ run_bench() {
   local out_file="$2"
   (
     cd "$repo_dir"
-    go test "$GO_TEST_TARGET" -run '^$' -bench "$BENCH_REGEX" -benchmem -benchtime="$BENCH_TIME" -count "$BENCH_COUNT" -cpu "$BENCH_CPU"
+     ./scripts/go_with_toolchain.sh go test "$GO_TEST_TARGET" -run '^$' -bench "$BENCH_REGEX" -benchmem -benchtime="$BENCH_TIME" -count "$BENCH_COUNT" -cpu "$BENCH_CPU"
   ) | tee "$out_file"
 }
 
@@ -67,9 +67,9 @@ if [[ "$USE_BENCHSTAT" == "always" ]]; then
   if ! command -v benchstat >/dev/null 2>&1; then
     if command -v go >/dev/null 2>&1; then
       echo "benchstat not found in PATH; attempting automatic install via go install"
-      go install golang.org/x/perf/cmd/benchstat@latest >/dev/null 2>&1 || true
+      "$ROOT_DIR/scripts/go_with_toolchain.sh" go install golang.org/x/perf/cmd/benchstat@latest >/dev/null 2>&1 || true
       if command -v go >/dev/null 2>&1; then
-        GOPATH_BIN="$(go env GOPATH 2>/dev/null)/bin"
+        GOPATH_BIN="$("$ROOT_DIR/scripts/go_with_toolchain.sh" go env GOPATH 2>/dev/null)/bin"
         if [[ -n "$GOPATH_BIN" && -d "$GOPATH_BIN" ]]; then
           export PATH="$GOPATH_BIN:$PATH"
         fi

@@ -10,6 +10,7 @@ name: FedAvg Benchmark Compare
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.25.9+auto
   FEDAVG_BENCH_TIME: "300ms"
   FEDAVG_BENCH_COUNT: "10"
   FEDAVG_BENCH_CPU: "1"
@@ -37,7 +38,7 @@ jobs:
         run: |
           mkdir -p test-results
           set -o pipefail
-          go test -json ./test -run 'TestSwarmIntegration500To1000Nodes|TestByzantineEdgeCasesOver55PercentMalicious|TestHardwareAgnosticBackendProfiles' | tee test-results/swarm-integration-go-test.jsonl
+          ./scripts/go_with_toolchain.sh go test -json ./test -run 'TestSwarmIntegration500To1000Nodes|TestByzantineEdgeCasesOver55PercentMalicious|TestHardwareAgnosticBackendProfiles' | tee test-results/swarm-integration-go-test.jsonl
 
       - name: Build CPU vs GPU vs NPU benchmark report
         run: |
@@ -72,7 +73,7 @@ jobs:
       - name: Capture FedAvg benchmark baseline on main
         run: |
           mkdir -p .benchmarks/fedavg
-          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
+          ./scripts/go_with_toolchain.sh go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
 
       - name: Save baseline in GitHub Actions cache
         uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
@@ -103,8 +104,8 @@ jobs:
 
       - name: Install benchstat
         run: |
-          go install golang.org/x/perf/cmd/benchstat@latest
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          ./scripts/go_with_toolchain.sh go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(./scripts/go_with_toolchain.sh go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Detect performance-impacting changes
         id: perf_changes
@@ -152,7 +153,7 @@ jobs:
         if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           mkdir -p .benchmarks/fedavg
-          go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/current_pr.txt
+          ./scripts/go_with_toolchain.sh go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/current_pr.txt
 
       - name: Build FedAvg benchmark comparison report
         if: steps.perf_changes.outputs.run_benchmark == 'true'
