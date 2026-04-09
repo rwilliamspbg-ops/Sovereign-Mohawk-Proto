@@ -32,6 +32,11 @@ import (
 // on restarts of long-running node-agents.
 const compilationCacheDir = "/tmp/mohawk-wasm-cache"
 
+const (
+	MaxModuleBytes   = 10 * 1024 * 1024
+	MaxFunctionCount = 1000
+)
+
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
 type Host struct {
 	runtime wazero.Runtime
@@ -56,6 +61,10 @@ func NewRegistry() *Registry {
 // and reused on subsequent startups, and enables WASM SIMD intrinsics where
 // the host CPU supports them (detected automatically by wazero).
 func NewHost(ctx context.Context, wasmBin []byte) (*Host, error) {
+	if err := ValidateModuleLimits(wasmBin); err != nil {
+		return nil, err
+	}
+
 	cfg := wazero.NewRuntimeConfig().
 		WithCompilationCache(newCompilationCache(ctx))
 
@@ -71,6 +80,186 @@ func NewHost(ctx context.Context, wasmBin []byte) (*Host, error) {
 		runtime: r,
 		mod:     mod,
 	}, nil
+}
+
+// ValidateModuleLimits enforces static module-level safety guardrails before
+// any JIT/AOT compilation work is performed.
+func ValidateModuleLimits(wasmBin []byte) error {
+	if len(wasmBin) == 0 {
+		return fmt.Errorf("empty wasm module")
+	}
+	if len(wasmBin) > MaxModuleBytes {
+		return fmt.Errorf("wasm module size %d exceeds max %d bytes", len(wasmBin), MaxModuleBytes)
+	}
+
+	funcCount, err := totalFunctionCount(wasmBin)
+	if err != nil {
+		return fmt.Errorf("invalid wasm module: %w", err)
+	}
+	if funcCount > MaxFunctionCount {
+		return fmt.Errorf("wasm module function count %d exceeds max %d", funcCount, MaxFunctionCount)
+	}
+	return nil
+}
+
+func totalFunctionCount(wasmBin []byte) (int, error) {
+	if len(wasmBin) < 8 {
+		return 0, fmt.Errorf("module too short")
+	}
+	if wasmBin[0] != 0x00 || wasmBin[1] != 0x61 || wasmBin[2] != 0x73 || wasmBin[3] != 0x6d {
+		return 0, fmt.Errorf("bad wasm magic")
+	}
+	if wasmBin[4] != 0x01 || wasmBin[5] != 0x00 || wasmBin[6] != 0x00 || wasmBin[7] != 0x00 {
+		return 0, fmt.Errorf("unsupported wasm version")
+	}
+
+	offset := uint64(8)
+	var importedFuncs uint32
+	var definedFuncs uint32
+	bufLen := uint64(len(wasmBin))
+
+	for offset < bufLen {
+		sectionID := wasmBin[offset]
+		offset++
+
+		sectionSize, n, err := readVarUint32(wasmBin[offset:])
+		if err != nil {
+			return 0, fmt.Errorf("read section size: %w", err)
+		}
+		offset += uint64(n)
+		if uint64(sectionSize) > bufLen-offset {
+			return 0, fmt.Errorf("section exceeds module bounds")
+		}
+
+		section := wasmBin[offset:][:sectionSize]
+		offset += uint64(sectionSize)
+
+		switch sectionID {
+		case 2:
+			count, err := countImportedFunctions(section)
+			if err != nil {
+				return 0, fmt.Errorf("parse import section: %w", err)
+			}
+			importedFuncs = count
+		case 3:
+			count, _, err := readVarUint32(section)
+			if err != nil {
+				return 0, fmt.Errorf("parse function section: %w", err)
+			}
+			definedFuncs = count
+		}
+	}
+
+	return int(importedFuncs + definedFuncs), nil
+}
+
+func countImportedFunctions(section []byte) (uint32, error) {
+	entryCount, i, err := readVarUint32(section)
+	if err != nil {
+		return 0, err
+	}
+
+	var importedFuncs uint32
+	for entry := uint32(0); entry < entryCount; entry++ {
+		if err := skipName(section, &i); err != nil {
+			return 0, err
+		}
+		if err := skipName(section, &i); err != nil {
+			return 0, err
+		}
+		if i >= len(section) {
+			return 0, fmt.Errorf("truncated import descriptor")
+		}
+		kind := section[i]
+		i++
+
+		switch kind {
+		case 0x00: // func
+			_, n, err := readVarUint32(section[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+			importedFuncs++
+		case 0x01: // table
+			if i >= len(section) {
+				return 0, fmt.Errorf("truncated table import")
+			}
+			i++ // elemtype
+			if err := skipLimits(section, &i); err != nil {
+				return 0, err
+			}
+		case 0x02: // memory
+			if err := skipLimits(section, &i); err != nil {
+				return 0, err
+			}
+		case 0x03: // global
+			if i+2 > len(section) {
+				return 0, fmt.Errorf("truncated global import")
+			}
+			i += 2 // valtype + mutability
+		default:
+			return 0, fmt.Errorf("unsupported import kind %d", kind)
+		}
+	}
+
+	return importedFuncs, nil
+}
+
+func skipName(data []byte, i *int) error {
+	if *i >= len(data) {
+		return fmt.Errorf("truncated name")
+	}
+	nameLen, n, err := readVarUint32(data[*i:])
+	if err != nil {
+		return err
+	}
+	*i += n
+	if *i+int(nameLen) > len(data) {
+		return fmt.Errorf("name exceeds bounds")
+	}
+	*i += int(nameLen)
+	return nil
+}
+
+func skipLimits(data []byte, i *int) error {
+	if *i >= len(data) {
+		return fmt.Errorf("truncated limits")
+	}
+	flags, n, err := readVarUint32(data[*i:])
+	if err != nil {
+		return err
+	}
+	*i += n
+
+	if _, n, err = readVarUint32(data[*i:]); err != nil {
+		return err
+	}
+	*i += n
+
+	if flags&0x01 != 0 {
+		if _, n, err = readVarUint32(data[*i:]); err != nil {
+			return err
+		}
+		*i += n
+	}
+	return nil
+}
+
+func readVarUint32(data []byte) (uint32, int, error) {
+	var value uint32
+	var shift uint
+	for i, b := range data {
+		value |= uint32(b&0x7f) << shift
+		if b&0x80 == 0 {
+			return value, i + 1, nil
+		}
+		shift += 7
+		if shift >= 35 {
+			return 0, 0, fmt.Errorf("varuint32 too large")
+		}
+	}
+	return 0, 0, fmt.Errorf("truncated varuint32")
 }
 
 // newCompilationCache creates a filesystem-backed compilation cache at

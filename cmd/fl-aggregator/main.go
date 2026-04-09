@@ -16,12 +16,16 @@ package main
 import (
 	"crypto/subtle"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"math"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
 type GradPayload struct {
@@ -67,6 +71,17 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := verifyFormalByzantineCheck(); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusFailedDependency)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"status":            "failed",
+			"formal_check_pass": false,
+			"message":           err.Error(),
+		})
+		return
+	}
+
 	maxNorm := 10.0
 	norm := 0.0
 	for _, g := range p.Grads {
@@ -81,5 +96,38 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("received %d grads from %s (clipped)", len(p.Grads), p.NodeID)
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]any{"status": "success", "formal_check_pass": true})
+}
+
+func verifyFormalByzantineCheck() error {
+	totalNodes, hasTotal, err := parseOptionalIntEnv("FL_AGGREGATOR_TOTAL_NODES")
+	if err != nil {
+		return err
+	}
+	maliciousNodes, hasMalicious, err := parseOptionalIntEnv("FL_AGGREGATOR_MALICIOUS_NODES")
+	if err != nil {
+		return err
+	}
+	if !hasTotal && !hasMalicious {
+		return nil
+	}
+	if !hasTotal || !hasMalicious {
+		return fmt.Errorf("FL_AGGREGATOR_TOTAL_NODES and FL_AGGREGATOR_MALICIOUS_NODES must both be set for formal checks")
+	}
+	_, checkErr := tpm.VerifyByzantineResilience(totalNodes, maliciousNodes)
+	return checkErr
+}
+
+func parseOptionalIntEnv(key string) (int, bool, error) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return 0, false, nil
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, true, fmt.Errorf("invalid %s=%q: %w", key, raw, err)
+	}
+	return v, true, nil
 }

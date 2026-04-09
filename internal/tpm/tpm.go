@@ -451,6 +451,10 @@ func getAuthority() (*Authority, error) {
 		}
 	}
 
+	if requireHardwareTPMProduction() {
+		return nil, fmt.Errorf("software TPM fallback is disabled for this production target; configure MOHAWK_TPM_CA_CERT_FILE and MOHAWK_TPM_CA_KEY_FILE")
+	}
+
 	if defaultAuthority != nil && defaultAuthorityE == nil && !authorityNeedsRotation(defaultAuthority.cert) {
 		return defaultAuthority, nil
 	}
@@ -526,6 +530,9 @@ func loadAuthorityCertFromFile(certPath string) (*Authority, error) {
 }
 
 func allowAuthorityFallback(certPath string, keyPath string, loadErr error) bool {
+	if requireHardwareTPMProduction() {
+		return false
+	}
 	if os.IsNotExist(loadErr) {
 		return true
 	}

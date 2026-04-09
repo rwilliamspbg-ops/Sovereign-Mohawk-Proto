@@ -44,3 +44,29 @@ func TestAggregateHandler_RejectsOversizedBody(t *testing.T) {
 		t.Fatalf("expected 400 for oversized payload, got %d", rr.Code)
 	}
 }
+
+func TestAggregateHandler_FailsWhenFormalByzantineCheckFails(t *testing.T) {
+	t.Setenv("AGGREGATOR_TOTAL_NODES", "10")
+	t.Setenv("AGGREGATOR_MALICIOUS_NODES", "6")
+	req := httptest.NewRequest(http.MethodPost, "/aggregate", strings.NewReader(`[{"id":"n1","value":1}]`))
+	rr := httptest.NewRecorder()
+
+	aggregateHandler(rr, req)
+
+	if rr.Code != http.StatusFailedDependency {
+		t.Fatalf("expected 424 for formal check failure, got %d", rr.Code)
+	}
+}
+
+func TestAggregateHandler_PassesWhenFormalByzantineCheckPasses(t *testing.T) {
+	t.Setenv("AGGREGATOR_TOTAL_NODES", "101")
+	t.Setenv("AGGREGATOR_MALICIOUS_NODES", "40")
+	req := httptest.NewRequest(http.MethodPost, "/aggregate", strings.NewReader(`[{"id":"n1","value":1}]`))
+	rr := httptest.NewRecorder()
+
+	aggregateHandler(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+}

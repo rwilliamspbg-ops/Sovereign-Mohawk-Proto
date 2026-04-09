@@ -3,6 +3,7 @@
 import array
 
 import pytest
+import mohawk.client as client_module
 from mohawk import (
     AggregationError,
     BridgeTransferIntent,
@@ -105,6 +106,17 @@ class TestMohawkNode:
         gradients = array.array("f", [0.1, -0.2, 0.3, 0.4])
         result = node.compress_gradients_zero_copy(memoryview(gradients), format="fp16")
         assert result["success"] is True
+
+    def test_compress_gradients_rejects_oversized_vector(self, node, monkeypatch):
+        monkeypatch.setattr(client_module, "MAX_GRADIENT_ELEMENTS", 2)
+        with pytest.raises(AggregationError):
+            node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
+
+    def test_compress_gradients_zero_copy_rejects_oversized_vector(self, node, monkeypatch):
+        monkeypatch.setattr(client_module, "MAX_GRADIENT_ELEMENTS", 2)
+        gradients = array.array("f", [0.1, 0.2, 0.3])
+        with pytest.raises(AggregationError):
+            node.compress_gradients_zero_copy(memoryview(gradients), format="fp16")
 
     def test_batch_verify(self, node):
         """Test batch proof verification API."""
