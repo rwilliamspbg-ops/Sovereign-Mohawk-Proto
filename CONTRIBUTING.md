@@ -174,6 +174,8 @@ Common pitfalls and fixes:
 
 ## ⚖️ Licensing & IP Notice for Contributors
 
+Contributor recognition and point awards are tracked in [CONTRIBUTORS.md](CONTRIBUTORS.md) and mirrored in [DASHBOARD.md](DASHBOARD.md).
+
 * **Project License:** Contributions to this repository are accepted under the Apache License 2.0. See [LICENSE.md](LICENSE.md).
 * **Patent Context:** The protocol includes components marked as **Patent Pending** (U.S. provisional filing, March 2026).
 * **No Additional IP Grant by Docs:** This notice is informational and does not modify Apache-2.0 terms in [LICENSE.md](LICENSE.md).
