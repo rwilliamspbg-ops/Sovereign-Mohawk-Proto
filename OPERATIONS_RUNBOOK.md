@@ -89,6 +89,19 @@ Run this after Prometheus/Grafana changes or before release sign-off.
 5. Save verification evidence:
    - `results/metrics/v2_dashboard_validation_report.md`
 
+## Tamper-Evident Event Export (Deployer Audit Bundle)
+
+Run this to export chained, tamper-evident event logs for key controls (aggregation, zk verification, Byzantine checks, privacy budget policy guard):
+
+1. Generate export bundle from live metrics and ledger audit chain status:
+   - `python3 scripts/export_tamper_evident_events.py --prom-url http://localhost:9090 --output-dir results/forensics/tamper-evident-events`
+2. Verify output artifacts are present:
+   - `results/forensics/tamper-evident-events/events.ndjson`
+   - `results/forensics/tamper-evident-events/events_chained.ndjson`
+   - `results/forensics/tamper-evident-events/bundle_manifest.json`
+   - `results/forensics/tamper-evident-events/tamper_evident_events_bundle.tar.gz`
+3. Archive the tarball with release or incident evidence bundles.
+
 ## Alert Routing (Critical and Warning)
 
 Alertmanager is wired in compose and Prometheus alerting config.

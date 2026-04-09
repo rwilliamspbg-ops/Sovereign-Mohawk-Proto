@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health
+.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export
 
 all: build verify
 
@@ -223,3 +223,7 @@ pqc-health:
 		echo "KEX: $$MOHAWK_TRANSPORT_KEX_MODE"; \
 		python3 scripts/validate_transport_kex_mode.py --repo-root . --check-runtime-env; \
 		python3 scripts/validate_pqc_contract_ready.py
+
+tamper-evident-export:
+	@echo "🧾 Exporting tamper-evident audit event bundle..."
+	python3 scripts/export_tamper_evident_events.py --output-dir results/forensics/tamper-evident-events

@@ -108,6 +108,23 @@ Expand existing technical artifacts into a structured, auditable documentation f
 - docs/tdf/cybersecurity/
 - docs/tdf/conformity/
 
+Starter templates in this repository:
+
+- docs/tdf/TECHNICAL_FILE_TEMPLATE.md
+- docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md
+
+## Early Conformity Readiness Guidance
+
+- For EU healthcare/geospatial high-risk targets, initiate notified body discovery and pre-read review during architecture freeze.
+- Do not wait for final release candidate to begin dossier-shape validation.
+- Use sandbox pilot outcomes to update risk controls, test traceability, and residual-risk rationale before conformity signoff.
+
+## EU AI Regulatory Sandbox Planning
+
+- Identify relevant Member State sandbox programs and enrollment windows.
+- Define low-risk pilot boundaries (synthetic/de-identified data, constrained scope).
+- Capture outputs as evidence artifacts and map findings into CAPA and TDF updates.
+
 ## Governance Cadence
 
 - update TDF sections at each release candidate
