@@ -131,7 +131,7 @@ func totalFunctionCount(wasmBin []byte) (int, error) {
 			return 0, fmt.Errorf("section exceeds module bounds")
 		}
 
-		section := wasmBin[offset : offset+uint64(sectionSize)]
+		section := wasmBin[offset:][:sectionSize]
 		offset += uint64(sectionSize)
 
 		switch sectionID {
