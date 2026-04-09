@@ -96,6 +96,9 @@ class ZeroCopyBridge:
         max_norm: float = 1.0,
     ) -> JsonDict:
         view = self.view(gradients)
+        # Validate element count based on raw bytes before any buffer materialization
+        # to prevent memory/CPU DoS from oversized payloads.
+        _validate_gradient_count(view.nbytes // 4)
         if view.format in {"f", "=f", "<f"}:
             float_view = view
         elif view.format in {"B", "b", "c"}:
@@ -104,7 +107,6 @@ class ZeroCopyBridge:
             float_view = memoryview(bytearray(view.tobytes())).cast("f")
 
         if self.lib is None or not self.has_symbol("CompressGradientsZeroCopy"):
-            _validate_gradient_count(len(float_view))
             return {
                 "success": True,
                 "message": "Gradients compressed (python zero-copy fallback)",
@@ -121,8 +123,6 @@ class ZeroCopyBridge:
             ctypes.c_double,
         ]
         func.restype = ctypes.c_void_p
-
-        _validate_gradient_count(len(float_view))
 
         holder = bytearray(float_view.tobytes())
         array_type = ctypes.c_float * len(float_view)

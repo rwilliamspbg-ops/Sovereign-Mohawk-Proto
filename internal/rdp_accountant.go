@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	"strconv"
 	"sync"
 )
 
@@ -142,10 +141,5 @@ func ratFromFloat64(v float64) *big.Rat {
 	if math.IsNaN(v) || math.IsInf(v, 0) {
 		return new(big.Rat)
 	}
-	s := strconv.FormatFloat(v, 'f', 18, 64)
-	rat := new(big.Rat)
-	if _, ok := rat.SetString(s); ok {
-		return rat
-	}
-	return new(big.Rat)
+	return new(big.Rat).SetFloat64(v)
 }

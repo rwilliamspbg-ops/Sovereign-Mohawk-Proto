@@ -113,11 +113,12 @@ func totalFunctionCount(wasmBin []byte) (int, error) {
 		return 0, fmt.Errorf("unsupported wasm version")
 	}
 
-	offset := 8
+	offset := uint64(8)
 	var importedFuncs uint32
 	var definedFuncs uint32
+	bufLen := uint64(len(wasmBin))
 
-	for offset < len(wasmBin) {
+	for offset < bufLen {
 		sectionID := wasmBin[offset]
 		offset++
 
@@ -125,13 +126,13 @@ func totalFunctionCount(wasmBin []byte) (int, error) {
 		if err != nil {
 			return 0, fmt.Errorf("read section size: %w", err)
 		}
-		offset += n
-		if offset+int(sectionSize) > len(wasmBin) {
+		offset += uint64(n)
+		if uint64(sectionSize) > bufLen-offset {
 			return 0, fmt.Errorf("section exceeds module bounds")
 		}
 
-		section := wasmBin[offset : offset+int(sectionSize)]
-		offset += int(sectionSize)
+		section := wasmBin[offset : offset+uint64(sectionSize)]
+		offset += uint64(sectionSize)
 
 		switch sectionID {
 		case 2:
