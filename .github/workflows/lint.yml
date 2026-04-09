@@ -44,7 +44,7 @@ jobs:
       - name: Install Linting Tools
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 black
+          pip install flake8 black==25.11.0
 
       - name: Black Format Check
         run: black --check --config sdk/python/pyproject.toml sdk/python scripts
