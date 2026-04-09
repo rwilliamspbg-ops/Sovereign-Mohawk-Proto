@@ -26,6 +26,10 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Run tamper-evident export e2e test
+        run: |
+          python3 tests/scripts/ci/test_tamper_evident_bundle_e2e.py
+
       - name: Generate tamper-evident audit bundle
         run: |
           python3 scripts/export_tamper_evident_events.py \

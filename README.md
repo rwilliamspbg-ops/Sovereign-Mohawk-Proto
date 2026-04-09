@@ -21,9 +21,14 @@
 [![PQC Transport](https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1)](SECURITY.md)
 [![TPM Identity](https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1)](SECURITY.md)
 [![PQC Migration](https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043)](RELEASE_NOTES_PQC_OVERHAUL.md)
+[![EU AI Act High-Risk Readiness](https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043)](COMPLIANCE.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
 Sovereign Mohawk Proto is a theorem-backed federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
+
+## EU AI Act High-Risk Readiness
+
+High-risk readiness controls, Article 8-15 mapping, technical evidence, and deployer logging guidance are documented in [COMPLIANCE.md](COMPLIANCE.md).
 
 ## Contributor Spotlight
 

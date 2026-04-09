@@ -114,6 +114,28 @@ groups:
           description: "Sustained authorization denials detected for protected control-plane endpoints."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
 
+      - alert: MohawkHumanOversightAuthorizationDenied
+        expr: increase(mohawk_authz_denials_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          domain: oversight
+        annotations:
+          summary: "Human oversight action required: authorization denial observed"
+          description: "One or more protected operations were denied in the last 15m. Operator review/approval or escalation may be required."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkHumanOversightMigrationFailures
+        expr: increase(mohawk_migration_requests_total{result="failure"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          domain: oversight
+        annotations:
+          summary: "Human oversight action required: migration failures detected"
+          description: "Migration request failures were observed in the last 15m. Validate approval path, policy mode, and rollback criteria."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
       - alert: MohawkPQCPolicyDrift
         expr: mohawk:pqc_policy_enforced:min < 1
         for: 2m
