@@ -81,7 +81,7 @@ Use short, scoped branch names:
 
 ### Go Toolchain Guard (Required)
 
-This repository requires Go `1.25.8` from `go.mod`.
+This repository requires Go `1.25.9` from `go.mod`.
 
 Before running `go`, `make lint`, `make verify`, or benchmark commands, source:
 
@@ -113,7 +113,7 @@ If your PR changes aggregation, accelerator, or performance-critical paths, incl
 1. Run the Go FedAvg benchmark matrix locally:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 \
 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
 go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
 ```
@@ -121,7 +121,7 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 1. Generate base-vs-current benchmark comparison:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.8.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \

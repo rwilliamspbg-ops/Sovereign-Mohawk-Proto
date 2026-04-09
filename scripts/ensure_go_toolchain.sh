@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Source this script before running Go commands to avoid mixed toolchain state
-# (e.g., go=1.25.8 with compile=1.25.4 from /usr/local/go).
+# (e.g., go=1.25.9 with compile=1.25.4 from /usr/local/go).
 
 version_lt() {
   local a="$1"

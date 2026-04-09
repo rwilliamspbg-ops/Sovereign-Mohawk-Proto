@@ -30,7 +30,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version: '1.25.x'
+          go-version-file: 'go.mod'
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
@@ -74,7 +74,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version: '1.25.x'
+          go-version-file: 'go.mod'
 
       - name: Capture FedAvg benchmark baseline on main
         run: |
@@ -109,7 +109,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
         with:
-          go-version: '1.25.x'
+          go-version-file: 'go.mod'
 
       - name: Install benchstat
         run: |

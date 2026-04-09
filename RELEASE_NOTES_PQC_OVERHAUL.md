@@ -84,4 +84,4 @@ Performance Evidence: [Release performance index](results/metrics/release_perfor
 
 - Strict mode correctly blocks on insufficient host buffers in this dev container.
 - Advisory override completes full pipeline with `PASS` and generated artifacts.
-- Go runtime/compiler alignment verified in one-click report (`go1.25.8` / `go1.25.8`).
+- Go runtime/compiler alignment verified in one-click report (`go1.25.9` / `go1.25.9`).
