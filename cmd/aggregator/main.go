@@ -7,7 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
 
 type Update struct {
@@ -47,13 +50,54 @@ func aggregateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := verifyFormalByzantineCheck(); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusFailedDependency)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"status":            "failed",
+			"formal_check_pass": false,
+			"message":           err.Error(),
+		})
+		return
+	}
+
 	fmt.Printf("Aggregating %d updates\n", len(updates))
 
 	w.Header().Set("Content-Type", "application/json")
-	// Satisfy linter with error check
-	if err := json.NewEncoder(w).Encode(map[string]string{"status": "success"}); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]any{"status": "success", "formal_check_pass": true}); err != nil {
 		log.Printf("failed to encode: %v", err)
 	}
+}
+
+func verifyFormalByzantineCheck() error {
+	totalNodes, hasTotal, err := parseOptionalIntEnv("AGGREGATOR_TOTAL_NODES")
+	if err != nil {
+		return err
+	}
+	maliciousNodes, hasMalicious, err := parseOptionalIntEnv("AGGREGATOR_MALICIOUS_NODES")
+	if err != nil {
+		return err
+	}
+	if !hasTotal && !hasMalicious {
+		return nil
+	}
+	if !hasTotal || !hasMalicious {
+		return fmt.Errorf("AGGREGATOR_TOTAL_NODES and AGGREGATOR_MALICIOUS_NODES must both be set for formal checks")
+	}
+	_, checkErr := tpm.VerifyByzantineResilience(totalNodes, maliciousNodes)
+	return checkErr
+}
+
+func parseOptionalIntEnv(key string) (int, bool, error) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return 0, false, nil
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, true, fmt.Errorf("invalid %s=%q: %w", key, raw, err)
+	}
+	return v, true, nil
 }
 
 func main() {

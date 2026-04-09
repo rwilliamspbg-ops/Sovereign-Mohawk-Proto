@@ -1,6 +1,8 @@
 package test
 
 import (
+	"math"
+	"math/big"
 	"testing"
 
 	internal "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
@@ -86,10 +88,38 @@ func TestNewAggregator_UsesDPConfig(t *testing.T) {
 	t.Setenv("MOHAWK_DP_DELTA", "0.00002")
 
 	agg := internal.NewAggregator(internal.Regional)
-	if agg.Accountant.MaxBudget != 15.5 {
-		t.Fatalf("expected accountant max budget=15.5, got %f", agg.Accountant.MaxBudget)
+	if agg.Accountant.MaxBudgetFloat() != 15.5 {
+		t.Fatalf("expected accountant max budget=15.5, got %f", agg.Accountant.MaxBudgetFloat())
 	}
 	if agg.Accountant.TargetDelta != 2e-5 {
 		t.Fatalf("expected accountant delta=2e-5, got %f", agg.Accountant.TargetDelta)
+	}
+}
+
+func TestRDPAccountant_RecordStepRat_Precision(t *testing.T) {
+	acc := internal.NewRDPAccountant(10.0, 1e-5)
+
+	step := new(big.Rat)
+	if _, ok := step.SetString("0.1"); !ok {
+		t.Fatal("failed to build rational step")
+	}
+	for i := 0; i < 10; i++ {
+		acc.RecordStepRat(step)
+	}
+
+	total, _ := acc.TotalEpsilon.Float64()
+	if math.Abs(total-1.0) > 1e-12 {
+		t.Fatalf("expected exact rational accumulation to 1.0, got %.18f", total)
+	}
+}
+
+func TestRDPAccountant_RecordGaussianStepRDP(t *testing.T) {
+	acc := internal.NewRDPAccountant(100.0, 1e-5)
+	if err := acc.RecordGaussianStepRDP(1.0); err != nil {
+		t.Fatalf("unexpected gaussian step error: %v", err)
+	}
+	eps := acc.GetCurrentEpsilon()
+	if eps <= 0 {
+		t.Fatalf("expected positive epsilon after gaussian step, got %.6f", eps)
 	}
 }

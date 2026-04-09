@@ -34,6 +34,16 @@ from .high_level import (
 
 JsonDict = Dict[str, Any]
 BufferLike = Union[bytes, bytearray, memoryview]
+MAX_GRADIENT_ELEMENTS = 1_000_000
+
+
+def _validate_gradient_count(count: int) -> None:
+    if count < 0:
+        raise AggregationError(f"invalid gradient count: {count}")
+    if count > MAX_GRADIENT_ELEMENTS:
+        raise AggregationError(
+            f"gradient length {count} exceeds MAX_GRADIENT_ELEMENTS={MAX_GRADIENT_ELEMENTS}"
+        )
 
 
 class ZeroCopyBridge:
@@ -94,6 +104,7 @@ class ZeroCopyBridge:
             float_view = memoryview(bytearray(view.tobytes())).cast("f")
 
         if self.lib is None or not self.has_symbol("CompressGradientsZeroCopy"):
+            _validate_gradient_count(len(float_view))
             return {
                 "success": True,
                 "message": "Gradients compressed (python zero-copy fallback)",
@@ -110,6 +121,8 @@ class ZeroCopyBridge:
             ctypes.c_double,
         ]
         func.restype = ctypes.c_void_p
+
+        _validate_gradient_count(len(float_view))
 
         holder = bytearray(float_view.tobytes())
         array_type = ctypes.c_float * len(float_view)
@@ -307,6 +320,7 @@ class MohawkNode:
         max_norm: float = 1.0,
     ) -> JsonDict:
         grads = list(gradients)
+        _validate_gradient_count(len(grads))
         payload = {"gradients": grads, "format": format, "max_norm": max_norm}
         result = self.bridge.invoke_json("CompressGradients", payload)
         if result.get("success", False):

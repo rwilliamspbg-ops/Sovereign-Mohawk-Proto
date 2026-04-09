@@ -38,6 +38,7 @@ const (
 type Aggregator struct {
 	Tier        Tier
 	Accountant  *RDPAccountant
+	DPSigma     float64
 	Liveness    *StragglerMonitor
 	Convergence *ConvergenceMonitor
 	MeshPlan    hva.Plan
@@ -73,6 +74,7 @@ func NewAggregator(t Tier) *Aggregator {
 	return &Aggregator{
 		Tier:        t,
 		Accountant:  NewRDPAccountant(dp.TargetEpsilon, dp.Delta),
+		DPSigma:     dp.Sigma,
 		Liveness:    NewStragglerMonitor(),
 		Convergence: NewConvergenceMonitor(0.1, 0.01),
 		MeshPlan:    meshPlan,
@@ -95,6 +97,9 @@ func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm fl
 	metrics.ObserveConsensus(fmt.Sprintf("tier-%d", a.Tier), activeNodes, totalNodes)
 
 	// Active Guard: Theorem 2 (Privacy Budget)
+	if err := a.Accountant.RecordGaussianStepRDP(a.DPSigma); err != nil {
+		return fmt.Errorf("privacy accounting failed: %w", err)
+	}
 	if err := a.Accountant.CheckBudget(); err != nil {
 		return fmt.Errorf("privacy guard triggered: %w", err)
 	}
