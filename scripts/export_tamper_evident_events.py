@@ -50,7 +50,11 @@ def load_ledger_audit_status(audit_file: Path) -> dict:
             "tip_hash": "",
         }
 
-    lines = [line.strip() for line in audit_file.read_text(encoding="utf-8", errors="ignore").splitlines() if line.strip()]
+    lines = [
+        line.strip()
+        for line in audit_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if line.strip()
+    ]
     prev = ""
     chain_ok = True
     tip = ""
@@ -104,8 +108,14 @@ def write_ndjson(path: Path, values: list[dict]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Export tamper-evident audit events bundle")
     parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
-    parser.add_argument("--output-dir", default="results/forensics/tamper-evident-events", help="Output directory")
-    parser.add_argument("--ledger-audit-file", default="data/utility-ledger/audit.jsonl", help="Ledger audit chain path")
+    parser.add_argument(
+        "--output-dir", default="results/forensics/tamper-evident-events", help="Output directory"
+    )
+    parser.add_argument(
+        "--ledger-audit-file",
+        default="data/utility-ledger/audit.jsonl",
+        help="Ledger audit chain path",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.output_dir)
@@ -125,8 +135,8 @@ def main() -> int:
 
     prom_queries = {
         "gradient_aggregation_workers": "mohawk_aggregation_workers",
-        "zk_verification_success_total": "sum(mohawk_proof_verifications_total{result=\"success\"})",
-        "zk_verification_failure_total": "sum(mohawk_proof_verifications_total{result=\"failure\"})",
+        "zk_verification_success_total": 'sum(mohawk_proof_verifications_total{result="success"})',
+        "zk_verification_failure_total": 'sum(mohawk_proof_verifications_total{result="failure"})',
         "byzantine_honest_ratio_min_10m": "min_over_time(mohawk_consensus_honest_ratio[10m])",
         "privacy_budget_target_epsilon": "2.0",
     }
