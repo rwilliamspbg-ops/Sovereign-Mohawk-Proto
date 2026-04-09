@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	libp2p "github.com/libp2p/go-libp2p"
@@ -61,16 +62,30 @@ type Config struct {
 }
 
 func DefaultConfig(port int) Config {
+	listenAddrs := []string{
+		fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port),
+	}
+	if !isQUICDisabled() {
+		listenAddrs = append(listenAddrs, fmt.Sprintf("/ip4/0.0.0.0/udp/%d/quic-v1", port))
+	}
+
 	return Config{
-		ListenAddrs: []string{
-			fmt.Sprintf("/ip4/0.0.0.0/tcp/%d", port),
-			fmt.Sprintf("/ip4/0.0.0.0/udp/%d/quic-v1", port),
-		},
+		ListenAddrs:        listenAddrs,
 		EnableRelayService: true,
 		EnableHolePunching: true,
 		EnableNATPortMap:   true,
 		ResourceScope:      "regional-shard",
 		KEXMode:            KEXModeX25519,
+	}
+}
+
+func isQUICDisabled() bool {
+	raw := strings.ToLower(strings.TrimSpace(os.Getenv("MOHAWK_DISABLE_QUIC")))
+	switch raw {
+	case "1", "true", "yes", "on":
+		return true
+	default:
+		return false
 	}
 }
 

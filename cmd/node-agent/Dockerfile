@@ -26,6 +26,10 @@ RUN apk --no-cache add ca-certificates libgcc
 COPY --from=builder /app/node-agent-bin .
 COPY --from=builder /app/libmohawk.so .
 
+# Default verifier artifact for strict runtime startup.
+# Exports verify_proof(i32) -> i32 and returns 0 (fail-closed default).
+RUN printf '\x00\x61\x73\x6d\x01\x00\x00\x00\x01\x06\x01\x60\x01\x7f\x01\x7f\x03\x02\x01\x00\x07\x10\x01\x0c\x76\x65\x72\x69\x66\x79\x5f\x70\x72\x6f\x6f\x66\x00\x00\x0a\x06\x01\x04\x00\x41\x00\x0b' > /root/proof_verifier.wasm
+
 # WASM module mount-point
 RUN mkdir -p /app/wasm
 

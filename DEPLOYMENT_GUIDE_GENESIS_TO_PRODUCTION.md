@@ -10,14 +10,20 @@ This guide defines the canonical rollout path from local/genesis validation to p
 - Go toolchain aligned with `go.mod`.
 - Python 3.8+ for readiness and evidence scripts.
 - Runtime secrets present under `runtime-secrets/`.
-- Production host kernel tuning applied for UDP/socket buffers.
+- If QUIC is enabled, production host kernel tuning applied for UDP/socket buffers.
 
-Required kernel settings:
+Required kernel settings (QUIC-enabled profile):
 
 - `net.core.rmem_max=8388608`
 - `net.core.rmem_default=262144`
 - `net.core.wmem_max=8388608`
 - `net.core.wmem_default=262144`
+
+Constrained-host profile (default local compose path):
+
+- Set `MOHAWK_DISABLE_QUIC=true` for orchestrator and node-agents.
+- This removes QUIC listen sockets and avoids UDP buffer warnings on restricted hosts.
+- Re-enable QUIC only on hosts where the kernel tuning above is enforced and validated.
 
 ## 2. Stage A: Genesis Bring-up (Local/Pre-Prod)
 
@@ -33,6 +39,7 @@ Exit criteria:
 
 - Orchestrator, node-agents, Prometheus, Grafana, and TPM exporter are healthy.
 - Baseline metrics are available.
+- No verifier bypass warnings in node-agent logs (proof verifier must be active or startup fails).
 
 ## 3. Stage B: Readiness and Chaos Qualification
 

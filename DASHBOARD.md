@@ -48,12 +48,13 @@ Primary artifact trail:
 | Rank | Contributor | Points | Impact Area |
 | :--- | :--- | :--- | :--- |
 | 1 | @rwilliamspbg-ops | 2,500 | Core Runtime & SDK |
-| 2 | @Eddie-Adams | 500 | CI Security Hardening |
+| 2 | @Eddie-Adams | 1,000 | CI + Runtime Security Hardening |
 | 3 | *Open Slot* | -- | TPM Attestation Logic |
 
 Latest awarded contribution:
 
 * @Eddie-Adams: +500 points for PR contribution anchored by commit `83e8ba2215db4d26edc283b6c9d7d88d92cc5c85`
+* @Eddie-Adams: +500 points for Apr 2026 security patch contribution (fail-closed verifier + constrained-runtime transport mitigation), commit note recorded (merge hash pending)
 
 ## 🛠️ Open Bounty Tasks
 

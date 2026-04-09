@@ -23,6 +23,12 @@ We enforce security through **Proof-Driven Design**. The following "guards" are 
 2. **Privacy Guard (`internal/rdp_accountant.go`):** Prevents membership inference attacks by strictly enforcing the $\epsilon = 2.0$ budget.
 3. **Succinct Verification (`internal/zksnark_verifier.go`):** Uses Groth16 zk-SNARKs to ensure that regional aggregates are mathematically valid without re-executing training.
 
+### Runtime Hardening Notes (Apr 2026)
+
+- **Verifier boot is fail-closed by default:** node-agent startup now fails when the configured verifier module is missing/invalid instead of silently disabling proof verification.
+- **Insecure verifier fallback is explicit and non-default:** only enabled with `MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true` for CI/dev workflows.
+- **Constrained-host transport profile:** deployments may set `MOHAWK_DISABLE_QUIC=true` when host UDP socket tuning cannot be applied; this avoids QUIC UDP-buffer instability while preserving authenticated transport over TCP.
+
 ---
 
 ## 🛑 Reporting a Vulnerability

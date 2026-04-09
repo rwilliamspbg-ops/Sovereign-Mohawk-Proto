@@ -110,9 +110,6 @@ func verifyFormalByzantineCheck() error {
 	if err != nil {
 		return err
 	}
-	if !hasTotal && !hasMalicious {
-		return nil
-	}
 	if !hasTotal || !hasMalicious {
 		return fmt.Errorf("FL_AGGREGATOR_TOTAL_NODES and FL_AGGREGATOR_MALICIOUS_NODES must both be set for formal checks")
 	}

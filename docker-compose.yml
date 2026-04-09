@@ -136,6 +136,7 @@ services:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4101
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_DISABLE_QUIC=true
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_orchestrator_cert.pem
@@ -301,10 +302,12 @@ services:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4001
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_DISABLE_QUIC=true
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
+      - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -352,10 +355,12 @@ services:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4002
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_DISABLE_QUIC=true
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
+      - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -403,10 +408,12 @@ services:
       - IPFS_API_ENDPOINT=http://ipfs:5001
       - MOHAWK_LIBP2P_PORT=4003
       - MOHAWK_TRANSPORT_KEX_MODE=${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-hybrid}
+      - MOHAWK_DISABLE_QUIC=true
       - MOHAWK_TPM_IDENTITY_SIG_MODE=${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}
       - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
+      - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token

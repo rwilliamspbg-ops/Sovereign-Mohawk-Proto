@@ -58,8 +58,8 @@ func TestLoadDPConfig_Defaults(t *testing.T) {
 	if cfg.Sigma != 0.5 {
 		t.Fatalf("expected default sigma=0.5, got %f", cfg.Sigma)
 	}
-	if cfg.TargetEpsilon != 27.14 {
-		t.Fatalf("expected default epsilon budget=27.14, got %f", cfg.TargetEpsilon)
+	if cfg.TargetEpsilon != 2.0 {
+		t.Fatalf("expected fixed epsilon budget=2.0, got %f", cfg.TargetEpsilon)
 	}
 	if cfg.Delta != 1e-5 {
 		t.Fatalf("expected default delta=1e-5, got %f", cfg.Delta)
@@ -75,8 +75,8 @@ func TestLoadDPConfig_EnvOverride(t *testing.T) {
 	if cfg.Sigma != 1.36 {
 		t.Fatalf("expected sigma=1.36 from env, got %f", cfg.Sigma)
 	}
-	if cfg.TargetEpsilon != 9.6 {
-		t.Fatalf("expected epsilon budget=9.6 from env, got %f", cfg.TargetEpsilon)
+	if cfg.TargetEpsilon != 2.0 {
+		t.Fatalf("expected fixed epsilon budget=2.0, got %f", cfg.TargetEpsilon)
 	}
 	if cfg.Delta != 1e-5 {
 		t.Fatalf("expected delta=1e-5 from env, got %f", cfg.Delta)
@@ -84,12 +84,11 @@ func TestLoadDPConfig_EnvOverride(t *testing.T) {
 }
 
 func TestNewAggregator_UsesDPConfig(t *testing.T) {
-	t.Setenv("MOHAWK_DP_EPSILON_BUDGET", "15.5")
 	t.Setenv("MOHAWK_DP_DELTA", "0.00002")
 
 	agg := internal.NewAggregator(internal.Regional)
-	if agg.Accountant.MaxBudgetFloat() != 15.5 {
-		t.Fatalf("expected accountant max budget=15.5, got %f", agg.Accountant.MaxBudgetFloat())
+	if agg.Accountant.MaxBudgetFloat() != 2.0 {
+		t.Fatalf("expected fixed accountant max budget=2.0, got %f", agg.Accountant.MaxBudgetFloat())
 	}
 	if agg.Accountant.TargetDelta != 2e-5 {
 		t.Fatalf("expected accountant delta=2e-5, got %f", agg.Accountant.TargetDelta)

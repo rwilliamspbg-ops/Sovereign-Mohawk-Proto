@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Mar 28, 2026
+Apr 09, 2026
 
 ---
 
@@ -48,6 +48,8 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Penetration test across orchestrator/API and bridge settlement paths
 - [x] Threat-model refresh for mTLS control plane + internal metrics plane
 - [x] Dependency vulnerability baseline and patch SLA policy
+- [x] Runtime proof-verifier fail-closed boot enforcement (no silent disable path)
+- [x] WASM verifier fallback moved to explicit CI/dev opt-in only
 
 #### A1a. FIPS Compliance Hardening (Gap Alignment)
 
@@ -78,6 +80,7 @@ Current closure-prep evidence:
 - [x] Define and version SLO/SLI set (readiness, recovery latency, proof latency)
 - [x] Add alert routing/escalation playbook for readiness and chaos failures
 - [x] Add per-alert runbook links for fail-fast remediation
+- [x] Constrained-runtime transport profile documented (`MOHAWK_DISABLE_QUIC=true`) to avoid UDP buffer instability where host sysctl tuning is unavailable
 
 ### A4. Performance and Scale Sign-off (Critical Path)
 
@@ -197,6 +200,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-04-09 | 3.1 | Closed runtime hardening docs gap: verifier fail-closed startup and constrained-runtime QUIC disable profile captured across deployment/security/readme guidance |
 | 2026-04-05 | 3.0 | Closed FIPS governance hardening items: profile scope/boundary inventory, regression tests, operator runbook guidance, and release-gate evidence requirement |
 | 2026-04-05 | 2.9 | Added A1a FIPS compliance hardening TODOs to align roadmap with ecosystem compliance tracking |
 | 2026-03-28 | 2.8 | Added TPM attestation closure-prep artifacts: cross-platform matrix, Linux validation evidence, closure attestation state, and validator reports |

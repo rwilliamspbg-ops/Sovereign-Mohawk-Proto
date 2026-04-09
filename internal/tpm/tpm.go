@@ -408,6 +408,9 @@ func getAttestor(nodeID string) (*Attestor, error) {
 func getAuthority() (*Authority, error) {
 	authorityMutex.Lock()
 	defer authorityMutex.Unlock()
+	if err := enforceProductionHardwareTPMBuild(); err != nil {
+		return nil, err
+	}
 
 	externalCertPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_CA_CERT_FILE"))
 	externalKeyPath := strings.TrimSpace(os.Getenv("MOHAWK_TPM_CA_KEY_FILE"))
@@ -465,6 +468,16 @@ func getAuthority() (*Authority, error) {
 		cacheMutex.Unlock()
 	}
 	return defaultAuthority, defaultAuthorityE
+}
+
+func enforceProductionHardwareTPMBuild() error {
+	if !requireHardwareTPMProduction() {
+		return nil
+	}
+	if hasHardwareTPMBuild() {
+		return nil
+	}
+	return fmt.Errorf("production TPM attestation requires linux,has_tpm build tags; software/fake TPM fallback is disabled")
 }
 
 func loadAuthorityFromFiles(certPath string, keyPath string) (*Authority, error) {

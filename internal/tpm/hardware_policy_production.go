@@ -1,4 +1,5 @@
-//go:build production && (darwin || windows)
+//go:build production
+// +build production
 
 package tpm
 

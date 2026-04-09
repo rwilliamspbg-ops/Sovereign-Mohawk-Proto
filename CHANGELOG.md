@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Runtime verifier hardening** (`cmd/node-agent/main.go`, `cmd/node-agent/Dockerfile`, `docker-compose.yml`):
+  - Node-agent proof verifier startup is now fail-closed by default
+  - Silent verifier disable path removed
+  - Added explicit CI/dev-only fallback gate via `MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true`
+  - Added default bundled `proof_verifier.wasm` artifact in node-agent image for strict startup parity
+
+- **Constrained-runtime transport mitigation** (`internal/network/transport.go`, `docker-compose.yml`):
+  - Added `MOHAWK_DISABLE_QUIC` support to disable QUIC listen addresses at runtime
+  - Updated compose deployment profile to default `MOHAWK_DISABLE_QUIC=true` for orchestrator and node agents on environments where UDP socket sysctl tuning is unavailable
+
 - **Map-parity CI/security/validation upgrade pack** (`.github/workflows/codeql-analysis.yml`, `.github/workflows/security-supply-chain.yml`, `.github/workflows/workflow-action-pin-check.yml`, `.github/workflows/full-validation-pr-gate.yml`, `.github/workflows/full-validation-scheduled-deep.yml`, `tests/scripts/python/run_full_validation_suite.py`, `tests/scripts/ci/check_validation_trends.py`, `tests/scripts/ci/write_validation_diff_summary.py`, `scripts/ci/check_workflow_action_pins.py`):
   - Added CodeQL analysis workflow for Go and Python security scanning on push/PR and scheduled runs
   - Added supply-chain workflow with `govulncheck` and dependency-review enforcement for PRs
@@ -179,6 +189,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Supports optional Slack/Teams webhook notifications via `SLACK_WEBHOOK_URL` and `TEAMS_WEBHOOK_URL` repository secrets
 
 ### Changed
+
+- **Commit Notes / Contribution Attribution:**
+  - Security patch contribution credited to `@Eddie-Adams` (Apr 2026): fail-closed verifier startup hardening and constrained-runtime transport mitigation (`MOHAWK_DISABLE_QUIC` profile)
+  - Contributor award updated: `+500` points (total `1000`)
+
+- **Documentation alignment for security hardening** (`README.md`, `ROADMAP.md`, `SECURITY.md`, `DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md`):
+  - Updated operator guidance to reflect fail-closed verifier boot behavior
+  - Added explicit CI/dev-only insecure fallback language
+  - Updated deployment/runtime notes for QUIC-disabled constrained-host profile and QUIC re-enable path on tuned hosts
 
 - **Roadmap/dashboard/readme Phase 3 status alignment** (`ROADMAP.md`, `DASHBOARD.md`, `README.md`, `results/go-live/README.md`, `Makefile`):
   - Marked SLO/SLI definition, failure-injection latency validation, RC checklist publication, and deployment-guide publication as complete

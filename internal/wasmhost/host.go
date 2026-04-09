@@ -33,8 +33,11 @@ import (
 const compilationCacheDir = "/tmp/mohawk-wasm-cache"
 
 const (
-	MaxModuleBytes   = 10 * 1024 * 1024
-	MaxFunctionCount = 1000
+	MaxModuleBytes       = 10 * 1024 * 1024
+	MaxFunctionCount     = 1000
+	MaxImportCount       = 1000
+	MaxFunctionLocals    = 1024
+	MaxTotalLocalEntries = 20000
 )
 
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
@@ -92,25 +95,42 @@ func ValidateModuleLimits(wasmBin []byte) error {
 		return fmt.Errorf("wasm module size %d exceeds max %d bytes", len(wasmBin), MaxModuleBytes)
 	}
 
-	funcCount, err := totalFunctionCount(wasmBin)
+	limits, err := inspectModuleLimits(wasmBin)
 	if err != nil {
 		return fmt.Errorf("invalid wasm module: %w", err)
 	}
-	if funcCount > MaxFunctionCount {
-		return fmt.Errorf("wasm module function count %d exceeds max %d", funcCount, MaxFunctionCount)
+	if limits.FunctionCount > MaxFunctionCount {
+		return fmt.Errorf("wasm module function count %d exceeds max %d", limits.FunctionCount, MaxFunctionCount)
+	}
+	if limits.ImportCount > MaxImportCount {
+		return fmt.Errorf("wasm module import count %d exceeds max %d", limits.ImportCount, MaxImportCount)
+	}
+	if limits.MaxLocalsPerFunction > MaxFunctionLocals {
+		return fmt.Errorf("wasm module max locals per function %d exceeds max %d", limits.MaxLocalsPerFunction, MaxFunctionLocals)
+	}
+	if limits.TotalLocalEntries > MaxTotalLocalEntries {
+		return fmt.Errorf("wasm module total local entries %d exceeds max %d", limits.TotalLocalEntries, MaxTotalLocalEntries)
 	}
 	return nil
 }
 
-func totalFunctionCount(wasmBin []byte) (int, error) {
+type moduleLimits struct {
+	FunctionCount        int
+	ImportCount          uint32
+	MaxLocalsPerFunction uint32
+	TotalLocalEntries    uint32
+}
+
+func inspectModuleLimits(wasmBin []byte) (moduleLimits, error) {
+	limits := moduleLimits{}
 	if len(wasmBin) < 8 {
-		return 0, fmt.Errorf("module too short")
+		return limits, fmt.Errorf("module too short")
 	}
 	if wasmBin[0] != 0x00 || wasmBin[1] != 0x61 || wasmBin[2] != 0x73 || wasmBin[3] != 0x6d {
-		return 0, fmt.Errorf("bad wasm magic")
+		return limits, fmt.Errorf("bad wasm magic")
 	}
 	if wasmBin[4] != 0x01 || wasmBin[5] != 0x00 || wasmBin[6] != 0x00 || wasmBin[7] != 0x00 {
-		return 0, fmt.Errorf("unsupported wasm version")
+		return limits, fmt.Errorf("unsupported wasm version")
 	}
 
 	offset := uint64(8)
@@ -124,11 +144,11 @@ func totalFunctionCount(wasmBin []byte) (int, error) {
 
 		sectionSize, n, err := readVarUint32(wasmBin[offset:])
 		if err != nil {
-			return 0, fmt.Errorf("read section size: %w", err)
+			return limits, fmt.Errorf("read section size: %w", err)
 		}
 		offset += uint64(n)
 		if uint64(sectionSize) > bufLen-offset {
-			return 0, fmt.Errorf("section exceeds module bounds")
+			return limits, fmt.Errorf("section exceeds module bounds")
 		}
 
 		section := wasmBin[offset:][:sectionSize]
@@ -136,39 +156,50 @@ func totalFunctionCount(wasmBin []byte) (int, error) {
 
 		switch sectionID {
 		case 2:
-			count, err := countImportedFunctions(section)
+			importCount, funcCount, err := countImports(section)
 			if err != nil {
-				return 0, fmt.Errorf("parse import section: %w", err)
+				return limits, fmt.Errorf("parse import section: %w", err)
 			}
-			importedFuncs = count
+			limits.ImportCount = importCount
+			importedFuncs = funcCount
 		case 3:
 			count, _, err := readVarUint32(section)
 			if err != nil {
-				return 0, fmt.Errorf("parse function section: %w", err)
+				return limits, fmt.Errorf("parse function section: %w", err)
 			}
 			definedFuncs = count
+		case 10:
+			maxLocals, totalLocals, err := parseCodeSectionLocals(section, definedFuncs)
+			if err != nil {
+				return limits, fmt.Errorf("parse code section: %w", err)
+			}
+			limits.MaxLocalsPerFunction = maxLocals
+			limits.TotalLocalEntries = totalLocals
 		}
 	}
 
-	return int(importedFuncs + definedFuncs), nil
+	limits.FunctionCount = int(importedFuncs + definedFuncs)
+	return limits, nil
 }
 
-func countImportedFunctions(section []byte) (uint32, error) {
+func countImports(section []byte) (uint32, uint32, error) {
 	entryCount, i, err := readVarUint32(section)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
+	var importCount uint32
 	var importedFuncs uint32
 	for entry := uint32(0); entry < entryCount; entry++ {
+		importCount++
 		if err := skipName(section, &i); err != nil {
-			return 0, err
+			return 0, 0, err
 		}
 		if err := skipName(section, &i); err != nil {
-			return 0, err
+			return 0, 0, err
 		}
 		if i >= len(section) {
-			return 0, fmt.Errorf("truncated import descriptor")
+			return 0, 0, fmt.Errorf("truncated import descriptor")
 		}
 		kind := section[i]
 		i++
@@ -177,33 +208,91 @@ func countImportedFunctions(section []byte) (uint32, error) {
 		case 0x00: // func
 			_, n, err := readVarUint32(section[i:])
 			if err != nil {
-				return 0, err
+				return 0, 0, err
 			}
 			i += n
 			importedFuncs++
 		case 0x01: // table
 			if i >= len(section) {
-				return 0, fmt.Errorf("truncated table import")
+				return 0, 0, fmt.Errorf("truncated table import")
 			}
 			i++ // elemtype
 			if err := skipLimits(section, &i); err != nil {
-				return 0, err
+				return 0, 0, err
 			}
 		case 0x02: // memory
 			if err := skipLimits(section, &i); err != nil {
-				return 0, err
+				return 0, 0, err
 			}
 		case 0x03: // global
 			if i+2 > len(section) {
-				return 0, fmt.Errorf("truncated global import")
+				return 0, 0, fmt.Errorf("truncated global import")
 			}
 			i += 2 // valtype + mutability
 		default:
-			return 0, fmt.Errorf("unsupported import kind %d", kind)
+			return 0, 0, fmt.Errorf("unsupported import kind %d", kind)
 		}
 	}
 
-	return importedFuncs, nil
+	return importCount, importedFuncs, nil
+}
+
+func parseCodeSectionLocals(section []byte, expectedBodies uint32) (uint32, uint32, error) {
+	bodyCount, i, err := readVarUint32(section)
+	if err != nil {
+		return 0, 0, err
+	}
+	if expectedBodies > 0 && bodyCount != expectedBodies {
+		return 0, 0, fmt.Errorf("function/code section count mismatch: %d != %d", expectedBodies, bodyCount)
+	}
+
+	var maxLocals uint32
+	var totalLocals uint32
+	for body := uint32(0); body < bodyCount; body++ {
+		bodySize, n, err := readVarUint32(section[i:])
+		if err != nil {
+			return 0, 0, err
+		}
+		i += n
+		if i+int(bodySize) > len(section) {
+			return 0, 0, fmt.Errorf("function body exceeds bounds")
+		}
+
+		bodyBytes := section[i : i+int(bodySize)]
+		i += int(bodySize)
+
+		locals, err := parseFunctionLocals(bodyBytes)
+		if err != nil {
+			return 0, 0, err
+		}
+		totalLocals += locals
+		if locals > maxLocals {
+			maxLocals = locals
+		}
+	}
+	return maxLocals, totalLocals, nil
+}
+
+func parseFunctionLocals(body []byte) (uint32, error) {
+	declCount, i, err := readVarUint32(body)
+	if err != nil {
+		return 0, err
+	}
+
+	var totalLocals uint32
+	for d := uint32(0); d < declCount; d++ {
+		count, n, err := readVarUint32(body[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n
+		if i >= len(body) {
+			return 0, fmt.Errorf("truncated locals type")
+		}
+		i++ // valtype
+		totalLocals += count
+	}
+	return totalLocals, nil
 }
 
 func skipName(data []byte, i *int) error {

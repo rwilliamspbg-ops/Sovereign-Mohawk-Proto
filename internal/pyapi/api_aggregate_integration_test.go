@@ -9,6 +9,7 @@ import (
 )
 
 func TestAggregateUpdatesCore_ListPayload(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	aggregator := internalpkg.NewAggregator(internalpkg.Regional)
 	updates := []aggregateUpdatePayload{
 		{NodeID: "n1", Gradient: []float64{0.1, 0.2, 0.3}},
@@ -33,6 +34,7 @@ func TestAggregateUpdatesCore_ListPayload(t *testing.T) {
 }
 
 func TestAggregateUpdatesCore_WrappedPayloadWithMultiKrum(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	aggregator := internalpkg.NewAggregator(internalpkg.Regional)
 	wrapped := aggregateUpdatesRequest{
 		Updates: []aggregateUpdatePayload{
@@ -68,6 +70,7 @@ func TestAggregateUpdatesCore_WrappedPayloadWithMultiKrum(t *testing.T) {
 }
 
 func TestAggregateUpdatesCore_InvalidPayload(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	aggregator := internalpkg.NewAggregator(internalpkg.Regional)
 	_, err := aggregateUpdatesCore("{not-json", aggregator)
 	if err == nil {
@@ -79,6 +82,7 @@ func TestAggregateUpdatesCore_InvalidPayload(t *testing.T) {
 }
 
 func TestAggregateUpdatesCore_EmptyPayload(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	aggregator := internalpkg.NewAggregator(internalpkg.Regional)
 	payload, err := json.Marshal([]aggregateUpdatePayload{})
 	if err != nil {

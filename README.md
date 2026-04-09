@@ -1,83 +1,85 @@
-# 🦅 Sovereign Mohawk Proto
+# Sovereign Mohawk Proto
 
-![Go](https://img.shields.io/badge/Go-1.25+-00ADD8.svg)
-![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
-[![CI](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions)
-[![CodeQL](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml)
+**MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge**
 
-## Note on Naming
-
-Naming context and attribution are documented in [NAMING.md](NAMING.md).
-
-⚠️ Intellectual Property Notice: This project implements the Sovereign Mohawk Protocol. Portions of this technology are Patent Pending (U.S. Provisional Patent Application Filed March 2026).
-
-## Sovereign-Mohawk-Proto
-
-[![Build Status](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
+[![Latest Tag](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&label=Latest%20Tag)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
+[![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
 [![Go Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml)
-[![Integrity Guard - Linter](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/lint.yml)
-[![Performance Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml)
-[![FedAvg Benchmark Compare](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml)
-[![Bridge Compression Benchmark](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml)
-[![Artifact Sync Check](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/artifact-sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/artifact-sync-check.yml)
-[![Monitoring Smoke Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/monitoring-smoke-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/monitoring-smoke-gate.yml)
-[![Release Performance Evidence](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
-[![Capability Sync](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/sync-check.yml)
-[![Security Audit](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
-[![Pages Deployment](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/static.yml)
-[![Publish Python SDK](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/publish-python-sdk.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/publish-python-sdk.yml)
+[![CodeQL](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml)
+[![Security Audit Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml)
+[![Security Supply Chain](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml)
+[![Verify Proofs](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
+[![Action Pin Check](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml)
 [![Mainnet Readiness Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml)
 [![Mainnet Chaos Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml)
-[![Weekly Readiness Digest](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/weekly-readiness-digest.yml)
-[![Release Assets and Images](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-assets.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/raBz79CJ)
-[![Latest Release Performance Gate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
+[![GA Tag Safety](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
+[![Python SDK](https://img.shields.io/pypi/v/mohawk?label=Python%20SDK)](https://pypi.org/project/mohawk/)
+[![Compatibility](https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043)](HARDWARE_COMPATIBILITY.md)
+[![Testnet Status](https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&label=Testnet%20Status)](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/)
+[![PQC Transport](https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1)](SECURITY.md)
+[![TPM Identity](https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1)](SECURITY.md)
+[![PQC Migration](https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043)](RELEASE_NOTES_PQC_OVERHAUL.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
-![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-![Python SDK v2](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
-![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
-![Protocol Stage](https://img.shields.io/badge/Protocol-Go--Live%20Formalization%20Complete-2ea043)
-![Go-Live Gate](https://img.shields.io/badge/Go--Live%20Gate-Advisory%20PASS%20%7C%20TPM%20Closure%20Pending-f59e0b)
-![BFT Safety](https://img.shields.io/badge/BFT%20Resilience-55.5%25-green)
-![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
-![Gradient Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
-![Chaos Recovery SLO](https://img.shields.io/badge/Chaos%20Recovery-SLO%20Enforced-critical)
-![PQC Transport KEX](https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1)
-![TPM Attestation Mode](https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1)
-![PQC Migration Cutover](https://img.shields.io/badge/Migration-Crypto%20After%20Epoch%20Enabled-2ea043)
-![Host Preflight Policy](https://img.shields.io/badge/Host%20Preflight-Strict%20By%20Default-d73a49)
-![Genesis Testnet](https://img.shields.io/badge/Testnet-global--testnet-orange)
-![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
-![Tokenomics Dashboard](https://img.shields.io/badge/Grafana-Tokenomics%20Live-F46800?logo=grafana&logoColor=white)
-[![Test-Net Status](https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&label=Test-Net%20Status)](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/)
+Sovereign Mohawk Proto is a theorem-backed federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
 
----
+## Contributor Spotlight
 
-**Sovereign Mohawk Proto** is the only formally verified Federated Learning runtime capable of 10M-node scaling with 55.5% Byzantine resilience and 2026-standard PQC (Post-Quantum Cryptography) enforcement.
+- **Eddie Adams** ([`@Eddie-Adams`](https://github.com/Eddie-Adams))
+- Recognized for the Apr 2026 security hardening patch set.
+- Contribution focus: fail-closed verifier startup and constrained-runtime transport mitigation.
+- Current awarded total: **1,000 points**.
 
-The current platform ships a Python SDK v2, hybrid SNARK/STARK verification, route-policy bridge validation, utility coin ledger controls, libp2p transport, TPM-backed mTLS, and a runnable regional genesis testnet with Prometheus and Grafana observability. Current gate posture is advisory go-live pass with TPM closure still pending before GA cutover (see `results/go-live/evidence/tpm_closure_summary_2026-03-28.md`). Ecosystem dashboards: [Proto Runtime](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/), [Map Federated Learning](https://rwilliamspbg-ops.github.io/Sovereign_Map_Federated_Learning/), [Oncology Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Oncology_Global/), [Agriculture Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Agriculture_Global/), [Climate Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_Climate_Global/), and [Supply Chain Global](https://rwilliamspbg-ops.github.io/Sovereign_Mohawk_SupplyChain_Global/). Ecosystem overview and capabilities: [Dashboard Overview](DASHBOARD.md), [Capabilities Matrix](capabilities.json), [Compliance Mapping](COMPLIANCE_MAPPING.md), and [Architecture White Paper](WHITE_PAPER.md).
-
-Security/governance references: [FIPS profile scope](FIPS_PROFILE_SCOPE.md), [Security settings verification checklist](SECURITY_SETTINGS_VERIFICATION.md), and [Release checklist](RELEASE_CHECKLIST_v1.0.0_RC.md).
-
-## Quick Sandbox Try Path
-
-Run a local mini-sandbox to validate the stack quickly:
+## Quick Start (3 Nodes)
 
 ```bash
+./genesis-launch.sh --all-nodes
+docker compose ps
+```
+
+Stop stack:
+
+```bash
+docker compose down
+```
+
+## Security Defaults (Current)
+
+- Proof verifier boot path is fail-closed by default; silent runtime disable is not allowed.
+- Insecure verifier fallback is opt-in for CI/dev only with `MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true`.
+- Privacy composition is standardized on RDP with fixed epsilon budget (`epsilon=2.0`) at runtime.
+- Formal Byzantine checks are fail-closed in aggregator services when required inputs are missing.
+- WASM static guardrails enforce size/function/import/local limits before module instantiation.
+- Production TPM mode rejects software/fake fallback without required build tags.
+- Deployment profile defaults to TCP-only libp2p by setting `MOHAWK_DISABLE_QUIC=true` in compose profiles, avoiding UDP buffer issues in constrained hosts.
+
+## Most Used Commands
+
+```bash
+# Local mini sandbox
 make sandbox-up
 python3 tests/scripts/python/run_full_validation_suite.py --profile fast
 make sandbox-down
+
+# Full local 3-node stack
+./scripts/launch_full_stack_3_nodes.sh --no-build
+
+# Formal go-live checks
+make go-live-gate-advisory
+make golden-path-e2e
 ```
 
-For Python API examples after building the shared library:
+## Documentation Map
 
-```bash
-make build-python-lib
-python3 sdk/python/examples/wasm_hot_reload_demo.py
-python3 sdk/python/examples/pqc_migration_demo.py
-```
+- Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+- Operations and incident response: [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)
+- Security policy and threat model: [SECURITY.md](SECURITY.md)
+- Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md)
+- Roadmap and milestones: [ROADMAP.md](ROADMAP.md)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
 
----
+Naming context and attribution are documented in [NAMING.md](NAMING.md).
 
 ## 🧭 Hierarchy of Trust
 

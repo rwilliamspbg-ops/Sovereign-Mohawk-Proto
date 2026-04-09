@@ -22,7 +22,7 @@ import (
 
 const (
 	defaultDPSigma         = 0.5
-	defaultDPTargetEpsilon = 27.14
+	defaultDPTargetEpsilon = 2.0
 	defaultDPDelta         = 1e-5
 )
 
@@ -38,7 +38,7 @@ type DPConfig struct {
 func LoadDPConfig() DPConfig {
 	return DPConfig{
 		Sigma:         envFloat("MOHAWK_DP_SIGMA", defaultDPSigma),
-		TargetEpsilon: envFloat("MOHAWK_DP_EPSILON_BUDGET", defaultDPTargetEpsilon),
+		TargetEpsilon: defaultDPTargetEpsilon,
 		Delta:         envFloat("MOHAWK_DP_DELTA", defaultDPDelta),
 	}
 }

@@ -21,6 +21,8 @@ func TestAggregateHandler_RequiresAuthWhenConfigured(t *testing.T) {
 
 func TestAggregateHandler_AcceptsValidBearerToken(t *testing.T) {
 	t.Setenv("AGGREGATOR_AUTH_TOKEN", "token-123")
+	t.Setenv("AGGREGATOR_TOTAL_NODES", "101")
+	t.Setenv("AGGREGATOR_MALICIOUS_NODES", "40")
 	req := httptest.NewRequest(http.MethodPost, "/aggregate", strings.NewReader(`[{"id":"n1","value":1}]`))
 	req.Header.Set("Authorization", "Bearer token-123")
 	rr := httptest.NewRecorder()
@@ -33,6 +35,8 @@ func TestAggregateHandler_AcceptsValidBearerToken(t *testing.T) {
 }
 
 func TestAggregateHandler_RejectsOversizedBody(t *testing.T) {
+	t.Setenv("AGGREGATOR_TOTAL_NODES", "101")
+	t.Setenv("AGGREGATOR_MALICIOUS_NODES", "40")
 	pad := strings.Repeat("a", int(maxRequestBodyBytes)+1024)
 	body := `[{"id":"n1","value":1,"pad":"` + pad + `"}]`
 	req := httptest.NewRequest(http.MethodPost, "/aggregate", strings.NewReader(body))
@@ -42,6 +46,17 @@ func TestAggregateHandler_RejectsOversizedBody(t *testing.T) {
 
 	if rr.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400 for oversized payload, got %d", rr.Code)
+	}
+}
+
+func TestAggregateHandler_FailsWhenFormalByzantineInputsMissing(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/aggregate", strings.NewReader(`[{"id":"n1","value":1}]`))
+	rr := httptest.NewRecorder()
+
+	aggregateHandler(rr, req)
+
+	if rr.Code != http.StatusFailedDependency {
+		t.Fatalf("expected 424 when formal check inputs are missing, got %d", rr.Code)
 	}
 }
 

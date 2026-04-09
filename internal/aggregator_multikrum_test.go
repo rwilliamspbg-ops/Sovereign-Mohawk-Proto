@@ -3,6 +3,7 @@ package internal
 import "testing"
 
 func TestProcessGradientBatchWithMultiKrum(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	agg := NewAggregator(Regional)
 	updates := [][]float64{
 		{0.10, 0.20, 0.30},
@@ -31,6 +32,7 @@ func TestProcessGradientBatchWithMultiKrum(t *testing.T) {
 }
 
 func TestProcessGradientBatchWithoutMultiKrum(t *testing.T) {
+	t.Setenv("MOHAWK_DP_SIGMA", "5")
 	agg := NewAggregator(Regional)
 	updates := [][]float64{
 		{0.1, 0.2},

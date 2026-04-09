@@ -21,6 +21,8 @@ func TestHandleSubmit_RequiresAuthWhenConfigured(t *testing.T) {
 
 func TestHandleSubmit_AcceptsValidBearerToken(t *testing.T) {
 	t.Setenv("FL_AGGREGATOR_AUTH_TOKEN", "token-123")
+	t.Setenv("FL_AGGREGATOR_TOTAL_NODES", "101")
+	t.Setenv("FL_AGGREGATOR_MALICIOUS_NODES", "40")
 	req := httptest.NewRequest(http.MethodPost, "/fl/submit", strings.NewReader(`{"node_id":"n1","grads":[1,2,3]}`))
 	req.Header.Set("Authorization", "Bearer token-123")
 	rr := httptest.NewRecorder()
@@ -33,6 +35,8 @@ func TestHandleSubmit_AcceptsValidBearerToken(t *testing.T) {
 }
 
 func TestHandleSubmit_RejectsOversizedBody(t *testing.T) {
+	t.Setenv("FL_AGGREGATOR_TOTAL_NODES", "101")
+	t.Setenv("FL_AGGREGATOR_MALICIOUS_NODES", "40")
 	pad := strings.Repeat("a", int(maxRequestBodyBytes)+1024)
 	body := `{"node_id":"n1","grads":[1],"pad":"` + pad + `"}`
 	req := httptest.NewRequest(http.MethodPost, "/fl/submit", strings.NewReader(body))
@@ -42,6 +46,17 @@ func TestHandleSubmit_RejectsOversizedBody(t *testing.T) {
 
 	if rr.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400 for oversized payload, got %d", rr.Code)
+	}
+}
+
+func TestHandleSubmit_FailsWhenFormalByzantineInputsMissing(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/fl/submit", strings.NewReader(`{"node_id":"n1","grads":[1,2,3]}`))
+	rr := httptest.NewRecorder()
+
+	handleSubmit(rr, req)
+
+	if rr.Code != http.StatusFailedDependency {
+		t.Fatalf("expected 424 when formal check inputs are missing, got %d", rr.Code)
 	}
 }
 

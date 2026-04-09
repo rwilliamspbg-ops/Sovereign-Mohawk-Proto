@@ -44,16 +44,17 @@ import (
 
 // Config simulates the capability manifest for a 10M-node edge participant.
 type Config struct {
-	WasmModulePath         string
-	NodeID                 string
-	OrchestratorURL        string
-	OrchestratorServerName string
-	LibP2PPort             int
-	TransportKEXMode       network.KEXMode
-	RelayAddrs             []string
-	IPFSEndpoint           string
-	TotalNodes             int
-	MeshDimensions         int
+	WasmModulePath            string
+	AllowInsecureWASMFallback bool
+	NodeID                    string
+	OrchestratorURL           string
+	OrchestratorServerName    string
+	LibP2PPort                int
+	TransportKEXMode          network.KEXMode
+	RelayAddrs                []string
+	IPFSEndpoint              string
+	TotalNodes                int
+	MeshDimensions            int
 }
 
 func main() {
@@ -108,10 +109,9 @@ func main() {
 		log.Printf("Checkpoint publish deferred: %v", err)
 	}
 
-	wasmBin, err := os.ReadFile(conf.WasmModulePath)
+	wasmBin, err := loadVerifierModule(conf)
 	if err != nil {
-		log.Printf("Warning: Wasm module not found at %s, creating mock for CI...", conf.WasmModulePath)
-		wasmBin = []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
+		log.Fatalf("Critical Failure: Could not load verifier module: %v", err)
 	}
 
 	runner, err := wasmhost.NewRunner(ctx, wasmBin)
@@ -130,8 +130,18 @@ func main() {
 	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
 	if err != nil {
 		if isMissingVerifyProofExportErr(err) {
-			activeVerifier = nil
-			log.Printf("Warning: Wasm verifier at %s does not export verify_proof; proof verification disabled for this run", conf.WasmModulePath)
+			if conf.AllowInsecureWASMFallback {
+				log.Printf("Warning: Wasm verifier at %s does not export verify_proof; using insecure fallback verifier due to MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true", conf.WasmModulePath)
+				fallbackRunner, fallbackErr := wasmhost.NewRunner(ctx, insecureFallbackVerifierModule())
+				if fallbackErr != nil {
+					log.Fatalf("Critical Failure: Could not initialize insecure fallback verifier: %v", fallbackErr)
+				}
+				_ = runner.Close(ctx)
+				runner = fallbackRunner
+				activeVerifier = fallbackRunner
+			} else {
+				log.Fatalf("Critical Failure: Wasm verifier at %s does not export verify_proof", conf.WasmModulePath)
+			}
 		} else {
 			metrics.ObserveProofVerification("groth16", false, proofLatency)
 			metrics.ObserveAcceleratorOp(string(tune.SelectedDevice.Backend), "proof_verify", false)
@@ -388,18 +398,46 @@ func loadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("MOHAWK_TRANSPORT_KEX_MODE: %w", err)
 	}
+	allowInsecureFallback := strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_ALLOW_INSECURE_WASM_FALLBACK")), "true")
 	return Config{
-		WasmModulePath:         defaultString(os.Getenv("WASM_MODULE_PATH"), "proof_verifier.wasm"),
-		NodeID:                 defaultString(os.Getenv("NODE_ID"), "edge-node-001"),
-		OrchestratorURL:        os.Getenv("ORCHESTRATOR_URL"),
-		OrchestratorServerName: defaultString(os.Getenv("ORCHESTRATOR_SERVER_NAME"), "orchestrator"),
-		LibP2PPort:             defaultInt(os.Getenv("MOHAWK_LIBP2P_PORT"), 4001),
-		TransportKEXMode:       kexMode,
-		RelayAddrs:             splitCSV(os.Getenv("MOHAWK_RELAY_ADDRS")),
-		IPFSEndpoint:           os.Getenv("IPFS_API_ENDPOINT"),
-		TotalNodes:             defaultInt(os.Getenv("MOHAWK_TOTAL_NODES"), 10000000),
-		MeshDimensions:         defaultInt(os.Getenv("MOHAWK_MESH_DIMENSIONS"), 1024),
+		WasmModulePath:            defaultString(os.Getenv("WASM_MODULE_PATH"), "proof_verifier.wasm"),
+		AllowInsecureWASMFallback: allowInsecureFallback,
+		NodeID:                    defaultString(os.Getenv("NODE_ID"), "edge-node-001"),
+		OrchestratorURL:           os.Getenv("ORCHESTRATOR_URL"),
+		OrchestratorServerName:    defaultString(os.Getenv("ORCHESTRATOR_SERVER_NAME"), "orchestrator"),
+		LibP2PPort:                defaultInt(os.Getenv("MOHAWK_LIBP2P_PORT"), 4001),
+		TransportKEXMode:          kexMode,
+		RelayAddrs:                splitCSV(os.Getenv("MOHAWK_RELAY_ADDRS")),
+		IPFSEndpoint:              os.Getenv("IPFS_API_ENDPOINT"),
+		TotalNodes:                defaultInt(os.Getenv("MOHAWK_TOTAL_NODES"), 10000000),
+		MeshDimensions:            defaultInt(os.Getenv("MOHAWK_MESH_DIMENSIONS"), 1024),
 	}, nil
+}
+
+func loadVerifierModule(conf Config) ([]byte, error) {
+	wasmBin, err := os.ReadFile(conf.WasmModulePath)
+	if err == nil {
+		return wasmBin, nil
+	}
+	if conf.AllowInsecureWASMFallback {
+		log.Printf("Warning: Wasm module not found at %s; using insecure fallback verifier due to MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true", conf.WasmModulePath)
+		return insecureFallbackVerifierModule(), nil
+	}
+	return nil, fmt.Errorf("wasm module not found at %s (set MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=true for CI/dev only): %w", conf.WasmModulePath, err)
+}
+
+func insecureFallbackVerifierModule() []byte {
+	// Minimal wasm module exporting verify_proof(i32) -> i32 that returns 0.
+	return []byte{
+		0x00, 0x61, 0x73, 0x6d,
+		0x01, 0x00, 0x00, 0x00,
+		0x01, 0x06, 0x01, 0x60, 0x01, 0x7f, 0x01, 0x7f,
+		0x03, 0x02, 0x01, 0x00,
+		0x07, 0x10, 0x01, 0x0c,
+		0x76, 0x65, 0x72, 0x69, 0x66, 0x79, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66,
+		0x00, 0x00,
+		0x0a, 0x06, 0x01, 0x04, 0x00, 0x41, 0x00, 0x0b,
+	}
 }
 
 func submitAttestation(ctx context.Context, conf Config, quote []byte) error {
