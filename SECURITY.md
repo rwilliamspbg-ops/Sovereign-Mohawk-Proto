@@ -11,7 +11,7 @@ Our security architecture, detailed in [Theorem 1 (BFT Resilience)](./proofs/bft
 * **Model Poisoning:** Adversaries attempting to inject backdoors or stall convergence via malicious gradients.
 * **Sybil Attacks:** Large-scale node creation to overwhelm the Byzantine threshold.
 * **Collusion:** Malicious nodes across different regional shards attempting to coordinate updates.
-* **Straggler Sabotage:** Intentional timeouts to stall synchronous rounds (mitigated by [Theorem 4](./proofs/stragglers.md)).
+* **Straggler Sabotage:** Intentional timeouts to stall synchronous rounds (mitigated by [Theorem 4](./internal/stragglers.md)).
 
 ---
 
@@ -71,7 +71,7 @@ For consolidated legal context, see [NOTICE.md](./NOTICE.md).
 | :--- | :--- | :--- |
 | **BFT Layer** | 🛡️ Verified | [Theorem 1](./proofs/bft_resilience.md) |
 | **Privacy Layer** | 🔒 Verified | [Theorem 2](./proofs/differential_privacy.md) |
-| **Liveness Layer** | ⚡ Verified | [Theorem 4](./proofs/stragglers.md) |
+| **Liveness Layer** | ⚡ Verified | [Theorem 4](./internal/stragglers.md) |
 | **Integrity Layer** | ✅ Verified | [Theorem 5](./proofs/cryptography.md) |
 
 ## 🛡️ Sovereign Mohawk: Breaking the 80% Byzantine Barrier

@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: build-test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GOTOOLCHAIN: go1.25.9+auto
@@ -44,6 +48,10 @@ jobs:
           mkdir -p test-results
           source scripts/ensure_go_toolchain.sh
           go mod tidy
+          if ! git diff --exit-code -- go.mod go.sum; then
+            echo "go.mod/go.sum drift detected. Run 'go mod tidy' and commit the changes."
+            exit 1
+          fi
           go build ./...
           set -o pipefail
           go test -json ./... | tee test-results/go-test-report.jsonl

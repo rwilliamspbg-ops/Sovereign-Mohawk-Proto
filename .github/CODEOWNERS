@@ -3,13 +3,11 @@
 
 # Performance benchmarks and reports - CRITICAL
 /results/sdk_optimization_report.json @rwilliamspbg-ops
-/sdk/python/tests/test_benchmarks.py @rwilliamspbg-ops
-/sdk/python/mohawk/benchmarks/ @rwilliamspbg-ops
+/sdk/python/mohawk/ @rwilliamspbg-ops
 
 # SDK core performance-critical modules
-/sdk_cache.py @rwilliamspbg-ops
 /sdk/python/mohawk/client.py @rwilliamspbg-ops
-/sdk/python/mohawk/aggregator.py @rwilliamspbg-ops
+/sdk/python/mohawk/high_level.py @rwilliamspbg-ops
 
 # Internal Go performance modules
 /internal/aggregator.go @rwilliamspbg-ops
@@ -17,8 +15,8 @@
 /internal/pyapi/ @rwilliamspbg-ops
 
 # FL pipeline and verification
-/cmd/aggregator.go @rwilliamspbg-ops
-/test/test_all.sh @rwilliamspbg-ops
+/cmd/aggregator/ @rwilliamspbg-ops
+/test/ @rwilliamspbg-ops
 
 # CI/CD workflows - prevent bypass of gates
 /.github/workflows/ @rwilliamspbg-ops

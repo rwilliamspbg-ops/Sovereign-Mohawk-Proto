@@ -22,7 +22,7 @@ ecosystem.
 | :--- | :--- | :--- | :--- |
 | **🛡️ Audit & Verify** | Cryptographer | Verify Theorems 1-6 or audit zk-SNARK logic. | **100** |
 | **🏗️ Hardware Port** | Edge Engineer | Port node-agent to NPUs (e.g., Jetson, Apple Silicon). | **50** |
-| **🐍 SDK Expansion** | Python Dev | Build wrappers or [Jupyter Tutorials](./notebooks). | **25** |
+| **🐍 SDK Expansion** | Python Dev | Build wrappers or [SDK Python examples](./sdk/python/examples). | **25** |
 | **📝 Documentation** | Any | Fix typos, improve READMEs, or clarify technical specs. | **5** |
 
 ---

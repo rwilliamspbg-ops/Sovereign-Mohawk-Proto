@@ -23,7 +23,7 @@ This index provides direct, public links to versioned evidence committed in this
 ## Readiness and Operations Evidence
 
 - Go-live gate report: [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json)
-- Go toolchain alignment (2026-03-31): [results/go-live/evidence/go_toolchain_alignment_2026-03-31.md](results/go-live/evidence/go_toolchain_alignment_2026-03-31.md)
+- Strict host evidence baseline: [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md)
 - Golden path report (JSON): [results/go-live/golden-path-report.json](results/go-live/golden-path-report.json)
 - Golden path report (Markdown): [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md)
 - Stress capture report: [results/metrics/stress_metrics_capture_10m.md](results/metrics/stress_metrics_capture_10m.md)

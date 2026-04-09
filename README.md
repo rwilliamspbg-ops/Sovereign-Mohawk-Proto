@@ -76,6 +76,11 @@ make golden-path-e2e
 - Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
 - Operations and incident response: [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)
 - Security policy and threat model: [SECURITY.md](SECURITY.md)
+- QMS manual: [QMS_SYSTEM_MANUAL.md](QMS_SYSTEM_MANUAL.md)
+- Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](TECHNICAL_DOCUMENTATION_FILE.md)
+- Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
+- Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
+- EU database registration plan: [EU_DATABASE_REGISTRATION_PLAN.md](EU_DATABASE_REGISTRATION_PLAN.md)
 - Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md)
 - Roadmap and milestones: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
@@ -959,7 +964,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) - TPM closure dashboard summary
 * [results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md](results/go-live/evidence/forensics_rehearsal_validation_2026-03-29.md) - Day 2 forensics and recovery rehearsal validation record
 * [results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md](results/go-live/evidence/release_candidate_evidence_checkpoint_2026-03-29.md) - Consolidated release-candidate evidence checkpoint index
-* [results/go-live/evidence/go_toolchain_alignment_2026-03-31.md](results/go-live/evidence/go_toolchain_alignment_2026-03-31.md) - Launcher-aligned Go 1.25.9 toolchain evidence snapshot
+* [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict-host go-live baseline and environment hardening evidence
 * [results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/windows_tpm_attestation_capture_guide.md) - Windows TPM evidence capture guide
 * [results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md](results/go-live/evidence/templates/macos_tpm_attestation_capture_guide.md) - macOS TPM evidence capture guide
 * [results/go-live/evidence/templates/hardware_validation_capture_template.md](results/go-live/evidence/templates/hardware_validation_capture_template.md) - Standardized hardware validation capture template
