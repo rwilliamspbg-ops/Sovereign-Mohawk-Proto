@@ -2,6 +2,11 @@ name: Publish Python SDK
 
 'on':
   push:
+    branches:
+      - main
+    paths:
+      - sdk/python/**
+      - .github/workflows/publish-python-sdk.yml
     tags:
       - sdk-v*
   workflow_dispatch:
@@ -62,7 +67,7 @@ jobs:
 
       - name: Build SDK Source Distribution
         working-directory: sdk/python
-        run: python -m build --sdist
+        run: python -m build --sdist --wheel
 
       - name: Validate Distribution Metadata
         working-directory: sdk/python
@@ -71,6 +76,20 @@ jobs:
       - name: Generate Checksums
         working-directory: sdk/python
         run: sha256sum dist/* > dist/sha256sums.txt
+
+      - name: Upload SDK build artifacts
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: python-sdk-dist
+          path: sdk/python/dist/
+
+      - name: Publish to PyPI (optional)
+        if: startsWith(github.ref, 'refs/tags/') && secrets.PYPI_API_TOKEN != ''
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        working-directory: sdk/python
+        run: python -m twine upload dist/*
 
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')

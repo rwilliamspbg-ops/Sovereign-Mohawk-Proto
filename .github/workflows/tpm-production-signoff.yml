@@ -1,0 +1,201 @@
+name: TPM Production Sign-Off
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.25.9+auto
+
+jobs:
+  tpm-matrix:
+    name: TPM Matrix (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: macos
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Run TPM sign-off tests (unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set +e
+          mkdir -p test-results/tpm-signoff/${PLATFORM}
+          go version > test-results/tpm-signoff/${PLATFORM}/go_version.txt
+          go test ./internal/tpm -run 'TestGenerateAndVerifyQuoteRSA|TestGenerateAndVerifyQuoteXMSSReplayProtection' -count=1 -v \
+            | tee test-results/tpm-signoff/${PLATFORM}/tpm_tests.log
+          test_exit=$?
+          status="pass"
+          if [ "$test_exit" -ne 0 ]; then
+            status="fail"
+          fi
+          TPM_STATUS="$status" python3 - <<'PY'
+import datetime as dt
+import json
+import os
+from pathlib import Path
+
+platform = os.environ["PLATFORM"]
+status = os.environ["TPM_STATUS"]
+go_version = Path(f"test-results/tpm-signoff/{platform}/go_version.txt").read_text(encoding="utf-8").strip()
+
+payload = {
+    "platform": platform,
+    "status": status,
+    "runner": os.environ.get("RUNNER_OS", "unknown").lower(),
+    "go_version": go_version,
+    "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+    "evidence": [
+        f"test-results/tpm-signoff/{platform}/tpm_tests.log",
+        f"test-results/tpm-signoff/{platform}/go_version.txt",
+    ],
+}
+
+row_path = Path(f"test-results/tpm-signoff/{platform}/row.json")
+row_path.parent.mkdir(parents=True, exist_ok=True)
+row_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+print(f"wrote {row_path}")
+PY
+
+      - name: Run TPM sign-off tests (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          New-Item -ItemType Directory -Path "test-results/tpm-signoff/$env:PLATFORM" -Force | Out-Null
+          go version | Out-File -Encoding utf8 "test-results/tpm-signoff/$env:PLATFORM/go_version.txt"
+          $log = "test-results/tpm-signoff/$env:PLATFORM/tpm_tests.log"
+          go test ./internal/tpm -run 'TestGenerateAndVerifyQuoteRSA|TestGenerateAndVerifyQuoteXMSSReplayProtection' -count=1 -v 2>&1 | Tee-Object -FilePath $log
+          $status = "fail"
+          if ((Select-String -Path $log -Pattern "--- PASS: TestGenerateAndVerifyQuoteRSA" -Quiet) -and (Select-String -Path $log -Pattern "--- PASS: TestGenerateAndVerifyQuoteXMSSReplayProtection" -Quiet)) {
+            $status = "pass"
+          }
+          $goVersion = (Get-Content "test-results/tpm-signoff/$env:PLATFORM/go_version.txt" -Raw).Trim()
+          $payload = [ordered]@{
+            platform = $env:PLATFORM
+            status = $status
+            runner = ($env:RUNNER_OS).ToLowerInvariant()
+            go_version = $goVersion
+            generated_utc = [DateTime]::UtcNow.ToString("o")
+            evidence = @(
+              "test-results/tpm-signoff/$env:PLATFORM/tpm_tests.log",
+              "test-results/tpm-signoff/$env:PLATFORM/go_version.txt"
+            )
+          }
+          $rowPath = "test-results/tpm-signoff/$env:PLATFORM/row.json"
+          $payload | ConvertTo-Json -Depth 8 | Out-File -Encoding utf8 $rowPath
+          Write-Host "wrote $rowPath"
+
+      - name: Upload TPM matrix row artifact
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: tpm-signoff-row-${{ matrix.platform }}
+          path: test-results/tpm-signoff/${{ matrix.platform }}/
+
+  build-signoff-bundle:
+    name: Build TPM Sign-Off Bundle
+    runs-on: ubuntu-latest
+    needs: tpm-matrix
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Download TPM matrix row artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          pattern: tpm-signoff-row-*
+          path: test-results/tpm-signoff/rows
+          merge-multiple: true
+
+      - name: Build TPM sign-off matrix + attestation
+        id: bundle
+        run: |
+          DATESTAMP="$(date -u +%Y-%m-%d)"
+          echo "datestamp=${DATESTAMP}" >> "$GITHUB_OUTPUT"
+          python3 scripts/build_tpm_signoff_bundle.py \
+            --rows-dir test-results/tpm-signoff/rows \
+            --date-stamp "${DATESTAMP}"
+
+      - name: Validate TPM attestation closure
+        run: |
+          DATESTAMP="${{ steps.bundle.outputs.datestamp }}"
+          python3 scripts/validate_tpm_attestation_closure.py \
+            --matrix "results/go-live/evidence/tpm_attestation_cross_platform_matrix_${DATESTAMP}.json" \
+            --attestation "results/go-live/attestations/tpm_attestation_production_closure.json" \
+            --output-json "results/go-live/evidence/tpm_attestation_closure_validation_${DATESTAMP}.json" \
+            --output-md "results/go-live/evidence/tpm_attestation_closure_validation_${DATESTAMP}.md"
+
+      - name: Generate TPM closure summary bundle docs
+        run: |
+          DATESTAMP="${{ steps.bundle.outputs.datestamp }}"
+          python3 scripts/generate_tpm_closure_summary.py \
+            --output-json "results/go-live/evidence/tpm_closure_summary_${DATESTAMP}.json" \
+            --output-md "results/go-live/evidence/tpm_closure_summary_${DATESTAMP}.md"
+
+      - name: Package TPM sign-off artifact bundle
+        run: |
+          DATESTAMP="${{ steps.bundle.outputs.datestamp }}"
+          mkdir -p results/go-live/evidence
+          tar -czf "results/go-live/evidence/tpm_production_signoff_bundle_${DATESTAMP}.tar.gz" \
+            "results/go-live/evidence/tpm_attestation_cross_platform_matrix_${DATESTAMP}.json" \
+            "results/go-live/evidence/tpm_attestation_cross_platform_matrix_${DATESTAMP}.md" \
+            "results/go-live/evidence/tpm_attestation_closure_validation_${DATESTAMP}.json" \
+            "results/go-live/evidence/tpm_attestation_closure_validation_${DATESTAMP}.md" \
+            "results/go-live/evidence/tpm_closure_summary_${DATESTAMP}.json" \
+            "results/go-live/evidence/tpm_closure_summary_${DATESTAMP}.md" \
+            "results/go-live/attestations/tpm_attestation_production_closure.json"
+
+      - name: Publish TPM sign-off summary
+        run: |
+          DATESTAMP="${{ steps.bundle.outputs.datestamp }}"
+          cat "results/go-live/evidence/tpm_closure_summary_${DATESTAMP}.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload TPM production sign-off artifacts
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: tpm-production-signoff-artifacts
+          path: |
+            results/go-live/evidence/tpm_attestation_cross_platform_matrix_*.json
+            results/go-live/evidence/tpm_attestation_cross_platform_matrix_*.md
+            results/go-live/evidence/tpm_attestation_closure_validation_*.json
+            results/go-live/evidence/tpm_attestation_closure_validation_*.md
+            results/go-live/evidence/tpm_closure_summary_*.json
+            results/go-live/evidence/tpm_closure_summary_*.md
+            results/go-live/evidence/tpm_production_signoff_bundle_*.tar.gz
+            results/go-live/attestations/tpm_attestation_production_closure.json
