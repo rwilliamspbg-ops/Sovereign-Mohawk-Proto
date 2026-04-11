@@ -64,7 +64,14 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 - [ ] Replace remaining TPM stubs with full TPM 2.0 quote/verify flow
 - [ ] Remote attestation evidence format hardening and replay protection checks
-- [ ] Cross-platform validation matrix for attestation paths (Linux/Windows/macOS)
+- [x] Cross-platform validation matrix for attestation paths (Linux/Windows/macOS)
+
+Automation now in place:
+
+- Workflow: [.github/workflows/tpm-production-signoff.yml](.github/workflows/tpm-production-signoff.yml)
+- Bundle generator: [scripts/build_tpm_signoff_bundle.py](scripts/build_tpm_signoff_bundle.py)
+- Closure validator: [scripts/validate_tpm_attestation_closure.py](scripts/validate_tpm_attestation_closure.py)
+- Closure summary generator: [scripts/generate_tpm_closure_summary.py](scripts/generate_tpm_closure_summary.py)
 
 Current closure-prep evidence:
 

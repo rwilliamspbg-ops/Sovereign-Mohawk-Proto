@@ -39,6 +39,12 @@ This checklist is the formal release-candidate sign-off gate before cutting the 
 - [ ] Remote attestation evidence format hardening and replay protections verified.
 - [ ] Cross-platform attestation matrix evidence attached (Linux/Windows/macOS).
 
+Gate 5 automation references:
+
+- Workflow: [.github/workflows/tpm-production-signoff.yml](.github/workflows/tpm-production-signoff.yml)
+- Bundle builder: [scripts/build_tpm_signoff_bundle.py](scripts/build_tpm_signoff_bundle.py)
+- Closure validator: [scripts/validate_tpm_attestation_closure.py](scripts/validate_tpm_attestation_closure.py)
+
 ## Gate 6: Packaging and Rollout
 
 - [ ] Release notes finalized and linked to evidence artifacts.
