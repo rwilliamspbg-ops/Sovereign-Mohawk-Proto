@@ -23,6 +23,11 @@ services:
       file: docker-compose.yml
       service: pyapi-metrics-exporter
 
+  federated-router:
+    extends:
+      file: docker-compose.yml
+      service: federated-router
+
   prometheus:
     extends:
       file: docker-compose.yml

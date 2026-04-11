@@ -1,9 +1,9 @@
 # Byzantine Forensics Rejection Report
 
-- Generated at: 2026-03-29T12:10:34Z
+- Generated at: 2026-04-11T13:22:27Z
 - Log window: 15m
 - Containers scanned: node-agent-1,node-agent-2,node-agent-3,orchestrator
-- Total log lines scanned: 30
+- Total log lines scanned: 40
 - Rejection/failure events: 0
 - Event ratio of scanned lines: 0.00%
 

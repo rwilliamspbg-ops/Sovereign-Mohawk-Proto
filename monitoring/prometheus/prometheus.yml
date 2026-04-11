@@ -30,3 +30,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["pyapi-metrics-exporter:9104"]
+
+  - job_name: federated-router
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["federated-router:8087"]

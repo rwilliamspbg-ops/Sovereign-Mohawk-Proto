@@ -3,7 +3,7 @@
   "closure_ok": false,
   "closure_validation_artifact": "results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json",
   "ga_ready": false,
-  "generated_utc": "2026-04-05T12:53:01+00:00",
+  "generated_utc": "2026-04-11T13:18:33+00:00",
   "go_live_advisory_ok": true,
   "go_live_gate_advisory_artifact": "results/go-live/evidence/go_live_gate_advisory_2026-03-28.json",
   "go_live_gate_strict_artifact": "results/go-live/evidence/go_live_gate_strict_2026-03-28.json",
