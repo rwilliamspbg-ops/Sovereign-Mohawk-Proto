@@ -54,10 +54,13 @@ def render_markdown(rows: List[BenchmarkRow]) -> str:
     out_dir = Path("test-results/swarm-runtime")
     router_smoke_path = out_dir / "router_smoke.txt"
     router_metrics_path = out_dir / "router_metrics_snapshot.prom"
-    router_smoke_passed = router_smoke_path.exists() and "[router-smoke] PASS" in router_smoke_path.read_text(
-        encoding="utf-8"
+    router_smoke_passed = (
+        router_smoke_path.exists()
+        and "[router-smoke] PASS" in router_smoke_path.read_text(encoding="utf-8")
     )
-    router_metrics_captured = router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+    router_metrics_captured = (
+        router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+    )
 
     lines = [
         "# Scaled Swarm Benchmark Report",
@@ -89,10 +92,13 @@ def main() -> int:
 
     router_smoke_path = out_dir / "router_smoke.txt"
     router_metrics_path = out_dir / "router_metrics_snapshot.prom"
-    router_smoke_passed = router_smoke_path.exists() and "[router-smoke] PASS" in router_smoke_path.read_text(
-        encoding="utf-8"
+    router_smoke_passed = (
+        router_smoke_path.exists()
+        and "[router-smoke] PASS" in router_smoke_path.read_text(encoding="utf-8")
     )
-    router_metrics_captured = router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+    router_metrics_captured = (
+        router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+    )
 
     payload: Dict[str, object] = {
         "generated_from": "Swarm Runtime Matrix",
