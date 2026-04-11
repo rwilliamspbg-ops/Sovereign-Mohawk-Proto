@@ -49,6 +49,10 @@ type Config struct {
 	NodeID                    string
 	OrchestratorURL           string
 	OrchestratorServerName    string
+	RouterURL                 string
+	RouterSourceVertical      string
+	RouterTargetVertical      string
+	RouterModelID             string
 	LibP2PPort                int
 	TransportKEXMode          network.KEXMode
 	RelayAddrs                []string
@@ -107,6 +111,9 @@ func main() {
 	}
 	if err := checkpointNodeState(ctx, conf, meshPlan, peerHost.Addrs(), quote); err != nil {
 		log.Printf("Checkpoint publish deferred: %v", err)
+	}
+	if err := publishRouterHeartbeat(ctx, conf, meshPlan, quote, 0); err != nil {
+		log.Printf("Router publish deferred: %v", err)
 	}
 
 	wasmBin, err := loadVerifierModule(conf)
@@ -226,6 +233,9 @@ func runSupervisedRound(rootCtx context.Context, conf Config, meshPlan hva.Plan,
 	}
 	if err := checkpointNodeState(roundCtx, conf, meshPlan, peerHost.Addrs(), quote); err != nil {
 		log.Printf("Supervisor: checkpoint deferred: %v", err)
+	}
+	if err := publishRouterHeartbeat(roundCtx, conf, meshPlan, quote, round); err != nil {
+		log.Printf("Supervisor: router publish deferred: %v", err)
 	}
 
 	if runner != nil {
@@ -405,6 +415,10 @@ func loadConfig() (Config, error) {
 		NodeID:                    defaultString(os.Getenv("NODE_ID"), "edge-node-001"),
 		OrchestratorURL:           os.Getenv("ORCHESTRATOR_URL"),
 		OrchestratorServerName:    defaultString(os.Getenv("ORCHESTRATOR_SERVER_NAME"), "orchestrator"),
+		RouterURL:                 defaultString(strings.TrimSpace(os.Getenv("MOHAWK_ROUTER_URL")), "http://federated-router:8087"),
+		RouterSourceVertical:      defaultString(strings.TrimSpace(os.Getenv("MOHAWK_ROUTER_SOURCE_VERTICAL")), "climate"),
+		RouterTargetVertical:      defaultString(strings.TrimSpace(os.Getenv("MOHAWK_ROUTER_TARGET_VERTICAL")), "supply-chain"),
+		RouterModelID:             defaultString(strings.TrimSpace(os.Getenv("MOHAWK_ROUTER_MODEL_ID")), "node-agent-federated-insight"),
 		LibP2PPort:                defaultInt(os.Getenv("MOHAWK_LIBP2P_PORT"), 4001),
 		TransportKEXMode:          kexMode,
 		RelayAddrs:                splitCSV(os.Getenv("MOHAWK_RELAY_ADDRS")),
@@ -495,6 +509,57 @@ func checkpointNodeState(ctx context.Context, conf Config, plan hva.Plan, addrs 
 	}
 	_, err = backend.PutCheckpoint(ctx, conf.NodeID+"-checkpoint.json", encoded)
 	return err
+}
+
+func publishRouterHeartbeat(ctx context.Context, conf Config, plan hva.Plan, quote []byte, round int) error {
+	if conf.RouterURL == "" {
+		return nil
+	}
+	offerID := fmt.Sprintf("%s-round-%d", conf.NodeID, round)
+	payload := map[string]any{
+		"offer_id":            offerID,
+		"source_vertical":     conf.RouterSourceVertical,
+		"model_id":            conf.RouterModelID,
+		"summary":             fmt.Sprintf("Node %s heartbeat with %d mesh levels", conf.NodeID, len(plan.Levels)),
+		"publisher_node_id":   conf.NodeID,
+		"publisher_quote":     quote,
+		"expected_proof_root": "",
+	}
+	if err := postRouterJSON(ctx, conf.RouterURL, "/router/publish", payload); err != nil {
+		return err
+	}
+
+	prov := map[string]any{
+		"offer_id":         offerID,
+		"source_vertical":  conf.RouterSourceVertical,
+		"target_vertical":  conf.RouterTargetVertical,
+		"subscriber_model": "node-agent-runtime",
+		"impact_metric":    "mesh_level_count",
+		"impact_delta":     float64(len(plan.Levels)),
+	}
+	return postRouterJSON(ctx, conf.RouterURL, "/router/provenance", prov)
+}
+
+func postRouterJSON(ctx context.Context, baseURL string, path string, payload map[string]any) error {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(baseURL, "/")+path, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{Timeout: 8 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= http.StatusBadRequest {
+		return fmt.Errorf("router endpoint %s returned %s", path, resp.Status)
+	}
+	return nil
 }
 
 func stringifyAddrs(addrs []multiaddr.Multiaddr) []string {

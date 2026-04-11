@@ -109,6 +109,87 @@ class AsyncMohawkNode:
     async def metrics_snapshot(self) -> JsonDict:
         return await self._run(self._node.metrics_snapshot)
 
+    async def router_publish_insight(
+        self,
+        *,
+        source_vertical: str,
+        model_id: str,
+        summary: str,
+        publisher_node_id: str,
+        publisher_quote: Union[str, bytes, bytearray, memoryview],
+        offer_id: Optional[str] = None,
+        expected_proof_root: Optional[str] = None,
+        proof_payload: Optional[Union[str, bytes, bytearray, memoryview]] = None,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        return await self._run(
+            self._node.router_publish_insight,
+            source_vertical=source_vertical,
+            model_id=model_id,
+            summary=summary,
+            publisher_node_id=publisher_node_id,
+            publisher_quote=publisher_quote,
+            offer_id=offer_id,
+            expected_proof_root=expected_proof_root,
+            proof_payload=proof_payload,
+            router_url=router_url,
+        )
+
+    async def router_subscribe(
+        self,
+        *,
+        subscriber_vertical: str,
+        source_verticals: List[str],
+        subscriber_node_id: str,
+        subscriber_quote: Union[str, bytes, bytearray, memoryview],
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        return await self._run(
+            self._node.router_subscribe,
+            subscriber_vertical=subscriber_vertical,
+            source_verticals=source_verticals,
+            subscriber_node_id=subscriber_node_id,
+            subscriber_quote=subscriber_quote,
+            router_url=router_url,
+        )
+
+    async def router_discover(
+        self,
+        *,
+        subscriber_vertical: str,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        return await self._run(
+            self._node.router_discover,
+            subscriber_vertical=subscriber_vertical,
+            router_url=router_url,
+        )
+
+    async def router_append_provenance(
+        self,
+        *,
+        offer_id: str,
+        source_vertical: str,
+        target_vertical: str,
+        subscriber_model: str,
+        impact_metric: str,
+        impact_delta: float,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        return await self._run(
+            self._node.router_append_provenance,
+            offer_id=offer_id,
+            source_vertical=source_vertical,
+            target_vertical=target_vertical,
+            subscriber_model=subscriber_model,
+            impact_metric=impact_metric,
+            impact_delta=impact_delta,
+            router_url=router_url,
+        )
+
+    async def router_provenance(self, *, router_url: Optional[str] = None) -> JsonDict:
+        return await self._run(self._node.router_provenance, router_url=router_url)
+
     async def bridge_transfer(
         self,
         *,

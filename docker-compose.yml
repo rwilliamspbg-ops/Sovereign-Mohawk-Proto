@@ -338,6 +338,10 @@ services:
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ROUTER_MODEL_ID=node-agent-climate-insight
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -391,6 +395,10 @@ services:
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=oncology
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ROUTER_MODEL_ID=node-agent-oncology-insight
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
@@ -444,6 +452,10 @@ services:
       - MOHAWK_TPM_CERT_FILE=/run/secrets/mohawk_tpm_node_cert.pem
       - MOHAWK_TPM_KEY_FILE=/run/secrets/mohawk_tpm_node_key.pem
       - MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
+      - MOHAWK_ROUTER_TARGET_VERTICAL=agriculture
+      - MOHAWK_ROUTER_MODEL_ID=node-agent-agri-insight
       # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token

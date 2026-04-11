@@ -305,6 +305,12 @@ Cross-silo router publish/subscribe demo:
 python sdk/python/examples/router_silo_pubsub_demo.py --router-url http://localhost:8087
 ```
 
+Strong multi-silo workflow demo (climate + oncology -> supply-chain with provenance):
+
+```bash
+python sdk/python/examples/multi_silo_router_workflow.py --router-url http://localhost:8087
+```
+
 ### TPM Attestation
 
 ```python
@@ -333,6 +339,11 @@ Main class for interacting with the MOHAWK runtime.
 - **`status(node_id)`**: Get node status
 - **`load_wasm(module_path=None, wasm_bytes=None, wasm_b64=None, module_sha256=None, module_signature=None, module_public_key=None)`**: Load or hot-reload a WebAssembly module and return `module_hash` (inline hot-reload requires hash+signature+public key)
 - **`attest(node_id)`**: Perform TPM attestation
+- **`router_publish_insight(...)`**: Publish attested cross-vertical router offer over HTTP
+- **`router_subscribe(...)`**: Register attested router subscription over HTTP
+- **`router_discover(subscriber_vertical, router_url=None)`**: Discover offers visible to a subscriber vertical
+- **`router_append_provenance(...)`**: Append cross-vertical provenance event
+- **`router_provenance(router_url=None)`**: Fetch immutable router provenance chain
 - **`close()`**: Release SDK bridge references; also available through `with MohawkNode(...) as node:`
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport

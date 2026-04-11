@@ -76,6 +76,10 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ROUTER_MODEL_ID=node-agent-scale-insight
     # Make each replica unique without hard-coding node IDs and pick per-replica mTLS cert/key.
     command:
       - /bin/sh

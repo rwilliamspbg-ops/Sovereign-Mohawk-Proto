@@ -57,6 +57,10 @@ services:
       - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
       - MOHAWK_SUPERVISOR_INTERVAL_SECONDS=${MOHAWK_SUPERVISOR_INTERVAL_SECONDS:-45}
       - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ROUTER_MODEL_ID=sandbox-climate-insight
     volumes:
       - .:/workspace
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
@@ -93,6 +97,10 @@ services:
       - MOHAWK_GRADIENT_FORMAT=${MOHAWK_GRADIENT_FORMAT:-int8}
       - MOHAWK_SUPERVISOR_INTERVAL_SECONDS=${MOHAWK_SUPERVISOR_INTERVAL_SECONDS:-45}
       - WASM_MODULE_PATH=/workspace/wasm-modules/fl_task/target/wasm32-unknown-unknown/release/fl_task.wasm
+      - MOHAWK_ROUTER_URL=http://federated-router:8087
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=oncology
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ROUTER_MODEL_ID=sandbox-oncology-insight
     volumes:
       - .:/workspace
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro

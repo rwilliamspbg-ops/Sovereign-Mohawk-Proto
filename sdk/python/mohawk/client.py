@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import ctypes
 import json
+import os
 import sys
 import time
 import base64
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
 
@@ -412,6 +416,142 @@ class MohawkNode:
         if not result.get("success", False):
             raise VerificationError(result.get("message", "metrics snapshot failed"))
         return result
+
+    def _router_base_url(self, router_url: Optional[str]) -> str:
+        raw = router_url or os.getenv("MOHAWK_ROUTER_URL", "http://localhost:8087")
+        return raw.rstrip("/")
+
+    @staticmethod
+    def _router_encode_binary(value: Optional[Union[str, BufferLike]]) -> Optional[str]:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return value
+        return base64.b64encode(memoryview(value).tobytes()).decode("ascii")
+
+    def _router_request(
+        self,
+        method: str,
+        path: str,
+        *,
+        router_url: Optional[str] = None,
+        payload: Optional[Mapping[str, Any]] = None,
+        query: Optional[Mapping[str, str]] = None,
+    ) -> JsonDict:
+        url = self._router_base_url(router_url) + path
+        if query:
+            url += "?" + urllib.parse.urlencode(query)
+
+        body = None
+        headers: Dict[str, str] = {}
+        if payload is not None:
+            body = json.dumps(dict(payload)).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+
+        request = urllib.request.Request(url, data=body, headers=headers, method=method)
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                raw = response.read().decode("utf-8")
+                if not raw:
+                    return {"success": True, "status": response.status}
+                parsed = json.loads(raw)
+                if isinstance(parsed, dict):
+                    parsed.setdefault("success", True)
+                    return parsed
+                return {"success": True, "data": parsed}
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")
+            raise AggregationError(f"router {method} {path} failed: {exc.code} {detail}") from exc
+        except urllib.error.URLError as exc:
+            raise AggregationError(f"router {method} {path} unreachable: {exc.reason}") from exc
+
+    def router_publish_insight(
+        self,
+        *,
+        source_vertical: str,
+        model_id: str,
+        summary: str,
+        publisher_node_id: str,
+        publisher_quote: Union[str, BufferLike],
+        offer_id: Optional[str] = None,
+        expected_proof_root: Optional[str] = None,
+        proof_payload: Optional[Union[str, BufferLike]] = None,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        payload: JsonDict = {
+            "source_vertical": source_vertical,
+            "model_id": model_id,
+            "summary": summary,
+            "publisher_node_id": publisher_node_id,
+            "publisher_quote": self._router_encode_binary(publisher_quote),
+        }
+        if offer_id is not None:
+            payload["offer_id"] = offer_id
+        if expected_proof_root is not None:
+            payload["expected_proof_root"] = expected_proof_root
+        if proof_payload is not None:
+            payload["proof_payload"] = self._router_encode_binary(proof_payload)
+        return self._router_request(
+            "POST", "/router/publish", router_url=router_url, payload=payload
+        )
+
+    def router_subscribe(
+        self,
+        *,
+        subscriber_vertical: str,
+        source_verticals: List[str],
+        subscriber_node_id: str,
+        subscriber_quote: Union[str, BufferLike],
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        payload: JsonDict = {
+            "subscriber_vertical": subscriber_vertical,
+            "source_verticals": source_verticals,
+            "subscriber_node_id": subscriber_node_id,
+            "subscriber_quote": self._router_encode_binary(subscriber_quote),
+        }
+        return self._router_request(
+            "POST", "/router/subscribe", router_url=router_url, payload=payload
+        )
+
+    def router_discover(
+        self,
+        *,
+        subscriber_vertical: str,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        return self._router_request(
+            "GET",
+            "/router/discover",
+            router_url=router_url,
+            query={"subscriber_vertical": subscriber_vertical},
+        )
+
+    def router_append_provenance(
+        self,
+        *,
+        offer_id: str,
+        source_vertical: str,
+        target_vertical: str,
+        subscriber_model: str,
+        impact_metric: str,
+        impact_delta: float,
+        router_url: Optional[str] = None,
+    ) -> JsonDict:
+        payload: JsonDict = {
+            "offer_id": offer_id,
+            "source_vertical": source_vertical,
+            "target_vertical": target_vertical,
+            "subscriber_model": subscriber_model,
+            "impact_metric": impact_metric,
+            "impact_delta": impact_delta,
+        }
+        return self._router_request(
+            "POST", "/router/provenance", router_url=router_url, payload=payload
+        )
+
+    def router_provenance(self, *, router_url: Optional[str] = None) -> JsonDict:
+        return self._router_request("GET", "/router/provenance", router_url=router_url)
 
     def bridge_transfer(
         self,

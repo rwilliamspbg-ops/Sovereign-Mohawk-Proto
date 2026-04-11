@@ -732,6 +732,20 @@ CI baseline pinning behavior:
 * On `main` pushes, workflow `FedAvg Benchmark Compare` captures and caches a benchmark baseline (`fedavg-main-*`) and uploads `fedavg-baseline-main`.
 * On PRs, the same workflow restores the cached main baseline and diffs against PR benchmark output using `benchstat`.
 
+### Scaled Swarm Runtime Benchmarks (500-1000 Node Profiles)
+
+Run the swarm runtime matrix workflow (safe and edge Byzantine profiles) and publish CI artifacts:
+
+```bash
+gh workflow run swarm-runtime-matrix.yml -f node_counts='500,1000' -f safe_ratio='0.44' -f edge_ratio='0.56'
+```
+
+Published CI artifacts include:
+
+* `test-results/swarm-runtime/scaled_swarm_benchmark_report.md`
+* `test-results/swarm-runtime/scaled_swarm_benchmark_report.json`
+* per-profile JSONL traces in `test-results/swarm-runtime/*_{safe,edge}.jsonl`
+
 ### CPU vs GPU vs NPU Side-by-Side Benchmark
 
 Run the hardware-policy benchmark report (used by CI and release assets):
@@ -797,6 +811,7 @@ All production-grade safety requirements are verified on every push:
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
 * **Local Toolchain Consistency:** Run `make go-env` before local Go lint/test commands to confirm `go` and `compile` resolve to the same toolchain root.
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
+* **Swarm Runtime Matrix:** 500/1000-node safe+edge Byzantine runtime profiles with published benchmark artifacts.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
 * **Monitoring Smoke Gate:** Compose-based Prometheus/Grafana health and dashboard registration checks.

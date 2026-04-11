@@ -1,6 +1,7 @@
 """Unit tests for the MOHAWK Python client."""
 
 import array
+import json
 
 import pytest
 import mohawk.client as client_module
@@ -130,6 +131,78 @@ class TestMohawkNode:
         result = node.stream_aggregate(stream, format="fp16", max_norm=1.0)
         assert result["success"] is True
         assert result["count"] == 2
+
+    def test_router_helper_workflow(self, node, monkeypatch):
+        class _Resp:
+            def __init__(self, payload, status=200):
+                self._payload = payload
+                self.status = status
+
+            def read(self):
+                if self._payload is None:
+                    return b""
+                return json.dumps(self._payload).encode("utf-8")
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+        responses = [
+            _Resp({"offer_id": "offer-1", "success": True}),
+            _Resp(None, status=204),
+            _Resp([{"offer_id": "offer-1"}]),
+            _Resp({"record_hash": "abc", "success": True}),
+            _Resp([{"index": 0, "record_hash": "abc"}]),
+        ]
+
+        def _fake_urlopen(_req, timeout=10):
+            _ = timeout
+            return responses.pop(0)
+
+        monkeypatch.setattr(client_module.urllib.request, "urlopen", _fake_urlopen)
+
+        published = node.router_publish_insight(
+            source_vertical="climate",
+            model_id="climate-v1",
+            summary="temperature trend",
+            publisher_node_id="node-a",
+            publisher_quote=b"quote-bytes",
+            router_url="http://router.local:8087",
+        )
+        assert published["success"] is True
+
+        subscribed = node.router_subscribe(
+            subscriber_vertical="agriculture",
+            source_verticals=["climate"],
+            subscriber_node_id="node-b",
+            subscriber_quote=b"quote-bytes",
+            router_url="http://router.local:8087",
+        )
+        assert subscribed["success"] is True
+
+        discovered = node.router_discover(
+            subscriber_vertical="agriculture",
+            router_url="http://router.local:8087",
+        )
+        assert discovered["success"] is True
+        assert isinstance(discovered["data"], list)
+
+        provenance = node.router_append_provenance(
+            offer_id="offer-1",
+            source_vertical="climate",
+            target_vertical="agriculture",
+            subscriber_model="yield-optimizer",
+            impact_metric="yield_delta",
+            impact_delta=0.12,
+            router_url="http://router.local:8087",
+        )
+        assert provenance["success"] is True
+
+        ledger = node.router_provenance(router_url="http://router.local:8087")
+        assert ledger["success"] is True
+        assert isinstance(ledger["data"], list)
 
     def test_hybrid_verify(self, node):
         """Test hybrid SNARK/STARK verification API."""
