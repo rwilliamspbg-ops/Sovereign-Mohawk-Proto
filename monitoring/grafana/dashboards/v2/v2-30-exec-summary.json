@@ -3,7 +3,7 @@
   "editable": true,
   "panels": [
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0},
       "id": 1,
       "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -12,7 +12,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0},
       "id": 2,
       "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -21,7 +21,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
       "id": 3,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -30,7 +30,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0},
       "id": 4,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -39,7 +39,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 0, "y": 6},
       "id": 5,
       "targets": [
@@ -50,7 +50,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 12, "y": 6},
       "id": 6,
       "targets": [
@@ -61,7 +61,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 24, "x": 0, "y": 15},
       "id": 7,
       "options": {"showHeader": true},

@@ -46,7 +46,7 @@
       "description": "Minimum enforcement state across critical PQC controls (1=fully enforced).",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 5,
@@ -99,7 +99,7 @@
       "description": "Authorization denial pressure on protected endpoints.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 5,
@@ -154,7 +154,7 @@
       "description": "Control-plane migration failure ratio over rolling 5m.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 5,
@@ -211,7 +211,7 @@
       "description": "Governance threshold from active thinker-clause configuration.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 5,
@@ -265,7 +265,7 @@
       "description": "Per-policy enforcement state (1=enabled, 0=disabled).",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 10,
@@ -317,7 +317,7 @@
       "description": "Unauthorized attempts grouped by endpoint and reason.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 10,
@@ -385,7 +385,7 @@
       "description": "Dual-window burn indicators for migration control-plane reliability.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 10,
@@ -442,7 +442,7 @@
       "description": "Tracks mode labels and epoch cutover timestamps used in policy enforcement.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 10,
@@ -515,7 +515,7 @@
       "description": "Cross-vertical router rejection ratio for policy pressure tracking.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 8,
@@ -572,7 +572,7 @@
       "description": "Security signals for policy bypass and proof tampering attempts.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 8,
@@ -629,7 +629,7 @@
       "description": "Current count of persisted router provenance entries.",
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "gridPos": {
         "h": 8,

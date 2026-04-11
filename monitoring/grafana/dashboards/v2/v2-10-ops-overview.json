@@ -23,7 +23,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Orchestrator scrape availability.",
       "gridPos": {
@@ -61,7 +61,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Node-agent scrape availability.",
       "gridPos": {
@@ -99,7 +99,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "All core monitored services available.",
       "gridPos": {
@@ -137,7 +137,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Gradient submit failure ratio over 5m.",
       "gridPos": {
@@ -210,7 +210,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Golden signal throughput trend.",
       "gridPos": {
@@ -272,7 +272,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Primary latency SLO monitor.",
       "gridPos": {
@@ -355,7 +355,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Availability by Prometheus job.",
       "gridPos": {
@@ -423,7 +423,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Router throughput split by endpoint.",
       "gridPos": {
@@ -475,7 +475,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Router failure ratio over 5m against 99% success target.",
       "gridPos": {
@@ -532,7 +532,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Blocked route and proof-verification failure pressure.",
       "gridPos": {

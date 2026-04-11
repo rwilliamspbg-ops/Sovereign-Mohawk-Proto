@@ -15,7 +15,7 @@
       "type": "stat",
       "title": "Migration Requests (ops/s)",
       "description": "Total migration endpoint request throughput.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
       "options": {
         "colorMode": "value",
@@ -29,7 +29,7 @@
       "type": "stat",
       "title": "Migration p95 Latency (ms)",
       "description": "p95 latency across migration API endpoints.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
       "options": {
         "colorMode": "value",
@@ -43,7 +43,7 @@
       "type": "stat",
       "title": "Dual-Crypto Path Share",
       "description": "Share of migrate requests using dual cryptographic signatures.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
       "options": {
         "colorMode": "background",
@@ -62,7 +62,7 @@
       "type": "stat",
       "title": "Authz Denials (5m)",
       "description": "Authorization denials for migration/admin paths.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
       "options": {
         "colorMode": "background",
@@ -76,7 +76,7 @@
       "type": "timeseries",
       "title": "Migration Requests by Endpoint",
       "description": "Endpoint-level throughput for status/config/digest/migrate handlers.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 0, "y": 5},
       "targets": [
         {
@@ -91,7 +91,7 @@
       "type": "timeseries",
       "title": "Migration Success vs Failure",
       "description": "Result breakdown to validate reliability under load.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 12, "y": 5},
       "targets": [
         {
@@ -111,7 +111,7 @@
       "type": "timeseries",
       "title": "Migration Latency by Endpoint (p95)",
       "description": "Per-endpoint p95 latency from histogram buckets.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 0, "y": 14},
       "targets": [
         {
@@ -126,7 +126,7 @@
       "type": "timeseries",
       "title": "Signature Path Reliability",
       "description": "Reliability by legacy_controls vs dual_crypto path.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 12, "y": 14},
       "targets": [
         {
@@ -141,7 +141,7 @@
       "type": "timeseries",
       "title": "Authorization Denials by Endpoint",
       "description": "Security pressure and potential misuse hotspots.",
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 24, "x": 0, "y": 23},
       "targets": [
         {

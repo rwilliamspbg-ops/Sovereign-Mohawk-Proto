@@ -3,7 +3,7 @@
   "editable": true,
   "panels": [
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 8, "x": 0, "y": 0},
       "id": 1,
       "options": {"colorMode": "background", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -12,7 +12,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 8, "x": 8, "y": 0},
       "id": 2,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -21,7 +21,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 6, "w": 8, "x": 16, "y": 0},
       "id": 3,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
@@ -30,7 +30,7 @@
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 24, "x": 0, "y": 6},
       "id": 4,
       "targets": [{"expr": "up{job=\"node-agents\"}", "legendFormat": "{{instance}}", "refId": "A"}],
@@ -38,7 +38,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 0, "y": 15},
       "id": 5,
       "targets": [{"expr": "sum by (instance) (rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"success\"}[5m]))", "legendFormat": "{{instance}}", "refId": "A"}],
@@ -46,7 +46,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "grafana"},
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
       "gridPos": {"h": 9, "w": 12, "x": 12, "y": 15},
       "id": 6,
       "targets": [{"expr": "sum by (instance) (rate(mohawk_accelerator_ops_total{operation=\"gradient_submit\",result=\"failure\"}[5m]))", "legendFormat": "{{instance}}", "refId": "A"}],

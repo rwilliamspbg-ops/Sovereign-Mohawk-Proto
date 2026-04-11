@@ -23,7 +23,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Failure-rate indicator for rapid incident triage.",
       "gridPos": {
@@ -80,7 +80,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Absolute failure throughput.",
       "gridPos": {
@@ -116,7 +116,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Successful throughput for comparison.",
       "gridPos": {
@@ -168,7 +168,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Incident timeline: failures vs successes.",
       "gridPos": {
@@ -225,7 +225,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Proof pipeline reliability trend.",
       "gridPos": {
@@ -298,7 +298,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Availability by monitored instance for triage.",
       "gridPos": {
@@ -366,7 +366,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Timeline of route-block and proof-failure events.",
       "gridPos": {
@@ -428,7 +428,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "grafana"
+        "uid": "prometheus-main"
       },
       "description": "Current router rejection pressure for on-call triage.",
       "gridPos": {

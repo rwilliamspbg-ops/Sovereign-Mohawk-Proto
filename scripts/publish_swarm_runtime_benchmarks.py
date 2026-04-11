@@ -61,9 +61,7 @@ def render_markdown(rows: List[BenchmarkRow]) -> str:
     ]
     for row in sorted(rows, key=lambda r: (r.nodes, r.profile)):
         result = "pass" if row.passed else "fail"
-        lines.append(
-            f"| {row.nodes} | {row.profile} | {result} | {row.elapsed_seconds:.3f} |"
-        )
+        lines.append(f"| {row.nodes} | {row.profile} | {result} | {row.elapsed_seconds:.3f} |")
 
     return "\n".join(lines) + "\n"
 
