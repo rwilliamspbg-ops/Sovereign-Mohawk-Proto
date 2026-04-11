@@ -461,20 +461,19 @@ PowerShell stop:
 
 Grafana dashboard shortlist:
 
-* `MOHAWK v2 - Start Here`
-* `MOHAWK v2 - Operations Overview`
-* `MOHAWK v2 - Operations Incidents`
-* `MOHAWK v2 - Engineering Latency Drilldown`
-* `MOHAWK v2 - Engineering Node Agents`
-* `MOHAWK v2 - Executive Summary`
-* `MOHAWK Tokenomics` (`mohawk-tokenomics-v1`)
+* `Sovereign Mohawk | Start Here`
+* `Sovereign Mohawk | Operations Overview`
+* `Sovereign Mohawk | Operations Incidents`
+* `Sovereign Mohawk | Security & PQC Compliance`
+* `Sovereign Mohawk | Engineering Latency Drilldown`
+* `Sovereign Mohawk | Engineering Node Agents`
+* `Sovereign Mohawk | Executive Summary`
 * `MOHAWK Live Overview`
 * `TPM Metrics`
-* `Byzantine Resilience - Theorem 1`
 
 v2 dashboard implementation and metric map:
 
-* `monitoring/grafana/dashboards/README_DASHBOARD_V2.md`
+* `monitoring/grafana/README.md`
 
 Quick-import dashboard pack for fast local/testnet setup:
 
@@ -748,7 +747,7 @@ Artifacts:
 
 Live observability companion dashboard:
 
-* `monitoring/grafana/dashboards/performance/accelerator-backend-compare.json`
+* `monitoring/grafana/dashboards/v2/v2-20-eng-latency-drilldown.json`
 
 ### Bridge Compression Benchmark (JSON vs Zero-Copy)
 
@@ -844,7 +843,7 @@ bash scripts/apply_branch_protection.sh
 * [monitoring/alertmanager/alertmanager.yml](monitoring/alertmanager/alertmanager.yml)
 * [monitoring/grafana/dashboards/](monitoring/grafana/dashboards/)
 * [grafana/](grafana/)
-* [monitoring/grafana/dashboards/finance/tokenomics.json](monitoring/grafana/dashboards/finance/tokenomics.json)
+* [monitoring/grafana/README.md](monitoring/grafana/README.md)
 * [cmd/tpm-metrics/main.go](cmd/tpm-metrics/main.go)
 
 ### Release and CI Artifacts

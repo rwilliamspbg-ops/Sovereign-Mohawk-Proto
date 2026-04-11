@@ -71,6 +71,21 @@ The smoke script publishes a Climate insight, subscribes Supply Chain, verifies 
 - Proof replay/tampering:
 	Publish operations with `expected_proof_root` enforce proof validation; failures are surfaced as `reason="proof_verification"` and alertable.
 
+### Concrete Attack Examples
+
+- Route-enumeration and pivot attempt:
+	An attacker with a valid tenant identity submits repeated discover calls from an allowed vertical while rotating `interested_verticals` to infer blocked relationships (for example `oncology -> supply-chain`).
+	Expected defense: default-deny route evaluation prevents disclosure of blocked offers, and spikes appear as `reason="route_blocked"` on `mohawk_router_requests_total`.
+- Replay of stale proof-bound offer:
+	An adversary replays a previously captured publish payload with an old proof root to influence downstream subscribers.
+	Expected defense: publish validation rejects mismatched or stale proof roots, and failures surface as `reason="proof_verification"` for alerting and incident triage.
+- Forged publisher attestation:
+	A malicious workload attempts to publish using a fabricated TPM quote and a spoofed vertical identity.
+	Expected defense: quote verification fails at ingress unless insecure dev mode is intentionally enabled, preventing subscription matching and provenance write.
+- Provenance growth pressure:
+	An actor floods small publish/provenance events to force rapid provenance ledger growth.
+	Expected defense: request-level telemetry (`mohawk:router_requests:rate1m`) and provenance gauge tracking (`mohawk_router_provenance_records`) expose sustained abuse so rate limiting or policy narrowing can be applied.
+
 ## Router SLO Targets
 
 - Publish success ratio: `>= 99.0%` over 30 days.

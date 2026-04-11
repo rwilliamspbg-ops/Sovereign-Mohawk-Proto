@@ -28,6 +28,24 @@ These dashboards provide a role-based observability model:
 - `v2-22-eng-migration-control-plane.json`: Migration reliability and operational safety.
 - `v2-30-exec-summary.json`: Executive KPI summary for service owners.
 
+Legacy finance/performance/verification dashboards were retired so operators have one clean, role-based dashboard tree.
+
+## Router Signals
+
+Cross-vertical federated router metrics are tracked directly in v2 dashboards:
+
+- Throughput and rejection ratio in `v2-10-ops-overview.json`
+- Route-block and proof-failure timelines in `v2-11-ops-incidents.json`
+- Provenance ledger growth and policy pressure in `v2-12-security-pqc-compliance.json`
+
+Primary recorded series:
+
+- `mohawk:router_requests:rate1m`
+- `mohawk:router_requests:failure_rate_5m`
+- `mohawk:router_blocked_routes:rate5m`
+- `mohawk:router_proof_failures:rate5m`
+- `mohawk_router_provenance_records`
+
 ## Operating Guidance
 
 - Use `v2-00-start-here.json` as the default home view.

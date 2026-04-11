@@ -299,6 +299,12 @@ PQC migration digest-flow demo:
 python sdk/python/examples/pqc_migration_demo.py
 ```
 
+Cross-silo router publish/subscribe demo:
+
+```bash
+python sdk/python/examples/router_silo_pubsub_demo.py --router-url http://localhost:8087
+```
+
 ### TPM Attestation
 
 ```python
