@@ -50,6 +50,25 @@ Stop stack:
 docker compose down
 ```
 
+## TPM Production Closure (Signed Off)
+
+Latest TPM production closure evidence (2026-04-11):
+
+- Cross-platform matrix: [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md)
+- Closure validation: [results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md)
+- Closure summary: [results/go-live/evidence/tpm_closure_summary_2026-04-11.md](results/go-live/evidence/tpm_closure_summary_2026-04-11.md)
+- Attestation state (`approved`): [results/go-live/attestations/tpm_attestation_production_closure.json](results/go-live/attestations/tpm_attestation_production_closure.json)
+
+## Published Router Integration Evidence
+
+- Published Docker image integration validation: [results/go-live/evidence/router_integration_published_images_2026-04-11.md](results/go-live/evidence/router_integration_published_images_2026-04-11.md)
+
+## Prominent Scaling Evidence
+
+- Scaling evidence spotlight: [results/metrics/scaling_evidence_spotlight_2026-04-11.md](results/metrics/scaling_evidence_spotlight_2026-04-11.md)
+- 500-node scale manifest: [captured_artifacts/500node_scale_test_manifest.json](captured_artifacts/500node_scale_test_manifest.json)
+- Release performance evidence index: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
+
 ## Security Defaults (Current)
 
 - Proof verifier boot path is fail-closed by default; silent runtime disable is not allowed.

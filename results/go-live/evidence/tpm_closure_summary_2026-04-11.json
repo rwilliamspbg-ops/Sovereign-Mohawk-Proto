@@ -1,0 +1,36 @@
+{
+  "attestation_status": "approved",
+  "closure_ok": true,
+  "closure_validation_artifact": "results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.json",
+  "ga_ready": false,
+  "generated_utc": "2026-04-11T15:12:40+00:00",
+  "go_live_advisory_ok": true,
+  "go_live_gate_advisory_artifact": "results/go-live/evidence/go_live_gate_advisory_2026-03-28.json",
+  "go_live_gate_strict_artifact": "results/go-live/evidence/go_live_gate_strict_2026-03-28.json",
+  "go_live_strict_ok": false,
+  "matrix_artifact": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.json",
+  "platform_completion_percent": 100.0,
+  "platform_status": {
+    "linux": {
+      "evidence_count": 2,
+      "ok": true,
+      "present": true,
+      "status": "pass"
+    },
+    "macos": {
+      "evidence_count": 2,
+      "ok": true,
+      "present": true,
+      "status": "pass"
+    },
+    "windows": {
+      "evidence_count": 2,
+      "ok": true,
+      "present": true,
+      "status": "pass"
+    }
+  },
+  "platforms_passed": 3,
+  "platforms_total": 3,
+  "remaining_failures": []
+}

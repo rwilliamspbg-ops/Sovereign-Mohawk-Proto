@@ -35,15 +35,28 @@ This checklist is the formal release-candidate sign-off gate before cutting the 
 
 ## Gate 5: TPM Attestation Production Readiness
 
-- [ ] TPM 2.0 quote/verify flow enabled in production mode.
-- [ ] Remote attestation evidence format hardening and replay protections verified.
-- [ ] Cross-platform attestation matrix evidence attached (Linux/Windows/macOS).
+- [x] TPM 2.0 quote/verify flow enabled in production mode.
+- [x] Remote attestation evidence format hardening and replay protections verified.
+- [x] Cross-platform attestation matrix evidence attached (Linux/Windows/macOS).
 
 Gate 5 automation references:
 
 - Workflow: [.github/workflows/tpm-production-signoff.yml](.github/workflows/tpm-production-signoff.yml)
 - Bundle builder: [scripts/build_tpm_signoff_bundle.py](scripts/build_tpm_signoff_bundle.py)
 - Closure validator: [scripts/validate_tpm_attestation_closure.py](scripts/validate_tpm_attestation_closure.py)
+
+Gate 5 sign-off evidence (2026-04-11):
+
+- [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md)
+- [results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md)
+- [results/go-live/evidence/tpm_closure_summary_2026-04-11.md](results/go-live/evidence/tpm_closure_summary_2026-04-11.md)
+- [results/go-live/attestations/tpm_attestation_production_closure.json](results/go-live/attestations/tpm_attestation_production_closure.json)
+
+Suggested next items after Gate 5 sign-off:
+
+- [ ] Promote TPM sign-off bundle archive as a release asset on GA tag cut.
+- [ ] Add a nightly TPM production sign-off run (scheduled trigger) to detect regressions earlier.
+- [ ] Add attestation evidence freshness alerting (fail if latest matrix is older than 7 days).
 
 ## Gate 6: Packaging and Rollout
 

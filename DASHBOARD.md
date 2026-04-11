@@ -9,20 +9,29 @@
 
 ### Current Critical Path
 
-* TPM attestation production-path completion (TPM 2.0 quote/verify + evidence hardening)
+* TPM attestation production-path sign-off maintenance (keep cross-platform evidence fresh)
 * v1.0.0 GA tag cut after TPM closure sign-off
 
 Current TPM closure evidence:
 
-* `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md`
-* `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md`
+* `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md`
+* `results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md`
+* `results/go-live/evidence/tpm_closure_summary_2026-04-11.md`
 * `results/go-live/evidence/go_toolchain_alignment_2026-03-31.md`
 
 ### Formal Go-Live Gate Status
 
 * Runtime gates: ✅ readiness / ✅ chaos / ⚠️ host network tuning advisory-only (strict host preflight currently fails)
 * Attestations approved: 8/8
-* TPM closure status: pending (GA ready = NO until Windows/macOS TPM evidence is complete)
+* TPM closure status: ✅ approved (cross-platform matrix PASS, validator PASS)
+
+Router integration evidence with published images:
+
+* `results/go-live/evidence/router_integration_published_images_2026-04-11.md`
+
+Prominent scaling evidence index:
+
+* `results/metrics/scaling_evidence_spotlight_2026-04-11.md`
 
 ### PQC Major Release
 

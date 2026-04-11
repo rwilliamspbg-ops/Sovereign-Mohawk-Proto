@@ -28,6 +28,17 @@ This index provides direct, public links to versioned evidence committed in this
 - Golden path report (Markdown): [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md)
 - Stress capture report: [results/metrics/stress_metrics_capture_10m.md](results/metrics/stress_metrics_capture_10m.md)
 - Stress capture metrics: [results/metrics/stress_metrics_capture_10m.json](results/metrics/stress_metrics_capture_10m.json)
+- TPM closure matrix (latest): [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md)
+- TPM closure validator (latest): [results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md)
+- TPM closure summary (latest): [results/go-live/evidence/tpm_closure_summary_2026-04-11.md](results/go-live/evidence/tpm_closure_summary_2026-04-11.md)
+- TPM production attestation state: [results/go-live/attestations/tpm_attestation_production_closure.json](results/go-live/attestations/tpm_attestation_production_closure.json)
+- Router integration with published images: [results/go-live/evidence/router_integration_published_images_2026-04-11.md](results/go-live/evidence/router_integration_published_images_2026-04-11.md)
+
+## Prominent Scaling Evidence
+
+- Scaling evidence spotlight: [results/metrics/scaling_evidence_spotlight_2026-04-11.md](results/metrics/scaling_evidence_spotlight_2026-04-11.md)
+- 500-node scale manifest: [captured_artifacts/500node_scale_test_manifest.json](captured_artifacts/500node_scale_test_manifest.json)
+- Release performance evidence index: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
 
 ## Search Shortcuts
 

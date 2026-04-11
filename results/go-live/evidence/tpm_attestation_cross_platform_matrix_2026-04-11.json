@@ -1,0 +1,44 @@
+{
+  "all_platforms_pass": true,
+  "generated_utc": "2026-04-11T15:12:39+00:00",
+  "platforms": [
+    {
+      "evidence": [
+        "test-results/tpm-signoff/linux/tpm_tests.log",
+        "test-results/tpm-signoff/linux/go_version.txt"
+      ],
+      "generated_utc": "2026-04-11T15:12:10+00:00",
+      "go_version": "go version go1.25.9 linux/amd64",
+      "platform": "linux",
+      "runner": "linux",
+      "status": "pass"
+    },
+    {
+      "evidence": [
+        "test-results/tpm-signoff/windows/tpm_tests.log",
+        "test-results/tpm-signoff/windows/go_version.txt"
+      ],
+      "generated_utc": "2026-04-11T15:12:27.5403800Z",
+      "go_version": "go version go1.25.9 windows/amd64",
+      "platform": "windows",
+      "runner": "windows",
+      "status": "pass"
+    },
+    {
+      "evidence": [
+        "test-results/tpm-signoff/macos/tpm_tests.log",
+        "test-results/tpm-signoff/macos/go_version.txt"
+      ],
+      "generated_utc": "2026-04-11T15:12:22+00:00",
+      "go_version": "go version go1.25.9 darwin/arm64",
+      "platform": "macos",
+      "runner": "macos",
+      "status": "pass"
+    }
+  ],
+  "required_platforms": [
+    "linux",
+    "windows",
+    "macos"
+  ]
+}

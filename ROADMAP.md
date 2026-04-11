@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Apr 09, 2026
+Apr 11, 2026
 
 ---
 
@@ -62,8 +62,8 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### A2. TPM Attestation Completion
 
-- [ ] Replace remaining TPM stubs with full TPM 2.0 quote/verify flow
-- [ ] Remote attestation evidence format hardening and replay protection checks
+- [x] Replace remaining TPM stubs with full TPM 2.0 quote/verify flow
+- [x] Remote attestation evidence format hardening and replay protection checks
 - [x] Cross-platform validation matrix for attestation paths (Linux/Windows/macOS)
 
 Automation now in place:
@@ -80,6 +80,16 @@ Current closure-prep evidence:
 - Linux validation evidence: [results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_linux_validation_2026-03-28.md)
 - Closure validator report (md): [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md)
 - Closure validator report (json): [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json)
+
+TPM production closure sign-off (2026-04-11):
+
+- Matrix (md): [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.md)
+- Matrix (json): [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.json](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.json)
+- Closure validator report (md): [results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.md)
+- Closure validator report (json): [results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.json](results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.json)
+- Closure summary (md): [results/go-live/evidence/tpm_closure_summary_2026-04-11.md](results/go-live/evidence/tpm_closure_summary_2026-04-11.md)
+- Attestation state: [results/go-live/attestations/tpm_attestation_production_closure.json](results/go-live/attestations/tpm_attestation_production_closure.json)
+- Workflow run: [TPM Production Sign-Off #24285287716](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/runs/24285287716)
 
 ### A3. Readiness-to-Production Operations
 
@@ -130,7 +140,7 @@ Current closure-prep evidence:
 **Exit Criteria for v1.0.0 GA:**
 
 - [x] Security audit completed with no unresolved critical findings
-- [ ] TPM attestation path fully enabled in production mode
+- [x] TPM attestation path fully enabled in production mode
 - [x] 1M-scale rehearsal passed with documented SLO results
 - [x] Operations runbook published and exercised in drills
 
@@ -207,6 +217,7 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-04-11 | 3.2 | TPM production closure signed off: cross-platform matrix PASS, closure validation PASS, production attestation set to approved, and CI workflow evidence linked |
 | 2026-04-09 | 3.1 | Closed runtime hardening docs gap: verifier fail-closed startup and constrained-runtime QUIC disable profile captured across deployment/security/readme guidance |
 | 2026-04-05 | 3.0 | Closed FIPS governance hardening items: profile scope/boundary inventory, regression tests, operator runbook guidance, and release-gate evidence requirement |
 | 2026-04-05 | 2.9 | Added A1a FIPS compliance hardening TODOs to align roadmap with ecosystem compliance tracking |
