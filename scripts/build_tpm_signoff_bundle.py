@@ -75,7 +75,12 @@ def main() -> int:
     attestation_path = repo_root / args.attestation_file
 
     rows_by_platform: dict[str, dict] = {}
-    for row_file in sorted(rows_dir.glob("*.json")):
+    # Support both flattened and per-artifact directory layouts.
+    row_files = sorted(rows_dir.rglob("row.json"))
+    if not row_files:
+        row_files = sorted(rows_dir.glob("*.json"))
+
+    for row_file in row_files:
         row = _load_json(row_file)
         platform = str(row.get("platform", "")).strip().lower()
         if platform:

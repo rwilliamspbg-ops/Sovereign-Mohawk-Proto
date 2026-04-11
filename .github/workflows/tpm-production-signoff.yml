@@ -140,7 +140,6 @@ jobs:
         with:
           pattern: tpm-signoff-row-*
           path: test-results/tpm-signoff/rows
-          merge-multiple: true
 
       - name: Build TPM sign-off matrix + attestation
         id: bundle
