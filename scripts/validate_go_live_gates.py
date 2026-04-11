@@ -97,6 +97,45 @@ def check_host_tuning(
             failures.append(message)
 
 
+def check_host_attack_surface(
+    repo_root: Path,
+    failures: list[str],
+    checks: dict[str, bool],
+    mode: str,
+    warnings: list[str],
+) -> None:
+    script = repo_root / "scripts/validate_host_attack_surface.sh"
+    if not script.exists():
+        message = f"missing host attack surface script: {script}"
+        if mode == "advisory":
+            warnings.append(message)
+            checks["host_attack_surface_ok"] = False
+            checks["host_attack_surface_enforced"] = False
+            return
+        failures.append(message)
+        checks["host_attack_surface_ok"] = False
+        checks["host_attack_surface_enforced"] = True
+        return
+
+    proc = subprocess.run(
+        ["bash", str(script)],
+        cwd=str(repo_root),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+    ok = proc.returncode == 0
+    checks["host_attack_surface_ok"] = ok
+    checks["host_attack_surface_enforced"] = mode == "strict"
+    if not ok:
+        message = "host attack surface preflight failed (unexpected public TCP listeners)"
+        if mode == "advisory":
+            warnings.append(message)
+        else:
+            failures.append(message)
+
+
 def check_attestations(repo_root: Path, failures: list[str], checks: dict[str, bool]) -> None:
     all_ok = True
     for gate_name, rel_path in REQUIRED_ATTESTATIONS.items():
@@ -167,6 +206,7 @@ def main() -> int:
     check_readiness(repo_root, failures, checks)
     check_chaos(repo_root, failures, checks)
     check_host_tuning(repo_root, failures, checks, args.host_preflight_mode, warnings)
+    check_host_attack_surface(repo_root, failures, checks, args.host_preflight_mode, warnings)
     check_attestations(repo_root, failures, checks)
     check_capability_dashboard_matrix(repo_root, failures, checks)
 

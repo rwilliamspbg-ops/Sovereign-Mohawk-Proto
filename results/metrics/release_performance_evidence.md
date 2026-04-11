@@ -1,6 +1,6 @@
 # Release Performance Evidence
 
-Generated (UTC): `2026-04-05T12:53:01+00:00`
+Generated (UTC): `2026-04-11T13:18:33+00:00`
 
 This index summarizes performance evidence used for release sign-off.
 

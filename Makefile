@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test
+.PHONY: all build test audit lint refresh-proof-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test
 
 all: build verify
 
@@ -14,8 +14,12 @@ test:
 		chmod +x test_all.sh; \
 		./test_all.sh; \
 	else \
-		bash -c 'source scripts/ensure_go_toolchain.sh && go test ./...'; \
+		bash -c 'source scripts/ensure_go_toolchain.sh && go test -count=1 ./...'; \
 	fi
+
+refresh-proof-artifacts:
+	@echo "🧾 Refreshing proof freshness artifacts..."
+	python3 scripts/refresh_proof_artifacts.py
 
 audit:
 	@echo "🔍 Running Security Audit..."
@@ -27,7 +31,7 @@ lint:
 	bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
 	bash -c 'source scripts/ensure_go_toolchain.sh && go vet ./...'
 
-verify: lint test audit
+verify: lint test refresh-proof-artifacts audit
 	@echo "✅ All Formal Proofs and Lints PASSED."
 
 clean:

@@ -47,6 +47,8 @@ def profile_commands(profile: str) -> List[str]:
         "make go-live-gate-advisory",
         "make failure-injection-latency-check",
         "make tpm-closure-summary",
+        "make golden-path-e2e",
+        "make forensics-rehearsal",
     ]
     return deep if profile == "deep" else fast
 

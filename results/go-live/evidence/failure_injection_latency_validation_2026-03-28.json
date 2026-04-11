@@ -6,7 +6,7 @@
     "readiness_gate_ok": true
   },
   "failures": [],
-  "generated_utc": "2026-04-05T12:53:01+00:00",
+  "generated_utc": "2026-04-11T13:18:33+00:00",
   "ok": true,
   "readiness_report": "results/readiness/readiness-report.json",
   "scenarios": [

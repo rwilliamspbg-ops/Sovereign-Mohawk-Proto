@@ -3,6 +3,7 @@
     "all_attestations_approved": true,
     "attestation_backup_restore_drill_approved": true,
     "attestation_dependency_sla_baseline_approved": true,
+    "attestation_fips_evidence_bundle_approved": true,
     "attestation_incident_escalation_drill_approved": true,
     "attestation_penetration_test_approved": true,
     "attestation_runbook_published_approved": true,
@@ -11,14 +12,14 @@
     "attestation_threat_model_refresh_approved": true,
     "capability_dashboard_matrix_present": true,
     "chaos_summary_ok": true,
-    "host_network_tuning_enforced": false,
-    "host_network_tuning_ok": false,
+    "host_attack_surface_enforced": true,
+    "host_attack_surface_ok": true,
+    "host_network_tuning_enforced": true,
+    "host_network_tuning_ok": true,
     "readiness_report_ok": true
   },
   "failures": [],
-  "host_preflight_mode": "advisory",
+  "host_preflight_mode": "strict",
   "ok": true,
-  "warnings": [
-    "host UDP/sysctl tuning preflight failed"
-  ]
+  "warnings": []
 }
