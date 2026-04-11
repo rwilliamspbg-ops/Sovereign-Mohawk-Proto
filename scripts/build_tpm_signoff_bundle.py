@@ -40,7 +40,9 @@ def _render_matrix_markdown(matrix: dict) -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build TPM sign-off matrix and attestation artifacts.")
+    parser = argparse.ArgumentParser(
+        description="Build TPM sign-off matrix and attestation artifacts."
+    )
     parser.add_argument(
         "--rows-dir",
         default="test-results/tpm-signoff/rows",
