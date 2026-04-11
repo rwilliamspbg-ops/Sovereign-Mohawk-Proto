@@ -81,6 +81,6 @@
   "tags": ["mohawk", "v2", "exec"],
   "templating": {"list": []},
   "time": {"from": "now-24h", "to": "now"},
-  "title": "MOHAWK v2 - Executive Summary",
+  "title": "Sovereign Mohawk | Executive Summary",
   "version": 1
 }
