@@ -103,6 +103,42 @@ groups:
           description: "Migration request failure ratio exceeded 2% over the last hour under active traffic."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
 
+      - alert: MohawkMigrationDualCryptoAdoptionStalled
+        expr: |
+          (
+            sum(rate(mohawk_migration_signature_path_total{path="dual_crypto"}[30m]))
+            /
+            clamp_min(sum(rate(mohawk_migration_signature_path_total[30m])), 1e-9)
+          ) < 0.80
+          and
+          sum(rate(mohawk_migration_requests_total[30m])) > 0.05
+        for: 30m
+        labels:
+          severity: warning
+          domain: migration
+        annotations:
+          summary: "Dual-crypto migration adoption is stalled"
+          description: "Dual-crypto signature path share stayed below 80% for 30m while migration traffic remained active."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#quantum-migration-cutover-dual-signature"
+
+      - alert: MohawkMigrationLegacyPathRegression
+        expr: |
+          (
+            sum(rate(mohawk_migration_signature_path_total{path="legacy_controls"}[15m]))
+            /
+            clamp_min(sum(rate(mohawk_migration_signature_path_total[15m])), 1e-9)
+          ) > 0.20
+          and
+          sum(rate(mohawk_migration_requests_total[15m])) > 0.05
+        for: 15m
+        labels:
+          severity: critical
+          domain: migration
+        annotations:
+          summary: "Legacy migration path share regressed"
+          description: "Legacy_controls path exceeded 20% share for 15m under active migration traffic."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#quantum-migration-cutover-dual-signature"
+
       - alert: MohawkAuthzDenialsSpike
         expr: sum(rate(mohawk_authz_denials_total[10m])) > 0.2
         for: 10m

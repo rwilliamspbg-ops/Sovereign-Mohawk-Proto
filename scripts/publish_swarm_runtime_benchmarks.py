@@ -51,10 +51,21 @@ def parse_jsonl(path: Path) -> BenchmarkRow:
 
 
 def render_markdown(rows: List[BenchmarkRow]) -> str:
+    out_dir = Path("test-results/swarm-runtime")
+    router_smoke_path = out_dir / "router_smoke.txt"
+    router_metrics_path = out_dir / "router_metrics_snapshot.prom"
+    router_smoke_passed = router_smoke_path.exists() and "[router-smoke] PASS" in router_smoke_path.read_text(
+        encoding="utf-8"
+    )
+    router_metrics_captured = router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+
     lines = [
         "# Scaled Swarm Benchmark Report",
         "",
         "Router-enabled runtime swarm benchmark summary generated from CI matrix outputs.",
+        "",
+        f"- Router smoke: {'PASS' if router_smoke_passed else 'MISSING/FAIL'}",
+        f"- Router metrics snapshot: {'present' if router_metrics_captured else 'missing'}",
         "",
         "| Nodes | Profile | Result | Elapsed (s) |",
         "| ---: | --- | --- | ---: |",
@@ -76,8 +87,21 @@ def main() -> int:
             continue
         rows.append(parse_jsonl(path))
 
+    router_smoke_path = out_dir / "router_smoke.txt"
+    router_metrics_path = out_dir / "router_metrics_snapshot.prom"
+    router_smoke_passed = router_smoke_path.exists() and "[router-smoke] PASS" in router_smoke_path.read_text(
+        encoding="utf-8"
+    )
+    router_metrics_captured = router_metrics_path.exists() and router_metrics_path.stat().st_size > 0
+
     payload: Dict[str, object] = {
         "generated_from": "Swarm Runtime Matrix",
+        "router_enabled_evidence": {
+            "router_smoke_passed": router_smoke_passed,
+            "router_metrics_snapshot_present": router_metrics_captured,
+            "router_smoke_path": str(router_smoke_path),
+            "router_metrics_snapshot_path": str(router_metrics_path),
+        },
         "results": [
             {
                 "nodes": row.nodes,

@@ -6,11 +6,11 @@ on:
       node_counts:
         description: "Comma-separated node counts"
         required: false
-        default: "500,1000"
+        default: "500,1000,1500"
       timeout_seconds:
         description: "Per-profile timeout budget"
         required: false
-        default: "900"
+        default: "1800"
       safe_ratio:
         description: "Malicious ratio expected to pass"
         required: false
@@ -42,10 +42,29 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
+      - name: Router-on preflight smoke
+        run: |
+          set -euo pipefail
+
+          mkdir -p test-results/swarm-runtime
+          nohup go run ./cmd/federated-router > test-results/swarm-runtime/router.log 2>&1 &
+          echo $! > test-results/swarm-runtime/router.pid
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8087/healthz >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          ROUTER_URL=http://127.0.0.1:8087 ./scripts/router_smoke_discovery.sh \
+            | tee test-results/swarm-runtime/router_smoke.txt
+          curl -fsS http://127.0.0.1:8087/metrics | head -n 120 > test-results/swarm-runtime/router_metrics_snapshot.prom
+
       - name: Run runtime swarm profile matrix
         env:
-          INPUT_NODE_COUNTS: ${{ github.event.inputs.node_counts || '500,1000' }}
-          INPUT_TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '900' }}
+          INPUT_NODE_COUNTS: ${{ github.event.inputs.node_counts || '500,1000,1500' }}
+          INPUT_TIMEOUT_SECONDS: ${{ github.event.inputs.timeout_seconds || '1800' }}
           INPUT_SAFE_RATIO: ${{ github.event.inputs.safe_ratio || '0.44' }}
           INPUT_EDGE_RATIO: ${{ github.event.inputs.edge_ratio || '0.56' }}
         run: |
@@ -86,6 +105,8 @@ jobs:
             echo "- Per-profile timeout: ${TIMEOUT_SECONDS}s"
             echo "- Safe malicious ratio: ${INPUT_SAFE_RATIO}"
             echo "- Edge malicious ratio: ${INPUT_EDGE_RATIO}"
+            echo "- Router preflight: PASS"
+            echo "- Router metrics snapshot: test-results/swarm-runtime/router_metrics_snapshot.prom"
             echo "- Output path: test-results/swarm-runtime/"
           } > test-results/swarm-runtime/summary.md
 
@@ -100,3 +121,11 @@ jobs:
         with:
           name: swarm-runtime-matrix-artifacts
           path: test-results/swarm-runtime/
+
+      - name: Stop router preflight process
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -f test-results/swarm-runtime/router.pid ]; then
+            kill "$(cat test-results/swarm-runtime/router.pid)" || true
+          fi
