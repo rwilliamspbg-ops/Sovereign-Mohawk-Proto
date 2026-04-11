@@ -7,7 +7,7 @@
   "tags": ["mohawk", "v2", "engineering", "migration", "control-plane"],
   "templating": {"list": []},
   "time": {"from": "now-6h", "to": "now"},
-  "title": "MOHAWK v2 - Engineering Migration Control Plane",
+  "title": "Sovereign Mohawk | Engineering Migration Control Plane",
   "version": 1,
   "panels": [
     {

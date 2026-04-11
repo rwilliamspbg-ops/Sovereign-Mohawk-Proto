@@ -12,7 +12,7 @@ Release evidence artifact mapping protocol capabilities to observable dashboard 
 | Admin endpoint auth hardening | Bearer token enforcement for protected endpoints | mohawk_authz_denials_total | v2-12-security-pqc-compliance.json, v2-22-eng-migration-control-plane.json | Panels: Authz Denials by Endpoint |
 | Thinker-clause governance policy | capabilities.json thinker_clauses | mohawk_thinker_clause_config | v2-12-security-pqc-compliance.json | Panel: Thinker Manual Review Threshold |
 | Proof and bridge performance SLOs | Runtime proof/bridge verification paths | mohawk:proof_latency_ms:p95, mohawk:bridge_latency_ms:p95 | v2-10-ops-overview.json, v2-20-eng-latency-drilldown.json | Panels: Latency Percentiles, Proof/Bridge Quantile Drilldown |
-| Byzantine and liveness resilience | Consensus + straggler runtime conditions | mohawk_consensus_honest_ratio, mohawk:gradient_submit:failure_rate_5m | byzantine-resilience-theorem1.json, v2-11-ops-incidents.json | Panels: theorem threshold and incident timeline |
+| Byzantine and liveness resilience | Consensus + straggler runtime conditions | mohawk_consensus_honest_ratio, mohawk:gradient_submit:failure_rate_5m | v2-11-ops-incidents.json, v2-10-ops-overview.json | Panels: failure timeline, failure ratio indicators |
 
 ## Validation Notes
 

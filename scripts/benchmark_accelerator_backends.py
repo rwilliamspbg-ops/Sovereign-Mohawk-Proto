@@ -125,7 +125,7 @@ def write_markdown(path: Path, rows: list[dict[str, object]]) -> None:
             "",
             "- CPU case provides a baseline for environments without accelerator support.",
             "- GPU/NPU cases validate backend policy selection and expected compression-path behavior.",
-            "- Use this alongside Grafana dashboard monitoring/grafana/dashboards/performance/accelerator-backend-compare.json for live telemetry.",
+            "- Use this alongside Grafana dashboard monitoring/grafana/dashboards/v2/v2-20-eng-latency-drilldown.json for live telemetry.",
         ]
     )
 

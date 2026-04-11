@@ -367,12 +367,194 @@
       "id": 7,
       "targets": [
         {
-          "expr": "sum by (job) (up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"})",
+          "expr": "sum by (job) (up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter|federated-router\"})",
           "legendFormat": "{{job}}",
           "refId": "A"
         }
       ],
       "title": "Service Availability by Job",
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "row",
+      "title": "Cross-Vertical Router",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
+      "description": "Router throughput split by endpoint.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 27
+      },
+      "id": 21,
+      "targets": [
+        {
+          "expr": "sum by (endpoint) (rate(mohawk_router_requests_total[5m]))",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Router Throughput by Endpoint (ops/s)",
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
+      "description": "Router failure ratio over 5m against 99% success target.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 27
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "mohawk:router_requests:failure_rate_5m",
+          "refId": "A"
+        }
+      ],
+      "title": "Router Failure Ratio (5m)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
+      "description": "Blocked route and proof-verification failure pressure.",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 27
+      },
+      "id": 23,
+      "targets": [
+        {
+          "expr": "mohawk:router_blocked_routes:rate5m",
+          "legendFormat": "blocked routes",
+          "refId": "A"
+        },
+        {
+          "expr": "mohawk:router_proof_failures:rate5m",
+          "legendFormat": "proof failures",
+          "refId": "B"
+        }
+      ],
+      "title": "Router Policy and Proof Pressure",
       "type": "timeseries",
       "options": {
         "legend": {
@@ -420,6 +602,6 @@
     "from": "now-6h",
     "to": "now"
   },
-  "title": "MOHAWK v2 - Operations Overview",
-  "version": 4
+  "title": "Sovereign Mohawk | Operations Overview",
+  "version": 5
 }

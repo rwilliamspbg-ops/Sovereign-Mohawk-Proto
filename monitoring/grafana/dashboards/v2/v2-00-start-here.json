@@ -10,7 +10,7 @@
       "id": 1,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
       "targets": [{"expr": "mohawk:services_up:count", "refId": "A"}],
-      "title": "Services Up",
+      "title": "Platform Services Up",
       "type": "stat"
     },
     {
@@ -21,7 +21,7 @@
       "id": 2,
       "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
       "targets": [{"expr": "mohawk:node_agents_up:count", "refId": "A"}],
-      "title": "Node Agents Up",
+      "title": "Node Agents Reachable",
       "type": "stat"
     },
     {
@@ -32,7 +32,7 @@
       "id": 3,
       "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
       "targets": [{"expr": "mohawk:bridge_transfers:rate1m", "refId": "A"}],
-      "title": "Bridge Throughput (ops/s)",
+      "title": "Bridge Throughput",
       "type": "stat"
     },
     {
@@ -43,7 +43,7 @@
       "id": 4,
       "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
       "targets": [{"expr": "mohawk:proof_verifications:rate1m", "refId": "A"}],
-      "title": "Proof Throughput (ops/s)",
+      "title": "Proof Throughput",
       "type": "stat"
     },
     {
@@ -54,7 +54,7 @@
       "id": 5,
       "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
       "targets": [{"expr": "mohawk:gradient_submit:success_rate_5m", "refId": "A"}],
-      "title": "Gradient Submit Success Rate",
+      "title": "Gradient Submit Success",
       "type": "stat"
     },
     {
@@ -63,10 +63,10 @@
       "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6},
       "id": 6,
       "options": {
-        "content": "### Role-Based Navigation\n- **Operations**: v2-10-ops-overview, v2-11-ops-incidents\n- **Security/Compliance**: v2-12-security-pqc-compliance\n- **Engineering**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents, v2-22-eng-migration-control-plane\n- **Executive**: v2-30-exec-summary\n\nUse the service/instance variables in each dashboard for drill-down.",
+        "content": "### Sovereign Mohawk Dashboard Map\n\nUse this page as your mission-control landing view.\n\n- **Operations Command**: v2-10-ops-overview, v2-11-ops-incidents\n- **Security and Compliance**: v2-12-security-pqc-compliance\n- **Engineering Diagnostics**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents, v2-22-eng-migration-control-plane\n- **Executive Reporting**: v2-30-exec-summary\n\nPrimary runbook: OPERATIONS_RUNBOOK.md\n\nAll views use Prometheus metrics from the same Sovereign Mohawk telemetry pipeline for consistent incident handoff.",
         "mode": "markdown"
       },
-      "title": "Where To Go Next",
+      "title": "Navigation and Runbook",
       "type": "text"
     },
     {
@@ -79,7 +79,7 @@
         {"expr": "mohawk:proof_verifications:rate1m", "legendFormat": "proof", "refId": "B"},
         {"expr": "mohawk:accelerator_ops:rate1m", "legendFormat": "accelerator", "refId": "C"}
       ],
-      "title": "Throughput Trend (ops/s)",
+      "title": "Ecosystem Throughput Trend",
       "type": "timeseries"
     },
     {
@@ -91,16 +91,16 @@
         {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "A"},
         {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "B"}
       ],
-      "title": "Latency Trend (ms)",
+      "title": "Core Latency Trend",
       "type": "timeseries"
     }
   ],
   "refresh": "10s",
   "schemaVersion": 39,
   "style": "dark",
-  "tags": ["mohawk", "v2", "start", "roles"],
+  "tags": ["sovereign-mohawk", "mohawk", "v2", "start", "roles"],
   "templating": {"list": []},
   "time": {"from": "now-1h", "to": "now"},
-  "title": "MOHAWK v2 - Start Here",
-  "version": 1
+  "title": "Sovereign Mohawk | Start Here",
+  "version": 2
 }

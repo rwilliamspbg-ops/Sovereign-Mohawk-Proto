@@ -69,8 +69,8 @@ def build_matrix() -> str:
             "Byzantine and liveness resilience",
             "Consensus + straggler runtime conditions",
             "mohawk_consensus_honest_ratio, mohawk:gradient_submit:failure_rate_5m",
-            "byzantine-resilience-theorem1.json, v2-11-ops-incidents.json",
-            "Panels: theorem threshold and incident timeline",
+            "v2-11-ops-incidents.json, v2-10-ops-overview.json",
+            "Panels: failure timeline, failure ratio indicators",
         ),
     ]
 

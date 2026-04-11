@@ -50,6 +50,6 @@
   "tags": ["mohawk", "v2", "engineering", "latency"],
   "templating": {"list": []},
   "time": {"from": "now-6h", "to": "now"},
-  "title": "MOHAWK v2 - Engineering Latency Drilldown",
+  "title": "Sovereign Mohawk | Engineering Latency Drilldown",
   "version": 1
 }

@@ -310,7 +310,7 @@
       "id": 6,
       "targets": [
         {
-          "expr": "up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter\"}",
+          "expr": "up{job=~\"orchestrator|tpm-metrics|node-agents|pyapi-exporter|federated-router\"}",
           "legendFormat": "{{job}} {{instance}}",
           "refId": "A"
         }
@@ -346,6 +346,141 @@
           }
         }
       }
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "Router Incident Signals",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {}
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
+      "description": "Timeline of route-block and proof-failure events.",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 11,
+      "targets": [
+        {
+          "expr": "mohawk:router_blocked_routes:rate5m",
+          "legendFormat": "blocked route rate",
+          "refId": "A"
+        },
+        {
+          "expr": "mohawk:router_proof_failures:rate5m",
+          "legendFormat": "proof failure rate",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(mohawk_router_requests_total{result=\"failure\"}[5m]))",
+          "legendFormat": "router failures total",
+          "refId": "C"
+        }
+      ],
+      "title": "Router Security Incident Timeline",
+      "type": "timeseries",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana"
+      },
+      "description": "Current router rejection pressure for on-call triage.",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "mohawk:router_requests:failure_rate_5m",
+          "refId": "A"
+        }
+      ],
+      "title": "Router Rejection Ratio (5m)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "refresh": "10s",
@@ -364,6 +499,6 @@
     "from": "now-6h",
     "to": "now"
   },
-  "title": "MOHAWK v2 - Operations Incidents",
-  "version": 3
+  "title": "Sovereign Mohawk | Operations Incidents",
+  "version": 4
 }
