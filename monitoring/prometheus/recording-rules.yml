@@ -33,6 +33,17 @@ groups:
         expr: sum(rate(mohawk_authz_denials_total[5m]))
       - record: mohawk:migration_signature_path:rate1m
         expr: sum by (path) (rate(mohawk_migration_signature_path_total[1m]))
+      - record: mohawk:router_requests:rate1m
+        expr: sum(rate(mohawk_router_requests_total[1m]))
+      - record: mohawk:router_requests:failure_rate_5m
+        expr: |
+          sum(rate(mohawk_router_requests_total{result="failure"}[5m]))
+          /
+          clamp_min(sum(rate(mohawk_router_requests_total[5m])), 1e-9)
+      - record: mohawk:router_blocked_routes:rate5m
+        expr: sum(rate(mohawk_router_requests_total{reason="route_blocked"}[5m]))
+      - record: mohawk:router_proof_failures:rate5m
+        expr: sum(rate(mohawk_router_requests_total{reason="proof_verification"}[5m]))
 
   - name: mohawk_v2_latency_quantiles
     interval: 30s
@@ -54,11 +65,13 @@ groups:
     interval: 15s
     rules:
       - record: mohawk:services_up:count
-        expr: sum(up{job=~"orchestrator|tpm-metrics|node-agents|pyapi-exporter"})
+        expr: sum(up{job=~"orchestrator|tpm-metrics|node-agents|pyapi-exporter|federated-router"})
       - record: mohawk:node_agents_up:count
         expr: sum(up{job="node-agents"})
       - record: mohawk:orchestrator_up
         expr: max(up{job="orchestrator"})
+      - record: mohawk:router_up
+        expr: max(up{job="federated-router"})
 
   - name: mohawk_v2_compliance
     interval: 30s

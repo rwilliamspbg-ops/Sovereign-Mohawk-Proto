@@ -172,3 +172,36 @@ groups:
           summary: "Malicious node ratio above safe envelope"
           description: "Estimated malicious ratio crossed 45% in the last 10m and is approaching beyond-theorem ranges."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md#alert-mohawkbyzantineresiliencethresholdbreach"
+
+      - alert: MohawkRouterRejectedRequestsHigh
+        expr: mohawk:router_requests:failure_rate_5m > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          domain: router
+        annotations:
+          summary: "Cross-vertical router rejection rate is elevated"
+          description: "Router request failure ratio exceeded 5% for 10m, indicating policy mismatch or malformed request pressure."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/CROSS_VERTICAL_FEDERATED_ROUTER.md"
+
+      - alert: MohawkRouterBlockedRouteSpike
+        expr: increase(mohawk_router_requests_total{reason="route_blocked"}[10m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+          domain: router
+        annotations:
+          summary: "Blocked cross-vertical route attempts spiking"
+          description: "More than 20 blocked route attempts were observed in 10m. Review policy-bypass attack indicators and route ACLs."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/CROSS_VERTICAL_FEDERATED_ROUTER.md"
+
+      - alert: MohawkRouterProofVerificationFailuresPresent
+        expr: increase(mohawk_router_requests_total{reason="proof_verification"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          domain: router
+        annotations:
+          summary: "Router proof verification failures detected"
+          description: "At least one publish operation failed proof verification in the last 15m; investigate replay/tampering risk immediately."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/CROSS_VERTICAL_FEDERATED_ROUTER.md"

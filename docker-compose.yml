@@ -217,6 +217,36 @@ services:
     networks:
       - mohawk-net
 
+  federated-router:
+    image: golang:1.25
+    container_name: federated-router
+    working_dir: /workspace
+    command: ["go", "run", "./cmd/federated-router"]
+    environment:
+      - GOTOOLCHAIN=auto
+      - MOHAWK_ROUTER_ADDR=:8087
+      - MOHAWK_ROUTER_ALLOWED_ROUTES=climate->agriculture,climate->supply-chain,oncology->supply-chain
+      - MOHAWK_ROUTER_PROVENANCE_PATH=/var/lib/mohawk/router/provenance.json
+      - MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES=${MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES:-true}
+      - MOHAWK_TPM_CA_CERT_FILE=/run/secrets/mohawk_tpm_ca_cert.pem
+    volumes:
+      - .:/workspace
+      - ./data/router:/var/lib/mohawk/router
+      - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
+    depends_on:
+      runtime-secrets-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8087/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    ports:
+      - "8087:8087"
+    networks:
+      - mohawk-net
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

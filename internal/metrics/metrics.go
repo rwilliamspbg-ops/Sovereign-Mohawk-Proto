@@ -274,6 +274,21 @@ var (
 		},
 		[]string{"endpoint", "reason"},
 	)
+
+	// routerRequestsTotal records cross-vertical router endpoint outcomes.
+	routerRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_router_requests_total",
+			Help: "Total router API requests by endpoint, result, and reason.",
+		},
+		[]string{"endpoint", "result", "reason"},
+	)
+
+	// routerProvenanceRecords tracks the latest observed provenance record count.
+	routerProvenanceRecords = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "mohawk_router_provenance_records",
+		Help: "Latest number of persisted router provenance records.",
+	})
 )
 
 func init() {
@@ -311,6 +326,8 @@ func init() {
 		migrationRequestLatency,
 		migrationSignaturePathTotal,
 		authzDenialsTotal,
+		routerRequestsTotal,
+		routerProvenanceRecords,
 	)
 
 	utilityCoinMintsTotal.Add(0)
@@ -322,6 +339,7 @@ func init() {
 	utilityCoinBurnsTotal.Add(0)
 	utilityCoinBurnedAmountTotal.Add(0)
 	utilityCoinHoldersCount.Set(0)
+	routerProvenanceRecords.Set(0)
 }
 
 func ObserveQuote(success bool) {
@@ -526,6 +544,21 @@ func ObserveAuthzDenial(endpoint string, reason string) {
 	endpoint = sanitizeLabel(endpoint, "unknown")
 	reason = sanitizeLabel(reason, "unknown")
 	authzDenialsTotal.WithLabelValues(endpoint, reason).Inc()
+}
+
+// ObserveRouterRequest records router endpoint request outcomes.
+func ObserveRouterRequest(endpoint string, success bool, reason string) {
+	endpoint = sanitizeLabel(endpoint, "unknown")
+	reason = sanitizeLabel(reason, "none")
+	routerRequestsTotal.WithLabelValues(endpoint, resultLabel(success), reason).Inc()
+}
+
+// ObserveRouterProvenanceRecords updates the latest count of provenance records.
+func ObserveRouterProvenanceRecords(count int) {
+	if count < 0 {
+		return
+	}
+	routerProvenanceRecords.Set(float64(count))
 }
 
 func resultLabel(success bool) string {
