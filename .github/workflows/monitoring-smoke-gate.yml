@@ -84,7 +84,7 @@ jobs:
           raise SystemExit("Prometheus query did not return a payload")
           PY
 
-      - name: Verify theorem dashboard registration
+      - name: Verify v2 dashboard registration
         run: |
           curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
           python3 - <<'PY'
@@ -92,10 +92,17 @@ jobs:
           from pathlib import Path
 
           dashboards = json.loads(Path('/tmp/grafana_dashboards.json').read_text(encoding='utf-8'))
-          wanted = 'Byzantine Resilience - Theorem 1'
-          if not any(d.get('title') == wanted for d in dashboards):
-              raise SystemExit(f'Missing dashboard: {wanted}')
-          print('Dashboard present:', wanted)
+          wanted = {
+            'Sovereign Mohawk | Start Here',
+            'Sovereign Mohawk | Operations Overview',
+            'Sovereign Mohawk | Operations Incidents',
+            'Sovereign Mohawk | Security & PQC Compliance',
+          }
+          titles = {d.get('title') for d in dashboards if d.get('title')}
+          missing = sorted(wanted - titles)
+          if missing:
+            raise SystemExit(f'Missing dashboards: {missing}')
+          print('Dashboards present:', ', '.join(sorted(wanted)))
           PY
 
       - name: Upload smoke artifacts
