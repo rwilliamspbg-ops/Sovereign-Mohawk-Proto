@@ -98,7 +98,7 @@ jobs:
             monitoring/prometheus/alerting-rules.yml
 
       - name: Upload release prep artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-prep-assets
           retention-days: 30
@@ -133,7 +133,7 @@ jobs:
 
       - name: Build and push image to GHCR
         id: build_push
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
         with:
           context: .
           file: ${{ matrix.dockerfile }}
@@ -160,7 +160,7 @@ jobs:
           printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
 
       - name: Upload docker release artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: docker-release-assets-${{ matrix.image_name }}
           retention-days: 30
