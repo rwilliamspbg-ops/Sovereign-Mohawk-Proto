@@ -12,6 +12,7 @@ Usage: scripts/launch_full_stack_3_nodes.sh [--down] [--no-build]
 
 Starts the full local network stack with orchestrator + 3 node agents:
 - orchestrator
+- federated-router
 - shard-us-east
 - node-agent-1, node-agent-2, node-agent-3
 - tpm-metrics
@@ -182,7 +183,7 @@ export MOHAWK_TRANSPORT_KEX_MODE="${MOHAWK_TRANSPORT_KEX_MODE:-x25519-mlkem768-h
 export MOHAWK_TPM_IDENTITY_SIG_MODE="${MOHAWK_TPM_IDENTITY_SIG_MODE:-xmss}"
 
 "$COMPOSE_CMD" up -d ${BUILD_FLAG} \
-  orchestrator shard-us-east \
+  orchestrator shard-us-east federated-router \
   tpm-metrics pyapi-metrics-exporter prometheus grafana ipfs
 
 for i in {1..30}; do
@@ -204,6 +205,18 @@ done
 
 if ! curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1; then
   echo "prometheus did not become healthy" >&2
+  exit 1
+fi
+
+for i in {1..30}; do
+  if curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+
+if ! curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+  echo "federated-router did not become healthy" >&2
   exit 1
 fi
 

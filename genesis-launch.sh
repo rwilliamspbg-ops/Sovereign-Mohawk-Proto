@@ -108,7 +108,7 @@ fi
 echo "Launching regional shard: $MOHAWK_REGIONAL_SHARD"
 echo "Metrics profile: $MOHAWK_METRICS_PROFILE"
 
-"$COMPOSE_CMD" up -d orchestrator shard-us-east tpm-metrics prometheus grafana ipfs
+"$COMPOSE_CMD" up -d orchestrator shard-us-east federated-router tpm-metrics prometheus grafana ipfs
 
 for i in {1..45}; do
   if docker logs orchestrator 2>&1 | grep -q "orchestrator listening with mTLS on :8080"; then
@@ -116,6 +116,19 @@ for i in {1..45}; do
   fi
   sleep 2
 done
+
+for i in {1..30}; do
+  if curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+
+if ! curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+  echo "federated-router did not become healthy" >&2
+  "$COMPOSE_CMD" ps
+  exit 1
+fi
 
 if [[ "$NODE_MODE" == "all" ]]; then
   "$COMPOSE_CMD" up -d node-agent-1 node-agent-2 node-agent-3
