@@ -4,6 +4,8 @@
 
 This document outlines a phased approach to push FedAvg (Federated Averaging) scaling limits in Mohawk from current 1500-node validation to 5000–10k-node evaluation. Focus areas: instrumentation for large-scale measurement, bottleneck mitigation via async/hierarchical aggregation, and convergence characterization.
 
+Implementation status update (2026-04-13): Phase 1 instrumentation is implemented and validated, and the baseline Phase 2/3 controls are now present in the aggregation path and API surface. The current repository also captures a 10k-node runtime evaluation artifact and a FedAvg scale-gate validation report.
+
 ---
 
 ## Phase 1: Instrumentation & Metrics Enhancement

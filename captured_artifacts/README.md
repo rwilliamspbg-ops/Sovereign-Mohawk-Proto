@@ -36,6 +36,7 @@ This directory stores point-in-time evidence captured during sprint execution.
 	- Phase 3: Large-scale test harness design
 	- Phase 4: Benchmark extensions (variants, convergence curves)
 	- Phase 5: 5k–10k node evaluation targets
+	- Status update: async/semi-async controls, admission controls, and scale-gate validation are now implemented in code and captured in the current runtime evaluation artifacts.
 
 - `fedavg_scaling_phase1_implementation_2026-04-13.md` – Phase 1 implementation complete
 	- 13 new Prometheus metrics for FedAvg round execution, participation, stragglers, gradient flow

@@ -53,6 +53,14 @@ Generated: 2026-03-25
    - `mohawk_bridge_transfers_total{job="pyapi-exporter"} > 0`
    - `mohawk_proof_verifications_total{job="pyapi-exporter",scheme="hybrid"} > 0`
 
+## FedAvg Scaling Progress
+
+- FedAvg runtime instrumentation now covers round duration, participation, stragglers, gradient throughput, and latency quantiles.
+- Semi-async, hierarchical, weighted-trim, and adaptive-quorum controls are implemented behind the aggregation API and exercised by regression tests.
+- 10k-node runtime smoke evaluation is captured in `captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md`.
+- FedAvg scale-gate validation is available locally via `results/metrics/fedavg_scale_gate_validation.md` and `results/metrics/fedavg_scale_gate_validation.json`.
+- Macro benchmark output is published in `test-results/swarm-runtime/scaled_swarm_benchmark_report.md` and `.json`.
+
 ## Gaps / Bottlenecks
 
 1. **Accelerator telemetry gap**

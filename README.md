@@ -746,6 +746,12 @@ Comparison artifact:
 
 * `results/metrics/fedavg_benchmark_compare.md`
 
+FedAvg scaling controls and validation artifacts:
+
+* Semi-async, hierarchical, and weighted-trim aggregation controls are available through the aggregation API and test harness.
+* `make fedavg-scale-gate` validates throughput floors and pre/post counter deltas for the current runtime report.
+* `captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md` captures the 10k-node runtime smoke evaluation and improvement notes.
+
 CI baseline pinning behavior:
 
 * On `main` pushes, workflow `FedAvg Benchmark Compare` captures and caches a benchmark baseline (`fedavg-main-*`) and uploads `fedavg-baseline-main`.
@@ -766,6 +772,7 @@ Published CI artifacts include:
 * `test-results/swarm-runtime/router_smoke.txt`
 * `test-results/swarm-runtime/router_metrics_snapshot.prom`
 * per-profile JSONL traces in `test-results/swarm-runtime/*_{safe,edge}.jsonl`
+* `results/metrics/fedavg_scale_gate_validation.md` and `results/metrics/fedavg_scale_gate_validation.json` are produced locally by the FedAvg scale gate validator.
 
 ### CPU vs GPU vs NPU Side-by-Side Benchmark
 
@@ -834,6 +841,7 @@ All production-grade safety requirements are verified on every push:
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
 * **Swarm Runtime Matrix:** 500/1000/1500-node safe+edge Byzantine runtime profiles with router-on preflight evidence and published artifacts.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
+* **FedAvg Scale Gate:** Validates FedAvg throughput floors, runtime-report coverage, and counter deltas for async/semi-async tuning runs.
 * **Bridge Compression Benchmark:** JSON-vs-zero-copy bridge compression benchmark report with artifact upload.
 * **Monitoring Smoke Gate:** Compose-based Prometheus/Grafana health and dashboard registration checks.
 * **Release Performance Evidence:** Aggregates benchmark artifacts into a release sign-off index.
