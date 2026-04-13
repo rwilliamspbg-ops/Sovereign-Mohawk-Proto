@@ -55,14 +55,27 @@ type Result struct {
 }
 
 type aggregateUpdatePayload struct {
-	NodeID   string    `json:"node_id"`
-	Gradient []float64 `json:"gradient"`
+	NodeID           string    `json:"node_id"`
+	Gradient         []float64 `json:"gradient"`
+	AgeSec           float64   `json:"age_sec,omitempty"`
+	ReliabilityScore float64   `json:"reliability_score,omitempty"`
+	LatencyMS        float64   `json:"latency_ms,omitempty"`
 }
 
 type aggregateUpdatesRequest struct {
-	Updates    []aggregateUpdatePayload `json:"updates"`
-	ByzantineF int                      `json:"byzantine_f,omitempty"`
-	MultiKrumM int                      `json:"multi_krum_m,omitempty"`
+	Updates               []aggregateUpdatePayload `json:"updates"`
+	ByzantineF            int                      `json:"byzantine_f,omitempty"`
+	MultiKrumM            int                      `json:"multi_krum_m,omitempty"`
+	SemiAsyncQuorum       float64                  `json:"semi_async_quorum,omitempty"`
+	HierarchicalGroupSize int                      `json:"hierarchical_group_size,omitempty"`
+	WeightedTrimFraction  float64                  `json:"weighted_trim_fraction,omitempty"`
+	StalenessHalfLifeSec  float64                  `json:"staleness_half_life_sec,omitempty"`
+	AdaptiveQuorumMin     float64                  `json:"adaptive_quorum_min,omitempty"`
+	AdaptiveQuorumMax     float64                  `json:"adaptive_quorum_max,omitempty"`
+	AdaptiveTargetP95Ms   float64                  `json:"adaptive_target_p95_ms,omitempty"`
+	BufferedWindowSize    int                      `json:"buffered_window_size,omitempty"`
+	UtilityTopFraction    float64                  `json:"utility_top_fraction,omitempty"`
+	EnableAsyncFallback   bool                     `json:"enable_async_fallback,omitempty"`
 }
 
 type runtimeState struct {
@@ -654,41 +667,118 @@ func AggregateUpdates(updatesJSON *C.char) *C.char {
 }
 
 func aggregateUpdatesCore(updatesStr string, aggregator *internalpkg.Aggregator) (map[string]any, error) {
-	updates, byzantineF, multiKrumM, err := parseAggregateUpdatesRequest(updatesStr)
+	updates, options, err := parseAggregateUpdatesRequest(updatesStr)
 	if err != nil {
 		return nil, err
 	}
 
+	maxUpdates := readIntEnvDefault("MOHAWK_AGGREGATE_MAX_UPDATES", 0)
+	if maxUpdates > 0 && len(updates) > maxUpdates {
+		updates = updates[len(updates)-maxUpdates:]
+	}
+	maxAgeSec := readFloatEnvDefault("MOHAWK_AGGREGATE_MAX_AGE_SEC", 0)
+	if maxAgeSec > 0 {
+		filtered := make([]aggregateUpdatePayload, 0, len(updates))
+		for _, update := range updates {
+			if update.AgeSec <= 0 || update.AgeSec <= maxAgeSec {
+				filtered = append(filtered, update)
+			}
+		}
+		updates = filtered
+	}
+	if len(updates) == 0 {
+		return nil, fmt.Errorf("empty gradient batch after admission controls")
+	}
+
 	vectors := make([][]float64, 0, len(updates))
+	ages := make([]float64, 0, len(updates))
+	weights := make([]float64, 0, len(updates))
+	utilities := make([]float64, 0, len(updates))
 	for _, update := range updates {
 		vectors = append(vectors, update.Gradient)
+		ages = append(ages, update.AgeSec)
+		baseWeight := update.ReliabilityScore
+		if baseWeight <= 0 {
+			baseWeight = 1.0
+		}
+		weights = append(weights, baseWeight)
+		utility := baseWeight / (1.0 + maxFloat64(0, update.LatencyMS)/1000.0)
+		utilities = append(utilities, utility)
 	}
-	batchResult, err := aggregator.ProcessGradientBatch(vectors, maxInt(len(vectors), 80), internalpkg.BatchProcessingOptions{
-		ByzantineF: byzantineF,
-		MultiKrumM: multiKrumM,
-	})
+	options.UpdateAgesSec = ages
+	options.UpdateWeights = weights
+	options.UpdateUtilityScores = utilities
+
+	batchResult, err := aggregator.ProcessGradientBatch(vectors, maxInt(len(vectors), 80), options)
 	if err != nil {
 		return nil, err
 	}
 	return map[string]any{
-		"count":          batchResult.InputCount,
-		"selected_count": batchResult.SelectedCount,
-		"max_grad_norm":  batchResult.MaxGradNorm,
-		"multi_krum":     batchResult.UsedMultiKrum,
+		"count":            batchResult.InputCount,
+		"selected_count":   batchResult.SelectedCount,
+		"active_nodes":     batchResult.ActiveNodes,
+		"effective_quorum": batchResult.EffectiveQuorum,
+		"max_grad_norm":    batchResult.MaxGradNorm,
+		"multi_krum":       batchResult.UsedMultiKrum,
+		"used_fallback":    batchResult.UsedFallback,
 	}, nil
 }
 
-func parseAggregateUpdatesRequest(updatesStr string) ([]aggregateUpdatePayload, int, int, error) {
+func parseAggregateUpdatesRequest(updatesStr string) ([]aggregateUpdatePayload, internalpkg.BatchProcessingOptions, error) {
 	var wrapped aggregateUpdatesRequest
 	if err := json.Unmarshal([]byte(updatesStr), &wrapped); err == nil && len(wrapped.Updates) > 0 {
-		return wrapped.Updates, wrapped.ByzantineF, wrapped.MultiKrumM, nil
+		return wrapped.Updates, internalpkg.BatchProcessingOptions{
+			ByzantineF:            wrapped.ByzantineF,
+			MultiKrumM:            wrapped.MultiKrumM,
+			SemiAsyncQuorum:       wrapped.SemiAsyncQuorum,
+			HierarchicalGroupSize: wrapped.HierarchicalGroupSize,
+			WeightedTrimFraction:  wrapped.WeightedTrimFraction,
+			StalenessHalfLifeSec:  wrapped.StalenessHalfLifeSec,
+			AdaptiveQuorumMin:     wrapped.AdaptiveQuorumMin,
+			AdaptiveQuorumMax:     wrapped.AdaptiveQuorumMax,
+			AdaptiveTargetP95Ms:   wrapped.AdaptiveTargetP95Ms,
+			BufferedWindowSize:    wrapped.BufferedWindowSize,
+			UtilityTopFraction:    wrapped.UtilityTopFraction,
+			EnableAsyncFallback:   wrapped.EnableAsyncFallback,
+		}, nil
 	}
 
 	var updates []aggregateUpdatePayload
 	if err := json.Unmarshal([]byte(updatesStr), &updates); err != nil {
-		return nil, 0, 0, fmt.Errorf("failed to parse updates: %v", err)
+		return nil, internalpkg.BatchProcessingOptions{}, fmt.Errorf("failed to parse updates: %v", err)
 	}
-	return updates, 0, 0, nil
+	return updates, internalpkg.BatchProcessingOptions{}, nil
+}
+
+func maxFloat64(a, b float64) float64 {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func readIntEnvDefault(key string, fallback int) int {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil {
+		return fallback
+	}
+	return v
+}
+
+func readFloatEnvDefault(key string, fallback float64) float64 {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback
+	}
+	v, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return fallback
+	}
+	return v
 }
 
 //export GetNodeStatus
