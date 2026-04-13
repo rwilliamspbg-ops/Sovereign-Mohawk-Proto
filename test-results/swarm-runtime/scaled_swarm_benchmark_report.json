@@ -1,8 +1,8 @@
 {
   "generated_from": "Swarm Runtime Matrix",
   "router_enabled_evidence": {
-    "router_smoke_passed": false,
-    "router_metrics_snapshot_present": false,
+    "router_smoke_passed": true,
+    "router_metrics_snapshot_present": true,
     "router_smoke_path": "test-results/swarm-runtime/router_smoke.txt",
     "router_metrics_snapshot_path": "test-results/swarm-runtime/router_metrics_snapshot.prom"
   },
@@ -37,35 +37,11 @@
       "count": 200,
       "passed": true,
       "elapsed_seconds": 0.0,
-      "wall_seconds": 1.017,
-      "user_seconds": 1.179,
-      "sys_seconds": 0.606,
-      "iterations_per_second": 196.65683382497545,
-      "ms_per_iteration": 5.084999999999999
-    },
-    {
-      "nodes": 10000,
-      "profile": "edge",
-      "count": 20,
-      "passed": true,
-      "elapsed_seconds": 0.0,
-      "wall_seconds": 1.173,
-      "user_seconds": 1.219,
-      "sys_seconds": 0.65,
-      "iterations_per_second": 17.050298380221655,
-      "ms_per_iteration": 58.65
-    },
-    {
-      "nodes": 10000,
-      "profile": "safe",
-      "count": 20,
-      "passed": true,
-      "elapsed_seconds": 0.0,
-      "wall_seconds": 1.06,
-      "user_seconds": 1.175,
-      "sys_seconds": 0.611,
-      "iterations_per_second": 18.867924528301884,
-      "ms_per_iteration": 53.0
+      "wall_seconds": 1.099,
+      "user_seconds": 1.231,
+      "sys_seconds": 0.613,
+      "iterations_per_second": 181.98362147406735,
+      "ms_per_iteration": 5.495
     },
     {
       "nodes": 10000,
@@ -73,11 +49,11 @@
       "count": 200,
       "passed": true,
       "elapsed_seconds": 0.0,
-      "wall_seconds": 0.975,
-      "user_seconds": 1.17,
-      "sys_seconds": 0.543,
-      "iterations_per_second": 205.12820512820514,
-      "ms_per_iteration": 4.875
+      "wall_seconds": 1.171,
+      "user_seconds": 1.177,
+      "sys_seconds": 0.69,
+      "iterations_per_second": 170.79419299743807,
+      "ms_per_iteration": 5.855
     }
   ]
 }
