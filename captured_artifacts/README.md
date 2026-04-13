@@ -28,6 +28,20 @@ This directory stores point-in-time evidence captured during sprint execution.
 - `scaled_swarm_benchmark_report_1500_2026-04-13.md`
 - `v2_dashboard_validation_report.md`
 
+### FedAvg Scaling Initiative (2026-04-13)
+
+- `fedavg_scaling_enhancement_plan_2026-04-13.md` – Comprehensive 5-phase roadmap for pushing FedAvg limits to 5k–10k nodes
+	- Phase 1: Instrumentation & metrics enhancement
+	- Phase 2: Bottleneck mitigation (async/hierarchical aggregation, weighted trimming)
+	- Phase 3: Large-scale test harness design
+	- Phase 4: Benchmark extensions (variants, convergence curves)
+	- Phase 5: 5k–10k node evaluation targets
+
+- `fedavg_scaling_phase1_implementation_2026-04-13.md` – Phase 1 implementation complete
+	- 13 new Prometheus metrics for FedAvg round execution, participation, stragglers, gradient flow
+	- 10 observer functions for integration
+	- Design rationale and usage examples
+	- Integration roadmap
 ### Session and attestation records
 
 - `session_manifest.json`

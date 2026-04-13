@@ -289,6 +289,117 @@ var (
 		Name: "mohawk_router_provenance_records",
 		Help: "Latest number of persisted router provenance records.",
 	})
+
+	// FedAvg Scaling Metrics ────────────────────────────────────────────────────
+
+	// fedavgRoundDurationSeconds records round execution duration in seconds.
+	fedavgRoundDurationSeconds = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_fedavg_round_duration_seconds",
+			Help:    "FedAvg round execution duration in seconds.",
+			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 20, 30, 60, 120},
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgParticipationRatio tracks the fraction of nodes that contributed in the round.
+	fedavgParticipationRatio = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_participation_ratio",
+			Help: "Fraction of active nodes / total nodes in the round [0.0, 1.0].",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgStragglerCount tracks absolute count of nodes exceeding timeout.
+	fedavgStragglerCount = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_straggler_count",
+			Help: "Number of nodes lagging behind in current round.",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgStragglerFraction tracks straggler_count / total_nodes.
+	fedavgStragglerFraction = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_straggler_fraction",
+			Help: "Fraction of stragglers out of total nodes [0.0, 1.0].",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgGradientsReceivedTotal counts total gradients received (before filtering).
+	fedavgGradientsReceivedTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_fedavg_gradients_received_total",
+			Help: "Total gradient updates received from nodes.",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgGradientsAggregatedTotal counts gradients after Byzantine filtering.
+	fedavgGradientsAggregatedTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_fedavg_gradients_aggregated_total",
+			Help: "Total gradient updates aggregated (after Byzantine filtering).",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgGradientThroughputPerSec tracks gradients aggregated per second.
+	fedavgGradientThroughputPerSec = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_gradient_throughput_per_sec",
+			Help: "Gradient aggregation throughput in gradients/second.",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgGradientNormQuantiles tracks L2 norm quantiles (p50, p95, p99).
+	fedavgGradientNormQuantiles = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_gradient_norm_quantile",
+			Help: "L2-norm quantiles of gradient updates.",
+		},
+		[]string{"scenario", "tier", "quantile"}, // quantile: "p50" | "p95" | "p99"
+	)
+
+	// fedavgByzantineFilteredTotal counts gradients rejected during Byzantine filtering.
+	fedavgByzantineFilteredTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_fedavg_byzantine_filtered_total",
+			Help: "Total gradient updates rejected by Byzantine filtering (Krum/MultiKrum).",
+		},
+		[]string{"scenario", "tier"},
+	)
+
+	// fedavgRoundLatencyQuantiles tracks round latency quantiles (p50, p95, p99).
+	fedavgRoundLatencyQuantiles = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_round_latency_quantile_ms",
+			Help: "Round execution latency quantiles in milliseconds.",
+		},
+		[]string{"scenario", "tier", "quantile"}, // quantile: "p50" | "p95" | "p99"
+	)
+
+	// fedavgModelAccuracy tracks validation accuracy if available.
+	fedavgModelAccuracy = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_model_accuracy",
+			Help: "Model validation accuracy (percent) [0.0, 100.0].",
+		},
+		[]string{"scenario", "tier", "round"},
+	)
+
+	// fedavgModelLoss tracks validation loss if available.
+	fedavgModelLoss = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_fedavg_model_loss",
+			Help: "Model validation loss.",
+		},
+		[]string{"scenario", "tier", "round"},
+	)
 )
 
 func init() {
@@ -328,6 +439,19 @@ func init() {
 		authzDenialsTotal,
 		routerRequestsTotal,
 		routerProvenanceRecords,
+		// FedAvg scaling metrics
+		fedavgRoundDurationSeconds,
+		fedavgParticipationRatio,
+		fedavgStragglerCount,
+		fedavgStragglerFraction,
+		fedavgGradientsReceivedTotal,
+		fedavgGradientsAggregatedTotal,
+		fedavgGradientThroughputPerSec,
+		fedavgGradientNormQuantiles,
+		fedavgByzantineFilteredTotal,
+		fedavgRoundLatencyQuantiles,
+		fedavgModelAccuracy,
+		fedavgModelLoss,
 	)
 
 	utilityCoinMintsTotal.Add(0)
@@ -574,4 +698,77 @@ func sanitizeLabel(value string, fallback string) string {
 		return fallback
 	}
 	return v
+}
+
+// FedAvg Scaling Observer Functions ─────────────────────────────────────────
+
+// ObserveFedAvgRoundDuration records the execution time of a FedAvg round.
+func ObserveFedAvgRoundDuration(scenario, tier string, durationSec float64) {
+	if durationSec < 0 {
+		return
+	}
+	fedavgRoundDurationSeconds.WithLabelValues(scenario, tier).Observe(durationSec)
+}
+
+// ObserveFedAvgParticipation records the active/total node ratio.
+func ObserveFedAvgParticipation(scenario, tier string, participationRatio float64) {
+	fedavgParticipationRatio.WithLabelValues(scenario, tier).Set(participationRatio)
+}
+
+// ObserveFedAvgStragglers records straggler count and derived fraction.
+func ObserveFedAvgStragglers(scenario, tier string, stragglerCount, totalNodes int) {
+	fedavgStragglerCount.WithLabelValues(scenario, tier).Set(float64(stragglerCount))
+	if totalNodes > 0 {
+		fraction := float64(stragglerCount) / float64(totalNodes)
+		fedavgStragglerFraction.WithLabelValues(scenario, tier).Set(fraction)
+	}
+}
+
+// ObserveFedAvgGradients records received and aggregated gradient counts.
+func ObserveFedAvgGradients(scenario, tier string, received, aggregated int64) {
+	fedavgGradientsReceivedTotal.WithLabelValues(scenario, tier).Add(float64(received))
+	fedavgGradientsAggregatedTotal.WithLabelValues(scenario, tier).Add(float64(aggregated))
+}
+
+// ObserveFedAvgGradientThroughput records gradients per second.
+func ObserveFedAvgGradientThroughput(scenario, tier string, throughputPerSec float64) {
+	if throughputPerSec < 0 {
+		return
+	}
+	fedavgGradientThroughputPerSec.WithLabelValues(scenario, tier).Set(throughputPerSec)
+}
+
+// ObserveFedAvgGradientNorms records L2-norm quantiles.
+func ObserveFedAvgGradientNorms(scenario, tier string, p50, p95, p99 float64) {
+	fedavgGradientNormQuantiles.WithLabelValues(scenario, tier, "p50").Set(p50)
+	fedavgGradientNormQuantiles.WithLabelValues(scenario, tier, "p95").Set(p95)
+	fedavgGradientNormQuantiles.WithLabelValues(scenario, tier, "p99").Set(p99)
+}
+
+// ObserveFedAvgByzantineFiltered records gradients rejected by Byzantine filtering.
+func ObserveFedAvgByzantineFiltered(scenario, tier string, filteredCount int64) {
+	if filteredCount > 0 {
+		fedavgByzantineFilteredTotal.WithLabelValues(scenario, tier).Add(float64(filteredCount))
+	}
+}
+
+// ObserveFedAvgRoundLatency records round latency quantiles.
+func ObserveFedAvgRoundLatency(scenario, tier string, p50Ms, p95Ms, p99Ms float64) {
+	fedavgRoundLatencyQuantiles.WithLabelValues(scenario, tier, "p50").Set(p50Ms)
+	fedavgRoundLatencyQuantiles.WithLabelValues(scenario, tier, "p95").Set(p95Ms)
+	fedavgRoundLatencyQuantiles.WithLabelValues(scenario, tier, "p99").Set(p99Ms)
+}
+
+// ObserveFedAvgModelAccuracy records model validation accuracy (optional).
+func ObserveFedAvgModelAccuracy(scenario, tier, round string, accuracyPercent float64) {
+	if accuracyPercent >= 0 && accuracyPercent <= 100 {
+		fedavgModelAccuracy.WithLabelValues(scenario, tier, round).Set(accuracyPercent)
+	}
+}
+
+// ObserveFedAvgModelLoss records model validation loss (optional).
+func ObserveFedAvgModelLoss(scenario, tier, round string, loss float64) {
+	if loss >= 0 {
+		fedavgModelLoss.WithLabelValues(scenario, tier, round).Set(loss)
+	}
 }
