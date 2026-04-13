@@ -9,6 +9,8 @@ REPORT_PATH="${REPORT_PATH:-results/metrics/bridge_compression_benchmark_compare
 RAW_PATH="${RAW_PATH:-results/metrics/bridge_compression_benchmark_raw.txt}"
 USE_DOCKER="${USE_DOCKER:-1}"
 GO_IMAGE="${GO_IMAGE:-golang:1.25.9}"
+GO_VERSION="$(go version 2>/dev/null || echo unknown)"
+HOST_UNAME="$(uname -srmo 2>/dev/null || echo unknown)"
 
 mkdir -p "$(dirname "$REPORT_PATH")"
 mkdir -p "$(dirname "$RAW_PATH")"
@@ -47,7 +49,7 @@ if command -v benchstat >/dev/null 2>&1; then
 else
   printf "benchstat not found in PATH; install with: go install golang.org/x/perf/cmd/benchstat@latest\n" > "$BENCHSTAT_TXT"
 fi
-python3 - "$JSON_RAW" "$ZERO_RAW" "$BENCHSTAT_TXT" "$REPORT_PATH" "$BENCH_TIME" "$BENCH_COUNT" "$BENCHSTAT_ALPHA" <<'PY'
+python3 - "$JSON_RAW" "$ZERO_RAW" "$BENCHSTAT_TXT" "$REPORT_PATH" "$BENCH_TIME" "$BENCH_COUNT" "$BENCHSTAT_ALPHA" "$GO_VERSION" "$HOST_UNAME" <<'PY'
 import re
 import sys
 from pathlib import Path
@@ -60,6 +62,8 @@ report_path = Path(sys.argv[4])
 bench_time = sys.argv[5]
 bench_count = int(sys.argv[6])
 benchstat_alpha = sys.argv[7]
+go_version = sys.argv[8]
+host_uname = sys.argv[9]
 
 pattern = re.compile(
     r"^BenchmarkCompressGradients(?P<kind>JSON|ZeroCopy)/dim(?P<dim>\d+)-\d+\s+(?P<n>\d+)\s+(?P<ns>[0-9.]+)\s+ns/op\s+(?P<bop>[0-9.]+)\s+B/op\s+(?P<alloc>[0-9.]+)\s+allocs/op"
@@ -120,6 +124,9 @@ lines.append("Base ref: N/A")
 lines.append(f"Benchmark window: {bench_time}")
 lines.append(f"Sample count per format: {bench_count}")
 lines.append(f"Benchstat alpha: {benchstat_alpha}")
+lines.append(f"Go toolchain: {go_version}")
+lines.append(f"Runtime host: {host_uname}")
+lines.append("Comparability note: speedups may shift across host/runtime/toolchain changes; track trend deltas on equivalent environments.")
 lines.append("")
 lines.append("| Dimension | JSON ns/op (mean +- sd) | Zero-copy ns/op (mean +- sd) | Speedup (x) | JSON allocs/op | Zero-copy allocs/op | Alloc reduction (x) |")
 lines.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")

@@ -38,3 +38,7 @@
 ## Notes
 
 - Local smoke run used `MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES=true` to allow CI/dev quote payloads during functional endpoint validation.
+- This capture is validation-focused and does not include new core routing/scalability code changes.
+- Micro-benchmark speedups improved over JSON but can vary by environment; compare against runs with matching host and toolchain context.
+- Macro scale gap remains: this artifact set does not include a loaded 1500-node `.prom` snapshot or sustained high-volume throughput run.
+- Prior stress observations around modest `bridge_total` throughput remain a target for dedicated optimization and long-duration load testing.

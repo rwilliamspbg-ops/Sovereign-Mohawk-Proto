@@ -12,6 +12,8 @@ BENCH_REGEX="${BENCH_REGEX:-BenchmarkAggregateParallel}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/fedavg_benchmark_compare.md}"
 BENCHSTAT_ALPHA="${BENCHSTAT_ALPHA:-0.01}"
 USE_BENCHSTAT="${USE_BENCHSTAT:-always}"
+GO_VERSION="$(go version 2>/dev/null || echo unknown)"
+HOST_UNAME="$(uname -srmo 2>/dev/null || echo unknown)"
 
 if [[ -n "${TOOLROOT:-}" ]]; then
   export GOROOT="$TOOLROOT"
@@ -96,6 +98,9 @@ if [[ "$can_use_benchstat" == "true" ]]; then
     echo "- Count: $BENCH_COUNT"
     echo "- Tool: benchstat (alpha=$BENCHSTAT_ALPHA)"
     echo "- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo "- Go toolchain: $GO_VERSION"
+    echo "- Runtime host: $HOST_UNAME"
+    echo "- Comparability note: performance values depend on host/runtime/toolchain; compare trends across similarly configured runs."
     echo
     echo '```text'
     benchstat -alpha "$BENCHSTAT_ALPHA" "$BASE_OUT" "$CURR_OUT"
@@ -130,6 +135,9 @@ else
     echo "- Count: $BENCH_COUNT"
     echo "- Tool: fallback (mean ns/op table)"
     echo "- Generated at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo "- Go toolchain: $GO_VERSION"
+    echo "- Runtime host: $HOST_UNAME"
+    echo "- Comparability note: performance values depend on host/runtime/toolchain; compare trends across similarly configured runs."
     echo
     echo "| Benchmark | Base ns/op | Current ns/op | Speedup (x) | Delta % |"
     echo "|---|---:|---:|---:|---:|"
