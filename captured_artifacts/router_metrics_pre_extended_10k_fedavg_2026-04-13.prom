@@ -1,0 +1,168 @@
+# HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{quantile="0"} 1.13e-05
+go_gc_duration_seconds{quantile="0.25"} 3.6238e-05
+go_gc_duration_seconds{quantile="0.5"} 5.1125e-05
+go_gc_duration_seconds{quantile="0.75"} 8.107e-05
+go_gc_duration_seconds{quantile="1"} 0.001318086
+go_gc_duration_seconds_sum 0.028521982
+go_gc_duration_seconds_count 451
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent.
+# TYPE go_gc_gogc_percent gauge
+go_gc_gogc_percent 100
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes.
+# TYPE go_gc_gomemlimit_bytes gauge
+go_gc_gomemlimit_bytes 9.223372036854776e+18
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines 7
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
+go_info{version="go1.25.9"} 1
+# HELP go_memstats_alloc_bytes Number of bytes allocated in heap and currently in use. Equals to /memory/classes/heap/objects:bytes.
+# TYPE go_memstats_alloc_bytes gauge
+go_memstats_alloc_bytes 4.214664e+06
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated in heap until now, even if released already. Equals to /gc/heap/allocs:bytes.
+# TYPE go_memstats_alloc_bytes_total counter
+go_memstats_alloc_bytes_total 9.47242656e+08
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table. Equals to /memory/classes/profiling/buckets:bytes.
+# TYPE go_memstats_buck_hash_sys_bytes gauge
+go_memstats_buck_hash_sys_bytes 1.443974e+06
+# HELP go_memstats_frees_total Total number of heap objects frees. Equals to /gc/heap/frees:objects + /gc/heap/tiny/allocs:objects.
+# TYPE go_memstats_frees_total counter
+go_memstats_frees_total 1.883905e+06
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata. Equals to /memory/classes/metadata/other:bytes.
+# TYPE go_memstats_gc_sys_bytes gauge
+go_memstats_gc_sys_bytes 2.900752e+06
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and currently in use, same as go_memstats_alloc_bytes. Equals to /memory/classes/heap/objects:bytes.
+# TYPE go_memstats_heap_alloc_bytes gauge
+go_memstats_heap_alloc_bytes 4.214664e+06
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used. Equals to /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
+# TYPE go_memstats_heap_idle_bytes gauge
+go_memstats_heap_idle_bytes 6.26688e+06
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes
+# TYPE go_memstats_heap_inuse_bytes gauge
+go_memstats_heap_inuse_bytes 5.627904e+06
+# HELP go_memstats_heap_objects Number of currently allocated objects. Equals to /gc/heap/objects:objects.
+# TYPE go_memstats_heap_objects gauge
+go_memstats_heap_objects 22121
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS. Equals to /memory/classes/heap/released:bytes.
+# TYPE go_memstats_heap_released_bytes gauge
+go_memstats_heap_released_bytes 4.21888e+06
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes + /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
+# TYPE go_memstats_heap_sys_bytes gauge
+go_memstats_heap_sys_bytes 1.1894784e+07
+# HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
+# TYPE go_memstats_last_gc_time_seconds gauge
+go_memstats_last_gc_time_seconds 1.7761018490996506e+09
+# HELP go_memstats_mallocs_total Total number of heap objects allocated, both live and gc-ed. Semantically a counter version for go_memstats_heap_objects gauge. Equals to /gc/heap/allocs:objects + /gc/heap/tiny/allocs:objects.
+# TYPE go_memstats_mallocs_total counter
+go_memstats_mallocs_total 1.906026e+06
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures. Equals to /memory/classes/metadata/mcache/inuse:bytes.
+# TYPE go_memstats_mcache_inuse_bytes gauge
+go_memstats_mcache_inuse_bytes 4832
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system. Equals to /memory/classes/metadata/mcache/inuse:bytes + /memory/classes/metadata/mcache/free:bytes.
+# TYPE go_memstats_mcache_sys_bytes gauge
+go_memstats_mcache_sys_bytes 15704
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures. Equals to /memory/classes/metadata/mspan/inuse:bytes.
+# TYPE go_memstats_mspan_inuse_bytes gauge
+go_memstats_mspan_inuse_bytes 97760
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system. Equals to /memory/classes/metadata/mspan/inuse:bytes + /memory/classes/metadata/mspan/free:bytes.
+# TYPE go_memstats_mspan_sys_bytes gauge
+go_memstats_mspan_sys_bytes 114240
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place. Equals to /gc/heap/goal:bytes.
+# TYPE go_memstats_next_gc_bytes gauge
+go_memstats_next_gc_bytes 7.712642e+06
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations. Equals to /memory/classes/other:bytes.
+# TYPE go_memstats_other_sys_bytes gauge
+go_memstats_other_sys_bytes 856538
+# HELP go_memstats_stack_inuse_bytes Number of bytes obtained from system for stack allocator in non-CGO environments. Equals to /memory/classes/heap/stacks:bytes.
+# TYPE go_memstats_stack_inuse_bytes gauge
+go_memstats_stack_inuse_bytes 688128
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator. Equals to /memory/classes/heap/stacks:bytes + /memory/classes/os-stacks:bytes.
+# TYPE go_memstats_stack_sys_bytes gauge
+go_memstats_stack_sys_bytes 688128
+# HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
+# TYPE go_memstats_sys_bytes gauge
+go_memstats_sys_bytes 1.791412e+07
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads.
+# TYPE go_sched_gomaxprocs_threads gauge
+go_sched_gomaxprocs_threads 4
+# HELP go_threads Number of OS threads created.
+# TYPE go_threads gauge
+go_threads 9
+# HELP mohawk_aggregation_workers Number of parallel workers used for the most recent gradient aggregation.
+# TYPE mohawk_aggregation_workers gauge
+mohawk_aggregation_workers 0
+# HELP mohawk_router_provenance_records Latest number of persisted router provenance records.
+# TYPE mohawk_router_provenance_records gauge
+mohawk_router_provenance_records 1243
+# HELP mohawk_router_requests_total Total router API requests by endpoint, result, and reason.
+# TYPE mohawk_router_requests_total counter
+mohawk_router_requests_total{endpoint="discover",reason="none",result="success"} 1243
+mohawk_router_requests_total{endpoint="provenance_get",reason="none",result="success"} 1243
+mohawk_router_requests_total{endpoint="provenance_post",reason="none",result="success"} 1243
+mohawk_router_requests_total{endpoint="publish",reason="none",result="success"} 1243
+mohawk_router_requests_total{endpoint="subscribe",reason="none",result="success"} 1243
+# HELP mohawk_utility_coin_burned_amount_total Cumulative burned utility coin amount.
+# TYPE mohawk_utility_coin_burned_amount_total counter
+mohawk_utility_coin_burned_amount_total 0
+# HELP mohawk_utility_coin_burns_total Total successful utility coin burn operations.
+# TYPE mohawk_utility_coin_burns_total counter
+mohawk_utility_coin_burns_total 0
+# HELP mohawk_utility_coin_holders_count Number of unique accounts with a non-zero utility coin balance.
+# TYPE mohawk_utility_coin_holders_count gauge
+mohawk_utility_coin_holders_count 0
+# HELP mohawk_utility_coin_minted_amount_total Cumulative minted utility coin amount.
+# TYPE mohawk_utility_coin_minted_amount_total counter
+mohawk_utility_coin_minted_amount_total 0
+# HELP mohawk_utility_coin_mints_total Total successful utility coin mint operations.
+# TYPE mohawk_utility_coin_mints_total counter
+mohawk_utility_coin_mints_total 0
+# HELP mohawk_utility_coin_total_supply Latest observed utility coin total supply.
+# TYPE mohawk_utility_coin_total_supply gauge
+mohawk_utility_coin_total_supply 0
+# HELP mohawk_utility_coin_transferred_amount_total Cumulative transferred utility coin amount.
+# TYPE mohawk_utility_coin_transferred_amount_total counter
+mohawk_utility_coin_transferred_amount_total 0
+# HELP mohawk_utility_coin_transfers_total Total successful utility coin transfer operations.
+# TYPE mohawk_utility_coin_transfers_total counter
+mohawk_utility_coin_transfers_total 0
+# HELP mohawk_utility_coin_tx_count Latest observed utility coin ledger transaction count.
+# TYPE mohawk_utility_coin_tx_count gauge
+mohawk_utility_coin_tx_count 0
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 5.53
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 524288
+# HELP process_network_receive_bytes_total Number of bytes received by the process over the network.
+# TYPE process_network_receive_bytes_total counter
+process_network_receive_bytes_total 1.6085504151e+10
+# HELP process_network_transmit_bytes_total Number of bytes sent by the process over the network.
+# TYPE process_network_transmit_bytes_total counter
+process_network_transmit_bytes_total 4.28084919e+09
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 10
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 1.7833984e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.77609383912e+09
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1.796796416e+09
+# HELP process_virtual_memory_max_bytes Maximum amount of virtual memory available in bytes.
+# TYPE process_virtual_memory_max_bytes gauge
+process_virtual_memory_max_bytes 1.8446744073709552e+19
+# HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
+# TYPE promhttp_metric_handler_requests_in_flight gauge
+promhttp_metric_handler_requests_in_flight 1
+# HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.
+# TYPE promhttp_metric_handler_requests_total counter
+promhttp_metric_handler_requests_total{code="200"} 8
+promhttp_metric_handler_requests_total{code="500"} 0
+promhttp_metric_handler_requests_total{code="503"} 0

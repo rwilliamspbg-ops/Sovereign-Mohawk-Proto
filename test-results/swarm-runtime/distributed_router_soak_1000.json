@@ -1,0 +1,35 @@
+{
+  "iterations": 1000,
+  "requests_total": 5000,
+  "elapsed_seconds": 5.0512633090002055,
+  "avg_requests_per_sec": 989.851388481597,
+  "p95_ms_all": 2.425169001071481,
+  "mean_ms_all": 0.9749449851922691,
+  "endpoint_metrics": {
+    "publish": {
+      "mean_ms": 0.5153439690075174,
+      "p95_ms": 0.5607749990304001,
+      "count": 1000
+    },
+    "subscribe": {
+      "mean_ms": 0.40520673399441876,
+      "p95_ms": 0.49641499936114997,
+      "count": 1000
+    },
+    "discover": {
+      "mean_ms": 1.8601593580424378,
+      "p95_ms": 3.115437000815291,
+      "count": 1000
+    },
+    "provenance_post": {
+      "mean_ms": 0.4909579009654408,
+      "p95_ms": 0.9173020007438026,
+      "count": 1000
+    },
+    "provenance_get": {
+      "mean_ms": 1.6030569639515306,
+      "p95_ms": 2.64552099906723,
+      "count": 1000
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"ok": false, "results": {"mint": true, "bridge": true, "hybrid": true, "wrong_role_blocked": false, "wrong_token_blocked": false, "wrong_role_error": "", "wrong_token_error": ""}}

@@ -1,0 +1,48 @@
+{
+  "pre_path": "captured_artifacts/router_metrics_pre_extended_10k_fedavg_2026-04-13.prom",
+  "post_path": "captured_artifacts/router_metrics_post_extended_10k_fedavg_2026-04-13.prom",
+  "changed_key_metrics": [
+    {
+      "metric": "go_memstats_heap_alloc_bytes",
+      "labels": "",
+      "pre": 4214664.0,
+      "post": 2734920.0,
+      "delta": -1479744.0
+    },
+    {
+      "metric": "process_resident_memory_bytes",
+      "labels": "",
+      "pre": 17833984.0,
+      "post": 16859136.0,
+      "delta": -974848.0
+    }
+  ],
+  "histogram_bucket_metrics": [],
+  "histogram_bucket_count": 0,
+  "trend": [
+    {
+      "date": "2026-04-13",
+      "commit": "7bbb46c",
+      "mode": "distributed/router-on",
+      "safe_wall_s": 1.171,
+      "edge_wall_s": 1.099,
+      "message": "test(scale): refresh distributed 10k router+bridge artifacts"
+    },
+    {
+      "date": "2026-04-13",
+      "commit": "9265b0e",
+      "mode": "in-process/router-off",
+      "safe_wall_s": 0.975,
+      "edge_wall_s": 1.017,
+      "message": "docs(perf): refresh scaling evidence artifacts"
+    },
+    {
+      "date": "2026-04-13",
+      "commit": "e7fc6dd",
+      "mode": "in-process/router-off",
+      "safe_wall_s": 0.999,
+      "edge_wall_s": 1.108,
+      "message": "test(scale): add 10k runtime evaluation and verify CI workflow pins"
+    }
+  ]
+}
