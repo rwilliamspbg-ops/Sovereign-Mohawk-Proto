@@ -51,7 +51,7 @@ jobs:
           echo $! > test-results/swarm-runtime/router.pid
 
           for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8087/healthz >/dev/null; then
+            if curl -fsS http://127.0.0.1:8087/metrics >/dev/null; then
               break
             fi
             sleep 1
