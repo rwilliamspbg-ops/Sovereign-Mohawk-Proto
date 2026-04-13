@@ -112,3 +112,59 @@ AggregateParallel/clients512_dim8192/workersAuto-2                           9.0
 geomean                                                                      10.72          10.72       +0.00%
 ¹ all samples are equal
 ```
+
+## Interpretation
+
+- Statistical result: no benchmark row shows a significant change at alpha=0.01 (all rows are `~`).
+- Runtime trend: geomean `sec/op` increased by `+1.59%` and geomean throughput (`B/s`) decreased by `-1.57%`.
+- Memory behavior: `B/op` and `allocs/op` are unchanged across all scenarios.
+
+## Scenario Notes
+
+- `clients32_dim2048`: `workersAuto` is the fastest observed mode in this run.
+- `clients128_dim4096`: `workers2` is the fastest observed mode in this run.
+- `clients256_dim8192`: `workersAuto` is the fastest observed mode in this run.
+- `clients512_dim8192`: `workers4` is the fastest observed mode in this run.
+
+## Conclusion
+
+The Phase 1 scaling instrumentation appears performance-neutral within measurement noise. There is a mild directional slowdown in geomean latency/throughput, but it is not statistically significant under the configured run settings.
+
+## Suggested Follow-up
+
+- Re-run with longer benchtime (for example, `-benchtime=1s`) and a higher count to increase test power.
+- Pin CPU frequency/governor and isolate load to reduce runtime variance.
+- Keep `B/op` and `allocs/op` as regression guards; both are stable in this capture.
+
+## Completion Status
+
+Current status: partial completion.
+
+- Completed in this artifact: controlled microbenchmark comparison for aggregation worker scaling and allocation stability.
+- Not yet completed here: sustained large-scale runs (1500 to 3000+ nodes), convergence-quality tracking under adverse data/noise conditions, and documented 5000 to 10000 node evidence.
+
+## Recommendations to Push FedAvg Scaling Limits in Mohawk
+
+### 1) Instrument and Measure at Scale
+
+- Run sustained 30 to 60 minute stress at 1500 to 3000 nodes.
+- Track round time, participation rate, straggler fraction, effective gradients/insights aggregated per second, p95/p99 round latency, and accuracy impact.
+- Diff pre/post `.prom` snapshots for `bridge_total`, `proof_total`, and aggregation counters.
+
+### 2) Mitigate Known Bottlenecks
+
+- Introduce async or semi-async aggregation modes to reduce straggler drag.
+- Extend zero-copy optimizations deeper into the router path for larger model deltas.
+- Add hierarchical aggregation (cluster-local averaging before global merge).
+- Use smarter client selection and weighted trimming to preserve Byzantine tolerance while improving round cadence.
+
+### 3) Extend Benchmarks
+
+- Expand the matrix with FedAvg variants (different local epochs E and participation fractions).
+- Track convergence curves (accuracy versus rounds and node count) under synthetic Non-IID plus Byzantine noise.
+- Extend speedup trend tables with macro metrics (throughput versus nodes, end-to-end round completion).
+
+### 4) Next Targets
+
+- Produce documented 5000 to 10000 node runs with full telemetry and reproducible manifests.
+- Define release gates tied to p95/p99 latency, participation floor, and convergence quality at each scale tier.

@@ -42,6 +42,7 @@ This directory stores point-in-time evidence captured during sprint execution.
 	- 10 observer functions for integration
 	- Design rationale and usage examples
 	- Integration roadmap
+- `fedavg_10k_node_runtime_evaluation_2026-04-13.md` – Executed 10k-node profile validation run with timing-based scaling assessment and next optimization steps
 ### Session and attestation records
 
 - `session_manifest.json`

@@ -1,0 +1,804 @@
+{"Time":"2026-04-13T16:24:09.262494977Z","Action":"start","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test"}
+{"Time":"2026-04-13T16:24:09.27132913Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271361811Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271402597Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271417575Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271430659Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271436661Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271477156Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271495751Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271507032Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271512792Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271525546Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271531507Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271537258Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271549551Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271557145Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271571191Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271648706Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271666759Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271727072Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.2717423Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271757679Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.2717688Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271777025Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271786412Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271841846Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271855461Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271863156Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271872914Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.271879015Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271884685Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271896347Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271905865Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27195708Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.271971928Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.271981225Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.271998578Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272015239Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272021621Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272084308Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272097322Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272104105Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272116978Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272125224Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272134722Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272141875Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272147155Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272161762Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272172993Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272255827Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272268761Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272276305Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272289881Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272296032Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272301593Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272312974Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272318885Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272330536Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272335986Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272418701Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272437085Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272465739Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272471479Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272489082Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272501625Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27251506Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272526612Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272540468Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272554113Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272622969Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272643117Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272655069Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272687079Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272712076Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272724309Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272734638Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272747091Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272765205Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272776446Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272786254Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272799258Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272812834Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.2728272Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272847408Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27285923Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272876021Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272884447Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272898663Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.272911017Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272922007Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272933098Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.272947164Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27296114Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.272972381Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.272987729Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273006474Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273018657Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273104226Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273124384Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273136216Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273150312Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273161684Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273173125Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273183244Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273201378Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273212568Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273226484Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273238236Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27325082Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273262Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273275546Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273290363Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273302626Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273313036Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273324357Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273343152Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273368759Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273393606Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273404025Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273417881Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273432398Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273458426Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273478133Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273508039Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273541962Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273552492Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273563753Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273579082Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273591474Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273602575Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273614177Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273628393Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273641989Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273717059Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273735072Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273749589Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273762894Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273773744Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273791337Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273818397Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27385722Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273879822Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273896182Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273907854Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273919666Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273939774Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.273950734Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.273971773Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.273981882Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.273996199Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274004544Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27402376Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274049228Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27406127Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274072922Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274087669Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274096355Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274107596Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274115561Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274132543Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274145417Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274156177Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274164533Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274176094Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27419002Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274220797Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274242819Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274256324Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274273125Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274320423Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274342414Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274361169Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274373943Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274386045Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274394251Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274408778Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274423625Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274437682Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274482174Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274511519Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27453891Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274551213Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274563356Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274573455Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274585958Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274599212Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274607218Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274626594Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274637554Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274655347Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274667079Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274681706Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274692477Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274770271Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274788105Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274799195Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274813602Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274832818Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274845211Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27485529Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274867372Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274878092Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274893772Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274908669Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274919509Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274931331Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.274944166Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.274970475Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.274981175Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.274991995Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275003196Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275098032Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275116827Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275127147Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275136304Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275146422Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27516121Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275186217Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275210171Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275229387Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27524189Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275253392Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275264613Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275276244Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275287455Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275299347Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275307362Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275319355Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275338771Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275352006Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275360251Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275375369Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275393252Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275419722Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275463022Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275478391Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275487338Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275498288Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275513136Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.275544464Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275574861Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275589428Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275601681Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27561184Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275624082Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275634913Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275643028Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27567484Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.275738478Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.275817065Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.275838484Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276478577Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276508373Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276519954Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27652837Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276541905Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276550841Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276563355Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276571881Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.2765824Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276596907Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27661437Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27663049Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276649616Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276659133Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27666836Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276682106Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276692526Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27670565Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276724986Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276733963Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276749632Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276767185Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276776342Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276784156Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27679655Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276810866Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276822438Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276835392Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276848046Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276856982Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276874174Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276882359Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276898429Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.2769148Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276929357Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276940758Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.276951158Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.276962769Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.276971405Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.276989479Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277003285Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277020477Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277029904Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277041756Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277054891Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277063837Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277072484Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27708108Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277090397Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277098773Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277107449Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27712409Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277136894Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277151361Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277170446Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277185564Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277195713Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.2772049Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277219498Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277236169Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277246789Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277259582Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277269561Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277278808Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277288256Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277297122Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277308934Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27732278Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277332218Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277345513Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27735488Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277368605Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27738736Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277399513Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27740823Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277417016Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277431473Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277459164Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277475455Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277484011Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277506643Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277516301Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277530057Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277538853Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277548411Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277561224Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277569871Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277581212Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277593905Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277606489Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277615536Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277629983Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277640512Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277655981Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277668214Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277679164Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277691758Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277701386Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277712937Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277724439Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277742533Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27775199Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277760767Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277768521Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277781735Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277790652Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277804237Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277812633Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277827521Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277839313Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277852087Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277860552Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277878716Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277893474Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277904935Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277916246Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277926676Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277939179Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.277948045Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.277956351Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.277970317Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.277997718Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278013698Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278022494Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278032863Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278044916Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278053813Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278069782Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278088517Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278104187Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278116209Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278127229Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278138721Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278147096Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278162325Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.27817076Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278183114Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278193132Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27820803Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278216345Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278231534Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278240581Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278262502Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278275756Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278287428Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278298739Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27831534Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278326521Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278339615Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278348772Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278357398Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278365964Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27838506Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278395389Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278405618Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278418633Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278429974Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.27845464Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278469407Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278481209Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278493181Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278507037Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.27853519Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278548815Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278559154Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278569784Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278593599Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278606092Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278618044Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278632822Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278703123Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278722889Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278734962Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278750231Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278765068Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278775347Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278788562Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278797528Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278811414Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278824278Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278837052Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278845728Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278862079Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278880563Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278892145Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278902644Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278920718Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.278936387Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.278958439Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.278974037Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.278988314Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279005446Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279025784Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279039019Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279049889Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279062893Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.27913076Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279153111Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279165725Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279175042Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279187014Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279199117Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279207933Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279216249Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279237338Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279246455Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279260591Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279269498Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279280969Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279293072Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279364285Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279383811Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279395453Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279410611Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279425649Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279453391Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279467828Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279488055Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279501531Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279512922Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279528621Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279540243Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.279551283Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.279559408Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.279585768Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.279599223Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280469765Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280497668Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280510431Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280523135Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280534646Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280544525Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280561987Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280575683Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280585271Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280598004Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280608855Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280621668Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280631076Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280639963Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280652125Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280661813Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280673275Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280685087Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280695316Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280714121Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28074035Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280752452Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280763433Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280775786Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280784893Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280796865Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280806994Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280817073Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.2808316Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.2808423Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280855855Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280865052Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280878046Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280886392Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280899266Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280909425Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280919624Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280930574Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280943879Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.280962804Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.280972573Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.280985557Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.280996678Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281009651Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281022936Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281032124Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281045589Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281054996Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281068742Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281077217Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281091183Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281101623Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281110479Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281121219Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281133833Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281143561Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281242034Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281265558Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281279664Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281299531Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281332623Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281345377Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281364603Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281377387Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281392034Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28140073Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281415007Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281426949Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281437398Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281467023Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281488854Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281503622Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281580495Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281648181Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281669751Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28167962Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281737347Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281756222Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281785838Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281800144Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281809452Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28182481Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281838466Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281846992Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281856319Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281866167Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281875315Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281889381Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281898838Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281910971Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281920989Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281930487Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281939324Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.281952759Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.281971924Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.281981522Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.281996801Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282008222Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282025735Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282037787Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282047275Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282063475Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282077391Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282092579Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282104772Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282113118Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282128797Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282140118Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282150828Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282161918Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282171587Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282179952Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282196803Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28220555Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282220648Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282232721Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282243511Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282254822Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282268628Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28228055Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28229137Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282299585Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282321616Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282333569Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282348456Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282362512Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28237709Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282389182Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282399822Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282408879Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282423506Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282432743Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282523372Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282550763Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282563106Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282585308Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282595466Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282603632Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282617668Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282628809Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282637565Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282652984Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282676428Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282691265Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282700282Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282709269Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28272053Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282736199Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282811147Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282830964Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282846252Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282867962Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282881548Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282889833Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282904571Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282913648Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282932282Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282946699Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.282959082Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.282970193Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.282982646Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.282993917Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28300589Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283024444Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283039542Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283058998Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283079567Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283092381Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28316707Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283228835Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283251096Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283261226Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283282485Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283291732Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283308373Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28331705Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283329823Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283338189Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283347797Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283357745Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283368455Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283383163Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283395816Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283404542Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283422055Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283430952Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283455888Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283472289Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.2834838Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28349957Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283513295Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283525198Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283536118Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283543852Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283555093Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283567226Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283577775Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283591531Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283603293Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28361273Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283632367Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283643839Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283725322Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283748005Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283766168Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283776418Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283792968Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283803818Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283818837Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283826962Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283843392Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283860414Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283876905Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283885922Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283898605Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283907321Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283918021Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283930384Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283946555Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.283958176Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.283968716Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.283984756Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.283996197Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284008119Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284018358Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284038456Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284050829Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284064725Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284075715Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284091274Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284104188Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284116862Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284128483Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284140606Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284157949Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28417477Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28420172Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284211618Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284229051Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.28424477Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284331432Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28435185Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284364033Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284377908Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284391153Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284403756Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28442163Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284453329Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284478295Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284490899Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284501258Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284510956Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284521636Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284530002Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284547595Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284559867Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284570598Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284579715Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284595564Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284608258Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284619138Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284631942Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284643874Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284656067Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284742296Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284766881Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284801196Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284815903Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284828186Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284836772Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28484664Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284864644Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.284873761Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284887727Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284906742Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284919345Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28493222Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.284940916Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.284957827Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.284972695Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28498641Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28500235Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285013651Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285032577Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285111574Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285129277Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285147871Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285180131Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285190791Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285210158Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285220346Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285230846Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.28524364Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285251855Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285267074Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285279216Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285293863Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285306527Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285322687Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285336754Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285482897Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285515437Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285528551Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285538851Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285547747Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285556333Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285566402Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285582362Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285594745Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.28560271Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285612588Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285621856Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285631423Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285639669Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285649788Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285658404Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285669705Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.2856781Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.285688119Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285697496Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285706463Z","Action":"run","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv"}
+{"Time":"2026-04-13T16:24:09.285714518Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"=== RUN   TestSwarmRuntimeProfileFromEnv\n"}
+{"Time":"2026-04-13T16:24:09.28572635Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Output":"--- PASS: TestSwarmRuntimeProfileFromEnv (0.00s)\n"}
+{"Time":"2026-04-13T16:24:09.285735708Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Test":"TestSwarmRuntimeProfileFromEnv","Elapsed":0}
+{"Time":"2026-04-13T16:24:09.285744825Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Output":"PASS\n"}
+{"Time":"2026-04-13T16:24:09.286685267Z","Action":"output","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Output":"ok  \tgithub.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test\t0.024s\n"}
+{"Time":"2026-04-13T16:24:09.286718549Z","Action":"pass","Package":"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test","Elapsed":0.024}
