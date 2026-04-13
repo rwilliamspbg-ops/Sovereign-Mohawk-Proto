@@ -22,7 +22,9 @@ This directory stores point-in-time evidence captured during sprint execution.
 
 - `performance_improvement_report.md`
 - `stress_metrics_capture_10m.md`
-- `loaded_1500node_stress_capture_2026-04-13.md`
+- `loaded_1500node_stress_capture_2026-04-13.md` – Initial 40-cycle and 1500-node profile validation
+- `extended_stress_200cycle_2026-04-13.md` – Extended 200-cycle sustained router load analysis
+- `extended_stress_analysis_2026-04-13.json` – Raw metrics and calculations from extended stress test
 - `scaled_swarm_benchmark_report_1500_2026-04-13.md`
 - `v2_dashboard_validation_report.md`
 

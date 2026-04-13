@@ -1,0 +1,33 @@
+{
+  "cycles": 200,
+  "total_requests": 1000.0,
+  "cpu_delta": 0.53,
+  "memory_delta_mb": 0.0,
+  "endpoint_deltas": {
+    "requests_discover_success": 200.0,
+    "requests_provenance_get_success": 200.0,
+    "requests_provenance_post_success": 200.0,
+    "requests_publish_success": 200.0,
+    "requests_subscribe_success": 200.0
+  },
+  "pre_metrics": {
+    "goroutines": 7,
+    "requests_discover_success": 42.0,
+    "requests_provenance_get_success": 42.0,
+    "requests_provenance_post_success": 42.0,
+    "requests_publish_success": 42.0,
+    "requests_subscribe_success": 42.0,
+    "cpu_seconds": 0.11,
+    "memory_bytes": 1
+  },
+  "post_metrics": {
+    "goroutines": 7,
+    "requests_discover_success": 242.0,
+    "requests_provenance_get_success": 242.0,
+    "requests_provenance_post_success": 242.0,
+    "requests_publish_success": 242.0,
+    "requests_subscribe_success": 242.0,
+    "cpu_seconds": 0.64,
+    "memory_bytes": 1
+  }
+}
