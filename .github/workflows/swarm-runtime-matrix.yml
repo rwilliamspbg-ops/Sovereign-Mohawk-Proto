@@ -22,18 +22,18 @@ on:
   schedule:
     - cron: "0 */12 * * *"
 
+
 permissions:
   contents: read
-
-  env:
-    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-    GOTOOLCHAIN: go1.25.9+auto
-    MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES: "true"
 
 jobs:
   swarm-runtime:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      GOTOOLCHAIN: go1.25.9+auto
+      MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES: "true"
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
