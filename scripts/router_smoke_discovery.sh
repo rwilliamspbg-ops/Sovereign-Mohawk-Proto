@@ -53,7 +53,7 @@ fi
 echo "$discover_body" | jq -e --arg id "$offer_id" 'map(select(.offer_id == $id)) | length == 1' >/dev/null
 
 echo "[router-smoke] append provenance event"
-provenance_payload="{\n  \"offer_id\": \"${offer_id}\",\n  \"source_vertical\": \"climate\",\n  \"target_vertical\": \"supply-chain\",\n  \"subscriber_model\": \"scm-forecast-v11\",\n  \"impact_metric\": \"mae\",\n  \"impact_delta\": -0.08\n}"
+provenance_payload="{\"offer_id\":\"${offer_id}\",\"source_vertical\":\"climate\",\"target_vertical\":\"supply-chain\",\"subscriber_model\":\"scm-forecast-v11\",\"impact_metric\":\"mae\",\"impact_delta\":-0.08}"
 provenance_resp="$(curl -sS -w '\nHTTP_STATUS:%{http_code}' -X POST "${ROUTER_URL}/router/provenance" -H 'Content-Type: application/json' -d "${provenance_payload}")"
 echo "${provenance_resp}"
 provenance_status=$(echo "$provenance_resp" | awk -FHTTP_STATUS: '{print $2}' | tr -d '\n')
