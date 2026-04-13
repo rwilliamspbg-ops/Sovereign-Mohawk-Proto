@@ -1,65 +1,65 @@
 # FedAvg Benchmark Comparison
 
-- Base ref: origin/main
+- Base ref: HEAD~1
 - Benchtime: 200ms
 - Count: 10
 - Tool: benchstat (alpha=0.01)
-- Generated at: 2026-04-01T00:28:58Z
+- Generated at: 2026-04-13T15:21:49Z
 
 ```text
 goos: linux
 goarch: amd64
 pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test
 cpu: AMD EPYC 7763 64-Core Processor                
-                                                   │ /tmp/tmp.1k0yl7KkvM/base_bench.txt │ /tmp/tmp.1k0yl7KkvM/current_bench.txt │
+                                                   │ /tmp/tmp.j39Htg20YZ/base_bench.txt │ /tmp/tmp.j39Htg20YZ/current_bench.txt │
                                                    │               sec/op               │     sec/op      vs base               │
-AggregateParallel/clients32_dim2048/workers1-2                             51.50µ ±  9%     49.61µ ±  9%       ~ (p=0.631 n=10)
-AggregateParallel/clients32_dim2048/workers2-2                             55.61µ ±  8%     53.01µ ±  9%       ~ (p=0.353 n=10)
-AggregateParallel/clients32_dim2048/workers4-2                             57.12µ ± 12%     53.43µ ±  6%       ~ (p=0.029 n=10)
-AggregateParallel/clients32_dim2048/workers8-2                             62.95µ ±  9%     65.20µ ±  8%       ~ (p=0.739 n=10)
-AggregateParallel/clients32_dim2048/workersAuto-2                          49.32µ ± 13%     46.09µ ±  4%       ~ (p=0.280 n=10)
-AggregateParallel/clients128_dim4096/workers1-2                            260.5µ ± 10%     260.1µ ±  5%       ~ (p=0.684 n=10)
-AggregateParallel/clients128_dim4096/workers2-2                            179.7µ ± 10%     197.0µ ± 10%       ~ (p=0.089 n=10)
-AggregateParallel/clients128_dim4096/workers4-2                            178.1µ ± 31%     186.5µ ± 11%       ~ (p=0.912 n=10)
-AggregateParallel/clients128_dim4096/workers8-2                            211.7µ ± 15%     217.8µ ± 14%       ~ (p=0.315 n=10)
-AggregateParallel/clients128_dim4096/workersAuto-2                         183.1µ ± 14%     195.4µ ± 17%       ~ (p=0.393 n=10)
-AggregateParallel/clients256_dim8192/workers1-2                            908.6µ ± 19%     910.1µ ± 12%       ~ (p=0.684 n=10)
-AggregateParallel/clients256_dim8192/workers2-2                            680.9µ ± 18%     569.1µ ± 29%       ~ (p=0.123 n=10)
-AggregateParallel/clients256_dim8192/workers4-2                            575.5µ ± 33%     594.7µ ± 26%       ~ (p=0.529 n=10)
-AggregateParallel/clients256_dim8192/workers8-2                            623.2µ ± 11%     580.4µ ± 14%       ~ (p=0.280 n=10)
-AggregateParallel/clients256_dim8192/workersAuto-2                         612.4µ ±  8%     597.0µ ±  6%       ~ (p=0.631 n=10)
-AggregateParallel/clients512_dim8192/workers1-2                            1.906m ± 13%     1.768m ± 26%       ~ (p=0.739 n=10)
-AggregateParallel/clients512_dim8192/workers2-2                            1.028m ± 19%     1.135m ± 23%       ~ (p=0.796 n=10)
-AggregateParallel/clients512_dim8192/workers4-2                            1.074m ± 15%     1.037m ± 20%       ~ (p=1.000 n=10)
-AggregateParallel/clients512_dim8192/workers8-2                            1.119m ± 15%     1.035m ± 19%       ~ (p=0.393 n=10)
-AggregateParallel/clients512_dim8192/workersAuto-2                         1.157m ± 39%     1.003m ± 28%       ~ (p=0.280 n=10)
-geomean                                                                    308.4µ           301.9µ        -2.12%
+AggregateParallel/clients32_dim2048/workers1-2                             41.61µ ± 17%     46.32µ ±  6%       ~ (p=0.043 n=10)
+AggregateParallel/clients32_dim2048/workers2-2                             50.69µ ± 10%     49.59µ ±  8%       ~ (p=0.218 n=10)
+AggregateParallel/clients32_dim2048/workers4-2                             56.30µ ± 12%     55.47µ ±  7%       ~ (p=0.912 n=10)
+AggregateParallel/clients32_dim2048/workers8-2                             64.29µ ± 12%     68.14µ ±  8%       ~ (p=0.019 n=10)
+AggregateParallel/clients32_dim2048/workersAuto-2                          42.33µ ± 43%     45.17µ ±  8%       ~ (p=0.353 n=10)
+AggregateParallel/clients128_dim4096/workers1-2                            253.7µ ± 16%     257.9µ ±  8%       ~ (p=0.393 n=10)
+AggregateParallel/clients128_dim4096/workers2-2                            177.8µ ±  9%     184.1µ ± 17%       ~ (p=0.579 n=10)
+AggregateParallel/clients128_dim4096/workers4-2                            176.3µ ± 21%     165.5µ ± 12%       ~ (p=0.218 n=10)
+AggregateParallel/clients128_dim4096/workers8-2                            199.7µ ± 12%     203.9µ ±  7%       ~ (p=0.912 n=10)
+AggregateParallel/clients128_dim4096/workersAuto-2                         182.2µ ± 16%     171.1µ ± 11%       ~ (p=0.579 n=10)
+AggregateParallel/clients256_dim8192/workers1-2                            900.5µ ±  6%     908.3µ ±  6%       ~ (p=0.247 n=10)
+AggregateParallel/clients256_dim8192/workers2-2                            590.7µ ±  8%     536.4µ ±  9%       ~ (p=0.075 n=10)
+AggregateParallel/clients256_dim8192/workers4-2                            572.5µ ± 10%     566.1µ ± 20%       ~ (p=0.853 n=10)
+AggregateParallel/clients256_dim8192/workers8-2                            561.5µ ± 13%     547.9µ ± 18%       ~ (p=0.579 n=10)
+AggregateParallel/clients256_dim8192/workersAuto-2                         559.6µ ± 11%     534.1µ ± 33%       ~ (p=0.631 n=10)
+AggregateParallel/clients512_dim8192/workers1-2                            1.752m ± 13%     1.834m ±  6%       ~ (p=0.353 n=10)
+AggregateParallel/clients512_dim8192/workers2-2                            1.065m ± 11%     1.069m ± 11%       ~ (p=0.796 n=10)
+AggregateParallel/clients512_dim8192/workers4-2                            975.9µ ± 22%    1001.5µ ± 13%       ~ (p=0.796 n=10)
+AggregateParallel/clients512_dim8192/workers8-2                            1.049m ± 14%     1.028m ± 15%       ~ (p=0.739 n=10)
+AggregateParallel/clients512_dim8192/workersAuto-2                         1.015m ±  8%     1.007m ± 10%       ~ (p=0.684 n=10)
+geomean                                                                    289.7µ           290.0µ        +0.09%
 
-                                                   │ /tmp/tmp.1k0yl7KkvM/base_bench.txt │ /tmp/tmp.1k0yl7KkvM/current_bench.txt │
+                                                   │ /tmp/tmp.j39Htg20YZ/base_bench.txt │ /tmp/tmp.j39Htg20YZ/current_bench.txt │
                                                    │                B/s                 │      B/s        vs base               │
-AggregateParallel/clients32_dim2048/workers1-2                            4.741Gi ±  9%    4.921Gi ± 10%       ~ (p=0.631 n=10)
-AggregateParallel/clients32_dim2048/workers2-2                            4.390Gi ±  9%    4.608Gi ±  8%       ~ (p=0.353 n=10)
-AggregateParallel/clients32_dim2048/workers4-2                            4.276Gi ± 11%    4.570Gi ±  7%       ~ (p=0.029 n=10)
-AggregateParallel/clients32_dim2048/workers8-2                            3.879Gi ±  9%    3.745Gi ±  8%       ~ (p=0.739 n=10)
-AggregateParallel/clients32_dim2048/workersAuto-2                         4.950Gi ± 15%    5.297Gi ±  4%       ~ (p=0.280 n=10)
-AggregateParallel/clients128_dim4096/workers1-2                           7.499Gi ±  9%    7.509Gi ±  5%       ~ (p=0.684 n=10)
-AggregateParallel/clients128_dim4096/workers2-2                          10.867Gi ± 12%    9.916Gi ± 11%       ~ (p=0.089 n=10)
-AggregateParallel/clients128_dim4096/workers4-2                           10.96Gi ± 24%    10.49Gi ± 10%       ~ (p=0.912 n=10)
-AggregateParallel/clients128_dim4096/workers8-2                           9.227Gi ± 13%    8.967Gi ± 12%       ~ (p=0.315 n=10)
-AggregateParallel/clients128_dim4096/workersAuto-2                       10.670Gi ± 16%    9.999Gi ± 20%       ~ (p=0.393 n=10)
-AggregateParallel/clients256_dim8192/workers1-2                           8.598Gi ± 16%    8.584Gi ± 11%       ~ (p=0.684 n=10)
-AggregateParallel/clients256_dim8192/workers2-2                           11.48Gi ± 22%    13.74Gi ± 23%       ~ (p=0.123 n=10)
-AggregateParallel/clients256_dim8192/workers4-2                           13.59Gi ± 25%    13.14Gi ± 21%       ~ (p=0.529 n=10)
-AggregateParallel/clients256_dim8192/workers8-2                           12.54Gi ± 12%    13.48Gi ± 12%       ~ (p=0.280 n=10)
-AggregateParallel/clients256_dim8192/workersAuto-2                        12.76Gi ±  9%    13.09Gi ±  6%       ~ (p=0.631 n=10)
-AggregateParallel/clients512_dim8192/workers1-2                           8.212Gi ± 11%    8.839Gi ± 21%       ~ (p=0.739 n=10)
-AggregateParallel/clients512_dim8192/workers2-2                           15.21Gi ± 16%    13.78Gi ± 19%       ~ (p=0.796 n=10)
-AggregateParallel/clients512_dim8192/workers4-2                           14.55Gi ± 13%    15.06Gi ± 17%       ~ (p=1.000 n=10)
-AggregateParallel/clients512_dim8192/workers8-2                           13.97Gi ± 15%    15.11Gi ± 16%       ~ (p=0.393 n=10)
-AggregateParallel/clients512_dim8192/workersAuto-2                        13.53Gi ± 28%    15.58Gi ± 22%       ~ (p=0.280 n=10)
-geomean                                                                   8.958Gi          9.152Gi        +2.17%
+AggregateParallel/clients32_dim2048/workers1-2                            5.867Gi ± 15%    5.271Gi ±  6%       ~ (p=0.043 n=10)
+AggregateParallel/clients32_dim2048/workers2-2                            4.817Gi ±  9%    4.923Gi ±  7%       ~ (p=0.218 n=10)
+AggregateParallel/clients32_dim2048/workers4-2                            4.336Gi ± 14%    4.402Gi ±  7%       ~ (p=0.912 n=10)
+AggregateParallel/clients32_dim2048/workers8-2                            3.798Gi ± 14%    3.583Gi ±  7%       ~ (p=0.019 n=10)
+AggregateParallel/clients32_dim2048/workersAuto-2                         5.768Gi ± 30%    5.405Gi ±  7%       ~ (p=0.353 n=10)
+AggregateParallel/clients128_dim4096/workers1-2                           7.700Gi ± 14%    7.575Gi ±  7%       ~ (p=0.393 n=10)
+AggregateParallel/clients128_dim4096/workers2-2                           10.98Gi ± 10%    10.61Gi ± 15%       ~ (p=0.579 n=10)
+AggregateParallel/clients128_dim4096/workers4-2                           11.08Gi ± 18%    11.80Gi ± 10%       ~ (p=0.218 n=10)
+AggregateParallel/clients128_dim4096/workers8-2                           9.784Gi ± 11%    9.581Gi ±  7%       ~ (p=0.912 n=10)
+AggregateParallel/clients128_dim4096/workersAuto-2                        10.74Gi ± 19%    11.42Gi ± 10%       ~ (p=0.579 n=10)
+AggregateParallel/clients256_dim8192/workers1-2                           8.676Gi ±  5%    8.602Gi ±  6%       ~ (p=0.247 n=10)
+AggregateParallel/clients256_dim8192/workers2-2                           13.23Gi ±  9%    14.56Gi ±  8%       ~ (p=0.075 n=10)
+AggregateParallel/clients256_dim8192/workers4-2                           13.65Gi ± 11%    13.80Gi ± 16%       ~ (p=0.853 n=10)
+AggregateParallel/clients256_dim8192/workers8-2                           13.91Gi ± 11%    14.26Gi ± 16%       ~ (p=0.579 n=10)
+AggregateParallel/clients256_dim8192/workersAuto-2                        13.97Gi ± 11%    14.64Gi ± 25%       ~ (p=0.631 n=10)
+AggregateParallel/clients512_dim8192/workers1-2                           8.920Gi ± 12%    8.519Gi ±  6%       ~ (p=0.353 n=10)
+AggregateParallel/clients512_dim8192/workers2-2                           14.68Gi ± 10%    14.61Gi ± 12%       ~ (p=0.796 n=10)
+AggregateParallel/clients512_dim8192/workers4-2                           16.01Gi ± 18%    15.60Gi ± 11%       ~ (p=0.796 n=10)
+AggregateParallel/clients512_dim8192/workers8-2                           14.90Gi ± 12%    15.20Gi ± 13%       ~ (p=0.739 n=10)
+AggregateParallel/clients512_dim8192/workersAuto-2                        15.40Gi ±  8%    15.51Gi ±  9%       ~ (p=0.684 n=10)
+geomean                                                                   9.536Gi          9.527Gi        -0.10%
 
-                                                   │ /tmp/tmp.1k0yl7KkvM/base_bench.txt │ /tmp/tmp.1k0yl7KkvM/current_bench.txt │
+                                                   │ /tmp/tmp.j39Htg20YZ/base_bench.txt │ /tmp/tmp.j39Htg20YZ/current_bench.txt │
                                                    │                B/op                │     B/op      vs base                 │
 AggregateParallel/clients32_dim2048/workers1-2                             16.09Ki ± 0%   16.09Ki ± 0%       ~ (p=1.000 n=10) ¹
 AggregateParallel/clients32_dim2048/workers2-2                             24.22Ki ± 0%   24.22Ki ± 0%       ~ (p=1.000 n=10)
@@ -84,7 +84,7 @@ AggregateParallel/clients512_dim8192/workersAuto-2                         96.22
 geomean                                                                    71.48Ki        71.48Ki       +0.00%
 ¹ all samples are equal
 
-                                                   │ /tmp/tmp.1k0yl7KkvM/base_bench.txt │ /tmp/tmp.1k0yl7KkvM/current_bench.txt │
+                                                   │ /tmp/tmp.j39Htg20YZ/base_bench.txt │ /tmp/tmp.j39Htg20YZ/current_bench.txt │
                                                    │             allocs/op              │  allocs/op    vs base                 │
 AggregateParallel/clients32_dim2048/workers1-2                               5.000 ± 0%     5.000 ± 0%       ~ (p=1.000 n=10) ¹
 AggregateParallel/clients32_dim2048/workers2-2                               9.000 ± 0%     9.000 ± 0%       ~ (p=1.000 n=10) ¹
