@@ -63,7 +63,7 @@
       "gridPos": {"h": 6, "w": 12, "x": 12, "y": 6},
       "id": 6,
       "options": {
-        "content": "### Sovereign Mohawk Dashboard Map\n\nUse this page as your mission-control landing view.\n\n- **Operations Command**: v2-10-ops-overview, v2-11-ops-incidents\n- **Security and Compliance**: v2-12-security-pqc-compliance\n- **Engineering Diagnostics**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents, v2-22-eng-migration-control-plane\n- **Executive Reporting**: v2-30-exec-summary\n\nPrimary runbook: OPERATIONS_RUNBOOK.md\n\nAll views use Prometheus metrics from the same Sovereign Mohawk telemetry pipeline for consistent incident handoff.",
+        "content": "### Sovereign Mohawk Dashboard Map\n\nUse this page as your mission-control landing view.\n\n- **Operations Command**: v2-10-ops-overview, v2-11-ops-incidents, v2-13-ops-router-command-center\n- **Security and Compliance**: v2-12-security-pqc-compliance\n- **Engineering Diagnostics**: v2-20-eng-latency-drilldown, v2-21-eng-node-agents, v2-22-eng-migration-control-plane\n- **Executive Reporting**: v2-30-exec-summary\n\nPrimary runbook: OPERATIONS_RUNBOOK.md\n\nAll views use Prometheus metrics from the same Sovereign Mohawk telemetry pipeline for consistent incident handoff.",
         "mode": "markdown"
       },
       "title": "Navigation and Runbook",

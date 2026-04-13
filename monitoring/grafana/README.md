@@ -22,6 +22,7 @@ These dashboards provide a role-based observability model:
 - `v2-00-start-here.json`: Mission-control landing page and role navigation.
 - `v2-10-ops-overview.json`: Golden signals and service-level health trends.
 - `v2-11-ops-incidents.json`: Triage-first incident timeline and impact scope.
+- `v2-13-ops-router-command-center.json`: Dedicated router throughput, reliability, and provenance forensics.
 - `v2-12-security-pqc-compliance.json`: Security policy and PQC enforcement posture.
 - `v2-20-eng-latency-drilldown.json`: Latency percentile and bottleneck drilldown.
 - `v2-21-eng-node-agents.json`: Node-agent fleet status and quality metrics.
@@ -34,6 +35,7 @@ Legacy finance/performance/verification dashboards were retired so operators hav
 
 Cross-vertical federated router metrics are tracked directly in v2 dashboards:
 
+- Router operations command center in `v2-13-ops-router-command-center.json`
 - Throughput and rejection ratio in `v2-10-ops-overview.json`
 - Route-block and proof-failure timelines in `v2-11-ops-incidents.json`
 - Provenance ledger growth and policy pressure in `v2-12-security-pqc-compliance.json`
