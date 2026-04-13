@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 
-LINE_RE = re.compile(r"^(?P<name>[a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{[^}]*\})?\s+(?P<value>-?[0-9]+(?:\.[0-9]+)?)$")
+LINE_RE = re.compile(
+    r"^(?P<name>[a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{[^}]*\})?\s+(?P<value>-?[0-9]+(?:\.[0-9]+)?)$"
+)
 
 
 def load_json(path: Path) -> dict:
@@ -36,7 +38,9 @@ def load_prom_totals(path: Path) -> Dict[str, float]:
     return totals
 
 
-def gate_eval(rows: list[dict], min_throughput: float, min_count_for_floor: int) -> Tuple[bool, list[str], dict]:
+def gate_eval(
+    rows: list[dict], min_throughput: float, min_count_for_floor: int
+) -> Tuple[bool, list[str], dict]:
     failures: list[str] = []
     checks: dict = {}
 
@@ -120,7 +124,15 @@ def render_markdown(report: dict) -> str:
     else:
         lines.append("- none")
 
-    lines.extend(["", "## Counter Deltas (Pre/Post)", "", "| Metric | Pre | Post | Delta |", "| --- | ---: | ---: | ---: |"])
+    lines.extend(
+        [
+            "",
+            "## Counter Deltas (Pre/Post)",
+            "",
+            "| Metric | Pre | Post | Delta |",
+            "| --- | ---: | ---: | ---: |",
+        ]
+    )
     for metric, values in report["counter_deltas"].items():
         lines.append(
             f"| `{metric}` | {values['pre']:.3f} | {values['post']:.3f} | {values['delta']:.3f} |"
@@ -131,7 +143,9 @@ def render_markdown(report: dict) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate FedAvg scaling gates from runtime artifacts.")
+    parser = argparse.ArgumentParser(
+        description="Validate FedAvg scaling gates from runtime artifacts."
+    )
     parser.add_argument(
         "--runtime-report",
         default="test-results/swarm-runtime/scaled_swarm_benchmark_report.json",
@@ -179,7 +193,9 @@ def main() -> int:
     payload = load_json(runtime_report_path)
     rows = payload.get("results", [])
 
-    ok, failures, checks = gate_eval(rows, args.min_throughput_iter_per_sec, args.min_count_for_floor)
+    ok, failures, checks = gate_eval(
+        rows, args.min_throughput_iter_per_sec, args.min_count_for_floor
+    )
     deltas = prom_diff(pre_prom, post_prom)
 
     report = {
