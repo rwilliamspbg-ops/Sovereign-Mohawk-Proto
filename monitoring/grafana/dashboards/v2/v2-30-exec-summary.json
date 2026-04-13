@@ -1,7 +1,6 @@
 {
   "annotations": {"list": []},
   "editable": true,
-  "uid": "cfj05zg2wdqm8d",
   "panels": [
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-main"},

@@ -225,6 +225,7 @@ services:
     environment:
       - GOTOOLCHAIN=auto
       - MOHAWK_ROUTER_ADDR=:8087
+      - MOHAWK_ROUTER_METRICS_ADDR=:8088
       - MOHAWK_ROUTER_ALLOWED_ROUTES=climate->agriculture,climate->supply-chain,oncology->supply-chain
       - MOHAWK_ROUTER_PROVENANCE_PATH=/var/lib/mohawk/router/provenance.json
       - MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES=${MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES:-true}
@@ -237,7 +238,7 @@ services:
       runtime-secrets-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://localhost:8087/metrics >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:8088/metrics >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12

@@ -25,12 +25,13 @@ func main() {
 	mux := buildMux(r)
 	wrappedMux := withPanicRecovery(mux)
 
-	// Start /metrics on localhost only
+	// Start /metrics on configurable address; default remains loopback for safety.
 	go func() {
+		metricsAddr := defaultString(os.Getenv("MOHAWK_ROUTER_METRICS_ADDR"), "127.0.0.1:8088")
 		metricsMux := http.NewServeMux()
 		metricsMux.Handle("/metrics", promhttp.Handler())
-		log.Printf("metrics endpoint listening on 127.0.0.1:8088")
-		if err := http.ListenAndServe("127.0.0.1:8088", metricsMux); err != nil {
+		log.Printf("metrics endpoint listening on %s", metricsAddr)
+		if err := http.ListenAndServe(metricsAddr, metricsMux); err != nil {
 			log.Printf("metrics server failed: %v", err)
 		}
 	}()

@@ -209,13 +209,13 @@ if ! curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1; then
 fi
 
 for i in {1..30}; do
-  if curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+  if [[ "$(docker inspect -f '{{.State.Health.Status}}' federated-router 2>/dev/null || true)" == "healthy" ]]; then
     break
   fi
   sleep 2
 done
 
-if ! curl -fsS http://localhost:8087/metrics >/dev/null 2>&1; then
+if [[ "$(docker inspect -f '{{.State.Health.Status}}' federated-router 2>/dev/null || true)" != "healthy" ]]; then
   echo "federated-router did not become healthy" >&2
   exit 1
 fi

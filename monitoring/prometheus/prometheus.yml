@@ -36,4 +36,4 @@ scrape_configs:
   - job_name: federated-router
     metrics_path: /metrics
     static_configs:
-      - targets: ["federated-router:8087"]
+      - targets: ["federated-router:8088"]

@@ -6,6 +6,7 @@ providers:
     type: file
     disableDeletion: false
     editable: true
+    folder: v2
+    folderUid: afj06payx6g3kb
     options:
-      path: /var/lib/grafana/dashboards
-      foldersFromFilesStructure: true
+      path: /var/lib/grafana/dashboards/v2
