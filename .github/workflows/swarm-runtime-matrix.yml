@@ -51,7 +51,7 @@ jobs:
           echo $! > test-results/swarm-runtime/router.pid
 
           for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8087/metrics >/dev/null; then
+            if curl -fsS http://127.0.0.1:8087/healthz >/dev/null; then
               break
             fi
             sleep 1
@@ -59,7 +59,7 @@ jobs:
 
           ROUTER_URL=http://127.0.0.1:8087 ./scripts/router_smoke_discovery.sh \
             | tee test-results/swarm-runtime/router_smoke.txt
-          curl -fsS http://127.0.0.1:8087/metrics | head -n 120 > test-results/swarm-runtime/router_metrics_snapshot.prom
+          curl -fsS http://127.0.0.1:8088/metrics | head -n 120 > test-results/swarm-runtime/router_metrics_snapshot.prom
 
       - name: Run runtime swarm profile matrix
         env:

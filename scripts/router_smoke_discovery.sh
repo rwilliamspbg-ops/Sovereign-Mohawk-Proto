@@ -11,7 +11,7 @@ publish_payload='{
   "model_id": "climate-global-v42",
   "summary": "transfer-ready weather embeddings",
   "publisher_node_id": "climate-node-a",
-  "publisher_quote": "c21va2U="
+  "publisher_quote": [99,50,49,118,97,50,85,61]
 }'
 
 echo "[router-smoke] publish climate insight"
@@ -31,7 +31,7 @@ subscribe_payload='{
   "subscriber_vertical": "supply-chain",
   "source_verticals": ["climate"],
   "subscriber_node_id": "supply-node-a",
-  "subscriber_quote": "c21va2U="
+  "subscriber_quote": [99,50,49,118,97,50,85,61]
 }'
 subscribe_resp="$(curl -sS -w '\nHTTP_STATUS:%{http_code}' -X POST "${ROUTER_URL}/router/subscribe" -H 'Content-Type: application/json' -d "${subscribe_payload}")"
 echo "${subscribe_resp}"
