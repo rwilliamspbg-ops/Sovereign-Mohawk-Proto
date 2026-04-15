@@ -121,17 +121,29 @@ Alertmanager is wired in compose and Prometheus alerting config.
 
 Run benchmark checks before release cut or after aggregation/runtime changes.
 
+Policy baseline:
+
+- FedAvg PR gate fails if geomean time regression exceeds `+5.0%` relative to cached `main` baseline.
+- Bridge PR gate fails if geomean time regression exceeds `+5.0%` relative to cached `main` baseline.
+- Python SDK gate enforces absolute thresholds and trend regression limits when cached baseline data is available.
+
 1. Python SDK performance gate baseline:
    - `cd sdk/python && python -m pytest tests/test_benchmarks.py --benchmark-only -q`
 2. Go FedAvg matrix benchmark:
-   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms`
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=300ms -count=10 -cpu=2`
 3. Generate base-vs-current FedAvg comparison report:
-   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
+   - `TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.25.9.linux-amd64 BASE_REF=origin/main BENCH_TIME=300ms BENCH_COUNT=10 BENCH_CPU=2 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/fedavg_benchmark_compare.md ./scripts/benchmark_fedavg_compare.sh`
+4. Generate bridge format comparison report:
+   - `BENCH_TIME=200ms BENCH_COUNT=5 BENCH_CPU=2 BENCHSTAT_ALPHA=0.01 REPORT_PATH=results/metrics/bridge_compression_benchmark_compare.md ./scripts/benchmark_bridge_compression_compare.sh`
 
 CI automation:
 
 - Workflow: `.github/workflows/fedavg-benchmark-compare.yml`
 - Artifact: `results/metrics/fedavg_benchmark_compare.md`
+- Workflow: `.github/workflows/bridge-compression-benchmark.yml`
+- Artifacts: `results/metrics/bridge_compression_benchmark_compare.md`, `results/metrics/bridge_compression_regression_compare.md`
+- Workflow: `.github/workflows/performance-gate.yml`
+- Artifact: `benchmark-results.json`
 
 ## Host Kernel UDP/Socket Buffer Checklist (Production)
 

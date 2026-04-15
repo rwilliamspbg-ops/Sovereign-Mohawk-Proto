@@ -8,9 +8,8 @@ as a single wire payload. Designed for zero-copy integration with the
 
 from __future__ import annotations
 
-import io
 import struct
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Dict, Iterable, List, Optional
 
 from .accelerator import (
     Backend,

@@ -2,51 +2,75 @@ goos: linux
 goarch: amd64
 pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi
 cpu: AMD EPYC 7763 64-Core Processor                
-BenchmarkCompressGradientsJSON/dim512-2         	    1809	    138932 ns/op	   11544 B/op	      19 allocs/op
-BenchmarkCompressGradientsJSON/dim512-2         	    1786	    131572 ns/op	   11544 B/op	      19 allocs/op
-BenchmarkCompressGradientsJSON/dim512-2         	    1764	    130046 ns/op	   11544 B/op	      19 allocs/op
-BenchmarkCompressGradientsJSON/dim512-2         	    1837	    130669 ns/op	   11544 B/op	      19 allocs/op
-BenchmarkCompressGradientsJSON/dim512-2         	    1782	    133662 ns/op	   11544 B/op	      19 allocs/op
-BenchmarkCompressGradientsJSON/dim2048-2        	     422	    529306 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim2048-2        	     444	    585665 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim2048-2        	     441	    533991 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim2048-2        	     446	    535254 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim2048-2        	     440	    544542 ns/op	   72600 B/op	      23 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-2        	     100	   2200503 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-2        	     100	   2175325 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-2        	     100	   2115762 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-2        	     100	   2721914 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsJSON/dim8192-2        	     100	   2516627 ns/op	  308760 B/op	      27 allocs/op
-BenchmarkCompressGradientsJSON/dim16384-2       	      52	   4924922 ns/op	  587289 B/op	      29 allocs/op
-BenchmarkCompressGradientsJSON/dim16384-2       	      56	   4429411 ns/op	  587288 B/op	      29 allocs/op
-BenchmarkCompressGradientsJSON/dim16384-2       	      57	   4287580 ns/op	  587288 B/op	      29 allocs/op
-BenchmarkCompressGradientsJSON/dim16384-2       	      55	   4923895 ns/op	  587289 B/op	      29 allocs/op
-BenchmarkCompressGradientsJSON/dim16384-2       	      57	   4252637 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2268	    136456 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2280	    140444 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2250	    153965 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    1874	    140396 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2222	    143232 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2274	    134167 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    1768	    159206 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim512-2         	    2306	    134352 ns/op	   11544 B/op	      19 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     561	    574236 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     520	    547984 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     568	    567217 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     475	    741203 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     415	    693761 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     451	    734922 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     468	    616788 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim2048-2        	     500	    567570 ns/op	   72600 B/op	      23 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     133	   2370777 ns/op	  308762 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     135	   2133253 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     126	   2344162 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     138	   2181058 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     138	   2217127 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     126	   2163739 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     141	   2367944 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim8192-2        	     140	   2173359 ns/op	  308760 B/op	      27 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      72	   4252710 ns/op	  587288 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      68	   4260871 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      64	   4982093 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      72	   4431681 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      72	   4909663 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      67	   4483422 ns/op	  587288 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      67	   4395540 ns/op	  587289 B/op	      29 allocs/op
+BenchmarkCompressGradientsJSON/dim16384-2       	      68	   4377063 ns/op	  587289 B/op	      29 allocs/op
 PASS
-ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	6.000s
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	13.545s
 goos: linux
 goarch: amd64
 pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi
 cpu: AMD EPYC 7763 64-Core Processor                
-BenchmarkCompressGradientsZeroCopy/dim512-2         	  107031	      2004 ns/op	    1024 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim512-2         	  115082	      1985 ns/op	    1024 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim512-2         	  115186	      1938 ns/op	    1024 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim512-2         	  117741	      1946 ns/op	    1024 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim512-2         	  116877	      2268 ns/op	    1024 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-2        	   29504	      7869 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-2        	   30957	      8123 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-2        	   29534	      7980 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-2        	   30962	      8198 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim2048-2        	   30385	      8297 ns/op	    4096 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-2        	    8173	     32487 ns/op	   16384 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-2        	    8262	     36881 ns/op	   16384 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-2        	    8240	     30797 ns/op	   16384 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-2        	    8268	     30660 ns/op	   16384 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim8192-2        	    7164	     30786 ns/op	   16384 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3583	     63603 ns/op	   32768 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3295	     61796 ns/op	   32768 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3268	     61439 ns/op	   32768 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3703	     61487 ns/op	   32768 B/op	       1 allocs/op
-BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3800	     63044 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  153843	      2089 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  136405	      2320 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  146761	      2110 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  146652	      2270 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  146664	      1998 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  145609	      2034 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  145070	      2024 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim512-2         	  148587	      2041 ns/op	    1024 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   35930	      8568 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   34149	      9487 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   36393	      8080 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   34687	      8170 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   36450	      8551 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   35242	      8497 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   38008	      8954 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim2048-2        	   29330	      8716 ns/op	    4096 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	   10000	     32466 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	    9219	     33187 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	    9416	     31789 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	   10000	     32431 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	    7436	     36600 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	    9183	     32778 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	    8047	     32503 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim8192-2        	   10000	     34135 ns/op	   16384 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4706	     78033 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4077	     67800 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4416	     74476 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4347	     66265 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4490	     64012 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    3948	     67202 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    4714	     64767 ns/op	   32768 B/op	       1 allocs/op
+BenchmarkCompressGradientsZeroCopy/dim16384-2       	    2762	     91841 ns/op	   32768 B/op	       1 allocs/op
 PASS
-ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	5.392s
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/pyapi	11.119s

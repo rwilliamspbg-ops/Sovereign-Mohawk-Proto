@@ -144,3 +144,57 @@ func TestGradientProtocolRejectsKEXMismatch(t *testing.T) {
 		t.Fatalf("expected kex mismatch rejection, got accepted=true")
 	}
 }
+
+func TestGradientProtocolBatch(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	receiver, err := network.NewHost(ctx, network.DefaultConfig(0))
+	if err != nil {
+		t.Fatalf("receiver host: %v", err)
+	}
+	defer receiver.Close()
+
+	received := make(chan *network.GradientMessage, 4)
+	network.RegisterGradientHandlerWithKEX(receiver, network.KEXModeX25519, func(msg *network.GradientMessage) *network.GradientAck {
+		received <- msg
+		return &network.GradientAck{Accepted: true}
+	})
+
+	sender, err := network.NewHost(ctx, network.DefaultConfig(0))
+	if err != nil {
+		t.Fatalf("sender host: %v", err)
+	}
+	defer sender.Close()
+
+	batch := []network.GradientMessage{
+		{NodeID: "node-1", TaskID: "task-batch", Round: 1, Gradients: []float64{0.1, 0.2}},
+		{NodeID: "node-2", TaskID: "task-batch", Round: 1, Gradients: []float64{0.2, 0.3}},
+		{NodeID: "node-3", TaskID: "task-batch", Round: 1, Gradients: []float64{0.3, 0.4}},
+	}
+
+	ack, err := network.SendGradientBatchWithKEX(ctx, sender, receiver.ID(), receiver.Addrs(), batch, network.KEXModeX25519)
+	if err != nil {
+		t.Fatalf("SendGradientBatchWithKEX: %v", err)
+	}
+	if !ack.Accepted {
+		t.Fatalf("expected batch accepted, got false: %s", ack.Reason)
+	}
+	if ack.BatchAccepted != len(batch) {
+		t.Fatalf("expected BatchAccepted=%d, got %d", len(batch), ack.BatchAccepted)
+	}
+	if ack.BatchRejected != 0 {
+		t.Fatalf("expected BatchRejected=0, got %d", ack.BatchRejected)
+	}
+
+	for i := 0; i < len(batch); i++ {
+		select {
+		case got := <-received:
+			if got.TaskID != "task-batch" || len(got.Gradients) != 2 {
+				t.Fatalf("unexpected batch message: %+v", got)
+			}
+		case <-ctx.Done():
+			t.Fatal("timed out waiting for batched gradient message")
+		}
+	}
+}

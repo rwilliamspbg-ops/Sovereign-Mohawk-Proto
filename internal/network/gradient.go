@@ -48,12 +48,15 @@ type GradientAck struct {
 	Reason          string `json:"reason,omitempty"`
 	NegotiatedKEX   string `json:"negotiated_kex,omitempty"`
 	KEXPublicKeyLen int    `json:"kex_public_key_len,omitempty"`
+	BatchAccepted   int    `json:"batch_accepted,omitempty"`
+	BatchRejected   int    `json:"batch_rejected,omitempty"`
 }
 
 type gradientEnvelope struct {
-	KEXMode      string          `json:"kex_mode,omitempty"`
-	KEXPublicKey []byte          `json:"kex_public_key,omitempty"`
-	Message      GradientMessage `json:"message"`
+	KEXMode      string            `json:"kex_mode,omitempty"`
+	KEXPublicKey []byte            `json:"kex_public_key,omitempty"`
+	Message      GradientMessage   `json:"message"`
+	Messages     []GradientMessage `json:"messages,omitempty"`
 }
 
 // RegisterGradientHandler installs the /mohawk/gradient/1.0.0 stream handler on h.
@@ -77,7 +80,7 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 		ackMeta := &GradientAck{}
 
 		var env gradientEnvelope
-		if err := json.Unmarshal(payload, &env); err == nil && env.Message.NodeID != "" {
+		if err := json.Unmarshal(payload, &env); err == nil && (env.Message.NodeID != "" || len(env.Messages) > 0) {
 			mode := ParseKEXMode(env.KEXMode)
 			if mode == "" {
 				_ = json.NewEncoder(s).Encode(&GradientAck{Accepted: false, Reason: fmt.Sprintf("unsupported kex mode %q", env.KEXMode)})
@@ -94,6 +97,27 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 			}
 			ackMeta.NegotiatedKEX = string(mode)
 			ackMeta.KEXPublicKeyLen = len(env.KEXPublicKey)
+			if len(env.Messages) > 0 {
+				batchAck := &GradientAck{Accepted: true, NegotiatedKEX: ackMeta.NegotiatedKEX, KEXPublicKeyLen: ackMeta.KEXPublicKeyLen}
+				for i := range env.Messages {
+					ack := onGradient(&env.Messages[i])
+					if ack == nil {
+						batchAck.BatchAccepted++
+						continue
+					}
+					if ack.Accepted {
+						batchAck.BatchAccepted++
+					} else {
+						batchAck.BatchRejected++
+						batchAck.Accepted = false
+						if batchAck.Reason == "" {
+							batchAck.Reason = ack.Reason
+						}
+					}
+				}
+				_ = json.NewEncoder(s).Encode(batchAck)
+				return
+			}
 			msg = env.Message
 		} else if err := json.Unmarshal(payload, &msg); err != nil {
 			s.Reset()
@@ -155,6 +179,59 @@ func SendGradientWithKEX(ctx context.Context, h corehost.Host, peerID peer.ID, p
 	var ack GradientAck
 	if err := json.NewDecoder(bufio.NewReader(s)).Decode(&ack); err != nil {
 		return nil, fmt.Errorf("gradient: read ack: %w", err)
+	}
+	return &ack, nil
+}
+
+// SendGradientBatch sends multiple gradient updates over a single stream.
+func SendGradientBatch(ctx context.Context, h corehost.Host, peerID peer.ID, peerAddrs []ma.Multiaddr, msgs []GradientMessage) (*GradientAck, error) {
+	return SendGradientBatchWithKEX(ctx, h, peerID, peerAddrs, msgs, KEXModeX25519)
+}
+
+// SendGradientBatchWithKEX sends multiple gradient updates over a single stream with explicit KEX metadata.
+func SendGradientBatchWithKEX(ctx context.Context, h corehost.Host, peerID peer.ID, peerAddrs []ma.Multiaddr, msgs []GradientMessage, mode KEXMode) (*GradientAck, error) {
+	if len(msgs) == 0 {
+		return &GradientAck{Accepted: true, BatchAccepted: 0, BatchRejected: 0}, nil
+	}
+	if len(peerAddrs) > 0 {
+		if err := h.Connect(ctx, peer.AddrInfo{ID: peerID, Addrs: peerAddrs}); err != nil {
+			return nil, fmt.Errorf("gradient: connect to %s: %w", peerID, err)
+		}
+	}
+	if mode == "" {
+		mode = KEXModeX25519
+	}
+	if ParseKEXMode(string(mode)) == "" {
+		return nil, fmt.Errorf("gradient: unsupported kex mode %q", mode)
+	}
+	kexPublicKey, err := generateKEXPublicKey(mode)
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now().UnixMilli()
+	for i := range msgs {
+		if msgs[i].TimestampMS == 0 {
+			msgs[i].TimestampMS = now
+		}
+	}
+
+	s, err := h.NewStream(ctx, peerID, GradientProtocol)
+	if err != nil {
+		return nil, fmt.Errorf("gradient: open stream to %s: %w", peerID, err)
+	}
+	defer s.Close()
+	env := gradientEnvelope{
+		KEXMode:      string(mode),
+		KEXPublicKey: kexPublicKey,
+		Messages:     msgs,
+	}
+	if err := json.NewEncoder(s).Encode(&env); err != nil {
+		return nil, fmt.Errorf("gradient: send batch: %w", err)
+	}
+	_ = s.CloseWrite()
+	var ack GradientAck
+	if err := json.NewDecoder(bufio.NewReader(s)).Decode(&ack); err != nil {
+		return nil, fmt.Errorf("gradient: read batch ack: %w", err)
 	}
 	return &ack, nil
 }

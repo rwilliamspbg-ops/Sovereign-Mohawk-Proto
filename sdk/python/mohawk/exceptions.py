@@ -56,7 +56,7 @@ class AttestationError(MohawkError):
 
 
 # Map Go error_code strings to Python exception classes.
-_ERROR_CODE_MAP: dict = {
+_ERROR_CODE_MAP: dict[str, type[VerificationError]] = {
     "PROOF_TOO_SHORT": ProofTooShortError,
     "PROOF_POINT_INVALID": ProofStructureError,
     "PROOF_DEGENERATE": ProofDegenerateError,

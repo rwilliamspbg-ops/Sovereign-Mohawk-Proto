@@ -105,6 +105,23 @@ curl -fsS http://localhost:9090/api/v1/targets | grep '"instance":"orchestrator:
 * `Consensus Trust Monitoring`
 * `TPM Metrics`
 
+### Operations Metric Contract (CI Enforced)
+
+For smoke validation and release confidence, Operations dashboards rely on these metric/query families:
+
+* `mohawk_*` metric family presence
+* `mohawk_tpm_*` metric family presence
+
+Required Prometheus jobs for baseline panel population:
+
+* `orchestrator`
+* `tpm-metrics`
+* `pyapi-exporter`
+
+CI checks:
+
+* `.github/workflows/monitoring-smoke-gate.yml` validates Prometheus/Grafana health, required dashboard registration, target readiness, and key query family population.
+
 ### Weekly Digest Webhooks (Optional)
 
 `Weekly Readiness Digest` can send markdown summary notifications to chat systems.

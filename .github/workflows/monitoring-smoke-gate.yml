@@ -84,6 +84,49 @@ jobs:
           raise SystemExit("Prometheus query did not return a payload")
           PY
 
+      - name: Verify key query families return data
+        run: |
+          python3 - <<'PY'
+          import json
+          import time
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          endpoint = "http://localhost:9090/api/v1/query"
+          checks = {
+              "mohawk_metrics_family": "count({__name__=~\"mohawk_.*\"})",
+              "tpm_metrics_family": "count({__name__=~\"mohawk_tpm_.*\"})",
+          }
+
+          output = {}
+          missing = []
+          for key, query_expr in checks.items():
+              url = f"{endpoint}?" + urllib.parse.urlencode({"query": query_expr})
+              result_count = 0
+              payload = None
+              for _ in range(90):
+                  with urllib.request.urlopen(url, timeout=10) as resp:
+                      payload = json.loads(resp.read().decode("utf-8"))
+                  result_count = len(payload.get("data", {}).get("result", []))
+                  if result_count > 0:
+                      break
+                  time.sleep(2)
+
+              output[key] = {
+                  "query": query_expr,
+                  "result_count": result_count,
+                  "payload": payload,
+              }
+              if result_count == 0:
+                  missing.append(key)
+
+          Path('/tmp/key_query_results.json').write_text(json.dumps(output), encoding='utf-8')
+          if missing:
+              raise SystemExit(f"Missing data for key query families: {missing}")
+          print("Key query families populated:", ", ".join(sorted(checks.keys())))
+          PY
+
       - name: Verify v2 dashboard registration
         run: |
           curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
@@ -113,6 +156,7 @@ jobs:
           path: |
             /tmp/up.json
             /tmp/grafana_dashboards.json
+            /tmp/key_query_results.json
 
       - name: Stop stack
         if: always()

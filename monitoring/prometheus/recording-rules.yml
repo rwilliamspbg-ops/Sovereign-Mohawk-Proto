@@ -82,3 +82,13 @@ groups:
         expr: max(mohawk_thinker_clause_config{setting="manual_review_required_above_zscore"})
       - record: mohawk:migration_latency_ms:p95
         expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_migration_request_latency_ms_bucket[5m])))
+
+  - name: mohawk_v2_aggregation_stability
+    interval: 30s
+    rules:
+      - record: mohawk:aggregation_workers:avg5m
+        expr: avg_over_time(mohawk_aggregation_workers[5m])
+      - record: mohawk:aggregation_workers:stddev5m
+        expr: stddev_over_time(mohawk_aggregation_workers[5m])
+      - record: mohawk:fedavg_gradient_throughput:avg5m
+        expr: avg_over_time(mohawk_fedavg_gradient_throughput_per_sec[5m])

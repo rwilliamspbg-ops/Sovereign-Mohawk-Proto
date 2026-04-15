@@ -99,6 +99,7 @@ make golden-path-e2e
 
 - Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
 - Operations and incident response: [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)
+- Performance benchmarking contract and regression policy: [PERFORMANCE.md](PERFORMANCE.md)
 - Security policy and threat model: [SECURITY.md](SECURITY.md)
 - EU AI compliance matrix (Articles 8-15): [COMPLIANCE.md](COMPLIANCE.md)
 - QMS manual: [QMS_SYSTEM_MANUAL.md](QMS_SYSTEM_MANUAL.md)

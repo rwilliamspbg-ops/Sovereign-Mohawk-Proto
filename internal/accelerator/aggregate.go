@@ -17,11 +17,19 @@ package accelerator
 import (
 	"fmt"
 	"math"
+	"os"
 	"runtime"
+	"strconv"
 	"sync"
 )
 
 const autoParallelMinElements = 262144
+
+var (
+	aggregateWorkersMu      sync.Mutex
+	aggregateWorkersByShape = map[uint64]int{}
+	partialBufferPool       sync.Pool
+)
 
 // ResolveAggregateWorkers determines the worker count used by AggregateParallel.
 //
@@ -46,12 +54,30 @@ func ResolveAggregateWorkers(numGradients int, dim int, requestedWorkers int) in
 	}
 
 	workers := runtime.GOMAXPROCS(0)
+	queueDepth := readPositiveIntEnv("MOHAWK_AGGREGATE_QUEUE_DEPTH")
+	if queueDepth > 0 {
+		// Increase pressure response gradually when backlog grows.
+		workers += queueDepth / 4
+	}
 	if workers < 1 {
 		workers = 1
 	}
 	if workers > numGradients {
 		workers = numGradients
 	}
+
+	shape := (uint64(uint32(numGradients)) << 32) | uint64(uint32(dim))
+	aggregateWorkersMu.Lock()
+	if prev, ok := aggregateWorkersByShape[shape]; ok {
+		if workers > prev+1 {
+			workers = prev + 1
+		} else if workers < prev-1 {
+			workers = prev - 1
+		}
+	}
+	aggregateWorkersByShape[shape] = workers
+	aggregateWorkersMu.Unlock()
+
 	return workers
 }
 
@@ -88,7 +114,7 @@ func AggregateParallel(gradients [][]float32, maxNorm float64, workers int) ([]f
 		if start >= end {
 			break
 		}
-		partials[w] = make([]float32, dim)
+		partials[w] = acquirePartialBuffer(dim)
 		wg.Add(1)
 		go func(slice [][]float32, local []float32) {
 			defer wg.Done()
@@ -104,6 +130,7 @@ func AggregateParallel(gradients [][]float32, maxNorm float64, workers int) ([]f
 			continue
 		}
 		accumulateUnrolled(sum, partial)
+		releasePartialBuffer(partial)
 	}
 
 	// Average.
@@ -157,4 +184,36 @@ func L2Norm(v []float32) float64 {
 		sum += float64(x) * float64(x)
 	}
 	return math.Sqrt(sum)
+}
+
+func acquirePartialBuffer(dim int) []float32 {
+	if buf, ok := partialBufferPool.Get().([]float32); ok {
+		if cap(buf) >= dim {
+			buf = buf[:dim]
+			for i := range buf {
+				buf[i] = 0
+			}
+			return buf
+		}
+	}
+	return make([]float32, dim)
+}
+
+func releasePartialBuffer(buf []float32) {
+	if buf == nil {
+		return
+	}
+	partialBufferPool.Put(buf)
+}
+
+func readPositiveIntEnv(key string) int {
+	raw := os.Getenv(key)
+	if raw == "" {
+		return 0
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil || v <= 0 {
+		return 0
+	}
+	return v
 }

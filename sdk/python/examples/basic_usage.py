@@ -2,7 +2,6 @@
 """Basic usage example for the Sovereign-Mohawk Python SDK."""
 
 import sys
-import json
 from pathlib import Path
 
 # Add parent directory to path for local development
@@ -36,7 +35,7 @@ def main():
         print("📊 Checking node status...")
         status = node.status("demo-node-001")
         if "status_data" in status:
-            print(f"✅ Node Status:")
+            print("✅ Node Status:")
             for key, value in status["status_data"].items():
                 print(f"   {key}: {value}")
         print()

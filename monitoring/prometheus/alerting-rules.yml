@@ -241,3 +241,14 @@ groups:
           summary: "Router proof verification failures detected"
           description: "At least one publish operation failed proof verification in the last 15m; investigate replay/tampering risk immediately."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/CROSS_VERTICAL_FEDERATED_ROUTER.md"
+
+      - alert: MohawkAggregationWorkerOscillationHigh
+        expr: mohawk:aggregation_workers:stddev5m > 2
+        for: 10m
+        labels:
+          severity: warning
+          domain: performance
+        annotations:
+          summary: "Aggregation worker count is oscillating"
+          description: "Worker-count standard deviation exceeded 2 over a 5m window, indicating unstable adaptive scheduling under mixed load."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"

@@ -8,11 +8,12 @@ FP16/INT8 conversion; otherwise it falls back to pure-Python struct packing.
 from __future__ import annotations
 
 import platform
+import math
 import struct
 import subprocess
 import sys
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 __all__ = [
     "Backend",
@@ -295,7 +296,7 @@ def fp16_to_fp32(data: bytes) -> List[float]:
     """Convert IEEE 754 FP16 bytes back to float32 values."""
     if _HAS_NUMPY:
         arr = np.frombuffer(data, dtype=np.float16)
-        return arr.astype(np.float32).tolist()
+        return cast(List[float], arr.astype(np.float32).tolist())
     n = len(data) // 2
     result: List[float] = []
     for i in range(n):
@@ -343,7 +344,7 @@ def dequantize_int8(data: bytes, scale: float) -> List[float]:
     """Recover float32 values from INT8 quantized bytes + scale."""
     if _HAS_NUMPY:
         arr = np.frombuffer(data, dtype=np.int8)
-        return (arr.astype(np.float32) * scale).tolist()
+        return cast(List[float], (arr.astype(np.float32) * scale).tolist())
     out: List[float] = []
     for b in data:
         # reinterpret unsigned byte as signed int8
@@ -361,6 +362,7 @@ def compression_ratio(original_bytes: int, compressed_bytes: int) -> float:
 
 def l2_norm(values: List[float]) -> float:
     """Compute the ℓ₂ norm of a float vector."""
-    if _HAS_NUMPY:
-        return float(np.linalg.norm(np.array(values, dtype=np.float32)))
-    return sum(v * v for v in values) ** 0.5
+    total = 0.0
+    for value in values:
+        total += value * value
+    return math.sqrt(total)

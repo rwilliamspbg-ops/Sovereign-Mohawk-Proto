@@ -104,16 +104,42 @@ jobs:
 
       - name: Install benchstat
         run: |
-          go install golang.org/x/perf/cmd/benchstat@latest
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          ./scripts/go_with_toolchain.sh go install golang.org/x/perf/cmd/benchstat@latest
+          echo "$(./scripts/go_with_toolchain.sh go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Detect performance-impacting changes
+        id: perf_changes
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git fetch --no-tags origin "$BASE_SHA" "$HEAD_SHA"
+
+          if git merge-base "$BASE_SHA" "$HEAD_SHA" >/dev/null 2>&1; then
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+          else
+            echo "warning: no merge base for $BASE_SHA and $HEAD_SHA; using two-dot diff fallback"
+            CHANGED_FILES="$(git diff --name-only "$BASE_SHA..$HEAD_SHA")"
+          fi
+
+          echo "$CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -Eq '^(internal/pyapi/|internal/bridge/|cmd/pyapi-metrics-exporter/|scripts/benchmark_bridge_compression_compare\.sh$|scripts/go_with_toolchain\.sh$|go\.mod$|go\.sum$|test/)'; then
+            echo "run_benchmark=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_benchmark=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Download bridge format artifacts
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: bridge-compression-format-artifacts
           path: .benchmarks/bridge/current_artifacts
 
       - name: Restore bridge baseline cache from main
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: .benchmarks/bridge/base_main_raw.txt
@@ -122,6 +148,7 @@ jobs:
             bridge-main-
 
       - name: Require cached bridge baseline
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           if [ ! -s .benchmarks/bridge/base_main_raw.txt ]; then
             echo "error: missing cached bridge baseline from main"
@@ -130,6 +157,7 @@ jobs:
           fi
 
       - name: Build bridge regression report
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           mkdir -p results/metrics
           CURRENT_RAW="$(find .benchmarks/bridge/current_artifacts -type f -name 'bridge_compression_benchmark_raw.txt' | head -n 1)"
@@ -153,7 +181,20 @@ jobs:
             echo '```'
           } > results/metrics/bridge_compression_regression_compare.md
 
+      - name: Write skipped bridge benchmark report
+        if: steps.perf_changes.outputs.run_benchmark != 'true'
+        run: |
+          mkdir -p results/metrics
+          {
+            echo "# Bridge Compression Regression Compare"
+            echo
+            echo "Benchmark gate skipped because no bridge performance-impacting paths changed in this PR."
+            echo
+            echo "Paths considered bridge performance-impacting: internal/pyapi/, internal/bridge/, cmd/pyapi-metrics-exporter/, test/, go.mod, go.sum, and benchmark scripts"
+          } > results/metrics/bridge_compression_regression_compare.md
+
       - name: Enforce bridge regression threshold
+        if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
           python3 - <<'PY'
           import os
@@ -185,8 +226,8 @@ jobs:
                   break
 
           if delta is None:
-            print("warning: unable to parse geomean regression from benchstat output; skipping regression threshold enforcement")
-            raise SystemExit(0)
+            print("error: unable to parse geomean regression from benchstat output")
+            raise SystemExit(1)
 
           print(f"parsed geomean sec/op delta: {delta:.2f}% (threshold: +{threshold:.2f}%)")
           if delta > threshold:

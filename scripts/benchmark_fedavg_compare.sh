@@ -3,12 +3,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BASE_REF="${BASE_REF:-HEAD~1}"
-BENCH_TIME="${BENCH_TIME:-200ms}"
+BASE_REF="${BASE_REF:-origin/main}"
+BENCH_TIME="${BENCH_TIME:-300ms}"
 BENCH_COUNT="${BENCH_COUNT:-10}"
 BENCH_CPU="${BENCH_CPU:-2}"
 GO_TEST_TARGET="${GO_TEST_TARGET:-./test}"
 BENCH_REGEX="${BENCH_REGEX:-BenchmarkAggregateParallel}"
+BENCHMARK_SYMBOL="${BENCHMARK_SYMBOL:-BenchmarkAggregateParallel/}"
 REPORT_PATH="${REPORT_PATH:-results/metrics/fedavg_benchmark_compare.md}"
 BENCHSTAT_ALPHA="${BENCHSTAT_ALPHA:-0.01}"
 USE_BENCHSTAT="${USE_BENCHSTAT:-always}"
@@ -61,6 +62,17 @@ run_bench() {
 
 run_bench "$BASE_WORKTREE" "$BASE_OUT"
 run_bench "$ROOT_DIR" "$CURR_OUT"
+
+if [[ -n "$BENCHMARK_SYMBOL" ]]; then
+  if ! grep -q "$BENCHMARK_SYMBOL" "$BASE_OUT"; then
+    echo "error: base benchmark output does not include expected symbol '$BENCHMARK_SYMBOL'"
+    exit 1
+  fi
+  if ! grep -q "$BENCHMARK_SYMBOL" "$CURR_OUT"; then
+    echo "error: current benchmark output does not include expected symbol '$BENCHMARK_SYMBOL'"
+    exit 1
+  fi
+fi
 
 mkdir -p "$(dirname "$ROOT_DIR/$REPORT_PATH")"
 

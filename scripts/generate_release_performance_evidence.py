@@ -2,6 +2,9 @@
 import datetime as dt
 from pathlib import Path
 
+CANONICAL_OUTPUT = Path("results/metrics/release_performance_evidence.md")
+MIRROR_OUTPUT = Path("captured_artifacts/release_performance_evidence.md")
+
 SECTIONS = [
     (
         "Bridge Compression",
@@ -64,10 +67,18 @@ def build_report(repo_root: Path) -> str:
 
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
-    output = repo_root / "results/metrics/release_performance_evidence.md"
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(build_report(repo_root), encoding="utf-8")
-    print(f"wrote release evidence index to {output}")
+    report = build_report(repo_root)
+
+    canonical_output = repo_root / CANONICAL_OUTPUT
+    canonical_output.parent.mkdir(parents=True, exist_ok=True)
+    canonical_output.write_text(report, encoding="utf-8")
+
+    mirror_output = repo_root / MIRROR_OUTPUT
+    mirror_output.parent.mkdir(parents=True, exist_ok=True)
+    mirror_output.write_text(report, encoding="utf-8")
+
+    print(f"wrote release evidence index to {canonical_output}")
+    print(f"mirrored release evidence index to {mirror_output}")
     return 0
 
 

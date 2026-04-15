@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from functools import partial
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Union
 
 from .client import JsonDict, MohawkNode
 
@@ -25,10 +25,16 @@ class AsyncMohawkNode:
     async def __aenter__(self) -> "AsyncMohawkNode":
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
         self.close()
 
-    async def _run(self, fn, /, *args, **kwargs):
+    async def _run(
+        self,
+        fn: Callable[..., JsonDict],
+        /,
+        *args: Any,
+        **kwargs: Any,
+    ) -> JsonDict:
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(None, partial(fn, *args, **kwargs))
 

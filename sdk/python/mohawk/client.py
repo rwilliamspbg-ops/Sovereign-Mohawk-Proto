@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
+import base64
 import ctypes
 import json
 import os
 import sys
 import time
-import base64
 import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Union, cast
 
 from .accelerator import (
     build_auto_tune_profile,
@@ -84,7 +84,7 @@ class ZeroCopyBridge:
             return {"success": False, "message": f"{symbol} returned no data"}
         try:
             raw = ctypes.string_at(result_ptr)
-            return json.loads(raw.decode("utf-8"))
+            return cast(JsonDict, json.loads(raw.decode("utf-8")))
         finally:
             if self._free_string is not None:
                 self._free_string(result_ptr)
@@ -103,6 +103,7 @@ class ZeroCopyBridge:
         # Validate element count based on raw bytes before any buffer materialization
         # to prevent memory/CPU DoS from oversized payloads.
         _validate_gradient_count(view.nbytes // 4)
+        float_view: memoryview[Any]
         if view.format in {"f", "=f", "<f"}:
             float_view = view
         elif view.format in {"B", "b", "c"}:
@@ -142,7 +143,7 @@ class ZeroCopyBridge:
 
         try:
             raw = ctypes.string_at(result_ptr)
-            parsed = json.loads(raw.decode("utf-8"))
+            parsed = cast(JsonDict, json.loads(raw.decode("utf-8")))
         finally:
             if self._free_string is not None:
                 self._free_string(result_ptr)
@@ -204,7 +205,7 @@ class MohawkNode:
     def __enter__(self) -> "MohawkNode":
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
         self.close()
 
     def start(self, config_path: str, node_id: str = "default") -> JsonDict:
@@ -390,13 +391,18 @@ class MohawkNode:
     def auto_tune_profile(self, vector_length: int = 0) -> JsonDict:
         info = self.device_info()
         if info.get("success", False):
+            data_obj: JsonDict = {}
             data = info.get("data", {})
-            if isinstance(data, str):
+            if isinstance(data, dict):
+                data_obj = dict(data)
+            elif isinstance(data, str):
                 try:
-                    data = json.loads(data)
+                    parsed = json.loads(data)
                 except json.JSONDecodeError:
-                    data = {}
-            autotune = data.get("autotune")
+                    parsed = {}
+                if isinstance(parsed, dict):
+                    data_obj = parsed
+            autotune = data_obj.get("autotune")
             if isinstance(autotune, dict):
                 return {
                     "success": True,
@@ -418,7 +424,9 @@ class MohawkNode:
         return result
 
     def _router_base_url(self, router_url: Optional[str]) -> str:
-        raw = router_url or os.getenv("MOHAWK_ROUTER_URL", "http://localhost:8087")
+        raw = router_url if router_url is not None else os.getenv("MOHAWK_ROUTER_URL")
+        if raw is None:
+            raw = "http://localhost:8087"
         return raw.rstrip("/")
 
     @staticmethod
@@ -457,7 +465,7 @@ class MohawkNode:
                 parsed = json.loads(raw)
                 if isinstance(parsed, dict):
                     parsed.setdefault("success", True)
-                    return parsed
+                    return cast(JsonDict, parsed)
                 return {"success": True, "data": parsed}
         except urllib.error.HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")
@@ -799,7 +807,7 @@ class MohawkNode:
         data = result.get("data")
         if isinstance(data, str) and data:
             try:
-                payload_data = json.loads(data)
+                payload_data = cast(Optional[JsonDict], json.loads(data))
             except json.JSONDecodeError:
                 payload_data = None
             if isinstance(payload_data, dict):

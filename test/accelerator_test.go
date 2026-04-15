@@ -144,6 +144,18 @@ func TestResolveAggregateWorkers_AutoLargeUsesParallel(t *testing.T) {
 	}
 }
 
+func TestResolveAggregateWorkers_HysteresisUnderQueuePressure(t *testing.T) {
+	t.Setenv("MOHAWK_AGGREGATE_QUEUE_DEPTH", "1")
+	baseline := accelerator.ResolveAggregateWorkers(777, 3333, 0)
+
+	t.Setenv("MOHAWK_AGGREGATE_QUEUE_DEPTH", "64")
+	next := accelerator.ResolveAggregateWorkers(777, 3333, 0)
+
+	if next > baseline+1 {
+		t.Fatalf("expected hysteresis to limit worker jump (baseline=%d next=%d)", baseline, next)
+	}
+}
+
 func BenchmarkAggregateParallel(b *testing.B) {
 	cases := []struct {
 		name    string
@@ -190,5 +202,24 @@ func BenchmarkAggregateParallel(b *testing.B) {
 				}
 			})
 		}
+	}
+}
+
+func BenchmarkAggregateAndCompressMixedLoad(b *testing.B) {
+	gradients := makeBenchmarkGradients(256, 4096)
+	fp32 := make([]float32, 4096)
+	for i := range fp32 {
+		fp32[i] = float32((i%97)-48) * 0.01
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		workers := accelerator.ResolveAggregateWorkers(len(gradients), len(gradients[0]), 0)
+		if _, err := accelerator.AggregateParallel(gradients, 1.0, workers); err != nil {
+			b.Fatalf("AggregateParallel error: %v", err)
+		}
+		_ = accelerator.FP32ToFP16(fp32)
 	}
 }

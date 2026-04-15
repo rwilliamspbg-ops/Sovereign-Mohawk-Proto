@@ -11,6 +11,8 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  PY_PERF_MEAN_DELTA_MAX_PCT: "10.0"
+  PY_PERF_P99_DELTA_MAX_PCT: "15.0"
 
 jobs:
   performance-gate:
@@ -37,11 +39,26 @@ jobs:
             --benchmark-only \
             --benchmark-json=benchmark-results.json
 
+      - name: Restore Python performance baseline cache from main
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        with:
+          path: .benchmarks/python/base_main.json
+          key: python-perf-main-${{ github.sha }}
+          restore-keys: |
+            python-perf-main-
+
       - name: Performance Gate Check
         run: |
           python3 << 'EOF'
           import json
+          import os
           import sys
+          from pathlib import Path
+
+          baseline_path = Path('.benchmarks/python/base_main.json')
+          mean_delta_max_pct = float(os.environ.get('PY_PERF_MEAN_DELTA_MAX_PCT', '10.0'))
+          p99_delta_max_pct = float(os.environ.get('PY_PERF_P99_DELTA_MAX_PCT', '15.0'))
 
           try:
               with open('benchmark-results.json', 'r') as f:
@@ -63,6 +80,23 @@ jobs:
           if missing:
               failures.append(f"Missing expected benchmarks: {', '.join(sorted(missing))}")
 
+          baseline_benchmarks = {}
+          baseline_loaded = False
+          if baseline_path.exists():
+              try:
+                  with baseline_path.open('r', encoding='utf-8') as f:
+                      baseline_results = json.load(f)
+                  for benchmark in baseline_results.get('benchmarks', []):
+                      name = benchmark.get('name')
+                      if name:
+                          baseline_benchmarks[name] = benchmark
+                  baseline_loaded = True
+                  print(f"Loaded baseline benchmark artifact from {baseline_path}")
+              except Exception as exc:
+                  failures.append(f"Failed to parse baseline benchmark artifact: {exc}")
+          else:
+              print("No baseline benchmark artifact found in cache; trend checks skipped.")
+
           for benchmark in results.get('benchmarks', []):
               name = benchmark['name']
               if name not in thresholds:
@@ -77,6 +111,25 @@ jobs:
               if 'p99_max_ms' in limits and p99_ms > limits['p99_max_ms']:
                   failures.append(f"{name}: p99 {p99_ms:.2f}ms > {limits['p99_max_ms']}ms")
 
+              if baseline_loaded and name in baseline_benchmarks:
+                  baseline_stats = baseline_benchmarks[name].get('stats', {})
+                  base_mean_ms = float(baseline_stats.get('mean', 0.0)) * 1000.0
+                  base_p99_ms = float(baseline_stats.get('p99', 0.0)) * 1000.0
+                  if base_mean_ms > 0.0:
+                    mean_delta_pct = ((mean_ms - base_mean_ms) / base_mean_ms) * 100.0
+                    if mean_delta_pct > mean_delta_max_pct:
+                      failures.append(
+                        f"{name}: mean regression {mean_delta_pct:.2f}% > {mean_delta_max_pct:.2f}% "
+                        f"(baseline {base_mean_ms:.2f}ms, current {mean_ms:.2f}ms)"
+                      )
+                  if base_p99_ms > 0.0:
+                    p99_delta_pct = ((p99_ms - base_p99_ms) / base_p99_ms) * 100.0
+                    if p99_delta_pct > p99_delta_max_pct:
+                      failures.append(
+                        f"{name}: p99 regression {p99_delta_pct:.2f}% > {p99_delta_max_pct:.2f}% "
+                        f"(baseline {base_p99_ms:.2f}ms, current {p99_ms:.2f}ms)"
+                      )
+
           if failures:
               print("\n🚫 PERFORMANCE GATE FAILED:")
               for f in failures:
@@ -85,6 +138,19 @@ jobs:
 
           print("✅ All performance gates passed.")
           EOF
+
+      - name: Store Python baseline benchmark artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p .benchmarks/python
+          cp benchmark-results.json .benchmarks/python/base_main.json
+
+      - name: Save Python baseline cache on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        with:
+          path: .benchmarks/python/base_main.json
+          key: python-perf-main-${{ github.sha }}
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

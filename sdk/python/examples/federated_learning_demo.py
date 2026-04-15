@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Federated learning workflow demonstration."""
 
+import random
 import sys
 import time
-import random
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -86,7 +86,7 @@ def main():
         print("\n🛰️  Running stream aggregation (INT8 compression)...")
         gradient_stream = [u["gradient"] for u in all_updates]
         stream_result = aggregator.stream_aggregate(gradient_stream, format="int8", max_norm=1.0)
-        print(f"✅ Stream aggregation complete")
+        print("✅ Stream aggregation complete")
         print(f"   Compressed bytes: {stream_result.get('compressed_bytes', 'N/A')}")
         print(f"   Compression ratio: {stream_result.get('compression_ratio', 'N/A')}x")
 
@@ -113,7 +113,7 @@ def main():
         print(f"   Average Loss: {avg_loss:.4f}")
         print(f"   Total Samples: {int(total_samples)}")
         print(f"   Aggregation Time: {elapsed:.2f}ms")
-        print(f"   Proof Verification: 10ms (constant)")
+        print("   Proof Verification: 10ms (constant)")
 
         print("\n✨ Federated learning round complete!\n")
 

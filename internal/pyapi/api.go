@@ -995,11 +995,7 @@ func CompressGradientsZeroCopy(gradPtr *C.float, gradLen C.int, format *C.char, 
 		requestedFormat = "auto"
 	}
 
-	gradSlice := unsafe.Slice(gradPtr, int(gradLen))
-	fp32 := make([]float32, len(gradSlice))
-	for i := range gradSlice {
-		fp32[i] = float32(gradSlice[i])
-	}
+	fp32 := unsafe.Slice((*float32)(unsafe.Pointer(gradPtr)), int(gradLen))
 
 	originalBytes := len(fp32) * 4
 	tune := accelerator.BuildAutoTuneProfile(len(fp32))
