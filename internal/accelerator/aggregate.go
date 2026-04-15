@@ -31,6 +31,10 @@ var (
 	partialBufferPool       sync.Pool
 )
 
+type partialBuffer struct {
+	buf []float32
+}
+
 // ResolveAggregateWorkers determines the worker count used by AggregateParallel.
 //
 // If requestedWorkers > 0, the value is clamped to [1, numGradients].
@@ -187,13 +191,13 @@ func L2Norm(v []float32) float64 {
 }
 
 func acquirePartialBuffer(dim int) []float32 {
-	if buf, ok := partialBufferPool.Get().([]float32); ok {
-		if cap(buf) >= dim {
-			buf = buf[:dim]
-			for i := range buf {
-				buf[i] = 0
+	if pb, ok := partialBufferPool.Get().(*partialBuffer); ok && pb != nil {
+		if cap(pb.buf) >= dim {
+			pb.buf = pb.buf[:dim]
+			for i := range pb.buf {
+				pb.buf[i] = 0
 			}
-			return buf
+			return pb.buf
 		}
 	}
 	return make([]float32, dim)
@@ -203,7 +207,7 @@ func releasePartialBuffer(buf []float32) {
 	if buf == nil {
 		return
 	}
-	partialBufferPool.Put(buf)
+	partialBufferPool.Put(&partialBuffer{buf: buf})
 }
 
 func readPositiveIntEnv(key string) int {
