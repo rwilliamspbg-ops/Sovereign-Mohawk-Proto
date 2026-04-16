@@ -1037,11 +1037,7 @@ func mustExecutableDir() string {
 }
 
 func probeRepoRoot(start string) (string, bool) {
-	current := start
-	for {
-		if current == "" || current == "." || current == string(filepath.Separator) {
-			break
-		}
+	for current := start; current != "" && current != "." && current != string(filepath.Separator); {
 		if fileExists(filepath.Join(current, "go.mod")) && fileExists(filepath.Join(current, "scripts", "launch_full_stack_3_nodes.ps1")) {
 			return current, true
 		}

@@ -217,13 +217,16 @@ jobs:
           in_time_block = False
           delta = None
           for line in text.splitlines():
-            if "delta" in line and ("sec/op" in line or "ns/op" in line or "time/op" in line):
+            if ("sec/op" in line or "ns/op" in line or "time/op" in line) and ("vs base" in line or "delta" in line):
               in_time_block = True
               continue
             if in_time_block and line.strip().startswith("geomean"):
               m = re.search(r"([+-]?[0-9]+(?:\.[0-9]+)?)%", line)
               if m:
                 delta = float(m.group(1))
+              elif re.search(r'\b~\b', line):
+                # Statistically indistinguishable — treat as no regression.
+                delta = 0.0
               break
 
           if delta is None:
@@ -233,6 +236,10 @@ jobs:
                 m = re.search(r"([+-]?[0-9]+(?:\.[0-9]+)?)%", line)
                 if m:
                   delta = float(m.group(1))
+                  break
+                if re.search(r'\b~\b', line):
+                  # Statistically indistinguishable — treat as no regression.
+                  delta = 0.0
                   break
 
           if delta is None:
