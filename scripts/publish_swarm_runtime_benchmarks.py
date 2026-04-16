@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
-
 FILE_RE = re.compile(
     r"(?:runtime_)?(?P<nodes>\d+)_(?P<profile>safe|edge)(?:_count(?P<count>\d+))?\.jsonl$"
 )
@@ -135,7 +134,9 @@ def render_markdown(rows: List[BenchmarkRow]) -> str:
                 count=row.count,
                 result=result,
                 elapsed=row.elapsed_seconds,
-                wall=(f"{row.wall_seconds:.3f}" if row.wall_seconds is not None else "n/a"),
+                wall=(
+                    f"{row.wall_seconds:.3f}" if row.wall_seconds is not None else "n/a"
+                ),
                 throughput=(f"{throughput:.2f}" if throughput is not None else "n/a"),
                 ms_iter=(f"{ms_iter:.3f}" if ms_iter is not None else "n/a"),
             )

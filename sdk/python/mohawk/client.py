@@ -29,25 +29,18 @@ from .exceptions import (
     verification_error_for_code,
 )
 from .gradient import CompressedGradient, GradientBuffer
-from .high_level import (
-    BridgeTransferIntent,
-    BridgeTransferReceipt,
-    HybridProofCheck,
-    HybridVerificationReceipt,
-)
+from .high_level import HybridProofCheck, HybridVerificationReceipt
 
 JsonDict = Dict[str, Any]
 BufferLike = Union[bytes, bytearray, memoryview]
-MAX_GRADIENT_ELEMENTS = 1_000_000
+MAX_DIM = 10_000_000
 
 
 def _validate_gradient_count(count: int) -> None:
     if count < 0:
         raise AggregationError(f"invalid gradient count: {count}")
-    if count > MAX_GRADIENT_ELEMENTS:
-        raise AggregationError(
-            f"gradient length {count} exceeds MAX_GRADIENT_ELEMENTS={MAX_GRADIENT_ELEMENTS}"
-        )
+    if count > MAX_DIM:
+        raise AggregationError(f"gradient length {count} exceeds MAX_DIM={MAX_DIM}")
 
 
 class ZeroCopyBridge:
@@ -560,74 +553,6 @@ class MohawkNode:
 
     def router_provenance(self, *, router_url: Optional[str] = None) -> JsonDict:
         return self._router_request("GET", "/router/provenance", router_url=router_url)
-
-    def bridge_transfer(
-        self,
-        *,
-        source_chain: str,
-        target_chain: str,
-        asset: str,
-        amount: float,
-        sender: str,
-        receiver: str,
-        nonce: int,
-        proof: Union[str, Mapping[str, Any]],
-        route_policy: Optional[Mapping[str, Any]] = None,
-        policy_manifest_path: Optional[str] = None,
-        policy_manifest: Optional[Mapping[str, Any]] = None,
-        settle: bool = False,
-        settlement_minter: Optional[str] = None,
-        finality_depth: int = 0,
-        auth_token: Optional[str] = None,
-        role: Optional[str] = None,
-    ) -> JsonDict:
-        if not isinstance(proof, str):
-            proof = json.dumps(dict(proof), separators=(",", ":"))
-        payload = {
-            "source_chain": source_chain,
-            "target_chain": target_chain,
-            "asset": asset,
-            "amount": amount,
-            "sender": sender,
-            "receiver": receiver,
-            "nonce": nonce,
-            "finality_depth": finality_depth,
-            "proof": proof,
-        }
-        if route_policy is not None:
-            payload["route_policy"] = dict(route_policy)
-        if policy_manifest_path is not None:
-            payload["policy_manifest_path"] = policy_manifest_path
-        if policy_manifest is not None:
-            payload["policy_manifest"] = dict(policy_manifest)
-        if settle:
-            payload["settle"] = True
-        if settlement_minter is not None:
-            payload["settlement_minter"] = settlement_minter
-        if auth_token is not None:
-            payload["auth_token"] = auth_token
-        if role is not None:
-            payload["role"] = role
-        result = self.bridge.invoke_json("BridgeTransfer", payload)
-        if not result.get("success", False):
-            raise AggregationError(result.get("message", "bridge transfer failed"))
-        return result
-
-    def transfer_asset(
-        self,
-        intent: Union[BridgeTransferIntent, Mapping[str, Any]],
-        **overrides: Any,
-    ) -> BridgeTransferReceipt:
-        """Pythonic wrapper around bridge_transfer with a typed transfer receipt."""
-        request = (
-            intent
-            if isinstance(intent, BridgeTransferIntent)
-            else BridgeTransferIntent.from_mapping(intent)
-        )
-        payload = request.to_api_kwargs()
-        payload.update(overrides)
-        result = self.bridge_transfer(**payload)
-        return BridgeTransferReceipt.from_api_result(result)
 
     def mint_utility_coin(
         self,

@@ -1,0 +1,29 @@
+{
+  "timestamp_utc": "2026-04-16T20:35:20.417322Z",
+  "profile": "fast",
+  "passed": true,
+  "duration_seconds": 18.446,
+  "commands": [
+    {
+      "command": "make verify",
+      "exit_code": 0,
+      "duration_seconds": 17.074
+    },
+    {
+      "command": "make fips-regression",
+      "exit_code": 0,
+      "duration_seconds": 1.277
+    },
+    {
+      "command": "make openapi-spec",
+      "exit_code": 0,
+      "duration_seconds": 0.047
+    },
+    {
+      "command": "make capability-dashboard-matrix",
+      "exit_code": 0,
+      "duration_seconds": 0.047
+    }
+  ],
+  "failed_commands": []
+}

@@ -99,10 +99,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added admin-ready script to enforce required status checks and PR review baseline on `main`
   - Includes required contexts for Integrity Guard, monitoring smoke, readiness/chaos, and release evidence gates
 
-- **Bridge compression benchmark CI and report artifacts** (`.github/workflows/bridge-compression-benchmark.yml`, `scripts/benchmark_bridge_compression_compare.sh`, `results/metrics/bridge_compression_benchmark_compare.md`):
-  - Added PR/push workflow for JSON-vs-zero-copy bridge compression benchmarking
-  - Added markdown summary artifact and raw benchmark output artifact upload
-  - Added reproducible benchmark command surface for local and CI parity
+- **Utility coin telemetry and lifecycle reporting**:
+  - Added dashboard and recording-rule coverage for utility coin supply, holders, mint, burn, and transfer activity
+  - Removed deprecated Ethereum bridge benchmark/reporting surfaces from the release stream
 
 - **PyAPI aggregation integration test coverage** (`internal/pyapi/api_aggregate_integration_test.go`):
   - Added endpoint-style coverage for list and wrapped aggregate payloads
@@ -254,13 +253,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New Make targets: `strict-auth-smoke-host`, `strict-auth-smoke-container`, and `production-readiness`
 - SDK docs for strict-auth smoke usage and Alpine/musl ctypes troubleshooting with glibc-container fallback
 - README and SDK README refresh covering badges, genesis testnet usage, observability endpoints, and Python SDK v2 feature surface
-- Bridge settlement lifecycle in `internal/bridge/bridge.go`, including burn → release flow, deterministic settlement records, and automatic refund-on-mint-failure handling
-- Multi-asset settlement routing with optional asset registry enforcement via the new `internal/token/registry.go`
+- Utility coin lifecycle in `internal/token/ledger.go`, including mint, transfer, burn, deterministic replay protection, and persistent audit chaining
+- Asset registry enforcement via the new `internal/token/registry.go`
 - Utility coin ledger hardening in `internal/token/ledger.go` with integer base-unit accounting, `burn` transactions, and state migration support from legacy float-backed snapshots
-- `bridge_transfer` settlement controls in Python SDK (`settle`, `settlement_minter`) and runtime API wiring in `internal/pyapi/api.go`
-- Environment-driven settlement configuration for multi-asset deployments (`MOHAWK_BRIDGE_SETTLEMENT_ASSETS`, per-asset ledger/minter overrides)
-- Compose rollout templates and operator guidance in `docker-compose.yml` for single-asset defaults and optional multi-asset settlement mode
-- Expanded automated coverage for settlement, multi-asset routing, env parsing/config loading, and ledger migration behavior (`test/bridge_hybrid_test.go`, `internal/pyapi/api_security_test.go`, `test/utility_coin_durability_test.go`)
+- Utility coin controls in Python SDK and runtime API wiring in `internal/pyapi/api.go`
+- Environment-driven utility ledger configuration for single-asset and per-asset deployments
+- Compose rollout templates and operator guidance in `docker-compose.yml` for utility-ledger defaults and optional persistent audit mode
+- Expanded automated coverage for utility coin authorization, env parsing/config loading, and ledger migration behavior (`internal/pyapi/api_security_test.go`, `test/utility_coin_durability_test.go`)
 - Restored tokenomics dashboard ingestion by exposing orchestrator metrics on internal plaintext listener (`:9091`) while preserving mTLS on the control-plane API (`:8080`)
 - Updated Prometheus orchestrator scrape target to `http://orchestrator:9091/metrics` for reliable in-network collection
 - Added CI monitoring smoke check in `.github/workflows/build-test.yml` to assert `mohawk_utility_coin_total_supply` is queryable after stack startup

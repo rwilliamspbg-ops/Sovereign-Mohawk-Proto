@@ -3,8 +3,8 @@
 ## Scope
 
 - Runtime control plane (`cmd/orchestrator`, `internal/network`, `internal/tpm`)
-- Python bridge and API surface (`internal/pyapi`, `sdk/python/mohawk`)
-- Settlement and bridge flows (`internal/bridge`, `internal/token`)
+- Python API surface (`internal/pyapi`, `sdk/python/mohawk`)
+- Utility coin and ledger flows (`internal/token`)
 
 ## Required Deliverables
 

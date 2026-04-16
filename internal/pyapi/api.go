@@ -28,7 +28,6 @@ import (
 	"github.com/prometheus/common/expfmt"
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
-	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/bridge"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hybrid"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
@@ -145,17 +144,14 @@ func loadAPIAuthMode() string {
 
 func loadAPIRolePolicy() apiRolePolicyConfig {
 	enabled := parseBoolEnv("MOHAWK_API_ENFORCE_ROLES", false)
-	bridgeRoles := parseRoleSet(os.Getenv("MOHAWK_API_BRIDGE_ALLOWED_ROLES"), "bridge,operator,admin,protocol")
 	hybridRoles := parseRoleSet(os.Getenv("MOHAWK_API_HYBRID_ALLOWED_ROLES"), "verifier,operator,admin,protocol")
 
 	return apiRolePolicyConfig{
 		enabled: enabled,
 		allowedByOp: map[string]map[string]struct{}{
-			"bridge": bridgeRoles,
 			"hybrid": hybridRoles,
 		},
 		requiredByOp: map[string]bool{
-			"bridge": true,
 			"hybrid": true,
 		},
 	}
@@ -412,115 +408,6 @@ func initUtilityCoinLedger() *token.Ledger {
 	}
 	log.Printf("utility coin persistent ledger enabled: state=%s audit=%s", statePath, auditPath)
 	return ledger
-}
-
-func parseBridgeSettlementAssets(raw string) []string {
-	if strings.TrimSpace(raw) == "" {
-		return nil
-	}
-	unique := map[string]struct{}{}
-	assets := make([]string, 0)
-	for _, part := range strings.Split(raw, ",") {
-		symbol := strings.ToUpper(strings.TrimSpace(part))
-		if symbol == "" {
-			continue
-		}
-		if _, exists := unique[symbol]; exists {
-			continue
-		}
-		unique[symbol] = struct{}{}
-		assets = append(assets, symbol)
-	}
-	return assets
-}
-
-func symbolEnvSuffix(symbol string) string {
-	symbol = strings.ToUpper(strings.TrimSpace(symbol))
-	if symbol == "" {
-		return ""
-	}
-	var b strings.Builder
-	for _, r := range symbol {
-		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
-			b.WriteRune(r)
-			continue
-		}
-		b.WriteRune('_')
-	}
-	return b.String()
-}
-
-func loadBridgeSettlementConfig() (*token.Registry, map[string]*token.Ledger, map[string]string, error) {
-	assets := parseBridgeSettlementAssets(os.Getenv("MOHAWK_BRIDGE_SETTLEMENT_ASSETS"))
-	if len(assets) == 0 {
-		return nil, nil, nil, nil
-	}
-
-	registry := token.NewRegistry()
-	ledgers := map[string]*token.Ledger{}
-	minters := map[string]string{}
-	defaultSymbol := strings.ToUpper(strings.TrimSpace(utilityCoinLedger.Symbol()))
-
-	for _, symbol := range assets {
-		suffix := symbolEnvSuffix(symbol)
-		statePath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_STATE_PATH_" + suffix))
-		auditPath := strings.TrimSpace(os.Getenv("MOHAWK_LEDGER_AUDIT_PATH_" + suffix))
-		minter := strings.TrimSpace(os.Getenv("MOHAWK_UTILITY_MINTER_" + suffix))
-
-		var ledger *token.Ledger
-		if minter == "" {
-			if symbol == defaultSymbol {
-				minter = utilityCoinLedger.Minter()
-			} else {
-				minter = "protocol"
-			}
-		}
-
-		if symbol == defaultSymbol && statePath == "" && auditPath == "" {
-			ledger = utilityCoinLedger
-		} else if statePath != "" && auditPath != "" {
-			persistentLedger, err := token.NewPersistentLedger(symbol, minter, statePath, auditPath)
-			if err != nil {
-				return nil, nil, nil, fmt.Errorf("load settlement ledger %s: %w", symbol, err)
-			}
-			ledger = persistentLedger
-		} else {
-			ledger = token.NewLedger(symbol, minter)
-		}
-
-		ledgers[symbol] = ledger
-		minters[symbol] = minter
-		if err := registry.Register(ledger.Asset()); err != nil {
-			return nil, nil, nil, fmt.Errorf("register settlement asset %s: %w", symbol, err)
-		}
-	}
-
-	return registry, ledgers, minters, nil
-}
-
-func configureBridgeSettlement(engine *bridge.Engine, requestSettlementMinter string) error {
-	requestSettlementMinter = strings.TrimSpace(requestSettlementMinter)
-	engine.EnableSettlement(utilityCoinLedger, requestSettlementMinter)
-
-	registry, ledgers, minters, err := loadBridgeSettlementConfig()
-	if err != nil {
-		return err
-	}
-	if registry == nil {
-		return nil
-	}
-	engine.SetSettlementRegistry(registry)
-	defaultSymbol := strings.ToUpper(strings.TrimSpace(utilityCoinLedger.Symbol()))
-	for symbol, ledger := range ledgers {
-		minter := strings.TrimSpace(minters[symbol])
-		if symbol == defaultSymbol && requestSettlementMinter != "" {
-			minter = requestSettlementMinter
-		}
-		if err := engine.RegisterSettlementLedger(symbol, ledger, minter); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func loadAPIToken() string {
@@ -1113,117 +1000,6 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 		"active_workers":     workers,
 	})
 	return marshalResult(true, "Batch verification complete", string(data))
-}
-
-//export BridgeTransfer
-func BridgeTransfer(payloadJSON *C.char) *C.char {
-	bridgeStart := time.Now()
-	raw := C.GoString(payloadJSON)
-	observeBridgeFailure := func(sourceChain, targetChain string) {
-		latencyMS := float64(time.Since(bridgeStart).Microseconds()) / 1000.0
-		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", false)
-		metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", latencyMS)
-		metrics.ObserveBridgeTransfer(sourceChain, targetChain, false)
-		metrics.ObserveBridgeTransferLatency(sourceChain, targetChain, false, latencyMS)
-	}
-	var payload struct {
-		SourceChain        string                      `json:"source_chain"`
-		TargetChain        string                      `json:"target_chain"`
-		Asset              string                      `json:"asset"`
-		Amount             float64                     `json:"amount"`
-		Sender             string                      `json:"sender"`
-		Receiver           string                      `json:"receiver"`
-		Nonce              uint64                      `json:"nonce"`
-		FinalityDepth      uint64                      `json:"finality_depth,omitempty"`
-		Proof              string                      `json:"proof"`
-		RoutePolicy        *bridge.RoutePolicy         `json:"route_policy,omitempty"`
-		PolicyManifestPath string                      `json:"policy_manifest_path,omitempty"`
-		PolicyManifest     *bridge.RoutePolicyManifest `json:"policy_manifest,omitempty"`
-		Settle             bool                        `json:"settle,omitempty"`
-		SettlementMinter   string                      `json:"settlement_minter,omitempty"`
-		AuthToken          string                      `json:"auth_token,omitempty"`
-		Authorization      string                      `json:"authorization,omitempty"`
-		APIToken           string                      `json:"api_token,omitempty"`
-		Role               string                      `json:"role,omitempty"`
-	}
-	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
-		observeBridgeFailure("unknown", "unknown")
-		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
-	}
-	if err := validateAPIAccess("bridge", payload.Role, extractProvidedToken(payload.AuthToken, payload.Authorization, payload.APIToken)); err != nil {
-		observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-		return marshalResult(false, fmt.Sprintf("unauthorized: %v", err), "")
-	}
-	req := bridge.TransferRequest{
-		SourceChain:   payload.SourceChain,
-		TargetChain:   payload.TargetChain,
-		Asset:         payload.Asset,
-		Amount:        payload.Amount,
-		Sender:        payload.Sender,
-		Receiver:      payload.Receiver,
-		Nonce:         payload.Nonce,
-		FinalityDepth: payload.FinalityDepth,
-		Proof:         payload.Proof,
-	}
-	engine := bridge.NewEngine("mohawk-bridge-v1")
-	hasExplicitPolicy := payload.PolicyManifestPath != "" || payload.PolicyManifest != nil || payload.RoutePolicy != nil
-	if payload.PolicyManifestPath != "" {
-		manifest, err := bridge.LoadRoutePolicyManifestFile(payload.PolicyManifestPath)
-		if err != nil {
-			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-			return marshalResult(false, err.Error(), "")
-		}
-		engine.RegisterRoutePolicyManifest(manifest)
-	}
-	if payload.PolicyManifest != nil {
-		engine.RegisterRoutePolicyManifest(*payload.PolicyManifest)
-	}
-	if !hasExplicitPolicy {
-		manifest, loaded, err := bridge.LoadDefaultRoutePolicyManifest()
-		if err != nil {
-			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-			return marshalResult(false, err.Error(), "")
-		}
-		if loaded {
-			engine.RegisterRoutePolicyManifest(manifest)
-		}
-	}
-	if payload.RoutePolicy != nil {
-		engine.RegisterRoutePolicy(req.SourceChain, req.TargetChain, *payload.RoutePolicy)
-	}
-	if payload.Settle {
-		if err := configureBridgeSettlement(engine, payload.SettlementMinter); err != nil {
-			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-			return marshalResult(false, err.Error(), "")
-		}
-	}
-	receipt, err := engine.VerifyTransfer(req)
-	if err != nil {
-		observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-		return marshalResult(false, err.Error(), "")
-	}
-	metrics.ObserveBridgeTransfer(payload.SourceChain, payload.TargetChain, true)
-	metrics.ObserveBridgeTransferLatency(payload.SourceChain, payload.TargetChain, true, float64(time.Since(bridgeStart).Microseconds())/1000.0)
-	response := map[string]any{"receipt": receipt}
-	if payload.Settle {
-		settlement, settleErr := engine.SettleVerifiedTransfer(req, receipt)
-		if settleErr != nil {
-			observeBridgeFailure(payload.SourceChain, payload.TargetChain)
-			metrics.ObserveBridgeSettlement(payload.Asset, "failed", payload.Amount)
-			response["settlement"] = settlement
-			data, _ := json.Marshal(response)
-			return marshalResult(false, settleErr.Error(), string(data))
-		}
-		metrics.ObserveBridgeSettlement(payload.Asset, "settled", payload.Amount)
-		response["settlement"] = settlement
-	}
-	metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", true)
-	metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", float64(time.Since(bridgeStart).Microseconds())/1000.0)
-	data, _ := json.Marshal(response)
-	if payload.Settle {
-		return marshalResult(true, "Cross-chain transfer verified and settled", string(data))
-	}
-	return marshalResult(true, "Cross-chain transfer verified", string(data))
 }
 
 //export GetHybridBackends

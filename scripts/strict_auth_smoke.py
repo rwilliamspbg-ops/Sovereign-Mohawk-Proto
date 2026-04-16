@@ -15,7 +15,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run strict auth/role smoke checks against libmohawk."
     )
-    parser.add_argument("--lib-path", default="", help="Path to libmohawk shared library")
+    parser.add_argument(
+        "--lib-path", default="", help="Path to libmohawk shared library"
+    )
     parser.add_argument(
         "--token-file", default="secrets/mohawk_api_token", help="API token file path"
     )
@@ -38,7 +40,6 @@ def main() -> int:
     os.environ.setdefault("MOHAWK_API_AUTH_MODE", "file-only")
     os.environ.setdefault("MOHAWK_API_TOKEN_FILE", str(token_file))
     os.environ.setdefault("MOHAWK_API_ENFORCE_ROLES", "true")
-    os.environ.setdefault("MOHAWK_API_BRIDGE_ALLOWED_ROLES", "bridge,admin")
     os.environ.setdefault("MOHAWK_API_HYBRID_ALLOWED_ROLES", "verifier,admin")
 
     MohawkNode = importlib.import_module("mohawk").MohawkNode
@@ -54,7 +55,7 @@ def main() -> int:
 
     results = {
         "mint": False,
-        "bridge": False,
+        "transfer": False,
         "hybrid": False,
         "wrong_role_blocked": False,
         "wrong_token_blocked": False,
@@ -74,20 +75,15 @@ def main() -> int:
         )
         results["mint"] = bool(minted.get("success"))
 
-        bridged = node.bridge_transfer(
-            source_chain="ethereum",
-            target_chain="polygon",
-            asset="USDC",
-            amount=1.0,
-            sender="0xabc",
-            receiver="0xdef",
-            nonce=1,
-            finality_depth=12,
-            proof="proof-bytes",
+        transferred = node.transfer_utility_coin(
+            from_account="smoke-user",
+            to_account="smoke-user-2",
+            amount=0.25,
+            memo="smoke-transfer",
             auth_token=token,
-            role="bridge",
+            role="operator",
         )
-        results["bridge"] = bool(bridged.get("success"))
+        results["transfer"] = bool(transferred.get("success"))
 
         try:
             hybrid = node.verify_hybrid_proof(
@@ -106,36 +102,26 @@ def main() -> int:
             results["hybrid"] = True
 
         try:
-            node.bridge_transfer(
-                source_chain="ethereum",
-                target_chain="polygon",
-                asset="USDC",
-                amount=1.0,
-                sender="0xabc",
-                receiver="0xdef",
-                nonce=2,
-                finality_depth=12,
-                proof="proof-bytes",
+            node.transfer_utility_coin(
+                from_account="smoke-user",
+                to_account="smoke-user-2",
+                amount=0.25,
+                memo="smoke-transfer",
                 auth_token=token,
-                role="user",
+                role="guest",
             )
         except Exception as exc:  # noqa: BLE001
             results["wrong_role_blocked"] = True
             results["wrong_role_error"] = str(exc)
 
         try:
-            node.bridge_transfer(
-                source_chain="ethereum",
-                target_chain="polygon",
-                asset="USDC",
-                amount=1.0,
-                sender="0xabc",
-                receiver="0xdef",
-                nonce=3,
-                finality_depth=12,
-                proof="proof-bytes",
+            node.transfer_utility_coin(
+                from_account="smoke-user",
+                to_account="smoke-user-2",
+                amount=0.25,
+                memo="smoke-transfer",
                 auth_token="wrong-token",
-                role="bridge",
+                role="operator",
             )
         except Exception as exc:  # noqa: BLE001
             results["wrong_token_blocked"] = True

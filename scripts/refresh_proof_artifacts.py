@@ -15,7 +15,9 @@ def sha256(path: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Refresh proof artifact freshness metadata.")
+    parser = argparse.ArgumentParser(
+        description="Refresh proof artifact freshness metadata."
+    )
     parser.add_argument("--repo-root", default=".", help="Repository root directory")
     parser.add_argument(
         "--output",

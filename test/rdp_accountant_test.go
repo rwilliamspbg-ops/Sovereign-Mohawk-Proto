@@ -43,9 +43,9 @@ func TestRDPAccountant_GetCurrentEpsilon_Zero(t *testing.T) {
 func TestRDPAccountant_GetCurrentEpsilon_NonZero(t *testing.T) {
 	acc := internal.NewRDPAccountant(2.0, 1e-5)
 	acc.RecordStep(0.5)
-	eps := acc.GetCurrentEpsilon()
-	if eps <= 0 {
-		t.Errorf("Expected positive epsilon after recording a step, got %.4f", eps)
+	eps := acc.GetCurrentEpsilonRat()
+	if eps.Sign() <= 0 {
+		t.Errorf("Expected positive epsilon after recording a step, got %s", eps.RatString())
 	}
 }
 
@@ -117,8 +117,8 @@ func TestRDPAccountant_RecordGaussianStepRDP(t *testing.T) {
 	if err := acc.RecordGaussianStepRDP(1.0); err != nil {
 		t.Fatalf("unexpected gaussian step error: %v", err)
 	}
-	eps := acc.GetCurrentEpsilon()
-	if eps <= 0 {
-		t.Fatalf("expected positive epsilon after gaussian step, got %.6f", eps)
+	eps := acc.GetCurrentEpsilonRat()
+	if eps.Sign() <= 0 {
+		t.Fatalf("expected positive epsilon after gaussian step, got %s", eps.RatString())
 	}
 }

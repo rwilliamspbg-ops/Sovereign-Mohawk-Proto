@@ -168,13 +168,12 @@ Preview graphic:
 * 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
 * 🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
 * ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
-* 🐍 **Python SDK v2:** Accelerator, bridge, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
+* 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
 * 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
-* 🌉 **Bridge Policy Enforcement:** Cross-chain route policies with default manifests and typed EVM/Cosmos proof helpers.
 * 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
 * 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
 * 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
-* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, bridge settlement, and proof cost.
+* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
 * 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
 * ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
 
@@ -277,27 +276,22 @@ hybrid = node.verify_hybrid_proof(
     mode="both",
 )
 
-receipt = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="USDC",
-    amount=12.5,
-    sender="0xabc",
-    receiver="0xdef",
+minted = node.mint_utility_coin(
+    to="edge-alice",
+    amount=100.0,
+    actor="protocol",
+    auth_token="my-service-token",
+    idempotency_key="mint-001",
     nonce=1,
-    proof="proof-bytes",
 )
 
-settled = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="MHC",
-    amount=2.0,
-    sender="0xabc",
-    receiver="0xdef",
+transferred = node.transfer_utility_coin(
+    from_account="edge-alice",
+    to_account="edge-bob",
+    amount=25.0,
+    memo="reward",
+    auth_token="my-service-token",
     nonce=2,
-    proof="proof-bytes",
-    settle=True,
 )
 ```
 
@@ -540,32 +534,24 @@ Notes:
 * Discord messages are split into multiple posts to fit webhook content limits.
 * Digest is always published to workflow summary and uploaded as an artifact.
 
-### Multi-Asset Bridge Settlement Configuration
-
-Bridge settlement is optional and disabled by default. Set `settle=true` on `bridge_transfer(...)` requests to execute burn/release settlement after transfer verification.
-
-Use these runtime environment variables to enable registry-backed multi-asset settlement routing:
+### Utility Coin Runtime Controls
 
 ```bash
-# Comma-separated symbols allowed for settlement
-export MOHAWK_BRIDGE_SETTLEMENT_ASSETS="MHC,USDX"
-
 # Default utility coin ledger (MHC)
 export MOHAWK_LEDGER_STATE_PATH="/var/lib/mohawk/mhc_state.json"
 export MOHAWK_LEDGER_AUDIT_PATH="/var/lib/mohawk/mhc_audit.jsonl"
 export MOHAWK_UTILITY_MINTER="protocol"
 
-# Per-asset ledger overrides (USDX)
-export MOHAWK_LEDGER_STATE_PATH_USDX="/var/lib/mohawk/usdx_state.json"
-export MOHAWK_LEDGER_AUDIT_PATH_USDX="/var/lib/mohawk/usdx_audit.jsonl"
-export MOHAWK_UTILITY_MINTER_USDX="protocol"
+# Optional per-asset overrides remain available for utility coin deployments
+export MOHAWK_LEDGER_STATE_PATH_MHC="/var/lib/mohawk/mhc_state.json"
+export MOHAWK_LEDGER_AUDIT_PATH_MHC="/var/lib/mohawk/mhc_audit.jsonl"
 ```
 
-When configured, settlement enforces:
+Utility coin controls enforce:
 
-* Asset must be present in `MOHAWK_BRIDGE_SETTLEMENT_ASSETS`.
-* Asset must have a configured settlement ledger.
-* Burn on sender occurs before destination mint/release.
+* Persistent ledger state and append-only audit chaining when paths are configured.
+* API token authorization for mint/transfer/burn operations when enabled.
+* Role-based access control through the utility role policy variables.
 * Refund-to-sender executes if destination release fails.
 
 ---

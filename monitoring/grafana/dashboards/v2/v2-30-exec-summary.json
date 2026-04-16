@@ -44,9 +44,9 @@
       "id": 5,
       "targets": [
         {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "A"},
-        {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "B"}
+        {"expr": "mohawk:utility_coin_transfers:rate1m", "legendFormat": "utility coin transfers", "refId": "B"}
       ],
-      "title": "P95 Latency Trend",
+      "title": "P95 Latency and Utility Coin Throughput",
       "type": "timeseries"
     },
     {

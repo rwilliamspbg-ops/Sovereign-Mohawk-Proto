@@ -17,7 +17,9 @@ from mohawk import MohawkNode  # noqa: E402
 
 def _load_token() -> str:
     token_path = Path(
-        os.getenv("MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token"))
+        os.getenv(
+            "MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token")
+        )
     )
     if not token_path.is_absolute():
         token_path = ROOT / token_path
@@ -39,15 +41,15 @@ def _int_env(name: str, default: int) -> int:
 
 class ExporterState:
     def __init__(self) -> None:
-        self.node = MohawkNode(lib_path=os.getenv("MOHAWK_LIB_PATH", str(ROOT / "libmohawk.so")))
+        self.node = MohawkNode(
+            lib_path=os.getenv("MOHAWK_LIB_PATH", str(ROOT / "libmohawk.so"))
+        )
         self.token = _load_token()
-        self.bridge_nonce = _int_env("MOHAWK_PYAPI_BRIDGE_START_NONCE", 1000)
         self.lock = threading.Lock()
         self.last_error = ""
 
         os.environ.setdefault("MOHAWK_API_AUTH_MODE", "file-only")
         os.environ.setdefault("MOHAWK_API_ENFORCE_ROLES", "true")
-        os.environ.setdefault("MOHAWK_API_BRIDGE_ALLOWED_ROLES", "bridge,admin")
         os.environ.setdefault("MOHAWK_API_HYBRID_ALLOWED_ROLES", "verifier,admin")
 
     def metrics_text(self) -> str:
@@ -57,23 +59,15 @@ class ExporterState:
             data = json.dumps(data)
         return data
 
-    def emit_bridge_and_hybrid(self) -> None:
-        with self.lock:
-            nonce = self.bridge_nonce
-            self.bridge_nonce += 1
-
-        self.node.bridge_transfer(
-            source_chain="ethereum",
-            target_chain="polygon",
-            asset="USDC",
+    def emit_hybrid_and_utility(self) -> None:
+        self.node.mint_utility_coin(
+            to="metrics-exporter",
             amount=1.0,
-            sender="0xabc",
-            receiver="0xdef",
-            nonce=nonce,
-            finality_depth=12,
-            proof="proof-bytes",
+            actor="protocol",
             auth_token=self.token,
-            role="bridge",
+            role="admin",
+            idempotency_key="pyapi-metrics-exporter-mint",
+            nonce=1,
         )
         try:
             self.node.verify_hybrid_proof(
@@ -101,7 +95,7 @@ def start_traffic_loop(state: ExporterState) -> None:
     def worker() -> None:
         while True:
             try:
-                state.emit_bridge_and_hybrid()
+                state.emit_hybrid_and_utility()
                 state.last_error = ""
             except Exception as exc:  # noqa: BLE001
                 state.last_error = str(exc)

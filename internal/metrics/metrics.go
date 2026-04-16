@@ -146,43 +146,6 @@ var (
 		Help: "Number of unique accounts with a non-zero utility coin balance.",
 	})
 
-	// bridgeSettlementsTotal counts bridge settlement attempts by asset and outcome.
-	bridgeSettlementsTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "mohawk_bridge_settlements_total",
-			Help: "Total bridge settlement operations by asset and status.",
-		},
-		[]string{"asset", "status"}, // status: settled | refunded | failed
-	)
-
-	// bridgeSettlementVolumeTotal accumulates the gross settlement volume per asset.
-	bridgeSettlementVolumeTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "mohawk_bridge_settlement_volume_total",
-			Help: "Cumulative settlement volume per asset.",
-		},
-		[]string{"asset"},
-	)
-
-	// bridgeTransfersTotal counts bridge transfer verifications by source/target chain pair.
-	bridgeTransfersTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "mohawk_bridge_transfers_total",
-			Help: "Total verified bridge transfers per chain pair.",
-		},
-		[]string{"source_chain", "target_chain", "result"},
-	)
-
-	// bridgeTransferLatency records bridge transfer processing latency in milliseconds.
-	bridgeTransferLatency = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name:    "mohawk_bridge_transfer_latency_ms",
-			Help:    "Bridge transfer verification/settlement latency in milliseconds.",
-			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500},
-		},
-		[]string{"source_chain", "target_chain", "result"},
-	)
-
 	// proofVerificationsTotal counts individual zk-SNARK proof verifications by scheme and outcome.
 	proofVerificationsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -423,10 +386,6 @@ func init() {
 		utilityCoinBurnsTotal,
 		utilityCoinBurnedAmountTotal,
 		utilityCoinHoldersCount,
-		bridgeSettlementsTotal,
-		bridgeSettlementVolumeTotal,
-		bridgeTransfersTotal,
-		bridgeTransferLatency,
 		proofVerificationsTotal,
 		proofVerificationLatency,
 		pqcPolicyEnabled,
@@ -575,36 +534,6 @@ func ObserveUtilityCoinHolders(count int) {
 	if count >= 0 {
 		utilityCoinHoldersCount.Set(float64(count))
 	}
-}
-
-// ObserveBridgeSettlement records a bridge settlement outcome.
-// status must be "settled", "refunded", or "failed".
-func ObserveBridgeSettlement(asset string, status string, amount float64) {
-	asset = strings.ToUpper(strings.TrimSpace(asset))
-	if asset == "" {
-		asset = "UNKNOWN"
-	}
-	bridgeSettlementsTotal.WithLabelValues(asset, status).Inc()
-	if amount > 0 {
-		bridgeSettlementVolumeTotal.WithLabelValues(asset).Add(amount)
-	}
-}
-
-// ObserveBridgeTransfer records a bridge transfer verification.
-func ObserveBridgeTransfer(sourceChain, targetChain string, success bool) {
-	source := strings.ToLower(strings.TrimSpace(sourceChain))
-	target := strings.ToLower(strings.TrimSpace(targetChain))
-	bridgeTransfersTotal.WithLabelValues(source, target, resultLabel(success)).Inc()
-}
-
-// ObserveBridgeTransferLatency records bridge transfer latency in milliseconds.
-func ObserveBridgeTransferLatency(sourceChain, targetChain string, success bool, latencyMS float64) {
-	if latencyMS < 0 {
-		return
-	}
-	source := strings.ToLower(strings.TrimSpace(sourceChain))
-	target := strings.ToLower(strings.TrimSpace(targetChain))
-	bridgeTransferLatency.WithLabelValues(source, target, resultLabel(success)).Observe(latencyMS)
 }
 
 // ObserveProofVerification records a single zk-proof verification.

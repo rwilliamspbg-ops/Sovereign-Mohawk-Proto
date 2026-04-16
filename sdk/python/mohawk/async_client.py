@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from functools import partial
-from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Union
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union
 
 from .client import JsonDict, MohawkNode
 
@@ -195,46 +195,6 @@ class AsyncMohawkNode:
 
     async def router_provenance(self, *, router_url: Optional[str] = None) -> JsonDict:
         return await self._run(self._node.router_provenance, router_url=router_url)
-
-    async def bridge_transfer(
-        self,
-        *,
-        source_chain: str,
-        target_chain: str,
-        asset: str,
-        amount: float,
-        sender: str,
-        receiver: str,
-        nonce: int,
-        proof: Union[str, Mapping[str, Any]],
-        route_policy: Optional[Mapping[str, Any]] = None,
-        policy_manifest_path: Optional[str] = None,
-        policy_manifest: Optional[Mapping[str, Any]] = None,
-        settle: bool = False,
-        settlement_minter: Optional[str] = None,
-        finality_depth: int = 0,
-        auth_token: Optional[str] = None,
-        role: Optional[str] = None,
-    ) -> JsonDict:
-        return await self._run(
-            self._node.bridge_transfer,
-            source_chain=source_chain,
-            target_chain=target_chain,
-            asset=asset,
-            amount=amount,
-            sender=sender,
-            receiver=receiver,
-            nonce=nonce,
-            proof=proof,
-            route_policy=route_policy,
-            policy_manifest_path=policy_manifest_path,
-            policy_manifest=policy_manifest,
-            settle=settle,
-            settlement_minter=settlement_minter,
-            finality_depth=finality_depth,
-            auth_token=auth_token,
-            role=role,
-        )
 
     async def mint_utility_coin(
         self,

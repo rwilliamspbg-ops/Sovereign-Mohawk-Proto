@@ -25,7 +25,6 @@ The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based 
 - **55.5% Byzantine fault tolerance** for adversarial resilience
 - **TPM attestation** for secure node identity
 - **utility coin ledger controls** with backup/restore, nonce replay protection, and auth hooks
-- **bridge route policy verification** with typed EVM/Cosmos proof helpers
 - **hardware-aware gradient compression** and streaming aggregation
 - **WebAssembly module loading** for flexible computation
 
@@ -34,7 +33,7 @@ The SDK now includes:
 - automatic Go string deallocation via exported `FreeString` (prevents bridge-response leaks)
 - context-managed lifecycle (`with MohawkNode(...) as node:`)
 - async context-managed lifecycle (`async with AsyncMohawkNode(...) as node:`)
-- high-level wrapper models for bridge and hybrid proof flows (`BridgeTransferIntent`, `HybridProofCheck`)
+- high-level wrapper models for hybrid proof flows (`HybridProofCheck`)
 
 ## Installation
 
@@ -164,22 +163,9 @@ print(node.hybrid_backends())
 ### Pythonic High-Level Wrappers
 
 ```python
-from mohawk import MohawkNode, BridgeTransferIntent, HybridProofCheck
+from mohawk import MohawkNode, HybridProofCheck
 
 with MohawkNode() as node:
-    transfer = BridgeTransferIntent(
-        source_chain="ethereum",
-        target_chain="polygon",
-        asset="USDC",
-        amount=5.0,
-        sender="0xabc",
-        receiver="0xdef",
-        nonce=10,
-        proof={"proof": "typed-proof"},
-        finality_depth=12,
-    )
-    bridge_receipt = node.transfer_asset(transfer)
-
     hybrid_receipt = node.verify_hybrid(
         HybridProofCheck(
             snark_proof="s" * 128,
@@ -188,37 +174,32 @@ with MohawkNode() as node:
         )
     )
 
-print(bridge_receipt.success, hybrid_receipt.success)
+print(hybrid_receipt.success)
 ```
 
-### Bridge and Utility Coin Operations
+### Utility Coin Operations
 
 ```python
-receipt = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="USDC",
-    amount=12.5,
-    sender="0xabc",
-    receiver="0xdef",
+minted = node.mint_utility_coin(
+    to="edge-alice",
+    amount=100.0,
+    actor="protocol",
+    auth_token="my-service-token",
+    idempotency_key="mint-001",
     nonce=1,
-    proof="proof-bytes",
 )
-print(receipt)
+print(minted)
 
-settled = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="MHC",
-    amount=2.0,
-    sender="0xabc",
-    receiver="0xdef",
+transferred = node.transfer_utility_coin(
+    from_account="edge-alice",
+    to_account="edge-bob",
+    amount=25.0,
+    memo="reward",
+    auth_token="my-service-token",
     nonce=2,
-    proof="proof-bytes",
-    settle=True,
 )
-print(settled)
-
+print(transferred)
+```
 minted = node.mint_utility_coin(
     to="edge-alice",
     amount=100.0,
@@ -348,8 +329,6 @@ Main class for interacting with the MOHAWK runtime.
 - **`device_info()`**: Enumerate available CPU/GPU/NPU backends
 - **`compress_gradients(gradients, format='fp16'|'int8')`**: Quantize gradients for transport
 - **`stream_aggregate(gradient_stream, format='fp16'|'int8')`**: Buffer + compress gradient stream
-- **`bridge_transfer(..., settle=False, settlement_minter=None, auth_token=None, role=None)`**: Cross-chain transfer verification with optional settlement execution
-- **`transfer_asset(intent, **overrides)`**: High-level bridge wrapper returning `BridgeTransferReceipt`
 - **`mint_utility_coin(to, amount, actor='protocol', auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Mint utility coin balances with optional API auth + replay controls
 - **`transfer_utility_coin(from_account, to_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Transfer utility coin with optional API auth + replay controls
 - **`burn_utility_coin(from_account, amount, auth_token=None, idempotency_key=None, nonce=None, role=None)`**: Burn utility coin balances with optional API auth + replay controls
@@ -372,18 +351,6 @@ async def run():
         return await node.status("node-001")
 ```
 
-Bridge policy fallback:
-
-- If no `route_policy`, `policy_manifest`, or `policy_manifest_path` is supplied to `bridge_transfer`, the runtime automatically attempts to load a default manifest from `bridge-policies.json`.
-- Override the default path with environment variable `MOHAWK_BRIDGE_POLICY_MANIFEST`.
-
-Bridge settlement runtime controls:
-
-- Set `settle=True` on `bridge_transfer(...)` to execute settlement after receipt verification.
-- Set `MOHAWK_BRIDGE_SETTLEMENT_ASSETS` (for example `MHC,USDX`) to enforce a settlement asset registry.
-- Use `MOHAWK_LEDGER_STATE_PATH_<SYMBOL>` and `MOHAWK_LEDGER_AUDIT_PATH_<SYMBOL>` for per-asset persistent ledgers.
-- Use `MOHAWK_UTILITY_MINTER_<SYMBOL>` for per-asset settlement mint actors.
-
 Utility coin hardening runtime controls:
 
 - Set `MOHAWK_LEDGER_STATE_PATH` and `MOHAWK_LEDGER_AUDIT_PATH` to enable persistent ledger state + append-only audit trail.
@@ -393,7 +360,7 @@ Utility coin hardening runtime controls:
 - Set `MOHAWK_UTILITY_ENFORCE_ROLES=true` to require role authorization for mint/burn/transfer/backup/restore.
 - Configure allowed roles with `MOHAWK_UTILITY_MINT_ALLOWED_ROLES`, `MOHAWK_UTILITY_BURN_ALLOWED_ROLES`, `MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES`, `MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES`, and `MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES`.
 - Optionally bind the configured API token to a fixed role with `MOHAWK_API_TOKEN_ROLE`.
-- Set `MOHAWK_API_ENFORCE_ROLES=true` and configure `MOHAWK_API_BRIDGE_ALLOWED_ROLES` / `MOHAWK_API_HYBRID_ALLOWED_ROLES` for non-utility endpoint role gates.
+- Set `MOHAWK_API_ENFORCE_ROLES=true` and configure `MOHAWK_API_HYBRID_ALLOWED_ROLES` for non-utility endpoint role gates.
 
 ### Strict Auth Smoke Validation
 
@@ -445,19 +412,6 @@ hybrid = node.verify_hybrid_proof(
     mode="both",  # one of: both | any | prefer_snark
 )
 print(hybrid)
-
-# Cross-chain transfer verification
-bridge = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="USDC",
-    amount=12.5,
-    sender="0xabc",
-    receiver="0xdef",
-    nonce=1,
-    proof="proof-bytes",
-)
-print(bridge)
 
 # Utility coin mint/transfer/balance workflow
 minted = node.mint_utility_coin(

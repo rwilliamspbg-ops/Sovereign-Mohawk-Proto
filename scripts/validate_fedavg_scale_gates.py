@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 from typing import Dict, Tuple
 
-
 LINE_RE = re.compile(
     r"^(?P<name>[a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{[^}]*\})?\s+(?P<value>-?[0-9]+(?:\.[0-9]+)?)$"
 )
@@ -62,7 +61,9 @@ def gate_eval(
         )
 
     throughputs = [
-        r.get("iterations_per_second") for r in eligible_rows if r.get("iterations_per_second")
+        r.get("iterations_per_second")
+        for r in eligible_rows
+        if r.get("iterations_per_second")
     ]
     has_throughput = len(throughputs) > 0
     checks["throughput_available"] = has_throughput
@@ -84,8 +85,6 @@ def prom_diff(pre: Path, post: Path) -> dict:
     post_totals = load_prom_totals(post)
 
     keys = [
-        "mohawk_bridge_settlements_total",
-        "mohawk_bridge_transfers_total",
         "mohawk_proof_verifications_total",
         "mohawk_fedavg_gradients_received_total",
         "mohawk_fedavg_gradients_aggregated_total",
@@ -199,7 +198,9 @@ def main() -> int:
     deltas = prom_diff(pre_prom, post_prom)
 
     report = {
-        "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+        "generated_utc": dt.datetime.now(dt.timezone.utc)
+        .replace(microsecond=0)
+        .isoformat(),
         "ok": ok,
         "runtime_report": args.runtime_report,
         "throughput_floor_iter_per_sec": args.min_throughput_iter_per_sec,
@@ -216,7 +217,9 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    out_json.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     out_md.write_text(render_markdown(report), encoding="utf-8")
 
     print(f"wrote {out_json}")
