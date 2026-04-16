@@ -61,9 +61,7 @@ def gate_eval(
         )
 
     throughputs = [
-        r.get("iterations_per_second")
-        for r in eligible_rows
-        if r.get("iterations_per_second")
+        r.get("iterations_per_second") for r in eligible_rows if r.get("iterations_per_second")
     ]
     has_throughput = len(throughputs) > 0
     checks["throughput_available"] = has_throughput
@@ -198,9 +196,7 @@ def main() -> int:
     deltas = prom_diff(pre_prom, post_prom)
 
     report = {
-        "generated_utc": dt.datetime.now(dt.timezone.utc)
-        .replace(microsecond=0)
-        .isoformat(),
+        "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "ok": ok,
         "runtime_report": args.runtime_report,
         "throughput_floor_iter_per_sec": args.min_throughput_iter_per_sec,
@@ -217,9 +213,7 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    out_json.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     out_md.write_text(render_markdown(report), encoding="utf-8")
 
     print(f"wrote {out_json}")

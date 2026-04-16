@@ -16,9 +16,7 @@ def verify_mohawk_node(quote_data, signature, public_key_pem, golden_hash, nonce
         public_key.verify(
             signature,
             quote_data + nonce,  # Validates freshness via nonce
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH
-            ),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
             hashes.SHA256(),
         )
     except Exception:

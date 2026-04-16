@@ -36,15 +36,11 @@ def query_vector(prom_url: str, expr: str) -> list[dict]:
         raise RuntimeError(f"prometheus query failed: {expr}")
     data = payload.get("data", {})
     if data.get("resultType") != "vector":
-        raise RuntimeError(
-            f"unexpected result type for {expr}: {data.get('resultType')}"
-        )
+        raise RuntimeError(f"unexpected result type for {expr}: {data.get('resultType')}")
     return data.get("result", [])
 
 
-def query_scalar_value(
-    prom_url: str, expr: str, default_if_empty: float | None = None
-) -> float:
+def query_scalar_value(prom_url: str, expr: str, default_if_empty: float | None = None) -> float:
     result = query_vector(prom_url, expr)
     if not result:
         if default_if_empty is not None:
@@ -175,12 +171,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Mainnet readiness gate checks for monitoring and tokenomics invariants."
     )
-    parser.add_argument(
-        "--prom-url", default="http://localhost:9090", help="Prometheus base URL"
-    )
-    parser.add_argument(
-        "--grafana-url", default="http://localhost:3000", help="Grafana base URL"
-    )
+    parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
+    parser.add_argument("--grafana-url", default="http://localhost:3000", help="Grafana base URL")
     parser.add_argument(
         "--tpm-metrics-url",
         default="http://localhost:9102",
@@ -194,9 +186,7 @@ def main() -> int:
     parser.add_argument(
         "--retries", type=int, default=30, help="Number of retries per readiness wait"
     )
-    parser.add_argument(
-        "--delay", type=float, default=2.0, help="Delay between retries in seconds"
-    )
+    parser.add_argument("--delay", type=float, default=2.0, help="Delay between retries in seconds")
     parser.add_argument(
         "--supply-tolerance",
         type=float,
@@ -258,12 +248,8 @@ def main() -> int:
         if not report["checks"]["tpm_health"]:
             failures.append(f"tpm health not ok: {tpm_health}")
         expected_mode = str(args.expected_attestation_signature_mode).strip().lower()
-        actual_mode = (
-            str(tpm_health.get("attestation_signature_mode", "")).strip().lower()
-        )
-        report["checks"]["tpm_attestation_signature_mode"] = (
-            actual_mode == expected_mode
-        )
+        actual_mode = str(tpm_health.get("attestation_signature_mode", "")).strip().lower()
+        report["checks"]["tpm_attestation_signature_mode"] = actual_mode == expected_mode
         if actual_mode != expected_mode:
             failures.append(
                 "tpm attestation signature mode mismatch: "
@@ -317,13 +303,9 @@ def main() -> int:
             delay_seconds=args.delay,
         )
         report["checks"]["proof_verifications_series_present"] = True
-        report["checks"]["proof_verifications_non_negative"] = (
-            proof_verification_total >= 0
-        )
+        report["checks"]["proof_verifications_non_negative"] = proof_verification_total >= 0
         if proof_verification_total < 0:
-            failures.append(
-                f"proof verifications counter negative: {proof_verification_total}"
-            )
+            failures.append(f"proof verifications counter negative: {proof_verification_total}")
         report["checks"]["proof_verifications_min_activity"] = (
             proof_verification_total >= args.min_proof_verifications
         )
@@ -363,9 +345,7 @@ def main() -> int:
         report["checks"]["accelerator_ops_series_present"] = True
         report["checks"]["accelerator_ops_non_negative"] = accelerator_ops_total >= 0
         if accelerator_ops_total < 0:
-            failures.append(
-                f"accelerator ops counter negative: {accelerator_ops_total}"
-            )
+            failures.append(f"accelerator ops counter negative: {accelerator_ops_total}")
         report["checks"]["accelerator_ops_min_activity"] = (
             accelerator_ops_total >= args.min_accelerator_ops
         )
@@ -383,13 +363,10 @@ def main() -> int:
             delay_seconds=args.delay,
         )
         report["checks"]["gradient_compression_series_present"] = True
-        report["checks"]["gradient_compression_non_negative"] = (
-            gradient_compression_count >= 0
-        )
+        report["checks"]["gradient_compression_non_negative"] = gradient_compression_count >= 0
         if gradient_compression_count < 0:
             failures.append(
-                "gradient compression observation count negative: "
-                f"{gradient_compression_count}"
+                "gradient compression observation count negative: " f"{gradient_compression_count}"
             )
         report["checks"]["gradient_compression_min_activity"] = (
             gradient_compression_count >= args.min_gradient_compression_observations

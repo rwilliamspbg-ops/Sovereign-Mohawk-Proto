@@ -117,9 +117,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Generate markdown digest from readiness and chaos gate reports."
     )
-    parser.add_argument(
-        "--readiness-report", required=True, help="Path to readiness-report.json"
-    )
+    parser.add_argument("--readiness-report", required=True, help="Path to readiness-report.json")
     parser.add_argument(
         "--chaos-dir",
         required=True,
