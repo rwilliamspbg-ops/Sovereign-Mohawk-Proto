@@ -479,6 +479,14 @@ PowerShell stop:
 ./scripts/launch_full_stack_3_nodes.ps1 -Down
 ```
 
+Windows GUI launcher:
+
+```bash
+make testnet-gui-windows
+```
+
+That target builds `dist/windows/testnet-gui.exe`, which opens a native Windows desktop window for the testnet stack and reuses the checked-in Windows launcher script for start/stop actions. It also exposes quick links to Grafana, Prometheus, and the orchestrator control plane.
+
 Grafana dashboard shortlist:
 
 * `Sovereign Mohawk | Start Here`
