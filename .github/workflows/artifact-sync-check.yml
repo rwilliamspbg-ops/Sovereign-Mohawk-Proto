@@ -22,7 +22,6 @@ jobs:
 
           pairs=(
             "results/metrics/fedavg_benchmark_compare.md captured_artifacts/fedavg_benchmark_compare.md"
-            "results/metrics/bridge_compression_benchmark_compare.md captured_artifacts/bridge_compression_benchmark_compare.md"
           )
 
           failed=0

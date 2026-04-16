@@ -45,12 +45,6 @@ jobs:
       - name: Build benchmark reports for release bundle
         run: |
           mkdir -p release-assets/benchmarks
-          chmod +x scripts/benchmark_bridge_compression_compare.sh
-          BENCH_TIME="200ms" \
-          REPORT_PATH="release-assets/benchmarks/bridge_compression_benchmark_compare.md" \
-          RAW_PATH="release-assets/benchmarks/bridge_compression_benchmark_raw.txt" \
-          ./scripts/benchmark_bridge_compression_compare.sh
-
           chmod +x scripts/benchmark_fedavg_compare.sh
           BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=1 BENCH_CPU=2 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \
           REPORT_PATH="release-assets/benchmarks/fedavg_benchmark_compare.md" \
@@ -59,6 +53,9 @@ jobs:
           python3 scripts/benchmark_accelerator_backends.py \
             --output-md release-assets/benchmarks/accelerator_backend_compare.md \
             --output-json release-assets/benchmarks/accelerator_backend_compare.json
+
+          python3 scripts/generate_release_performance_evidence.py
+          cp results/metrics/release_performance_evidence.md release-assets/benchmarks/release_performance_evidence.md
 
       - name: Generate source SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
@@ -190,9 +187,9 @@ jobs:
         run: |
           set -euo pipefail
           required=(
-            "release-assets/benchmarks/bridge_compression_benchmark_compare.md"
             "release-assets/benchmarks/fedavg_benchmark_compare.md"
             "release-assets/benchmarks/accelerator_backend_compare.md"
+            "release-assets/benchmarks/release_performance_evidence.md"
             "release-assets/sbom-source.spdx.json"
             "release-assets/sovereign-map-testnet.tar.gz"
           )
