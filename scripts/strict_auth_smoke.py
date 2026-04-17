@@ -23,9 +23,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run strict auth/role smoke checks against libmohawk."
     )
-    parser.add_argument(
-        "--lib-path", default="", help="Path to libmohawk shared library"
-    )
+    parser.add_argument("--lib-path", default="", help="Path to libmohawk shared library")
     parser.add_argument(
         "--token-file", default="secrets/mohawk_api_token", help="API token file path"
     )

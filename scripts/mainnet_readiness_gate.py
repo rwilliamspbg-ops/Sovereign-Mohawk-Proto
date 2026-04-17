@@ -217,6 +217,12 @@ def main() -> int:
         default=1.0,
         help="Minimum required sum(mohawk_gradient_compression_ratio_count) for readiness pass",
     )
+    parser.add_argument(
+        "--min-bridge-transfers",
+        type=float,
+        default=1.0,
+        help="Minimum required sum(mohawk_bridge_transfers_total) for readiness pass",
+    )
     args = parser.parse_args()
 
     report: dict[str, object] = {
@@ -288,6 +294,7 @@ def main() -> int:
                 "mohawk_proof_verifications_total",
                 "mohawk_accelerator_ops_total",
                 "mohawk_gradient_compression_ratio_count",
+                "mohawk_bridge_transfers_total",
             ],
             retries=args.retries,
             delay_seconds=args.delay,
@@ -375,6 +382,26 @@ def main() -> int:
             failures.append(
                 "gradient compression activity below minimum: "
                 f"total={gradient_compression_count}, min={args.min_gradient_compression_observations}"
+            )
+
+        bridge_transfers_total = wait_query_scalar_value(
+            args.prom_url,
+            "sum(mohawk_bridge_transfers_total)",
+            default_if_empty=None,
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        report["checks"]["bridge_transfers_series_present"] = True
+        report["checks"]["bridge_transfers_non_negative"] = bridge_transfers_total >= 0
+        if bridge_transfers_total < 0:
+            failures.append(f"bridge transfers counter negative: {bridge_transfers_total}")
+        report["checks"]["bridge_transfers_min_activity"] = (
+            bridge_transfers_total >= args.min_bridge_transfers
+        )
+        if bridge_transfers_total < args.min_bridge_transfers:
+            failures.append(
+                "bridge transfers activity below minimum: "
+                f"total={bridge_transfers_total}, min={args.min_bridge_transfers}"
             )
 
         invariant_failures = check_supply_invariant(
