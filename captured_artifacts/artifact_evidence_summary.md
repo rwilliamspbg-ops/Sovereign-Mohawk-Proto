@@ -1,6 +1,6 @@
 # Artifact Evidence Summary
 
-- Generated (UTC): 2026-04-17T02:46:43Z
+- Canonical snapshot (UTC): 2026-04-17T02:18:33Z
 - Retention policy: keep latest 3 validation runs per profile
 
 ## Canonical Validation Runs

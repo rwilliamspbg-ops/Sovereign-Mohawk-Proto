@@ -2,6 +2,8 @@
 
 .PHONY: all build test audit lint refresh-proof-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk demo-train-synthesize-dataset demo-synthesizebio-docker metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check fedavg-scale-gate tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test artifact-retention-dryrun artifact-retention-apply artifact-summary testnet-gui-windows
 
+ARTIFACT_KEEP ?= 3
+
 all: build verify
 
 build:
@@ -274,12 +276,12 @@ tamper-evident-e2e-test:
 
 artifact-retention-dryrun:
 	@echo "🧾 Previewing validation artifact retention plan (dry-run)..."
-	bash scripts/manage_artifacts.sh --keep 3 --archive
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --archive
 
 artifact-retention-apply:
 	@echo "🧾 Applying validation artifact retention policy..."
-	bash scripts/manage_artifacts.sh --keep 3 --archive --apply
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --archive --apply
 
 artifact-summary:
 	@echo "🧾 Generating canonical artifact summary and manifest..."
-	bash scripts/manage_artifacts.sh --keep 3 --summary --apply
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --summary --apply

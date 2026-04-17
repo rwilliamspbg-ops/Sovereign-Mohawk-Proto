@@ -19,8 +19,9 @@ This document defines how generated evidence artifacts are retained, summarized,
 
 ## Retention Standard
 
-- Keep latest 3 validation runs per profile (`fast`, `deep`) in active storage.
+- Keep latest `ARTIFACT_KEEP` validation runs per profile (`fast`, `deep`) in active storage.
 - Archive older validation runs to `results/archive/full-validation/` as compressed tarballs.
+- Default project setting: `ARTIFACT_KEEP=3` in [Makefile](../Makefile).
 
 ## Automation
 
@@ -35,6 +36,9 @@ make artifact-retention-apply
 
 # Regenerate canonical summary + manifest
 make artifact-summary
+
+# Optional override
+make artifact-summary ARTIFACT_KEEP=2
 ```
 
 Generated summary outputs:
@@ -47,3 +51,4 @@ Generated summary outputs:
 1. Keep code changes in one PR and bulk generated evidence in a separate evidence PR when possible.
 2. Reference canonical outputs from `captured_artifacts/artifact_evidence_summary.md` in PR descriptions.
 3. Only force-add ignored generated outputs when they are intentionally curated release evidence.
+4. Use the artifact-review checklist in [PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md).

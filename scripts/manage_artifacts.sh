@@ -128,6 +128,27 @@ latest_stem_for_profile() {
   echo "$latest"
 }
 
+canonical_snapshot_utc() {
+  local best_raw=""
+  local stem
+  for stem in "$@"; do
+    [[ -z "$stem" ]] && continue
+    local raw="${stem#full_validation_}"
+    if [[ "$raw" =~ ^[0-9]{8}T[0-9]{6}Z$ ]] && ([[ -z "$best_raw" ]] || [[ "$raw" > "$best_raw" ]]); then
+      best_raw="$raw"
+    fi
+  done
+
+  if [[ -z "$best_raw" ]]; then
+    echo "unknown"
+    return 0
+  fi
+
+  printf "%s-%s-%sT%s:%s:%sZ\n" \
+    "${best_raw:0:4}" "${best_raw:4:2}" "${best_raw:6:2}" \
+    "${best_raw:9:2}" "${best_raw:11:2}" "${best_raw:13:2}"
+}
+
 filter_old_stems_for_profile() {
   local profile="$1"
   local stems
@@ -225,6 +246,7 @@ fi
 if [[ "$WRITE_SUMMARY" -eq 1 ]]; then
   latest_fast="$(latest_stem_for_profile "fast")"
   latest_deep="$(latest_stem_for_profile "deep")"
+  snapshot_utc="$(canonical_snapshot_utc "$latest_fast" "$latest_deep")"
 
   latest_tpm="$(find "${ROOT_DIR}/results/go-live/evidence" -maxdepth 1 -type f -name 'tpm_closure_summary_*.md' -printf '%f\n' | sort | tail -n 1 || true)"
   latest_router="$(find "${ROOT_DIR}/results/go-live/evidence" -maxdepth 1 -type f -name 'router_integration_published_images_*.md' -printf '%f\n' | sort | tail -n 1 || true)"
@@ -232,12 +254,10 @@ if [[ "$WRITE_SUMMARY" -eq 1 ]]; then
 
   mkdir -p "$(dirname "$SUMMARY_OUT")" "$(dirname "$MANIFEST_OUT")"
 
-  generated_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
   cat > "$SUMMARY_OUT" <<EOF
 # Artifact Evidence Summary
 
-- Generated (UTC): ${generated_at}
+- Canonical snapshot (UTC): ${snapshot_utc}
 - Retention policy: keep latest ${KEEP_PER_PROFILE} validation runs per profile
 
 ## Canonical Validation Runs
@@ -260,7 +280,7 @@ EOF
 
   cat > "$MANIFEST_OUT" <<EOF
 {
-  "generated_utc": "${generated_at}",
+  "canonical_snapshot_utc": "${snapshot_utc}",
   "retention": {
     "keep_per_profile": ${KEEP_PER_PROFILE},
     "full_validation_dir": "test-results/full-validation"
