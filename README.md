@@ -1042,6 +1042,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
+* [proofs/pyapi_bridge_auth_denial.md](proofs/pyapi_bridge_auth_denial.md) - Formal proof sketch for bridge auth denial semantics
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
