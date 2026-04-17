@@ -1,0 +1,44 @@
+# WSL2 host-passthrough overlay for validation nodes.
+# Use with the base stack:
+#   docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up -d mohawk-validator
+
+services:
+  mohawk-validator:
+    extends:
+      file: docker-compose.yml
+      service: node-agent-1
+    container_name: mohawk-validator
+    environment:
+      - NODE_ID=validation-node-01
+      - MOHAWK_ROUTER_MODEL_ID=synthesize-bio-validation
+      - MOHAWK_ROUTER_SOURCE_VERTICAL=oncology
+      - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
+      - MOHAWK_ACCELERATOR=npu
+      - MOHAWK_TPM_DEVICE=/dev/tpmrm0
+      - MOHAWK_SOFTWARE_MAP_NAME=Sovereign Map
+      - MOHAWK_VALIDATION_PROFILE=wsl2
+    volumes:
+      - ./map_data:/var/lib/mohawk/map
+    devices:
+      - /dev/tpmrm0:/dev/tpmrm0
+      - /dev/accel/accel0:/dev/accel/accel0
+    networks:
+      mohawk-net:
+      sovereign-map-net:
+        aliases:
+          - mohawk-validator
+          - sovereign-map-validator
+
+  federated-router:
+    networks:
+      mohawk-net:
+      sovereign-map-net:
+        aliases:
+          - sovereign-map-router
+
+networks:
+  sovereign-map-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24

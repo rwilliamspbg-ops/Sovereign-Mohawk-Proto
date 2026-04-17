@@ -90,6 +90,13 @@ Your changes must not violate these limits:
 <!-- Link related issues using #issue_number -->
 Closes #
 
+## Artifact Review Checklist
+- [ ] Scope is clear: code changes only, evidence changes only, or mixed by design
+- [ ] Canonical summary updated: `captured_artifacts/artifact_evidence_summary.md`
+- [ ] Canonical manifest updated: `captured_artifacts/artifact_manifest_latest.json`
+- [ ] Retention policy applied (`make artifact-retention-apply`)
+- [ ] If evidence files are included, PR description links canonical files first
+
 ## Checklist Before Requesting Review
 - [ ] Code follows project style guidelines (`make lint`)
 - [ ] No linter errors or warnings

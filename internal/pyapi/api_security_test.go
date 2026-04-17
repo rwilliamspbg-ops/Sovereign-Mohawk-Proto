@@ -72,14 +72,28 @@ func TestAuthorizeUtilityRole(t *testing.T) {
 func TestValidateAPIAccessRequiredMode(t *testing.T) {
 	originalMode := apiAuthMode
 	originalToken := apiAuthToken
+	originalTokenRole := apiAuthTokenRole
 	originalPolicy := apiRolePolicy
+	originalUtilityPolicy := utilityRolePolicy
 	apiAuthMode = apiAuthModeRequired
 	apiAuthToken = "secret-token"
+	apiAuthTokenRole = ""
 	apiRolePolicy = apiRolePolicyConfig{}
+	utilityRolePolicy = utilityRolePolicyConfig{
+		enabled: true,
+		allowedByOp: map[string]map[string]struct{}{
+			"transfer": {
+				"admin": {},
+			},
+		},
+		requiredByOp: map[string]bool{"transfer": true},
+	}
 	t.Cleanup(func() {
 		apiAuthMode = originalMode
 		apiAuthToken = originalToken
+		apiAuthTokenRole = originalTokenRole
 		apiRolePolicy = originalPolicy
+		utilityRolePolicy = originalUtilityPolicy
 	})
 
 	if err := validateAPIAccess("hybrid", "", "secret-token"); err != nil {
@@ -87,6 +101,15 @@ func TestValidateAPIAccessRequiredMode(t *testing.T) {
 	}
 	if err := validateAPIAccess("hybrid", "", "wrong-token"); err == nil {
 		t.Fatal("expected invalid token to fail")
+	}
+	if err := validateUtilityAccess("transfer", "admin", "secret-token"); err != nil {
+		t.Fatalf("expected valid utility access to pass: %v", err)
+	}
+	if err := validateUtilityAccess("transfer", "operator", "secret-token"); err == nil || err.Error() != "role \"operator\" is not allowed for transfer" {
+		t.Fatalf("expected operator role to be denied explicitly, got: %v", err)
+	}
+	if err := validateUtilityAccess("transfer", "admin", "wrong-token"); err == nil || err.Error() != "invalid API token" {
+		t.Fatalf("expected wrong token to be denied explicitly, got: %v", err)
 	}
 }
 

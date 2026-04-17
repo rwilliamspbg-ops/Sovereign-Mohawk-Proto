@@ -1,0 +1,28 @@
+name: Artifact Summary Stale Check
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  artifact-summary-stale-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Regenerate canonical artifact summary
+        run: make artifact-summary
+
+      - name: Fail if canonical artifact files are stale
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- \
+            captured_artifacts/artifact_evidence_summary.md \
+            captured_artifacts/artifact_manifest_latest.json

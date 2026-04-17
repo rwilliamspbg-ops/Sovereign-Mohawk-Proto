@@ -69,6 +69,47 @@ Latest TPM production closure evidence (2026-04-11):
 - 500-node scale manifest: [captured_artifacts/500node_scale_test_manifest.json](captured_artifacts/500node_scale_test_manifest.json)
 - Release performance evidence index: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
 
+## Validation Notes
+
+- Accelerator comparison artifacts are policy-driven backend profiles generated on the current host runtime. In this container, they are not device-attested NVIDIA, ROCm, or NPU measurements, so they should be read as supported-backend comparison evidence rather than hardware certification.
+- TPM closure should be read as a two-step evidence chain: [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) captured an intermediate failure state, while [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) reflects the finalized approved closure with complete platform evidence.
+
+## Artifact Governance
+
+Generated artifacts are managed with retention + canonical-summary automation. Policy details are in [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md).
+
+```bash
+make artifact-retention-dryrun
+make artifact-retention-apply
+make artifact-summary
+```
+
+## WSL2 Validation Overlay
+
+For host-specific passthrough validation on Windows 11 with WSL2, keep the base compose stack portable and layer the device mappings with [docker-compose.wsl2.yml](docker-compose.wsl2.yml).
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up -d mohawk-validator
+```
+
+This overlay only works when the host actually exposes `/dev/tpmrm0` and `/dev/accel/accel0` inside WSL2. If those devices are absent, treat the run as unsupported on that machine rather than as a repo misconfiguration.
+
+## Synthesize.bio Training
+
+Use the demo wrapper to train from either a real synthesize.bio dataset export or a local CSV dump and write the report under `results/demo/synthesize_bio/`:
+
+```bash
+DATASET=https://app.synthesize.bio/datasets/<dataset-id> ./scripts/run_synthesizebio_demo.sh
+# or
+INPUT_CSV=/path/to/export.csv ./scripts/run_synthesizebio_demo.sh
+```
+
+For a Docker-native end-to-end run that starts the stack, trains, validates, and copies artifacts into the repo, use:
+
+```bash
+DATASET=https://app.synthesize.bio/datasets/<dataset-id> make demo-synthesizebio-docker VALIDATION_PROFILE=fast
+```
+
 ## Security Defaults (Current)
 
 - Proof verifier boot path is fail-closed by default; silent runtime disable is not allowed.
@@ -106,6 +147,7 @@ make golden-path-e2e
 - Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](TECHNICAL_DOCUMENTATION_FILE.md)
 - Technical documentation template: [docs/tdf/TECHNICAL_FILE_TEMPLATE.md](docs/tdf/TECHNICAL_FILE_TEMPLATE.md)
 - Cross-vertical federated router: [docs/CROSS_VERTICAL_FEDERATED_ROUTER.md](docs/CROSS_VERTICAL_FEDERATED_ROUTER.md)
+- Artifact governance and retention policy: [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md)
 - Notified body early-engagement checklist: [docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md](docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md)
 - Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
 - Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
@@ -1000,6 +1042,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
+* [proofs/pyapi_bridge_auth_denial.md](proofs/pyapi_bridge_auth_denial.md) - Formal proof sketch for bridge auth denial semantics
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
