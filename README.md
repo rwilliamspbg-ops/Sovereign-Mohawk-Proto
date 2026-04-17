@@ -74,6 +74,16 @@ Latest TPM production closure evidence (2026-04-11):
 - Accelerator comparison artifacts are policy-driven backend profiles generated on the current host runtime. In this container, they are not device-attested NVIDIA, ROCm, or NPU measurements, so they should be read as supported-backend comparison evidence rather than hardware certification.
 - TPM closure should be read as a two-step evidence chain: [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) captured an intermediate failure state, while [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) reflects the finalized approved closure with complete platform evidence.
 
+## Artifact Governance
+
+Generated artifacts are managed with retention + canonical-summary automation. Policy details are in [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md).
+
+```bash
+make artifact-retention-dryrun
+make artifact-retention-apply
+make artifact-summary
+```
+
 ## WSL2 Validation Overlay
 
 For host-specific passthrough validation on Windows 11 with WSL2, keep the base compose stack portable and layer the device mappings with [docker-compose.wsl2.yml](docker-compose.wsl2.yml).
@@ -137,6 +147,7 @@ make golden-path-e2e
 - Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](TECHNICAL_DOCUMENTATION_FILE.md)
 - Technical documentation template: [docs/tdf/TECHNICAL_FILE_TEMPLATE.md](docs/tdf/TECHNICAL_FILE_TEMPLATE.md)
 - Cross-vertical federated router: [docs/CROSS_VERTICAL_FEDERATED_ROUTER.md](docs/CROSS_VERTICAL_FEDERATED_ROUTER.md)
+- Artifact governance and retention policy: [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md)
 - Notified body early-engagement checklist: [docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md](docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md)
 - Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
 - Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)

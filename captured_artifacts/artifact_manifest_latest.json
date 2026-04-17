@@ -1,0 +1,25 @@
+{
+  "generated_utc": "2026-04-17T02:46:43Z",
+  "retention": {
+    "keep_per_profile": 3,
+    "full_validation_dir": "test-results/full-validation"
+  },
+  "canonical_runs": {
+    "fast": {
+      "json": "test-results/full-validation/full_validation_20260417T021002Z.json",
+      "markdown": "test-results/full-validation/full_validation_20260417T021002Z.md"
+    },
+    "deep": {
+      "json": "test-results/full-validation/full_validation_20260417T021833Z.json",
+      "markdown": "test-results/full-validation/full_validation_20260417T021833Z.md"
+    }
+  },
+  "evidence_categories": {
+    "release": "results/metrics/release_performance_evidence.md",
+    "go_live": "results/go-live/evidence/tpm_closure_summary_2026-04-11.md",
+    "router": "results/go-live/evidence/router_integration_published_images_2026-04-11.md",
+    "scale": "results/metrics/scaling_evidence_spotlight_2026-04-11.md",
+    "forensics": "results/forensics/byzantine_rejections_local.md",
+    "api": "results/api/openapi.json"
+  }
+}
