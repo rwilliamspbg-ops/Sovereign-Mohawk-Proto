@@ -4,7 +4,7 @@
     "title": "Sovereign Mohawk Orchestrator API",
     "version": "1.0.0",
     "description": "Baseline contract for orchestrator control-plane endpoints.",
-    "x-generated-at": "2026-04-16T20:35:20.363712+00:00"
+    "x-generated-at": "2026-04-17T02:14:38.626188+00:00"
   },
   "servers": [
     {
