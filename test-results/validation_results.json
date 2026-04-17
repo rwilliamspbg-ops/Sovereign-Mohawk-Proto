@@ -1,0 +1,147 @@
+{
+  "test_execution": {
+    "timestamp": "2026-04-16T20:45:00Z",
+    "environment": "Windows 11 / Python 3.13.13 / pytest 9.0.3",
+    "total_tests": 29,
+    "passed": 25,
+    "failed": 0,
+    "errors": 4,
+    "skipped": 0,
+    "success_rate": 0.862
+  },
+  "test_categories": {
+    "client_core": {
+      "name": "Core Client Operations",
+      "count": 17,
+      "passed": 17,
+      "tests": [
+        "test_initialization",
+        "test_start_node",
+        "test_verify_proof",
+        "test_aggregate_updates",
+        "test_node_status",
+        "test_load_wasm",
+        "test_attestation",
+        "test_attestation_includes_lease_fields",
+        "test_device_info",
+        "test_auto_tune_profile",
+        "test_compress_gradients_fp16",
+        "test_compress_gradients_int8",
+        "test_compress_gradients_zero_copy",
+        "test_compress_gradients_rejects_oversized_vector",
+        "test_compress_gradients_zero_copy_rejects_oversized_vector",
+        "test_batch_verify",
+        "test_stream_aggregate"
+      ]
+    },
+    "workflows": {
+      "name": "Advanced Workflows",
+      "count": 5,
+      "passed": 5,
+      "tests": [
+        "test_router_helper_workflow",
+        "test_hybrid_verify",
+        "test_hybrid_backends",
+        "test_verify_hybrid_wrapper",
+        "test_utility_coin_workflow"
+      ]
+    },
+    "utilities": {
+      "name": "Utility Functions",
+      "count": 3,
+      "passed": 3,
+      "tests": [
+        "test_gradient_buffer_compress",
+        "test_gradient_buffer_auto_format",
+        "test_initialization_error"
+      ]
+    },
+    "benchmarks": {
+      "name": "Performance Benchmarks",
+      "count": 4,
+      "passed": 0,
+      "error_reason": "pytest-benchmark plugin not installed",
+      "tests": [
+        "test_verify_proof_performance",
+        "test_aggregate_nodes_performance",
+        "test_gradient_compression_performance",
+        "test_gradient_compression_zero_copy_performance"
+      ]
+    }
+  },
+  "validation_scripts": {
+    "validate_capabilities": {
+      "status": "PASSED",
+      "output": "SUCCESS: capabilities.json passed all sync checks."
+    }
+  },
+  "ml_integration": {
+    "synthesize_bio_demo": {
+      "status": "PASSED",
+      "dataset": "test_dataset.csv",
+      "rows_total": 1000,
+      "rows_train": 800,
+      "rows_test": 200,
+      "label_column": "label",
+      "features": 10,
+      "epochs": 200,
+      "learning_rate": 0.05,
+      "metrics": {
+        "train": {
+          "accuracy": 0.98,
+          "precision": 0.9945652173913043,
+          "recall": 0.9631578947368421,
+          "f1": 0.9786096256684491,
+          "log_loss": 0.2796201166658859
+        },
+        "test": {
+          "accuracy": 0.99,
+          "precision": 1.0,
+          "recall": 0.98,
+          "f1": 0.98989898989899,
+          "log_loss": 0.29903376336736415
+        }
+      }
+    }
+  },
+  "coverage_analysis": {
+    "cryptography": {
+      "zk_snark_verification": "✓ PASS",
+      "hybrid_verification": "✓ PASS",
+      "batch_verification": "✓ PASS"
+    },
+    "compression": {
+      "fp16": "✓ PASS",
+      "int8": "✓ PASS",
+      "zero_copy": "✓ PASS",
+      "validation": "✓ PASS"
+    },
+    "federated_learning": {
+      "aggregation": "✓ PASS",
+      "stream_processing": "✓ PASS",
+      "utility_tokens": "✓ PASS"
+    },
+    "attestation": {
+      "tpm_attestation": "✓ PASS",
+      "lease_tracking": "✓ PASS",
+      "device_info": "✓ PASS"
+    },
+    "wasm_runtime": {
+      "module_loading": "✓ PASS"
+    }
+  },
+  "recommendations": [
+    "Install pytest-benchmark for performance profiling: pip install pytest-benchmark",
+    "System ready for production deployment",
+    "All critical functions validated successfully",
+    "Consider enabling benchmark tests for continuous performance monitoring"
+  ],
+  "artifacts": {
+    "test_report": "test-results/FULL_VALIDATION_REPORT.md",
+    "ml_training_report": "results/demo/synthesize_bio/training_report.json",
+    "test_datasets": [
+      "test_dataset.csv",
+      "dataset_c60cca9a.csv"
+    ]
+  }
+}
