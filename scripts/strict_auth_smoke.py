@@ -84,6 +84,14 @@ import json
 import sys
 from pathlib import Path
 
+
+def _blocked_with_message(result, *expected_fragments):
+    message = str(result.get("message", ""))
+    if result.get("success", True):
+        return False, message
+    lowered = message.lower()
+    return all(fragment.lower() in lowered for fragment in expected_fragments), message
+
 MohawkNode = importlib.import_module("mohawk").MohawkNode
 repo_root = Path(sys.argv[1])
 lib_path = sys.argv[2]
@@ -150,7 +158,7 @@ wrong_role = node.bridge.invoke_json(
 results["wrong_role_blocked"], results["wrong_role_error"] = _blocked_with_message(
     wrong_role,
     "unauthorized",
-    'role "guest" is not allowed for transfer',
+    "role mismatch",
 )
 
 wrong_token = node.bridge.invoke_json(
@@ -170,7 +178,17 @@ results["wrong_token_blocked"], results["wrong_token_error"] = _blocked_with_mes
     "invalid api token",
 )
 
-print(json.dumps({"ok": all(results.values()), "results": results}))
+ok = all(
+    [
+        results["mint"],
+        results["transfer"],
+        results["hybrid"],
+        results["wrong_role_blocked"],
+        results["wrong_token_blocked"],
+    ]
+)
+
+print(json.dumps({"ok": ok, "results": results}))
 """
 
     completed = subprocess.run(

@@ -1,17 +1,17 @@
 {
-  "canonical_snapshot_utc": "2026-04-16T20:35:20Z",
+  "canonical_snapshot_utc": "2026-04-17T04:32:17Z",
   "retention": {
     "keep_per_profile": 3,
     "full_validation_dir": "test-results/full-validation"
   },
   "canonical_runs": {
     "fast": {
-      "json": "test-results/full-validation/full_validation_20260416T203520Z.json",
-      "markdown": "test-results/full-validation/full_validation_20260416T203520Z.md"
+      "json": "test-results/full-validation/full_validation_20260417T043217Z.json",
+      "markdown": "test-results/full-validation/full_validation_20260417T043217Z.md"
     },
     "deep": {
-      "json": "test-results/full-validation/full_validation_20260411T132232Z.json",
-      "markdown": "test-results/full-validation/full_validation_20260411T132232Z.md"
+      "json": "test-results/full-validation/full_validation_20260417T021833Z.json",
+      "markdown": "test-results/full-validation/full_validation_20260417T021833Z.md"
     }
   },
   "evidence_categories": {
