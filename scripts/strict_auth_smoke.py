@@ -11,6 +11,14 @@ def _read_token(path: Path) -> str:
     return path.read_text(encoding="utf-8").strip()
 
 
+def _blocked_with_message(result: dict, *expected_fragments: str) -> tuple[bool, str]:
+    message = str(result.get("message", ""))
+    if result.get("success", True):
+        return False, message
+    lowered = message.lower()
+    return all(fragment.lower() in lowered for fragment in expected_fragments), message
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run strict auth/role smoke checks against libmohawk."
@@ -141,8 +149,11 @@ wrong_role = node.bridge.invoke_json(
         "role": "guest",
     },
 )
-results["wrong_role_blocked"] = not bool(wrong_role.get("success"))
-results["wrong_role_error"] = str(wrong_role.get("message", ""))
+results["wrong_role_blocked"], results["wrong_role_error"] = _blocked_with_message(
+    wrong_role,
+    "unauthorized",
+    'role "guest" is not allowed for transfer',
+)
 
 wrong_token = node.bridge.invoke_json(
     "TransferUtilityCoin",
@@ -155,8 +166,11 @@ wrong_token = node.bridge.invoke_json(
         "role": "operator",
     },
 )
-results["wrong_token_blocked"] = not bool(wrong_token.get("success"))
-results["wrong_token_error"] = str(wrong_token.get("message", ""))
+results["wrong_token_blocked"], results["wrong_token_error"] = _blocked_with_message(
+    wrong_token,
+    "unauthorized",
+    "invalid api token",
+)
 
 print(json.dumps({"ok": all(results.values()), "results": results}))
 """
