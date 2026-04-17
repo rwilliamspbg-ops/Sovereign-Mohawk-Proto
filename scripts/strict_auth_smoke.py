@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse
-import importlib
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -15,7 +15,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run strict auth/role smoke checks against libmohawk."
     )
-    parser.add_argument("--lib-path", default="", help="Path to libmohawk shared library")
+    parser.add_argument(
+        "--lib-path", default="", help="Path to libmohawk shared library"
+    )
     parser.add_argument(
         "--token-file", default="secrets/mohawk_api_token", help="API token file path"
     )
@@ -33,14 +35,17 @@ def main() -> int:
         print(json.dumps({"ok": False, "error": f"token file not found: {token_file}"}))
         return 2
 
-    token = _read_token(token_file)
-
-    os.environ.setdefault("MOHAWK_API_AUTH_MODE", "file-only")
-    os.environ.setdefault("MOHAWK_API_TOKEN_FILE", str(token_file))
-    os.environ.setdefault("MOHAWK_API_ENFORCE_ROLES", "true")
-    os.environ.setdefault("MOHAWK_API_HYBRID_ALLOWED_ROLES", "verifier,admin")
-
-    MohawkNode = importlib.import_module("mohawk").MohawkNode
+    os.environ["MOHAWK_API_AUTH_MODE"] = "file-only"
+    os.environ["MOHAWK_API_TOKEN_FILE"] = str(token_file)
+    os.environ["MOHAWK_API_TOKEN_ROLE"] = "admin"
+    os.environ["MOHAWK_API_ENFORCE_ROLES"] = "true"
+    os.environ["MOHAWK_UTILITY_ENFORCE_ROLES"] = "true"
+    os.environ["MOHAWK_UTILITY_MINT_ALLOWED_ROLES"] = "minter,admin,protocol"
+    os.environ["MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES"] = "user,operator,admin,protocol"
+    os.environ["MOHAWK_UTILITY_BURN_ALLOWED_ROLES"] = "operator,admin,protocol"
+    os.environ["MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES"] = "operator,admin"
+    os.environ["MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES"] = "admin"
+    os.environ["MOHAWK_API_HYBRID_ALLOWED_ROLES"] = "verifier,admin"
 
     lib_path = args.lib_path.strip()
     if lib_path:
@@ -49,89 +54,135 @@ def main() -> int:
             lp = repo_root / lp
         lib_path = str(lp)
 
-    node = MohawkNode(lib_path=lib_path or None)
+    probe_env = os.environ.copy()
+    probe_env.update(
+        {
+            "MOHAWK_API_AUTH_MODE": "file-only",
+            "MOHAWK_API_TOKEN_FILE": str(token_file),
+            "MOHAWK_API_TOKEN_ROLE": "admin",
+            "MOHAWK_API_ENFORCE_ROLES": "true",
+            "MOHAWK_UTILITY_ENFORCE_ROLES": "true",
+            "MOHAWK_UTILITY_MINT_ALLOWED_ROLES": "minter,admin,protocol",
+            "MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES": "user,operator,admin,protocol",
+            "MOHAWK_UTILITY_BURN_ALLOWED_ROLES": "operator,admin,protocol",
+            "MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES": "operator,admin",
+            "MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES": "admin",
+            "MOHAWK_API_HYBRID_ALLOWED_ROLES": "verifier,admin",
+            "PYTHONPATH": str(sdk_path),
+        }
+    )
 
-    results = {
-        "mint": False,
-        "transfer": False,
-        "hybrid": False,
-        "wrong_role_blocked": False,
-        "wrong_token_blocked": False,
-        "wrong_role_error": "",
-        "wrong_token_error": "",
-    }
+    probe_code = r"""
+import importlib
+import json
+import sys
+from pathlib import Path
 
-    try:
-        minted = node.mint_utility_coin(
-            to="smoke-user",
-            amount=1.0,
-            actor="protocol",
-            auth_token=token,
-            role="admin",
-            idempotency_key="smoke-mint-1",
-            nonce=1,
-        )
-        results["mint"] = bool(minted.get("success"))
+MohawkNode = importlib.import_module("mohawk").MohawkNode
+repo_root = Path(sys.argv[1])
+lib_path = sys.argv[2]
+token_file = Path(sys.argv[3])
+token = token_file.read_text(encoding="utf-8").strip()
 
-        transferred = node.transfer_utility_coin(
-            from_account="smoke-user",
-            to_account="smoke-user-2",
-            amount=0.25,
-            memo="smoke-transfer",
-            auth_token=token,
-            role="operator",
-        )
-        results["transfer"] = bool(transferred.get("success"))
+node = MohawkNode(lib_path=lib_path or None)
+results = {
+    "mint": False,
+    "transfer": False,
+    "hybrid": False,
+    "wrong_role_blocked": False,
+    "wrong_token_blocked": False,
+    "wrong_role_error": "",
+    "wrong_token_error": "",
+}
 
-        try:
-            hybrid = node.verify_hybrid_proof(
-                snark_proof="s" * 128,
-                stark_proof="t" * 64,
-                mode="both",
-                auth_token=token,
-                role="verifier",
-            )
-            results["hybrid"] = bool(hybrid.get("success"))
-        except Exception as exc:  # noqa: BLE001
-            error_text = str(exc).lower()
-            # Proofs in smoke are intentionally synthetic; authorization is the gate here.
-            if "unauthorized" in error_text:
-                raise
-            results["hybrid"] = True
+minted = node.mint_utility_coin(
+    to="smoke-user",
+    amount=1.0,
+    actor="protocol",
+    auth_token=token,
+    role="admin",
+    idempotency_key="smoke-mint-1",
+    nonce=1,
+)
+results["mint"] = bool(minted.get("success"))
 
-        try:
-            node.transfer_utility_coin(
-                from_account="smoke-user",
-                to_account="smoke-user-2",
-                amount=0.25,
-                memo="smoke-transfer",
-                auth_token=token,
-                role="guest",
-            )
-        except Exception as exc:  # noqa: BLE001
-            results["wrong_role_blocked"] = True
-            results["wrong_role_error"] = str(exc)
+transferred = node.transfer_utility_coin(
+    from_account="smoke-user",
+    to_account="smoke-user-2",
+    amount=0.25,
+    memo="smoke-transfer",
+    auth_token=token,
+    role="admin",
+)
+results["transfer"] = bool(transferred.get("success"))
 
-        try:
-            node.transfer_utility_coin(
-                from_account="smoke-user",
-                to_account="smoke-user-2",
-                amount=0.25,
-                memo="smoke-transfer",
-                auth_token="wrong-token",
-                role="operator",
-            )
-        except Exception as exc:  # noqa: BLE001
-            results["wrong_token_blocked"] = True
-            results["wrong_token_error"] = str(exc)
+try:
+    hybrid = node.verify_hybrid_proof(
+        snark_proof="s" * 128,
+        stark_proof="t" * 64,
+        mode="both",
+        auth_token=token,
+        role="admin",
+    )
+    results["hybrid"] = bool(hybrid.get("success"))
+except Exception as exc:  # noqa: BLE001
+    if "unauthorized" in str(exc).lower():
+        raise
+    results["hybrid"] = True
 
-    except Exception as exc:  # noqa: BLE001
-        print(json.dumps({"ok": False, "error": str(exc), "results": results}))
-        return 1
+wrong_role = node.bridge.invoke_json(
+    "TransferUtilityCoin",
+    {
+        "from": "smoke-user",
+        "to": "smoke-user-2",
+        "amount": 0.10,
+        "memo": "smoke-wrong-role",
+        "auth_token": token,
+        "role": "guest",
+    },
+)
+results["wrong_role_blocked"] = not bool(wrong_role.get("success"))
+results["wrong_role_error"] = str(wrong_role.get("message", ""))
 
-    ok = all(results.values())
-    print(json.dumps({"ok": ok, "results": results}))
-    return 0 if ok else 1
+wrong_token = node.bridge.invoke_json(
+    "TransferUtilityCoin",
+    {
+        "from": "smoke-user",
+        "to": "smoke-user-2",
+        "amount": 0.25,
+        "memo": "smoke-transfer",
+        "auth_token": "wrong-token",
+        "role": "operator",
+    },
+)
+results["wrong_token_blocked"] = not bool(wrong_token.get("success"))
+results["wrong_token_error"] = str(wrong_token.get("message", ""))
+
+print(json.dumps({"ok": all(results.values()), "results": results}))
+"""
+
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            probe_code,
+            str(repo_root),
+            lib_path,
+            str(token_file),
+        ],
+        env=probe_env,
+        capture_output=True,
+        text=True,
+    )
+    if completed.stdout.strip():
+        print(completed.stdout.strip())
+    if completed.returncode != 0:
+        if completed.stderr.strip():
+            print(completed.stderr.strip(), file=sys.stderr)
+        return completed.returncode
+
+    payload = json.loads(completed.stdout)
+    return 0 if payload.get("ok") else 1
 
 
 if __name__ == "__main__":
