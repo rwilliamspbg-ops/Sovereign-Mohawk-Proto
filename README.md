@@ -1046,7 +1046,7 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
-* [results/go-live/evidence/go_live_gate_strict_2026-04-17.json](results/go-live/evidence/go_live_gate_strict_2026-04-17.json) - Strict go-live gate pass snapshot after host tuning
+* [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Strict-mode go-live gate report after host tuning
 * [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
 * [captured_artifacts/ga_release_readiness_2026-04-17.md](captured_artifacts/ga_release_readiness_2026-04-17.md) - Consolidated GA readiness evidence report
 * [captured_artifacts/release_package_manifest_checksums_2026-04-17.txt](captured_artifacts/release_package_manifest_checksums_2026-04-17.txt) - Release package checksum record

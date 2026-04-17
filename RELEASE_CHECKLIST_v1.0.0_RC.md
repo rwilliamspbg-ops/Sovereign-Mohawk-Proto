@@ -16,7 +16,7 @@ Status snapshot (2026-04-17): Runtime, security, operations, scale, and GA safet
 Evidence:
 
 - [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json)
-- [results/go-live/evidence/go_live_gate_strict_2026-04-17.json](results/go-live/evidence/go_live_gate_strict_2026-04-17.json)
+- [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md)
 - [results/go-live/golden-path-report.json](results/go-live/golden-path-report.json)
 
 ## Gate 2: Security and Assurance
