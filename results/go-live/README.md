@@ -9,6 +9,11 @@ This directory stores machine-readable go-live evidence and attestation state.
   - Overall pass/fail plus detailed checks, warnings, and failures
   - Includes `host_preflight_mode` (`strict` or `advisory`)
 
+Latest strict snapshot (2026-04-17):
+
+- `evidence/go_live_gate_strict_2026-04-17.json`
+  - Strict host preflight PASS after target-host sysctl tuning
+
 ## Attestations
 
 Attestation files are in `attestations/` and are required by the go-live validator.
@@ -116,3 +121,7 @@ python3 scripts/validate_go_live_gates.py
     - strict go-live gate artifact is passing
 - Local check:
   - `make ga-tag-ready-check`
+
+Latest consolidated readiness report:
+
+- `captured_artifacts/ga_release_readiness_2026-04-17.md`
