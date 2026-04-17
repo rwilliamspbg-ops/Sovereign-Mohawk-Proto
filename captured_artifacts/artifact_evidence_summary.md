@@ -1,14 +1,14 @@
 # Artifact Evidence Summary
 
-- Canonical snapshot (UTC): 2026-04-17T02:18:33Z
+- Canonical snapshot (UTC): 2026-04-16T20:35:20Z
 - Retention policy: keep latest 3 validation runs per profile
 
 ## Canonical Validation Runs
 
 | Profile | Latest JSON | Latest Markdown |
 | --- | --- | --- |
-| fast | test-results/full-validation/full_validation_20260417T021002Z.json | test-results/full-validation/full_validation_20260417T021002Z.md |
-| deep | test-results/full-validation/full_validation_20260417T021833Z.json | test-results/full-validation/full_validation_20260417T021833Z.md |
+| fast | test-results/full-validation/full_validation_20260416T203520Z.json | test-results/full-validation/full_validation_20260416T203520Z.md |
+| deep | test-results/full-validation/full_validation_20260411T132232Z.json | test-results/full-validation/full_validation_20260411T132232Z.md |
 
 ## Curated Evidence Pointers
 
