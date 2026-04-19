@@ -37,7 +37,9 @@ class DatasetTable:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train on a synthesize.bio dataset export")
+    parser = argparse.ArgumentParser(
+        description="Train on a synthesize.bio dataset export"
+    )
     parser.add_argument(
         "dataset",
         nargs="?",
@@ -201,7 +203,9 @@ def to_binary(value: str) -> int | None:
     return None
 
 
-def choose_label_column(headers: list[str], rows: Iterable[list[str]], requested: str) -> str:
+def choose_label_column(
+    headers: list[str], rows: Iterable[list[str]], requested: str
+) -> str:
     if requested:
         if requested not in headers:
             raise ValueError(f"Label column '{requested}' not found in headers")
@@ -213,7 +217,9 @@ def choose_label_column(headers: list[str], rows: Iterable[list[str]], requested
         vals = [v for v in vals if v is not None]
         if len(vals) >= max(10, int(0.6 * len(sample))):
             return name
-    raise ValueError("Could not infer binary label column; pass --label-column explicitly")
+    raise ValueError(
+        "Could not infer binary label column; pass --label-column explicitly"
+    )
 
 
 def vectorize(
@@ -322,13 +328,17 @@ def train_logreg(
     return w, b
 
 
-def evaluate(X: list[list[float]], y: list[int], w: list[float], b: float) -> dict[str, float]:
+def evaluate(
+    X: list[list[float]], y: list[int], w: list[float], b: float
+) -> dict[str, float]:
     tp = tn = fp = fn = 0
     losses = []
     for xi, yi in zip(X, y):
         z = sum(w[j] * xi[j] for j in range(len(w))) + b
         p = sigmoid(z)
-        losses.append(-(yi * math.log(max(p, 1e-8)) + (1 - yi) * math.log(max(1 - p, 1e-8))))
+        losses.append(
+            -(yi * math.log(max(p, 1e-8)) + (1 - yi) * math.log(max(1 - p, 1e-8)))
+        )
         pred = 1 if p >= 0.5 else 0
         if pred == 1 and yi == 1:
             tp += 1
@@ -394,7 +404,9 @@ def main() -> int:
 
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        out.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
 
         print("Training complete")
         print(f"Dataset: {dataset_ref}")
