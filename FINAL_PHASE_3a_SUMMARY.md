@@ -247,8 +247,8 @@ bae3fae feat(proofs): complete all Lean theorem formalizations (Phase 2 Phase 3)
 ## Recommended Next Actions
 
 ### This Week (Optional, Low Priority)
-- [ ] Update README.md with formal verification badge
-- [ ] Test CI workflow on a feature branch (learning + validation)
+- [x] Update README.md with formal verification badge
+- [ ] Test CI workflow on a feature branch (learning + validation; requires draft PR because workflow triggers target `main`)
 - [ ] Publish blog post to Medium or company blog
 
 ### Next 2-4 Weeks (Phase 3b, Optional)
