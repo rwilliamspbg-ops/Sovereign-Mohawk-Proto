@@ -22,7 +22,6 @@ theorem theorem3_hierarchical_additivity (d n b : Nat) (h_b : 1 < b) :
     hierarchical_comm_complexity d n b <= d * (Nat.log b n + 1) := by
   unfold hierarchical_comm_complexity
   simp [h_b]
-  omega
 
 /-- Large scale check: log_10(10^7) = 7. -/
 theorem theorem3_large_scale_check :
@@ -34,7 +33,8 @@ theorem theorem3_large_scale_check :
 theorem theorem3_hierarchical_scale_check (d : Nat) :
     sovereign_mohawk_comm d <= d * 8 := by
   unfold sovereign_mohawk_comm hierarchical_comm_complexity
-  simp
+  rw [if_pos (by norm_num : 1 < 10)]
+  have h : Nat.log 10 10_000_000 = 7 := by native_decide
   omega
 
 /-- Improvement factor: Naive FedAvg is d*n, Hierarchical is d*log(n).
@@ -47,11 +47,13 @@ theorem theorem3_improvement_ratio :
 def information_theoretic_lower_bound (d n : Nat) : Nat :=
   d * (Nat.log 2 n + 1)
 
-/-- Hierarchical complexity matches the lower bound (up to constant factor). -/
+/-- Hierarchical complexity matches the lower bound (up to constant factor):
+    base-10 path length is within the base-10 log bound plus a small constant. -/
 theorem theorem3_lower_bound_match (d n : Nat) (h_n : 1 < n) :
-    hierarchical_comm_complexity d n 10 <= d * (Nat.log 2 n + 10) := by
+    hierarchical_comm_complexity d n 10 <= d * (Nat.log 10 n + 10) := by
   unfold hierarchical_comm_complexity
-  simp
+  rw [if_pos (by norm_num : 1 < 10)]
+  gcongr
   omega
 
 /-- Naive protocol requires ~40TB for d=1M, n=10M. -/
@@ -76,7 +78,8 @@ theorem theorem3_tier_additivity (d : Nat) :
 theorem theorem3_one_message_per_level (d : Nat) :
     d <= sovereign_mohawk_comm d := by
   unfold sovereign_mohawk_comm hierarchical_comm_complexity
-  simp
+  rw [if_pos (by norm_num : 1 < 10)]
+  have h : Nat.log 10 10_000_000 = 7 := by native_decide
   omega
 
 end LeanFormalization

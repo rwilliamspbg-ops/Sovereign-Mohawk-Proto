@@ -99,11 +99,12 @@ jobs:
 
       - name: Upload proof report
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
         with:
           name: formal-proof-report
           path: /tmp/proof_report.md
-          retention-days: 30
+          retention-days: 7
 
       - name: Comment on PR with proof verification
         if: github.event_name == 'pull_request'
