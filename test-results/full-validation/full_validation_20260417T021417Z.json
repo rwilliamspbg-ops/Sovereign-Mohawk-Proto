@@ -1,0 +1,59 @@
+{
+  "timestamp_utc": "2026-04-17T02:14:17.782278Z",
+  "profile": "deep",
+  "passed": true,
+  "duration_seconds": 254.423,
+  "commands": [
+    {
+      "command": "make verify",
+      "exit_code": 0,
+      "duration_seconds": 7.292
+    },
+    {
+      "command": "make fips-regression",
+      "exit_code": 0,
+      "duration_seconds": 0.397
+    },
+    {
+      "command": "make openapi-spec",
+      "exit_code": 0,
+      "duration_seconds": 0.054
+    },
+    {
+      "command": "make capability-dashboard-matrix",
+      "exit_code": 0,
+      "duration_seconds": 0.052
+    },
+    {
+      "command": "make release-performance-evidence",
+      "exit_code": 0,
+      "duration_seconds": 0.046
+    },
+    {
+      "command": "make go-live-gate-advisory",
+      "exit_code": 0,
+      "duration_seconds": 0.331
+    },
+    {
+      "command": "make failure-injection-latency-check",
+      "exit_code": 0,
+      "duration_seconds": 0.047
+    },
+    {
+      "command": "make tpm-closure-summary",
+      "exit_code": 0,
+      "duration_seconds": 0.049
+    },
+    {
+      "command": "make golden-path-e2e",
+      "exit_code": 0,
+      "duration_seconds": 230.204
+    },
+    {
+      "command": "make forensics-rehearsal",
+      "exit_code": 0,
+      "duration_seconds": 15.951
+    }
+  ],
+  "failed_commands": []
+}
