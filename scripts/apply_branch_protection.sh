@@ -26,6 +26,7 @@ PAYLOAD=$(cat <<'JSON'
       "Bridge Compression Benchmark / bridge-regression-compare",
       "FedAvg Benchmark Compare / fedavg-benchmark-compare",
       "Proof-Driven Design Verification / proof-audit",
+      "Proof-Driven Design Verification / verify-lean-formalization",
       "Capability Sync / sync-check"
     ]
   },
