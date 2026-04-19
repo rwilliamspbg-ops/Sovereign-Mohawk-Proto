@@ -66,7 +66,7 @@ for mod in "${!module_to_theorems[@]}"; do
   for theorem_name in "${theorem_names[@]}"; do
     theorem_name="$(echo "$theorem_name" | xargs)"
     [[ -n "$theorem_name" ]] || continue
-    if ! grep -qE "^[[:space:]]*(theorem|def)[[:space:]]+$theorem_name([^[:alnum:]_]|$)" "$module_file"; then
+    if ! grep -nF "$theorem_name" "$module_file" | grep -qE '^[0-9]+:[[:space:]]*(theorem|def)[[:space:]]+'; then
       fail "Missing theorem symbol '$theorem_name' in $mod.lean"
     fi
     validated_theorems=$((validated_theorems + 1))
