@@ -1,6 +1,6 @@
 # TPM Attestation Production Closure Validation
 
-- Generated (UTC): `2026-04-05T13:34:01+00:00`
+- Generated (UTC): `2026-04-17T02:09:08+00:00`
 - Overall result: `FAIL`
 
 ## Platform Status
@@ -16,7 +16,7 @@
 - `all_platforms_present`: PASS
 - `all_platforms_pass`: FAIL
 - `all_platforms_have_evidence`: FAIL
-- `attestation_approved`: FAIL
+- `attestation_approved`: PASS
 
 ## Failures
 
@@ -24,4 +24,3 @@
 - platform missing evidence attachment: windows
 - platform not passing: macos status=pending
 - platform missing evidence attachment: macos
-- attestation status is not approved: pending

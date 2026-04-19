@@ -1,42 +1,36 @@
 {
-  "attestation_status": "pending",
-  "closure_ok": false,
-  "closure_validation_artifact": "results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json",
+  "attestation_status": "approved",
+  "closure_ok": true,
+  "closure_validation_artifact": "results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.json",
   "ga_ready": false,
-  "generated_utc": "2026-04-11T13:18:33+00:00",
+  "generated_utc": "2026-04-17T02:14:38+00:00",
   "go_live_advisory_ok": true,
   "go_live_gate_advisory_artifact": "results/go-live/evidence/go_live_gate_advisory_2026-03-28.json",
   "go_live_gate_strict_artifact": "results/go-live/evidence/go_live_gate_strict_2026-03-28.json",
   "go_live_strict_ok": false,
-  "matrix_artifact": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json",
-  "platform_completion_percent": 33.33,
+  "matrix_artifact": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.json",
+  "platform_completion_percent": 100.0,
   "platform_status": {
     "linux": {
-      "evidence_count": 1,
+      "evidence_count": 2,
       "ok": true,
       "present": true,
       "status": "pass"
     },
     "macos": {
-      "evidence_count": 0,
-      "ok": false,
+      "evidence_count": 2,
+      "ok": true,
       "present": true,
-      "status": "pending"
+      "status": "pass"
     },
     "windows": {
-      "evidence_count": 0,
-      "ok": false,
+      "evidence_count": 2,
+      "ok": true,
       "present": true,
-      "status": "pending"
+      "status": "pass"
     }
   },
-  "platforms_passed": 1,
+  "platforms_passed": 3,
   "platforms_total": 3,
-  "remaining_failures": [
-    "platform not passing: windows status=pending",
-    "platform missing evidence attachment: windows",
-    "platform not passing: macos status=pending",
-    "platform missing evidence attachment: macos",
-    "attestation status is not approved: pending"
-  ]
+  "remaining_failures": []
 }

@@ -4,16 +4,15 @@
     "all_platforms_have_evidence": false,
     "all_platforms_pass": false,
     "all_platforms_present": true,
-    "attestation_approved": false
+    "attestation_approved": true
   },
   "failures": [
     "platform not passing: windows status=pending",
     "platform missing evidence attachment: windows",
     "platform not passing: macos status=pending",
-    "platform missing evidence attachment: macos",
-    "attestation status is not approved: pending"
+    "platform missing evidence attachment: macos"
   ],
-  "generated_utc": "2026-04-05T13:34:01+00:00",
+  "generated_utc": "2026-04-17T02:09:08+00:00",
   "matrix": "results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json",
   "ok": false,
   "platform_status": {
