@@ -14,6 +14,21 @@ def model_dimension : Nat := 1_000_000
 
 /-- Verification that scale is reasonable. -/
 theorem scale_is_large : 1_000_000 < global_scale := by
-  norm_num
+  unfold global_scale
+  decide
+
+structure Tier where
+  n : Nat
+  f : Nat
+
+def sumN : List Nat -> Nat
+  | [] => 0
+  | x :: xs => x + sumN xs
+
+abbrev totalNodes (tiers : List Tier) : Nat :=
+  sumN (tiers.map (fun t => t.n))
+
+abbrev totalByzantine (tiers : List Tier) : Nat :=
+  sumN (tiers.map (fun t => t.f))
 
 end LeanFormalization
