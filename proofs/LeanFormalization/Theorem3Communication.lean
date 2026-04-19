@@ -47,10 +47,16 @@ theorem theorem3_improvement_ratio :
 def information_theoretic_lower_bound (d n : Nat) : Nat :=
   d * (Nat.log 2 n + 1)
 
+<<<<<<< HEAD
 /-- Hierarchical complexity matches the lower bound (up to constant factor):
     base-10 path length is within the base-10 log bound plus a small constant. -/
 theorem theorem3_lower_bound_match (d n : Nat) (h_n : 1 < n) :
     hierarchical_comm_complexity d n 10 <= d * (Nat.log 10 n + 10) := by
+=======
+/-- Hierarchical complexity matches the lower bound (up to constant factor). -/
+theorem theorem3_lower_bound_match (d n : Nat) (_h_n : 1 < n) :
+    hierarchical_comm_complexity d n 10 <= d * (Nat.log 2 n + 10) := by
+>>>>>>> dfe297a (ci: harden formal traceability validator)
   unfold hierarchical_comm_complexity
   rw [if_pos (by norm_num : 1 < 10)]
   gcongr
