@@ -28,9 +28,6 @@ jobs:
 
   verify-lean-formalization:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: proofs
     steps:
       - name: Free up disk space (critical for Mathlib)
         run: |
@@ -62,11 +59,13 @@ jobs:
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Fetch prebuilt Mathlib cache
+        working-directory: proofs
         run: |
           lake update
           lake exe cache get
 
       - name: Ensure no placeholder proofs
+        working-directory: proofs
         run: |
           if grep -RIn "\bsorry\b\|\baxiom\b\|\badmit\b" LeanFormalization *.lean; then
             echo "Formal proof placeholders detected"
@@ -74,11 +73,13 @@ jobs:
           fi
 
       - name: Validate formal traceability matrix
+        working-directory: proofs
         run: |
           chmod +x ../scripts/ci/validate_formal_traceability.sh
           ../scripts/ci/validate_formal_traceability.sh
 
       - name: Build Lean formal theorem suite
+        working-directory: proofs
         run: |
           lake build LeanFormalization
 
@@ -92,6 +93,7 @@ jobs:
           key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
 
       - name: Generate formal proof artifacts
+        working-directory: proofs
         run: |
           chmod +x ../scripts/ci/generate_formal_proof_artifacts.sh
           ../scripts/ci/generate_formal_proof_artifacts.sh
