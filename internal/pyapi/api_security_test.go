@@ -72,21 +72,44 @@ func TestAuthorizeUtilityRole(t *testing.T) {
 func TestValidateAPIAccessRequiredMode(t *testing.T) {
 	originalMode := apiAuthMode
 	originalToken := apiAuthToken
+	originalTokenRole := apiAuthTokenRole
 	originalPolicy := apiRolePolicy
+	originalUtilityPolicy := utilityRolePolicy
 	apiAuthMode = apiAuthModeRequired
 	apiAuthToken = "secret-token"
+	apiAuthTokenRole = ""
 	apiRolePolicy = apiRolePolicyConfig{}
+	utilityRolePolicy = utilityRolePolicyConfig{
+		enabled: true,
+		allowedByOp: map[string]map[string]struct{}{
+			"transfer": {
+				"admin": {},
+			},
+		},
+		requiredByOp: map[string]bool{"transfer": true},
+	}
 	t.Cleanup(func() {
 		apiAuthMode = originalMode
 		apiAuthToken = originalToken
+		apiAuthTokenRole = originalTokenRole
 		apiRolePolicy = originalPolicy
+		utilityRolePolicy = originalUtilityPolicy
 	})
 
-	if err := validateAPIAccess("bridge", "", "secret-token"); err != nil {
+	if err := validateAPIAccess("hybrid", "", "secret-token"); err != nil {
 		t.Fatalf("expected valid token to pass: %v", err)
 	}
-	if err := validateAPIAccess("bridge", "", "wrong-token"); err == nil {
+	if err := validateAPIAccess("hybrid", "", "wrong-token"); err == nil {
 		t.Fatal("expected invalid token to fail")
+	}
+	if err := validateUtilityAccess("transfer", "admin", "secret-token"); err != nil {
+		t.Fatalf("expected valid utility access to pass: %v", err)
+	}
+	if err := validateUtilityAccess("transfer", "operator", "secret-token"); err == nil || err.Error() != "role \"operator\" is not allowed for transfer" {
+		t.Fatalf("expected operator role to be denied explicitly, got: %v", err)
+	}
+	if err := validateUtilityAccess("transfer", "admin", "wrong-token"); err == nil || err.Error() != "invalid API token" {
+		t.Fatalf("expected wrong token to be denied explicitly, got: %v", err)
 	}
 }
 
@@ -96,11 +119,11 @@ func TestAuthorizeAPIRole(t *testing.T) {
 	apiRolePolicy = apiRolePolicyConfig{
 		enabled: true,
 		allowedByOp: map[string]map[string]struct{}{
-			"bridge": {
+			"hybrid": {
 				"operator": {},
 			},
 		},
-		requiredByOp: map[string]bool{"bridge": true},
+		requiredByOp: map[string]bool{"hybrid": true},
 	}
 	apiAuthTokenRole = ""
 	t.Cleanup(func() {
@@ -108,10 +131,10 @@ func TestAuthorizeAPIRole(t *testing.T) {
 		apiAuthTokenRole = originalTokenRole
 	})
 
-	if err := authorizeAPIRole("bridge", "operator"); err != nil {
+	if err := authorizeAPIRole("hybrid", "operator"); err != nil {
 		t.Fatalf("expected operator role to pass: %v", err)
 	}
-	if err := authorizeAPIRole("bridge", "viewer"); err == nil {
+	if err := authorizeAPIRole("hybrid", "viewer"); err == nil {
 		t.Fatal("expected viewer role to fail")
 	}
 }
@@ -134,43 +157,5 @@ func TestValidateAPIAccessFileOnlyModeRequiresFile(t *testing.T) {
 
 	if err := validateAPIAccess("hybrid", "", "anything"); err == nil {
 		t.Fatal("expected file-only mode to require token file")
-	}
-}
-
-func TestParseBridgeSettlementAssets(t *testing.T) {
-	assets := parseBridgeSettlementAssets(" mhc, USDX, mhc ,, usdx ")
-	if len(assets) != 2 {
-		t.Fatalf("expected 2 unique assets, got %d (%v)", len(assets), assets)
-	}
-	if assets[0] != "MHC" || assets[1] != "USDX" {
-		t.Fatalf("unexpected parsed assets: %v", assets)
-	}
-}
-
-func TestLoadBridgeSettlementConfigFromEnv(t *testing.T) {
-	t.Setenv("MOHAWK_BRIDGE_SETTLEMENT_ASSETS", "MHC,USDX")
-	t.Setenv("MOHAWK_UTILITY_MINTER_USDX", "mint-usdx")
-
-	registry, ledgers, minters, err := loadBridgeSettlementConfig()
-	if err != nil {
-		t.Fatalf("loadBridgeSettlementConfig failed: %v", err)
-	}
-	if registry == nil {
-		t.Fatal("expected settlement registry to be configured")
-	}
-	if _, ok := registry.Get("MHC"); !ok {
-		t.Fatal("expected MHC in settlement registry")
-	}
-	if _, ok := registry.Get("USDX"); !ok {
-		t.Fatal("expected USDX in settlement registry")
-	}
-	if len(ledgers) != 2 {
-		t.Fatalf("expected 2 settlement ledgers, got %d", len(ledgers))
-	}
-	if ledgers["MHC"] == nil || ledgers["USDX"] == nil {
-		t.Fatal("expected settlement ledgers for MHC and USDX")
-	}
-	if minters["USDX"] != "mint-usdx" {
-		t.Fatalf("unexpected USDX settlement minter: %q", minters["USDX"])
 	}
 }

@@ -27,18 +27,8 @@ from .accelerator import (
     recommend_gradient_format,
     select_device,
 )
-from .bridge import (
-    RoutePolicy,
-    CosmosIBCProof,
-    EVMLogProof,
-    build_route_policy_manifest,
-    build_cosmos_ibc_proof,
-    build_evm_log_proof,
-)
 from .gradient import GradientBuffer, CompressedGradient
 from .high_level import (
-    BridgeTransferIntent,
-    BridgeTransferReceipt,
     HybridProofCheck,
     HybridVerificationReceipt,
 )
@@ -70,15 +60,6 @@ __all__ = [
     "GradientBuffer",
     "CompressedGradient",
     # High-level wrappers
-    "BridgeTransferIntent",
-    "BridgeTransferReceipt",
     "HybridProofCheck",
     "HybridVerificationReceipt",
-    # Bridge proof helpers
-    "EVMLogProof",
-    "CosmosIBCProof",
-    "RoutePolicy",
-    "build_evm_log_proof",
-    "build_cosmos_ibc_proof",
-    "build_route_policy_manifest",
 ]

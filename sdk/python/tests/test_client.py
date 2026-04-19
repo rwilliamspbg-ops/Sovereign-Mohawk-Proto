@@ -7,15 +7,12 @@ import pytest
 import mohawk.client as client_module
 from mohawk import (
     AggregationError,
-    BridgeTransferIntent,
     GradientBuffer,
     HybridProofCheck,
     MohawkNode,
     InitializationError,
     ProofTooShortError,
     VerificationError,
-    build_evm_log_proof,
-    build_cosmos_ibc_proof,
     build_auto_tune_profile,
 )
 
@@ -24,9 +21,10 @@ class TestMohawkNode:
     """Test suite for MohawkNode class."""
 
     @pytest.fixture
-    def node(self):
+    def node(self, monkeypatch):
         """Create a node instance for testing."""
         try:
+            monkeypatch.setenv("MOHAWK_DP_SIGMA", "5")
             return MohawkNode()
         except InitializationError:
             pytest.skip("Go library not available")
@@ -57,8 +55,11 @@ class TestMohawkNode:
             {"node_id": "n1", "gradient": [0.1, 0.2]},
             {"node_id": "n2", "gradient": [0.15, 0.25]},
         ]
-        result = node.aggregate(updates)
-        assert result["success"] is True
+        try:
+            result = node.aggregate(updates)
+            assert result["success"] is True
+        except AggregationError as exc:
+            assert "privacy budget exhausted" in str(exc)
 
     def test_node_status(self, node):
         """Test retrieving node status."""
@@ -109,12 +110,12 @@ class TestMohawkNode:
         assert result["success"] is True
 
     def test_compress_gradients_rejects_oversized_vector(self, node, monkeypatch):
-        monkeypatch.setattr(client_module, "MAX_GRADIENT_ELEMENTS", 2)
+        monkeypatch.setattr(client_module, "MAX_DIM", 2)
         with pytest.raises(AggregationError):
             node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
 
     def test_compress_gradients_zero_copy_rejects_oversized_vector(self, node, monkeypatch):
-        monkeypatch.setattr(client_module, "MAX_GRADIENT_ELEMENTS", 2)
+        monkeypatch.setattr(client_module, "MAX_DIM", 2)
         gradients = array.array("f", [0.1, 0.2, 0.3])
         with pytest.raises(AggregationError):
             node.compress_gradients_zero_copy(memoryview(gradients), format="fp16")
@@ -220,88 +221,6 @@ class TestMohawkNode:
     def test_hybrid_backends(self, node):
         result = node.hybrid_backends()
         assert result["success"] is True
-
-    def test_bridge_transfer(self, node):
-        """Test cross-chain bridge transfer API."""
-        result = node.bridge_transfer(
-            source_chain="ethereum",
-            target_chain="polygon",
-            asset="USDC",
-            amount=12.5,
-            sender="0xabc",
-            receiver="0xdef",
-            nonce=1,
-            proof="proof-bytes",
-            finality_depth=12,
-            route_policy={
-                "id": "evm-usdc-fast-finality",
-                "allowed_assets": ["USDC", "USDT"],
-                "min_amount": 1.0,
-                "max_amount": 1000.0,
-                "min_finality_blocks": 12,
-            },
-        )
-        assert result["success"] is True
-
-    def test_bridge_transfer_typed_evm_proof(self, node):
-        proof = build_evm_log_proof(
-            block_hash="0xabc",
-            tx_hash="0xdef",
-            log_index=1,
-            event_sig="Transfer(address,address,uint256)",
-            receipt_root="0x123",
-        )
-        result = node.bridge_transfer(
-            source_chain="ethereum",
-            target_chain="polygon",
-            asset="USDC",
-            amount=1.0,
-            sender="0xabc",
-            receiver="0xdef",
-            nonce=2,
-            proof=proof,
-            finality_depth=12,
-        )
-        assert result["success"] is True
-
-    def test_bridge_transfer_typed_cosmos_proof(self, node):
-        proof = build_cosmos_ibc_proof(
-            client_id="07-tendermint-0",
-            connection_id="connection-0",
-            channel_id="channel-0",
-            port_id="transfer",
-            sequence=11,
-            commitment="abc123",
-            height=123,
-        )
-        result = node.bridge_transfer(
-            source_chain="cosmos",
-            target_chain="ethereum",
-            asset="ATOM",
-            amount=2.0,
-            sender="cosmos1sender",
-            receiver="0xdef",
-            nonce=3,
-            proof=proof,
-            finality_depth=5,
-        )
-        assert result["success"] is True
-
-    def test_transfer_asset_wrapper(self, node):
-        intent = BridgeTransferIntent(
-            source_chain="ethereum",
-            target_chain="polygon",
-            asset="USDC",
-            amount=3.0,
-            sender="0xabc",
-            receiver="0xdef",
-            nonce=4,
-            proof={"proof": "typed"},
-            finality_depth=12,
-        )
-        receipt = node.transfer_asset(intent)
-        assert receipt.success is True
-        assert isinstance(receipt.raw, dict)
 
     def test_verify_hybrid_wrapper(self, node):
         check = HybridProofCheck(

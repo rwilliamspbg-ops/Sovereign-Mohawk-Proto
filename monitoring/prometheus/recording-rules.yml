@@ -2,8 +2,10 @@ groups:
   - name: mohawk_v2_rates
     interval: 15s
     rules:
-      - record: mohawk:bridge_transfers:rate1m
-        expr: sum(rate(mohawk_bridge_transfers_total[1m]))
+      - record: mohawk:utility_coin_mints:rate1m
+        expr: sum(rate(mohawk_utility_coin_mints_total[1m]))
+      - record: mohawk:utility_coin_transfers:rate1m
+        expr: sum(rate(mohawk_utility_coin_transfers_total[1m]))
       - record: mohawk:proof_verifications:rate1m
         expr: sum(rate(mohawk_proof_verifications_total[1m]))
       - record: mohawk:hybrid_proof_verifications:rate1m
@@ -54,12 +56,12 @@ groups:
         expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))
       - record: mohawk:proof_latency_ms:p99
         expr: histogram_quantile(0.99, sum by (le) (rate(mohawk_proof_verification_latency_ms_bucket[5m])))
-      - record: mohawk:bridge_latency_ms:p50
-        expr: histogram_quantile(0.50, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
-      - record: mohawk:bridge_latency_ms:p95
-        expr: histogram_quantile(0.95, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
-      - record: mohawk:bridge_latency_ms:p99
-        expr: histogram_quantile(0.99, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))
+      - record: mohawk:utility_coin_supply:value
+        expr: max(mohawk_utility_coin_total_supply)
+      - record: mohawk:utility_coin_tx_count:value
+        expr: max(mohawk_utility_coin_tx_count)
+      - record: mohawk:utility_coin_holders_count:value
+        expr: max(mohawk_utility_coin_holders_count)
 
   - name: mohawk_v2_availability
     interval: 15s

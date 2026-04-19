@@ -38,7 +38,6 @@ jobs:
         run: |
           mkdir -p reports/chaos
           python3 scripts/mainnet_readiness_gate.py \
-            --min-bridge-transfers 1 \
             --min-proof-verifications 1 \
             --min-hybrid-verifications 1 \
             > reports/readiness-report.json

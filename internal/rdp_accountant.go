@@ -130,9 +130,11 @@ func (a *RDPAccountant) CheckBudget() error {
 	current := new(big.Rat).Set(a.TotalEpsilon)
 	current.Add(current, ratFromFloat64(conversion))
 	if current.Cmp(a.MaxBudget) > 0 {
-		currentFloat, _ := current.Float64()
-		maxFloat, _ := a.MaxBudget.Float64()
-		return fmt.Errorf("privacy budget exhausted: current ε=%.2f exceeds limit ε=%.2f", currentFloat, maxFloat)
+		return fmt.Errorf(
+			"privacy budget exhausted: current ε=%s exceeds limit ε=%s",
+			current.RatString(),
+			a.MaxBudget.RatString(),
+		)
 	}
 	return nil
 }

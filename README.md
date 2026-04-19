@@ -69,6 +69,47 @@ Latest TPM production closure evidence (2026-04-11):
 - 500-node scale manifest: [captured_artifacts/500node_scale_test_manifest.json](captured_artifacts/500node_scale_test_manifest.json)
 - Release performance evidence index: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
 
+## Validation Notes
+
+- Accelerator comparison artifacts are policy-driven backend profiles generated on the current host runtime. In this container, they are not device-attested NVIDIA, ROCm, or NPU measurements, so they should be read as supported-backend comparison evidence rather than hardware certification.
+- TPM closure should be read as a two-step evidence chain: [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) captured an intermediate failure state, while [results/go-live/evidence/tpm_closure_summary_2026-03-28.md](results/go-live/evidence/tpm_closure_summary_2026-03-28.md) reflects the finalized approved closure with complete platform evidence.
+
+## Artifact Governance
+
+Generated artifacts are managed with retention + canonical-summary automation. Policy details are in [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md).
+
+```bash
+make artifact-retention-dryrun
+make artifact-retention-apply
+make artifact-summary
+```
+
+## WSL2 Validation Overlay
+
+For host-specific passthrough validation on Windows 11 with WSL2, keep the base compose stack portable and layer the device mappings with [docker-compose.wsl2.yml](docker-compose.wsl2.yml).
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up -d mohawk-validator
+```
+
+This overlay only works when the host actually exposes `/dev/tpmrm0` and `/dev/accel/accel0` inside WSL2. If those devices are absent, treat the run as unsupported on that machine rather than as a repo misconfiguration.
+
+## Synthesize.bio Training
+
+Use the demo wrapper to train from either a real synthesize.bio dataset export or a local CSV dump and write the report under `results/demo/synthesize_bio/`:
+
+```bash
+DATASET=https://app.synthesize.bio/datasets/<dataset-id> ./scripts/run_synthesizebio_demo.sh
+# or
+INPUT_CSV=/path/to/export.csv ./scripts/run_synthesizebio_demo.sh
+```
+
+For a Docker-native end-to-end run that starts the stack, trains, validates, and copies artifacts into the repo, use:
+
+```bash
+DATASET=https://app.synthesize.bio/datasets/<dataset-id> make demo-synthesizebio-docker VALIDATION_PROFILE=fast
+```
+
 ## Security Defaults (Current)
 
 - Proof verifier boot path is fail-closed by default; silent runtime disable is not allowed.
@@ -106,6 +147,7 @@ make golden-path-e2e
 - Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](TECHNICAL_DOCUMENTATION_FILE.md)
 - Technical documentation template: [docs/tdf/TECHNICAL_FILE_TEMPLATE.md](docs/tdf/TECHNICAL_FILE_TEMPLATE.md)
 - Cross-vertical federated router: [docs/CROSS_VERTICAL_FEDERATED_ROUTER.md](docs/CROSS_VERTICAL_FEDERATED_ROUTER.md)
+- Artifact governance and retention policy: [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md)
 - Notified body early-engagement checklist: [docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md](docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md)
 - Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
 - Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
@@ -168,13 +210,12 @@ Preview graphic:
 * 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
 * 🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
 * ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
-* 🐍 **Python SDK v2:** Accelerator, bridge, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
+* 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
 * 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
-* 🌉 **Bridge Policy Enforcement:** Cross-chain route policies with default manifests and typed EVM/Cosmos proof helpers.
 * 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
 * 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
 * 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
-* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, bridge settlement, and proof cost.
+* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
 * 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
 * ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
 
@@ -277,27 +318,22 @@ hybrid = node.verify_hybrid_proof(
     mode="both",
 )
 
-receipt = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="USDC",
-    amount=12.5,
-    sender="0xabc",
-    receiver="0xdef",
+minted = node.mint_utility_coin(
+    to="edge-alice",
+    amount=100.0,
+    actor="protocol",
+    auth_token="my-service-token",
+    idempotency_key="mint-001",
     nonce=1,
-    proof="proof-bytes",
 )
 
-settled = node.bridge_transfer(
-    source_chain="ethereum",
-    target_chain="polygon",
-    asset="MHC",
-    amount=2.0,
-    sender="0xabc",
-    receiver="0xdef",
+transferred = node.transfer_utility_coin(
+    from_account="edge-alice",
+    to_account="edge-bob",
+    amount=25.0,
+    memo="reward",
+    auth_token="my-service-token",
     nonce=2,
-    proof="proof-bytes",
-    settle=True,
 )
 ```
 
@@ -540,32 +576,24 @@ Notes:
 * Discord messages are split into multiple posts to fit webhook content limits.
 * Digest is always published to workflow summary and uploaded as an artifact.
 
-### Multi-Asset Bridge Settlement Configuration
-
-Bridge settlement is optional and disabled by default. Set `settle=true` on `bridge_transfer(...)` requests to execute burn/release settlement after transfer verification.
-
-Use these runtime environment variables to enable registry-backed multi-asset settlement routing:
+### Utility Coin Runtime Controls
 
 ```bash
-# Comma-separated symbols allowed for settlement
-export MOHAWK_BRIDGE_SETTLEMENT_ASSETS="MHC,USDX"
-
 # Default utility coin ledger (MHC)
 export MOHAWK_LEDGER_STATE_PATH="/var/lib/mohawk/mhc_state.json"
 export MOHAWK_LEDGER_AUDIT_PATH="/var/lib/mohawk/mhc_audit.jsonl"
 export MOHAWK_UTILITY_MINTER="protocol"
 
-# Per-asset ledger overrides (USDX)
-export MOHAWK_LEDGER_STATE_PATH_USDX="/var/lib/mohawk/usdx_state.json"
-export MOHAWK_LEDGER_AUDIT_PATH_USDX="/var/lib/mohawk/usdx_audit.jsonl"
-export MOHAWK_UTILITY_MINTER_USDX="protocol"
+# Optional per-asset overrides remain available for utility coin deployments
+export MOHAWK_LEDGER_STATE_PATH_MHC="/var/lib/mohawk/mhc_state.json"
+export MOHAWK_LEDGER_AUDIT_PATH_MHC="/var/lib/mohawk/mhc_audit.jsonl"
 ```
 
-When configured, settlement enforces:
+Utility coin controls enforce:
 
-* Asset must be present in `MOHAWK_BRIDGE_SETTLEMENT_ASSETS`.
-* Asset must have a configured settlement ledger.
-* Burn on sender occurs before destination mint/release.
+* Persistent ledger state and append-only audit chaining when paths are configured.
+* API token authorization for mint/transfer/burn operations when enabled.
+* Role-based access control through the utility role policy variables.
 * Refund-to-sender executes if destination release fails.
 
 ---
@@ -993,8 +1021,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 **Next Up:**
 
-* TPM attestation production-path completion (TPM 2.0 quote/verify and cross-platform validation)
-* v1.0.0 GA tag cut after TPM closure sign-off
+* Release-owner approval and v1.0.0 GA tag cut
+* Publish TPM sign-off bundle archive as GA release asset
 * Post-GA operational cadence and ecosystem expansion milestones
 
 ---
@@ -1014,10 +1042,14 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
+* [proofs/pyapi_bridge_auth_denial.md](proofs/pyapi_bridge_auth_denial.md) - Formal proof sketch for bridge auth denial semantics
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
+* [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Strict-mode go-live gate report after host tuning
 * [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
+* [captured_artifacts/ga_release_readiness_2026-04-17.md](captured_artifacts/ga_release_readiness_2026-04-17.md) - Consolidated GA readiness evidence report
+* [captured_artifacts/release_package_manifest_checksums_2026-04-17.txt](captured_artifacts/release_package_manifest_checksums_2026-04-17.txt) - Release package checksum record
 * [results/go-live/evidence/slo_sli_baseline_2026-03-28.md](results/go-live/evidence/slo_sli_baseline_2026-03-28.md) - Versioned SLO/SLI definitions for Phase 3 closure
 * [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
 * [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix

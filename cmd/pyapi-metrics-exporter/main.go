@@ -19,7 +19,7 @@ func main() {
 		interval = 2 * time.Second
 	}
 
-	go emitSyntheticBridgeAndHybrid(interval)
+	go emitSyntheticHybridAndCompression(interval)
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
@@ -33,23 +33,20 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, mux))
 }
 
-func emitSyntheticBridgeAndHybrid(interval time.Duration) {
+func emitSyntheticHybridAndCompression(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
+	txCount := 0
 
 	for {
-		bridgeStart := time.Now()
-		bridgeLatency := float64(time.Since(bridgeStart).Microseconds()) / 1000.0
-		metrics.ObserveBridgeTransfer("ethereum", "polygon", true)
-		metrics.ObserveBridgeTransferLatency("ethereum", "polygon", true, bridgeLatency)
-		metrics.ObserveAcceleratorOp("cpu", "bridge_transfer", true)
-		metrics.ObserveAcceleratorOpLatency("cpu", "bridge_transfer", bridgeLatency)
-
 		hybridStart := time.Now()
 		hybridLatency := float64(time.Since(hybridStart).Microseconds()) / 1000.0
 		metrics.ObserveProofVerification("hybrid", false, hybridLatency)
 		metrics.ObserveAcceleratorOp("cpu", "hybrid_verify", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "hybrid_verify", hybridLatency)
+
+		txCount++
+		metrics.ObserveUtilityCoinTransfer(0.1, txCount)
 
 		compressionStart := time.Now()
 		compressionLatency := float64(time.Since(compressionStart).Microseconds()) / 1000.0

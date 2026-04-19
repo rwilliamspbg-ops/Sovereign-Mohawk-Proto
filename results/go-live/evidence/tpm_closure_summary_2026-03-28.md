@@ -1,35 +1,31 @@
 # TPM Closure Summary
 
-- Generated (UTC): `2026-04-11T13:18:33+00:00`
+- Generated (UTC): `2026-04-17T02:14:38+00:00`
 - GA ready: `NO`
-- Platform completion: `1/3 (33.33%)`
-- Attestation status: `pending`
+- Platform completion: `3/3 (100.0%)`
+- Attestation status: `approved`
 
 ## Gate Status
 
 - Advisory go-live gate: `PASS`
 - Strict go-live gate: `FAIL`
-- TPM closure validation: `FAIL`
+- TPM closure validation: `PASS`
 
 ## Platform Status
 
 | Platform | Status | Evidence Count | Result |
 | --- | --- | --- | --- |
-| linux | pass | 1 | PASS |
-| macos | pending | 0 | FAIL |
-| windows | pending | 0 | FAIL |
+| linux | pass | 2 | PASS |
+| macos | pass | 2 | PASS |
+| windows | pass | 2 | PASS |
 
 ## Remaining Failures
 
-- platform not passing: windows status=pending
-- platform missing evidence attachment: windows
-- platform not passing: macos status=pending
-- platform missing evidence attachment: macos
-- attestation status is not approved: pending
+- none
 
 ## Evidence Inputs
 
-- `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.json`
-- `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.json`
+- `results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-04-11.json`
+- `results/go-live/evidence/tpm_attestation_closure_validation_2026-04-11.json`
 - `results/go-live/evidence/go_live_gate_advisory_2026-03-28.json`
 - `results/go-live/evidence/go_live_gate_strict_2026-03-28.json`

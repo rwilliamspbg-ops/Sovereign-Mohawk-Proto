@@ -56,7 +56,6 @@ jobs:
           python3 scripts/mainnet_readiness_gate.py \
             --retries 60 \
             --delay 2 \
-            --min-bridge-transfers 1 \
             --min-proof-verifications 1 \
             --min-hybrid-verifications 1 \
             > readiness-report.json || status=$?

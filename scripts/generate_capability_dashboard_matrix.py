@@ -59,11 +59,11 @@ def build_matrix() -> str:
             "Panel: Thinker Manual Review Threshold",
         ),
         (
-            "Proof and bridge performance SLOs",
-            "Runtime proof/bridge verification paths",
-            "mohawk:proof_latency_ms:p95, mohawk:bridge_latency_ms:p95",
+            "Proof and utility coin performance SLOs",
+            "Runtime proof and utility coin control paths",
+            "mohawk:proof_latency_ms:p95, mohawk:utility_coin_transfers:rate1m",
             "v2-10-ops-overview.json, v2-20-eng-latency-drilldown.json",
-            "Panels: Latency Percentiles, Proof/Bridge Quantile Drilldown",
+            "Panels: Proof Latency and Utility Coin State, Utility Coin Activity",
         ),
         (
             "Byzantine and liveness resilience",

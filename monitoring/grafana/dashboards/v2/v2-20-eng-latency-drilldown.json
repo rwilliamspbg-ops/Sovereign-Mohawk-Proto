@@ -20,11 +20,11 @@
       "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
       "id": 2,
       "targets": [
-        {"expr": "histogram_quantile(0.50, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))", "legendFormat": "bridge p50", "refId": "A"},
-        {"expr": "histogram_quantile(0.95, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))", "legendFormat": "bridge p95", "refId": "B"},
-        {"expr": "histogram_quantile(0.99, sum by (le) (rate(mohawk_bridge_transfer_latency_ms_bucket[5m])))", "legendFormat": "bridge p99", "refId": "C"}
+        {"expr": "mohawk:utility_coin_mints:rate1m", "legendFormat": "utility coin mints", "refId": "A"},
+        {"expr": "mohawk:utility_coin_transfers:rate1m", "legendFormat": "utility coin transfers", "refId": "B"},
+        {"expr": "mohawk:utility_coin_holders_count:value", "legendFormat": "holders", "refId": "C"}
       ],
-      "title": "Bridge Latency",
+      "title": "Utility Coin Activity",
       "type": "timeseries"
     },
     {

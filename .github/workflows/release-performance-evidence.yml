@@ -41,11 +41,6 @@ jobs:
           cd ../..
           pytest sdk/python/tests/test_benchmarks.py --benchmark-only --benchmark-json=benchmark-results.json
 
-      - name: Build bridge benchmark report
-        run: |
-          chmod +x scripts/benchmark_bridge_compression_compare.sh
-          BENCH_TIME=200ms BENCH_COUNT=5 BENCH_CPU=2 BENCHSTAT_ALPHA=0.01 ./scripts/benchmark_bridge_compression_compare.sh
-
       - name: Build FedAvg benchmark report
         run: |
           chmod +x scripts/benchmark_fedavg_compare.sh
@@ -60,8 +55,6 @@ jobs:
           set -euo pipefail
           required=(
             "benchmark-results.json"
-            "results/metrics/bridge_compression_benchmark_compare.md"
-            "results/metrics/bridge_compression_benchmark_raw.txt"
             "results/metrics/fedavg_benchmark_compare.md"
             "results/metrics/release_performance_evidence.md"
             "captured_artifacts/release_performance_evidence.md"
@@ -80,8 +73,6 @@ jobs:
           retention-days: 30
           path: |
             benchmark-results.json
-            results/metrics/bridge_compression_benchmark_compare.md
-            results/metrics/bridge_compression_benchmark_raw.txt
             results/metrics/fedavg_benchmark_compare.md
             results/metrics/release_performance_evidence.md
             captured_artifacts/release_performance_evidence.md
@@ -102,8 +93,6 @@ jobs:
           set -euo pipefail
           required=(
             "release-performance-evidence/benchmark-results.json"
-            "release-performance-evidence/results/metrics/bridge_compression_benchmark_compare.md"
-            "release-performance-evidence/results/metrics/bridge_compression_benchmark_raw.txt"
             "release-performance-evidence/results/metrics/fedavg_benchmark_compare.md"
             "release-performance-evidence/results/metrics/release_performance_evidence.md"
             "release-performance-evidence/captured_artifacts/release_performance_evidence.md"
@@ -136,8 +125,6 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           gh release upload "$TAG" \
             release-performance-evidence/benchmark-results.json \
-            release-performance-evidence/results/metrics/bridge_compression_benchmark_compare.md \
-            release-performance-evidence/results/metrics/bridge_compression_benchmark_raw.txt \
             release-performance-evidence/results/metrics/fedavg_benchmark_compare.md \
             release-performance-evidence/results/metrics/release_performance_evidence.md \
             release-performance-evidence/captured_artifacts/release_performance_evidence.md \
@@ -157,7 +144,6 @@ jobs:
 
           - [Release performance index](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/results/metrics/release_performance_evidence.md)
           - [FedAvg benchmark compare](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/results/metrics/fedavg_benchmark_compare.md)
-          - [Bridge compression benchmark](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/results/metrics/bridge_compression_benchmark_compare.md)
           EOF
 
           body="$(gh release view "$TAG" --json body --jq .body)"

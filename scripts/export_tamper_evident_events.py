@@ -109,7 +109,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Export tamper-evident audit events bundle")
     parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
     parser.add_argument(
-        "--output-dir", default="results/forensics/tamper-evident-events", help="Output directory"
+        "--output-dir",
+        default="results/forensics/tamper-evident-events",
+        help="Output directory",
     )
     parser.add_argument(
         "--ledger-audit-file",
@@ -146,7 +148,11 @@ def main() -> int:
             event(
                 "privacy_budget",
                 "runtime_policy",
-                {"target_epsilon": 2.0, "target_delta": 1e-5, "source": "internal/dp_config.go"},
+                {
+                    "target_epsilon": 2.0,
+                    "target_delta": 1e-5,
+                    "source": "internal/dp_config.go",
+                },
             )
             continue
         try:

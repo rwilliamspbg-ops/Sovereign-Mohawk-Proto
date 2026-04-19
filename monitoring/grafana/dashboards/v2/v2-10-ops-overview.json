@@ -222,8 +222,8 @@
       "id": 5,
       "targets": [
         {
-          "expr": "mohawk:bridge_transfers:rate1m",
-          "legendFormat": "bridge",
+          "expr": "mohawk:utility_coin_transfers:rate1m",
+          "legendFormat": "utility coin",
           "refId": "A"
         },
         {
@@ -299,12 +299,12 @@
           "refId": "C"
         },
         {
-          "expr": "mohawk:bridge_latency_ms:p95",
-          "legendFormat": "bridge p95",
+          "expr": "mohawk:utility_coin_tx_count:value",
+          "legendFormat": "utility coin tx count",
           "refId": "D"
         }
       ],
-      "title": "Latency Percentiles (ms)",
+      "title": "Proof Latency and Utility Coin State",
       "type": "timeseries",
       "options": {
         "legend": {

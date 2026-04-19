@@ -85,3 +85,15 @@ Performance Evidence: [Release performance index](results/metrics/release_perfor
 - Strict mode correctly blocks on insufficient host buffers in this dev container.
 - Advisory override completes full pipeline with `PASS` and generated artifacts.
 - Go runtime/compiler alignment verified in one-click report (`go1.25.9` / `go1.25.9`).
+
+## GA Documentation Addendum (2026-04-17)
+
+The GA documentation and evidence package was refreshed after strict host tuning and final gate reruns.
+
+- Consolidated readiness report: `captured_artifacts/ga_release_readiness_2026-04-17.md`
+- Strict go-live snapshot (pass): `results/go-live/evidence/go_live_gate_strict_2026-04-17.json`
+- Formal go-live report (strict): `results/go-live/go-live-gate-report.json`
+- GA tag safety local check: `python3 scripts/enforce_ga_tag_safety.py --tag v1.0.0` (PASS)
+- Canonical artifact summary: `captured_artifacts/artifact_evidence_summary.md`
+- Canonical artifact manifest: `captured_artifacts/artifact_manifest_latest.json`
+- Package checksum record: `captured_artifacts/release_package_manifest_checksums_2026-04-17.txt`

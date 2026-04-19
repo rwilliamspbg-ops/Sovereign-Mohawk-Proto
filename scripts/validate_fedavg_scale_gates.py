@@ -10,7 +10,6 @@ import re
 from pathlib import Path
 from typing import Dict, Tuple
 
-
 LINE_RE = re.compile(
     r"^(?P<name>[a-zA-Z_:][a-zA-Z0-9_:]*)(?:\{[^}]*\})?\s+(?P<value>-?[0-9]+(?:\.[0-9]+)?)$"
 )
@@ -84,8 +83,6 @@ def prom_diff(pre: Path, post: Path) -> dict:
     post_totals = load_prom_totals(post)
 
     keys = [
-        "mohawk_bridge_settlements_total",
-        "mohawk_bridge_transfers_total",
         "mohawk_proof_verifications_total",
         "mohawk_fedavg_gradients_received_total",
         "mohawk_fedavg_gradients_aggregated_total",

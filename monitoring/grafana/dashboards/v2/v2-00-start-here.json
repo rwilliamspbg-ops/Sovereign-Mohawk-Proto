@@ -26,13 +26,13 @@
     },
     {
       "datasource": {"type": "prometheus", "uid": "prometheus-main"},
-      "description": "Bridge transfer throughput over 1 minute.",
+      "description": "Utility coin transfer throughput over 1 minute.",
       "fieldConfig": {"defaults": {"unit": "ops"}},
       "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0},
       "id": 3,
       "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}},
-      "targets": [{"expr": "mohawk:bridge_transfers:rate1m", "refId": "A"}],
-      "title": "Bridge Throughput",
+      "targets": [{"expr": "mohawk:utility_coin_transfers:rate1m", "refId": "A"}],
+      "title": "Utility Coin Throughput",
       "type": "stat"
     },
     {
@@ -75,7 +75,7 @@
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
       "id": 7,
       "targets": [
-        {"expr": "mohawk:bridge_transfers:rate1m", "legendFormat": "bridge", "refId": "A"},
+        {"expr": "mohawk:utility_coin_mints:rate1m", "legendFormat": "utility coin mints", "refId": "A"},
         {"expr": "mohawk:proof_verifications:rate1m", "legendFormat": "proof", "refId": "B"},
         {"expr": "mohawk:accelerator_ops:rate1m", "legendFormat": "accelerator", "refId": "C"}
       ],
@@ -89,9 +89,9 @@
       "id": 8,
       "targets": [
         {"expr": "mohawk:proof_latency_ms:p95", "legendFormat": "proof p95", "refId": "A"},
-        {"expr": "mohawk:bridge_latency_ms:p95", "legendFormat": "bridge p95", "refId": "B"}
+        {"expr": "mohawk:utility_coin_supply:value", "legendFormat": "utility coin supply", "refId": "B"}
       ],
-      "title": "Core Latency Trend",
+      "title": "Core Health Trend",
       "type": "timeseries"
     }
   ],

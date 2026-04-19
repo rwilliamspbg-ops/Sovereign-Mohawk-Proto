@@ -1,6 +1,8 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint refresh-proof-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check fedavg-scale-gate tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test testnet-gui-windows
+.PHONY: all build test audit lint refresh-proof-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk demo-train-synthesize-dataset demo-synthesizebio-docker metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check fedavg-scale-gate tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test artifact-retention-dryrun artifact-retention-apply artifact-summary testnet-gui-windows
+
+ARTIFACT_KEEP ?= 3
 
 all: build verify
 
@@ -73,6 +75,32 @@ test-python-sdk: build-python-lib
 demo-python-sdk: build-python-lib
 	@echo "🎬 Running Python SDK demo..."
 	cd sdk/python && python examples/basic_usage.py
+
+demo-train-synthesize-dataset:
+	@echo "🧬 Training synthesize.bio dataset export..."
+	@if [ -z "$(DATASET)" ] && [ -z "$(INPUT_CSV)" ]; then \
+		echo "usage: make demo-train-synthesize-dataset DATASET=<dataset-url-or-uuid> [LABEL_COLUMN=target] [OUTPUT=results/demo/synthesize_bio/training_report.json]"; \
+		echo "   or: make demo-train-synthesize-dataset INPUT_CSV=<path-to-export.csv> [LABEL_COLUMN=target] [OUTPUT=results/demo/synthesize_bio/training_report.json]"; \
+		exit 1; \
+	fi
+	@if [ -n "$(INPUT_CSV)" ]; then \
+		INPUT_CSV="$(INPUT_CSV)" LABEL_COLUMN="$(LABEL_COLUMN)" OUTPUT="$(OUTPUT)" ./scripts/run_synthesizebio_demo.sh; \
+	else \
+		DATASET="$(DATASET)" LABEL_COLUMN="$(LABEL_COLUMN)" OUTPUT="$(OUTPUT)" ./scripts/run_synthesizebio_demo.sh; \
+	fi
+
+demo-synthesizebio-docker:
+	@echo "🐳 Running synthesize.bio demo, validation, and artifact capture in Docker..."
+	@if [ -z "$(DATASET)" ] && [ -z "$(INPUT_CSV)" ]; then \
+		echo "usage: make demo-synthesizebio-docker DATASET=<dataset-url-or-uuid> [LABEL_COLUMN=target] [VALIDATION_PROFILE=fast]"; \
+		echo "   or: make demo-synthesizebio-docker INPUT_CSV=<path-to-export.csv> [LABEL_COLUMN=target] [VALIDATION_PROFILE=fast]"; \
+		exit 1; \
+	fi
+	@if [ -n "$(INPUT_CSV)" ]; then \
+		INPUT_CSV="$(INPUT_CSV)" LABEL_COLUMN="$(LABEL_COLUMN)" VALIDATION_PROFILE="$(VALIDATION_PROFILE)" OUTPUT="$(OUTPUT)" ARTIFACT_DIR="$(ARTIFACT_DIR)" ./scripts/run_synthesizebio_demo_in_docker.sh; \
+	else \
+		DATASET="$(DATASET)" LABEL_COLUMN="$(LABEL_COLUMN)" VALIDATION_PROFILE="$(VALIDATION_PROFILE)" OUTPUT="$(OUTPUT)" ARTIFACT_DIR="$(ARTIFACT_DIR)" ./scripts/run_synthesizebio_demo_in_docker.sh; \
+	fi
 
 python-all: build-python-lib install-python-sdk test-python-sdk
 	@echo "🐍 Python SDK fully built, installed, and tested!"
@@ -245,3 +273,15 @@ tamper-evident-export:
 tamper-evident-e2e-test:
 	@echo "🧪 Running tamper-evident export e2e test..."
 	python3 tests/scripts/ci/test_tamper_evident_bundle_e2e.py
+
+artifact-retention-dryrun:
+	@echo "🧾 Previewing validation artifact retention plan (dry-run)..."
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --archive
+
+artifact-retention-apply:
+	@echo "🧾 Applying validation artifact retention policy..."
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --archive --apply
+
+artifact-summary:
+	@echo "🧾 Generating canonical artifact summary and manifest..."
+	bash scripts/manage_artifacts.sh --keep $(ARTIFACT_KEEP) --summary --apply

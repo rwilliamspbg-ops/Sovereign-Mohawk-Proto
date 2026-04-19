@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
-
 FILE_RE = re.compile(
     r"(?:runtime_)?(?P<nodes>\d+)_(?P<profile>safe|edge)(?:_count(?P<count>\d+))?\.jsonl$"
 )

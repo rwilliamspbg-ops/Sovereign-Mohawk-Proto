@@ -48,7 +48,7 @@ if [[ "$healthy" -ne 1 ]]; then
 fi
 
 echo "[golden-path] readiness gate"
-python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 --min-bridge-transfers 1 --min-proof-verifications 1 --min-hybrid-verifications 1 > results/readiness/readiness-report.json
+python3 scripts/mainnet_readiness_gate.py --retries 60 --delay 2 --min-proof-verifications 1 --min-hybrid-verifications 1 --min-accelerator-ops 1 --min-gradient-compression-observations 1 > results/readiness/readiness-report.json
 
 echo "[golden-path] integration and runtime checks"
 docker exec tpm-metrics sh -lc "cd /workspace && /usr/local/go/bin/go test ./internal -run 'TestProcessGradientBatchWithMultiKrum|TestProcessGradientBatchWithoutMultiKrum|TestMultiKrumSelect|TestMultiKrumAggregate' -count=1" >/tmp/mohawk_golden_internal_tests.log

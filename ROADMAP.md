@@ -116,9 +116,9 @@ TPM production closure sign-off (2026-04-11):
 
 ### Phase 3 Closure Checklist (Current Evidence)
 
-- [x] Bridge compression benchmark automation active:
-  - Workflow: [.github/workflows/bridge-compression-benchmark.yml](.github/workflows/bridge-compression-benchmark.yml)
-  - Local runner: [scripts/benchmark_bridge_compression_compare.sh](scripts/benchmark_bridge_compression_compare.sh)
+- [x] Release performance evidence automation active:
+  - Evidence generator: [scripts/generate_release_performance_evidence.py](scripts/generate_release_performance_evidence.py)
+  - Evidence index: [results/metrics/release_performance_evidence.md](results/metrics/release_performance_evidence.md)
 - [x] Bridge compression profiling report published:
   - Report: [results/metrics/bridge_compression_benchmark_compare.md](results/metrics/bridge_compression_benchmark_compare.md)
 - [x] Aggregate endpoint-style integration coverage in place:

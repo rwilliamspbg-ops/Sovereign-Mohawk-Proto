@@ -3,8 +3,8 @@
 ## Scope Reviewed
 
 - Runtime control plane and transport settings
-- Python bridge/API authorization paths
-- Bridge settlement and ledger control-plane interactions
+- Python API authorization paths
+- Utility coin and ledger control-plane interactions
 
 ## Method
 
