@@ -41,7 +41,7 @@ jobs:
 
       - name: Restore Python performance baseline cache from main
         if: github.event_name == 'pull_request'
-        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: .benchmarks/python/base_main.json
           key: python-perf-main-${{ github.sha }}
@@ -147,7 +147,7 @@ jobs:
 
       - name: Save Python baseline cache on main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: .benchmarks/python/base_main.json
           key: python-perf-main-${{ github.sha }}
