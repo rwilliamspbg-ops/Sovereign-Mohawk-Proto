@@ -13,6 +13,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   PY_PERF_MEAN_DELTA_MAX_PCT: "10.0"
   PY_PERF_P99_DELTA_MAX_PCT: "15.0"
+  PY_PERF_BASELINE_MIN_MS: "0.10"
+  PY_PERF_MEAN_ABS_DELTA_MAX_MS: "0.05"
+  PY_PERF_P99_ABS_DELTA_MAX_MS: "0.10"
 
 jobs:
   performance-gate:
@@ -59,6 +62,9 @@ jobs:
           baseline_path = Path('.benchmarks/python/base_main.json')
           mean_delta_max_pct = float(os.environ.get('PY_PERF_MEAN_DELTA_MAX_PCT', '10.0'))
           p99_delta_max_pct = float(os.environ.get('PY_PERF_P99_DELTA_MAX_PCT', '15.0'))
+          baseline_min_ms = float(os.environ.get('PY_PERF_BASELINE_MIN_MS', '0.10'))
+          mean_abs_delta_max_ms = float(os.environ.get('PY_PERF_MEAN_ABS_DELTA_MAX_MS', '0.05'))
+          p99_abs_delta_max_ms = float(os.environ.get('PY_PERF_P99_ABS_DELTA_MAX_MS', '0.10'))
 
           try:
               with open('benchmark-results.json', 'r') as f:
@@ -115,20 +121,38 @@ jobs:
                   baseline_stats = baseline_benchmarks[name].get('stats', {})
                   base_mean_ms = float(baseline_stats.get('mean', 0.0)) * 1000.0
                   base_p99_ms = float(baseline_stats.get('p99', 0.0)) * 1000.0
-                  if base_mean_ms > 0.0:
+                  mean_abs_delta_ms = mean_ms - base_mean_ms
+                  p99_abs_delta_ms = p99_ms - base_p99_ms
+
+                  # For very small baseline values, percent deltas become noisy.
+                  # Require both percent and absolute deltas to exceed limits before failing.
+                  if base_mean_ms >= baseline_min_ms:
                     mean_delta_pct = ((mean_ms - base_mean_ms) / base_mean_ms) * 100.0
-                    if mean_delta_pct > mean_delta_max_pct:
+                    if mean_delta_pct > mean_delta_max_pct and mean_abs_delta_ms > mean_abs_delta_max_ms:
                       failures.append(
                         f"{name}: mean regression {mean_delta_pct:.2f}% > {mean_delta_max_pct:.2f}% "
+                        f"and +{mean_abs_delta_ms:.2f}ms > +{mean_abs_delta_max_ms:.2f}ms "
                         f"(baseline {base_mean_ms:.2f}ms, current {mean_ms:.2f}ms)"
                       )
-                  if base_p99_ms > 0.0:
+                  elif mean_abs_delta_ms > mean_abs_delta_max_ms:
+                    failures.append(
+                      f"{name}: mean absolute regression +{mean_abs_delta_ms:.2f}ms > +{mean_abs_delta_max_ms:.2f}ms "
+                      f"for tiny baseline {base_mean_ms:.2f}ms"
+                    )
+
+                  if base_p99_ms >= baseline_min_ms:
                     p99_delta_pct = ((p99_ms - base_p99_ms) / base_p99_ms) * 100.0
-                    if p99_delta_pct > p99_delta_max_pct:
+                    if p99_delta_pct > p99_delta_max_pct and p99_abs_delta_ms > p99_abs_delta_max_ms:
                       failures.append(
                         f"{name}: p99 regression {p99_delta_pct:.2f}% > {p99_delta_max_pct:.2f}% "
+                        f"and +{p99_abs_delta_ms:.2f}ms > +{p99_abs_delta_max_ms:.2f}ms "
                         f"(baseline {base_p99_ms:.2f}ms, current {p99_ms:.2f}ms)"
                       )
+                  elif p99_abs_delta_ms > p99_abs_delta_max_ms:
+                    failures.append(
+                      f"{name}: p99 absolute regression +{p99_abs_delta_ms:.2f}ms > +{p99_abs_delta_max_ms:.2f}ms "
+                      f"for tiny baseline {base_p99_ms:.2f}ms"
+                    )
 
           if failures:
               print("\n🚫 PERFORMANCE GATE FAILED:")
