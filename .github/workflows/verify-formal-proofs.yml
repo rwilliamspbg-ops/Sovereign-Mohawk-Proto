@@ -7,12 +7,17 @@ on:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
+      - '.github/workflows/verify-formal-proofs.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
+      - '.github/workflows/verify-formal-proofs.yml'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   verify-lean-formalizations:
@@ -20,6 +25,16 @@ jobs:
     timeout-minutes: 30
     
     steps:
+      - name: Free disk space (critical for Mathlib)
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/lib/jvm /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell
+          sudo docker image prune -a -f || true
+          sudo docker builder prune -a -f || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+          df -h
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
@@ -27,29 +42,21 @@ jobs:
       - name: Install Lean 4 (Elan)
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
-          echo "$HOME/.elan/bin" >> $GITHUB_PATH
-
-      - name: Verify Lean version
-        run: |
-          lean --version
-          lake --version
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
 
       - name: Cache Lake dependencies
-        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: ~/.lake
           key: lake-${{ hashFiles('proofs/lakefile.lean', 'proofs/lean-toolchain') }}
           restore-keys: |
             lake-
 
-      - name: Update Lake dependencies
+      - name: Update Lake dependencies and fetch Mathlib cache
         working-directory: ./proofs
-        run: lake update
-
-      - name: Build Lean formalizations
-        working-directory: ./proofs
-        run: lake build LeanFormalization
-        continue-on-error: false
+        run: |
+          lake update
+          lake exe cache get
 
       - name: Scan for placeholder proofs (sorry/axiom/admit)
         working-directory: ./proofs
@@ -64,11 +71,17 @@ jobs:
           done
           
           if [ -n "$FOUND_PLACEHOLDERS" ]; then
-            echo "ERROR: Placeholder proofs found in:$FOUND_PLACEHOLDERS"
+            echo "❌ Placeholder proofs found in:$FOUND_PLACEHOLDERS"
             exit 1
           fi
           
-          echo "✓ All 52 theorems verified (no placeholders detected)"
+          echo "✅ No placeholders (sorry/axiom/admit) found."
+
+      - name: Build Lean formalizations
+        working-directory: ./proofs
+        run: |
+          lake build LeanFormalization
+          echo "✅ All formal theorems compiled successfully."
 
       - name: Generate proof verification report
         if: always()
@@ -102,7 +115,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
         with:
-          name: formal-proof-report
+          name: formal-proof-report-${{ github.run_id }}-${{ github.run_attempt }}
           path: /tmp/proof_report.md
           retention-days: 7
 
