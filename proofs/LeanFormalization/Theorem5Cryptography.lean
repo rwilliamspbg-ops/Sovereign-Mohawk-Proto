@@ -28,7 +28,7 @@ theorem theorem5_constant_ops :
 /-- Total verification cost: 3 pairings × 3ms/pairing ≈ 9ms. -/
 theorem theorem5_constant_cost :
     pairing_operations * ms_per_pairing = 9 := by
-  norm_num
+  native_decide
 
 /-- Proof verification is independent of the number of participants (10M). -/
 theorem theorem5_scale_independence (n : Nat) :
@@ -44,17 +44,17 @@ def group_element_size_bytes : Nat := 96 / 3  -- Simplified for 3 elements
 /-- Total proof size across all elements. -/
 theorem theorem5_proof_size_breakdown :
     groth16_proof_element * group_element_size_bytes = 96 := by
-  norm_num
+  native_decide
 
 /-- Proof compactness: independent of circuit depth and input size. -/
 theorem theorem5_proof_compactness :
     snark_proof_size_bytes < 1000 := by
-  norm_num
+  native_decide
 
 /-- Verification guard: must complete in under 100ms even with network latency. -/
 theorem theorem5_cost_guard :
     snark_verification_time_ms < 100 := by
-  norm_num
+  native_decide
 
 /-- Succinctness: proof size is O(1), not O(witness size). -/
 def succinctness_ratio (circuit_size : Nat) : ℚ :=
@@ -79,7 +79,7 @@ theorem theorem5_soundness_qsdh (q : Nat) (h : qdh_assumption q) :
 theorem theorem5_universal_aggregation :
     let max_participants := 10_000_000
     snark_verification_time_ms < 10_000 := by
-  norm_num
+  native_decide
 
 /-- Pairing operation count is independent of the number of aggregators verified. -/
 theorem theorem5_aggregator_independence (num_aggregators : Nat) :

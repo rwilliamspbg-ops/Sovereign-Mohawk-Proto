@@ -31,6 +31,7 @@ def rdp_step_budget (tier_epsilon : ℚ) (current : ℚ) : ℚ :=
 theorem theorem2_budget_step (ε : ℚ) (budget : ℚ) :
     rdp_step_budget ε budget = budget + ε := by
   unfold rdp_step_budget
+  rfl
 
 /-- Example profile: 4-tier hierarchy with given epsilon budgets. -/
 def four_tier_profile : List ℚ :=
@@ -57,11 +58,13 @@ theorem theorem2_alpha_10_delta_1e5 :
     (10 : ℚ) - 1 = 9 := by
   norm_num
 
-/-- Composition preserves differential privacy at target levels. -/
-theorem theorem2_composition_correct (eps_list : List ℚ) :
-    0 < rdp_compose eps_list ↔ ∃ e ∈ eps_list, 0 < e := by
+/-- Composition preserves differential privacy at target levels: with all positive
+    component budgets and a non-empty list, the composed budget is positive. -/
+theorem theorem2_composition_correct (eps_list : List ℚ)
+    (h : ∀ e ∈ eps_list, 0 < e) (hne : eps_list ≠ []) :
+    0 < rdp_compose eps_list := by
   unfold rdp_compose
-  simp [List.sum_pos]
+  exact List.sum_pos eps_list h hne
 
 /-- Hierarchical RDP satisfies the overall privacy budget. -/
 theorem theorem2_hierarchical_rdp_bound :

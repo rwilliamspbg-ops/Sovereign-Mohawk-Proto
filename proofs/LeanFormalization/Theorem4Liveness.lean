@@ -8,13 +8,14 @@ namespace LeanFormalization
 def straggler_success_prob (alpha : ℚ) (r : Nat) : ℚ :=
   1 - (1 - alpha) ^ r
 
-/-- Single redundant copy with 90% fast nodes: 90% success. -/
+/-- Redundancy monotone: with 2 copies and alpha-fraction fast nodes,
+    success probability exceeds alpha itself when 0 < alpha < 1. -/
 theorem theorem4_redundancy_monotone (alpha : ℚ) (h : 0 < alpha) (h' : alpha < 1) :
-    alpha < straggler_success_prob alpha 1 := by
+    alpha < straggler_success_prob alpha 2 := by
   unfold straggler_success_prob
-  have : (1 - alpha) ^ (1 : ℕ) = 1 - alpha := by norm_num
-  simp [this]
-  linarith
+  have h1 : (1 - alpha) ^ 2 = 1 - 2 * alpha + alpha ^ 2 := by ring
+  have h2 : (0 : ℚ) < alpha * (1 - alpha) := mul_pos h (by linarith)
+  nlinarith [h1, h2, sq_nonneg alpha]
 
 /-- With 12 redundant copies and 90% fast nodes: success > 99.9%. -/
 theorem theorem4_success_gt_99_9 :
@@ -36,6 +37,7 @@ def adaptive_redundancy (k : Nat) : Nat :=
 theorem theorem4_cumulative_success (alpha : ℚ) (k : Nat) (h_alpha : 0 < alpha) :
     straggler_success_prob alpha k = 1 - (1 - alpha) ^ k := by
   unfold straggler_success_prob
+  rfl
 
 /-- Fast node availability of 90% is achievable at 10M scale. -/
 theorem theorem4_availability_90_percent :
@@ -62,8 +64,20 @@ theorem theorem4_hierarchical_liveness (edge regional continental : ℚ)
     (h_r : regional > 999 / 1000)
     (h_c : continental > 999 / 1000) :
     (edge * regional * continental : ℚ) > 99 / 100 := by
-  have : (999 : ℚ) / 1000 * (999 / 1000) * (999 / 1000) > 99 / 100 := by norm_num
-  have e_mul_r := mul_lt_mul_of_pos_right h_e (by norm_num : 0 < regional)
+  have h_pe : (0 : ℚ) < edge := by linarith
+  have h_pr : (0 : ℚ) < regional := by linarith
+  have h_pc : (0 : ℚ) < continental := by linarith
+  have h_min : (999 : ℚ) / 1000 * (999 / 1000) * (999 / 1000) > 99 / 100 := by norm_num
+  have h_er : (999 : ℚ) / 1000 * (999 / 1000) < edge * regional :=
+    calc (999 : ℚ) / 1000 * (999 / 1000)
+        < 999 / 1000 * regional := mul_lt_mul_of_pos_left h_r (by norm_num)
+      _ < edge * regional       := mul_lt_mul_of_pos_right h_e h_pr
+  have h_erc : (999 : ℚ) / 1000 * (999 / 1000) * (999 / 1000) < edge * regional * continental :=
+    calc (999 : ℚ) / 1000 * (999 / 1000) * (999 / 1000)
+        < 999 / 1000 * (999 / 1000) * continental :=
+            mul_lt_mul_of_pos_left h_c (by positivity)
+      _ < edge * regional * continental :=
+            mul_lt_mul_of_pos_right h_er h_pc
   linarith
 
 /-- Concrete straggler monitor validation: redundancy r=12, alpha=0.9. -/
