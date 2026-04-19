@@ -65,6 +65,16 @@ class ExporterState:
             idempotency_key="pyapi-metrics-exporter-mint",
             nonce=1,
         )
+        self.node.transfer_utility_coin(
+            sender="metrics-exporter",
+            recipient="metrics-exporter-peer",
+            amount=0.1,
+            memo="pyapi-metrics-exporter-transfer",
+            auth_token=self.token,
+            role="admin",
+            idempotency_key="pyapi-metrics-exporter-transfer",
+            nonce=2,
+        )
         try:
             self.node.verify_hybrid_proof(
                 snark_proof="s" * 128,

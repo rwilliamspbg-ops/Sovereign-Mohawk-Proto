@@ -1021,8 +1021,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 **Next Up:**
 
-* TPM attestation production-path completion (TPM 2.0 quote/verify and cross-platform validation)
-* v1.0.0 GA tag cut after TPM closure sign-off
+* Release-owner approval and v1.0.0 GA tag cut
+* Publish TPM sign-off bundle archive as GA release asset
 * Post-GA operational cadence and ecosystem expansion milestones
 
 ---
@@ -1046,7 +1046,10 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
 * [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Formal go-live gate status report
 * [results/go-live/strict-host-evidence.md](results/go-live/strict-host-evidence.md) - Strict production-host gate evidence and tuning checklist
+* [results/go-live/go-live-gate-report.json](results/go-live/go-live-gate-report.json) - Strict-mode go-live gate report after host tuning
 * [results/go-live/golden-path-report.md](results/go-live/golden-path-report.md) - End-to-end golden path execution summary
+* [captured_artifacts/ga_release_readiness_2026-04-17.md](captured_artifacts/ga_release_readiness_2026-04-17.md) - Consolidated GA readiness evidence report
+* [captured_artifacts/release_package_manifest_checksums_2026-04-17.txt](captured_artifacts/release_package_manifest_checksums_2026-04-17.txt) - Release package checksum record
 * [results/go-live/evidence/slo_sli_baseline_2026-03-28.md](results/go-live/evidence/slo_sli_baseline_2026-03-28.md) - Versioned SLO/SLI definitions for Phase 3 closure
 * [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
 * [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix

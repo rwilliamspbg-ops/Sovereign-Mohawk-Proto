@@ -309,12 +309,18 @@ class AsyncMohawkNode:
         *,
         wasm_bytes: Optional[Union[bytes, bytearray, memoryview]] = None,
         wasm_b64: Optional[str] = None,
+        module_sha256: Optional[str] = None,
+        module_signature: Optional[str] = None,
+        module_public_key: Optional[str] = None,
     ) -> JsonDict:
         return await self._run(
             self._node.load_wasm,
             module_path,
             wasm_bytes=wasm_bytes,
             wasm_b64=wasm_b64,
+            module_sha256=module_sha256,
+            module_signature=module_signature,
+            module_public_key=module_public_key,
         )
 
     async def attest(self, node_id: str) -> JsonDict:

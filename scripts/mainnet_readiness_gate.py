@@ -2,7 +2,6 @@
 import argparse
 import json
 import math
-import sys
 import time
 import urllib.error
 import urllib.parse
@@ -221,7 +220,11 @@ def main() -> int:
         "--min-bridge-transfers",
         type=float,
         default=1.0,
-        help="Minimum required sum(mohawk_bridge_transfers_total) for readiness pass",
+        help=(
+            "Minimum required transfer activity for readiness pass. "
+            "Uses sum(mohawk_utility_coin_transfers_total) with fallback to "
+            "sum(mohawk_bridge_transfers_total)."
+        ),
     )
     args = parser.parse_args()
 
@@ -294,11 +297,31 @@ def main() -> int:
                 "mohawk_proof_verifications_total",
                 "mohawk_accelerator_ops_total",
                 "mohawk_gradient_compression_ratio_count",
-                "mohawk_bridge_transfers_total",
             ],
             retries=args.retries,
             delay_seconds=args.delay,
         )
+
+        # Support both transfer counter names for backward compatibility.
+        transfer_metric_failures = wait_metric_names(
+            args.prom_url,
+            required_metrics=["mohawk_utility_coin_transfers_total"],
+            retries=args.retries,
+            delay_seconds=args.delay,
+        )
+        if transfer_metric_failures:
+            legacy_transfer_metric_failures = wait_metric_names(
+                args.prom_url,
+                required_metrics=["mohawk_bridge_transfers_total"],
+                retries=args.retries,
+                delay_seconds=args.delay,
+            )
+            if legacy_transfer_metric_failures:
+                metric_failures.append(
+                    "metric missing: expected one of "
+                    "mohawk_utility_coin_transfers_total or mohawk_bridge_transfers_total"
+                )
+
         report["checks"]["metric_names_present"] = len(metric_failures) == 0
         failures.extend(metric_failures)
 
@@ -384,13 +407,30 @@ def main() -> int:
                 f"total={gradient_compression_count}, min={args.min_gradient_compression_observations}"
             )
 
-        bridge_transfers_total = wait_query_scalar_value(
-            args.prom_url,
+        bridge_transfers_total = None
+        transfer_query_errors: list[str] = []
+        for transfer_expr in (
+            "sum(mohawk_utility_coin_transfers_total)",
             "sum(mohawk_bridge_transfers_total)",
-            default_if_empty=None,
-            retries=args.retries,
-            delay_seconds=args.delay,
-        )
+        ):
+            try:
+                bridge_transfers_total = wait_query_scalar_value(
+                    args.prom_url,
+                    transfer_expr,
+                    default_if_empty=None,
+                    retries=args.retries,
+                    delay_seconds=args.delay,
+                )
+                break
+            except Exception as exc:  # noqa: BLE001
+                transfer_query_errors.append(str(exc))
+
+        if bridge_transfers_total is None:
+            raise RuntimeError(
+                "failed to query transfer counter using known metric names: "
+                + " | ".join(transfer_query_errors)
+            )
+
         report["checks"]["bridge_transfers_series_present"] = True
         report["checks"]["bridge_transfers_non_negative"] = bridge_transfers_total >= 0
         if bridge_transfers_total < 0:

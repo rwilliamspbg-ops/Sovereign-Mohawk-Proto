@@ -3,8 +3,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from setuptools import find_packages, setup
-from setuptools.command.build_py import build_py
+from setuptools import find_packages, setup  # type: ignore[import-untyped]
+from setuptools.command.build_py import build_py  # type: ignore[import-untyped]
 
 PACKAGE_NAME = "mohawk"
 PACKAGE_DIR = Path(__file__).resolve().parent / PACKAGE_NAME

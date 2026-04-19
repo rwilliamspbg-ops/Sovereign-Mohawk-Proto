@@ -10,7 +10,7 @@
 ### Current Critical Path
 
 * TPM attestation production-path sign-off maintenance (keep cross-platform evidence fresh)
-* v1.0.0 GA tag cut after TPM closure sign-off
+* Release-owner approval and v1.0.0 GA tag cut
 
 Current TPM closure evidence:
 
@@ -21,9 +21,15 @@ Current TPM closure evidence:
 
 ### Formal Go-Live Gate Status
 
-* Runtime gates: ✅ readiness / ✅ chaos / ⚠️ host network tuning advisory-only (strict host preflight currently fails)
+* Runtime gates: ✅ readiness / ✅ chaos / ✅ strict host preflight pass (2026-04-17)
 * Attestations approved: 8/8
 * TPM closure status: ✅ approved (cross-platform matrix PASS, validator PASS)
+* GA tag readiness: ✅ local safety check pass (`python3 scripts/enforce_ga_tag_safety.py --tag v1.0.0`)
+
+Current strict-go-live evidence:
+
+* `results/go-live/evidence/go_live_gate_strict_2026-04-17.json`
+* `captured_artifacts/ga_release_readiness_2026-04-17.md`
 
 Router integration evidence with published images:
 

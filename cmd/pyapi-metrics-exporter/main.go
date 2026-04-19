@@ -36,6 +36,7 @@ func main() {
 func emitSyntheticHybridAndCompression(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
+	txCount := 0
 
 	for {
 		hybridStart := time.Now()
@@ -43,6 +44,9 @@ func emitSyntheticHybridAndCompression(interval time.Duration) {
 		metrics.ObserveProofVerification("hybrid", false, hybridLatency)
 		metrics.ObserveAcceleratorOp("cpu", "hybrid_verify", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "hybrid_verify", hybridLatency)
+
+		txCount++
+		metrics.ObserveUtilityCoinTransfer(0.1, txCount)
 
 		compressionStart := time.Now()
 		compressionLatency := float64(time.Since(compressionStart).Microseconds()) / 1000.0
