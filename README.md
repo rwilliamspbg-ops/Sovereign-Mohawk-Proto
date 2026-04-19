@@ -30,7 +30,7 @@ Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzan
 
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
-- Traceability matrix (claim -> Lean theorem -> runtime test evidence): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md)
+- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here for a full audit trail of all 6 formally verified properties_
 - CI formal proof gate: [.github/workflows/verify-proofs.yml](.github/workflows/verify-proofs.yml) (`verify-lean-formalization` job)
 - Latest local verification log (build + placeholder scan): [proofs/manual_verify.log](proofs/manual_verify.log)
 
