@@ -62,7 +62,7 @@ jobs:
           chmod +x ../scripts/ci/generate_formal_proof_artifacts.sh
           ../scripts/ci/generate_formal_proof_artifacts.sh
 
-      - name: Upload formal proof artifacts
+            - name: Upload formal proof artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: formal-proof-artifacts
