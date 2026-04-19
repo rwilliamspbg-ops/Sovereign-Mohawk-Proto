@@ -24,7 +24,15 @@
 [![EU AI Act High-Risk Readiness](https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043)](COMPLIANCE.md)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
-Sovereign Mohawk Proto is a theorem-backed federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
+Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
+
+## Formal Verification Status
+
+- Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
+- Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
+- Traceability matrix (claim -> Lean theorem -> runtime test evidence): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md)
+- CI formal proof gate: [.github/workflows/verify-proofs.yml](.github/workflows/verify-proofs.yml) (`verify-lean-formalization` job)
+- Latest local verification log (build + placeholder scan): [proofs/manual_verify.log](proofs/manual_verify.log)
 
 ## EU AI Act High-Risk Readiness
 
@@ -176,13 +184,13 @@ Trust and verification harden as updates move upward from edge privacy-preservin
 
 ## 🚀 Why Mohawk?
 
-Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines formal verification with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only.
+Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines machine-checked Lean formalization workflows with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only.
 
 ### 📊 Comparative Analysis
 
 | Feature | NVIDIA FLARE | PySyft | **Sovereign-Mohawk** |
 | :--- | :---: | :---: | :---: |
-| **Formally Verified Runtime** | Not presented as theorem-verified runtime | Not presented as theorem-verified runtime | **Yes (Theorem-backed runtime guarantees)** |
+| **Lean Formalization + CI Gate** | Not presented | Not presented | **Yes (`proofs/LeanFormalization` + CI build/placeholder checks)** |
 | **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **55.5% (Theorem 1)** |
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
 | **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **$O(d \log n)$** |
@@ -207,9 +215,9 @@ Preview graphic:
 
 ## ✨ Key Capabilities
 
-* 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience via [Theorem 1](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#691).
-* 🐌 **Straggler Resilience:** 99.99% success probability via [Theorem 4](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#469).
-* ✅ **Instant Verifiability:** 200-byte zk-SNARK proofs with 10ms verification via [Theorem 5](https://www.kimi.com/preview/19c56c2b-c9e2-85fa-8000-0518f5fdf88c#399).
+* 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience claim tracked in [proofs/bft_resilience.md](proofs/bft_resilience.md) and formalized in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
+* 🐌 **Straggler Resilience:** 99.99% success-probability claim tracked in [internal/stragglers.md](internal/stragglers.md) and formalized in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
+* ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
 * 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
 * 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
 * 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
@@ -1030,7 +1038,9 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 ## 📖 Documentation
 
 * [WHITE_PAPER.md](WHITE_PAPER.md) - Protocol design and architecture
-* [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md) - Formal proofs and theorems
+* [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md) - Theorem statements and derivations
+* [proofs/LeanFormalization/](proofs/LeanFormalization/) - Lean machine-checked formalization modules
+* [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) - Claim-to-proof-to-test traceability
 * [sdk/python/README.md](sdk/python/README.md) - Python SDK guide
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
@@ -1148,4 +1158,4 @@ We build this protocol to serve humanity, not to replace its judgment. The messi
 
 ## Prior Art & Novelty Statement
 
-This project publicly discloses (since [earliest commit date, e.g., early 2026]) a novel combination of hierarchical federated learning with zk-SNARK verifiable aggregation, 55.5% Byzantine resilience, 99.99% straggler tolerance, and extreme metadata compression at planetary scale. No prior systems combine these elements with formal verification across all dimensions. Public commits and X posts (@RyanWill98382) serve as timestamped evidence.
+This project publicly discloses (since [earliest commit date, e.g., early 2026]) a novel combination of hierarchical federated learning with zk-SNARK verifiable aggregation, 55.5% Byzantine resilience, 99.99% straggler tolerance, and extreme metadata compression at planetary scale. The repository includes Lean formalization artifacts and CI machine-check gates for the tracked theorem set; see [proofs/LeanFormalization/](proofs/LeanFormalization/) and [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md). Public commits and X posts (@RyanWill98382) serve as timestamped evidence.

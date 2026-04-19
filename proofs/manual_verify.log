@@ -1,7 +1,11 @@
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/crypto	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/manifest	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/proofs	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm	[no test files]
-?   	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/wasmhost	[no test files]
+Sovereign Mohawk Lean Formal Verification Log
+generated_at_utc=2026-04-19T13:05:30Z
+
+[1/3] lake build LeanFormalization
+Build completed successfully (11 jobs).
+
+[2/3] placeholder scan (sorry|axiom|admit)
+placeholder_scan_result=NONE
+
+[3/3] traceability validator
+Traceability validation passed.
