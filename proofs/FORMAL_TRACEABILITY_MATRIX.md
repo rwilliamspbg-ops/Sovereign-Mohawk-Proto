@@ -23,25 +23,8 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 
 ## Parser Compatibility
 
-## Parser Compatibility
-
 This matrix is designed for automated extraction:
 - **Lean module pattern**: `LeanFormalization/Theorem[0-9]+\.lean`
 - **Runtime test pattern**: `[^ ]+\.(go|py)::[A-Za-z0-9_]+`
 - **All entries single-line** to support grep/regex tooling
 - **No markdown links in cells** for clean parser operation
-
-## Phase 2 Completion Notes
-
-- Theorem 1 and 2 were deepened from profile-only checks to reusable compositional lemmas.
-- Theorems 3-6 now include stronger structural properties beyond single-point checks.
-- CI now enforces placeholder-free formal modules (`sorry`, `axiom`, `admit` forbidden) and proof build success.
-
-## Machine-Checkable Validation Artifacts
-
-- Canonical report: `results/proofs/formal_validation_report.json`
-- Bundle manifest: `results/proofs/formal-verification-bundle/bundle_manifest.json`
-- Bundle archive: `results/proofs/formal-verification-bundle.tar.gz`
-- Regenerate artifacts: `make refresh-formal-validation`
-- Validate report and bundle integrity: `make validate-formal`
-

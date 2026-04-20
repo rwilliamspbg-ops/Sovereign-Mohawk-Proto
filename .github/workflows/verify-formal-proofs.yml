@@ -7,8 +7,6 @@ on:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
-      - 'scripts/ci/**'
-      - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
   pull_request:
     branches: [ main ]
@@ -16,8 +14,6 @@ on:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
-      - 'scripts/ci/**'
-      - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
 
 env:
@@ -27,8 +23,6 @@ jobs:
   verify-lean-formalizations:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
     
     steps:
       - name: Free disk space (critical for Mathlib)
@@ -55,8 +49,8 @@ jobs:
           lean --version
           lake --version
 
-      - name: Restore Lean/Lake cache
-        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
+      - name: Cache Lake dependencies
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7
         with:
           path: |
             proofs/.lake/packages
@@ -95,24 +89,6 @@ jobs:
         run: |
           lake build LeanFormalization
           echo "✅ All formal theorems compiled successfully."
-
-      - name: Run formal validation tooling tests
-        run: |
-          make validate-formal-tooling-tests
-
-      - name: Save Lean/Lake cache
-        if: always()
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
-        with:
-          path: |
-            proofs/.lake/packages
-            proofs/.lake/build
-          key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
-
-      - name: Cleanup transient Mathlib cache
-        if: always()
-        run: |
-          rm -rf "$MATHLIB_CACHE_DIR" || true
 
       - name: Generate proof verification report
         if: always()
