@@ -21,16 +21,16 @@ theorem chernoff_monotone (alpha : ℚ) (r1 r2 : Nat)
     chernoff_bound alpha r2 ≤ chernoff_bound alpha r1 := by
   unfold chernoff_bound
   simp [h_alpha]
-  have h_base : 0 < 1 - alpha := by linarith [h_alpha.2]
-  have h_base_le : 1 - alpha < 1 := by linarith [h_alpha.1]
-  exact pow_le_pow_right (by linarith : 0 < 1 - alpha) h_r
+  have h_base : 0 ≤ 1 - alpha := by linarith [h_alpha.2]
+  have h_base_le : 1 - alpha ≤ 1 := by linarith [h_alpha.1]
+  exact pow_le_pow_of_le_one h_base h_base_le h_r
 
 /-- Lemma 2: With α=0.9 (90% fast nodes) and r=12 copies,
-    the failure probability is extremely small: < 10^-12
+    the failure probability is at most 10^-12 (chernoff_bound(0.9,12) = (0.1)^12 = 10^-12).
     This validates the 99.99%+ success rate claim from Theorem 4.
 -/
 theorem chernoff_alpha_09_r12 :
-    chernoff_bound (9/10 : ℚ) 12 < (1 : ℚ) / 10^12 := by
+    chernoff_bound (9/10 : ℚ) 12 ≤ (1 : ℚ) / 10^12 := by
   unfold chernoff_bound
   norm_num
 
@@ -68,7 +68,7 @@ theorem chernoff_redundancy_effectiveness (k : Nat) (h_k : 10 ≤ k) :
     chernoff_bound (9/10 : ℚ) k < (1 : ℚ) / 100 := by
   have h1 : chernoff_bound (9/10 : ℚ) 10 < (1 : ℚ) / 100 := by norm_num [chernoff_bound]
   have h2 : chernoff_bound (9/10 : ℚ) k ≤ chernoff_bound (9/10 : ℚ) 10 :=
-    chernoff_monotone (9/10) k 10 (by norm_num : 0 < (9:ℚ)/10 ∧ (9:ℚ)/10 < 1) (by omega)
+    chernoff_monotone (9/10) 10 k (by norm_num : 0 < (9:ℚ)/10 ∧ (9:ℚ)/10 < 1) h_k
   linarith
 
 /-- Lemma 4: Chernoff bounds apply across tier hierarchies

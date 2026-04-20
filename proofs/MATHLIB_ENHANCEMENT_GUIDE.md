@@ -398,6 +398,16 @@ lake build LeanFormalization.MathLib.Theorem1Enhanced
 ### CI/CD Integration
 ```yaml
 # .github/workflows/mathlib-validation.yml
+- name: Free disk space (critical for Mathlib)
+  run: |
+    df -h
+    sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+    sudo rm -rf /usr/lib/jvm /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell
+    sudo docker image prune -a -f || true
+    sudo docker builder prune -a -f || true
+    sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+    df -h
+
 - name: Build Enhanced Mathlib Theorems
   run: |
     cd proofs

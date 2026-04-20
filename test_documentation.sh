@@ -5,6 +5,12 @@
 
 RESULTS_DIR="test-results/documentation-stress"
 mkdir -p "$RESULTS_DIR"
+LOG_FILE="$RESULTS_DIR/documentation_stress_output.log"
+exec > >(tee "$LOG_FILE") 2>&1
+
+bytes_to_kb() {
+    awk -v bytes="$1" 'BEGIN { printf "%.1f", bytes / 1024 }'
+}
 
 echo "=================================================="
 echo "DOCUMENTATION STRESS TEST SUITE"
@@ -60,7 +66,7 @@ if [ -f "$BLOG" ]; then
     BLOG_WORDS=$(wc -w < "$BLOG")
     BLOG_SIZE=$(wc -c < "$BLOG")
     
-    echo "Size: $(echo "scale=1; $BLOG_SIZE / 1024" | bc) KB"
+    echo "Size: $(bytes_to_kb "$BLOG_SIZE") KB"
     echo "Lines: $BLOG_LINES"
     echo "Words: $BLOG_WORDS"
     
@@ -218,11 +224,11 @@ else
 fi
 
 # Check theorem count
-ACTUAL_THEOREMS=$(find proofs/LeanFormalization -name "*.lean" -exec grep -c '^theorem\|^lemma\|^def' {} + 2>/dev/null | awk '{s+=$1} END {print s}')
+ACTUAL_THEOREMS=$(find proofs/LeanFormalization -name "*.lean" -exec grep -h -cE '^[[:space:]]*(theorem|lemma|def)[[:space:]]+' {} + 2>/dev/null | awk '{s+=$1} END {print s}')
 if [ "$ACTUAL_THEOREMS" -ge 50 ]; then
-    echo "  ✓ 52 theorems found ($ACTUAL_THEOREMS)"
+    echo "  ✓ Theorem/definition symbol count meets threshold ($ACTUAL_THEOREMS)"
 else
-    echo "  ⚠ Expected 52 theorems, found $ACTUAL_THEOREMS"
+    echo "  ⚠ Expected at least 50 theorem/definition symbols, found $ACTUAL_THEOREMS"
 fi
 echo ""
 
@@ -279,7 +285,7 @@ echo "Checking documentation file sizes..."
 for file in "$GUIDE" "$BLOG" "FINAL_PHASE_3a_SUMMARY.md" "PHASE_3a_COMPLETE_VALIDATION_REPORT.md"; do
     if [ -f "$file" ]; then
         SIZE=$(wc -c < "$file")
-        SIZE_KB=$(echo "scale=1; $SIZE / 1024" | bc)
+        SIZE_KB=$(bytes_to_kb "$SIZE")
         echo "  $(basename $file): $SIZE_KB KB"
         
         if [ "$SIZE" -gt 100000 ]; then
@@ -293,33 +299,30 @@ echo ""
 echo "=================================================="
 echo "DOCUMENTATION STRESS TEST SUMMARY"
 echo "=================================================="
+
+WARN_COUNT=$(grep -c "⚠" "$LOG_FILE" || true)
+if [ "$WARN_COUNT" -eq 0 ]; then
+    OVERALL_STATUS="PASS"
+else
+    OVERALL_STATUS="PASS_WITH_WARNINGS"
+fi
+
 cat > "$RESULTS_DIR/documentation_stress_report.txt" <<EOF
 DOCUMENTATION STRESS TEST REPORT
 =================================
 
 Test Date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
-TEST RESULTS:
-✓ Test 1: Guide Completeness - PASS
-✓ Test 2: Blog Post Quality - PASS
-✓ Test 3: Link Validation - PASS
-✓ Test 4: Markdown Syntax - PASS
-✓ Test 5: Validation Report - PASS
-✓ Test 6: Cross-References - PASS
-✓ Test 7: Content Accuracy - PASS
-✓ Test 8: Readability - PASS
-✓ Test 9: Structured Data - PASS
-✓ Test 10: File Performance - PASS
-
 DOCUMENTATION SUMMARY:
 - Formal Verification Guide: Comprehensive (9 sections)
 - Blog Post: Publication-ready with structure
-- Validation Report: Complete with all required sections
-- Link Coverage: Adequate GitHub references
-- Markdown Syntax: All balanced and valid
-- Content Accuracy: Matches actual artifacts
+- Validation Report section matches required markers where present
+- Link coverage is reported from parsed URLs
+- Markdown syntax checks are based on bracket and fence balancing
+- Content accuracy spot checks use live repository files
+- Warnings: ${WARN_COUNT}
 
-OVERALL STATUS: ✅ ALL TESTS PASSED
+OVERALL STATUS: ${OVERALL_STATUS}
 
 Key Findings:
 1. Documentation is well-structured and complete

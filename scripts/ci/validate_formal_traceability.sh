@@ -39,8 +39,9 @@ done
 
 declare -A module_to_theorems=()
 
-while IFS='|' read -r _ claim_source module_cell theorem_cell runtime_cell _; do
-  [[ -z "${module_cell// }" ]] && continue
+# Parse only numbered mapping rows from the markdown table.
+while IFS='|' read -r _ row_num _ _ module_cell theorem_cell runtime_cell _ _; do
+  row_num="$(echo "$row_num" | xargs)"
   module_cell="${module_cell//\`/}"
   theorem_cell="${theorem_cell//\`/}"
   runtime_cell="${runtime_cell//\`/}"
@@ -49,13 +50,19 @@ while IFS='|' read -r _ claim_source module_cell theorem_cell runtime_cell _; do
   theorem_cell="$(echo "$theorem_cell" | xargs)"
   runtime_cell="$(echo "$runtime_cell" | xargs)"
 
-  [[ "$module_cell" == "Lean Module" ]] && continue
+  [[ -z "$row_num" ]] && continue
+  [[ -z "$module_cell" ]] && continue
+  [[ -z "$theorem_cell" ]] && fail "Row $row_num has empty theorem reference cell"
   [[ "$module_cell" != LeanFormalization/* ]] && continue
 
   module_name="${module_cell##*/}"
   module_name="${module_name%.lean}"
-  module_to_theorems["$module_name"]+="${theorem_cell}"
-done < <(awk 'BEGIN { FS = "|" } /^\|/ { print }' "$MATRIX_FILE")
+  module_to_theorems["$module_name"]+="${theorem_cell},"
+done < <(awk 'BEGIN { FS = "|" } /^\|[[:space:]]*[0-9]+[[:space:]]*\|/ { print }' "$MATRIX_FILE")
+
+if [[ ${#module_to_theorems[@]} -eq 0 ]]; then
+  fail "No theorem mappings parsed from traceability matrix"
+fi
 
 validated_theorems=0
 for mod in "${!module_to_theorems[@]}"; do
@@ -66,12 +73,16 @@ for mod in "${!module_to_theorems[@]}"; do
   for theorem_name in "${theorem_names[@]}"; do
     theorem_name="$(echo "$theorem_name" | xargs)"
     [[ -n "$theorem_name" ]] || continue
-    if ! grep -nF "$theorem_name" "$module_file" | grep -qE '^[0-9]+:[[:space:]]*(theorem|def)[[:space:]]+'; then
+    if ! grep -qE "^[[:space:]]*(theorem|def|lemma)[[:space:]]+${theorem_name}\\b" "$module_file"; then
       fail "Missing theorem symbol '$theorem_name' in $mod.lean"
     fi
     validated_theorems=$((validated_theorems + 1))
   done
 done
+
+if [[ $validated_theorems -le 0 ]]; then
+  fail "No theorem symbols validated; parser output is invalid"
+fi
 
 mapfile -t runtime_refs < <(
   grep -oE '[^[:space:]]+\.(go|py)::[A-Za-z0-9_]+' "$MATRIX_FILE" |
