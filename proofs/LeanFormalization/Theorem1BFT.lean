@@ -21,6 +21,8 @@ theorem theorem1_half_bound_of_forall_cons (t : Tier) (ts : List Tier)
     2 * totalByzantine (t :: ts) < totalNodes (t :: ts) := by
   induction ts with
   | nil =>
+      -- totalByzantine (t :: []) reduces to t.f; totalNodes to t.n; both are abbrev.
+      simp only [totalByzantine, totalNodes, sumN, List.map, Nat.add_zero]
       exact h_t
   | cons u us ih =>
       have h_u : honestMajority u := h_ts u (by simp)

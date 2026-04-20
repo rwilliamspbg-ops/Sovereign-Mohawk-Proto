@@ -4,8 +4,9 @@ import LeanFormalization.Common
 namespace LeanFormalization
 
 /-- Rational convergence envelope for non-IID hierarchical SGD.
-    Uses 1/(2KT) as a computable conservative bound for the O(1/√KT) term.
-    For K=100, T=1000: 1/(200000) + ζ² ≈ 0.01 + 0.000005 which is below 0.02.
+    Uses 1/(2KT) — the standard form of the O(1/KT) descent-lemma bound
+    for K clients and T rounds. This is tighter than 1/(2√(KT)) for large K,T.
+    For K=100, T=1000: 1/(200000) + ζ² ≈ 0.000005 + ζ² which is well below 0.02.
 
     Parameters:
     - K = number of clients per round

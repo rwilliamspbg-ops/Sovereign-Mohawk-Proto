@@ -26,7 +26,7 @@ theorem chernoff_monotone (alpha : ℚ) (r1 r2 : Nat)
   exact pow_le_pow_of_le_one h_base h_base_le h_r
 
 /-- Lemma 2: With α=0.9 (90% fast nodes) and r=12 copies,
-    the failure probability is extremely small: < 10^-12
+    the failure probability is at most 10^-12 (chernoff_bound(0.9,12) = (0.1)^12 = 10^-12).
     This validates the 99.99%+ success rate claim from Theorem 4.
 -/
 theorem chernoff_alpha_09_r12 :
