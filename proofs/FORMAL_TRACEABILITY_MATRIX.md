@@ -28,3 +28,11 @@ This matrix is the authoritative cross-reference between the protocol's theorem 
 - Theorem 1 and 2 were deepened from profile-only checks to reusable compositional lemmas.
 - Theorems 3-6 now include stronger structural properties beyond single-point checks.
 - CI now enforces placeholder-free formal modules (`sorry`, `axiom`, `admit` forbidden) and proof build success.
+
+## Machine-Checkable Validation Artifacts
+
+- Canonical report: `results/proofs/formal_validation_report.json`
+- Bundle manifest: `results/proofs/formal-verification-bundle/bundle_manifest.json`
+- Bundle archive: `results/proofs/formal-verification-bundle.tar.gz`
+- Regenerate artifacts: `make refresh-formal-validation`
+- Validate report and bundle integrity: `make validate-formal`

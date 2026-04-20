@@ -34,6 +34,7 @@ TPM_SUMMARY_JSON="results/go-live/evidence/tpm_closure_summary_${STAMP}.json"
 TPM_SUMMARY_MD="results/go-live/evidence/tpm_closure_summary_${STAMP}.md"
 PKG_CHECKSUMS="results/go-live/evidence/release_package_manifest_checksums_${STAMP}.txt"
 TPM_BUNDLE_TAR="results/go-live/evidence/tpm_signoff_bundle_${STAMP}.tar.gz"
+FORMAL_RELEASE_CHECKSUMS="results/go-live/evidence/formal_verification_release_checksums_${STAMP}.txt"
 
 # 0) Repo and auth sanity
 
@@ -98,10 +99,19 @@ make ga-tag-ready-check
 
 make artifact-summary
 
+make package-formal-verification-artifacts
+
 sha256sum \
   captured_artifacts/artifact_manifest_latest.json \
   captured_artifacts/artifact_evidence_summary.md \
   | tee "${PKG_CHECKSUMS}"
+
+sha256sum \
+  release-assets/formal/formal_validation_report.json \
+  release-assets/formal/formal-verification-bundle.tar.gz \
+  release-assets/formal/bundle_manifest.json \
+  release-assets/formal/sha256sums.txt \
+  | tee "${FORMAL_RELEASE_CHECKSUMS}"
 
 # 7) Commit refreshed GA evidence before tag
 
@@ -116,6 +126,7 @@ git add \
   results/go-live/evidence/tpm_closure_summary_*.json \
   results/go-live/evidence/tpm_closure_summary_*.md \
   results/go-live/evidence/release_package_manifest_checksums_*.txt \
+  results/go-live/evidence/formal_verification_release_checksums_*.txt \
   results/metrics/release_performance_evidence.md \
   results/go-live/capability_dashboard_matrix.md \
   captured_artifacts/artifact_manifest_latest.json \
@@ -155,6 +166,16 @@ tar -czf "${TPM_BUNDLE_TAR}" \
   results/go-live/attestations/tpm_attestation_production_closure.json
 
 gh release upload "${TAG}" "${TPM_BUNDLE_TAR}" --clobber
+
+# 12) Promote formal verification artifacts as GA release assets
+
+gh release upload "${TAG}" \
+  release-assets/formal/formal_validation_report.json \
+  release-assets/formal/formal-verification-bundle.tar.gz \
+  release-assets/formal/bundle_manifest.json \
+  release-assets/formal/sha256sums.txt \
+  "${FORMAL_RELEASE_CHECKSUMS}" \
+  --clobber
 
 echo "GA cut complete for ${TAG}"
 ```
@@ -223,9 +244,16 @@ Check all items after the command sequence completes.
   - captured_artifacts/artifact_evidence_summary.md
 - [ ] SHA-256 checksum record generated:
   - results/go-live/evidence/release_package_manifest_checksums_YYYY-MM-DD.txt
+- [ ] Formal verification release checksums generated:
+  - results/go-live/evidence/formal_verification_release_checksums_YYYY-MM-DD.txt
 - [ ] GA tag exists and workflows passed:
   - GA Tag Safety workflow: PASS
   - Release Assets and Images workflow: PASS
+- [ ] Formal verification artifacts uploaded to GA release:
+  - release-assets/formal/formal_validation_report.json
+  - release-assets/formal/formal-verification-bundle.tar.gz
+  - release-assets/formal/bundle_manifest.json
+  - release-assets/formal/sha256sums.txt
 
 ## Recovery / Abort Procedure
 

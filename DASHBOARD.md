@@ -50,6 +50,13 @@ Primary artifact trail:
 * `results/go-live/go-live-gate-report.json`
 * `results/go-live/attestations/`
 
+Formal validation artifact trail:
+
+* `results/proofs/formal_validation_report.json`
+* `results/proofs/formal-verification-bundle/bundle_manifest.json`
+* `results/proofs/formal-verification-bundle.tar.gz`
+* `results/go-live/evidence/formal_verification_release_checksums_YYYY-MM-DD.txt`
+
 ## 📊 Network Health
 
 | Metric | Status | Proof Link |

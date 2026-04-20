@@ -31,9 +31,22 @@ Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzan
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
 - **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here for a full audit trail of all 6 formally verified properties_
+- Machine-checkable formal validation report: [results/proofs/formal_validation_report.json](results/proofs/formal_validation_report.json)
+- Verification bundle manifest + archive: [results/proofs/formal-verification-bundle/bundle_manifest.json](results/proofs/formal-verification-bundle/bundle_manifest.json), [results/proofs/formal-verification-bundle.tar.gz](results/proofs/formal-verification-bundle.tar.gz)
+- Independent verifier guide: [docs/FORMAL_VERIFICATION_GUIDE.md](docs/FORMAL_VERIFICATION_GUIDE.md)
 - CI formal proof gates: [.github/workflows/verify-proofs.yml](.github/workflows/verify-proofs.yml) (`verify-lean-formalization`), [.github/workflows/verify-formal-proofs.yml](.github/workflows/verify-formal-proofs.yml)
 - Mathlib disk-space safeguard in CI: both workflows run pre-build runner cleanup before Lean/Lake build steps
 - Latest local verification log (build + placeholder scan): [proofs/manual_verify.log](proofs/manual_verify.log)
+
+Formal report and bundle checks:
+
+```bash
+make refresh-formal-validation
+make validate-formal
+make validate-formal-tooling-tests
+make validate-formal-container
+make package-formal-verification-artifacts
+```
 
 ## EU AI Act High-Risk Readiness
 

@@ -7,6 +7,8 @@ on:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
+      - 'scripts/ci/**'
+      - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
   pull_request:
     branches: [ main ]
@@ -14,6 +16,8 @@ on:
       - 'proofs/LeanFormalization/**'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
+      - 'scripts/ci/**'
+      - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
 
 env:
@@ -91,6 +95,10 @@ jobs:
         run: |
           lake build LeanFormalization
           echo "✅ All formal theorems compiled successfully."
+
+      - name: Run formal validation tooling tests
+        run: |
+          make validate-formal-tooling-tests
 
       - name: Save Lean/Lake cache
         if: always()

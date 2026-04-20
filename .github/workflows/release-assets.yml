@@ -94,6 +94,10 @@ jobs:
             monitoring/prometheus/recording-rules.yml \
             monitoring/prometheus/alerting-rules.yml
 
+      - name: Build formal verification release artifacts
+        run: |
+          make package-formal-verification-artifacts
+
       - name: Upload release prep artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
@@ -192,6 +196,10 @@ jobs:
             "release-assets/benchmarks/release_performance_evidence.md"
             "release-assets/sbom-source.spdx.json"
             "release-assets/sovereign-map-testnet.tar.gz"
+            "release-assets/formal/formal_validation_report.json"
+            "release-assets/formal/formal-verification-bundle.tar.gz"
+            "release-assets/formal/bundle_manifest.json"
+            "release-assets/formal/sha256sums.txt"
           )
           for path in "${required[@]}"; do
             if [ ! -s "$path" ]; then
@@ -232,6 +240,7 @@ jobs:
               release-assets/npm/* \
               release-assets/sbom-source.spdx.json \
               release-assets/sovereign-map-testnet.tar.gz \
+              release-assets/formal/* \
               release-assets/docker/* \
               --clobber
           else
@@ -240,6 +249,7 @@ jobs:
               release-assets/npm/* \
               release-assets/sbom-source.spdx.json \
               release-assets/sovereign-map-testnet.tar.gz \
+              release-assets/formal/* \
               release-assets/docker/* \
               --generate-notes
           fi
