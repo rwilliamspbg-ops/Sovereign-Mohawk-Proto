@@ -75,7 +75,8 @@ theorem theorem1_tier_majority_checked :
 /-- Concrete profile satisfies the global 5/9 BFT bound:
     9 × totalByzantine < 5 × totalNodes. -/
 theorem theorem1_global_bound_checked : bftBound mohawkProfile := by
-  native_decide
+  unfold bftBound
+  decide
 
 /-- 10M-scale corollary: 5,555,555 Byzantine nodes remains below 5/9 of total. -/
 theorem theorem1_ten_million_corollary :
