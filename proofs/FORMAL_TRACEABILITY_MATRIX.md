@@ -1,8 +1,8 @@
 # Formal Proof Traceability Matrix
 
-This matrix is the authoritative cross-reference between the protocol's theorem claims, their human-readable proof documents, the machine-checked Lean 4 formalization modules, and the runtime test evidence that exercises the same properties in the deployed system. Its primary audience is developers, external auditors, and governance reviewers who need to verify that every claimed property has a corresponding formal proof and a live test.
+Authoritative cross-reference between theorem claims, human-readable proofs, machine-checked Lean 4 modules, and runtime test evidence.
 
-> **Phase 2 disclaimer:** This matrix reflects the state as of Phase 2. All proofs use concrete arithmetic and inductive tactics over rational or natural-number representations. Deeper probabilistic formalization (Chernoff bounds, real-valued convergence) is planned for Phase 3b.
+> **Phase 2 Note**: All proofs use concrete arithmetic and inductive tactics. Deeper probabilistic formalization is planned for Phase 3b.
 
 ## Scope
 
@@ -21,7 +21,15 @@ This matrix is the authoritative cross-reference between the protocol's theorem 
 | 5 | zk-SNARK proofs are constant size (~200 bytes) and O(1) verification time, scale-independent | [proofs/cryptography.md](cryptography.md) | `LeanFormalization/Theorem5Cryptography.lean` | `theorem5_constant_size`, `theorem5_constant_ops`, `theorem5_constant_cost`, `theorem5_ops_guard`, `theorem5_cost_guard` | `test/zk_verifier_test.go::TestVerifyZKProof`, `test/zksnark_verifier_test.go::TestVerifyProof_Valid` | Verified | Constant-operation verifier model with concrete runtime guard |
 | 6 | Non-IID hierarchical SGD converges at O(1/√KT) + O(ζ²) rate | [proofs/convergence.md](convergence.md) | `LeanFormalization/Theorem6Convergence.lean` | `theorem6_envelope_decompose`, `theorem6_rounds_help`, `theorem6_rounds_help_stronger`, `theorem6_heterogeneity_effect`, `theorem6_large_scale_guard` | `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Below`, `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Above` | Verified | Structural decomposition only; full real-valued convergence planned for Phase 3b |
 
----
+## Parser Compatibility
+
+## Parser Compatibility
+
+This matrix is designed for automated extraction:
+- **Lean module pattern**: `LeanFormalization/Theorem[0-9]+\.lean`
+- **Runtime test pattern**: `[^ ]+\.(go|py)::[A-Za-z0-9_]+`
+- **All entries single-line** to support grep/regex tooling
+- **No markdown links in cells** for clean parser operation
 
 ## Phase 2 Completion Notes
 
@@ -36,3 +44,4 @@ This matrix is the authoritative cross-reference between the protocol's theorem 
 - Bundle archive: `results/proofs/formal-verification-bundle.tar.gz`
 - Regenerate artifacts: `make refresh-formal-validation`
 - Validate report and bundle integrity: `make validate-formal`
+

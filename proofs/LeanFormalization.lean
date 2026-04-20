@@ -2,5 +2,7 @@ import LeanFormalization.Theorem1BFT
 import LeanFormalization.Theorem2RDP
 import LeanFormalization.Theorem3Communication
 import LeanFormalization.Theorem4Liveness
+import LeanFormalization.Theorem4ChernoffBounds
 import LeanFormalization.Theorem5Cryptography
 import LeanFormalization.Theorem6Convergence
+import LeanFormalization.Theorem6ConvergenceReals
