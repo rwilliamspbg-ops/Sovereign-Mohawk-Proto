@@ -27,7 +27,7 @@ theorem theorem2_budget_step {current step budget : Nat}
     (h_cur : current <= budget)
     (h_step : step <= budget - current) :
     current + step <= budget := by
-  exact Nat.add_le_of_le_sub h_step
+  omega
 
 /-- Example composition for a 4-tier privacy budget profile. -/
 theorem theorem2_example_profile :

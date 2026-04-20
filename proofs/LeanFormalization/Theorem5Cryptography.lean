@@ -26,7 +26,7 @@ theorem theorem5_constant_ops (n m : Nat) :
 /-- Runtime proxy is scale invariant under the constant-operation verifier model. -/
 theorem theorem5_constant_cost (n m : Nat) :
     verifyCostMicros n = verifyCostMicros m := by
-  simp [verifyCostMicros, theorem5_constant_ops]
+  simp [verifyCostMicros, verifyOps]
 
 /-- Concrete latency guard modeled as bounded operation count. -/
 theorem theorem5_ops_guard : verifyOps 10000000 <= 10 := by

@@ -12,7 +12,7 @@ theorem theorem4_redundancy_monotone (d r1 r2 : Nat)
     (h_d : 2 <= d) (h_r : r1 <= r2) :
     successNumerator d r1 <= successNumerator d r2 := by
   unfold successNumerator
-  exact Nat.sub_le_sub_right (Nat.pow_le_pow_right (Nat.le_refl d) h_r) 1
+  exact Nat.sub_le_sub_right (Nat.pow_le_pow_right (by omega : 0 < d) h_r) 1
 
 /-- At dropout 1/2 and redundancy 10, success exceeds 99.9%. -/
 theorem theorem4_success_gt_99_9 :
