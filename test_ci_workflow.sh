@@ -8,6 +8,8 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RESULTS_DIR="$SCRIPT_DIR/../test-results/ci-stress"
 mkdir -p "$RESULTS_DIR"
+LOG_FILE="$RESULTS_DIR/ci_stress_test_output.log"
+exec > >(tee "$LOG_FILE") 2>&1
 
 echo "=================================================="
 echo "CI/CD WORKFLOW STRESS TEST SUITE"
@@ -176,34 +178,29 @@ echo "=================================================="
 echo "CI/CD STRESS TEST SUMMARY"
 echo "=================================================="
 echo ""
-cat > "$RESULTS_DIR/ci_stress_test_report.txt" <<'EOF'
+
+WARN_COUNT=$(grep -c "⚠" "$LOG_FILE" || true)
+if [ "$WARN_COUNT" -eq 0 ]; then
+    OVERALL_STATUS="PASS"
+else
+    OVERALL_STATUS="PASS_WITH_WARNINGS"
+fi
+
+cat > "$RESULTS_DIR/ci_stress_test_report.txt" <<EOF
 CI/CD WORKFLOW STRESS TEST REPORT
 ==================================
 
 Test Date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
 
-TEST RESULTS:
-✓ Test 1: Workflow Syntax - PASS
-✓ Test 2: Trigger Configuration - PASS
-✓ Test 3: Job Configuration - PASS
-✓ Test 4: Error Handling - PASS
-✓ Test 5: Caching Strategy - PASS
-✓ Test 6: PR Comments - PASS
-✓ Test 7: Security & Permissions - PASS
-✓ Test 8: Placeholder Detection - PASS
-✓ Test 9: Build Output & Logging - PASS
-✓ Test 10: Workflow Documentation - PASS
-
 CONFIGURATION SUMMARY:
 File: .github/workflows/verify-formal-proofs.yml
-Status: Fully configured and ready
-Triggers: push (main branch) + pull_request
-Jobs: 3 (verify-lean, quality-checks, traceability)
-Error Handling: Fail-fast on errors
-Caching: Enabled
-PR Integration: Auto-comments enabled
+Workflow Name: ${WORKFLOW_NAME:-unknown}
+Triggers Detected: ${TRIGGERS:-0}
+Jobs Detected: ${JOB_COUNT:-0}
+Runner: ${RUNNER:-unknown}
+Warnings: ${WARN_COUNT}
 
-OVERALL STATUS: ✅ ALL TESTS PASSED
+OVERALL STATUS: ${OVERALL_STATUS}
 
 Recommendations:
 1. Monitor workflow execution times in CI logs

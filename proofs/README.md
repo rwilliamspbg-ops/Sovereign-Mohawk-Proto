@@ -7,6 +7,11 @@ Machine-checked formal theorem modules for the Sovereign Mohawk proof claims.
 ```bash
 cd proofs
 export PATH="$HOME/.elan/bin:$PATH"
+df -h .
+
+# Optional cleanup if workspace is tight on disk
+rm -rf .lake/build .lake/packages/mathlib/.lake/build
+
 lake update
 lake build LeanFormalization Mathlib
 ```

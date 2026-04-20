@@ -38,6 +38,8 @@ jobs:
 
   verify-lean-formalization:
     runs-on: ubuntu-latest
+    env:
+      MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
     steps:
       - name: Free up disk space (critical for Mathlib)
         run: |
@@ -88,13 +90,18 @@ jobs:
         working-directory: proofs
         run: |
           chmod +x ../scripts/ci/validate_formal_traceability.sh
-          ../scripts/ci/validate_formal_traceability.sh || true
+            ../scripts/ci/validate_formal_traceability.sh
 
       - name: Build Lean formal theorem suite
         working-directory: proofs
         run: |
           lake build LeanFormalization
           echo "✅ All formal theorems compiled successfully."
+
+      - name: Cleanup transient Mathlib cache
+        if: always()
+        run: |
+          rm -rf "$MATHLIB_CACHE_DIR" || true
 
       - name: Save Lean/Lake cache
         if: always()
