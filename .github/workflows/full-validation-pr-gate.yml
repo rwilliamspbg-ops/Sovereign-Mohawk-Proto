@@ -28,6 +28,20 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Validate formal report consistency and bundle integrity
+        run: |
+          chmod +x scripts/ci/generate_formal_proof_artifacts.sh scripts/ci/validate_formal_traceability.sh
+          ./scripts/ci/validate_formal_traceability.sh
+          ./scripts/ci/generate_formal_proof_artifacts.sh
+          python3 scripts/ci/generate_formal_validation_report.py
+          python3 scripts/ci/generate_formal_validation_report.py --check
+          python3 scripts/ci/build_formal_verification_bundle.py
+          python3 scripts/ci/verify_formal_verification_bundle.py
+
+      - name: Run formal validation tooling tests
+        run: |
+          make validate-formal-tooling-tests
+
       - name: Verify orchestrator FIPS build metadata wiring
         run: |
           source scripts/ensure_go_toolchain.sh

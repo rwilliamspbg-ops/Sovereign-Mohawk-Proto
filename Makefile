@@ -1,6 +1,6 @@
 # Sovereign Mohawk Protocol - Verification & Build System
 
-.PHONY: all build test audit lint refresh-proof-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk demo-train-synthesize-dataset demo-synthesizebio-docker metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check fedavg-scale-gate tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test artifact-retention-dryrun artifact-retention-apply artifact-summary testnet-gui-windows
+.PHONY: all build test audit lint refresh-proof-artifacts refresh-formal-validation validate-formal validate-formal-tooling-tests validate-formal-container package-formal-verification-artifacts verify clean go-env build-python-lib install-python-sdk test-python-sdk demo-train-synthesize-dataset demo-synthesizebio-docker metrics regional-shard full-stack-3-nodes full-stack-3-nodes-down sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal strict-auth-smoke-host strict-auth-smoke-container production-readiness mainnet-one-click go-live-gate go-live-gate-advisory go-live-gate-strict golden-path-e2e failure-injection-latency-check fedavg-scale-gate tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence openapi-spec capability-dashboard-matrix benchmark-gpu full-validation-fast full-validation-deep validation-trends validation-diff-summary workflow-pin-check fips-runtime-check fips-regression pqc-health tamper-evident-export tamper-evident-e2e-test artifact-retention-dryrun artifact-retention-apply artifact-summary testnet-gui-windows
 
 ARTIFACT_KEEP ?= 3
 
@@ -23,6 +23,43 @@ refresh-proof-artifacts:
 	@echo "🧾 Refreshing proof freshness artifacts..."
 	python3 scripts/refresh_proof_artifacts.py
 
+refresh-formal-validation:
+	@echo "🧾 Regenerating formal validation artifacts and machine-checkable report..."
+	chmod +x scripts/ci/generate_formal_proof_artifacts.sh scripts/ci/validate_formal_traceability.sh
+	./scripts/ci/validate_formal_traceability.sh
+	./scripts/ci/generate_formal_proof_artifacts.sh
+	python3 scripts/ci/generate_formal_validation_report.py
+	python3 scripts/ci/build_formal_verification_bundle.py
+
+validate-formal:
+	@echo "🔎 Validating formal traceability, report consistency, and verification bundle integrity..."
+	chmod +x scripts/ci/generate_formal_proof_artifacts.sh scripts/ci/validate_formal_traceability.sh
+	./scripts/ci/validate_formal_traceability.sh
+	./scripts/ci/generate_formal_proof_artifacts.sh
+	python3 scripts/ci/generate_formal_validation_report.py --check
+	python3 scripts/ci/build_formal_verification_bundle.py
+	python3 scripts/ci/verify_formal_verification_bundle.py
+
+validate-formal-tooling-tests:
+	@echo "🧪 Running formal validation tooling tests..."
+	python3 tests/scripts/ci/test_formal_validation_report_e2e.py
+	python3 tests/scripts/ci/test_formal_verification_bundle_e2e.py
+	python3 tests/scripts/ci/test_formal_validation_container_runner.py
+
+validate-formal-container:
+	@echo "🐳 Running formal validation in pinned container toolchain..."
+	chmod +x scripts/ci/run_formal_validation_in_container.sh
+	./scripts/ci/run_formal_validation_in_container.sh
+
+package-formal-verification-artifacts:
+	@echo "📦 Packaging formal verification artifacts for release and computing checksums..."
+	$(MAKE) refresh-formal-validation
+	mkdir -p release-assets/formal
+	cp results/proofs/formal_validation_report.json release-assets/formal/
+	cp results/proofs/formal-verification-bundle.tar.gz release-assets/formal/
+	cp results/proofs/formal-verification-bundle/bundle_manifest.json release-assets/formal/
+	sha256sum release-assets/formal/* > release-assets/formal/sha256sums.txt
+
 audit:
 	@echo "🔍 Running Security Audit..."
 	chmod +x scripts/audit_proofs.sh
@@ -33,7 +70,7 @@ lint:
 	bash -c 'source scripts/ensure_go_toolchain.sh && go fmt ./...'
 	bash -c 'source scripts/ensure_go_toolchain.sh && go vet ./...'
 
-verify: lint test refresh-proof-artifacts audit
+verify: lint test refresh-proof-artifacts validate-formal audit
 	@echo "✅ All Formal Proofs and Lints PASSED."
 
 clean:

@@ -16,6 +16,11 @@ This document defines how generated evidence artifacts are retained, summarized,
 - Release evidence: `results/metrics/release_performance_evidence.md`.
 - API contract: `results/api/openapi.json`.
 - Forensics evidence: `results/forensics/byzantine_rejections_local.md` and metrics JSON.
+- Formal verification evidence:
+  - `results/proofs/formal_validation_report.json`
+  - `results/proofs/formal-verification-bundle/bundle_manifest.json`
+  - `results/proofs/formal-verification-bundle.tar.gz`
+  - `release-assets/formal/sha256sums.txt`
 
 ## Retention Standard
 
@@ -45,6 +50,13 @@ Generated summary outputs:
 
 - `captured_artifacts/artifact_evidence_summary.md`
 - `captured_artifacts/artifact_manifest_latest.json`
+
+Formal release bundle outputs:
+
+- `release-assets/formal/formal_validation_report.json`
+- `release-assets/formal/formal-verification-bundle.tar.gz`
+- `release-assets/formal/bundle_manifest.json`
+- `release-assets/formal/sha256sums.txt`
 
 ## PR Guidance
 
