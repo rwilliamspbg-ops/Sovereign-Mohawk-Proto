@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [2.0.2.Alpha] - 2026-04-21
+
+### Added - Flower-Compatible SDK Expansion
+
+- **Flower-compatible client integration** (`sdk/python/mohawk/flower_client.py`, `sdk/python/mohawk/flower_strategy.py`):
+  - Added a Flower-compatible client adapter that keeps local training logic in Python while Mohawk handles compression, proof-envelope generation, and Go-backed aggregation submission
+  - Added a thin Flower strategy forwarder for optional server-side compatibility bridges
+
+- **Flower-integrated example pack** (`sdk/python/examples/flower_integrated/`):
+  - Added quickstart-PyTorch, Hugging Face, and LLM fine-tune smoke examples
+  - Added shared example helpers plus a compatibility wrapper for the existing Flower smoke script
+
+- **Verification and release updates** (`sdk/python/tests/test_flower_client.py`, `.github/workflows/flower-integration.yml`):
+  - Added tests for the Flower adapter and strategy forwarder
+  - Added Flower integration CI coverage and example smoke execution
+
+- **Formal traceability update** (`proofs/FORMAL_TRACEABILITY_MATRIX.md`):
+  - Linked Flower client compatibility paths back to the Lean theorem set and runtime evidence
 
 - **Runtime verifier hardening** (`cmd/node-agent/main.go`, `cmd/node-agent/Dockerfile`, `docker-compose.yml`):
   - Node-agent proof verifier startup is now fail-closed by default

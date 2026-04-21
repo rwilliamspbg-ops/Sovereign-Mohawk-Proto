@@ -31,7 +31,7 @@ accelerator = [
 ]
 flower = [
     "numpy>=1.22",
-    "flwr>=1.17,<2",
+    "flwr[simulation]>=1.17,<2",
 ]
 torch = [
     "numpy>=1.22",

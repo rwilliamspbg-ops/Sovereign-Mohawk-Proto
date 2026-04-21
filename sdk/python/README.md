@@ -214,6 +214,16 @@ cd sdk/python
 pip install -e .[flower]
 ```
 
+### Flower-Integrated Examples
+
+The Flower-compatible examples live under [examples/flower_integrated/](examples/flower_integrated/).
+
+- [quickstart_pytorch.py](examples/flower_integrated/quickstart_pytorch.py)
+- [huggingface.py](examples/flower_integrated/huggingface.py)
+- [llm_fine_tune.py](examples/flower_integrated/llm_fine_tune.py)
+
+Each script uses the same Mohawk adapter and demonstrates a different model-shape profile so you can validate list-based tensors, nested encoder states, and larger fine-tuning payloads.
+
 ### Utility Coin Operations
 
 ```python

@@ -14,6 +14,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.25.9+auto
 
 jobs:
   flower-smoke:
@@ -27,16 +28,27 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'go.mod'
+
       - name: Install SDK and test dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -e ./sdk/python[dev,flower]
 
+      - name: Build Python SDK shared library
+        run: |
+          make build-python-lib
+
       - name: Run Flower adapter tests
         run: |
           cd sdk/python
-          pytest -q tests/test_flower_client.py tests/test_client.py
+          pytest -q tests/test_flower_client.py tests/test_flower_strategy.py tests/test_flower_examples.py tests/test_client.py
 
       - name: Run Flower smoke example
         run: |
-          python3 sdk/python/examples/flower_mohawk_demo.py --ci
+          python3 sdk/python/examples/flower_integrated/quickstart_pytorch.py --ci
+          python3 sdk/python/examples/flower_integrated/huggingface.py --ci
+          python3 sdk/python/examples/flower_integrated/llm_fine_tune.py --ci

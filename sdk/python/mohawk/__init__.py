@@ -33,8 +33,9 @@ from .high_level import (
     HybridVerificationReceipt,
 )
 from .flower_client import FlowerTrainingReport, MohawkFlowerClient
+from .flower_strategy import FlowerStrategyForwarder, FlowerStrategyRoundSummary
 
-__version__ = "2.0.1.Alpha"
+__version__ = "2.0.2.Alpha"
 __all__ = [
     # Core client
     "MohawkNode",
@@ -65,4 +66,6 @@ __all__ = [
     "HybridVerificationReceipt",
     "FlowerTrainingReport",
     "MohawkFlowerClient",
+    "FlowerStrategyForwarder",
+    "FlowerStrategyRoundSummary",
 ]

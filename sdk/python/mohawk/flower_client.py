@@ -104,7 +104,7 @@ class MohawkFlowerClient(_FlowerNumPyClient):
         *,
         train_fn: TrainFn,
         evaluate_fn: Optional[EvaluateFn] = None,
-        initial_parameters: Optional[Sequence[Any]] = None,
+        initial_parameters: Optional[Any] = None,
         node_id: str = "flower-client",
         compress_format: str = "auto",
         max_norm: float = 1.0,
@@ -114,7 +114,7 @@ class MohawkFlowerClient(_FlowerNumPyClient):
         self.mohawk = mohawk
         self._train_fn = train_fn
         self._evaluate_fn = evaluate_fn
-        self._initial_parameters = list(initial_parameters) if initial_parameters is not None else None
+        self._initial_parameters = initial_parameters
         self.node_id = node_id
         self.compress_format = compress_format
         self.max_norm = max_norm
@@ -125,7 +125,11 @@ class MohawkFlowerClient(_FlowerNumPyClient):
         del config
         if self._initial_parameters is None:
             return []
-        return [parameter for parameter in self._initial_parameters]
+        if isinstance(self._initial_parameters, Mapping):
+            return [dict(self._initial_parameters)]
+        if isinstance(self._initial_parameters, (list, tuple)):
+            return [parameter for parameter in self._initial_parameters]
+        return [self._initial_parameters]
 
     def _build_proof_manifest(
         self,
