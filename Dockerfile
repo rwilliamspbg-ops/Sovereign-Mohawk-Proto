@@ -1,6 +1,6 @@
 # Stage 1: Build the Go binary
 # Pinning to a specific version instead of :latest (DL3007)
-FROM golang:1.26-alpine3.21 AS builder
+FROM golang:1.26-alpine AS builder
 
 # Pin versions in apk add (DL3018)
 RUN apk add --no-cache git=2.45.2-r0 make=4.4.1-r2
