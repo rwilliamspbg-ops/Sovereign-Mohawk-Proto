@@ -30,4 +30,10 @@ results/**
 !results/go-live/attestations/tpm_attestation_production_closure.json
 !results/metrics/
 !results/metrics/scaling_evidence_spotlight_2026-04-11.md
+!results/metrics/latest_release_performance_badge.json
+!results/proofs/
+!results/proofs/formal_validation_report.json
+!results/proofs/formal-verification-bundle/
+!results/proofs/formal-verification-bundle/bundle_manifest.json
+!results/proofs/formal-verification-bundle.tar.gz
 testnet-gui

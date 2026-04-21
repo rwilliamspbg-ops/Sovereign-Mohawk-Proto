@@ -6,6 +6,7 @@ on:
     paths:
       - 'proofs/**'
       - 'scripts/audit_proofs.sh'
+      - 'Makefile'
       - 'scripts/ci/**'
       - '.github/workflows/verify-proofs.yml'
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - 'proofs/**'
       - 'scripts/audit_proofs.sh'
+      - 'Makefile'
       - 'scripts/ci/**'
       - '.github/workflows/verify-proofs.yml'
 

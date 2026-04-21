@@ -35,7 +35,7 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
   unfold sovereign_mohawk_comm hierarchical_comm_complexity
   rw [if_pos (by norm_num : 1 < 10)]
   have h : Nat.log 10 10_000_000 = 7 := by native_decide
-  rw [h]
+  simpa [h]
 
 /-- Improvement factor: Naive FedAvg is d*n, Hierarchical is d*log(n).
     At 10M scale, this is ~1.4M times better. -/
@@ -49,7 +49,7 @@ def information_theoretic_lower_bound (d n : Nat) : Nat :=
 
 /-- Hierarchical complexity matches the lower bound (up to constant factor):
     base-10 path length is within the base-10 log bound plus a small constant. -/
-theorem theorem3_lower_bound_match (d n : Nat) (h_n : 1 < n) :
+theorem theorem3_lower_bound_match (d n : Nat) (_h_n : 1 < n) :
     hierarchical_comm_complexity d n 10 <= d * (Nat.log 10 n + 10) := by
   unfold hierarchical_comm_complexity
   rw [if_pos (by norm_num : 1 < 10)]
@@ -82,5 +82,3 @@ theorem theorem3_one_message_per_level (d : Nat) :
   have h : Nat.log 10 10_000_000 = 7 := by native_decide
   rw [h]
   omega
-
-end LeanFormalization
