@@ -2,8 +2,8 @@
 # Pinning to a specific version instead of :latest (DL3007)
 FROM golang:1.26-alpine AS builder
 
-# Pin versions in apk add (DL3018)
-RUN apk add --no-cache git=2.45.2-r0 make=4.4.1-r2
+# Install build dependencies without pinning obsolete Alpine package revisions
+RUN apk add --no-cache git make
 
 WORKDIR /app
 
@@ -19,8 +19,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o aggregator ./cmd/aggre
 # Using explicit alpine version (3.21) - latest stable
 FROM alpine:3.21
 
-# Pin versions for final image runtime dependencies
-RUN apk add --no-cache ca-certificates=20240705-r0 tini=0.19.0-r2
+# Install runtime dependencies without pinning unavailable Alpine package revisions
+RUN apk add --no-cache ca-certificates tini
 
 # Create non-root user for enhanced security
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
