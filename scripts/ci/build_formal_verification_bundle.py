@@ -44,7 +44,9 @@ def load_report(path: Path) -> dict:
 
 
 def build_manifest(bundle_dir: Path, file_map: dict[str, str], report: dict) -> dict:
-    leaf_hashes = [sha256_hex(f"{path}:{digest}".encode("utf-8")) for path, digest in sorted(file_map.items())]
+    leaf_hashes = [
+        sha256_hex(f"{path}:{digest}".encode("utf-8")) for path, digest in sorted(file_map.items())
+    ]
     return {
         "schema_version": "formal_verification_bundle.v1",
         "bundle_dir": bundle_dir.name,
@@ -94,7 +96,9 @@ def main() -> int:
     ]
 
     report_inputs = [Path(item["path"]) for item in report.get("inputs", [])]
-    include_paths = sorted(set(required_artifacts + report_inputs), key=lambda item: item.as_posix())
+    include_paths = sorted(
+        set(required_artifacts + report_inputs), key=lambda item: item.as_posix()
+    )
 
     for rel_path in include_paths:
         src = repo_root / rel_path
@@ -115,7 +119,9 @@ def main() -> int:
 
     manifest = build_manifest(bundle_dir, manifest_files, report)
     manifest_path = bundle_dir / "bundle_manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
     bundle_tar.parent.mkdir(parents=True, exist_ok=True)
     with tarfile.open(bundle_tar, mode="w:gz") as archive:

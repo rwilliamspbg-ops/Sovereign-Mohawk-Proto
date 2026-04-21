@@ -59,7 +59,9 @@ def main() -> int:
             raise FileNotFoundError(f"manifest references missing file: {file_path}")
         digest = file_sha256(file_path)
         if digest != expected_hash:
-            raise ValueError(f"hash mismatch for {rel_path}: expected {expected_hash}, got {digest}")
+            raise ValueError(
+                f"hash mismatch for {rel_path}: expected {expected_hash}, got {digest}"
+            )
         leaf_hashes.append(sha256_hex(f"{rel_path}:{digest}".encode("utf-8")))
 
     expected_root = str(manifest.get("bundle_merkle_root", ""))
@@ -78,9 +80,7 @@ def main() -> int:
     report_root = str(report.get("input_merkle_root", ""))
     manifest_root = str(manifest.get("report_input_merkle_root", ""))
     if report_root != manifest_root:
-        raise ValueError(
-            "report_input_merkle_root mismatch between report and bundle manifest"
-        )
+        raise ValueError("report_input_merkle_root mismatch between report and bundle manifest")
 
     for item in report.get("inputs", []):
         rel_path = str(item.get("path", ""))

@@ -169,13 +169,14 @@ services:
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
-    resources:
-      limits:
-        cpus: '2'
-        memory: 2Gi
-      reservations:
-        cpus: '1'
-        memory: 1Gi
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2g
+        reservations:
+          cpus: '1'
+          memory: 1g
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
@@ -197,13 +198,14 @@ services:
       - .:/workspace
     ports:
       - "9102:9102"
-    resources:
-      limits:
-        cpus: '1'
-        memory: 1Gi
-      reservations:
-        cpus: '0.5'
-        memory: 512Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
+        reservations:
+          cpus: '0.5'
+          memory: 512m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -221,13 +223,14 @@ services:
       - .:/workspace
     ports:
       - "9104:9104"
-    resources:
-      limits:
-        cpus: '1'
-        memory: 1Gi
-      reservations:
-        cpus: '0.5'
-        memory: 512Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
+        reservations:
+          cpus: '0.5'
+          memory: 512m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -252,13 +255,14 @@ services:
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:8088/metrics >/dev/null 2>&1 || exit 1"]
@@ -283,13 +287,14 @@ services:
       - "9090:9090"
     depends_on:
       - alertmanager
-    resources:
-      limits:
-        cpus: '1'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.5'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1536m
+        reservations:
+          cpus: '0.5'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -303,13 +308,14 @@ services:
       - alertmanager-data:/alertmanager
     ports:
       - "9093:9093"
-    resources:
-      limits:
-        cpus: '0.5'
-        memory: 512Mi
-      reservations:
-        cpus: '0.25'
-        memory: 256Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
+        reservations:
+          cpus: '0.25'
+          memory: 256m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -328,13 +334,14 @@ services:
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
-    resources:
-      limits:
-        cpus: '1'
-        memory: 1Gi
-      reservations:
-        cpus: '0.5'
-        memory: 512Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
+        reservations:
+          cpus: '0.5'
+          memory: 512m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -346,13 +353,14 @@ services:
       - "5001:5001"
     volumes:
       - ipfs-data:/data/ipfs
-    resources:
-      limits:
-        cpus: '2'
-        memory: 2Gi
-      reservations:
-        cpus: '1'
-        memory: 1Gi
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2g
+        reservations:
+          cpus: '1'
+          memory: 1g
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ipfs", "id"]
@@ -372,13 +380,14 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -392,13 +401,14 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -448,13 +458,14 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -504,13 +515,14 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
@@ -560,13 +572,14 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
-    resources:
-      limits:
-        cpus: '1.5'
-        memory: 1.5Gi
-      reservations:
-        cpus: '0.75'
-        memory: 768Mi
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536m
+        reservations:
+          cpus: '0.75'
+          memory: 768m
     restart: unless-stopped
     networks:
       - mohawk-net
