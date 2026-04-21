@@ -59,6 +59,7 @@ pip install -e .[dev]
 
 # Optional extras
 pip install -e .[accelerator]
+pip install -e .[flower]
 ```
 
 ### Verifying Installation
@@ -175,6 +176,42 @@ with MohawkNode() as node:
     )
 
 print(hybrid_receipt.success)
+```
+
+### Flower-Compatible Client Wrapper
+
+The SDK includes a Flower-compatible adapter that lets you reuse Flower-style
+local training callbacks while keeping Mohawk responsible for compression,
+proof-envelope generation, and aggregation submission.
+
+```python
+from mohawk import MohawkFlowerClient, MohawkNode
+
+def train_step(parameters, config):
+    del config
+    updated = [[value + 0.25 for value in tensor] for tensor in parameters]
+    return updated, 32, {"loss": 0.125}
+
+
+client = MohawkFlowerClient(
+    MohawkNode(),
+    train_fn=train_step,
+    initial_parameters=[[0.0, 1.0], [2.0, 3.0]],
+    node_id="flower-client-001",
+)
+
+updated_parameters, num_examples, metrics = client.fit(
+    client.get_parameters({}),
+    {"server_round": 1, "mohawk_format": "fp16"},
+)
+```
+
+Install the optional Flower dependency when you want to plug this adapter into
+Flower examples or Flower's simulator:
+
+```bash
+cd sdk/python
+pip install -e .[flower]
 ```
 
 ### Utility Coin Operations

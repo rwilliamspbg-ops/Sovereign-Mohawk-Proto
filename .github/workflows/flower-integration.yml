@@ -1,0 +1,42 @@
+name: Flower Integration
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sdk/python/**'
+      - '.github/workflows/flower-integration.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sdk/python/**'
+      - '.github/workflows/flower-integration.yml'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  flower-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Install SDK and test dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ./sdk/python[dev,flower]
+
+      - name: Run Flower adapter tests
+        run: |
+          cd sdk/python
+          pytest -q tests/test_flower_client.py tests/test_client.py
+
+      - name: Run Flower smoke example
+        run: |
+          python3 sdk/python/examples/flower_mohawk_demo.py --ci

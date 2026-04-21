@@ -1,4 +1,4 @@
-# Flower-Compatible Client Integration Plan
+# Flower-Compatible Client Integration
 
 ## Goal
 
@@ -7,69 +7,87 @@ Add Flower-compatible client-side training workflows to the Python SDK without m
 The intended architecture is:
 
 - Flower provides the familiar client-side `fit()` / `evaluate()` lifecycle and example training loops.
-- The Mohawk Python SDK owns local model handling, gradient compression, privacy accounting, and proof submission.
+- The Mohawk Python SDK owns local model handling, gradient compression, proof-envelope generation, and aggregation submission.
 - The Go node agent remains the authoritative layer for aggregation, hierarchy, and verification.
 
-This is a compatibility plan, not a promise that Flower examples run unchanged in production.
+This implementation is intentionally scoped: one adapter, one runnable smoke example, and tests that prove the integration remains usable without requiring Flower at import time.
 
-## Scope Corrections
+## Implemented Pieces
 
-The original draft assumed a few things that are not present in the repo yet:
+The repository now includes:
 
-- There is no existing Flower dependency in `sdk/python`.
-- There is no `MohawkFlowerClient` wrapper today.
-- `wasm-modules/flower_task` is a useful runtime integration point, but it is not a drop-in executor for every Flower example.
+- `sdk/python/mohawk/flower_client.py` with `MohawkFlowerClient`
+- `sdk/python/examples/flower_mohawk_demo.py` as a smoke-testable end-to-end example
+- `sdk/python/tests/test_flower_client.py` covering fallback behavior, Flower-style inheritance, and round submission
+- `sdk/python/pyproject.toml` optional `flower` extra
+- `.github/workflows/flower-integration.yml` for CI smoke coverage
 
-The first implementation should therefore focus on a thin adapter and a small number of example ports, then expand after the interface is stable.
+`wasm-modules/flower_task` remains available as a future execution target, but the client-side integration no longer depends on it.
 
-## Phase 1: Environment And Packaging
+## Runtime Shape
 
-1. Add Flower as an optional Python dependency in `sdk/python/pyproject.toml`.
-2. Keep the base install light; make Flower and ML frameworks opt-in extras.
-3. Document the expected dev setup in `sdk/python/README.md`.
-4. Verify the Python SDK can still be installed with `pip install -e .[dev]` without Flower.
+1. The Flower adapter accepts local training and evaluation callables.
+2. The adapter flattens updated model parameters for Mohawk compression and aggregation.
+3. The adapter emits a deterministic proof manifest that can be extended to a real ZK proof hook later.
+4. The adapter keeps the base SDK usable when Flower is not installed.
 
-Suggested extras:
+## Packaging
+
+Suggested install extras:
 
 - `flower`
 - `torch` or framework-specific extras as needed for examples
 
-## Phase 2: Client Adapter
+Use the optional Flower extra when you want to plug the adapter into Flower simulators or examples:
+
+```bash
+cd sdk/python
+pip install -e .[flower]
+```
+
+## Adapter
 
 Add a small adapter layer in the Python SDK that bridges Flower client callbacks to Mohawk operations.
 
 Recommended shape:
 
-- Create a new `MohawkFlowerClient` wrapper in `sdk/python/mohawk/`.
-- Have it accept a `MohawkNode` or similar SDK client object.
-- Keep model training logic outside the wrapper so example code can supply PyTorch, TensorFlow, JAX, or sklearn loops.
-- Convert Flower parameters to the SDK's gradient/update format, then hand the result to the Go runtime for aggregation and proof workflows.
+- `MohawkFlowerClient` accepts a `MohawkNode` plus `train_fn` and `evaluate_fn` callables.
+- The wrapper keeps the local model logic outside the SDK so Flower examples can reuse their own training loops.
+- The wrapper compresses updated parameters through Mohawk, emits a proof manifest, and submits the gradient update to the Go-backed aggregator.
+- The wrapper works even when Flower is absent by using a local fallback base class with the same method shape.
 
 Important design rule:
 
 - Flower should not become the source of truth for verification or aggregation policy.
 - The wrapper should call Mohawk hooks after local training and before remote submission.
 
-## Phase 3: Example Ports
+## Example
 
-Create a small example folder under `sdk/python/examples/` for Flower-compatible demos.
+`sdk/python/examples/flower_mohawk_demo.py` is the first runnable demo.
 
-Start with one minimal training example and one larger framework example.
+It demonstrates:
 
-Good first candidates:
+- local training callback execution
+- Mohawk compression and aggregation submission
+- proof-manifest generation
+- evaluation callback execution
 
-- PyTorch quickstart-style client
-- A lightweight evaluation-only client
-- A demo that exercises compression and proof submission
+Run it with:
 
-Each example should show:
+```bash
+python sdk/python/examples/flower_mohawk_demo.py --ci
+```
 
-- local training loop
-- parameter round-trip through Flower callbacks
-- Mohawk compression and update submission
-- a simple simulator entry point
+## CI And Tests
 
-## Phase 4: Optional Strategy Bridge
+Current validation includes:
+
+- `pytest sdk/python/tests/test_flower_client.py`
+- `pytest sdk/python/tests/test_client.py tests/test_flower_client.py`
+- the smoke example in CI mode
+- the new Flower integration workflow on `push` and `pull_request`
+
+## Optional Strategy Bridge
 
 Keep Flower server strategies optional and non-blocking.
 
@@ -81,35 +99,14 @@ Recommended approach:
 
 This keeps the architecture aligned with the repository's current strength: Go-owned verification and aggregation.
 
-## Phase 5: Tests And CI
-
-Add tests that prove the compatibility layer behaves correctly before expanding the example set.
-
-Minimum test coverage:
-
-- adapter smoke test with mocked Flower parameters
-- serialization round-trip test for model updates
-- update submission test against a mocked Mohawk runtime
-- one end-to-end example test in `sdk/python/tests/`
-
-Suggested CI additions:
-
-- a lightweight workflow that installs the optional Flower extras
-- a smoke run for the example client
-- existing proof-verification checks reused where applicable
-
-## Out Of Scope For The First PR
+## Out Of Scope
 
 - claiming zero-code-change integration for all Flower examples
 - moving aggregation authority out of the Go runtime
 - adding every Flower framework at once
 - asserting WASM attestation is automatically available for all client code paths
+- replacing the Go verifier with a Python proof generator
 
-## Proposed First Delivery
+## Next Increment
 
-1. Add the documentation and roadmap pointer.
-2. Add the Python package extras needed for a Flower-compatible path.
-3. Add the adapter skeleton and one example.
-4. Add tests and a minimal CI smoke check.
-
-That sequence keeps the branch reviewable and gives a clear path from prototype to working integration.
+If this integration is expanded further, the next sensible step is a typed NumPy round-trip helper plus one real Flower example port, such as a quickstart PyTorch client.

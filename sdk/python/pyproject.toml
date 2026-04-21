@@ -29,6 +29,10 @@ keywords = ["federated-learning", "zk-snark", "blockchain", "privacy", "ai"]
 accelerator = [
     "numpy>=1.22",
 ]
+flower = [
+    "numpy>=1.22",
+    "flwr>=1.17,<2",
+]
 torch = [
     "numpy>=1.22",
     "torch>=2.0",

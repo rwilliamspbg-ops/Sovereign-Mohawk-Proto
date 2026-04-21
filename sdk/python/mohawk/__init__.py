@@ -32,6 +32,7 @@ from .high_level import (
     HybridProofCheck,
     HybridVerificationReceipt,
 )
+from .flower_client import FlowerTrainingReport, MohawkFlowerClient
 
 __version__ = "2.0.1.Alpha"
 __all__ = [
@@ -62,4 +63,6 @@ __all__ = [
     # High-level wrappers
     "HybridProofCheck",
     "HybridVerificationReceipt",
+    "FlowerTrainingReport",
+    "MohawkFlowerClient",
 ]
