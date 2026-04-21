@@ -1,0 +1,189 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-orchestrator
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "sovereign-mohawk.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: orchestrator
+  
+  {{- with .Values.networkPolicy.policyTypes }}
+  policyTypes:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  
+  # Allow ingress from node-agents
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+          app.kubernetes.io/component: node-agent
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 4101
+    - protocol: UDP
+      port: 4101
+  
+  # Allow metrics scraping from Prometheus
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{ .Values.monitoring.serviceMonitorNamespace | default "prometheus" }}
+    ports:
+    - protocol: TCP
+      port: 9091
+  
+  # Allow DNS
+  - from:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Egress to other pods in namespace
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+    ports:
+    - protocol: TCP
+      port: 5001  # IPFS
+    - protocol: TCP
+      port: 6831  # Jaeger
+    - protocol: TCP
+      port: 3100  # Loki
+  
+  # Egress for DNS
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Egress to external APIs
+  - to:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-node-agent
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: node-agent
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "sovereign-mohawk.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: node-agent
+  
+  {{- with .Values.networkPolicy.policyTypes }}
+  policyTypes:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  
+  # Allow ingress from orchestrator
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+          app.kubernetes.io/component: orchestrator
+    ports:
+    - protocol: TCP
+      port: 4001
+  
+  # Allow metrics scraping
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: {{ .Values.monitoring.serviceMonitorNamespace | default "prometheus" }}
+    ports:
+    - protocol: TCP
+      port: 9091
+  
+  # Allow DNS
+  - from:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Egress to orchestrator
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+          app.kubernetes.io/component: orchestrator
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 4101
+  
+  # Egress to other node-agents
+  - to:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+          app.kubernetes.io/component: node-agent
+    ports:
+    - protocol: TCP
+      port: 4001
+  
+  # Egress to IPFS
+  - to:
+    - podSelector:
+        matchLabels:
+          {{- include "sovereign-mohawk.selectorLabels" . | nindent 10 }}
+          app.kubernetes.io/component: ipfs
+    ports:
+    - protocol: TCP
+      port: 5001
+  
+  # Egress for DNS
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Egress to external APIs
+  - to:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+{{- end }}

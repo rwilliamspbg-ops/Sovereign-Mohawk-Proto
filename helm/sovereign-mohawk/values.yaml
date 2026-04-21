@@ -1,0 +1,260 @@
+# Default values for sovereign-mohawk Helm chart
+# This is a YAML-formatted file. Declare variables to be passed into templates.
+
+# Global configuration
+global:
+  # Kubernetes namespace
+  namespace: sovereign-mohawk
+  
+  # Image pull policy for all containers
+  imagePullPolicy: IfNotPresent
+  
+  # Image pull secrets for private registries (if needed)
+  imagePullSecrets: []
+  
+  # Common labels applied to all resources
+  labels:
+    app.kubernetes.io/name: sovereign-mohawk
+    app.kubernetes.io/managed-by: Helm
+
+# Orchestrator configuration
+orchestrator:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: ghcr.io/rwilliamspbg-ops/orchestrator
+    tag: "2.0.1-alpha"
+    pullPolicy: IfNotPresent
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+    annotations: {}
+  
+  # Ingress configuration (optional TLS)
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations: {}
+    hosts:
+      - host: orchestrator.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: "2000m"
+      memory: "2Gi"
+    requests:
+      cpu: "1000m"
+      memory: "1Gi"
+  
+  # Pod disruption budget
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  # Persistence for ledger data
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    size: 100Gi
+    accessModes:
+      - ReadWriteOnce
+    mountPath: /var/lib/mohawk
+  
+  # Health check configuration
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 9091
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 9091
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Node affinity (optional)
+  affinity: {}
+  
+  # Pod security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    fsGroup: 65534
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+  
+  # Environment variables
+  env:
+    MOHAWK_TRANSPORT_KEX_MODE: "x25519-mlkem768-hybrid"
+    MOHAWK_TPM_IDENTITY_SIG_MODE: "xmss"
+    MOHAWK_DISABLE_QUIC: "true"
+    MOHAWK_API_AUTH_MODE: "file-only"
+    MOHAWK_API_ENFORCE_ROLES: "true"
+    MOHAWK_UTILITY_ENFORCE_ROLES: "true"
+  
+  # Secrets (mounted as environment variables)
+  secrets:
+    apiToken:
+      name: mohawk-api-token
+      key: token
+    tpmCaCert:
+      name: mohawk-tpm-certs
+      key: ca.pem
+    tpmCaKey:
+      name: mohawk-tpm-certs
+      key: ca-key.pem
+
+# Node Agent configuration
+nodeAgent:
+  enabled: true
+  # Deployment strategy: "Deployment" or "DaemonSet"
+  strategy: Deployment
+  
+  # Replica count (only if strategy is Deployment)
+  replicaCount: 3
+  
+  image:
+    repository: ghcr.io/rwilliamspbg-ops/node-agent
+    tag: "2.0.1-alpha"
+    pullPolicy: IfNotPresent
+  
+  # Resource limits for node agents
+  resources:
+    limits:
+      cpu: "1500m"
+      memory: "1.5Gi"
+    requests:
+      cpu: "750m"
+      memory: "768Mi"
+  
+  # Affinity rules (spread across nodes)
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - node-agent
+            topologyKey: kubernetes.io/hostname
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    fsGroup: 65534
+    capabilities:
+      drop:
+        - ALL
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+  retention: "30d"
+  storageSize: "50Gi"
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "1.5Gi"
+    requests:
+      cpu: "500m"
+      memory: "768Mi"
+
+# Grafana configuration
+grafana:
+  enabled: true
+  adminPassword: "changeme"  # CHANGE IN PRODUCTION!
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+
+# AlertManager configuration
+alertmanager:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+# IPFS configuration
+ipfs:
+  enabled: true
+  storageSize: "100Gi"
+  resources:
+    limits:
+      cpu: "2000m"
+      memory: "2Gi"
+    requests:
+      cpu: "1000m"
+      memory: "1Gi"
+
+# Network policies
+networkPolicy:
+  enabled: true
+  
+  # Default ingress/egress rules
+  policyTypes:
+    - Ingress
+    - Egress
+
+# Pod Security Standards
+podSecurityStandards:
+  enforce: "restricted"
+  audit: "restricted"
+
+# RBAC configuration
+rbac:
+  create: true
+  # Create service account automatically
+  serviceAccountCreate: true
+  # Annotations for service account
+  serviceAccountAnnotations: {}
+  # Name of the service account to use
+  serviceAccountName: ""
+
+# Namespace configuration
+namespace:
+  create: true
+  name: sovereign-mohawk
+  labels: {}
+  annotations: {}
+
+# Monitoring stack (Prometheus Operator compatible)
+monitoring:
+  enabled: true
+  serviceMonitorNamespace: prometheus
+  interval: 30s

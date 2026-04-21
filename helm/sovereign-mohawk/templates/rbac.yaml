@@ -1,0 +1,95 @@
+{{- if .Values.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "sovereign-mohawk.serviceAccountName" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+  {{- with .Values.rbac.serviceAccountAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+rules:
+  # Read pod information for service discovery
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  
+  # Read service information
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  
+  # Create/manage events
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  
+  # Read configmaps and secrets
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "sovereign-mohawk.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "sovereign-mohawk.serviceAccountName" . }}
+    namespace: {{ .Values.global.namespace }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+rules:
+  # Read/write configmaps in namespace
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create", "get", "list", "update", "watch"]
+  
+  # Lease locks for coordination
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["create", "get", "list", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "sovereign-mohawk.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "sovereign-mohawk.serviceAccountName" . }}
+    namespace: {{ .Values.global.namespace }}
+{{- end }}
