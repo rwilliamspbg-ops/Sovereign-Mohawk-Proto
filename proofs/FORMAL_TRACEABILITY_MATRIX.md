@@ -23,8 +23,6 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 
 ## Parser Compatibility
 
-## Parser Compatibility
-
 This matrix is designed for automated extraction:
 - **Lean module pattern**: `LeanFormalization/Theorem[0-9]+\.lean`
 - **Runtime test pattern**: `[^ ]+\.(go|py)::[A-Za-z0-9_]+`

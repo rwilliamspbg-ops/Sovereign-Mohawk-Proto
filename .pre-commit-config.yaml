@@ -1,0 +1,45 @@
+repos:
+  # Standard file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--safe']
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # Go linting (optional, may not be available in all environments)
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.54.0
+    hooks:
+      - id: golangci-lint
+        args: ['--timeout=5m']
+        stages: [manual]
+
+  # Python formatting
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        language_version: python3.11
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+
+  # Conventional commits
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: 3.5.3
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+default_stages: [commit, push]
+fail_fast: false

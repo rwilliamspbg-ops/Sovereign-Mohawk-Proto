@@ -1,0 +1,54 @@
+apiVersion: v2
+name: sovereign-mohawk
+description: |
+  A theorem-guided federated-learning runtime with Byzantine resilience,
+  RDP privacy accounting, TPM-backed attestation, and deployable observability.
+  
+  Helm chart for production deployment to Kubernetes.
+
+type: application
+version: 1.0.0
+appVersion: "2.0.1-alpha"
+
+keywords:
+  - federated-learning
+  - machine-learning
+  - Byzantine-resilience
+  - privacy-preserving
+  - kubernetes
+
+home: https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
+sources:
+  - https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
+documentation: https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/README.md
+
+maintainers:
+  - name: Sovereign Mohawk Core Team
+    email: ops@sovereign-mohawk.local
+    url: https://github.com/rwilliamspbg-ops
+
+icon: https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/assets/img/logo.png
+
+dependencies: []
+
+annotations:
+  # Artifact Hub annotations for discovery
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial Helm chart for Sovereign Mohawk
+    - kind: added
+      description: Kubernetes StatefulSet for orchestrator with persistence
+    - kind: added
+      description: DaemonSet and Deployment options for node-agents
+    - kind: added
+      description: Prometheus and Grafana observability stack integration
+  
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/prerelease: "false"
+  
+  # Category for discovery
+  artifacthub.io/recommendations: |
+    - Install Prometheus Operator for monitoring
+    - Use persistent volumes for ledger data
+    - Enable network policies for segmentation
+    - Configure resource quotas per namespace

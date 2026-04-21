@@ -12,7 +12,7 @@
 
 services:
   runtime-secrets-init:
-    image: alpine:3.22
+    image: alpine:3.21
     container_name: runtime-secrets-init
     environment:
       - MOHAWK_TPM_CLIENT_CERT_POOL_SIZE=${MOHAWK_TPM_CLIENT_CERT_POOL_SIZE:-128}
@@ -147,7 +147,6 @@ services:
       - MOHAWK_PQC_MIGRATION_ETA=${MOHAWK_PQC_MIGRATION_ETA:-2027-12-31T00:00:00Z}
       - MOHAWK_PQC_MIGRATION_EPOCH=${MOHAWK_PQC_MIGRATION_EPOCH:-2027-12-31T00:00:00Z}
       - MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH=${MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH:-true}
-      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_LEDGER_STATE_PATH=/var/lib/mohawk/utility-ledger/state.json
       - MOHAWK_LEDGER_AUDIT_PATH=/var/lib/mohawk/utility-ledger/audit.jsonl
       - MOHAWK_API_AUTH_MODE=file-only
@@ -161,16 +160,8 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
-      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
-      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
-      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
-      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
-      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
-      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
       - ./data/utility-ledger:/var/lib/mohawk/utility-ledger
-      # Optional: persistent storage for additional settlement assets
-      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_orchestrator_cert.pem:/run/secrets/mohawk_tpm_orchestrator_cert.pem:ro
@@ -178,6 +169,14 @@ services:
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
+    resources:
+      limits:
+        cpus: '2'
+        memory: 2Gi
+      reservations:
+        cpus: '1'
+        memory: 1Gi
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
       interval: 10s
@@ -188,7 +187,7 @@ services:
       - mohawk-net
 
   tpm-metrics:
-    image: golang:1.25
+    image: golang:1.26-alpine3.21
     container_name: tpm-metrics
     working_dir: /workspace
     command: ["go", "run", "./cmd/tpm-metrics"]
@@ -198,11 +197,19 @@ services:
       - .:/workspace
     ports:
       - "9102:9102"
+    resources:
+      limits:
+        cpus: '1'
+        memory: 1Gi
+      reservations:
+        cpus: '0.5'
+        memory: 512Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
   pyapi-metrics-exporter:
-    image: golang:1.25
+    image: golang:1.26-alpine3.21
     container_name: pyapi-metrics-exporter
     working_dir: /workspace
     command: ["go", "run", "./cmd/pyapi-metrics-exporter"]
@@ -214,11 +221,19 @@ services:
       - .:/workspace
     ports:
       - "9104:9104"
+    resources:
+      limits:
+        cpus: '1'
+        memory: 1Gi
+      reservations:
+        cpus: '0.5'
+        memory: 512Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
   federated-router:
-    image: golang:1.25
+    image: golang:1.26-alpine3.21
     container_name: federated-router
     working_dir: /workspace
     command: ["go", "run", "./cmd/federated-router"]
@@ -237,6 +252,14 @@ services:
     depends_on:
       runtime-secrets-init:
         condition: service_completed_successfully
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:8088/metrics >/dev/null 2>&1 || exit 1"]
       interval: 10s
@@ -249,27 +272,45 @@ services:
       - mohawk-net
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.52.0
     container_name: prometheus
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/prometheus/recording-rules.yml:/etc/prometheus/recording-rules.yml:ro
       - ./monitoring/prometheus/alerting-rules.yml:/etc/prometheus/alerting-rules.yml:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     depends_on:
       - alertmanager
+    resources:
+      limits:
+        cpus: '1'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.5'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
   alertmanager:
-    image: prom/alertmanager:latest
+    image: prom/alertmanager:v0.27.0
     container_name: alertmanager
     command: ["--config.file=/etc/alertmanager/alertmanager.yml"]
     volumes:
       - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
     ports:
       - "9093:9093"
+    resources:
+      limits:
+        cpus: '0.5'
+        memory: 512Mi
+      reservations:
+        cpus: '0.25'
+        memory: 256Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
@@ -284,16 +325,41 @@ services:
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
+    resources:
+      limits:
+        cpus: '1'
+        memory: 1Gi
+      reservations:
+        cpus: '0.5'
+        memory: 512Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
   ipfs:
-    image: ipfs/kubo:latest
+    image: ipfs/kubo:v0.28.0
     container_name: ipfs
     ports:
       - "5001:5001"
+    volumes:
+      - ipfs-data:/data/ipfs
+    resources:
+      limits:
+        cpus: '2'
+        memory: 2Gi
+      reservations:
+        cpus: '1'
+        memory: 1Gi
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ipfs", "id"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     networks:
       - mohawk-net
 
@@ -306,6 +372,14 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
@@ -318,6 +392,14 @@ services:
     depends_on:
       orchestrator:
         condition: service_healthy
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
@@ -343,7 +425,6 @@ services:
       - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
       - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
       - MOHAWK_ROUTER_MODEL_ID=node-agent-climate-insight
-      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -355,15 +436,7 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
-      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
-      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
-      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
-      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
-      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
-      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
-      # Optional: persistent storage for additional settlement assets
-      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
@@ -375,6 +448,14 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
@@ -400,7 +481,6 @@ services:
       - MOHAWK_ROUTER_SOURCE_VERTICAL=oncology
       - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
       - MOHAWK_ROUTER_MODEL_ID=node-agent-oncology-insight
-      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -412,15 +492,7 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
-      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
-      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
-      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
-      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
-      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
-      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
-      # Optional: persistent storage for additional settlement assets
-      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
@@ -432,6 +504,14 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
@@ -457,7 +537,6 @@ services:
       - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
       - MOHAWK_ROUTER_TARGET_VERTICAL=agriculture
       - MOHAWK_ROUTER_MODEL_ID=node-agent-agri-insight
-      # Single-asset default mode: MHC settlement only (no extra env needed)
       - MOHAWK_API_AUTH_MODE=file-only
       - MOHAWK_API_TOKEN_FILE=/run/secrets/mohawk_api_token
       - MOHAWK_API_ENFORCE_ROLES=true
@@ -469,15 +548,7 @@ services:
       - MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES=user,operator,admin
       - MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES=operator,admin
       - MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES=admin
-      # Optional multi-asset mode: uncomment the lines below and provision matching volumes.
-      # Requests with settle=true must use an asset listed in MOHAWK_BRIDGE_SETTLEMENT_ASSETS.
-      # - MOHAWK_BRIDGE_SETTLEMENT_ASSETS=MHC,USDX
-      # - MOHAWK_LEDGER_STATE_PATH_USDX=/var/lib/mohawk/usdx-ledger/state.json
-      # - MOHAWK_LEDGER_AUDIT_PATH_USDX=/var/lib/mohawk/usdx-ledger/audit.jsonl
-      # - MOHAWK_UTILITY_MINTER_USDX=protocol
     volumes:
-      # Optional: persistent storage for additional settlement assets
-      # - ./data/usdx-ledger:/var/lib/mohawk/usdx-ledger
       - ./runtime-secrets/mohawk_api_token:/run/secrets/mohawk_api_token:ro
       - ./runtime-secrets/mohawk_tpm_ca_cert.pem:/run/secrets/mohawk_tpm_ca_cert.pem:ro
       - ./runtime-secrets/mohawk_tpm_client_cert.pem:/run/secrets/mohawk_tpm_node_cert.pem:ro
@@ -489,9 +560,27 @@ services:
         condition: service_completed_successfully
       ipfs:
         condition: service_healthy
+    resources:
+      limits:
+        cpus: '1.5'
+        memory: 1.5Gi
+      reservations:
+        cpus: '0.75'
+        memory: 768Mi
+    restart: unless-stopped
     networks:
       - mohawk-net
 
 networks:
   mohawk-net:
     driver: bridge
+
+volumes:
+  prometheus-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+  grafana-data:
+    driver: local
+  ipfs-data:
+    driver: local

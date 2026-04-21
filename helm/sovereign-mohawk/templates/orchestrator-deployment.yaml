@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-orchestrator
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  replicas: {{ .Values.orchestrator.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sovereign-mohawk.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: orchestrator
+  template:
+    metadata:
+      labels:
+        {{- include "sovereign-mohawk.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: orchestrator
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      
+      serviceAccountName: {{ include "sovereign-mohawk.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.orchestrator.securityContext | nindent 8 }}
+      
+      containers:
+      - name: orchestrator
+        image: "{{ .Values.orchestrator.image.repository }}:{{ .Values.orchestrator.image.tag }}"
+        imagePullPolicy: {{ .Values.orchestrator.image.pullPolicy }}
+        
+        ports:
+        - name: api
+          containerPort: {{ .Values.orchestrator.service.targetPort }}
+          protocol: TCP
+        - name: libp2p
+          containerPort: 4101
+          protocol: TCP
+        - name: metrics
+          containerPort: 9091
+          protocol: TCP
+        
+        env:
+        {{- range $key, $value := .Values.orchestrator.env }}
+        - name: {{ $key }}
+          value: {{ quote $value }}
+        {{- end }}
+        
+        # Mount secrets from ConfigMaps/Secrets
+        - name: MOHAWK_TPM_CA_CERT_FILE
+          value: "/run/secrets/ca.pem"
+        - name: MOHAWK_TPM_CERT_FILE
+          value: "/run/secrets/orchestrator.pem"
+        - name: MOHAWK_TPM_KEY_FILE
+          value: "/run/secrets/orchestrator-key.pem"
+        - name: MOHAWK_ADMIN_TOKEN_FILE
+          value: "/run/secrets/api-token"
+        - name: MOHAWK_LEDGER_STATE_PATH
+          value: "{{ .Values.orchestrator.persistence.mountPath }}/state.json"
+        - name: MOHAWK_LEDGER_AUDIT_PATH
+          value: "{{ .Values.orchestrator.persistence.mountPath }}/audit.jsonl"
+        
+        volumeMounts:
+        - name: ledger-data
+          mountPath: {{ .Values.orchestrator.persistence.mountPath }}
+        - name: tpm-secrets
+          mountPath: /run/secrets
+          readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+        
+        livenessProbe:
+          {{- toYaml .Values.orchestrator.livenessProbe | nindent 12 }}
+        
+        readinessProbe:
+          {{- toYaml .Values.orchestrator.readinessProbe | nindent 12 }}
+        
+        resources:
+          {{- toYaml .Values.orchestrator.resources | nindent 12 }}
+      
+      volumes:
+      - name: ledger-data
+        persistentVolumeClaim:
+          claimName: {{ include "sovereign-mohawk.fullname" . }}-orchestrator-pvc
+      
+      - name: tpm-secrets
+        secret:
+          secretName: {{ include "sovereign-mohawk.fullname" . }}-orchestrator-secrets
+          defaultMode: 0400
+      
+      # Temporary writable volumes for runtime
+      - name: tmp
+        emptyDir: {}
+      - name: var-tmp
+        emptyDir: {}
+      
+      {{- with .Values.orchestrator.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-orchestrator
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  type: {{ .Values.orchestrator.service.type }}
+  ports:
+  - port: {{ .Values.orchestrator.service.port }}
+    targetPort: api
+    protocol: TCP
+    name: api
+  - port: 4101
+    targetPort: libp2p
+    protocol: TCP
+    name: libp2p
+  - port: 4101
+    targetPort: libp2p
+    protocol: UDP
+    name: libp2p-udp
+  - port: 9091
+    targetPort: metrics
+    protocol: TCP
+    name: metrics
+  selector:
+    {{- include "sovereign-mohawk.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-orchestrator-pvc
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  accessModes:
+    {{- toYaml .Values.orchestrator.persistence.accessModes | nindent 4 }}
+  storageClassName: {{ .Values.orchestrator.persistence.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.orchestrator.persistence.size }}
+
+---
+{{- if .Values.orchestrator.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sovereign-mohawk.fullname" . }}-orchestrator
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sovereign-mohawk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestrator
+spec:
+  {{- if .Values.orchestrator.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.orchestrator.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sovereign-mohawk.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: orchestrator
+{{- end }}
