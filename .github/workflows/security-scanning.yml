@@ -105,7 +105,7 @@ jobs:
       
       - name: Run govulncheck
         run: |
-          go install github.com/golang/vuln/cmd/govulncheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@latest
           govulncheck ./... || true
 
   python-security:
