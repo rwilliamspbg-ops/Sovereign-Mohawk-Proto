@@ -12,7 +12,11 @@ class DummyMohawkNode:
     def aggregate(self, updates):
         payload = list(updates)
         self.aggregate_calls.append(payload)
-        return {"success": True, "count": len(payload), "message": "Updates aggregated successfully"}
+        return {
+            "success": True,
+            "count": len(payload),
+            "message": "Updates aggregated successfully",
+        }
 
 
 class DummyDelegate:
@@ -37,8 +41,14 @@ def test_strategy_forwarder_aggregates_updates():
     summary = strategy.aggregate_fit(
         3,
         [
-            ({"cid": "client-a"}, {"parameters": [[0.1, 0.2]], "num_examples": 8, "metrics": {"loss": 0.5}}),
-            ({"cid": "client-b"}, {"parameters": [[0.3, 0.4]], "num_examples": 16, "metrics": {"loss": 0.25}}),
+            (
+                {"cid": "client-a"},
+                {"parameters": [[0.1, 0.2]], "num_examples": 8, "metrics": {"loss": 0.5}},
+            ),
+            (
+                {"cid": "client-b"},
+                {"parameters": [[0.3, 0.4]], "num_examples": 16, "metrics": {"loss": 0.25}},
+            ),
         ],
         (),
     )

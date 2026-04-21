@@ -90,7 +90,9 @@ class FlowerStrategyForwarder:
                 client_proxy, fit_result = None, result
 
             node_id = _extract_payload_value(client_proxy, "cid", f"client-{index:03d}")
-            parameters = _extract_payload_value(fit_result, "parameters", _extract_payload_value(fit_result, "weights", []))
+            parameters = _extract_payload_value(
+                fit_result, "parameters", _extract_payload_value(fit_result, "weights", [])
+            )
             num_examples = int(_extract_payload_value(fit_result, "num_examples", 1) or 1)
             metrics = _extract_payload_value(fit_result, "metrics", {})
 
@@ -142,7 +144,9 @@ class FlowerStrategyForwarder:
         failures_list = list(failures)
         delegate_result = None
         if self.delegate is not None and hasattr(self.delegate, "aggregate_evaluate"):
-            delegate_result = self.delegate.aggregate_evaluate(server_round, evaluations, failures_list)
+            delegate_result = self.delegate.aggregate_evaluate(
+                server_round, evaluations, failures_list
+            )
 
         weighted_losses: List[Tuple[float, int]] = []
         weighted_metrics: List[Tuple[float, int]] = []
@@ -155,7 +159,9 @@ class FlowerStrategyForwarder:
             loss = float(_extract_payload_value(eval_result, "loss", 0.0) or 0.0)
             num_examples = int(_extract_payload_value(eval_result, "num_examples", 1) or 1)
             weighted_losses.append((loss, num_examples))
-            weighted_metrics.append((float(_extract_payload_value(eval_result, "accuracy", 0.0) or 0.0), num_examples))
+            weighted_metrics.append(
+                (float(_extract_payload_value(eval_result, "accuracy", 0.0) or 0.0), num_examples)
+            )
 
         metrics = {
             "strategy": self.strategy_name,

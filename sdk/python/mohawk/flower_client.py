@@ -24,10 +24,13 @@ except Exception:  # pragma: no cover - executed when Flower is not installed
         def evaluate(self, parameters: Sequence[Any], config: Mapping[str, Any]):
             raise NotImplementedError
 
+
 from .client import JsonDict, MohawkNode
 
 Scalar = Union[bool, int, float, str]
-TrainFn = Callable[[Sequence[Any], Mapping[str, Any]], Tuple[Sequence[Any], int, Mapping[str, Scalar]]]
+TrainFn = Callable[
+    [Sequence[Any], Mapping[str, Any]], Tuple[Sequence[Any], int, Mapping[str, Scalar]]
+]
 EvaluateFn = Callable[[Sequence[Any], Mapping[str, Any]], Tuple[float, int, Mapping[str, Scalar]]]
 
 

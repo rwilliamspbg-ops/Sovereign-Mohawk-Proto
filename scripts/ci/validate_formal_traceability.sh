@@ -39,25 +39,46 @@ done
 
 declare -A module_to_theorems=()
 
+trim() {
+  echo "$1" | xargs
+}
+
 # Parse only numbered mapping rows from the markdown table.
 while IFS='|' read -r _ row_num _ _ module_cell theorem_cell runtime_cell _ _; do
-  row_num="$(echo "$row_num" | xargs)"
+  row_num="$(trim "$row_num")"
   module_cell="${module_cell//\`/}"
   theorem_cell="${theorem_cell//\`/}"
   runtime_cell="${runtime_cell//\`/}"
 
-  module_cell="$(echo "$module_cell" | xargs)"
-  theorem_cell="$(echo "$theorem_cell" | xargs)"
-  runtime_cell="$(echo "$runtime_cell" | xargs)"
+  module_cell="$(trim "$module_cell")"
+  theorem_cell="$(trim "$theorem_cell")"
+  runtime_cell="$(trim "$runtime_cell")"
 
   [[ -z "$row_num" ]] && continue
   [[ -z "$module_cell" ]] && continue
   [[ -z "$theorem_cell" ]] && fail "Row $row_num has empty theorem reference cell"
   [[ "$module_cell" != LeanFormalization/* ]] && continue
 
-  module_name="${module_cell##*/}"
-  module_name="${module_name%.lean}"
-  module_to_theorems["$module_name"]+="${theorem_cell},"
+  IFS=',' read -r -a module_items <<< "$module_cell"
+  IFS=',' read -r -a theorem_items <<< "$theorem_cell"
+
+  if [[ ${#module_items[@]} -eq ${#theorem_items[@]} ]]; then
+    # Row maps one theorem symbol per Lean module (e.g. multi-module integration rows).
+    for idx in "${!module_items[@]}"; do
+      module_ref="$(trim "${module_items[$idx]}")"
+      theorem_ref="$(trim "${theorem_items[$idx]}")"
+      [[ -z "$module_ref" ]] && continue
+      [[ -z "$theorem_ref" ]] && fail "Row $row_num has empty theorem mapping for module $module_ref"
+      module_name="${module_ref##*/}"
+      module_name="${module_name%.lean}"
+      module_to_theorems["$module_name"]+="${theorem_ref},"
+    done
+  else
+    # Default behavior: all theorem symbols in the row belong to the same module.
+    module_name="${module_cell##*/}"
+    module_name="${module_name%.lean}"
+    module_to_theorems["$module_name"]+="${theorem_cell},"
+  fi
 done < <(awk 'BEGIN { FS = "|" } /^\|[[:space:]]*[0-9]+[[:space:]]*\|/ { print }' "$MATRIX_FILE")
 
 if [[ ${#module_to_theorems[@]} -eq 0 ]]; then

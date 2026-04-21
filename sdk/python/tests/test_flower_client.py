@@ -27,7 +27,11 @@ class DummyMohawkNode:
     def aggregate(self, updates):
         payload = list(updates)
         self.aggregate_calls.append(payload)
-        return {"success": True, "count": len(payload), "message": "Updates aggregated successfully"}
+        return {
+            "success": True,
+            "count": len(payload),
+            "message": "Updates aggregated successfully",
+        }
 
 
 def train_fn(parameters, config):

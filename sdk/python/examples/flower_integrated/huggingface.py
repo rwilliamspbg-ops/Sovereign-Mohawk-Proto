@@ -15,10 +15,12 @@ from examples.flower_integrated.common import FlowerIntegratedExample, run_examp
 EXAMPLE = FlowerIntegratedExample(
     name="huggingface",
     node_id="flower-hf-001",
-    initial_parameters=[{
-        "encoder": [[0.1, 0.2], [0.3, 0.4]],
-        "adapter": [0.5, 0.6],
-    }],
+    initial_parameters=[
+        {
+            "encoder": [[0.1, 0.2], [0.3, 0.4]],
+            "adapter": [0.5, 0.6],
+        }
+    ],
     delta=0.05,
     train_examples=48,
     base_loss=0.27,

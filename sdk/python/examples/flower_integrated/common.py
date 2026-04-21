@@ -84,7 +84,11 @@ class FlowerIntegratedExample:
         parameters = client.get_parameters({})
         updated_parameters, num_examples, metrics = client.fit(
             parameters,
-            {"server_round": server_round, "mohawk_format": self.compress_format, "mohawk_max_norm": self.max_norm},
+            {
+                "server_round": server_round,
+                "mohawk_format": self.compress_format,
+                "mohawk_max_norm": self.max_norm,
+            },
         )
         loss, eval_examples, eval_metrics = client.evaluate(updated_parameters, {})
         payload = {
@@ -105,5 +109,7 @@ class FlowerIntegratedExample:
         return json.dumps(payload, sort_keys=True)
 
 
-def run_example(example: FlowerIntegratedExample, *, server_round: int = 1, pretty: bool = False) -> str:
+def run_example(
+    example: FlowerIntegratedExample, *, server_round: int = 1, pretty: bool = False
+) -> str:
     return example.run_json(server_round=server_round, pretty=pretty)
