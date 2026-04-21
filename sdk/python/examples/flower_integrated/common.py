@@ -77,6 +77,7 @@ class FlowerIntegratedExample:
             node_id=self.node_id,
             compress_format=self.compress_format,
             max_norm=self.max_norm,
+            submit_updates=False,
         )
 
     def run(self, *, server_round: int = 1) -> Dict[str, Any]:
