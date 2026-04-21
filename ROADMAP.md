@@ -175,6 +175,7 @@ TPM production closure sign-off (2026-04-11):
 - [ ] Notebook pack refresh with end-to-end production scenarios
 - [ ] Fuzzing expansion for C bridge + serialization boundaries
 - [ ] Optional OpenTelemetry distributed tracing rollout
+- [ ] Flower-compatible client integration plan and example ports (see [docs/flower-integration.md](docs/flower-integration.md))
 
 ---
 
