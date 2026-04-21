@@ -223,6 +223,7 @@ The Flower-compatible examples live under [examples/flower_integrated/](examples
 - [llm_fine_tune.py](examples/flower_integrated/llm_fine_tune.py)
 
 Each script uses the same Mohawk adapter and demonstrates a different model-shape profile so you can validate list-based tensors, nested encoder states, and larger fine-tuning payloads.
+The bundled examples default to `submit_updates=False` so they run as deterministic local smoke tests; set it to `True` when you want the client to submit updates to live aggregation.
 
 ### Utility Coin Operations
 

@@ -32,6 +32,7 @@ from .high_level import (
     HybridProofCheck,
     HybridVerificationReceipt,
 )
+from .flower import start_flower_server
 from .flower_client import FlowerTrainingReport, MohawkFlowerClient
 from .flower_strategy import FlowerStrategyForwarder, FlowerStrategyRoundSummary
 
@@ -64,6 +65,7 @@ __all__ = [
     # High-level wrappers
     "HybridProofCheck",
     "HybridVerificationReceipt",
+    "start_flower_server",
     "FlowerTrainingReport",
     "MohawkFlowerClient",
     "FlowerStrategyForwarder",

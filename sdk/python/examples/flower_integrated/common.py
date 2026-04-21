@@ -77,6 +77,7 @@ class FlowerIntegratedExample:
             node_id=self.node_id,
             compress_format=self.compress_format,
             max_norm=self.max_norm,
+            # submit_updates=False keeps examples deterministic/offline; set True for real federated runs.
             submit_updates=False,
         )
 

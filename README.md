@@ -72,6 +72,18 @@ Stop stack:
 docker compose down
 ```
 
+## Flower + Mohawk In 30 Seconds
+
+```bash
+# from repo root
+make build-python-lib
+cd sdk/python
+pip install -e .[flower]
+python examples/flower_integrated/quickstart_pytorch.py --ci
+```
+
+For a live run that actually submits updates to aggregation, set `submit_updates=True` in your `MohawkFlowerClient` construction.
+
 ## TPM Production Closure (Signed Off)
 
 Latest TPM production closure evidence (2026-04-11):
