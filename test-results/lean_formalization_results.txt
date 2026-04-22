@@ -1,0 +1,186 @@
+﻿=== LEAN FORMALIZATION TEST RESULTS ===
+Test Run: 2026-04-19 06:50:20
+Target Directory: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs
+
+--- Environment Check ---
+[NOT FOUND] Lean not in PATH
+[NOT FOUND] Lake (Lean build tool) not in PATH
+
+--- Project Structure ---
+Lean files found: 7
+  > \LeanFormalization\Common.lean (13 lines)
+  > \LeanFormalization\Theorem1BFT.lean (46 lines)
+  > \LeanFormalization\Theorem2RDP.lean (57 lines)
+  > \LeanFormalization\Theorem3Communication.lean (66 lines)
+  > \LeanFormalization\Theorem4Liveness.lean (64 lines)
+  > \LeanFormalization\Theorem5Cryptography.lean (68 lines)
+  > \LeanFormalization\Theorem6Convergence.lean (31 lines)
+
+--- Theorem Inventory ---
+Total definitions/theorems: 81
+  > is [theorem] (from Common.lean)
+  > theorem_foundation [theorem] (from Common.lean)
+  > scale_is_large [theorem] (from Common.lean)
+  > global_scale [definition] (from Common.lean)
+  > model_dimension [definition] (from Common.lean)
+  > theorem1_single_tier_resilient [theorem] (from Theorem1BFT.lean)
+  > theorem1_half_bound_of_forall [theorem] (from Theorem1BFT.lean)
+  > theorem1_five_ninths_of_half_bound [theorem] (from Theorem1BFT.lean)
+  > theorem1_inductive_safety [theorem] (from Theorem1BFT.lean)
+  > theorem1_global_bound_checked [theorem] (from Theorem1BFT.lean)
+  > theorem1_ten_million_corollary [theorem] (from Theorem1BFT.lean)
+  > theorem1_hierarchical_additivity [theorem] (from Theorem1BFT.lean)
+  > theorem1_scale_limit_check [theorem] (from Theorem1BFT.lean)
+  > multi_krum_resilient [definition] (from Theorem1BFT.lean)
+  > hierarchical_tolerance [definition] (from Theorem1BFT.lean)
+  > theorem2_composition_append [theorem] (from Theorem2RDP.lean)
+  > theorem2_monotone_append [theorem] (from Theorem2RDP.lean)
+  > theorem2_budget_step [theorem] (from Theorem2RDP.lean)
+  > theorem2_example_profile [theorem] (from Theorem2RDP.lean)
+  > theorem2_budget_guard [theorem] (from Theorem2RDP.lean)
+  > theorem2_alpha_10_delta_1e5 [theorem] (from Theorem2RDP.lean)
+  > theorem2_composition_correct [theorem] (from Theorem2RDP.lean)
+  > theorem2_hierarchical_rdp_bound [theorem] (from Theorem2RDP.lean)
+  > renyi_dp [definition] (from Theorem2RDP.lean)
+  > rdp_compose [definition] (from Theorem2RDP.lean)
+  > rdp_step_budget [definition] (from Theorem2RDP.lean)
+  > four_tier_profile [definition] (from Theorem2RDP.lean)
+  > rdp_to_standard_dp [definition] (from Theorem2RDP.lean)
+  > theorem3_hierarchical_additivity [theorem] (from Theorem3Communication.lean)
+  > theorem3_large_scale_check [theorem] (from Theorem3Communication.lean)
+  > theorem3_hierarchical_scale_check [theorem] (from Theorem3Communication.lean)
+  > theorem3_improvement_ratio [theorem] (from Theorem3Communication.lean)
+  > theorem3_lower_bound_match [theorem] (from Theorem3Communication.lean)
+  > theorem3_naive_expensive [theorem] (from Theorem3Communication.lean)
+  > theorem3_hierarchical_efficient [theorem] (from Theorem3Communication.lean)
+  > theorem3_tier_additivity [theorem] (from Theorem3Communication.lean)
+  > theorem3_one_message_per_level [theorem] (from Theorem3Communication.lean)
+  > hierarchical_comm_complexity [definition] (from Theorem3Communication.lean)
+  > naive_fedavg_comm [definition] (from Theorem3Communication.lean)
+  > sovereign_mohawk_comm [definition] (from Theorem3Communication.lean)
+  > information_theoretic_lower_bound [definition] (from Theorem3Communication.lean)
+  > four_tier_hierarchy_height [definition] (from Theorem3Communication.lean)
+  > theorem4_redundancy_monotone [theorem] (from Theorem4Liveness.lean)
+  > theorem4_success_gt_99_9 [theorem] (from Theorem4Liveness.lean)
+  > theorem4_success_gt_99_9_r12 [theorem] (from Theorem4Liveness.lean)
+  > theorem4_cumulative_success [theorem] (from Theorem4Liveness.lean)
+  > theorem4_availability_90_percent [theorem] (from Theorem4Liveness.lean)
+  > theorem4_wall_clock_efficiency [theorem] (from Theorem4Liveness.lean)
+  > theorem4_liveness_pass [theorem] (from Theorem4Liveness.lean)
+  > theorem4_hierarchical_liveness [theorem] (from Theorem4Liveness.lean)
+  > theorem4_concrete_validation [theorem] (from Theorem4Liveness.lean)
+  > theorem4_redundancy_logarithmic [theorem] (from Theorem4Liveness.lean)
+  > straggler_success_prob [definition] (from Theorem4Liveness.lean)
+  > adaptive_redundancy [definition] (from Theorem4Liveness.lean)
+  > liveness_threshold [definition] (from Theorem4Liveness.lean)
+  > theorem5_constant_size [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_constant_ops [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_constant_cost [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_scale_independence [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_proof_size_breakdown [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_proof_compactness [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_cost_guard [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_succinctness_improves [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_soundness_qsdh [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_universal_aggregation [theorem] (from Theorem5Cryptography.lean)
+  > theorem5_aggregator_independence [theorem] (from Theorem5Cryptography.lean)
+  > snark_proof_size_bytes [definition] (from Theorem5Cryptography.lean)
+  > snark_verification_time_ms [definition] (from Theorem5Cryptography.lean)
+  > pairing_operations [definition] (from Theorem5Cryptography.lean)
+  > ms_per_pairing [definition] (from Theorem5Cryptography.lean)
+  > groth16_proof_element [definition] (from Theorem5Cryptography.lean)
+  > group_element_size_bytes [definition] (from Theorem5Cryptography.lean)
+  > succinctness_ratio [definition] (from Theorem5Cryptography.lean)
+  > qdh_assumption [definition] (from Theorem5Cryptography.lean)
+  > theorem6_envelope_decompose [theorem] (from Theorem6Convergence.lean)
+  > theorem6_nonnegative [theorem] (from Theorem6Convergence.lean)
+  > theorem6_rounds_help [theorem] (from Theorem6Convergence.lean)
+  > theorem6_rounds_help_stronger [theorem] (from Theorem6Convergence.lean)
+  > theorem6_large_scale_guard [theorem] (from Theorem6Convergence.lean)
+  > theorem6_heterogeneity_effect [theorem] (from Theorem6Convergence.lean)
+  > envelope [definition] (from Theorem6Convergence.lean)
+
+--- File Contents Analysis ---
+
+File: Common.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Common.lean
+Lines: 13
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem1BFT.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem1BFT.lean
+Lines: 46
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem2RDP.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem2RDP.lean
+Lines: 57
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem3Communication.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem3Communication.lean
+Lines: 66
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem4Liveness.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem4Liveness.lean
+Lines: 64
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem5Cryptography.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem5Cryptography.lean
+Lines: 68
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+File: Theorem6Convergence.lean
+Path: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\LeanFormalization\Theorem6Convergence.lean
+Lines: 31
+  Contains: proofs/tactics
+  Contains: theorem declarations
+  Contains: function definitions
+
+--- Verification Log ---
+[FOUND] Verification log at: C:\Users\rwill\Sovereign-Mohawk-Proto\proofs\VERIFICATION_LOG.md
+# Sovereign Mohawk Verification Log
+
+## Formal Proof Results
+- **Theorem 4 (Liveness):** 99.99%+ (PASSED)
+- **Theorem 1 (BFT Safety):** true
+- **Bridge Authorization Denial Proof:** VERIFIED (wrong-role and wrong-token paths blocked pre-mutation)
+- **Status:** VALID_AOT_RELEASE
+
+--- Proof Artifacts ---
+[FOUND] Manual verification log
+Sovereign Mohawk Lean Formal Verification Log
+generated_at_utc=2026-04-19T13:05:30Z
+
+[1/3] lake build LeanFormalization
+Build completed successfully (11 jobs).
+
+[2/3] placeholder scan (sorry|axiom|admit)
+placeholder_scan_result=NONE
+
+[3/3] traceability validator
+Traceability validation passed.
+
+--- Test Summary ---
+Total files checked: 7
+Total theorems/definitions found: 81
+Lean environment: NOT AVAILABLE
+Lake build tool: NOT AVAILABLE
+Test duration: 0.09s
+Completed: 2026-04-19 06:50:20
+
+=== END RESULTS ===
