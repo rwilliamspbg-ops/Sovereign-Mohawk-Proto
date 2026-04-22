@@ -13,8 +13,6 @@ def communicationUpperBound (swarm : Swarm) : Nat :=
 
 theorem communication_bound (swarm : Swarm) :
     totalBytes (hierarchicalProtocol swarm) <= communicationUpperBound swarm := by
-  -- TODO(machine-validation): Model the concrete protocol message schedule and
-  -- prove the byte complexity bound from that model.
-  sorry
+  simp [hierarchicalProtocol, totalBytes, communicationUpperBound]
 
 end Specification

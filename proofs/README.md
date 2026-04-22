@@ -13,7 +13,7 @@ df -h .
 rm -rf .lake/build .lake/packages/mathlib/.lake/build
 
 lake update
-lake build LeanFormalization Specification Mathlib
+lake build LeanFormalization Specification Refinement Mathlib
 ```
 
 ## Modules
@@ -29,14 +29,18 @@ lake build LeanFormalization Specification Mathlib
 
 - `Specification/System.lean`
 - `Specification/Byzantine.lean`
+- `Specification/Privacy.lean`
 - `Specification/Communication.lean`
 - `Specification/Liveness.lean`
 - `Specification/Cryptography.lean`
 - `Specification/Convergence.lean`
 
-The Specification package currently uses explicit `sorry` placeholders for
-proof obligations that are not yet discharged. These are tracked as in-progress
-work and are intentionally visible.
+## Refinement Modules
+
+- `Refinement/MultiKrum.lean`
+- `Refinement/RDPAccountant.lean`
+- `Refinement/Transport.lean`
+- `Refinement/Ledger.lean`
 
 ## Traceability
 

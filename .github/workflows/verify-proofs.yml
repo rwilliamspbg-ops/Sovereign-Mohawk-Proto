@@ -83,8 +83,8 @@ jobs:
       - name: Ensure no unsafe placeholders and track `sorry`
         working-directory: proofs
         run: |
-          if grep -RIn "\baxiom\b\|\badmit\b" LeanFormalization Specification *.lean; then
-            echo "❌ Unsafe formal proof placeholders detected (axiom/admit)"
+          if grep -RIn "\bsorry\b\|\baxiom\b\|\badmit\b" LeanFormalization Specification Refinement *.lean; then
+            echo "❌ Formal proof placeholders detected"
             exit 1
           fi
 
@@ -102,6 +102,7 @@ jobs:
         run: |
           lake build LeanFormalization
           lake build Specification
+          lake build Refinement
           echo "✅ All formal theorems compiled successfully."
 
       - name: Check spec-to-implementation refinement alignment

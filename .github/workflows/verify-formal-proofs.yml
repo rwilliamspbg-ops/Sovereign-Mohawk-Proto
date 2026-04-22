@@ -5,9 +5,10 @@ on:
     branches: [ main ]
     paths:
       - 'proofs/LeanFormalization/**'
-      - 'proofs/Refinement/**'
       - 'proofs/Specification/**'
+      - 'proofs/Refinement/**'
       - 'proofs/Specification.lean'
+      - 'proofs/Refinement.lean'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
       - 'Makefile'
@@ -20,7 +21,9 @@ on:
     paths:
       - 'proofs/LeanFormalization/**'
       - 'proofs/Specification/**'
+      - 'proofs/Refinement/**'
       - 'proofs/Specification.lean'
+      - 'proofs/Refinement.lean'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
       - 'Makefile'
@@ -83,9 +86,17 @@ jobs:
       - name: Scan for unsafe placeholders and track `sorry`
         working-directory: ./proofs
         run: |
-          echo "Scanning for unsafe placeholders (axiom/admit)..."
-          if grep -RIn '\baxiom\b\|\badmit\b' LeanFormalization Specification *.lean; then
-            echo "❌ Unsafe placeholders found (axiom/admit)."
+          echo "Scanning for placeholders..."
+          FOUND_PLACEHOLDERS=""
+
+          for file in LeanFormalization/*.lean Specification/*.lean Refinement/*.lean; do
+            if grep -q 'sorry\|axiom\|admit' "$file"; then
+              FOUND_PLACEHOLDERS="$FOUND_PLACEHOLDERS $file"
+            fi
+          done
+          
+          if [ -n "$FOUND_PLACEHOLDERS" ]; then
+            echo "❌ Placeholder proofs found in:$FOUND_PLACEHOLDERS"
             exit 1
           fi
 
@@ -97,6 +108,7 @@ jobs:
         run: |
           lake build LeanFormalization
           lake build Specification
+          lake build Refinement
           echo "✅ All formal theorems compiled successfully."
 
       - name: Check spec-to-implementation refinement alignment
