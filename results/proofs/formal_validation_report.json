@@ -1,8 +1,225 @@
 {
+  "input_merkle_root": "78629be9092f0da9e14474e04f0c221caaa86ded87ad63b031c6a160d25596b5",
+  "inputs": [
+    {
+      "path": "capabilities.json",
+      "sha256": "3707026ef1ff94bcc55edaad5a21638e3b41851c8dde688f58aa7f04a1f29839"
+    },
+    {
+      "path": "go.mod",
+      "sha256": "83d4d63ff336a3f9f3bbaba27fa4622f06a9ddc9da72805d79f62978a6cf2ecb"
+    },
+    {
+      "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
+      "sha256": "8ac45bb858c140b9430fc9fe5a8bd5abf5bec1b098d27b7a056d8dfd4a27cc59"
+    },
+    {
+      "path": "proofs/LeanFormalization.lean",
+      "sha256": "15c2b9dec6cf4f49930ba104edffd1c0e6ba37e611d922b88467a3fead5ef302"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem1BFT.lean",
+      "sha256": "c59466abaf2324f318389b0e26930b1db2a09c9d647d90816627754ee7e94417"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem2RDP.lean",
+      "sha256": "a5e2e1efbd0e4270da333429525051db70964e277c119d653655aae228ed8517"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem3Communication.lean",
+      "sha256": "e0875d91f93e3baeb9df83019089c0363f3cd7f9e8309aabb241e5f2801db88c"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
+      "sha256": "6a451d2123603f03fac9acc78ba29da0ae930f889254b594d480c15bd2ef2c30"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
+      "sha256": "0308046fa32dc778ce654aafb2c5e43cdfcceabf4b31c9f1a4edd01feda5a8ba"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
+      "sha256": "2fa2fce7e9c4fcff3adad9c292c1a60bcb6d8a07a2dcb250e2834d1bb9521641"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
+      "sha256": "497d4c829e7803be0d9cc5d378deb3e2449dfe9adff83d636892f463204d8656"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
+      "sha256": "7b7fdcc36a7e9f9e1278794d985f3bce2f9aa207fca9bb03a8b7c5d57694835a"
+    },
+    {
+      "path": "proofs/lakefile.lean",
+      "sha256": "0fc7a8eddc602745752d494311724b269343e538ddb3649e7de0a9cd5bba5472"
+    },
+    {
+      "path": "proofs/lean-toolchain",
+      "sha256": "ce4c4e3d87434b9663f46de25ce34b48a0cf0d392e0a320a0787b4674a2d7b61"
+    }
+  ],
+  "lean_modules": [
+    {
+      "file": "proofs/LeanFormalization/Theorem1BFT.lean",
+      "module": "LeanFormalization.Theorem1BFT",
+      "symbol_count": 9,
+      "symbols": [
+        "bftBound",
+        "honestMajority",
+        "mohawkProfile",
+        "theorem1_five_ninths_of_half_bound",
+        "theorem1_global_bound_checked",
+        "theorem1_half_bound_of_forall",
+        "theorem1_half_bound_of_forall_cons",
+        "theorem1_ten_million_corollary",
+        "theorem1_tier_majority_checked"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem2RDP.lean",
+      "module": "LeanFormalization.Theorem2RDP",
+      "symbol_count": 6,
+      "symbols": [
+        "composeEps",
+        "theorem2_budget_guard",
+        "theorem2_budget_step",
+        "theorem2_composition_append",
+        "theorem2_example_profile",
+        "theorem2_monotone_append"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem3Communication.lean",
+      "module": "LeanFormalization.Theorem3Communication",
+      "symbol_count": 14,
+      "symbols": [
+        "four_tier_hierarchy_height",
+        "hierarchical_comm_complexity",
+        "information_theoretic_lower_bound",
+        "naive_fedavg_comm",
+        "sovereign_mohawk_comm",
+        "theorem3_hierarchical_additivity",
+        "theorem3_hierarchical_efficient",
+        "theorem3_hierarchical_scale_check",
+        "theorem3_improvement_ratio",
+        "theorem3_large_scale_check",
+        "theorem3_lower_bound_match",
+        "theorem3_naive_expensive",
+        "theorem3_one_message_per_level",
+        "theorem3_tier_additivity"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
+      "module": "LeanFormalization.Theorem4ChernoffBounds",
+      "symbol_count": 8,
+      "symbols": [
+        "chernoff_alpha_09_r12",
+        "chernoff_bound",
+        "chernoff_hierarchical_composition",
+        "chernoff_monotone",
+        "chernoff_redundancy_effectiveness",
+        "failure_implies_success",
+        "theorem4_chernoff_bounds",
+        "theorem4_hierarchical_chernoff_validation"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem4Liveness.lean",
+      "module": "LeanFormalization.Theorem4Liveness",
+      "symbol_count": 5,
+      "symbols": [
+        "successNumerator",
+        "theorem4_redundancy_monotone",
+        "theorem4_success_gt_99_8",
+        "theorem4_success_gt_99_9",
+        "theorem4_success_gt_99_9_r12"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem5Cryptography.lean",
+      "module": "LeanFormalization.Theorem5Cryptography",
+      "symbol_count": 8,
+      "symbols": [
+        "proofSize",
+        "theorem5_constant_cost",
+        "theorem5_constant_ops",
+        "theorem5_constant_size",
+        "theorem5_cost_guard",
+        "theorem5_ops_guard",
+        "verifyCostMicros",
+        "verifyOps"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem6Convergence.lean",
+      "module": "LeanFormalization.Theorem6Convergence",
+      "symbol_count": 7,
+      "symbols": [
+        "envelope",
+        "theorem6_envelope_decompose",
+        "theorem6_heterogeneity_effect",
+        "theorem6_large_scale_guard",
+        "theorem6_nonnegative",
+        "theorem6_rounds_help",
+        "theorem6_rounds_help_stronger"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
+      "module": "LeanFormalization.Theorem6ConvergenceReals",
+      "symbol_count": 15,
+      "symbols": [
+        "convergence_dimension_independent",
+        "convergence_envelope",
+        "convergence_envelope_concrete_100_1000",
+        "convergence_envelope_decompose",
+        "convergence_envelope_momentum",
+        "convergence_heterogeneity_effect",
+        "convergence_preserves_hierarchical_communication",
+        "convergence_rounds_help_numeric",
+        "convergence_rounds_help_strong",
+        "convergence_with_strong_convexity",
+        "smoothness_constant",
+        "strong_convexity_factor",
+        "theorem6_hierarchical_convergence_holds",
+        "theorem6_hierarchical_convergence_rate",
+        "theorem6_variance_reduction_convergence"
+      ]
+    }
+  ],
   "schema_version": "formal_validation_report.v1",
-  "status": "placeholder",
-  "note": "Generated by CI via make refresh-formal-validation. Commit this file after running the pipeline.",
-  "inputs": [],
-  "input_merkle_root": "",
-  "toolchain_lock": {}
+  "summary": {
+    "input_file_count": 14,
+    "module_count": 8,
+    "theorem_symbol_count": 72
+  },
+  "toolchain_lock": {
+    "go_version": "1.25.9",
+    "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
+    "mathlib4_ref": "v4.30.0-rc2",
+    "zk_backend_gnark_crypto": "v0.20.1"
+  },
+  "traceability": {
+    "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
+    "runtime_reference_count": 16,
+    "runtime_references": [
+      "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/multikrum_test.go::TestMultiKrumSelect",
+      "sdk/python/examples/flower_integrated/quickstart_pytorch.py::main",
+      "sdk/python/tests/test_flower_client.py::test_fit_submits_update_and_builds_proof_manifest",
+      "sdk/python/tests/test_flower_examples.py::test_all_flower_integrated_examples",
+      "sdk/python/tests/test_flower_strategy.py::test_strategy_forwarder_aggregates_updates",
+      "test/convergence_test.go::TestConvergenceMonitor_IsConverging_Above",
+      "test/convergence_test.go::TestConvergenceMonitor_IsConverging_Below",
+      "test/manifest_test.go::TestValidateCommunicationComplexity_Valid",
+      "test/manifest_test.go::TestValidateCommunicationComplexity_Violated",
+      "test/rdp_accountant_test.go::TestRDPAccountant_CheckBudget_Exceeded",
+      "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
+      "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Fail",
+      "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Pass",
+      "test/zk_verifier_test.go::TestVerifyZKProof",
+      "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
+    ]
+  }
 }

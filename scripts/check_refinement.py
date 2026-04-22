@@ -11,7 +11,6 @@ import json
 import re
 from pathlib import Path
 
-
 REQUIRED_LEAN_SYMBOLS = [
     "structure Node",
     "structure Swarm",
@@ -21,7 +20,10 @@ REQUIRED_LEAN_SYMBOLS = [
 
 REQUIRED_GO_FILES = {
     "internal/multikrum.go": [r"func\s+MultiKrumSelect\s*\(", r"func\s+MultiKrumAggregate\s*\("],
-    "internal/rdp_accountant.go": [r"func\s+\(a \*RDPAccountant\)\s+RecordStepRat\s*\(", r"func\s+\(a \*RDPAccountant\)\s+CheckBudget\s*\("],
+    "internal/rdp_accountant.go": [
+        r"func\s+\(a \*RDPAccountant\)\s+RecordStepRat\s*\(",
+        r"func\s+\(a \*RDPAccountant\)\s+CheckBudget\s*\(",
+    ],
     "internal/network/transport.go": [r"func\s+NewHost\s*\("],
     "internal/token/ledger.go": [r"func\s+\(l \*Ledger\)\s+TransferWithControls\s*\("],
 }
@@ -55,7 +57,11 @@ def check_go_symbols(repo_root: Path) -> dict[str, list[str]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check Lean/Go refinement alignment")
     parser.add_argument("--lean", required=True, help="Path to Lean specification file")
-    parser.add_argument("--go", required=True, help="Path to repository root or internal directory")
+    parser.add_argument(
+        "--go",
+        required=True,
+        help="Path to repository root or internal directory",
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON output")
     args = parser.parse_args()
 

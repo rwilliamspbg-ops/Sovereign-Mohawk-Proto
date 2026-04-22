@@ -11,7 +11,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from examples.flower_integrated.common import FlowerIntegratedExample, run_example
 
-
 EXAMPLE = FlowerIntegratedExample(
     name="huggingface",
     node_id="flower-hf-001",
