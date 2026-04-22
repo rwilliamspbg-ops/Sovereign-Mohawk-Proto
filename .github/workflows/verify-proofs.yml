@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'proofs/**'
+      - 'scripts/check_refinement.py'
       - 'scripts/audit_proofs.sh'
       - 'Makefile'
       - 'scripts/ci/**'
@@ -13,6 +14,7 @@ on:
     branches: [ main ]
     paths:
       - 'proofs/**'
+      - 'scripts/check_refinement.py'
       - 'scripts/audit_proofs.sh'
       - 'Makefile'
       - 'scripts/ci/**'
@@ -81,7 +83,7 @@ jobs:
       - name: Ensure no placeholder proofs
         working-directory: proofs
         run: |
-          if grep -RIn "\bsorry\b\|\baxiom\b\|\badmit\b" LeanFormalization *.lean; then
+          if grep -RIn "\bsorry\b\|\baxiom\b\|\badmit\b" LeanFormalization Specification Refinement *.lean; then
             echo "❌ Formal proof placeholders detected"
             exit 1
           else
@@ -98,7 +100,15 @@ jobs:
         working-directory: proofs
         run: |
           lake build LeanFormalization
+          lake build Specification
+          lake build Refinement
           echo "✅ All formal theorems compiled successfully."
+
+      - name: Check spec-to-implementation refinement alignment
+        run: |
+          python3 scripts/check_refinement.py \
+            --lean proofs/Specification/System.lean \
+            --go internal/
 
       - name: Cleanup transient Mathlib cache
         if: always()
