@@ -55,7 +55,7 @@ theorem theorem2_rat_monotone_append (xs ys : List ℚ)
           intro e he
           exact h_nonneg e (by simp [he])
         have ih' := ih htail
-        simp [composeEpsRat, hy, ih']
+        simp only [composeEpsRat]; linarith
   linarith
 
 /-- Adding a bounded step preserves a bounded global budget. -/
@@ -72,7 +72,7 @@ theorem theorem2_rat_single_step (eps : ℚ) :
 
 /-- Conversion to the `(ε, δ)` proxy is monotone in cumulative RDP epsilon. -/
 theorem theorem2_conversion_monotone {alpha delta eps1 eps2 : ℚ}
-    (h_alpha : 1 < alpha)
+    (_h_alpha : 1 < alpha)
     (h_eps : eps1 ≤ eps2) :
     convertToEpsDelta alpha delta eps1 ≤ convertToEpsDelta alpha delta eps2 := by
   unfold convertToEpsDelta
