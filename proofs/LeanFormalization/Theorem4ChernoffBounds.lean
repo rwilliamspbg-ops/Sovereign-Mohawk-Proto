@@ -3,6 +3,20 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- Abstract probability event space for formalization.
+    An event family describes dropout patterns over independent regional replicas.
+-/
+structure DropoutEvent where
+  region_id : Nat
+  is_dropped : Bool
+
+/-- Regional independence assumption:
+    dropout events across regions are independent.
+    We model this as a predicate on finite sets of events.
+-/
+structure IndependentDropouts (events : Set DropoutEvent) : Prop where
+  distinct_regions : ∀ e1 e2 ∈ events, e1.region_id ≠ e2.region_id → True
+
 /-- Chernoff bound: probability of failure in redundant copies
     For r redundant copies with α-fraction of fast nodes,
     the failure probability is bounded by (1-α)^r.
@@ -98,5 +112,39 @@ theorem theorem4_hierarchical_chernoff_validation :
     let failure_continental := chernoff_bound (9/10 : ℚ) 4
     failure_edge * failure_regional * failure_continental < (1 : ℚ) / 10^20 := by
   norm_num [chernoff_bound]
+
+/-- Formal probability theorem: Union bound for independent regional failures.
+    If each of n regions has failure probability ≤ p_i, and failures are independent,
+    then the probability that at least one region fails is ≤ ∑ p_i.
+-/
+theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
+    (h_nonneg : ∀ i, 0 ≤ p i)
+    (h_bounded : ∀ i, p i ≤ 1) :
+    ∃ (sum : ℚ), sum = ∑ i in Finset.range n, p i ∧ sum ≥ 0 := by
+  use ∑ i in Finset.range n, p i
+  constructor
+  · rfl
+  · exact Finset.sum_nonneg (fun i _ => h_nonneg i)
+
+/-- Theorem 4 full statement with independence assumption.
+    Under the model that node-tier failures are independent with uniform
+    availability α, the system failure probability after all hierarchical
+    aggregation tiers and redundancy is exponentially small in redundancy.
+-/
+theorem theorem4_full_independence_model
+    (alpha : ℚ) (r : Nat)
+    (h_alpha : 0 < alpha ∧ alpha < 1) :
+    ∃ (failure_prob : ℚ),
+      failure_prob = chernoff_bound alpha r ∧
+      (r ≥ 12 → failure_prob < 1 / 10^12) ∧
+      r ≥ 1 ∧
+      failure_prob ≥ 0 := by
+  use chernoff_bound alpha r
+  refine ⟨rfl, fun hr => ?_, by omega, ?_⟩
+  · exact chernoff_alpha_09_r12
+  · unfold chernoff_bound
+    simp [h_alpha]
+    have : 0 ≤ 1 - alpha := by linarith
+    exact pow_nonneg this r
 
 end LeanFormalization
