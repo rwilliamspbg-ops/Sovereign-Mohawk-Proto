@@ -13,7 +13,7 @@ df -h .
 rm -rf .lake/build .lake/packages/mathlib/.lake/build
 
 lake update
-lake build LeanFormalization Mathlib
+lake build LeanFormalization Specification Refinement Mathlib
 ```
 
 ## Modules
@@ -24,6 +24,23 @@ lake build LeanFormalization Mathlib
 - `LeanFormalization/Theorem4Liveness.lean`
 - `LeanFormalization/Theorem5Cryptography.lean`
 - `LeanFormalization/Theorem6Convergence.lean`
+
+## Specification Modules
+
+- `Specification/System.lean`
+- `Specification/Byzantine.lean`
+- `Specification/Privacy.lean`
+- `Specification/Communication.lean`
+- `Specification/Liveness.lean`
+- `Specification/Cryptography.lean`
+- `Specification/Convergence.lean`
+
+## Refinement Modules
+
+- `Refinement/MultiKrum.lean`
+- `Refinement/RDPAccountant.lean`
+- `Refinement/Transport.lean`
+- `Refinement/Ledger.lean`
 
 ## Traceability
 

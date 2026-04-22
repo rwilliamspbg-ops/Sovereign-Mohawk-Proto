@@ -5,9 +5,14 @@ on:
     branches: [ main ]
     paths:
       - 'proofs/LeanFormalization/**'
+      - 'proofs/Specification/**'
+      - 'proofs/Refinement/**'
+      - 'proofs/Specification.lean'
+      - 'proofs/Refinement.lean'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
       - 'Makefile'
+      - 'scripts/check_refinement.py'
       - 'scripts/ci/**'
       - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
@@ -15,9 +20,14 @@ on:
     branches: [ main ]
     paths:
       - 'proofs/LeanFormalization/**'
+      - 'proofs/Specification/**'
+      - 'proofs/Refinement/**'
+      - 'proofs/Specification.lean'
+      - 'proofs/Refinement.lean'
       - 'proofs/lakefile.lean'
       - 'proofs/lean-toolchain'
       - 'Makefile'
+      - 'scripts/check_refinement.py'
       - 'scripts/ci/**'
       - 'tests/scripts/ci/**'
       - '.github/workflows/verify-formal-proofs.yml'
@@ -78,8 +88,8 @@ jobs:
         run: |
           echo "Scanning for placeholders..."
           FOUND_PLACEHOLDERS=""
-          
-          for file in LeanFormalization/*.lean; do
+
+          for file in LeanFormalization/*.lean Specification/*.lean Refinement/*.lean; do
             if grep -q 'sorry\|axiom\|admit' "$file"; then
               FOUND_PLACEHOLDERS="$FOUND_PLACEHOLDERS $file"
             fi
@@ -96,7 +106,15 @@ jobs:
         working-directory: ./proofs
         run: |
           lake build LeanFormalization
+          lake build Specification
+          lake build Refinement
           echo "✅ All formal theorems compiled successfully."
+
+      - name: Check spec-to-implementation refinement alignment
+        run: |
+          python3 scripts/check_refinement.py \
+            --lean proofs/Specification/System.lean \
+            --go internal/
 
       - name: Run formal validation tooling tests
         run: |
