@@ -2,11 +2,11 @@
 # Status: PHASE 1 - CRITICAL FIXES
 # Purpose: Simplified common development tasks
 
-.PHONY: help validate setup start stop status logs restart clean test build push
+.PHONY: help validate setup start stop status logs restart clean test build lint black format push
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "========================================"
 	@echo ""
 	@echo "Setup & Validation:"
 	@echo "  make validate        - Check development prerequisites"
@@ -28,9 +28,12 @@ help:
 	@echo "  make logs-metrics    - View metrics exporter logs"
 	@echo "  make info            - Show service connection info"
 	@echo ""
-	@echo "Development:"
+	@echo "Development & Quality:"
 	@echo "  make test            - Run all tests"
 	@echo "  make build           - Build all images"
+	@echo "  make lint            - Check code with linters (ruff)"
+	@echo "  make black           - Check code formatting (black)"
+	@echo "  make format          - Auto-format with Black and Ruff"
 	@echo "  make clean           - Remove containers and volumes"
 	@echo ""
 
@@ -85,6 +88,21 @@ test:
 
 build:
 	@docker-compose build
+
+lint:
+	@echo "Running linters (ruff)..."
+	@cd sdk/python && python -m ruff check . || true
+	@echo "✓ Lint complete"
+
+black:
+	@echo "Checking code formatting (black)..."
+	@cd sdk/python && python -m black . --check || true
+	@echo "✓ Black check complete"
+
+format:
+	@echo "Formatting Python code..."
+	@cd sdk/python && python -m black . && echo "✓ Formatted with Black"
+	@cd sdk/python && python -m ruff check . --fix && echo "✓ Fixed with Ruff"
 
 clean:
 	@docker-compose down -v
