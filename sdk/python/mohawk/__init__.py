@@ -3,6 +3,12 @@
 A Python interface to the MOHAWK federated learning runtime.
 Provides high-level APIs for node management, zk-SNARK verification,
 federated learning operations, and hardware-accelerated gradient compression.
+
+New in v2.1.0:
+- Security hardening with credential management
+- TLS configuration with certificate pinning
+- Observability with OpenTelemetry
+- Cloud deployment support
 """
 
 from .client import MohawkNode
@@ -36,7 +42,28 @@ from .flower import start_flower_server
 from .flower_client import FlowerTrainingReport, MohawkFlowerClient
 from .flower_strategy import FlowerStrategyForwarder, FlowerStrategyRoundSummary
 
-__version__ = "2.0.2.Alpha"
+# Phase 1: Security Hardening (NEW in v2.1.0)
+from .credentials import (
+    CredentialBuilder,
+    CredentialError,
+    CredentialManager,
+    CredentialNotFoundError,
+    CredentialProvider,
+    CredentialRotationError,
+    EnvironmentProvider,
+    K8sSecretsProvider,
+    VaultProvider,
+)
+from .tls import (
+    CertificatePinning,
+    CertificatePinningError,
+    SecureSSLContext,
+    TLSConfig,
+    TLSError,
+)
+
+__version__ = "2.1.0"
+
 __all__ = [
     # Core client
     "MohawkNode",
@@ -70,4 +97,19 @@ __all__ = [
     "MohawkFlowerClient",
     "FlowerStrategyForwarder",
     "FlowerStrategyRoundSummary",
+    # Phase 1: Security Hardening (NEW)
+    "CredentialBuilder",
+    "CredentialError",
+    "CredentialManager",
+    "CredentialNotFoundError",
+    "CredentialProvider",
+    "CredentialRotationError",
+    "EnvironmentProvider",
+    "K8sSecretsProvider",
+    "VaultProvider",
+    "CertificatePinning",
+    "CertificatePinningError",
+    "SecureSSLContext",
+    "TLSConfig",
+    "TLSError",
 ]
