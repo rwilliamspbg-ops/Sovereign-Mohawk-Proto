@@ -7,14 +7,15 @@
 
 ## Executive Summary
 
-All 52 theorems across 6 Lean 4 modules have been **audited and validated**:
+The current Lean modules, proof artifacts, and runtime references have been **audited and validated for buildability, placeholder-freedom, and traceability**:
 
 - ✓ **Zero placeholders** (no `sorry`, `axiom`, or `admit`)
 - ✓ **100% theorem completion** (52/52 proven)
 - ✓ **Type-safe proofs** (Lean 4 compiler verified)
 - ✓ **Runtime evidence** (all test references exist and pass)
 - ✓ **Matrix traceability** (all theorem-to-test mappings validated)
-- ✓ **Production-ready certification**
+- ✓ **Internal validation package prepared**
+- ! **Scope caveat:** several theorem families still use surrogate or abstract models rather than full mathematical formalizations
 
 ---
 
@@ -243,7 +244,7 @@ func (sm *StragglerMonitor) ValidateLiveness(activeNodes int, _ int) error {
 }
 ```
 
-**Status:** ✓ All tests exist and validate >99.99% liveness
+**Status:** ✓ All tests exist and validate the configured runtime liveness threshold
 
 ---
 
@@ -393,10 +394,10 @@ The Sovereign-Mohawk formal proof system is **fully verified and production-read
 4. **Type-safety guaranteed** by Lean 4 compiler
 5. **No unproven assumptions** beyond q-SDH (standard cryptography)
 
-**Certification Status:** ✓ **APPROVED FOR PRODUCTION USE**
+**Certification Status:** ✓ **INTERNAL VALIDATION COMPLETE**
 
 ---
 
 **Report Generated:** 2026-04-19  
 **Validation Framework:** Lean 4 Machine Verification + Runtime Test Cross-Validation  
-**Authority:** Formal Methods Team + Automated CI
+**Authority:** Automated Lean 4 checks + repository self-audit

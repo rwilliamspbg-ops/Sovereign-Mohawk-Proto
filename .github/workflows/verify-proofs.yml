@@ -110,6 +110,10 @@ jobs:
             --lean proofs/Specification/System.lean \
             --go internal/
 
+      - name: Check theorem/runtime consistency
+        run: |
+          python3 scripts/ci/check_theorem_runtime_consistency.py
+
       - name: Cleanup transient Mathlib cache
         if: always()
         run: |

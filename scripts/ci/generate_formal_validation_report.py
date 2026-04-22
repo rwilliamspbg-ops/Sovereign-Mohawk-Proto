@@ -60,6 +60,10 @@ def parse_matrix_runtime_refs(matrix_file: Path) -> list[str]:
     return sorted(set(refs))
 
 
+def load_theorem_claims(claims_file: Path) -> dict:
+    return json.loads(claims_file.read_text(encoding="utf-8"))
+
+
 def parse_mathlib_ref(lakefile: Path) -> str:
     for line in lakefile.read_text(encoding="utf-8").splitlines():
         if "mathlib4.git" in line and "@" in line:
@@ -99,12 +103,13 @@ def compute_report(repo_root: Path) -> dict:
     proof_root = repo_root / "proofs"
     entry_file = proof_root / "LeanFormalization.lean"
     matrix_file = proof_root / "FORMAL_TRACEABILITY_MATRIX.md"
+    claims_file = proof_root / "theorem_claims.json"
     lakefile = proof_root / "lakefile.lean"
     lean_toolchain = proof_root / "lean-toolchain"
     go_mod = repo_root / "go.mod"
     capabilities = repo_root / "capabilities.json"
 
-    required = [entry_file, matrix_file, lakefile, lean_toolchain, go_mod, capabilities]
+    required = [entry_file, matrix_file, claims_file, lakefile, lean_toolchain, go_mod, capabilities]
     for path in required:
         if not path.exists():
             raise FileNotFoundError(f"missing required input: {path}")
@@ -125,6 +130,7 @@ def compute_report(repo_root: Path) -> dict:
         Path("proofs/LeanFormalization.lean"),
         Path("proofs/lakefile.lean"),
         Path("proofs/lean-toolchain"),
+        Path("proofs/theorem_claims.json"),
     ]
     input_paths.extend(Path(f"proofs/LeanFormalization/{module}.lean") for module in modules)
 
@@ -152,6 +158,12 @@ def compute_report(repo_root: Path) -> dict:
         )
 
     runtime_refs = parse_matrix_runtime_refs(matrix_file)
+    theorem_claims = load_theorem_claims(claims_file)
+    claims = theorem_claims.get("claims", [])
+    status_counts: dict[str, int] = {}
+    for claim in claims:
+        status = claim.get("status", "unknown")
+        status_counts[status] = status_counts.get(status, 0) + 1
 
     return {
         "schema_version": "formal_validation_report.v1",
@@ -167,8 +179,13 @@ def compute_report(repo_root: Path) -> dict:
         "input_merkle_root": merkle_root_hex(leaf_hashes),
         "traceability": {
             "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
+            "claims_path": "proofs/theorem_claims.json",
             "runtime_reference_count": len(runtime_refs),
             "runtime_references": runtime_refs,
+        },
+        "claim_status": {
+            "claim_count": len(claims),
+            "status_counts": status_counts,
         },
         "lean_modules": module_summary,
         "summary": {

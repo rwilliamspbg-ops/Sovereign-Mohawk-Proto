@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Reference: /proofs/straggler_resilience.md
-// Theorem 4: 99.99% success probability via probabilistic redundancy.
+// Reference: /internal/stragglers.md
+// Theorem 4 runtime guard: redundancy-backed liveness monitoring with a
+// Chernoff-style exponential safety margin.
 package internal
 
 import (
@@ -38,13 +39,31 @@ func NewStragglerMonitor() *StragglerMonitor {
 	}
 }
 
-// CalculateSuccessProbability derives the probability of round success.
-// Formula: 1 - exp(-k/2) where k is the expected number of successful aggregations.
-func (sm *StragglerMonitor) CalculateSuccessProbability(n int, dropoutRate float64) float64 {
-	// Active Guard: Ensure the system configuration satisfies the Chernoff bound.
-	expectedSuccess := float64(n) * (1.0 - math.Pow(dropoutRate, float64(sm.RedundancyFactor)))
+// PerRegionFailureBound returns the failure probability upper bound for one
+// region under the simple independent-dropout redundancy model.
+func (sm *StragglerMonitor) PerRegionFailureBound(dropoutRate float64) float64 {
+	if dropoutRate <= 0 {
+		return 0
+	}
+	if dropoutRate >= 1 {
+		return 1
+	}
+	return math.Pow(dropoutRate, float64(sm.RedundancyFactor))
+}
 
-	// Bound: P[Failure] < exp(-expectedSuccess / 8)
+// PerRegionSuccessProbability returns the corresponding success probability for
+// a single region in the runtime redundancy model.
+func (sm *StragglerMonitor) PerRegionSuccessProbability(dropoutRate float64) float64 {
+	return 1.0 - sm.PerRegionFailureBound(dropoutRate)
+}
+
+// CalculateSuccessProbability derives a round-success lower bound from the
+// expected number of successful regional aggregations.
+func (sm *StragglerMonitor) CalculateSuccessProbability(n int, dropoutRate float64) float64 {
+	// Active Guard: ensure the configuration satisfies the redundancy model.
+	expectedSuccess := float64(n) * sm.PerRegionSuccessProbability(dropoutRate)
+
+	// Conservative exponential tail bound for aggregated regional success.
 	failureProb := math.Exp(-expectedSuccess / 8.0)
 	return 1.0 - failureProb
 }

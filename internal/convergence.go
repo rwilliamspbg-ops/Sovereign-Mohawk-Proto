@@ -17,14 +17,14 @@
 package internal
 
 import (
-	"math"
 	"sync"
 )
 
-// ConvergenceMonitor implements Theorem 6 to track learning stability.
+// ConvergenceMonitor implements a runtime envelope model aligned with the
+// current Phase 3b Lean formalization: optimization error + heterogeneity bias.
 type ConvergenceMonitor struct {
 	mu            sync.RWMutex
-	Threshold     float64 // ε target
+	Threshold     float64 // optimization-side tolerance
 	Heterogeneity float64 // ζ² bound
 	History       []float64
 }
@@ -38,16 +38,35 @@ func NewConvergenceMonitor(epsilon float64, zetaSq float64) *ConvergenceMonitor 
 	}
 }
 
-// IsConverging validates if the current gradient norm satisfies the descent lemma.
-// Formula: E[||∇F(x_T)||²] ≤ O(1/√(KT)) + O(ζ²)
+// EffectiveThreshold returns the configured runtime convergence guard.
+// The heterogeneity field stores ζ² directly, so the effective threshold is
+// additive in ζ² rather than sqrt(ζ²).
+func (c *ConvergenceMonitor) EffectiveThreshold() float64 {
+	return c.Threshold + c.Heterogeneity
+}
+
+// EnvelopeBound computes the current formalization-aligned envelope
+//   1 / (2KT) + ζ²
+// for positive client/round counts. When either parameter is non-positive,
+// the runtime guard falls back to the heterogeneity floor.
+func (c *ConvergenceMonitor) EnvelopeBound(clients int, rounds int) float64 {
+	if clients <= 0 || rounds <= 0 {
+		return c.Heterogeneity
+	}
+	return 1.0/(2.0*float64(clients)*float64(rounds)) + c.Heterogeneity
+}
+
+// IsConverging validates if the current gradient norm satisfies the configured
+// runtime threshold. This is intentionally conservative and is paired with the
+// explicit envelope helper above for theorem-to-runtime comparisons.
 func (c *ConvergenceMonitor) IsConverging(gradNorm float64) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	c.History = append(c.History, gradNorm)
 
-	// In non-IID settings, we expect a residual error proportional to ζ²
-	effectiveThreshold := c.Threshold + math.Sqrt(c.Heterogeneity)
+	// In non-IID settings, we expect a residual error proportional to ζ².
+	effectiveThreshold := c.EffectiveThreshold()
 
 	return gradNorm <= effectiveThreshold
 }

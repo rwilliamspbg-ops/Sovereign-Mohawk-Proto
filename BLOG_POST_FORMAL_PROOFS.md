@@ -15,11 +15,11 @@ Federated learning promises privacy-preserving distributed machine learning, but
 **Today, we're releasing 52 machine-checked formal theorems proving core claims about Sovereign-Mohawk:**
 
 - Byzantine resilience: 55.5% fault tolerance (Theorem 1)
-- Privacy guarantees: ε ≤ 2.0 RDP budget (Theorem 2)
+- Privacy bookkeeping: integer budget-composition surrogate (Theorem 2)
 - Communication efficiency: O(d log n) vs O(dn) naive (Theorem 3)
-- Liveness: 99.99% success with redundancy (Theorem 4)
-- Verification speed: O(1) ~9ms zk-SNARKs (Theorem 5)
-- Convergence rate: O(1/√KT) + O(ζ²) (Theorem 6)
+- Liveness: integer redundancy guard surrogate (Theorem 4)
+- Verification speed: constant-cost verifier model (Theorem 5)
+- Convergence: surrogate envelope decreases with rounds (Theorem 6)
 
 All 52 proofs have **zero axioms** (no sorry/admit/axiom placeholders). All are **CI-gated** to prevent regressions. All are **publication-ready** for peer review.
 
@@ -104,10 +104,10 @@ lake build LeanFormalization Mathlib
 | Claim | Lean Module | Key Theorem |
 |-------|---|---|
 | 55.5% Byzantine resilience | `Theorem1BFT.lean` | `theorem1_global_bound_checked` |
-| ε ≤ 2.0 RDP privacy | `Theorem2RDP.lean` | `theorem2_budget_guard` |
+| Integer privacy-budget composition surrogate | `Theorem2RDP.lean` | `theorem2_budget_guard` |
 | O(d log n) communication | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` |
-| 99.99% liveness | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` |
-| O(1) zk-SNARK verification | `Theorem5Cryptography.lean` | `theorem5_constant_cost` |
+| Integer liveness guard surrogate | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` |
+| Constant-cost verifier model | `Theorem5Cryptography.lean` | `theorem5_constant_cost` |
 | Non-IID convergence | `Theorem6Convergence.lean` | `theorem6_*` (6 theorems) |
 
 ---

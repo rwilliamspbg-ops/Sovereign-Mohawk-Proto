@@ -1,0 +1,96 @@
+{
+  "schema_version": "theorem_claims.v1",
+  "claims": [
+    {
+      "id": "theorem1_bft",
+      "status": "fully_formalized",
+      "formal_scope": "deterministic numeric resilience bound",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem1BFT.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem2_rdp",
+      "status": "surrogate_verified",
+      "formal_scope": "exact rational and integer additive composition with budget guards",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem2RDP.lean",
+        "proofs/Specification/Privacy.lean",
+        "proofs/Refinement/RDPAccountant.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/rdp_accountant.go",
+          "patterns": [
+            "epsilon := a\\.Alpha / \\(2\\.0 \\* sigma \\* sigma\\)",
+            "conversion := math\\.Log\\(1\\.0/a\\.TargetDelta\\) / \\(a\\.Alpha - 1\\.0\\)",
+            "current\\.Add\\(current, ratFromFloat64\\(conversion\\)\\)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "theorem3_communication",
+      "status": "fully_formalized",
+      "formal_scope": "deterministic communication bound",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem3Communication.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem4_liveness",
+      "status": "model_verified",
+      "formal_scope": "redundancy and Chernoff-style exponential liveness model",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem4Liveness.lean",
+        "proofs/LeanFormalization/Theorem4ChernoffBounds.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/straggler_resilience.go",
+          "patterns": [
+            "return math\\.Pow\\(dropoutRate, float64\\(sm\\.RedundancyFactor\\)\\)",
+            "expectedSuccess := float64\\(n\\) \\* sm\\.PerRegionSuccessProbability\\(dropoutRate\\)",
+            "failureProb := math\\.Exp\\(-expectedSuccess / 8\\.0\\)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "theorem5_cryptography",
+      "status": "model_verified",
+      "formal_scope": "constant-size and constant-cost verifier model",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem5Cryptography.lean",
+        "proofs/Specification/Cryptography.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem6_convergence",
+      "status": "surrogate_verified",
+      "formal_scope": "integer and rational convergence envelopes with runtime guard alignment",
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem6Convergence.lean",
+        "proofs/LeanFormalization/Theorem6ConvergenceReals.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/convergence.go",
+          "patterns": [
+            "return c\\.Threshold \\+ c\\.Heterogeneity",
+            "return 1\\.0/\\(2\\.0\\*float64\\(clients\\)\\*float64\\(rounds\\)\\) \\+ c\\.Heterogeneity"
+          ]
+        },
+        {
+          "path": "test/phase3b_theorems_test.go",
+          "patterns": [
+            "return 1\\.0/\\(2\\.0\\*k\\*t\\) \\+ zeta\\*zeta"
+          ]
+        }
+      ]
+    }
+  ]
+}

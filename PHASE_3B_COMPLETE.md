@@ -1,6 +1,11 @@
 # PHASE 3B EXECUTION COMPLETE ✓
 ## Sovereign-Mohawk Formal Verification Milestone
 
+> Status note (2026-04-22): the authoritative claim scope is the current
+> `proofs/FORMAL_TRACEABILITY_MATRIX.md`. This historical report predates later
+> scope corrections and should be read as an implementation log, not as the
+> final claim-status source of truth.
+
 **Date:** 2026-04-19  
 **Status:** COMPLETE AND VALIDATED ✓  
 **Quality Score:** 99.2%

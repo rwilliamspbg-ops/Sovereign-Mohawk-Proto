@@ -116,6 +116,10 @@ jobs:
             --lean proofs/Specification/System.lean \
             --go internal/
 
+      - name: Check theorem/runtime consistency
+        run: |
+          python3 scripts/ci/check_theorem_runtime_consistency.py
+
       - name: Run formal validation tooling tests
         run: |
           make validate-formal-tooling-tests
@@ -180,7 +184,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✓ **Formal Proofs Verified**\n\n- 52 theorems machine-checked ✓\n- Zero axioms (sorry/axiom/admit) ✓\n- Lake build succeeded ✓'
+              body: '✓ **Formal Proof Pipeline Passed**\n\n- Lean modules built successfully\n- No proof placeholders found\n- Theorem/runtime consistency checks passed'
             })
 
   proof-quality-checks:
@@ -232,8 +236,10 @@ jobs:
             "Theorem2RDP.lean"
             "Theorem3Communication.lean"
             "Theorem4Liveness.lean"
+            "Theorem4ChernoffBounds.lean"
             "Theorem5Cryptography.lean"
             "Theorem6Convergence.lean"
+            "Theorem6ConvergenceReals.lean"
             "Common.lean"
           )
           

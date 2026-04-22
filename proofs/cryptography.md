@@ -1,7 +1,13 @@
 # Theorem 5: Cryptographic Verifiability (zk-SNARKs)
 
 ### Formal Statement
-The Sovereign-Mohawk architecture provides cryptographic assurance of correct aggregation via zk-SNARKs, producing proofs of constant size (~200 bytes) with a verification time of $O(1) \approx 10\text{ms}$, independent of the $10^7$ participant scale.
+The current Lean module machine-checks an abstract verifier-cost model in which:
+
+- proof size is represented as a constant,
+- verifier work is represented as a constant number of operations, and
+- the resulting runtime proxy is scale-invariant with respect to participant count.
+
+This supports the engineering claim that the verifier model is constant-cost, but it is not yet a full formalization of Groth16 succinctness, soundness, or q-SDH-based security.
 
 ### Proof Structure
 1. **Computational Assumption:** Based on the q-Strong Diffie-Hellman (q-SDH) assumption in bilinear groups.
