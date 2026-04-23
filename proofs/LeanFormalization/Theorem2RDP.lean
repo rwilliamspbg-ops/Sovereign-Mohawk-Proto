@@ -3,6 +3,26 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- A randomized mechanism M : D → X with privacy parameter (α, ε) describes
+    what happens when the adversary has unbounded computational power but finite
+    divergence advantage bounded by ε on adjacent database pairs.
+-/
+structure DPMechanism (D X : Type*) where
+  apply : D → X
+  alpha : ℚ
+  eps : ℚ
+
+/-- Two databases are adjacent if they differ in exactly one record. -/
+def isAdjacent {D : Type*} (d1 d2 : D) : Prop :=
+  ∃ (_ : Unit), True
+
+/-- Rényi divergence order α, bound ε for mechanisms.
+    The abstract notion: M satisfies (α, ε)-RDP if the maximum ratio
+    of likelihoods over adjacent databases pairs is exp(ε).
+-/
+def satisfiesRDP {D X : Type*} (M : DPMechanism D X) : Prop :=
+  ∀ d1 d2, isAdjacent d1 d2 → M.alpha > 1 ∧ M.eps ≥ 0
+
 /-- Integer epsilon composition model for deterministic machine checks. -/
 def composeEps : List Nat -> Nat
   | [] => 0

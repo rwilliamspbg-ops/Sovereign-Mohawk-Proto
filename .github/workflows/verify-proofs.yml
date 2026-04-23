@@ -80,14 +80,12 @@ jobs:
           lake update
           lake exe cache get
 
-      - name: Ensure no placeholder proofs
+      - name: Ensure no unsafe placeholders and track `sorry`
         working-directory: proofs
         run: |
           if grep -RIn '\baxiom\b\|\badmit\b' LeanFormalization Specification Refinement *.lean; then
             echo "❌ Unsafe formal proof placeholders detected (axiom/admit)"
             exit 1
-          else
-            echo "✅ No proof placeholders found."
           fi
 
           SORRY_COUNT=$(grep -RIn '\bsorry\b' LeanFormalization Specification Refinement *.lean | wc -l || true)

@@ -2,9 +2,13 @@ import Mathlib
 
 namespace LeanFormalization
 
-/-- Utility: Any concrete theorem is supported by proofs. -/
-theorem theorem_foundation : True := by
-  trivial
+/-- Foundational repository constants are strictly positive. -/
+theorem theorem_foundation : 0 < global_scale ∧ 0 < model_dimension := by
+  constructor
+  · unfold global_scale
+    decide
+  · unfold model_dimension
+    decide
 
 /-- Global scale constant: 10 million participants. -/
 def global_scale : Nat := 10_000_000
