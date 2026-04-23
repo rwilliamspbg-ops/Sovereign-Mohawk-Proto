@@ -4,7 +4,7 @@
 
 ## Summary
 
-All 52 theorems in the Sovereign-Mohawk formal proof system have been **machine-verified** as syntactically valid and placeholder-free.
+All 52 theorem symbols in the Sovereign-Mohawk formal proof system have been checked as syntactically valid and placeholder-free. This report speaks to machine-checked source status, not to whether every human-readable theorem claim has already been formalized at full mathematical strength.
 
 ## Theorem Inventory
 
@@ -32,7 +32,7 @@ All 52 theorems in the Sovereign-Mohawk formal proof system have been **machine-
   - theorem2_alpha_10_delta_1e5
   - theorem2_composition_correct
   - theorem2_hierarchical_rdp_bound
-- **Status:** ✓ VERIFIED (ε ≤ 2.0 budget constraint proven)
+- **Status:** ✓ SURROGATE VERIFIED (`Nat` budget-composition guard proven)
 
 ### Theorem 3: Communication Complexity
 - **File:** Theorem3Communication.lean (3.2 KB)
@@ -77,7 +77,7 @@ All 52 theorems in the Sovereign-Mohawk formal proof system have been **machine-
   - theorem5_soundness_qsdh
   - theorem5_universal_aggregation
   - theorem5_aggregator_independence
-- **Status:** ✓ VERIFIED (O(1) ~9ms verification time constant proven)
+- **Status:** ✓ MODEL VERIFIED (constant-cost verifier proxy proven)
 
 ### Theorem 6: Non-IID Convergence Bounds
 - **File:** Theorem6Convergence.lean (1.4 KB)
@@ -88,7 +88,7 @@ All 52 theorems in the Sovereign-Mohawk formal proof system have been **machine-
   - theorem6_rounds_help_stronger
   - theorem6_large_scale_guard
   - theorem6_heterogeneity_effect
-- **Status:** ✓ VERIFIED (O(1/√KT) + O(ζ²) convergence rate proven)
+- **Status:** ✓ SURROGATE VERIFIED (convergence-envelope behavior checks proven)
 
 ### Common Utilities
 - **File:** Common.lean (0.8 KB)
@@ -179,4 +179,4 @@ The Sovereign-Mohawk formal proof system contains **52 machine-verified theorems
 
 Timestamp: 2026-04-19  
 Verified By: Machine Analysis + Syntactic Validation  
-Certification Level: PRODUCTION READY
+Certification Level: INTERNAL VALIDATION COMPLETE

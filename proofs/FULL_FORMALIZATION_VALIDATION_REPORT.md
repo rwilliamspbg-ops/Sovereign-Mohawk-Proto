@@ -7,14 +7,15 @@
 
 ## Executive Summary
 
-All 52 theorems across 6 Lean 4 modules have been **audited and validated**:
+The current Lean modules, proof artifacts, and runtime references have been **audited and validated for buildability, placeholder-freedom, and traceability**:
 
 - ✓ **Zero placeholders** (no `sorry`, `axiom`, or `admit`)
 - ✓ **100% theorem completion** (52/52 proven)
 - ✓ **Type-safe proofs** (Lean 4 compiler verified)
 - ✓ **Runtime evidence** (all test references exist and pass)
 - ✓ **Matrix traceability** (all theorem-to-test mappings validated)
-- ✓ **Production-ready certification**
+- ✓ **Internal validation package prepared**
+- ! **Scope caveat:** several theorem families still use surrogate or abstract models rather than full mathematical formalizations
 
 ---
 
@@ -243,7 +244,7 @@ func (sm *StragglerMonitor) ValidateLiveness(activeNodes int, _ int) error {
 }
 ```
 
-**Status:** ✓ All tests exist and validate >99.99% liveness
+**Status:** ✓ All tests exist and validate the configured runtime liveness threshold
 
 ---
 

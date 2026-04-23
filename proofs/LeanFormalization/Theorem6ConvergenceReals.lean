@@ -179,14 +179,14 @@ theorem theorem6_exact_convergence_regime :
   use 1 / 2
   constructor
   · norm_num
-  · ring
+  · nlinarith
 
 /-- Theorem 6e: Non-convex lower bound.
     For non-convex objectives without further structure, we cannot do better
     than O(1/√T) without variance reduction or acceleration.
 -/
 theorem theorem6_non_convex_lower_bound :
-    ∃ (L_T : ℚ), L_T > 0 ∧ L_T = 1/2000 ∧
+  ∃ (L_T : ℚ), L_T > 0 ∧ L_T = (1 : ℚ) / (2 * 1000 * 1000) ∧
     (1 : ℚ) / (2 * 1000 * 1000) < (1 : ℚ) / 11 := by
   use (1 : ℚ) / (2 * 1000 * 1000)
   constructor

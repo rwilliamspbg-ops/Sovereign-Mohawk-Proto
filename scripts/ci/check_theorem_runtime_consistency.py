@@ -1,78 +1,59 @@
 #!/usr/bin/env python3
-"""
-Check theorem/runtime consistency by comparing documented formulas in proofs
-with the corresponding implementations in the codebase.
-"""
+"""Check that theorem-facing runtime formulas still match claimed proof models."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import subprocess
 from pathlib import Path
 
 
-def load_theorem_claims(path: Path) -> dict:
-    """Load theorem claims metadata."""
-    if not path.exists():
-        return {"claims": []}
-    with open(path) as f:
-        return json.load(f)
-
-
-def check_runtime_patterns(repo_root: Path, claim: dict) -> list[str]:
-    """Check that runtime files contain expected patterns."""
-    findings = []
-    runtime_targets = claim.get("runtime_targets", [])
-
-    for target in runtime_targets:
-        file_path = repo_root / target.get("path", "")
-        if not file_path.exists():
-            findings.append(f"Runtime target not found: {file_path}")
-            continue
-
-        content = file_path.read_text()
-        patterns = target.get("patterns", [])
-
-        for pattern_str in patterns:
-            # Convert pattern from escaped form to actual regex
-            pattern = re.compile(pattern_str, re.MULTILINE | re.IGNORECASE)
-            if not pattern.search(content):
-                findings.append(f"Pattern not found in {file_path}:\n" f"  Pattern: {pattern_str}")
-
-    return findings
+def load_claims(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check theorem/runtime consistency")
     parser.add_argument("--repo-root", default=".", help="Repository root")
+    parser.add_argument(
+        "--claims",
+        default="proofs/theorem_claims.json",
+        help="Path to theorem claims metadata relative to repo root",
+    )
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
-    claims_file = repo_root / "proofs" / "theorem_claims.json"
+    claims_path = repo_root / args.claims
+    payload = load_claims(claims_path)
 
-    theorem_claims = load_theorem_claims(claims_file)
-    claims = theorem_claims.get("claims", [])
+    failures: list[str] = []
+    checked_patterns = 0
 
-    all_findings: list[str] = []
-    for claim in claims:
-        claim_id = claim.get("id", "<unknown>")
-        findings = check_runtime_patterns(repo_root, claim)
+    for claim in payload.get("claims", []):
+        claim_id = claim["id"]
+        for target in claim.get("runtime_targets", []):
+            rel_path = target["path"]
+            abs_path = repo_root / rel_path
+            if not abs_path.exists():
+                failures.append(f"{claim_id}: missing runtime target file {rel_path}")
+                continue
+            text = abs_path.read_text(encoding="utf-8")
+            for pattern in target.get("patterns", []):
+                checked_patterns += 1
+                if re.search(pattern, text, flags=re.MULTILINE) is None:
+                    failures.append(f"{claim_id}: pattern not found in {rel_path}: {pattern}")
 
-        if findings:
-            print(f"\n❌ Claim {claim_id} has runtime consistency issues:")
-            for finding in findings:
-                print(f"   {finding}")
-                all_findings.append(finding)
+    if failures:
+        print("theorem/runtime consistency check failed")
+        for item in failures:
+            print(f"  - {item}")
+        return 1
 
-    if not all_findings:
-        print("✅ Theorem/runtime consistency check passed")
-        print(f"   Checked {len(claims)} claims with runtime targets")
-        return 0
-
-    print(f"\n❌ Found {len(all_findings)} consistency issue(s)")
-    return 1
+    print("theorem/runtime consistency check passed")
+    print(f"  - claims file: {claims_path}")
+    print(f"  - regex checks: {checked_patterns}")
+    return 0
 
 
 if __name__ == "__main__":
