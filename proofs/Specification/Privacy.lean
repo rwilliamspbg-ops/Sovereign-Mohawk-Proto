@@ -6,13 +6,13 @@ namespace Specification
 abbrev Database := List ℚ
 
 def adjacent (d1 d2 : Database) : Prop :=
-  ∃ prefix : Database,
-    ∃ x : Database,
-      ∃ y : Database,
+  ∃ pre : Database,
+    ∃ x : ℚ,
+      ∃ y : ℚ,
         ∃ suffix : Database,
           x ≠ y ∧
-          d1 = prefix ++ x :: suffix ∧
-          d2 = prefix ++ y :: suffix
+          d1 = pre ++ x :: suffix ∧
+          d2 = pre ++ y :: suffix
 
 /-- Exact rational RDP composition ledger used by the specification layer. -/
 def composeRDP : List ℚ -> ℚ
@@ -58,7 +58,7 @@ theorem gaussian_rdp_step_exact (alpha sigma : ℚ) :
 
 /-- Budget soundness in the exact rational specification. -/
 theorem accountant_within_budget (steps : List ℚ) (budget : ℚ)
-    (h_nonneg : ∀ e ∈ steps, 0 ≤ e)
+  (_h_nonneg : ∀ e ∈ steps, 0 ≤ e)
     (h_budget : composeRDP steps ≤ budget) :
     rdpAccountant steps ≤ budget := by
   simpa [rdpAccountant] using h_budget
