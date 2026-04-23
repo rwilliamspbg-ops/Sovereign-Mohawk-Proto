@@ -196,7 +196,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
         with:
-          name: formal-proof-report-${{ github.run_id }}-${{ github.run_attempt }}
+          name: formal-proof-report
           path: |
             /tmp/proof_report.md
             results/proofs/refinement_check.json

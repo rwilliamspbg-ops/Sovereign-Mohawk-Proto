@@ -376,7 +376,7 @@ Include:
 
 ## Known Vulnerabilities
 
-See [SECURITY_ADVISORIES.md](SECURITY_ADVISORIES.md)
+See [SECURITY.md](SECURITY.md)
 
 ## Compliance
 

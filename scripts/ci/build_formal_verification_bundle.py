@@ -109,9 +109,13 @@ def main() -> int:
         shutil.rmtree(bundle_dir)
     bundle_dir.mkdir(parents=True, exist_ok=True)
 
+    # The bundle must contain the exact report selected by --report at the
+    # canonical path expected by verifiers.
+    canonical_report_rel = Path("results/proofs/formal_validation_report.json")
+
     manifest_files: dict[str, str] = {}
     for rel_path in include_paths:
-        src = repo_root / rel_path
+        src = report_path if rel_path == canonical_report_rel else (repo_root / rel_path)
         dst = bundle_dir / rel_path
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
