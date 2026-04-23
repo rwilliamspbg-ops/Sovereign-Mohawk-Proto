@@ -6,6 +6,10 @@ import (
 	"testing"
 )
 
+func convergenceEnvelopeKT(k float64, t float64, zeta float64) float64 {
+	return 1.0/(2.0*k*t) + zeta*zeta
+}
+
 // TestChernoffBound_Basic validates the basic chernoff bound calculation
 // for 12 copies with 90% fast node availability
 func TestChernoffBound_Basic(t *testing.T) {
@@ -85,18 +89,14 @@ func TestConvergenceEnvelope_Concrete(t *testing.T) {
 	T := 1000.0
 	zeta := 0.1
 
-	// Envelope = 1/(2√KT) + ζ²
-	sqrtTerm := 1.0 / (2.0 * math.Sqrt(K*T))
-	heterogeneityTerm := zeta * zeta
+	envelope := convergenceEnvelopeKT(K, T, zeta)
 
-	envelope := sqrtTerm + heterogeneityTerm
-
-	if envelope < 0.01 || envelope > 0.02 {
-		t.Errorf("Envelope out of expected range: %f (expected ~0.015)", envelope)
+	if envelope < 0.01 || envelope > 0.011 {
+		t.Errorf("Envelope out of expected range: %f (expected ~0.010005)", envelope)
 	}
 
-	if envelope >= 0.05 {
-		t.Errorf("Envelope too large: %f (expected < 0.05)", envelope)
+	if envelope >= 0.02 {
+		t.Errorf("Envelope too large: %f (expected < 0.02)", envelope)
 	}
 }
 
@@ -107,9 +107,7 @@ func TestConvergenceEnvelope_RoundsHelp(t *testing.T) {
 
 	envelopes := make(map[int]float64)
 	for T := 100; T <= 5000; T += 100 {
-		sqrtTerm := 1.0 / (2.0 * math.Sqrt(K*float64(T)))
-		heterogeneityTerm := zeta * zeta
-		envelopes[T] = sqrtTerm + heterogeneityTerm
+		envelopes[T] = convergenceEnvelopeKT(K, float64(T), zeta)
 	}
 
 	// Verify monotone decreasing
@@ -129,10 +127,8 @@ func TestConvergenceEnvelope_HeterogeneityEffect(t *testing.T) {
 	zeta := 0.1
 
 	T := 10000.0 // Very large T
-	sqrtTerm := 1.0 / (2.0 * math.Sqrt(K*T))
+	envelope := convergenceEnvelopeKT(K, T, zeta)
 	heterogeneityTerm := zeta * zeta
-
-	envelope := sqrtTerm + heterogeneityTerm
 
 	// At large T, heterogeneity term should dominate (>90% of envelope)
 	if heterogeneityTerm < 0.9*envelope {
@@ -152,9 +148,7 @@ func TestConvergenceEnvelope_DimensionIndependent(t *testing.T) {
 	zeta := 0.1
 
 	// Compute envelope (dimension-independent)
-	sqrtTerm := 1.0 / (2.0 * math.Sqrt(K*T))
-	heterogeneityTerm := zeta * zeta
-	envelope := sqrtTerm + heterogeneityTerm
+	envelope := convergenceEnvelopeKT(K, T, zeta)
 
 	// Envelope should be same for d=1M and d=10M
 	d1 := 1000000
@@ -198,7 +192,7 @@ func TestConvergenceVarianceReduction(t *testing.T) {
 	zeta := 0.1
 
 	// Standard SGD envelope
-	standardEnvelope := 1.0/(2.0*math.Sqrt(K*T)) + zeta*zeta
+	standardEnvelope := convergenceEnvelopeKT(K, T, zeta)
 
 	// Variance-reduced envelope (50% improvement)
 	varianceReducedEnvelope := standardEnvelope / 2.0

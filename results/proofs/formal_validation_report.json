@@ -1,61 +1,73 @@
 {
-  "input_merkle_root": "78629be9092f0da9e14474e04f0c221caaa86ded87ad63b031c6a160d25596b5",
+  "claim_status": {
+    "claim_count": 6,
+    "status_counts": {
+      "fully_formalized": 2,
+      "model_verified": 2,
+      "surrogate_verified": 2
+    }
+  },
+  "input_merkle_root": "7ead26cc0d2e740e4b521a054e940b08e361459c51763d26e39078c9e14108d1",
   "inputs": [
     {
       "path": "capabilities.json",
-      "sha256": "3707026ef1ff94bcc55edaad5a21638e3b41851c8dde688f58aa7f04a1f29839"
+      "sha256": "3b42eb6d5c43a580323f2a352417da2e6bd9b15238748d3471ceb5d3fea73bfd"
     },
     {
       "path": "go.mod",
-      "sha256": "83d4d63ff336a3f9f3bbaba27fa4622f06a9ddc9da72805d79f62978a6cf2ecb"
+      "sha256": "6b9a46c71724460e7060f98eec0aeb2a87ee429baee0f3dfac89f80a6faaf995"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "8ac45bb858c140b9430fc9fe5a8bd5abf5bec1b098d27b7a056d8dfd4a27cc59"
+      "sha256": "fac78d7a03f988419534ca5cdfb098b68b29863a5ae9ddf13d2f8467e3e9eddd"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "15c2b9dec6cf4f49930ba104edffd1c0e6ba37e611d922b88467a3fead5ef302"
+      "sha256": "59e65daedfc17e10d5f2e51a8f8159c93d4d2c0cfd252501f231ff684d836907"
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "c59466abaf2324f318389b0e26930b1db2a09c9d647d90816627754ee7e94417"
+      "sha256": "0d60607f02307d8843867b1cfa21e61bb0ced7395a34eeaeaa92b3b6af8f88f2"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "a5e2e1efbd0e4270da333429525051db70964e277c119d653655aae228ed8517"
+      "sha256": "3f5f6c3915a37aec8adfbad857897257535a2d1ed15472e006a592f9c0e6b7b6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
-      "sha256": "e0875d91f93e3baeb9df83019089c0363f3cd7f9e8309aabb241e5f2801db88c"
+      "sha256": "c6e826e8a8d18b570bdfa70e723257091672eda6a32fe0f9a0d4d92f4c12971d"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
-      "sha256": "6a451d2123603f03fac9acc78ba29da0ae930f889254b594d480c15bd2ef2c30"
+      "sha256": "0ef62679c7eaab9673a8697241814e6ec158d9117975777ea8380d57f023c98f"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
-      "sha256": "0308046fa32dc778ce654aafb2c5e43cdfcceabf4b31c9f1a4edd01feda5a8ba"
+      "sha256": "a0229654e89b8ed0f1a011e2b1442bb496b39d333c3779af0a9b38cb36ea0aef"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "2fa2fce7e9c4fcff3adad9c292c1a60bcb6d8a07a2dcb250e2834d1bb9521641"
+      "sha256": "fccce064d6f1e6efd6c9c5b3d24056c666afece793ec5927da4383729d515ca4"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
-      "sha256": "497d4c829e7803be0d9cc5d378deb3e2449dfe9adff83d636892f463204d8656"
+      "sha256": "ae4e4f524c4a8f49b4f7f2b7c3671a1fff4cef9652981ccb80cd57daa19811ab"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
-      "sha256": "7b7fdcc36a7e9f9e1278794d985f3bce2f9aa207fca9bb03a8b7c5d57694835a"
+      "sha256": "be35e2bd0f7c5a70136be3df1a06ab4c30702b48d016fa38f1a7aa2247c1516e"
     },
     {
       "path": "proofs/lakefile.lean",
-      "sha256": "0fc7a8eddc602745752d494311724b269343e538ddb3649e7de0a9cd5bba5472"
+      "sha256": "05ca7c9bf18d8fdc996b96c16885d66fa4fc20ceaa6703bf107be7d8b0c31ed5"
     },
     {
       "path": "proofs/lean-toolchain",
-      "sha256": "ce4c4e3d87434b9663f46de25ce34b48a0cf0d392e0a320a0787b4674a2d7b61"
+      "sha256": "4ffb62ce8c8f7ebaff1c1e98c5d36fd60956fb6c9a55d66d8c75ceaae9e96507"
+    },
+    {
+      "path": "proofs/theorem_claims.json",
+      "sha256": "2aa5fcba675499c6111af5245712e858fc5e70c7c9cbe539944b4ed80b4360d8"
     }
   ],
   "lean_modules": [
@@ -78,14 +90,23 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 6,
+      "symbol_count": 15,
       "symbols": [
         "composeEps",
+        "composeEpsRat",
+        "convertToEpsDelta",
         "theorem2_budget_guard",
         "theorem2_budget_step",
         "theorem2_composition_append",
+        "theorem2_conversion_denominator_pos",
+        "theorem2_conversion_monotone",
         "theorem2_example_profile",
-        "theorem2_monotone_append"
+        "theorem2_monotone_append",
+        "theorem2_rat_budget_guard",
+        "theorem2_rat_composition_append",
+        "theorem2_rat_example_profile",
+        "theorem2_rat_monotone_append",
+        "theorem2_rat_single_step"
       ]
     },
     {
@@ -190,9 +211,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 14,
+    "input_file_count": 15,
     "module_count": 8,
-    "theorem_symbol_count": 72
+    "theorem_symbol_count": 81
   },
   "toolchain_lock": {
     "go_version": "1.25.9",
@@ -201,6 +222,7 @@
     "zk_backend_gnark_crypto": "v0.20.1"
   },
   "traceability": {
+    "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
     "runtime_reference_count": 16,
     "runtime_references": [

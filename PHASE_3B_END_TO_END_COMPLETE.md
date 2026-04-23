@@ -1,6 +1,11 @@
 # PHASE 3B END-TO-END EXECUTION COMPLETE ✓
 ## Sovereign-Mohawk Formal Verification & Runtime Testing
 
+> Status note (2026-04-22): use `proofs/FORMAL_TRACEABILITY_MATRIX.md` for the
+> current authoritative status labels. This document remains useful as a build
+> log, but some of its original claim wording has since been narrowed to match
+> the present formalization scope.
+
 **Project:** Sovereign-Mohawk Formal Verification Phase 3b  
 **Status:** COMPLETE AND PUSHED TO GITHUB  
 **Date:** 2026-04-19  

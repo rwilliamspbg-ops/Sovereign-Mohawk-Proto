@@ -92,7 +92,6 @@ def main() -> int:
         Path("results/proofs/formal_theorem_index.txt"),
         Path("results/proofs/formal_traceability_matrix_snapshot.md"),
         Path("results/proofs/formal_placeholder_scan.txt"),
-        Path("results/proofs/formal_validation_report.json"),
     ]
 
     report_inputs = [Path(item["path"]) for item in report.get("inputs", [])]
@@ -104,6 +103,10 @@ def main() -> int:
         src = repo_root / rel_path
         if not src.exists():
             raise FileNotFoundError(f"missing bundle input: {src}")
+
+    report_bundle_rel = Path("results/proofs/formal_validation_report.json")
+    if not report_path.exists():
+        raise FileNotFoundError(f"missing report file: {report_path}")
 
     if bundle_dir.exists():
         shutil.rmtree(bundle_dir)
@@ -120,6 +123,11 @@ def main() -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
         manifest_files[rel_path.as_posix()] = file_sha256(dst)
+
+    report_dst = bundle_dir / report_bundle_rel
+    report_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(report_path, report_dst)
+    manifest_files[report_bundle_rel.as_posix()] = file_sha256(report_dst)
 
     manifest = build_manifest(bundle_dir, manifest_files, report)
     manifest_path = bundle_dir / "bundle_manifest.json"

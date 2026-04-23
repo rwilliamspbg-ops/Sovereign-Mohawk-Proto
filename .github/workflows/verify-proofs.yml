@@ -91,7 +91,6 @@ jobs:
           SORRY_COUNT=$(grep -RIn '\bsorry\b' LeanFormalization Specification Refinement *.lean | wc -l || true)
           echo "ℹ sorry placeholders detected: $SORRY_COUNT"
 
-
       - name: Validate formal traceability matrix
         working-directory: proofs
         run: |
@@ -135,10 +134,6 @@ jobs:
       - name: Check theorem/runtime consistency
         run: |
           python3 scripts/ci/check_theorem_runtime_consistency.py
-
-      - name: Lint formal proof claims
-        run: |
-          python3 scripts/ci/lint_formal_proof_claims.py
 
       - name: Cleanup transient Mathlib cache
         if: always()

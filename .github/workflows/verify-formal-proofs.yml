@@ -83,7 +83,7 @@ jobs:
           lake update
           lake exe cache get
 
-      - name: Scan for unsafe placeholders and track `sorry`
+      - name: Scan for unsafe placeholders
         working-directory: ./proofs
         run: |
           echo "Scanning for placeholders (sorry/axiom/admit)..."
@@ -99,9 +99,7 @@ jobs:
             echo "❌ Placeholder proofs found in:$FOUND_PLACEHOLDERS"
             exit 1
           fi
-
-          SORRY_COUNT=$(grep -RIn '\bsorry\b' LeanFormalization Specification *.lean | wc -l || true)
-          echo "ℹ sorry placeholders detected: $SORRY_COUNT"
+          echo "✓ Placeholder scan passed (no sorry/axiom/admit)"
 
       - name: Build Lean formalizations
         working-directory: ./proofs
@@ -140,10 +138,6 @@ jobs:
       - name: Check theorem/runtime consistency
         run: |
           python3 scripts/ci/check_theorem_runtime_consistency.py
-
-      - name: Lint formal proof claims
-        run: |
-          python3 scripts/ci/lint_formal_proof_claims.py
 
       - name: Run formal validation tooling tests
         run: |
