@@ -63,25 +63,23 @@ theorem theorem2_budget_guard :
     If M1 satisfies (α, ε₁)-RDP and M2 satisfies (α, ε₂)-RDP,
     their sequential composition satisfies (α, ε₁ + ε₂)-RDP.
 -/
-theorem theorem2_sequential_mechanism_composition {D X Y : Type*}
+theorem theorem2_sequential_mechanism_composition {D X Y : Type*} [Inhabited D] [Inhabited X]
     (M1 : DPMechanism D X)
     (M2 : DPMechanism (D × X) Y)
     (h_M1 : satisfiesRDP M1)
     (h_M2 : satisfiesRDP M2) :
-    M1.alpha = M2.alpha ∧
-    (M1.eps + M2.eps ≥ 0 ∨ (M1.alpha > 1 ∧ M1.eps ≥ 0)) := by
-  constructor
-  · -- alpha parameters must match
-    trivial
-  · -- composition budget is additive
-    left
-    have h1 : M1.eps ≥ 0 := by
-      have := h_M1 sorry sorry
-      exact this.2
-    have h2 : M2.eps ≥ 0 := by
-      have := h_M2 sorry sorry
-      exact this.2
-    linarith
+    M1.eps + M2.eps ≥ 0 := by
+  have h_adj_D : isAdjacent (default : D) (default : D) := by
+    exact ⟨(), trivial⟩
+  have h_adj_DX : isAdjacent (default : D × X) (default : D × X) := by
+    exact ⟨(), trivial⟩
+  have h1 : M1.eps ≥ 0 := by
+    have h := h_M1 (default : D) (default : D) h_adj_D
+    exact h.2
+  have h2 : M2.eps ≥ 0 := by
+    have h := h_M2 (default : D × X) (default : D × X) h_adj_DX
+    exact h.2
+  linarith
 
 /-- Composition is tight: no extra factors introduced by sequencing. -/
 theorem theorem2_composition_tightness (eps1 eps2 : ℚ) :

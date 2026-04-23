@@ -17,7 +17,9 @@ VacuousLeanPatterns = [
     ),
     (
         "prop_true_def",
-        re.compile(r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b", re.MULTILINE),
+        re.compile(
+            r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b", re.MULTILINE
+        ),
         "Prop definition reduces directly to `True`",
     ),
 ]
@@ -83,7 +85,9 @@ def lint_claims_file(path: Path) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Lint formal proof claims and proof-facing artifacts")
+    parser = argparse.ArgumentParser(
+        description="Lint formal proof claims and proof-facing artifacts"
+    )
     parser.add_argument("--repo-root", default=".", help="Repository root")
     args = parser.parse_args()
 
