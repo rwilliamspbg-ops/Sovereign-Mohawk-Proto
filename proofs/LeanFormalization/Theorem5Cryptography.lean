@@ -77,6 +77,7 @@ theorem theorem5_proof_soundness (n : Nat) (stmt : ZKStatement) :
   use { internal_data := 1 }
   unfold statementSoundness
   use { internal_data := 1 }
+  decide
 
 /-- Theorem 5b: Verifier completeness.
     If a proof is generated from a valid witness, the verifier accepts it.

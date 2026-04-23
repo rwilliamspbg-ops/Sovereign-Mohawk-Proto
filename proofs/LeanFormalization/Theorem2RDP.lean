@@ -21,7 +21,7 @@ def isAdjacent {D : Type*} (d1 d2 : D) : Prop :=
     of likelihoods over adjacent databases pairs is exp(ε).
 -/
 def satisfiesRDP {D X : Type*} (M : DPMechanism D X) : Prop :=
-  ∀ d1 d2, isAdjacent d1 d2 → M.alpha > 1 ∧ M.eps ≥ 0
+  ∀ (d1 d2 : D), isAdjacent d1 d2 → M.alpha > 1 ∧ M.eps ≥ 0
 
 /-- Integer epsilon composition model for deterministic machine checks. -/
 def composeEps : List Nat -> Nat

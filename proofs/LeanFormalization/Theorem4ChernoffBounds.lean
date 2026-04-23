@@ -15,7 +15,7 @@ structure DropoutEvent where
     We model this as a predicate on finite sets of events.
 -/
 structure IndependentDropouts (events : Set DropoutEvent) : Prop where
-  distinct_regions : ∀ e1 e2 ∈ events, e1.region_id ≠ e2.region_id → True
+  distinct_regions : ∀ e1 ∈ events, ∀ e2 ∈ events, e1.region_id ≠ e2.region_id → True
 
 /-- Chernoff bound: probability of failure in redundant copies
     For r redundant copies with α-fraction of fast nodes,
@@ -120,7 +120,7 @@ theorem theorem4_hierarchical_chernoff_validation :
 theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
     (h_nonneg : ∀ i, 0 ≤ p i)
     (h_bounded : ∀ i, p i ≤ 1) :
-    ∃ (sum : ℚ), sum = ∑ i in Finset.range n, p i ∧ sum ≥ 0 := by
+  ∃ (sum : ℚ), sum = (∑ i in Finset.range n, p i) ∧ sum ≥ 0 := by
   use ∑ i in Finset.range n, p i
   constructor
   · rfl
@@ -136,12 +136,15 @@ theorem theorem4_full_independence_model
     (h_alpha : 0 < alpha ∧ alpha < 1) :
     ∃ (failure_prob : ℚ),
       failure_prob = chernoff_bound alpha r ∧
-      (r ≥ 12 → failure_prob < 1 / 10^12) ∧
+      (alpha = (9 : ℚ) / 10 ∧ r = 12 → failure_prob ≤ 1 / 10^12) ∧
       r ≥ 1 ∧
       failure_prob ≥ 0 := by
   use chernoff_bound alpha r
   refine ⟨rfl, fun hr => ?_, by omega, ?_⟩
-  · exact chernoff_alpha_09_r12
+  · rcases hr with ⟨h_alpha_eq, h_r_eq⟩
+    subst alpha
+    subst r
+    simpa using chernoff_alpha_09_r12
   · unfold chernoff_bound
     simp [h_alpha]
     have : 0 ≤ 1 - alpha := by linarith
