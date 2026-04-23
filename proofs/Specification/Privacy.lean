@@ -6,7 +6,7 @@ namespace Specification
 abbrev Database := List ℚ
 
 def adjacent (d1 d2 : Database) : Prop :=
-  ∃ (prefix x y suffix : Database),
+  ∃ (prefix : Database) (x : Database) (y : Database) (suffix : Database),
     x ≠ y ∧
     d1 = prefix ++ x :: suffix ∧
     d2 = prefix ++ y :: suffix
