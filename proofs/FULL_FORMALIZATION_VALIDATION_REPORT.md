@@ -393,10 +393,10 @@ The Sovereign-Mohawk formal proof system is **fully verified and production-read
 4. **Type-safety guaranteed** by Lean 4 compiler
 5. **No unproven assumptions** beyond q-SDH (standard cryptography)
 
-**Certification Status:** ✓ **APPROVED FOR PRODUCTION USE**
+**Certification Status:** ✓ **INTERNAL VALIDATION COMPLETE**
 
 ---
 
 **Report Generated:** 2026-04-19  
 **Validation Framework:** Lean 4 Machine Verification + Runtime Test Cross-Validation  
-**Authority:** Formal Methods Team + Automated CI
+**Authority:** Automated Lean 4 checks + repository self-audit

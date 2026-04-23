@@ -1,0 +1,14 @@
+package internal
+
+// Gobra contract target for MultiKrumSelect.
+//
+// Property: on success, every selected index is a valid index into updates,
+// so each selected output refers to one of the input gradients.
+//
+// @ requires len(updates) > 2*f+2
+// @ requires f >= 0
+// @ requires forall i int :: 0 <= i && i < len(updates) ==> len(updates[i]) == len(updates[0])
+// @ ensures err == nil ==> 0 < len(selected)
+// @ ensures err == nil ==> len(selected) <= len(updates)
+// @ ensures err == nil ==> forall k int :: 0 <= k && k < len(selected) ==> 0 <= selected[k] && selected[k] < len(updates)
+func MultiKrumSelect(updates [][]float64, f int, m int) (selected []int, scores []float64, err error)

@@ -1,0 +1,114 @@
+{
+  "schema_version": "theorem_claims.v1",
+  "claims": [
+    {
+      "id": "theorem1_bft",
+      "status": "fully_formalized",
+      "formal_scope": "deterministic numeric resilience bound",
+      "blocking_gaps": [],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem1BFT.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem2_rdp",
+      "status": "surrogate_verified",
+      "formal_scope": "exact rational and integer additive composition with budget guards, plus abstract DP mechanism model with composition lemma",
+      "blocking_gaps": [
+        "RDP not yet formalized as a property of probability distributions over mechanisms",
+        "The (ε, δ) conversion from Rényi divergence is analytically documented but not fully formal",
+        "Mechanism composition lemma structure added but requires measure-theoretic completeness"
+      ],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem2RDP.lean",
+        "proofs/Specification/Privacy.lean",
+        "proofs/Refinement/RDPAccountant.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/rdp_accountant.go",
+          "patterns": [
+            "epsilon := a\\.Alpha / \\(2\\.0 \\* sigma \\* sigma\\)",
+            "conversion := math\\.Log\\(1\\.0/a\\.TargetDelta\\) / \\(a\\.Alpha - 1\\.0\\)",
+            "current\\.Add\\(current, ratFromFloat64\\(conversion\\)\\)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "theorem3_communication",
+      "status": "fully_formalized",
+      "formal_scope": "deterministic communication bound",
+      "blocking_gaps": [],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem3Communication.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem4_liveness",
+      "status": "model_verified",
+      "formal_scope": "redundancy model and Chernoff-style exponential liveness bounds, plus union-bound probability composition",
+      "blocking_gaps": [
+        "No full measure-theoretic probability space is formalized",
+        "Independence assumptions are stated abstractly but not axiomatized in Lean",
+        "The full stochastic convergence of hierarchical aggregation under failures is not formalized"
+      ],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem4Liveness.lean",
+        "proofs/LeanFormalization/Theorem4ChernoffBounds.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/straggler_resilience.go",
+          "patterns": [
+            "expectedSuccess := float64\\(n\\) \\* \\(1\\.0 - math\\.Pow\\(dropoutRate",
+            "failureProb := math\\.Exp\\(-expectedSuccess / 8\\.0\\)",
+            "successProb < 0\\.9999"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "theorem5_cryptography",
+      "status": "model_verified",
+      "formal_scope": "constant-size and constant-cost verifier model with soundness and completeness structure",
+      "blocking_gaps": [
+        "No full Groth16 algebraic verification equation (pairing check) is formalized",
+        "No q-SDH security reduction is formalized",
+        "Abstract ZKStatement/Witness structures exist but lack connection to actual proof systems"
+      ],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem5Cryptography.lean",
+        "proofs/Specification/Cryptography.lean"
+      ],
+      "runtime_targets": []
+    },
+    {
+      "id": "theorem6_convergence",
+      "status": "surrogate_verified",
+      "formal_scope": "integer and rational convergence envelopes with exact regime characterization (1/(2KT) + ζ²) and monotonicity in round count",
+      "blocking_gaps": [
+        "The full stochastic convergence theorem using measure theory is not formalized",
+        "No direct proof of O(1/√KT) rate; only O(1/KT) linear regime is established",
+        "Convergence under non-IID sampling with actual gradient concentration bounds remains unproven"
+      ],
+      "lean_modules": [
+        "proofs/LeanFormalization/Theorem6Convergence.lean",
+        "proofs/LeanFormalization/Theorem6ConvergenceReals.lean"
+      ],
+      "runtime_targets": [
+        {
+          "path": "internal/convergence.go",
+          "patterns": [
+            "Threshold.*float64",
+            "Heterogeneity.*float64",
+            "IsConverging\\(gradNorm",
+            "effectiveThreshold :="
+          ]
+        }
+      ]
+    }
+  ]
+}
