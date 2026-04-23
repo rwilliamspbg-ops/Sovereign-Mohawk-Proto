@@ -6,7 +6,7 @@ namespace Specification
 abbrev Database := List ℚ
 
 def adjacent (d1 d2 : Database) : Prop :=
-  ∃ prefix x y suffix,
+  ∃ (prefix x y suffix : Database),
     x ≠ y ∧
     d1 = prefix ++ x :: suffix ∧
     d2 = prefix ++ y :: suffix
@@ -46,7 +46,7 @@ theorem composeRDP_nonneg (steps : List ℚ)
         intro e he
         exact h_nonneg e (by simp [he])
       have ih' := ih hxs
-      simp [composeRDP, hx, ih']
+      simpa [composeRDP] using add_nonneg hx ih'
 
 /-- A single Gaussian step is recorded exactly by the accountant model. -/
 theorem gaussian_rdp_step_exact (alpha sigma : ℚ) :
