@@ -83,10 +83,10 @@ jobs:
           lake update
           lake exe cache get
 
-      - name: Scan for placeholder proofs (sorry/axiom/admit)
+      - name: Scan for unsafe placeholders
         working-directory: ./proofs
         run: |
-          echo "Scanning for placeholders..."
+          echo "Scanning for placeholders (sorry/axiom/admit)..."
           FOUND_PLACEHOLDERS=""
 
           for file in LeanFormalization/*.lean Specification/*.lean Refinement/*.lean; do
@@ -99,8 +99,7 @@ jobs:
             echo "❌ Placeholder proofs found in:$FOUND_PLACEHOLDERS"
             exit 1
           fi
-          
-          echo "✅ No placeholders (sorry/axiom/admit) found."
+          echo "✓ Placeholder scan passed (no sorry/axiom/admit)"
 
       - name: Build Lean formalizations
         working-directory: ./proofs
@@ -112,9 +111,29 @@ jobs:
 
       - name: Check spec-to-implementation refinement alignment
         run: |
+          mkdir -p results/proofs
           python3 scripts/check_refinement.py \
             --lean proofs/Specification/System.lean \
-            --go internal/
+            --go internal/ \
+            --json > results/proofs/refinement_check.json
+
+      - name: Summarize refinement alignment
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = Path("results/proofs/refinement_check.json")
+          data = json.loads(report.read_text(encoding="utf-8"))
+
+          print("=== Refinement Alignment Summary ===")
+          print(f"ok: {data.get('ok')}")
+          print(f"proofs_root: {data.get('proofs_root')}")
+          print(f"lean_files_checked: {len(data.get('lean_files_checked', []))}")
+          print(f"go_files_checked: {len(data.get('go_files_checked', []))}")
+          print(f"lean_missing_files: {len(data.get('lean_missing', {}))}")
+          print(f"go_missing_files: {len(data.get('go_missing', {}))}")
+          PY
 
       - name: Run formal validation tooling tests
         run: |
@@ -153,7 +172,7 @@ jobs:
             find LeanFormalization -name '*.lean' -exec wc -l {} + | awk '{print "- " $2 ": " $1 " lines"}'
             echo ""
             echo "## Placeholder Scan Result"
-            echo "✓ PASS - No placeholders (sorry/axiom/admit) found"
+            echo "✓ PASS - No unsafe placeholders (sorry/axiom/admit) found"
             echo ""
             echo "## Build Status"
             echo "✓ Lake build succeeded"
@@ -167,7 +186,9 @@ jobs:
         uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
         with:
           name: formal-proof-report-${{ github.run_id }}-${{ github.run_attempt }}
-          path: /tmp/proof_report.md
+          path: |
+            /tmp/proof_report.md
+            results/proofs/refinement_check.json
           retention-days: 7
 
       - name: Comment on PR with proof verification
