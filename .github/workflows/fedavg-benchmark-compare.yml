@@ -214,13 +214,17 @@ jobs:
           TIME_OPS = ("sec/op", "ns/op", "time/op")
           TIME_HEADER_MARKERS = ("vs base", "delta")
           PCT_RE = re.compile(r"([+-]?[0-9]+(?:\.[0-9]+)?)%")
-          TILDE_RE = re.compile(r"\b~\b")
+          RATIO_RE = re.compile(r"([0-9]+(?:\.[0-9]+)?)x")
+          TILDE_RE = re.compile(r"~")
 
           def parse_geomean_delta(line):
             """Return geomean delta from a benchstat geomean line, or None if unparseable."""
             m = PCT_RE.search(line)
             if m:
               return float(m.group(1))
+            r = RATIO_RE.search(line)
+            if r:
+              return (float(r.group(1)) - 1.0) * 100.0
             # Statistically indistinguishable (~) — treat as no regression.
             if TILDE_RE.search(line):
               return 0.0
