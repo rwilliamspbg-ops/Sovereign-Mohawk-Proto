@@ -83,13 +83,12 @@ jobs:
       - name: Ensure no unsafe placeholders and track `sorry`
         working-directory: proofs
         run: |
-          if grep -RIn '\baxiom\b\|\badmit\b' LeanFormalization Specification Refinement *.lean; then
-            echo "❌ Unsafe formal proof placeholders detected (axiom/admit)"
+          if grep -RIn '\bsorry\b\|\baxiom\b\|\badmit\b' LeanFormalization Specification Refinement *.lean; then
+            echo "❌ Unsafe formal proof placeholders detected (sorry/axiom/admit)"
             exit 1
           fi
 
-          SORRY_COUNT=$(grep -RIn '\bsorry\b' LeanFormalization Specification Refinement *.lean | wc -l || true)
-          echo "ℹ sorry placeholders detected: $SORRY_COUNT"
+          echo "✓ Placeholder scan passed (no sorry/axiom/admit)"
       - name: Validate formal traceability matrix
         working-directory: proofs
         run: |
@@ -106,9 +105,29 @@ jobs:
 
       - name: Check spec-to-implementation refinement alignment
         run: |
+          mkdir -p results/proofs
           python3 scripts/check_refinement.py \
             --lean proofs/Specification/System.lean \
-            --go internal/
+            --go internal/ \
+            --json > results/proofs/refinement_check.json
+
+      - name: Summarize refinement alignment
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = Path("results/proofs/refinement_check.json")
+          data = json.loads(report.read_text(encoding="utf-8"))
+
+          print("=== Refinement Alignment Summary ===")
+          print(f"ok: {data.get('ok')}")
+          print(f"proofs_root: {data.get('proofs_root')}")
+          print(f"lean_files_checked: {len(data.get('lean_files_checked', []))}")
+          print(f"go_files_checked: {len(data.get('go_files_checked', []))}")
+          print(f"lean_missing_files: {len(data.get('lean_missing', {}))}")
+          print(f"go_missing_files: {len(data.get('go_missing', {}))}")
+          PY
 
       - name: Check theorem/runtime consistency
         run: |
@@ -156,6 +175,7 @@ jobs:
         with:
           name: formal-proof-artifacts
           path: |
+            results/proofs/refinement_check.json
             results/proofs/formal_theorem_index.txt
             results/proofs/formal_traceability_matrix_snapshot.md
             results/proofs/formal_placeholder_scan.txt
