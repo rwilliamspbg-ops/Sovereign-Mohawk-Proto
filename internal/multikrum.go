@@ -11,6 +11,12 @@ import (
 // n: number of updates
 // f: Byzantine upper bound
 // m: number of selected updates (if <= 0 defaults to n-f-2)
+// @ requires len(updates) > 2*f+2
+// @ requires f >= 0
+// @ requires forall i int :: 0 <= i && i < len(updates) ==> len(updates[i]) == len(updates[0])
+// @ ensures err == nil ==> 0 < len(selected)
+// @ ensures err == nil ==> len(selected) <= len(updates)
+// @ ensures err == nil ==> forall k int :: 0 <= k && k < len(selected) ==> 0 <= selected[k] && selected[k] < len(updates)
 func MultiKrumSelect(updates [][]float64, f int, m int) ([]int, []float64, error) {
 	n := len(updates)
 	if n == 0 {

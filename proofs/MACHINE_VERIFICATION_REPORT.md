@@ -167,13 +167,13 @@ All theorems will compile and verify in <5 minutes on standard hardware.
 The Sovereign-Mohawk formal proof system contains **52 machine-verified theorems** covering:
 
 1. **Byzantine Fault Tolerance** - 55.5% resilience guarantee
-2. **Differential Privacy** - ε ≤ 2.0 budget composition
+2. **Differential Privacy** - integer budget-composition surrogate
 3. **Communication Efficiency** - O(d log n) hierarchical complexity
-4. **Liveness Guarantees** - 99.99% success probability
-5. **Cryptographic Verification** - O(1) zk-SNARK verification
-6. **Convergence Bounds** - Non-IID heterogeneity handling
+4. **Liveness Guarantees** - integer redundancy/dropout surrogate
+5. **Cryptographic Verification** - constant-cost verifier model
+6. **Convergence Bounds** - surrogate envelope behavior checks
 
-**STATUS: VERIFIED AND CERTIFIED FOR PRODUCTION USE**
+**STATUS: MACHINE-CHECKED SOURCE PACKAGE; READY FOR INDEPENDENT AUDIT**
 
 ---
 
