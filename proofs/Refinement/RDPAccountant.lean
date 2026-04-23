@@ -22,12 +22,16 @@ theorem accountant_impl_append (xs ys : List ℚ) :
 theorem accountant_impl_monotone_append (xs ys : List ℚ)
     (h_nonneg : ∀ e ∈ ys, 0 ≤ e) :
     accountantImpl xs ≤ accountantImpl (xs ++ ys) := by
-  rw [accountantImpl, rdpAccountant, composeRDP_append]
   have hsum : 0 ≤ composeRDP ys := composeRDP_nonneg ys h_nonneg
-  linarith
+  calc
+    accountantImpl xs = composeRDP xs := by rfl
+    _ ≤ composeRDP xs + composeRDP ys := by linarith
+    _ = composeRDP (xs ++ ys) := by
+      simpa [composeRDP_append] using (composeRDP_append xs ys).symm
+    _ = accountantImpl (xs ++ ys) := by rfl
 
 theorem accountant_impl_preserves_budget (steps : List ℚ) (budget : ℚ)
-    (h_nonneg : ∀ e ∈ steps, 0 ≤ e)
+  (_h_nonneg : ∀ e ∈ steps, 0 ≤ e)
     (h_budget : accountantSpec steps ≤ budget) :
     accountantImpl steps ≤ budget := by
   simpa [accountantImpl, accountantSpec, rdpAccountant] using h_budget
