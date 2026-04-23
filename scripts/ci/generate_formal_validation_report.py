@@ -109,7 +109,15 @@ def compute_report(repo_root: Path) -> dict:
     go_mod = repo_root / "go.mod"
     capabilities = repo_root / "capabilities.json"
 
-    required = [entry_file, matrix_file, claims_file, lakefile, lean_toolchain, go_mod, capabilities]
+    required = [
+        entry_file,
+        matrix_file,
+        claims_file,
+        lakefile,
+        lean_toolchain,
+        go_mod,
+        capabilities,
+    ]
     for path in required:
         if not path.exists():
             raise FileNotFoundError(f"missing required input: {path}")

@@ -42,9 +42,7 @@ def main() -> int:
             for pattern in target.get("patterns", []):
                 checked_patterns += 1
                 if re.search(pattern, text, flags=re.MULTILINE) is None:
-                    failures.append(
-                        f"{claim_id}: pattern not found in {rel_path}: {pattern}"
-                    )
+                    failures.append(f"{claim_id}: pattern not found in {rel_path}: {pattern}")
 
     if failures:
         print("theorem/runtime consistency check failed")
