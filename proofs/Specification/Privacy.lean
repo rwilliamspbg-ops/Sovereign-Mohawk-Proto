@@ -6,10 +6,13 @@ namespace Specification
 abbrev Database := List ℚ
 
 def adjacent (d1 d2 : Database) : Prop :=
-  ∃ (prefix : Database) (x : Database) (y : Database) (suffix : Database),
-    x ≠ y ∧
-    d1 = prefix ++ x :: suffix ∧
-    d2 = prefix ++ y :: suffix
+  ∃ prefix : Database,
+    ∃ x : Database,
+      ∃ y : Database,
+        ∃ suffix : Database,
+          x ≠ y ∧
+          d1 = prefix ++ x :: suffix ∧
+          d2 = prefix ++ y :: suffix
 
 /-- Exact rational RDP composition ledger used by the specification layer. -/
 def composeRDP : List ℚ -> ℚ
