@@ -59,7 +59,14 @@ Use these commands before opening a PR:
 source scripts/ensure_go_toolchain.sh
 make lint
 make test
+make local-validation-scripts
 ```
+
+Use `make local-validation-scripts` to run:
+- `validation_test.py`
+- `comprehensive_local_tests.py`
+
+These are local validation scripts and are intentionally not wired into CI workflows.
 
 If you touched Python SDK code:
 
