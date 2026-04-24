@@ -1,3 +1,5 @@
+import Mathlib
+
 namespace Specification
 
 inductive SystemState where
@@ -6,20 +8,21 @@ inductive SystemState where
   | failed
 
 
-def transitionScore (pDropout : Float) (redundancy : Nat) : Float :=
-  pDropout ^ redundancy
+def transitionScore (pDropout : ℝ) : Nat → ℝ
+  | 0 => 1.0
+  | Nat.succ redundancy => pDropout * transitionScore pDropout redundancy
 
 
-def failureBound (pDropout : Float) (redundancy t : Nat) : Float :=
-  min (1.0 : Float) (Float.ofNat t * transitionScore pDropout redundancy)
+def failureBound (pDropout : ℝ) (redundancy t : Nat) : ℝ :=
+  min (1.0 : ℝ) ((t : ℝ) * transitionScore pDropout redundancy)
 
 
-theorem liveness_bound_refl (pDropout : Float) (redundancy t : Nat) :
+theorem liveness_bound_refl (pDropout : ℝ) (redundancy t : Nat) :
     failureBound pDropout redundancy t = failureBound pDropout redundancy t := by
   rfl
 
 
-theorem liveness_bound_le_one (pDropout : Float) (redundancy t : Nat) :
+theorem liveness_bound_le_one (pDropout : ℝ) (redundancy t : Nat) :
     failureBound pDropout redundancy t ≤ 1.0 := by
   unfold failureBound
   exact min_le_left _ _
