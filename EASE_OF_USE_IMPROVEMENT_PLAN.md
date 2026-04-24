@@ -457,23 +457,23 @@ kubectl get pvc -n $NAMESPACE
 # Sovereign-Mohawk Documentation
 
 ## Quick Start (5 minutes)
-- **Local Development**: [Getting Started Guide](getting-started-local.md)
-- **Docker Compose**: [Docker Stack Guide](deployment/docker-compose.md)
-- **Kubernetes**: [Kubernetes Deployment](deployment/kubernetes.md)
+- **Local Development**: [Getting Started Guide](README.md)
+- **Docker Compose**: [Docker Stack Guide](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+- **Kubernetes**: [Kubernetes Deployment](helm/sovereign-mohawk/README.md)
 
 ## User Guides
-- [Running Your First Proof](guides/first-proof.md)
-- [Using the Python SDK](guides/python-sdk.md)
-- [Configuring Nodes](guides/node-configuration.md)
+- [Running Your First Proof](proofs/README.md)
+- [Using the Python SDK](sdk/python/README.md)
+- [Configuring Nodes](OPERATIONS_RUNBOOK.md)
 
 ## Operations
-- [Monitoring & Observability](ops/monitoring.md)
-- [Troubleshooting](ops/troubleshooting.md)
-- [Scaling Guide](ops/scaling.md)
+- [Monitoring & Observability](OPERATIONS_RUNBOOK.md)
+- [Troubleshooting](OPERATIONS_RUNBOOK.md)
+- [Scaling Guide](OPERATIONS_RUNBOOK.md)
 
 ## Reference
-- [Environment Variables](reference/environment-variables.md)
-- [API Documentation](reference/api.md)
+- [Environment Variables](README.md)
+- [API Documentation](results/api/openapi.json)
 - [Formal Proofs](proofs/README.md)
 ```
 
