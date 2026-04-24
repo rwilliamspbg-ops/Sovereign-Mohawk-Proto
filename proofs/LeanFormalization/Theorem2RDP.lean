@@ -11,6 +11,7 @@ structure DPMechanism (D X : Type*) where
   apply : D → X
   alpha : ℚ
   eps : ℚ
+  rdpBound : D → D → ℚ
 
 /-- Two databases are adjacent if they differ in exactly one record. -/
 def isAdjacent {D : Type*} (d1 d2 : D) : Prop :=
@@ -21,7 +22,10 @@ def isAdjacent {D : Type*} (d1 d2 : D) : Prop :=
     of likelihoods over adjacent databases pairs is exp(ε).
 -/
 def satisfiesRDP {D X : Type*} (M : DPMechanism D X) : Prop :=
-  ∀ (d1 d2 : D), isAdjacent d1 d2 → M.alpha > 1 ∧ M.eps ≥ 0
+  M.alpha > 1 ∧
+  M.eps ≥ 0 ∧
+  ∀ (d1 d2 : D), isAdjacent d1 d2 →
+    0 ≤ M.rdpBound d1 d2 ∧ M.rdpBound d1 d2 ≤ M.eps
 
 /-- Integer epsilon composition model for deterministic machine checks. -/
 def composeEps : List Nat -> Nat
@@ -34,8 +38,8 @@ def composeEpsRat : List ℚ -> ℚ
   | x :: xs => x + composeEpsRat xs
 
 /-- Convert cumulative RDP epsilon into a standard `(ε, δ)`-style budget proxy. -/
-def convertToEpsDelta (alpha delta epsRdp : ℚ) : ℚ :=
-  epsRdp + (1 / (alpha - 1))
+def convertToEpsDelta (alpha epsRdp logOneOverDelta : ℚ) : ℚ :=
+  epsRdp + (logOneOverDelta / (alpha - 1))
 
 /-- Theorem 2 core: sequential composition over concatenated mechanisms is additive. -/
 theorem theorem2_composition_append (xs ys : List Nat) :
@@ -91,10 +95,10 @@ theorem theorem2_rat_single_step (eps : ℚ) :
   simp [composeEpsRat]
 
 /-- Conversion to the `(ε, δ)` proxy is monotone in cumulative RDP epsilon. -/
-theorem theorem2_conversion_monotone {alpha delta eps1 eps2 : ℚ}
+theorem theorem2_conversion_monotone {alpha logOneOverDelta eps1 eps2 : ℚ}
     (_h_alpha : 1 < alpha)
     (h_eps : eps1 ≤ eps2) :
-    convertToEpsDelta alpha delta eps1 ≤ convertToEpsDelta alpha delta eps2 := by
+  convertToEpsDelta alpha eps1 logOneOverDelta ≤ convertToEpsDelta alpha eps2 logOneOverDelta := by
   unfold convertToEpsDelta
   linarith
 
@@ -120,7 +124,7 @@ theorem theorem2_rat_example_profile :
 
 /-- Converted epsilon budget remains below a configured guard for the example profile. -/
 theorem theorem2_rat_budget_guard :
-    convertToEpsDelta 10 (1 / 100000 : ℚ) (composeEpsRat [(1 : ℚ) / 10, (1 : ℚ) / 2, 1])
+  convertToEpsDelta 10 (composeEpsRat [(1 : ℚ) / 10, (1 : ℚ) / 2, 1]) 1
       <= (9 : ℚ) / 5 := by
   norm_num [convertToEpsDelta, composeEpsRat]
 
