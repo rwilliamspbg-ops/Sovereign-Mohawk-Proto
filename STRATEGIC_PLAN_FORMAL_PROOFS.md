@@ -179,6 +179,17 @@ theorem hierarchical_resilience {h : ℕ} (hier : Hierarchy h) (f : ℕ) :
 - Performance benchmarks (proof time, memory usage)
 - Regression detection (prevent future `sorry` insertions)
 
+### Recommendations to Reach Scientific Rigor
+
+| Priority | Action |
+|---|---|
+| P0 | Replace `apply : D → X` with `apply : D → PMF X` (or Giry monad) |
+| P0 | Define `rdpBound` in terms of actual Rényi divergence: `∫ (dμ/dν)^α dν)^(1/(α-1))` |
+| P1 | Prove `theorem2_composition_append` from first principles, not assert it |
+| P1 | Instantiate `isAdjacent` for at least one data model (e.g., `Vector ℝ n` with `l1` adjacency) |
+| P2 | Add literature citations as docstrings on every theorem |
+| P2 | Replace the toy example with realistic `δ = 10⁻⁵` and show the guard still holds, or fails to demonstrate budget exhaustion |
+
 ---
 
 ## Strategic Plan (4 Phases)

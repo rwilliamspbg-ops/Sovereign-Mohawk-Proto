@@ -1,3 +1,5 @@
+import Mathlib
+
 namespace Specification
 
 inductive SystemState where
