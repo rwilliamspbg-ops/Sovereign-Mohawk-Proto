@@ -19,10 +19,10 @@
 
 The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based MOHAWK runtime, enabling Python developers to leverage:
 
-- **10M+ node federated learning** with O(d log n) communication complexity
+- **10M+ node federated learning** with a logarithmic path-depth proxy for communication
 - **zk-SNARK verification** with 10ms proof verification
 - **hybrid SNARK/STARK policy checks** with backend selection
-- **55.5% Byzantine fault tolerance** for adversarial resilience
+- **Byzantine safety guard checks** for adversarial resilience
 - **TPM attestation** for secure node identity
 - **utility coin ledger controls** with backup/restore, nonce replay protection, and auth hooks
 - **hardware-aware gradient compression** and streaming aggregation
@@ -563,7 +563,7 @@ Benchmark snapshot from `python -m pytest tests/test_benchmarks.py --benchmark-o
 
 - **Node initialization**: ~50ms
 - **zk-SNARK verification**: 10.55ms mean in the benchmark suite
-- **Aggregation**: O(d log n) complexity with 30.63us mean benchmark latency
+- **Aggregation**: logarithmic path-depth proxy with 30.63us mean benchmark latency
 - **Gradient compression**: 995.70us mean for FP16 path in the benchmark suite
 - **Memory overhead**: 28 MB for 10M nodes
 

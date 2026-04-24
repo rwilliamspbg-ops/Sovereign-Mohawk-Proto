@@ -1,8 +1,8 @@
 # Security Policy: Sovereign Mohawk
 
-## 🛡️ Threat Model: 5.55M Malicious Nodes
+## 🛡️ Threat Model: Byzantine Safety Guards
 
-Sovereign Mohawk is engineered to maintain system integrity under an **Adversarial Majority** at the global scale, specifically designed to withstand up to **5,555,555 Byzantine nodes** (55.5% of a 10M node network).
+Sovereign Mohawk is engineered to maintain system integrity under adversarial conditions using a compositional honest-majority theorem plus concrete profile guards. The current formal artifacts should be read as boundary checks and surrogate models, not as a universal claim of 5,555,555 Byzantine nodes being tolerated in every deployment.
 
 ### Supported Adversary Capabilities
 
@@ -71,12 +71,12 @@ For consolidated legal context, see [NOTICE.md](./NOTICE.md).
 | :--- | :--- | :--- |
 | **BFT Layer** | 🛡️ Verified | [Theorem 1](./proofs/bft_resilience.md) |
 | **Privacy Layer** | 🔒 Verified | [Theorem 2](./proofs/differential_privacy.md) |
-| **Liveness Layer** | ⚡ Verified | [Theorem 4](./internal/stragglers.md) |
+| **Liveness Layer** | ⚡ Guard-verified | [Theorem 4](./internal/stragglers.md) |
 | **Integrity Layer** | ✅ Verified | [Theorem 5](./proofs/cryptography.md) |
 
-## 🛡️ Sovereign Mohawk: Breaking the 80% Byzantine Barrier
+## 🛡️ Sovereign Mohawk: Hierarchical Byzantine Safety Bounds
 
-Traditional Federated Learning (FL) frameworks (e.g., Google TFF, Flower) are mathematically limited to **33%–50%** Byzantine resilience. The [Sovereign Mohawk Protocol](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) shatters this limit, maintaining model convergence with up to **80% malicious actors**.
+Traditional Federated Learning (FL) frameworks (e.g., Google TFF, Flower) are typically analyzed under honest-majority assumptions. The [Sovereign Mohawk Protocol](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) tracks a compositional honest-majority theorem and separate concrete profile guards, rather than claiming a universal 80% Byzantine bound.
 
 ### 🔬 Technical Breakthroughs (Patent Pending)
 
@@ -84,7 +84,7 @@ Traditional Federated Learning (FL) frameworks (e.g., Google TFF, Flower) are ma
 
 Unlike "Star" topologies that process all nodes at a single central point, SMP uses a tree-based synthesis. By performing **local sanitization** at the cluster level, malicious gradients are trimmed before they can poison the global root.
 
-* **The Result:** Malice is attenuated at every layer of the tree, allowing the "clean" signal to persist even in high-adversary environments.
+* **The Result:** The current proof artifact captures a logarithmic routing-depth proxy and honest-majority composition assumptions; it does not prove a universal sublinear total-byte bound.
 
 #### 2. Hardware-Rooted Identity (TPM Gating)
 
@@ -92,7 +92,7 @@ The system leverages [TPM-inspired trust stubs](https://github.com/rwilliamspbg-
 
 #### 3. zk-SNARK Integrity Proofs
 
-Every aggregation round generates a 200-byte **Zero-Knowledge Proof**. This mathematically proves the aggregator followed the protocol (e.g., correctly applying the trimmed mean) without revealing the raw data, ensuring that even a compromised sub-aggregator cannot inject malicious bias without being detected in <10ms.
+Every aggregation round generates a 200-byte **Zero-Knowledge Proof** in the abstract verifier-cost model. This supports constant-size verification claims, but it should not be read as a full protocol proof for all runtime behaviors.
 
 ### 📊 Competitive Comparison
 

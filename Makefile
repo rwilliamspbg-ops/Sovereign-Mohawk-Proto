@@ -3,7 +3,7 @@
 # Purpose: Simplified common development tasks
 
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
-.PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down validate-formal-tooling-tests
+.PHONY: artifact-summary sandbox-up sandbox-down forensics-drill forensics-drill-down validate-formal-tooling-tests
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
@@ -32,6 +32,7 @@ help:
 	@echo "Development & Quality:"
 	@echo "  make test            - Run all tests"
 	@echo "  make build           - Build all images"
+	@echo "  make artifact-summary - Regenerate captured artifact summary and manifest"
 	@echo "  make lint            - Check code with linters (ruff)"
 	@echo "  make black           - Check code formatting (black)"
 	@echo "  make format          - Auto-format with Black and Ruff"
@@ -89,6 +90,9 @@ test:
 
 build:
 	@docker-compose build
+
+artifact-summary:
+	@bash scripts/manage_artifacts.sh --summary --apply
 
 lint:
 	@echo "Running linters (ruff)..."
