@@ -1,0 +1,1 @@
+./test_lean_performance.sh: line 53: lake: command not found

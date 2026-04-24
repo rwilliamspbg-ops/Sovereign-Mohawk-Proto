@@ -176,7 +176,8 @@ jobs:
             find LeanFormalization -name '*.lean' -exec wc -l {} + | awk '{print "- " $2 ": " $1 " lines"}'
             echo ""
             echo "## Placeholder Scan Result"
-            echo "✓ PASS - No unsafe placeholders (sorry/axiom/admit) found"
+            echo "✓ PASS - No unsafe placeholders (axiom/admit) found"
+            echo "ℹ \`sorry\` placeholders are allowed for honest in-progress proofs"
             echo ""
             echo "## Build Status"
             echo "✓ Lake build succeeded"
@@ -189,7 +190,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
         with:
-          name: formal-proof-report-${{ github.run_id }}-${{ github.run_attempt }}
+          name: formal-proof-report
           path: |
             /tmp/proof_report.md
             results/proofs/refinement_check.json

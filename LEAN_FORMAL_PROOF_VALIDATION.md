@@ -2,7 +2,7 @@
 ## Complete Lean Formalization Verification - All 6 Theorems
 
 **Date:** 2025-06-21  
-**Status:** ✅ **VALIDATED - 100% CORRECTNESS**  
+**Status:** ✅ **VALIDATED - Scope-specific Lean artifacts**
 **Format:** Lean 4 Machine-Checked Proofs  
 **Verification Level:** Maximum (All proofs machine-verified)
 
@@ -10,16 +10,16 @@
 
 ## EXECUTIVE SUMMARY
 
-All 6 theorems of the Sovereign-Mohawk protocol have been **formally verified in Lean 4** with **machine-checked mathematical proofs**. Each theorem is mathematically sound, logically complete, and verified by automated proof checking.
+All 6 theorem tracks of the Sovereign-Mohawk protocol have Lean-checked artifacts. Some are full proof obligations, while others are boundary checks or surrogate models that should not be read as stronger protocol-wide claims than the Lean files actually establish.
 
 ### Theorem Summary
 
 | # | Theorem | Claim | Formula | Status |
 |---|---------|-------|---------|--------|
-| 1 | **Byzantine Resilience** | 55.5% Byzantine tolerance | 9f < 5n | ✅ **VERIFIED** |
+| 1 | **Byzantine Resilience** | Concrete 5/9 profile guard + honest-majority composition | 9f < 5n | ✅ **VERIFIED** |
 | 2 | **RDP Composition** | ε=2.0 privacy budget | Additive composition | ✅ **VERIFIED** |
-| 3 | **Communication** | O(d log n) complexity | log₁₀(10M) = 7 | ✅ **VERIFIED** |
-| 4 | **Liveness** | >99.99% availability | (2¹⁰-1)/2¹⁰ > 0.999 | ✅ **VERIFIED** |
+| 3 | **Communication** | Logarithmic path-depth proxy | log₁₀(10M) = 7 | ✅ **VERIFIED** |
+| 4 | **Liveness** | Redundancy/liveness guard surrogate | (2¹⁰-1)/2¹⁰ > 0.999 | ✅ **VERIFIED** |
 | 5 | **Cryptography** | O(1) proof verification | 200 bytes, 3 ops | ✅ **VERIFIED** |
 | 6 | **Convergence** | O(1/√KT) + O(ζ²) | Envelope bounds | ✅ **VERIFIED** |
 
@@ -29,7 +29,7 @@ All 6 theorems of the Sovereign-Mohawk protocol have been **formally verified in
 
 ### THEOREM 1: BYZANTINE FAULT TOLERANCE ✅
 
-**Claim:** The system tolerates up to 55.5% Byzantine nodes (9f < 5n inequality)
+**Claim:** The Lean artifact checks honest-majority composition and a concrete 5/9 profile guard, not a universal 55.5% Byzantine tolerance theorem for all settings.
 
 **Mathematical Formula:**
 ```
@@ -118,9 +118,9 @@ theorem theorem2_composition_append (xs ys : List Nat) :
 
 ---
 
-### THEOREM 3: COMMUNICATION COMPLEXITY ✅
+### THEOREM 3: COMMUNICATION COMPLEXITY PROXY ✅
 
-**Claim:** Communication is O(d log n) with hierarchical aggregation
+**Claim:** Communication depth is logarithmic in the hierarchy; total bytes are model-dependent
 
 **Mathematical Formula:**
 ```
@@ -146,7 +146,7 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
 
 2. **Scale Analysis - 10M Nodes:**
    - log₁₀(10,000,000) = 7 ✅ (Machine-verified)
-   - Hierarchical cost: d × 7 ✅
+   - Hierarchical path-depth proxy: d × 7 ✅
 
 3. **Path Length Verification:**
    - 4-tier hierarchy with b=10 branching: max depth = 4 ✅
@@ -155,14 +155,14 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
 
 4. **Naive Protocol vs Hierarchical:**
    - Naive: d × 10,000,000 bytes ≈ **10TB** (d=1M)
-   - Hierarchical: d × 7 bytes ≈ **7MB** (d=1M) ✅
-   - Improvement: **1,428,571× better** ✅
+   - Hierarchical depth proxy: d × 7 hops ✅
+   - Total-byte improvement is not claimed without a compression theorem
 
 5. **Information-Theoretic Bound:**
    - ✅ Proven: `hierarchical ≤ d × (log₁₀(n) + 10)`
-   - Matches Ω(d log n) lower bound ✅
+   - Separate compression theorem would be required to claim Ω(d log n) total-byte optimality
 
-**Proof Confidence:** 100% (Machine-verified logarithmic bound)
+**Proof Confidence:** 100% (Machine-verified path-depth proxy)
 
 **Correctness Assessment:** ✅ **MATHEMATICALLY SOUND**
 
@@ -170,11 +170,11 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
 
 ### THEOREM 4: LIVENESS & STRAGGLER TOLERANCE ✅
 
-**Claim:** System achieves >99.99% success probability with redundancy=10
+**Claim:** System verifies a redundancy/liveness guard surrogate with an explicit copy-failure model
 
 **Mathematical Formula:**
 ```
-P(success) = (1 - (1/2)^10) = (2^10 - 1) / 2^10 = 1023/1024 ≈ 0.999023 > 0.9999
+P(success) = (1 - (1/2)^10) = (2^10 - 1) / 2^10 = 1023/1024 ≈ 0.999023
 ```
 
 **Lean Proof Structure:**
@@ -206,7 +206,7 @@ theorem theorem4_success_gt_99_9 :
 
 **Proof Confidence:** 100% (Machine-verified inequality)
 
-**Correctness Assessment:** ✅ **MATHEMATICALLY SOUND**
+**Correctness Assessment:** ✅ **MATHEMATICALLY SOUND FOR THE STATED SURROGATE MODEL**
 
 ---
 
@@ -330,9 +330,9 @@ theorem theorem6_large_scale_guard :
 ### System-Level Consistency
 
 **Byzantine + Communication Tradeoff:** ✅ CONSISTENT
-- 9f < 5n allows 55.5% tolerance
-- O(d log n) communication achieved through hierarchical aggregation
-- No conflict between these bounds
+- 9f < 5n is tracked as a concrete guard check plus honest-majority composition
+- Communication is tracked as a path-depth proxy, not a universal total-byte bound
+- These bounds are compatible only at the stated model level
 
 **Privacy + Convergence Tradeoff:** ✅ CONSISTENT
 - ε=2.0 budget maintained across composition
@@ -402,18 +402,18 @@ theorem theorem6_large_scale_guard :
 
 ### Final Verdict: ✅ **100% FORMALLY VERIFIED**
 
-All 6 theorems of the Sovereign-Mohawk protocol have been **machine-checked in Lean 4** with **complete mathematical correctness**:
+All 6 theorem tracks have Lean-checked artifacts, but several are surrogate or boundary-check models rather than full end-to-end protocol proofs:
 
-1. ✅ **Byzantine Resilience (Theorem 1):** 55.5% tolerance proven via 9f < 5n
-2. ✅ **RDP Composition (Theorem 2):** ε=2.0 budget additivity verified
-3. ✅ **Communication (Theorem 3):** O(d log n) complexity confirmed at 10M scale
-4. ✅ **Liveness (Theorem 4):** >99.99% success verified with redundancy=10
+1. ✅ **Byzantine Resilience (Theorem 1):** honest-majority composition plus a concrete 5/9 profile guard check
+2. ✅ **RDP Composition (Theorem 2):** ε-additivity surrogate verified
+3. ✅ **Communication (Theorem 3):** logarithmic path-depth proxy confirmed at 10M scale; total bytes remain model-dependent
+4. ✅ **Liveness (Theorem 4):** redundancy/liveness guard surrogate verified
 5. ✅ **Cryptography (Theorem 5):** O(1) proof size and cost proven
-6. ✅ **Convergence (Theorem 6):** O(1/√KT) + O(ζ²) envelope bounds validated
+6. ✅ **Convergence (Theorem 6):** surrogate envelope bounds validated
 
 ### Verification Confidence: **MAXIMUM (100%)**
 
-- All proofs machine-checked by Lean kernel
+- All proof artifacts machine-checked by Lean kernel, with scope-specific caveats as noted above
 - All concrete values verified via `native_decide`
 - All dependent theorems cross-checked for consistency
 - No circular dependencies or logical fallacies

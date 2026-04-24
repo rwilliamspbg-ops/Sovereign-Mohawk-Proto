@@ -3,13 +3,19 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Communication complexity of hierarchical aggregation with branching factor b
-    and n total nodes: O(d * log_b(n)) where d is model dimension. -/
+/-- Path-depth communication proxy for hierarchical aggregation with branching
+  factor b and n total nodes: O(d * log_b(n)) where d is model dimension.
+  This captures per-update uplink depth, not total bytes over all edges. -/
 def hierarchical_comm_complexity (d : Nat) (n : Nat) (b : Nat) : Nat :=
   if b > 1 then d * (Nat.log b n + 1) else 0
 
 /-- Naive FedAvg communication: O(d * n), requiring ~40TB for d=1M, n=10M. -/
 def naive_fedavg_comm (d n : Nat) : Nat :=
+  d * n
+
+/-- Total tree traffic without compression remains linear in node count.
+    This model is used to avoid over-claiming global O(d log n) bytes. -/
+def total_tree_comm_no_compression (d n : Nat) : Nat :=
   d * n
 
 /-- Sovereign-Mohawk hierarchical communication with b=10 branching factor
@@ -38,17 +44,16 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
   simpa [h]
 
 /-- Improvement factor: Naive FedAvg is d*n, Hierarchical is d*log(n).
-    At 10M scale, this is ~1.4M times better. -/
+    At 10M scale, per-update depth is logarithmic (7 hops vs n fan-in). -/
 theorem theorem3_improvement_ratio :
     10_000_000 > 7 := by
   norm_num
 
-/-- Information-theoretic lower bound: Ω(d log n) for distributed aggregation. -/
+/-- Lower-bound proxy used for path-depth comparison. -/
 def information_theoretic_lower_bound (d n : Nat) : Nat :=
   d * (Nat.log 2 n + 1)
 
-/-- Hierarchical complexity matches the lower bound (up to constant factor):
-    base-10 path length is within the base-10 log bound plus a small constant. -/
+/-- Base-10 path length remains within a small additive constant bound. -/
 theorem theorem3_lower_bound_match (d n : Nat) (_h_n : 1 < n) :
     hierarchical_comm_complexity d n 10 <= d * (Nat.log 10 n + 10) := by
   unfold hierarchical_comm_complexity
@@ -60,6 +65,11 @@ theorem theorem3_lower_bound_match (d n : Nat) (_h_n : 1 < n) :
 theorem theorem3_naive_expensive :
     1_000_000 * 10_000_000 = 10_000_000_000_000 := by
   norm_num
+
+/-- Without compression, aggregate tree traffic is linear in node count. -/
+theorem theorem3_total_comm_linear_no_compression (d n : Nat) :
+    total_tree_comm_no_compression d n = naive_fedavg_comm d n := by
+  rfl
 
 /-- Hierarchical protocol requires ~28MB for d=1M, n=10M. -/
 theorem theorem3_hierarchical_efficient :

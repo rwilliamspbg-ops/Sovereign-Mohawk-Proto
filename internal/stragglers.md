@@ -3,10 +3,18 @@
 ### Formal Statement
 The current Lean module does not yet formalize a probability distribution over dropouts. It machine-checks an integer redundancy surrogate showing that configured redundancy settings exceed fixed liveness guard thresholds for selected concrete profiles.
 
-### Chernoff Bound Derivation
-1. **Regional Failure:** With $r=10$ and $50\%$ dropout: $P(\text{fail}) = (0.5)^{10} \approx 0.001$.
-2. **Expected Success ($k$):** For $n=1,000$ regions, $E[\text{success}] = 999$.
-3. **Exponential Reliability:** $$P(X < 500) < \exp(-999 \times 0.25 / 2) < 10^{-54}$$
-   
+### Probability Model Status
+Previous drafts mixed distinct probability settings (quorum thresholding and
+redundancy-copy failure) and could apply Chernoff bounds outside their valid
+parameter regime. The canonical Lean claim should therefore be read as:
+
+1. **Surrogate guard claim (machine-checked):** configured redundancy profiles
+	satisfy deterministic liveness guard inequalities.
+2. **Redundancy-copy probability model:** when each copy fails independently
+	with probability $(1-\alpha)$, failure is bounded by $(1-\alpha)^r$.
+3. **Not yet formalized in Lean:** full binomial quorum proof for arbitrary
+	$(p, q, c)$ settings, including cases where quorum threshold exceeds mean.
+
 ### Conclusion
-The hierarchical redundancy analysis suggests exponentially strong guarantees against stragglers, but the current Lean proof file should be understood as a surrogate guard model rather than a full formal proof of the Chernoff-style probability statement above.
+The project tracks straggler resilience as a guard-verified model today. Full
+probability-measure formalization with explicit tail conditions remains planned work.

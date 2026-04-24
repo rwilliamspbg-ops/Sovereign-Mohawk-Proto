@@ -217,9 +217,9 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 | Feature | NVIDIA FLARE | PySyft | **Sovereign-Mohawk** |
 | :--- | :---: | :---: | :---: |
 | **Lean Formalization + CI Gate** | Not presented | Not presented | **Yes (`proofs/LeanFormalization` + CI build/placeholder checks)** |
-| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **55.5% (Theorem 1)** |
+| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **Concrete 5/9 profile guard check** |
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
-| **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **$O(d \log n)$** |
+| **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **Logarithmic path-depth proxy; total bytes model-dependent** |
 | **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
 | **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **zk-SNARK + STARK hybrid policy** |
 | **Operational Readiness Gates** | Platform-dependent | Platform-dependent | **One-click readiness + chaos + digest artifacts** |
@@ -241,8 +241,8 @@ Preview graphic:
 
 ## ✨ Key Capabilities
 
-* 🛡️ **Byzantine Fault Tolerance:** 55.5% resilience claim tracked in [proofs/bft_resilience.md](proofs/bft_resilience.md) and formalized in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
-* 🐌 **Straggler Resilience:** 99.99% success-probability claim tracked in [internal/stragglers.md](internal/stragglers.md) and formalized in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
+* 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
+* 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
 * ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
 * 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
 * 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
@@ -1184,4 +1184,4 @@ We build this protocol to serve humanity, not to replace its judgment. The messi
 
 ## Prior Art & Novelty Statement
 
-This project publicly discloses (since [earliest commit date, e.g., early 2026]) a novel combination of hierarchical federated learning with zk-SNARK verifiable aggregation, 55.5% Byzantine resilience, 99.99% straggler tolerance, and extreme metadata compression at planetary scale. The repository includes Lean formalization artifacts and CI machine-check gates for the tracked theorem set; see [proofs/LeanFormalization/](proofs/LeanFormalization/) and [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md). Public commits and X posts (@RyanWill98382) serve as timestamped evidence.
+This project publicly discloses (since [earliest commit date, e.g., early 2026]) a novel combination of hierarchical federated learning with zk-SNARK verifiable aggregation, a concrete 5/9 Byzantine guard check, surrogate liveness models, and hierarchical routing-depth proxies. The repository includes Lean formalization artifacts and CI machine-check gates for the tracked theorem set; see [proofs/LeanFormalization/](proofs/LeanFormalization/) and [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md). Public commits and X posts (@RyanWill98382) serve as timestamped evidence.
