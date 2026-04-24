@@ -7,7 +7,7 @@
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
-.PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click
+.PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
@@ -44,6 +44,7 @@ help:
 	@echo "  make lint            - Check code with linters (ruff)"
 	@echo "  make black           - Check code formatting (black)"
 	@echo "  make format          - Auto-format with Black and Ruff"
+	@echo "  make local-validation-scripts - Run standalone validation scripts"
 	@echo "  make clean           - Remove containers and volumes"
 	@echo ""
 
@@ -176,6 +177,12 @@ format:
 	@echo "Formatting Python code..."
 	@cd sdk/python && python -m black . && echo "✓ Formatted with Black"
 	@cd sdk/python && python -m ruff check . --fix && echo "✓ Fixed with Ruff"
+
+local-validation-scripts:
+	@echo "Running standalone validation scripts..."
+	@python3 validation_test.py || true
+	@python3 comprehensive_local_tests.py || true
+	@echo "✓ Standalone validation scripts completed (informational, non-gating)"
 
 clean:
 	@docker-compose down -v
