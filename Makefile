@@ -3,7 +3,11 @@
 # Purpose: Simplified common development tasks
 
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
-.PHONY: artifact-summary sandbox-up sandbox-down forensics-drill forensics-drill-down validate-formal-tooling-tests
+.PHONY: artifact-summary build-python-lib audit verify
+.PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
+.PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
+.PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
+.PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
@@ -32,7 +36,11 @@ help:
 	@echo "Development & Quality:"
 	@echo "  make test            - Run all tests"
 	@echo "  make build           - Build all images"
+	@echo "  make build-python-lib - Build the Python SDK shared library"
+	@echo "  make verify          - Run repository verification checks"
 	@echo "  make artifact-summary - Regenerate captured artifact summary and manifest"
+	@echo "  make openapi-spec    - Generate the OpenAPI spec artifact"
+	@echo "  make capability-dashboard-matrix - Generate dashboard matrix evidence"
 	@echo "  make lint            - Check code with linters (ruff)"
 	@echo "  make black           - Check code formatting (black)"
 	@echo "  make format          - Auto-format with Black and Ruff"
@@ -91,8 +99,68 @@ test:
 build:
 	@docker-compose build
 
+build-python-lib:
+	@echo "Building MOHAWK Go C-shared library for Python SDK..."
+	@bash -c 'source scripts/ensure_go_toolchain.sh && go build -o libmohawk.so -buildmode=c-shared internal/pyapi/api.go'
+
+audit:
+	@chmod +x scripts/audit_proofs.sh
+	@./scripts/audit_proofs.sh
+
+verify:
+	@echo "Running repository verification checks..."
+	@bash -c 'source scripts/ensure_go_toolchain.sh && go test ./...'
+	@$(MAKE) audit
+
+fips-regression:
+	@bash -lc 'source scripts/ensure_go_toolchain.sh && GODEBUG=fips140=on MOHAWK_REQUIRE_FIPS_MODE_FOR_TESTS=true go test ./test -run "^TestFIPSRegression$$"'
+
 artifact-summary:
 	@bash scripts/manage_artifacts.sh --summary --apply
+
+openapi-spec:
+	@python3 scripts/generate_openapi_spec.py --output results/api/openapi.json --server-url https://localhost:8080
+
+capability-dashboard-matrix:
+	@python3 scripts/generate_capability_dashboard_matrix.py --output results/go-live/capability_dashboard_matrix.md
+
+release-performance-evidence:
+	@python3 scripts/generate_release_performance_evidence.py
+
+go-live-gate:
+	@python3 scripts/validate_go_live_gates.py
+
+go-live-gate-strict:
+	@python3 scripts/validate_go_live_gates.py --host-preflight-mode strict
+
+go-live-gate-advisory:
+	@python3 scripts/validate_go_live_gates.py --host-preflight-mode advisory
+
+failure-injection-latency-check:
+	@python3 scripts/validate_failure_injection_latency.py
+
+tpm-attestation-closure-check:
+	@python3 scripts/validate_tpm_attestation_closure.py
+
+tpm-closure-summary:
+	@python3 scripts/generate_tpm_closure_summary.py
+
+ga-tag-ready-check:
+	@python3 scripts/enforce_ga_tag_safety.py --tag v1.0.0
+
+mainnet-one-click:
+	@chmod +x scripts/mainnet_one_click.sh
+	@./scripts/mainnet_one_click.sh
+
+golden-path-e2e:
+	@bash scripts/golden_path_e2e.sh
+
+forensics-rehearsal:
+	@echo "Running compact forensics rehearsal (drill + cleanup)..."
+	@set -e; \
+	cleanup() { ./scripts/launch_sandbox.sh --down >/dev/null 2>&1 || true; }; \
+	trap cleanup EXIT; \
+	$(MAKE) forensics-drill
 
 lint:
 	@echo "Running linters (ruff)..."
@@ -121,8 +189,11 @@ sandbox-down:
 	@bash scripts/launch_sandbox.sh --down
 
 forensics-drill:
-	@bash scripts/extract_byzantine_forensics.sh --since 30m --output results/forensics/byzantine_rejections_report.md --metrics-json results/forensics/byzantine_rejections_metrics.json
+	@echo "Running local Byzantine forensics drill..."
+	@./scripts/launch_sandbox.sh --no-build || ./scripts/launch_sandbox.sh
+	@bash scripts/extract_byzantine_forensics.sh --since 15m --output results/forensics/byzantine_rejections_local.md --metrics-json results/forensics/byzantine_forensics_metrics_local.json
 	@bash scripts/quantum_kex_rotation_drill.sh --dry-run
+	@echo "✓ Forensics artifacts written to results/forensics/"
 
 forensics-drill-down:
 	@bash scripts/launch_sandbox.sh --down || true
