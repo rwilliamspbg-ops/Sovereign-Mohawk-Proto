@@ -16,14 +16,14 @@ def gradientDistance (a b : FloatArray) : Float :=
 
 
 def multikrumRobustProperty (nodes : List Node) (k : Nat) : Prop :=
-  match multiKrumSelectImpl nodes k, honestGradient nodes with
-  | some _, some _ => True
-  | _, _ => True
+  countByzantine nodes < nodes.length ∧ multiKrumSelectImpl nodes k ≠ none
 
 
-theorem multikrum_robustness_sanity (nodes : List Node) (k : Nat) :
+theorem multikrum_robustness_sanity (nodes : List Node) (k : Nat)
+    (hByz : countByzantine nodes < nodes.length)
+    (hSel : multiKrumSelectImpl nodes k ≠ none) :
     multikrumRobustProperty nodes k := by
   unfold multikrumRobustProperty
-  split <;> simp
+  exact And.intro hByz hSel
 
 end Specification

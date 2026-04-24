@@ -14,6 +14,7 @@ structure ZKStatement where
     Represents secret data that proves the statement without revealing it.
 -/
 structure ZKWitness where
+  claim_digest : Nat
   internal_data : Nat
 
 /-- Abstract zk-SNARK proof structure
@@ -24,7 +25,7 @@ structure ZKProof where
 
 /-- Soundness: if a statement is valid, there exists a witness proving it. -/
 def statementSoundness (stmt : ZKStatement) : Prop :=
-  ∃ w : ZKWitness, w.internal_data > 0
+  ∃ w : ZKWitness, w.claim_digest = stmt.claim_digest ∧ w.internal_data > 0
 
 /-- Completeness: if a witness is correct, the verifier accepts the proof. -/
 def verifierCompleteness (stmt : ZKStatement) (w : ZKWitness) : Prop :=
@@ -74,10 +75,12 @@ theorem theorem5_cost_guard : verifyCostMicros 10000000 <= 10000 := by
 theorem theorem5_proof_soundness (n : Nat) (stmt : ZKStatement) :
     stmt.claim_id < n → ∃ w : ZKWitness, statementSoundness stmt := by
   intro _
-  use { internal_data := 1 }
+  use { claim_digest := stmt.claim_digest, internal_data := 1 }
   unfold statementSoundness
-  use { internal_data := 1 }
-  decide
+  use { claim_digest := stmt.claim_digest, internal_data := 1 }
+  constructor
+  · rfl
+  · norm_num
 
 /-- Theorem 5b: Verifier completeness.
     If a proof is generated from a valid witness, the verifier accepts it.

@@ -47,6 +47,20 @@ def getAt? {a : Type} : List a -> Nat -> Option a
   | _ :: xs, n + 1 => getAt? xs n
 
 
+def insertSorted (x : Float) : List Float -> List Float
+  | [] => [x]
+  | y :: ys =>
+      if x <= y then
+        x :: y :: ys
+      else
+        y :: insertSorted x ys
+
+
+def sortAsc : List Float -> List Float
+  | [] => []
+  | x :: xs => insertSorted x (sortAsc xs)
+
+
 def honestGradient (nodes : List Node) : Option FloatArray :=
   match honestNodes nodes with
   | [] => none
@@ -67,7 +81,8 @@ def neighborScore (gradients : List FloatArray) (idx k : Nat) : Float :=
                | none => acc
                | some h => sqDist g h :: acc)
         []
-      (dists.take k).foldl (fun acc x => acc + x) 0.0
+      let smallest := (sortAsc dists).take k
+      smallest.foldl (fun acc x => acc + x) 0.0
 
 
 def argminAux (rest : List Float) (bestIdx idx : Nat) (best : Float) : Nat :=
