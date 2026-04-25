@@ -16,6 +16,8 @@ import (
 	"strings"
 )
 
+const migrationSigningDomain = "smp:pqc-migration:v2"
+
 type MigrationSignatureBundle struct {
 	LegacyAlgorithm string
 	LegacyPublicKey string
@@ -41,6 +43,7 @@ func (b MigrationSignatureBundle) Complete() bool {
 // MigrationSigningDigest returns the canonical digest signed by both legacy and PQC keys.
 func MigrationSigningDigest(symbol string, legacyAccount string, pqcAccount string, amountUnits int64, memo string, idempotencyKey string, nonce uint64) ([]byte, error) {
 	payload := struct {
+		Domain        string `json:"domain"`
 		SchemaVersion int    `json:"schema_version"`
 		Symbol        string `json:"symbol"`
 		LegacyAccount string `json:"legacy_account"`
@@ -50,7 +53,8 @@ func MigrationSigningDigest(symbol string, legacyAccount string, pqcAccount stri
 		Idempotency   string `json:"idempotency_key,omitempty"`
 		Nonce         uint64 `json:"nonce,omitempty"`
 	}{
-		SchemaVersion: 1,
+		Domain:        migrationSigningDomain,
+		SchemaVersion: 2,
 		Symbol:        strings.ToUpper(strings.TrimSpace(symbol)),
 		LegacyAccount: strings.TrimSpace(legacyAccount),
 		PQCAccount:    strings.TrimSpace(pqcAccount),

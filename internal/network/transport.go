@@ -14,9 +14,13 @@ import (
 
 type KEXMode string
 
+type AggregationMode string
+
 const (
-	KEXModeX25519               KEXMode = "x25519"
-	KEXModeHybridX25519MLKEM768 KEXMode = "x25519-mlkem768-hybrid"
+	KEXModeX25519               KEXMode         = "x25519"
+	KEXModeHybridX25519MLKEM768 KEXMode         = "x25519-mlkem768-hybrid"
+	AggregationModePlaintext    AggregationMode = "plaintext"
+	AggregationModeFHEThreshold AggregationMode = "fhe_threshold_v1"
 )
 
 func ParseKEXMode(raw string) KEXMode {
@@ -30,6 +34,21 @@ func ParseKEXMode(raw string) KEXMode {
 	default:
 		return KEXMode("")
 	}
+}
+
+func ParseAggregationMode(raw string) AggregationMode {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "", "default", string(AggregationModePlaintext):
+		return AggregationModePlaintext
+	case string(AggregationModeFHEThreshold), "fhe", "tfhe", "threshold-fhe":
+		return AggregationModeFHEThreshold
+	default:
+		return AggregationMode("")
+	}
+}
+
+func SupportedAggregationModes() []AggregationMode {
+	return []AggregationMode{AggregationModePlaintext, AggregationModeFHEThreshold}
 }
 
 func ParseKEXModeStrict(raw string) (KEXMode, error) {
@@ -59,6 +78,7 @@ type Config struct {
 	EnableNATPortMap   bool
 	ResourceScope      string
 	KEXMode            KEXMode
+	AggregationMode    AggregationMode
 }
 
 func DefaultConfig(port int) Config {
@@ -76,6 +96,7 @@ func DefaultConfig(port int) Config {
 		EnableNATPortMap:   true,
 		ResourceScope:      "regional-shard",
 		KEXMode:            KEXModeX25519,
+		AggregationMode:    AggregationModePlaintext,
 	}
 }
 
@@ -93,6 +114,9 @@ func (cfg Config) Validate() error {
 	if ParseKEXMode(string(cfg.KEXMode)) == "" {
 		return fmt.Errorf("unsupported KEX mode %q", cfg.KEXMode)
 	}
+	if ParseAggregationMode(string(cfg.AggregationMode)) == "" {
+		return fmt.Errorf("unsupported aggregation mode %q", cfg.AggregationMode)
+	}
 	return nil
 }
 
@@ -102,6 +126,11 @@ func (cfg Config) Normalized() (Config, error) {
 		return cfg, fmt.Errorf("unsupported KEX mode %q", cfg.KEXMode)
 	}
 	cfg.KEXMode = mode
+	aggMode := ParseAggregationMode(string(cfg.AggregationMode))
+	if aggMode == "" {
+		return cfg, fmt.Errorf("unsupported aggregation mode %q", cfg.AggregationMode)
+	}
+	cfg.AggregationMode = aggMode
 	return cfg, nil
 }
 

@@ -24,6 +24,8 @@ const (
 	defaultDPSigma         = 0.5
 	defaultDPTargetEpsilon = 2.0
 	defaultDPDelta         = 1e-5
+	defaultDPMinEpsilon    = 0.2
+	defaultDPMaxEpsilon    = 2.0
 )
 
 // DPConfig defines the single runtime source of truth for DP-SGD privacy knobs.
@@ -31,15 +33,27 @@ type DPConfig struct {
 	Sigma         float64
 	TargetEpsilon float64
 	Delta         float64
+	Adaptive      bool
+	MinEpsilon    float64
+	MaxEpsilon    float64
 }
 
 // LoadDPConfig resolves DP configuration from environment variables with
 // validated fallbacks.
 func LoadDPConfig() DPConfig {
+	minEps := envFloat("MOHAWK_DP_MIN_EPSILON", defaultDPMinEpsilon)
+	maxEps := envFloat("MOHAWK_DP_MAX_EPSILON", defaultDPMaxEpsilon)
+	if minEps > maxEps {
+		minEps, maxEps = maxEps, minEps
+	}
+
 	return DPConfig{
 		Sigma:         envFloat("MOHAWK_DP_SIGMA", defaultDPSigma),
 		TargetEpsilon: defaultDPTargetEpsilon,
 		Delta:         envFloat("MOHAWK_DP_DELTA", defaultDPDelta),
+		Adaptive:      envBool("MOHAWK_DP_ADAPTIVE_ENABLED", false),
+		MinEpsilon:    minEps,
+		MaxEpsilon:    maxEps,
 	}
 }
 
@@ -53,4 +67,19 @@ func envFloat(name string, fallback float64) float64 {
 		return fallback
 	}
 	return v
+}
+
+func envBool(name string, fallback bool) bool {
+	raw := strings.TrimSpace(strings.ToLower(os.Getenv(name)))
+	if raw == "" {
+		return fallback
+	}
+	switch raw {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return fallback
+	}
 }
