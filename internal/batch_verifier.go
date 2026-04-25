@@ -19,6 +19,7 @@ package internal
 import (
 	"crypto/ed25519"
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
@@ -29,6 +30,10 @@ import (
 type BatchVerifier struct {
 	maxBatchSize int
 }
+
+// ComputeProofVerifier validates a per-update proof-of-compute payload.
+// Implementations should be deterministic so replay tests remain reproducible.
+type ComputeProofVerifier func(tracePayload []byte, proofPayload []byte) (bool, error)
 
 // NewBatchVerifier initializes a verifier with the specified parallelism limit.
 func NewBatchVerifier(batchSize int) *BatchVerifier {
@@ -67,5 +72,43 @@ func (bv *BatchVerifier) VerifySignatures(pubKeys []ed25519.PublicKey, messages 
 	}
 
 	wg.Wait()
+	return results, nil
+}
+
+// VerifySignaturesWithComputeProof extends signature checks with proof-of-compute
+// validation for each update envelope.
+func (bv *BatchVerifier) VerifySignaturesWithComputeProof(
+	pubKeys []ed25519.PublicKey,
+	messages [][]byte,
+	signatures [][]byte,
+	tracePayloads [][]byte,
+	proofPayloads [][]byte,
+	verifyCompute ComputeProofVerifier,
+) ([]bool, error) {
+	if len(tracePayloads) != len(pubKeys) || len(proofPayloads) != len(pubKeys) {
+		return nil, errors.New("compute proof payload lengths must match signature inputs")
+	}
+	if verifyCompute == nil {
+		return nil, errors.New("compute proof verifier is required")
+	}
+
+	sigResults, err := bv.VerifySignatures(pubKeys, messages, signatures)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]bool, len(sigResults))
+	for i := range sigResults {
+		if !sigResults[i] {
+			results[i] = false
+			continue
+		}
+		ok, verr := verifyCompute(tracePayloads[i], proofPayloads[i])
+		if verr != nil {
+			return nil, fmt.Errorf("compute proof verification failed at index %d: %w", i, verr)
+		}
+		results[i] = ok
+	}
+
 	return results, nil
 }

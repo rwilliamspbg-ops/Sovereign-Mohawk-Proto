@@ -31,6 +31,7 @@ type RDPAccountant struct {
 	TotalEpsilon *big.Rat // Cumulative RDP epsilon
 	MaxBudget    *big.Rat // Target (ε, δ)-DP limit (e.g., 2.0)
 	TargetDelta  float64  // Fixed delta (e.g., 10⁻⁵)
+	ShardEpsilon map[string]*big.Rat
 }
 
 // NewRDPAccountant initializes the accountant with research-backed defaults.
@@ -44,6 +45,7 @@ func NewRDPAccountant(maxEpsilon float64, delta float64) *RDPAccountant {
 		TotalEpsilon: new(big.Rat),
 		MaxBudget:    maxBudget,
 		TargetDelta:  delta,
+		ShardEpsilon: map[string]*big.Rat{},
 	}
 }
 
@@ -63,6 +65,43 @@ func (a *RDPAccountant) RecordStepRat(epsilon *big.Rat) {
 		return
 	}
 	a.TotalEpsilon.Add(a.TotalEpsilon, epsilon)
+}
+
+// RecordShardStep tracks epsilon usage in a shard-level sub-ledger while
+// maintaining a global additive ledger.
+func (a *RDPAccountant) RecordShardStep(shardID string, epsilon float64) {
+	a.RecordShardStepRat(shardID, ratFromFloat64(epsilon))
+}
+
+// RecordShardStepRat adds epsilon for a specific shard using rational arithmetic.
+func (a *RDPAccountant) RecordShardStepRat(shardID string, epsilon *big.Rat) {
+	if epsilon == nil {
+		return
+	}
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.ShardEpsilon == nil {
+		a.ShardEpsilon = map[string]*big.Rat{}
+	}
+	if _, ok := a.ShardEpsilon[shardID]; !ok {
+		a.ShardEpsilon[shardID] = new(big.Rat)
+	}
+	a.ShardEpsilon[shardID].Add(a.ShardEpsilon[shardID], epsilon)
+	a.TotalEpsilon.Add(a.TotalEpsilon, epsilon)
+}
+
+// GetShardEpsilonRat returns the shard-level cumulative epsilon.
+func (a *RDPAccountant) GetShardEpsilonRat(shardID string) *big.Rat {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	if a.ShardEpsilon == nil {
+		return new(big.Rat)
+	}
+	v, ok := a.ShardEpsilon[shardID]
+	if !ok || v == nil {
+		return new(big.Rat)
+	}
+	return new(big.Rat).Set(v)
 }
 
 // RecordGaussianStepRDP records one Gaussian mechanism step using the standard

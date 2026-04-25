@@ -4,3 +4,5 @@ import LeanFormalization.Theorem3Communication
 import LeanFormalization.Theorem4Liveness
 import LeanFormalization.Theorem5Cryptography
 import LeanFormalization.Theorem6Convergence
+import LeanFormalization.Theorem7PQCMigrationContinuity
+import LeanFormalization.Theorem8DualSignatureNonHijack

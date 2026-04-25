@@ -2,7 +2,7 @@
 
 Authoritative cross-reference between theorem claims, human-readable proofs, machine-checked Lean 4 modules, and runtime test evidence.
 
-> **Phase 2 Note**: All proofs use concrete arithmetic and inductive tactics. Deeper probabilistic formalization is planned for Phase 3b.
+> **Phase 4 Note**: Migration theorems now include a UF-CMA adversary game, explicit ledger transition rules, preserved invariants, and closed refinement lemmas toward Go runtime checks.
 
 ## Scope
 
@@ -21,6 +21,8 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 | 5 | Constant proof-size and verifier-cost model is scale-invariant | [proofs/cryptography.md](cryptography.md) | `LeanFormalization/Theorem5Cryptography.lean` | `theorem5_constant_size`, `theorem5_constant_ops`, `theorem5_constant_cost`, `theorem5_ops_guard`, `theorem5_cost_guard` | `test/zk_verifier_test.go::TestVerifyZKProof`, `test/zksnark_verifier_test.go::TestVerifyProof_Valid` | Model verified | Abstract constant-operation verifier model with concrete runtime guard; not a full Groth16/q-SDH formalization |
 | 6 | Surrogate convergence envelope decreases with rounds and grows with heterogeneity | [proofs/convergence.md](convergence.md) | `LeanFormalization/Theorem6Convergence.lean` | `theorem6_envelope_decompose`, `theorem6_rounds_help`, `theorem6_rounds_help_stronger`, `theorem6_heterogeneity_effect`, `theorem6_large_scale_guard` | `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Below`, `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Above` | Surrogate verified | Current Lean files cover integer and rational envelope models; the stronger non-convex `O(1/sqrt(KT))` claim is not yet formally established here |
 | 7 | Flower-compatible client training preserves Mohawk compression, proof-envelope generation, and Go-backed aggregation | [docs/flower-integration.md](../docs/flower-integration.md) | `LeanFormalization/Theorem1BFT.lean`, `LeanFormalization/Theorem3Communication.lean`, `LeanFormalization/Theorem5Cryptography.lean`, `LeanFormalization/Theorem6Convergence.lean` | `theorem1_global_bound_checked`, `theorem3_lower_bound_match`, `theorem5_constant_cost`, `theorem6_large_scale_guard` | `sdk/python/tests/test_flower_client.py::test_fit_submits_update_and_builds_proof_manifest`, `sdk/python/tests/test_flower_strategy.py::test_strategy_forwarder_aggregates_updates`, `sdk/python/tests/test_flower_examples.py::test_all_flower_integrated_examples`, `sdk/python/examples/flower_integrated/quickstart_pytorch.py::main` | Verified | Flower client and strategy bridge reuse theorem-backed runtime semantics |
+| 8 | PQC migration continuity requires dual signatures across cutover phases | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem7PQCMigrationContinuity.lean` | `ufCmaWins`, `pqcUnforgeable`, `theorem7_dual_signature_continuity`, `theorem7_legacy_compromise_insufficient`, `theorem7_pqc_hardness_ensures_continuity`, `theorem7_scale_guard`, `theorem7_refines_go_migration` | `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath`, `test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic` | Phase 4 model | Traceability target: `dualSignatureVerify` in migration_signatures.go and post-epoch acceptance checks in settlement.go |
+| 9 | Legacy-only migration cannot satisfy post-cutover non-hijack policy | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem8DualSignatureNonHijack.lean` | `LedgerTransition`, `ledger_invariant_post_epoch`, `theorem8_post_epoch_non_hijack`, `theorem8_no_pqc_not_safe`, `theorem8_pqc_prevents_hijack`, `theorem8_no_hijack_possible`, `theorem8_scale_non_hijack_guard`, `theorem8_refines_go_settlement` | `test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof`, `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath` | Phase 4 model | Includes linkage to dual-signature checks plus compute-proof-gated settlement path |
 
 ## Parser Compatibility
 
@@ -30,11 +32,11 @@ This matrix is designed for automated extraction:
 - **All entries single-line** to support grep/regex tooling
 - **No markdown links in cells** for clean parser operation
 
-## Phase 2 Completion Notes
+## Phase 4 Completion Notes
 
-- Theorem 1 and 2 were deepened from profile-only checks to reusable compositional lemmas.
-- Theorems 3-6 now include stronger structural properties beyond single-point checks.
-- CI now enforces placeholder-free formal modules (`sorry`, `axiom`, `admit` forbidden) and proof build success.
+- Theorems 7 and 8 now model UF-CMA with chosen-message queries and fresh-message forgery conditions.
+- Migration security is encoded through `LedgerTransition` with explicit invariant preservation.
+- Refinement lemmas are closed (no placeholders) and document mapping to Go migration and settlement checks.
 
 ## Machine-Checkable Validation Artifacts
 
