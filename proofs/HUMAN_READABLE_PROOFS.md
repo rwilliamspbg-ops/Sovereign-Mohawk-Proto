@@ -72,8 +72,8 @@ Example output section:
 - Security meaning: Legacy-only authorization cannot satisfy the post-epoch migration acceptance policy.
 - Runtime linkage: settlement and payout enforcement in `internal/token/settlement.go` plus migration controls in `internal/token/ledger.go`.
 
-## Phase 3 Summary (Adversary Game + Refinement)
+## Phase 4 Summary (UF-CMA + Ledger Transitions)
 
-Theorem 7 and Theorem 8 now model legacy and PQC signatures as abstract schemes with forgeability predicates and include an adversary-game skeleton for existential unforgeability. The model assumes legacy signatures can become forgeable after quantum capability while PQC signatures remain unforgeable under the configured assumptions. Under the enforced dual-signature policy, post-epoch migration acceptance remains continuous and hijack-resistant.
+Theorem 7 and Theorem 8 now include a full UF-CMA-style adversary game model: the attacker can query a signing oracle on chosen messages and only wins by producing a valid forgery on a fresh, previously unqueried message. This captures the core post-quantum migration claim that legacy compromise does not bypass the required PQC authorization in post-epoch acceptance.
 
-This phase also introduces Lean refinement placeholders to map formal acceptance/safety claims toward runtime behavior in `internal/token/migration_signatures.go` and `internal/token/settlement.go`, including compute-proof-gated settlement paths.
+The model also introduces explicit ledger transition rules across `preEpoch`, `cutover`, and `postEpoch`, plus invariant lemmas that preserve dual-signature safety under modeled transitions. Refinement lemmas are closed and document alignment toward `internal/token/migration_signatures.go` and `internal/token/settlement.go`, including compute-proof-gated payout logic.
