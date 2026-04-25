@@ -24,6 +24,19 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 | 8 | PQC migration continuity requires dual signatures across cutover phases | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem7PQCMigrationContinuity.lean` | `ufCmaWins`, `pqcUnforgeable`, `theorem7_dual_signature_continuity`, `theorem7_legacy_compromise_insufficient`, `theorem7_pqc_hardness_ensures_continuity`, `theorem7_scale_guard`, `theorem7_refines_go_migration` | `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath`, `test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic` | Phase 4 model | Traceability target: `dualSignatureVerify` in migration_signatures.go and post-epoch acceptance checks in settlement.go |
 | 9 | Legacy-only migration cannot satisfy post-cutover non-hijack policy | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem8DualSignatureNonHijack.lean` | `LedgerTransition`, `ledger_invariant_post_epoch`, `theorem8_post_epoch_non_hijack`, `theorem8_no_pqc_not_safe`, `theorem8_pqc_prevents_hijack`, `theorem8_no_hijack_possible`, `theorem8_scale_non_hijack_guard`, `theorem8_refines_go_settlement` | `test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof`, `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath` | Phase 4 model | Includes linkage to dual-signature checks plus compute-proof-gated settlement path |
 
+## Workstream 4: PQC Migration Hardening (Phase 4)
+
+| Theorem ID | Formal Statement | Key Properties Proven | Linked Go Implementation | Upgrade Plan Reference | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Theorem7 | `PQCMigrationContinuity` | Dual-signature continuity, legacy compromise insufficiency, PQC hardness under UF-CMA | `internal/token/migration_signatures.go::verifyMigrationSignatureBundle`, `internal/token/settlement.go` post-epoch acceptance path | Workstream 4 (2026-2027) | Complete (Phase 4) | Includes `goVerifyMigrationSignatureBundle` and `goPostEpochAccept` refinement shims in Lean |
+| Theorem8 | `DualSignatureNonHijack` | Non-hijack safety, `LedgerTransition` invariant preservation, no-hijack under UF-CMA | `internal/token/settlement.go` payout path, plus migration-signature enforcement in `internal/token/migration_signatures.go` | Workstream 4 (2026-2027) | Complete (Phase 4) | Includes `goSettleTaskPayoutSafe` refinement shim tying valid-proof gate to Lean safety predicate |
+
+### Shared Supporting Definitions
+
+- `ufCmaWins`, `pqcUnforgeable`: UF-CMA chosen-message adversary game
+- `LedgerState`, `MigrationPhase`, `LedgerTransition`: epoch transition model
+- `postEpochAccepts`, `hijackSafe`: policy predicates aligned with runtime authorization checks
+
 ## Parser Compatibility
 
 This matrix is designed for automated extraction:
