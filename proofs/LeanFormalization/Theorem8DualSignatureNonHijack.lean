@@ -31,11 +31,11 @@ theorem ledger_invariant_post_epoch (s t : LedgerState)
     (h_start_accept : postEpochAccepts s.auth) :
     postEpochAccepts t.auth := by
   cases h_trans with
-  | preToCutover _ h_auth _ =>
+  | preToCutover h_auth _ =>
       simpa using h_auth
-  | cutoverToPost _ h_auth _ _ =>
+  | cutoverToPost h_auth _ _ =>
       simpa using h_auth
-  | compromiseLegacy _ =>
+  | compromiseLegacy =>
       simpa [postEpochAccepts] using h_start_accept
 
 /-- Theorem 8 (Non-Hijack): dual-signature policy prevents hijack under UF-CMA. -/
