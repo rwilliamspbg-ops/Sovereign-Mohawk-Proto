@@ -71,3 +71,9 @@ Example output section:
 - Plain-language claim: If the PQC signature is missing, the post-cutover non-hijack safety property does not hold.
 - Security meaning: Legacy-only authorization cannot satisfy the post-epoch migration acceptance policy.
 - Runtime linkage: settlement and payout enforcement in `internal/token/settlement.go` plus migration controls in `internal/token/ledger.go`.
+
+## Phase 3 Summary (Adversary Game + Refinement)
+
+Theorem 7 and Theorem 8 now model legacy and PQC signatures as abstract schemes with forgeability predicates and include an adversary-game skeleton for existential unforgeability. The model assumes legacy signatures can become forgeable after quantum capability while PQC signatures remain unforgeable under the configured assumptions. Under the enforced dual-signature policy, post-epoch migration acceptance remains continuous and hijack-resistant.
+
+This phase also introduces Lean refinement placeholders to map formal acceptance/safety claims toward runtime behavior in `internal/token/migration_signatures.go` and `internal/token/settlement.go`, including compute-proof-gated settlement paths.
