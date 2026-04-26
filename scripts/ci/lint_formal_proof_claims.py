@@ -8,7 +8,6 @@ import json
 import re
 from pathlib import Path
 
-
 VacuousLeanPatterns = [
     (
         "theorem_true",

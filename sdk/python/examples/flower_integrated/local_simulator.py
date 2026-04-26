@@ -21,7 +21,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from examples.flower_integrated.common import FlowerIntegratedExample
 
 
-def _run_single_node(node_id: str, server_round: int, delta: float, compress_format: str) -> Dict[str, Any]:
+def _run_single_node(
+    node_id: str, server_round: int, delta: float, compress_format: str
+) -> Dict[str, Any]:
     example = FlowerIntegratedExample(
         name="local-simulator",
         node_id=node_id,
@@ -71,7 +73,9 @@ def run_simulation(virtual_nodes: int, rounds: int, compress_format: str) -> Dic
         "rounds": rounds,
         "compress_format": compress_format,
         "total_duration_seconds": total_duration,
-        "throughput_nodes_per_second": (virtual_nodes * rounds / total_duration) if total_duration > 0 else 0.0,
+        "throughput_nodes_per_second": (
+            (virtual_nodes * rounds / total_duration) if total_duration > 0 else 0.0
+        ),
         "round_summaries": round_summaries,
     }
 
