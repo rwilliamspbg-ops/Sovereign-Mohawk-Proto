@@ -39,6 +39,9 @@ helm upgrade --install "$RELEASE_NAME" "$CHART_PATH" \
 echo "[deploy-to-kind] waiting for orchestrator deployment rollout"
 kubectl rollout status deployment/"$RELEASE_NAME"-orchestrator -n "$NAMESPACE" --timeout=180s || true
 
+echo "[deploy-to-kind] running post-deploy health gate"
+bash scripts/kind_post_deploy_health.sh
+
 echo "[deploy-to-kind] done"
 echo "  kubectl get pods -n $NAMESPACE"
 echo "  kubectl get svc -n $NAMESPACE"
