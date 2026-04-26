@@ -1,6 +1,19 @@
 ## Description
 <!-- Provide a clear and concise description of your changes -->
 
+### Formal Proof Context (required for proof/validation PRs)
+- Related PR(s): #48
+- Traceability updates included:
+  - [ ] `proofs/FORMAL_TRACEABILITY_MATRIX.md` updated
+  - [ ] Lean-to-Go refinement mapping explained in description
+  - [ ] Any theorem refinement changes called out explicitly
+
+### Lean Build & Validation Checklist (required for proof/validation PRs)
+- [ ] `cd proofs && lake build` passes locally
+- [ ] No placeholder tactics (`sorry`/`admit`/`axiom`) introduced
+- [ ] Formal validation script executed (attach command + output summary)
+- [ ] CI formal validation status noted in this PR description
+
 ## Type of Change
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -40,6 +53,15 @@
 - Latency change: ___% (decrease is better)
 - Throughput change: ___% (increase is better)
 - Memory change: ___MB
+
+**Benchmark Notes:**
+- [ ] No performance impact expected (proof/docs-only change)
+- [ ] Performance impact measured and summarized above
+- Notes:
+```
+# Include rationale when selecting "No performance impact expected"
+# Example: Lean theorem/tactic refactor only, no runtime Go path changes.
+```
 
 ### Regression Risk
 <!-- Check one -->

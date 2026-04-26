@@ -3,58 +3,6 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Legacy (pre-quantum) signature scheme. -/
-structure LegacySig where
-  verify : Nat → Nat → Bool
-  forgeable : Prop
-
-/-- Post-quantum signature scheme. -/
-structure PQCSig where
-  verify : Nat → Nat → Bool
-  forgeable : Prop
-
-/-- Signature oracle for chosen-message queries (core of UF-CMA). -/
-structure SignOracle where
-  sign : Nat → Nat
-
-/-- Adversary for the UF-CMA game. -/
-structure Adversary where
-  queries : List Nat
-  forgeryMsg : Nat
-  forgerySig : Nat
-
-/-- UF-CMA game: adversary wins if it forges a valid signature on a fresh message. -/
-def ufCmaWins (sig : PQCSig) (_oracle : SignOracle) (adv : Adversary) : Prop :=
-  sig.verify adv.forgeryMsg adv.forgerySig = true ∧ adv.forgeryMsg ∉ adv.queries
-
-/-- PQC remains unforgeable under chosen-message attack. -/
-def pqcUnforgeable (pqc : PQCSig) (oracle : SignOracle) : Prop :=
-  ∀ adv : Adversary, ¬ ufCmaWins pqc oracle adv
-
-/-- Migration authentication state (exact mirror of Go MigrationAuth). -/
-structure MigrationAuth where
-  legacySigned : Bool
-  pqcSigned : Bool
-  legacyCompromised : Bool
-  deriving DecidableEq
-
-/-- Migration phases. -/
-inductive MigrationPhase where
-  | preEpoch
-  | cutover
-  | postEpoch
-  deriving DecidableEq
-
-/-- Ledger state for migration epochs. -/
-structure LedgerState where
-  phase : MigrationPhase
-  auth : MigrationAuth
-  deriving DecidableEq
-
-/-- Dual-signature acceptance policy (exact match to Go settlement). -/
-def postEpochAccepts (auth : MigrationAuth) : Prop :=
-  auth.legacySigned ∧ auth.pqcSigned
-
 /-- Theorem 7 (Continuity): dual signatures preserve acceptance after legacy compromise. -/
 theorem theorem7_dual_signature_continuity (auth : MigrationAuth)
     (h_legacy : auth.legacySigned = true)
@@ -94,19 +42,32 @@ Refinement shim for Go `verifyMigrationSignatureBundle`:
 acceptance requires complete dual-signature authorization after migration cutover.
 -/
 def goVerifyMigrationSignatureBundle (auth : MigrationAuth) : Prop :=
-  postEpochAccepts auth
+  auth.legacySigned = true ∧ auth.pqcSigned = true
 
 /--
 Refinement shim for Go `postEpochAccept` behavior in settlement checks.
 This remains intentionally abstract at the Lean model level.
 -/
 def goPostEpochAccept (auth : MigrationAuth) : Prop :=
-  postEpochAccepts auth
+  auth.pqcSigned = true
 
 /-- Refinement to Go migration + settlement checks. -/
 theorem theorem7_refines_go_migration (auth : MigrationAuth) :
-    goVerifyMigrationSignatureBundle auth → goPostEpochAccept auth := by
+    postEpochAccepts auth →
+    (goVerifyMigrationSignatureBundle auth ∧ goPostEpochAccept auth) := by
   intro h
-  exact h
+  exact ⟨⟨h.1, h.2⟩, h.2⟩
+
+/-- Go-side dual-signature success implies Lean post-cutover acceptance. -/
+theorem theorem7_refines_go_migration_sound (auth : MigrationAuth)
+    (h_go : goVerifyMigrationSignatureBundle auth) :
+    postEpochAccepts auth := by
+  exact ⟨h_go.1, h_go.2⟩
+
+/-- Field-level refinement: Lean acceptance implies each Go-side auth field gate is true. -/
+theorem theorem7_refines_go_field_mapping (auth : MigrationAuth)
+    (h : postEpochAccepts auth) :
+    auth.legacySigned = true ∧ auth.pqcSigned = true := by
+  exact ⟨h.1, h.2⟩
 
 end LeanFormalization

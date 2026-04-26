@@ -1,0 +1,7 @@
+chore(proofs): strengthen PQC migration refinements and refresh traceability evidence
+
+- centralize shared PQC/migration structures in Common.lean
+- tighten Theorem7/Theorem8 Lean->Go refinement lemmas
+- update formal traceability matrix and validation report artifacts
+- add proof-validation checklist guidance to PR template
+- document Phase 4 audit linkage in settlement and audit template
