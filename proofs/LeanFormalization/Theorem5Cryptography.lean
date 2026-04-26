@@ -28,11 +28,11 @@ def statementSoundness (stmt : ZKStatement) : Prop :=
   ∃ w : ZKWitness, w.claim_digest = stmt.claim_digest ∧ w.internal_data > 0
 
 /-- Completeness: if a witness is correct, the verifier accepts the proof. -/
-def verifierCompleteness (stmt : ZKStatement) (w : ZKWitness) : Prop :=
+def verifierCompleteness (_stmt : ZKStatement) (_w : ZKWitness) : Prop :=
   ∃ π : ZKProof, π.proof_payload ≠ 0
 
 /-- Verifier decision: abstractly represented as checking the proof has nonzero payload. -/
-def verify (stmt : ZKStatement) (proof : ZKProof) : Bool :=
+def verify (_stmt : ZKStatement) (proof : ZKProof) : Bool :=
   proof.proof_payload ≠ 0
 
 /-- Constant proof-size model in bytes. -/
@@ -85,7 +85,7 @@ theorem theorem5_proof_soundness (n : Nat) (stmt : ZKStatement) :
 /-- Theorem 5b: Verifier completeness.
     If a proof is generated from a valid witness, the verifier accepts it.
 -/
-theorem theorem5_verifier_completeness (stmt : ZKStatement) (w : ZKWitness) :
+theorem theorem5_verifier_completeness (stmt : ZKStatement) (_w : ZKWitness) :
     ∃ π : ZKProof, verify stmt π = true := by
   use { proof_payload := 1 }
   simp [verify]

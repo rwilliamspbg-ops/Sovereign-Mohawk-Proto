@@ -6,6 +6,7 @@ import (
 )
 
 // SettleTaskPayout transfers utility coin for a completed and verified compute task.
+// Formalized policy linkage: Theorem7PQCMigrationContinuity + Theorem8DualSignatureNonHijack.
 func (l *Ledger) SettleTaskPayout(payer string, worker string, taskID string, amount float64, proofID string, proofValid bool, nonce uint64) (Tx, error) {
 	taskID = strings.TrimSpace(taskID)
 	proofID = strings.TrimSpace(proofID)

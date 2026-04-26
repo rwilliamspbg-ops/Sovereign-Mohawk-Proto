@@ -21,8 +21,20 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 | 5 | Constant proof-size and verifier-cost model is scale-invariant | [proofs/cryptography.md](cryptography.md) | `LeanFormalization/Theorem5Cryptography.lean` | `theorem5_constant_size`, `theorem5_constant_ops`, `theorem5_constant_cost`, `theorem5_ops_guard`, `theorem5_cost_guard` | `test/zk_verifier_test.go::TestVerifyZKProof`, `test/zksnark_verifier_test.go::TestVerifyProof_Valid` | Model verified | Abstract constant-operation verifier model with concrete runtime guard; not a full Groth16/q-SDH formalization |
 | 6 | Surrogate convergence envelope decreases with rounds and grows with heterogeneity | [proofs/convergence.md](convergence.md) | `LeanFormalization/Theorem6Convergence.lean` | `theorem6_envelope_decompose`, `theorem6_rounds_help`, `theorem6_rounds_help_stronger`, `theorem6_heterogeneity_effect`, `theorem6_large_scale_guard` | `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Below`, `test/convergence_test.go::TestConvergenceMonitor_IsConverging_Above` | Surrogate verified | Current Lean files cover integer and rational envelope models; the stronger non-convex `O(1/sqrt(KT))` claim is not yet formally established here |
 | 7 | Flower-compatible client training preserves Mohawk compression, proof-envelope generation, and Go-backed aggregation | [docs/flower-integration.md](../docs/flower-integration.md) | `LeanFormalization/Theorem1BFT.lean`, `LeanFormalization/Theorem3Communication.lean`, `LeanFormalization/Theorem5Cryptography.lean`, `LeanFormalization/Theorem6Convergence.lean` | `theorem1_global_bound_checked`, `theorem3_lower_bound_match`, `theorem5_constant_cost`, `theorem6_large_scale_guard` | `sdk/python/tests/test_flower_client.py::test_fit_submits_update_and_builds_proof_manifest`, `sdk/python/tests/test_flower_strategy.py::test_strategy_forwarder_aggregates_updates`, `sdk/python/tests/test_flower_examples.py::test_all_flower_integrated_examples`, `sdk/python/examples/flower_integrated/quickstart_pytorch.py::main` | Verified | Flower client and strategy bridge reuse theorem-backed runtime semantics |
-| 8 | PQC migration continuity requires dual signatures across cutover phases | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem7PQCMigrationContinuity.lean` | `ufCmaWins`, `pqcUnforgeable`, `theorem7_dual_signature_continuity`, `theorem7_legacy_compromise_insufficient`, `theorem7_pqc_hardness_ensures_continuity`, `theorem7_scale_guard`, `theorem7_refines_go_migration` | `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath`, `test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic` | Phase 4 model | Traceability target: `dualSignatureVerify` in migration_signatures.go and post-epoch acceptance checks in settlement.go |
+| 8 | PQC migration continuity requires dual signatures across cutover phases | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem7PQCMigrationContinuity.lean` | `theorem7_dual_signature_continuity`, `theorem7_legacy_compromise_insufficient`, `theorem7_pqc_hardness_ensures_continuity`, `theorem7_scale_guard`, `theorem7_refines_go_migration`, `theorem7_refines_go_field_mapping` | `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath`, `test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic` | Phase 4 model | Traceability target: `dualSignatureVerify` in migration_signatures.go and post-epoch acceptance checks in settlement.go |
 | 9 | Legacy-only migration cannot satisfy post-cutover non-hijack policy | [internal/token/migration_signatures.go](../internal/token/migration_signatures.go), [internal/token/settlement.go](../internal/token/settlement.go) | `LeanFormalization/Theorem8DualSignatureNonHijack.lean` | `LedgerTransition`, `ledger_invariant_post_epoch`, `theorem8_post_epoch_non_hijack`, `theorem8_no_pqc_not_safe`, `theorem8_pqc_prevents_hijack`, `theorem8_no_hijack_possible`, `theorem8_scale_non_hijack_guard`, `theorem8_refines_go_settlement` | `test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof`, `test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath` | Phase 4 model | Includes linkage to dual-signature checks plus compute-proof-gated settlement path |
+
+## Workstream 4: PQC Migration Hardening (Phase 4)
+
+| Theorem ID | Formal Statement | Key Properties Proven | Linked Go Implementation | Upgrade Plan Reference | Status | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Theorem7 | `PQCMigrationContinuity` | Dual-signature continuity, legacy compromise insufficiency, PQC hardness under UF-CMA | `internal/token/migration_signatures.go::verifyMigrationSignatureBundle`, `internal/token/settlement.go` post-epoch acceptance path | Workstream 4 (2026-2027) | Complete (Phase 4) | Includes `goVerifyMigrationSignatureBundle` and `goPostEpochAccept` refinement shims in Lean |
+| Theorem8 | `DualSignatureNonHijack` | Non-hijack safety, `LedgerTransition` invariant preservation, no-hijack under UF-CMA | `internal/token/settlement.go` payout path, plus migration-signature enforcement in `internal/token/migration_signatures.go` | Workstream 4 (2026-2027) | Complete (Phase 4) | Includes `goSettleTaskPayoutSafe` refinement shim tying valid-proof gate to Lean safety predicate |
+
+### Shared Supporting Definitions
+
+- `ufCmaWins`, `pqcUnforgeable`, `MigrationAuth`, `MigrationPhase`, `LedgerState`, `postEpochAccepts`, `hijackSafe`: centralized in `LeanFormalization/Common.lean`
+- `LedgerTransition`: theorem-specific transition relation in `LeanFormalization/Theorem8DualSignatureNonHijack.lean`
 
 ## Parser Compatibility
 
@@ -46,3 +58,16 @@ This matrix is designed for automated extraction:
 - Regenerate artifacts: `make refresh-formal-validation`
 - Validate report and bundle integrity: `make validate-formal`
 
+## Latest Validation Run
+
+- Date (UTC): 2026-04-26
+- Branch: `feat/planning-doc-and-validation-scripts`
+- Commands executed:
+  - `cd proofs && /home/codespace/.elan/bin/lake build`
+  - `bash scripts/ci/validate_formal_traceability.sh`
+  - `/workspaces/Sovereign-Mohawk-Proto/.venv/bin/python scripts/ci/generate_formal_validation_report.py`
+  - `/workspaces/Sovereign-Mohawk-Proto/.venv/bin/python scripts/ci/generate_formal_validation_report.py --check`
+- Results:
+  - Lean build: pass
+  - Traceability validation: pass (`8` modules, `48` theorem symbols, `20` runtime test refs)
+  - Formal validation report consistency: pass after regeneration

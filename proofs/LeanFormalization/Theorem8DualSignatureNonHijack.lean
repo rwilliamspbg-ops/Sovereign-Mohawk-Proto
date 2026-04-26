@@ -2,10 +2,6 @@ import LeanFormalization.Theorem7PQCMigrationContinuity
 
 namespace LeanFormalization
 
-/-- Hijack safety predicate. -/
-def hijackSafe (auth : MigrationAuth) : Prop :=
-  auth.pqcSigned = true
-
 /-- Adversary hijack win condition. -/
 def canHijack (auth : MigrationAuth) (adv : Adversary) : Prop :=
   have _ := adv
@@ -83,10 +79,24 @@ theorem theorem8_scale_non_hijack_guard :
     native_decide
   simp [hijackSafe]
 
+/--
+Refinement shim for Go `SettleTaskPayout` safety contract:
+if compute proof is valid, payout path preserves post-cutover non-hijack policy.
+-/
+def goSettleTaskPayoutSafe (auth : MigrationAuth) (proofValid : Bool) : Prop :=
+  auth.pqcSigned = true ∧ proofValid = true
+
 /-- Refinement to Go: links settlement.go and compute-proof-gated payout logic. -/
-theorem theorem8_refines_go_settlement (auth : MigrationAuth) :
-    hijackSafe auth → True := by
-  intro _
-  exact trivial
+theorem theorem8_refines_go_settlement (auth : MigrationAuth)
+    (h_post : postEpochAccepts auth) :
+    goSettleTaskPayoutSafe auth true := by
+  exact ⟨h_post.2, rfl⟩
+
+/-- Go-side safe settlement gate implies Lean non-hijack safety. -/
+theorem theorem8_refines_go_settlement_sound (auth : MigrationAuth)
+    (proofValid : Bool)
+    (h_go : goSettleTaskPayoutSafe auth proofValid) :
+    hijackSafe auth := by
+  exact h_go.1
 
 end LeanFormalization

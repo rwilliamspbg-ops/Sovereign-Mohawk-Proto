@@ -77,3 +77,10 @@ Example output section:
 Theorem 7 and Theorem 8 now include a full UF-CMA-style adversary game model: the attacker can query a signing oracle on chosen messages and only wins by producing a valid forgery on a fresh, previously unqueried message. This captures the core post-quantum migration claim that legacy compromise does not bypass the required PQC authorization in post-epoch acceptance.
 
 The model also introduces explicit ledger transition rules across `preEpoch`, `cutover`, and `postEpoch`, plus invariant lemmas that preserve dual-signature safety under modeled transitions. Refinement lemmas are closed and document alignment toward `internal/token/migration_signatures.go` and `internal/token/settlement.go`, including compute-proof-gated payout logic.
+
+### Workstream 4 Linkage (Upgrade Plan 2026-2027)
+
+- Scope: Workstream 4 - PQC Migration Hardening.
+- Theorem 7 refinement: `goVerifyMigrationSignatureBundle` and `goPostEpochAccept` document the Lean-level contract corresponding to `verifyMigrationSignatureBundle` and post-epoch acceptance checks.
+- Theorem 8 refinement: `goSettleTaskPayoutSafe` captures the `SettleTaskPayout` proof-valid gate and maps it to the Lean non-hijack predicate (`hijackSafe`).
+- Operational meaning: a valid compute proof plus mandatory dual signatures keeps payout settlement aligned with post-cutover non-hijack policy.
