@@ -68,7 +68,7 @@ jobs:
           lake --version
 
       - name: Restore Lean/Lake cache
-        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: |
             proofs/.lake/packages
@@ -145,7 +145,7 @@ jobs:
 
       - name: Save Lean/Lake cache
         if: always()
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: |
             proofs/.lake/packages
@@ -188,7 +188,7 @@ jobs:
       - name: Upload proof report
         if: always()
         continue-on-error: true
-        uses: actions/upload-artifact@c6a366c94c3e0affe28c06c8df20a878f24da3cf
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: formal-proof-report
           path: |
@@ -197,8 +197,9 @@ jobs:
           retention-days: 7
 
       - name: Comment on PR with proof verification
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' && github.event.pull_request.head.repo.fork == false
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
