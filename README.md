@@ -58,6 +58,16 @@ Next deployment steps:
 - Local multi-node stack: `./genesis-launch.sh --all-nodes`
 - Sandbox validation profile: `make sandbox-up`
 - Kubernetes baseline: `./scripts/helm-install.sh`
+- Kind deployment path: `make deploy-to-kind`
+- Cloud bootstrap scaffolds: `deploy/cloud-templates/README.md`
+
+Simulator-first local scaling test (1k virtual nodes):
+
+```bash
+make simulate-fl-1k
+```
+
+Benchmarks and reproducibility entrypoint: [docs/BENCHMARKS_AND_REPRODUCIBILITY.md](docs/BENCHMARKS_AND_REPRODUCIBILITY.md)
 
 Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs/ADOPTION_ACCELERATION_PLAN.md)
 
