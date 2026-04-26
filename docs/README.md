@@ -50,6 +50,8 @@ docker-compose logs -f
 
 ## 📚 Documentation Index
 
+- **[Adoption Acceleration Plan (30/60/90)](ADOPTION_ACCELERATION_PLAN.md)** — execution plan to convert technical strengths into ecosystem growth
+
 ### Getting Started
 - **[Quick Start](#quick-start)** — 5-minute setup above
 - **[Local Development Guide](#local-development)** — Laptop setup, debugging, hot reload

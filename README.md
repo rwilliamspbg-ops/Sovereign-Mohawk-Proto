@@ -26,6 +26,41 @@
 
 Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
 
+## Run Sovereign FL In Under 5 Minutes
+
+**Goal:** Flower-level developer friendliness with provable security, sovereign trust roots, and quantum-ready transport.
+
+Start from source:
+
+```bash
+git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
+cd Sovereign-Mohawk-Proto
+make build-python-lib
+cd sdk/python
+pip install -e .[flower]
+python examples/flower_integrated/quickstart_pytorch.py --ci
+```
+
+Or install the SDK package directly from PyPI:
+
+```bash
+pip install mohawk[flower]
+```
+
+What this gives you immediately:
+
+- A Flower-compatible client flow with Mohawk security primitives.
+- End-to-end update exchange path suitable for local smoke tests.
+- A fast migration lane from existing Flower workloads.
+
+Next deployment steps:
+
+- Local multi-node stack: `./genesis-launch.sh --all-nodes`
+- Sandbox validation profile: `make sandbox-up`
+- Kubernetes baseline: `./scripts/helm-install.sh`
+
+Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs/ADOPTION_ACCELERATION_PLAN.md)
+
 ## Formal Verification Status
 
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
@@ -59,7 +94,7 @@ High-risk readiness controls, Article 8-15 mapping, technical evidence, and depl
 - Contribution focus: fail-closed verifier startup and constrained-runtime transport mitigation.
 - Current awarded total: **1,000 points**.
 
-## Quick Start (3 Nodes)
+## Runtime Quick Start (3 Nodes)
 
 ```bash
 ./genesis-launch.sh --all-nodes
@@ -72,7 +107,7 @@ Stop stack:
 docker compose down
 ```
 
-## Flower + Mohawk In 30 Seconds
+## Flower + Mohawk Integration Quickstart
 
 ```bash
 # from repo root
