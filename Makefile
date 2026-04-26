@@ -8,6 +8,7 @@
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
+.PHONY: simulate-fl-1k benchmarks-reproducibility deploy-to-kind cloud-template-scaffold
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
@@ -41,6 +42,10 @@ help:
 	@echo "  make artifact-summary - Regenerate captured artifact summary and manifest"
 	@echo "  make openapi-spec    - Generate the OpenAPI spec artifact"
 	@echo "  make capability-dashboard-matrix - Generate dashboard matrix evidence"
+	@echo "  make simulate-fl-1k  - Run zero-config local FL simulator (1k virtual nodes)"
+	@echo "  make benchmarks-reproducibility - Build reproducibility benchmark artifacts"
+	@echo "  make deploy-to-kind  - Deploy Helm chart to local kind cluster"
+	@echo "  make cloud-template-scaffold - Show cloud quickstart scaffold assets"
 	@echo "  make lint            - Check code with linters (ruff)"
 	@echo "  make black           - Check code formatting (black)"
 	@echo "  make format          - Auto-format with Black and Ruff"
@@ -183,6 +188,26 @@ local-validation-scripts:
 	@python3 validation_test.py || true
 	@python3 comprehensive_local_tests.py || true
 	@echo "✓ Standalone validation scripts completed (informational, non-gating)"
+
+simulate-fl-1k:
+	@echo "Running local simulator with 1024 virtual nodes..."
+	@cd sdk/python && python examples/flower_integrated/local_simulator.py --virtual-nodes 1024 --rounds 3 --ci
+
+benchmarks-reproducibility:
+	@echo "Generating reproducibility benchmark artifacts..."
+	@bash scripts/benchmark_fedavg_compare.sh
+	@python3 scripts/publish_swarm_runtime_benchmarks.py
+	@python3 scripts/validate_fedavg_scale_gates.py || true
+	@echo "✓ Reproducibility artifacts available under results/metrics and test-results/swarm-runtime"
+
+deploy-to-kind:
+	@bash scripts/deploy_to_kind.sh
+
+cloud-template-scaffold:
+	@echo "Cloud template scaffolds:"
+	@echo "  - deploy/cloud-templates/README.md"
+	@echo "  - deploy/cloud-templates/aws-userdata.sh"
+	@echo "  - deploy/cloud-templates/gcp-startup.sh"
 
 clean:
 	@docker-compose down -v

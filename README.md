@@ -8,6 +8,7 @@
 [![CodeQL](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml)
 [![Security Audit Gate](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml)
 [![Security Supply Chain](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml)
+[![Simulator Scale Smoke](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/simulator-scale-smoke.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/simulator-scale-smoke.yml)
 [![Verify Proofs](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml)
 [![Action Pin Check](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml)
 [![Latest Release Performance Gate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)
@@ -25,6 +26,51 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
 Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
+
+## Run Sovereign FL In Under 5 Minutes
+
+**Goal:** Flower-level developer friendliness with provable security, sovereign trust roots, and quantum-ready transport.
+
+Start from source:
+
+```bash
+git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
+cd Sovereign-Mohawk-Proto
+make build-python-lib
+cd sdk/python
+pip install -e .[flower]
+python examples/flower_integrated/quickstart_pytorch.py --ci
+```
+
+Or install the SDK package directly from PyPI:
+
+```bash
+pip install mohawk[flower]
+```
+
+What this gives you immediately:
+
+- A Flower-compatible client flow with Mohawk security primitives.
+- End-to-end update exchange path suitable for local smoke tests.
+- A fast migration lane from existing Flower workloads.
+
+Next deployment steps:
+
+- Local multi-node stack: `./genesis-launch.sh --all-nodes`
+- Sandbox validation profile: `make sandbox-up`
+- Kubernetes baseline: `./scripts/helm-install.sh`
+- Kind deployment path: `make deploy-to-kind`
+- Cloud bootstrap scaffolds: `deploy/cloud-templates/README.md`
+
+Simulator-first local scaling test (1k virtual nodes):
+
+```bash
+make simulate-fl-1k
+```
+
+Benchmarks and reproducibility entrypoint: [docs/BENCHMARKS_AND_REPRODUCIBILITY.md](docs/BENCHMARKS_AND_REPRODUCIBILITY.md)
+
+Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs/ADOPTION_ACCELERATION_PLAN.md)
 
 ## Formal Verification Status
 
@@ -59,7 +105,7 @@ High-risk readiness controls, Article 8-15 mapping, technical evidence, and depl
 - Contribution focus: fail-closed verifier startup and constrained-runtime transport mitigation.
 - Current awarded total: **1,000 points**.
 
-## Quick Start (3 Nodes)
+## Runtime Quick Start (3 Nodes)
 
 ```bash
 ./genesis-launch.sh --all-nodes
@@ -72,7 +118,7 @@ Stop stack:
 docker compose down
 ```
 
-## Flower + Mohawk In 30 Seconds
+## Flower + Mohawk Integration Quickstart
 
 ```bash
 # from repo root

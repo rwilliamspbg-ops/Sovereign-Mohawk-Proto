@@ -221,9 +221,16 @@ The Flower-compatible examples live under [examples/flower_integrated/](examples
 - [quickstart_pytorch.py](examples/flower_integrated/quickstart_pytorch.py)
 - [huggingface.py](examples/flower_integrated/huggingface.py)
 - [llm_fine_tune.py](examples/flower_integrated/llm_fine_tune.py)
+- [local_simulator.py](examples/flower_integrated/local_simulator.py)
 
 Each script uses the same Mohawk adapter and demonstrates a different model-shape profile so you can validate list-based tensors, nested encoder states, and larger fine-tuning payloads.
 The bundled examples default to `submit_updates=False` so they run as deterministic local smoke tests; set it to `True` when you want the client to submit updates to live aggregation.
+
+Run the simulator-first local scaling path (1k virtual nodes):
+
+```bash
+python examples/flower_integrated/local_simulator.py --virtual-nodes 1024 --rounds 3
+```
 
 ### Utility Coin Operations
 

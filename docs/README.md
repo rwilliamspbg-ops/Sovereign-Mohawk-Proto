@@ -50,6 +50,10 @@ docker-compose logs -f
 
 ## 📚 Documentation Index
 
+- **[Adoption Acceleration Plan (30/60/90)](ADOPTION_ACCELERATION_PLAN.md)** — execution plan to convert technical strengths into ecosystem growth
+- **[Benchmarks and Reproducibility](BENCHMARKS_AND_REPRODUCIBILITY.md)** — single entrypoint for benchmark runs and reproducible evidence
+- **[Cloud Template Scaffolds](../deploy/cloud-templates/README.md)** — starter AWS/GCP quickstart bootstrap assets
+
 ### Getting Started
 - **[Quick Start](#quick-start)** — 5-minute setup above
 - **[Local Development Guide](#local-development)** — Laptop setup, debugging, hot reload

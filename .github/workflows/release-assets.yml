@@ -37,6 +37,20 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Install Python SDK dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ./sdk/python[dev,flower]
+
+      - name: Build Python SDK shared library
+        run: |
+          make build-python-lib
+
       - name: Install benchstat
         run: |
           ./scripts/go_with_toolchain.sh go install golang.org/x/perf/cmd/benchstat@latest
@@ -56,6 +70,21 @@ jobs:
 
           python3 scripts/generate_release_performance_evidence.py
           cp results/metrics/release_performance_evidence.md release-assets/benchmarks/release_performance_evidence.md
+
+      - name: Generate simulator scale evidence
+        run: |
+          cd sdk/python
+          python examples/flower_integrated/local_simulator.py --virtual-nodes 256 --rounds 2 --ci \
+            > ../../release-assets/benchmarks/simulator-scale-smoke.json
+
+      - name: Package adoption and reproducibility guides
+        run: |
+          mkdir -p release-assets/guides/cloud-templates
+          cp docs/BENCHMARKS_AND_REPRODUCIBILITY.md release-assets/guides/
+          cp docs/ADOPTION_ACCELERATION_PLAN.md release-assets/guides/
+          cp deploy/cloud-templates/README.md release-assets/guides/cloud-templates/
+          cp deploy/cloud-templates/aws-userdata.sh release-assets/guides/cloud-templates/
+          cp deploy/cloud-templates/gcp-startup.sh release-assets/guides/cloud-templates/
 
       - name: Generate source SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
@@ -194,6 +223,12 @@ jobs:
             "release-assets/benchmarks/fedavg_benchmark_compare.md"
             "release-assets/benchmarks/accelerator_backend_compare.md"
             "release-assets/benchmarks/release_performance_evidence.md"
+            "release-assets/benchmarks/simulator-scale-smoke.json"
+            "release-assets/guides/BENCHMARKS_AND_REPRODUCIBILITY.md"
+            "release-assets/guides/ADOPTION_ACCELERATION_PLAN.md"
+            "release-assets/guides/cloud-templates/README.md"
+            "release-assets/guides/cloud-templates/aws-userdata.sh"
+            "release-assets/guides/cloud-templates/gcp-startup.sh"
             "release-assets/sbom-source.spdx.json"
             "release-assets/sovereign-map-testnet.tar.gz"
             "release-assets/formal/formal_validation_report.json"

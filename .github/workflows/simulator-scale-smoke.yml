@@ -1,0 +1,78 @@
+name: Simulator Scale Smoke
+
+"on":
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sdk/python/**'
+      - 'Makefile'
+      - '.github/workflows/simulator-scale-smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sdk/python/**'
+      - 'Makefile'
+      - '.github/workflows/simulator-scale-smoke.yml'
+
+concurrency:
+  group: simulator-smoke-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.25.9+auto
+
+jobs:
+  simulator-scale-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Install SDK dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ./sdk/python[dev,flower]
+
+      - name: Build Python SDK shared library
+        run: |
+          make build-python-lib
+
+      - name: Run simulator smoke profile
+        run: |
+          mkdir -p test-results
+          cd sdk/python
+          python examples/flower_integrated/local_simulator.py --virtual-nodes 256 --rounds 2 --ci | tee ../../test-results/simulator-scale-smoke.json
+
+      - name: Validate simulator output payload
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path("test-results/simulator-scale-smoke.json").read_text(encoding="utf-8"))
+          assert payload["virtual_nodes"] == 256
+          assert payload["rounds"] == 2
+          assert payload["throughput_nodes_per_second"] > 0
+          assert len(payload["round_summaries"]) == 2
+          print("simulator payload checks passed")
+          PY
+
+      - name: Upload simulator smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: simulator-scale-smoke
+          path: test-results/simulator-scale-smoke.json
