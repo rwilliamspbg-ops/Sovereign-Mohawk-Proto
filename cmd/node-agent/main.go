@@ -28,6 +28,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
 
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	libp2ppeer "github.com/libp2p/go-libp2p/core/peer"
@@ -333,7 +334,7 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 		if remoteMode == "" {
 			metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
 			metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
-			log.Printf("Gradient: orchestrator advertised unsupported KEX mode %q", info.KEXMode)
+			log.Printf("Gradient: orchestrator advertised unsupported KEX mode=%q", sanitizeLogValue(info.KEXMode))
 			return
 		}
 		if remoteMode != conf.TransportKEXMode {
@@ -353,14 +354,14 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 	if err != nil {
 		metrics.ObserveAcceleratorOp("cpu", "gradient_submit", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
-		log.Printf("Gradient: invalid orchestrator peer ID %q: %v", info.PeerID, err)
+		log.Printf("Gradient: invalid orchestrator peer ID=%q: %v", sanitizeLogValue(info.PeerID), err)
 		return
 	}
 	orchAddrs := make([]multiaddr.Multiaddr, 0, len(info.Addrs))
 	for _, a := range info.Addrs {
 		ma, err := multiaddr.NewMultiaddr(a)
 		if err != nil {
-			log.Printf("Gradient: skipping invalid addr %q: %v", a, err)
+			log.Printf("Gradient: skipping invalid addr=%q: %v", sanitizeLogValue(a), err)
 			continue
 		}
 		orchAddrs = append(orchAddrs, ma)
@@ -382,10 +383,10 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 	metrics.ObserveAcceleratorOp("cpu", "gradient_submit", ack.Accepted)
 	metrics.ObserveAcceleratorOpLatency("cpu", "gradient_submit", float64(time.Since(gradStart).Microseconds())/1000.0)
 	if !ack.Accepted {
-		log.Printf("Gradient: sent round=%d len=%d -> accepted=%v reason=%q negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, ack.Reason, ack.NegotiatedKEX, ack.KEXPublicKeyLen)
+		log.Printf("Gradient: sent round=%d len=%d -> accepted=%v reason=%q negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, sanitizeLogValue(ack.Reason), sanitizeLogValue(ack.NegotiatedKEX), ack.KEXPublicKeyLen)
 		return
 	}
-	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, ack.NegotiatedKEX, ack.KEXPublicKeyLen)
+	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, sanitizeLogValue(ack.NegotiatedKEX), ack.KEXPublicKeyLen)
 }
 
 func startMetricsServer(nodeID string) {
@@ -404,9 +405,9 @@ func startMetricsServer(nodeID string) {
 			WriteTimeout:      15 * time.Second,
 			IdleTimeout:       60 * time.Second,
 		}
-		log.Printf("Node %s metrics listening on %s", nodeID, metricsAddr)
+		log.Printf("Node %s metrics listening on %s", sanitizeLogValue(nodeID), sanitizeLogValue(metricsAddr))
 		if err := server.ListenAndServe(); err != nil {
-			log.Printf("Node %s metrics server stopped: %v", nodeID, err)
+			log.Printf("Node %s metrics server stopped: %v", sanitizeLogValue(nodeID), err)
 		}
 	}()
 }
@@ -609,4 +610,27 @@ func splitCSV(value string) []string {
 		}
 	}
 	return out
+}
+
+func sanitizeLogValue(value string) string {
+	if value == "" {
+		return ""
+	}
+	b := strings.Builder{}
+	b.Grow(len(value))
+	for _, r := range value {
+		if r == '\n' || r == '\r' || r == '\t' {
+			b.WriteRune(' ')
+			continue
+		}
+		if unicode.IsPrint(r) {
+			b.WriteRune(r)
+		}
+	}
+	cleaned := strings.TrimSpace(b.String())
+	const maxLen = 120
+	if len(cleaned) > maxLen {
+		return cleaned[:maxLen] + "..."
+	}
+	return cleaned
 }

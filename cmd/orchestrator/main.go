@@ -29,6 +29,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
@@ -116,8 +117,8 @@ func main() {
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver
 	// gradient updates directly over the encrypted p2p transport.
 	network.RegisterGradientHandlerWithKEX(transportHost, kexMode, func(msg *network.GradientMessage) *network.GradientAck {
-		log.Printf("gradient received: node=%s task=%s round=%d len=%d",
-			msg.NodeID, msg.TaskID, msg.Round, len(msg.Gradients))
+		log.Printf("gradient received: round=%d len=%d node=%s task=%s",
+			msg.Round, len(msg.Gradients), sanitizeLogValue(msg.NodeID), sanitizeLogValue(msg.TaskID))
 		return &network.GradientAck{Accepted: true, NegotiatedKEX: string(kexMode), KEXPublicKeyLen: kexMode.ExpectedPublicKeyBytes()}
 	})
 
@@ -150,7 +151,7 @@ func main() {
 			WriteTimeout:      15 * time.Second,
 			IdleTimeout:       60 * time.Second,
 		}
-		log.Printf("orchestrator metrics listening on %s", metricsAddr)
+		log.Printf("orchestrator metrics listening on %s", sanitizeLogValue(metricsAddr))
 		if err := metricsServer.ListenAndServe(); err != nil {
 			log.Fatalf("metrics server failed: %v", err)
 		}
@@ -176,7 +177,9 @@ func main() {
 }
 
 func handlePubkey(w http.ResponseWriter, r *http.Request) {
-	_, _ = w.Write([]byte(hex.EncodeToString(orchPub)))
+	if _, err := w.Write([]byte(hex.EncodeToString(orchPub))); err != nil {
+		log.Printf("failed to write pubkey response: %v", err)
+	}
 }
 
 func handleNextJob(w http.ResponseWriter, r *http.Request) {
@@ -236,6 +239,29 @@ func defaultPort(value string, fallback int) int {
 		return fallback
 	}
 	return parsed
+}
+
+func sanitizeLogValue(value string) string {
+	if value == "" {
+		return ""
+	}
+	b := strings.Builder{}
+	b.Grow(len(value))
+	for _, r := range value {
+		if r == '\n' || r == '\r' || r == '\t' {
+			b.WriteRune(' ')
+			continue
+		}
+		if unicode.IsPrint(r) {
+			b.WriteRune(r)
+		}
+	}
+	cleaned := strings.TrimSpace(b.String())
+	const maxLen = 120
+	if len(cleaned) > maxLen {
+		return cleaned[:maxLen] + "..."
+	}
+	return cleaned
 }
 
 func splitRelayAddrs(value string) []string {

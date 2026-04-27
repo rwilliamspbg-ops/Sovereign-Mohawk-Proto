@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	corehost "github.com/libp2p/go-libp2p/core/host"
@@ -72,7 +73,8 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 		defer s.Close()
 		payload, err := io.ReadAll(bufio.NewReader(s))
 		if err != nil {
-			s.Reset()
+			log.Printf("gradient: failed to read stream payload: %v", err)
+			resetStreamWithLog(s, "read_payload")
 			return
 		}
 
@@ -83,16 +85,16 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 		if err := json.Unmarshal(payload, &env); err == nil && (env.Message.NodeID != "" || len(env.Messages) > 0) {
 			mode := ParseKEXMode(env.KEXMode)
 			if mode == "" {
-				_ = json.NewEncoder(s).Encode(&GradientAck{Accepted: false, Reason: fmt.Sprintf("unsupported kex mode %q", env.KEXMode)})
+				writeAckWithLog(s, &GradientAck{Accepted: false, Reason: fmt.Sprintf("unsupported kex mode %q", env.KEXMode)}, "unsupported_kex")
 				return
 			}
 			if expectedMode != "" && mode != expectedMode {
-				_ = json.NewEncoder(s).Encode(&GradientAck{Accepted: false, Reason: fmt.Sprintf("kex mismatch expected=%s got=%s", expectedMode, mode)})
+				writeAckWithLog(s, &GradientAck{Accepted: false, Reason: fmt.Sprintf("kex mismatch expected=%s got=%s", expectedMode, mode)}, "kex_mismatch")
 				return
 			}
 			expectedBytes := mode.ExpectedPublicKeyBytes()
 			if expectedBytes > 0 && len(env.KEXPublicKey) != expectedBytes {
-				_ = json.NewEncoder(s).Encode(&GradientAck{Accepted: false, Reason: fmt.Sprintf("kex public key bytes mismatch expected=%d got=%d", expectedBytes, len(env.KEXPublicKey))})
+				writeAckWithLog(s, &GradientAck{Accepted: false, Reason: fmt.Sprintf("kex public key bytes mismatch expected=%d got=%d", expectedBytes, len(env.KEXPublicKey))}, "kex_key_mismatch")
 				return
 			}
 			ackMeta.NegotiatedKEX = string(mode)
@@ -115,12 +117,13 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 						}
 					}
 				}
-				_ = json.NewEncoder(s).Encode(batchAck)
+				writeAckWithLog(s, batchAck, "batch_ack")
 				return
 			}
 			msg = env.Message
 		} else if err := json.Unmarshal(payload, &msg); err != nil {
-			s.Reset()
+			log.Printf("gradient: failed to decode payload: %v", err)
+			resetStreamWithLog(s, "decode_payload")
 			return
 		}
 
@@ -134,7 +137,7 @@ func RegisterGradientHandlerWithKEX(h corehost.Host, expectedMode KEXMode, onGra
 		if ack.KEXPublicKeyLen == 0 {
 			ack.KEXPublicKeyLen = ackMeta.KEXPublicKeyLen
 		}
-		_ = json.NewEncoder(s).Encode(ack)
+		writeAckWithLog(s, ack, "single_ack")
 	})
 }
 
@@ -175,7 +178,9 @@ func SendGradientWithKEX(ctx context.Context, h corehost.Host, peerID peer.ID, p
 	if err := json.NewEncoder(s).Encode(&env); err != nil {
 		return nil, fmt.Errorf("gradient: send: %w", err)
 	}
-	_ = s.CloseWrite()
+	if err := s.CloseWrite(); err != nil {
+		log.Printf("gradient: close write failed: %v", err)
+	}
 	var ack GradientAck
 	if err := json.NewDecoder(bufio.NewReader(s)).Decode(&ack); err != nil {
 		return nil, fmt.Errorf("gradient: read ack: %w", err)
@@ -228,7 +233,9 @@ func SendGradientBatchWithKEX(ctx context.Context, h corehost.Host, peerID peer.
 	if err := json.NewEncoder(s).Encode(&env); err != nil {
 		return nil, fmt.Errorf("gradient: send batch: %w", err)
 	}
-	_ = s.CloseWrite()
+	if err := s.CloseWrite(); err != nil {
+		log.Printf("gradient: close write for batch failed: %v", err)
+	}
 	var ack GradientAck
 	if err := json.NewDecoder(bufio.NewReader(s)).Decode(&ack); err != nil {
 		return nil, fmt.Errorf("gradient: read batch ack: %w", err)
@@ -246,4 +253,17 @@ func generateKEXPublicKey(mode KEXMode) ([]byte, error) {
 		return nil, fmt.Errorf("gradient: generate kex public key: %w", err)
 	}
 	return key, nil
+}
+
+func resetStreamWithLog(s corenetwork.Stream, context string) {
+	if err := s.Reset(); err != nil {
+		log.Printf("gradient: stream reset failed (%s): %v", context, err)
+	}
+}
+
+func writeAckWithLog(s corenetwork.Stream, ack *GradientAck, context string) {
+	if err := json.NewEncoder(s).Encode(ack); err != nil {
+		log.Printf("gradient: ack encode failed (%s): %v", context, err)
+		resetStreamWithLog(s, context+"_ack_encode")
+	}
 }
