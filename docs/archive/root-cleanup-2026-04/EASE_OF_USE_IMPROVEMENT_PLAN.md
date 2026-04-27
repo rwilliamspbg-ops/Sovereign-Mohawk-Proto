@@ -457,24 +457,24 @@ kubectl get pvc -n $NAMESPACE
 # Sovereign-Mohawk Documentation
 
 ## Quick Start (5 minutes)
-- **Local Development**: [Getting Started Guide](README.md)
-- **Docker Compose**: [Docker Stack Guide](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
-- **Kubernetes**: [Kubernetes Deployment](helm/sovereign-mohawk/README.md)
+- **Local Development**: [Getting Started Guide](../../../README.md)
+- **Docker Compose**: [Docker Stack Guide](../../../DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+- **Kubernetes**: [Kubernetes Deployment](../../../helm/sovereign-mohawk/README.md)
 
 ## User Guides
-- [Running Your First Proof](proofs/README.md)
-- [Using the Python SDK](sdk/python/README.md)
-- [Configuring Nodes](OPERATIONS_RUNBOOK.md)
+- [Running Your First Proof](../../../proofs/README.md)
+- [Using the Python SDK](../../../sdk/python/README.md)
+- [Configuring Nodes](../../../OPERATIONS_RUNBOOK.md)
 
 ## Operations
-- [Monitoring & Observability](OPERATIONS_RUNBOOK.md)
-- [Troubleshooting](OPERATIONS_RUNBOOK.md)
-- [Scaling Guide](OPERATIONS_RUNBOOK.md)
+- [Monitoring & Observability](../../../OPERATIONS_RUNBOOK.md)
+- [Troubleshooting](../../../OPERATIONS_RUNBOOK.md)
+- [Scaling Guide](../../../OPERATIONS_RUNBOOK.md)
 
 ## Reference
-- [Environment Variables](README.md)
-- [API Documentation](results/api/openapi.json)
-- [Formal Proofs](proofs/README.md)
+- [Environment Variables](../../../README.md)
+- [API Documentation](../../../results/api/openapi.json)
+- [Formal Proofs](../../../proofs/README.md)
 ```
 
 **B. Create Getting Started Script**
