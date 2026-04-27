@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -146,7 +147,12 @@ func publishHandler(r *router.Router) http.HandlerFunc {
 		if offer.SourceVertical == "" || offer.ModelID == "" || offer.PublisherNodeID == "" || len(offer.PublisherQuote) == 0 {
 			metrics.ObserveRouterRequest("publish", false, "validation")
 			http.Error(w, "invalid request", http.StatusBadRequest)
-			log.Printf("publish validation failed: %+v", offer)
+			log.Printf("publish validation failed: source=%s model=%s node=%s quote_len=%d",
+				sanitizeLogValue(offer.SourceVertical),
+				sanitizeLogValue(offer.ModelID),
+				sanitizeLogValue(offer.PublisherNodeID),
+				len(offer.PublisherQuote),
+			)
 			return
 		}
 		published, err := r.PublishInsight(offer)
@@ -179,7 +185,12 @@ func subscribeHandler(r *router.Router) http.HandlerFunc {
 		if sub.SubscriberVertical == "" || len(sub.SourceVerticals) == 0 || sub.SubscriberNodeID == "" || len(sub.SubscriberQuote) == 0 {
 			metrics.ObserveRouterRequest("subscribe", false, "validation")
 			http.Error(w, "invalid request", http.StatusBadRequest)
-			log.Printf("subscribe validation failed: %+v", sub)
+			log.Printf("subscribe validation failed: subscriber=%s node=%s source_count=%d quote_len=%d",
+				sanitizeLogValue(sub.SubscriberVertical),
+				sanitizeLogValue(sub.SubscriberNodeID),
+				len(sub.SourceVerticals),
+				len(sub.SubscriberQuote),
+			)
 			return
 		}
 		if err := r.RegisterSubscription(sub); err != nil {
@@ -204,7 +215,8 @@ func discoverHandler(r *router.Router) http.HandlerFunc {
 		offers, err := r.Discover(subscriber)
 		if err != nil {
 			metrics.ObserveRouterRequest("discover", false, classifyRouterError(err))
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, "request failed", http.StatusBadRequest)
+			log.Printf("discover failed for subscriber=%s: %v", sanitizeLogValue(subscriber), err)
 			return
 		}
 		metrics.ObserveRouterRequest("discover", true, "none")
@@ -232,7 +244,12 @@ func provenanceHandler(r *router.Router) http.HandlerFunc {
 			if event.OfferID == "" || event.SourceVertical == "" || event.TargetVertical == "" || event.SubscriberModel == "" {
 				metrics.ObserveRouterRequest("provenance_post", false, "validation")
 				http.Error(w, "invalid request", http.StatusBadRequest)
-				log.Printf("provenance validation failed: %+v", event)
+				log.Printf("provenance validation failed: offer=%s source=%s target=%s subscriber_model=%s",
+					sanitizeLogValue(event.OfferID),
+					sanitizeLogValue(event.SourceVertical),
+					sanitizeLogValue(event.TargetVertical),
+					sanitizeLogValue(event.SubscriberModel),
+				)
 				return
 			}
 			record, err := r.RecordTransfer(event)
@@ -303,6 +320,29 @@ func ensureWriteJSON(w http.ResponseWriter, value any) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		http.Error(w, fmt.Sprintf("encode response: %v", err), http.StatusInternalServerError)
 	}
+}
+
+func sanitizeLogValue(value string) string {
+	if value == "" {
+		return ""
+	}
+	b := strings.Builder{}
+	b.Grow(len(value))
+	for _, r := range value {
+		if r == '\n' || r == '\r' || r == '\t' {
+			b.WriteRune(' ')
+			continue
+		}
+		if strconv.IsPrint(r) {
+			b.WriteRune(r)
+		}
+	}
+	cleaned := strings.TrimSpace(b.String())
+	const maxLen = 120
+	if len(cleaned) > maxLen {
+		return cleaned[:maxLen] + "..."
+	}
+	return cleaned
 }
 
 func parseRoutes(raw string) map[string][]string {
