@@ -1058,12 +1058,12 @@ func fileExists(path string) bool {
 func openBrowser(url string) error {
 	switch runtime.GOOS {
 	case "linux":
-		if path, err := exec.LookPath("xdg-open"); err == nil && path != "" {
-			return exec.Command(path, url).Start()
+		if _, err := exec.LookPath("xdg-open"); err == nil {
+			return exec.Command("xdg-open", url).Start()
 		}
 	case "darwin":
-		if path, err := exec.LookPath("open"); err == nil && path != "" {
-			return exec.Command(path, url).Start()
+		if _, err := exec.LookPath("open"); err == nil {
+			return exec.Command("open", url).Start()
 		}
 	}
 	return errors.New("browser launch is not available")

@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
 type NetworkOverview struct {
@@ -39,5 +40,12 @@ func main() {
 	})
 
 	log.Println("api-dashboard listening on :8081")
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	server := &http.Server{
+		Addr:              ":8081",
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	log.Fatal(server.ListenAndServe())
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -78,6 +79,15 @@ var (
 	snarkAccelMu       sync.RWMutex
 	snarkAccelerator   SNARKAccelerator
 )
+
+var allowedExternalVerifierBinaries = map[string]struct{}{
+	"python":            {},
+	"python3":           {},
+	"node":              {},
+	"stark-verify":      {},
+	"snark-verify":      {},
+	"winterfell-verify": {},
+}
 
 func init() {
 	RegisterSTARKBackend(friVerifier{})
@@ -331,7 +341,29 @@ func parseExternalCommand(raw string) (string, []string, error) {
 	if len(parts) == 0 {
 		return "", nil, fmt.Errorf("external command is empty")
 	}
-	return parts[0], parts[1:], nil
+	bin, err := sanitizeExternalExecutable(parts[0])
+	if err != nil {
+		return "", nil, err
+	}
+	return bin, parts[1:], nil
+}
+
+func sanitizeExternalExecutable(raw string) (string, error) {
+	bin := strings.TrimSpace(raw)
+	if bin == "" {
+		return "", fmt.Errorf("external executable is empty")
+	}
+	if strings.Contains(bin, "\x00") {
+		return "", fmt.Errorf("external executable contains NUL byte")
+	}
+	base := filepath.Base(filepath.Clean(bin))
+	if base == "." || base == "" {
+		return "", fmt.Errorf("external executable is invalid")
+	}
+	if _, ok := allowedExternalVerifierBinaries[base]; !ok {
+		return "", fmt.Errorf("external executable %q is not allowlisted", base)
+	}
+	return base, nil
 }
 
 func (externalCommandVerifier) BackendName() string { return "external_cmd" }

@@ -396,8 +396,16 @@ func startMetricsServer(nodeID string) {
 	go func() {
 		mux := http.NewServeMux()
 		mux.Handle("/metrics", promhttp.Handler())
+		server := &http.Server{
+			Addr:              metricsAddr,
+			Handler:           mux,
+			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       10 * time.Second,
+			WriteTimeout:      15 * time.Second,
+			IdleTimeout:       60 * time.Second,
+		}
 		log.Printf("Node %s metrics listening on %s", nodeID, metricsAddr)
-		if err := http.ListenAndServe(metricsAddr, mux); err != nil {
+		if err := server.ListenAndServe(); err != nil {
 			log.Printf("Node %s metrics server stopped: %v", nodeID, err)
 		}
 	}()

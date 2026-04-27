@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -481,6 +482,14 @@ func enforceProductionHardwareTPMBuild() error {
 }
 
 func loadAuthorityFromFiles(certPath string, keyPath string) (*Authority, error) {
+	certPath, err := sanitizePathInput(certPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tpm ca cert path: %w", err)
+	}
+	keyPath, err = sanitizePathInput(keyPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tpm ca key path: %w", err)
+	}
 	certPEM, err := os.ReadFile(certPath)
 	if err != nil {
 		return nil, fmt.Errorf("read tpm ca cert %q: %w", certPath, err)
@@ -524,6 +533,10 @@ func loadAuthorityFromFiles(certPath string, keyPath string) (*Authority, error)
 }
 
 func loadAuthorityCertFromFile(certPath string) (*Authority, error) {
+	certPath, err := sanitizePathInput(certPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tpm ca cert path: %w", err)
+	}
 	certPEM, err := os.ReadFile(certPath)
 	if err != nil {
 		return nil, fmt.Errorf("read tpm ca cert %q: %w", certPath, err)
@@ -559,6 +572,10 @@ func allowAuthorityFallback(certPath string, keyPath string, loadErr error) bool
 }
 
 func pathStatMissingOrDir(path string) bool {
+	path, err := sanitizePathInput(path)
+	if err != nil {
+		return true
+	}
 	info, err := os.Stat(path)
 	if err != nil {
 		return os.IsNotExist(err)
@@ -692,6 +709,14 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 func newAttestorFromFiles(nodeID string, authority *Authority, certPath string, keyPath string) (*Attestor, error) {
 	if authority == nil || authority.cert == nil {
 		return nil, fmt.Errorf("authority is not configured")
+	}
+	certPath, err := sanitizePathInput(certPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tpm cert path: %w", err)
+	}
+	keyPath, err = sanitizePathInput(keyPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tpm key path: %w", err)
 	}
 	certPEM, err := os.ReadFile(certPath)
 	if err != nil {
@@ -932,6 +957,10 @@ func loadHashSeed(nodeID string) ([32]byte, string, error) {
 		}
 		source = "env-hex"
 	} else if seedFile != "" {
+		seedFile, err = sanitizePathInput(seedFile)
+		if err != nil {
+			return seed, "", fmt.Errorf("invalid MOHAWK_TPM_HASHSIG_SEED_FILE: %w", err)
+		}
 		content, readErr := os.ReadFile(seedFile)
 		if readErr != nil {
 			return seed, "", fmt.Errorf("read MOHAWK_TPM_HASHSIG_SEED_FILE: %w", readErr)
@@ -959,4 +988,24 @@ func loadHashSeed(nodeID string) ([32]byte, string, error) {
 	copy(seed[:], raw)
 	idDigest := sha256.Sum256([]byte(nodeID + ":" + source + ":" + hex.EncodeToString(seed[:])))
 	return seed, hex.EncodeToString(idDigest[:8]), nil
+}
+
+func sanitizePathInput(raw string) (string, error) {
+	path := strings.TrimSpace(raw)
+	if path == "" {
+		return "", fmt.Errorf("path is empty")
+	}
+	if strings.Contains(path, "\x00") {
+		return "", fmt.Errorf("path contains NUL byte")
+	}
+	for _, part := range strings.Split(path, string(filepath.Separator)) {
+		if part == ".." {
+			return "", fmt.Errorf("path traversal segment is not allowed")
+		}
+	}
+	cleaned := filepath.Clean(path)
+	if cleaned == "." || cleaned == ".." {
+		return "", fmt.Errorf("path does not resolve to a file")
+	}
+	return cleaned, nil
 }

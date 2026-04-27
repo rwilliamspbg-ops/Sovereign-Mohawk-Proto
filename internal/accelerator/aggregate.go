@@ -27,7 +27,7 @@ const autoParallelMinElements = 262144
 
 var (
 	aggregateWorkersMu      sync.Mutex
-	aggregateWorkersByShape = map[uint64]int{}
+	aggregateWorkersByShape = map[[2]int]int{}
 	partialBufferPool       sync.Pool
 )
 
@@ -70,7 +70,7 @@ func ResolveAggregateWorkers(numGradients int, dim int, requestedWorkers int) in
 		workers = numGradients
 	}
 
-	shape := (uint64(uint32(numGradients)) << 32) | uint64(uint32(dim))
+	shape := [2]int{numGradients, dim}
 	aggregateWorkersMu.Lock()
 	if prev, ok := aggregateWorkersByShape[shape]; ok {
 		if workers > prev+1 {
