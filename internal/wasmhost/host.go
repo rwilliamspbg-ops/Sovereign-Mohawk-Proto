@@ -462,7 +462,11 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	}
 
 	// Theorem 5: Constant-time verification check
-	results, err := fn.Call(ctx, uint64(len(proof)))
+	proofLen, err := safeUint64FromInt(len(proof))
+	if err != nil {
+		return false, err
+	}
+	results, err := fn.Call(ctx, proofLen)
 	if err != nil {
 		return false, fmt.Errorf("wasm execution error: %w", err)
 	}
@@ -477,6 +481,13 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 // FastVerify is an optimized alias for the Verify method.
 func (h *Host) FastVerify(ctx context.Context, proof []byte) (bool, error) {
 	return h.Verify(ctx, proof)
+}
+
+func safeUint64FromInt(v int) (uint64, error) {
+	if v < 0 {
+		return 0, fmt.Errorf("negative value %d cannot be converted to uint64", v)
+	}
+	return uint64(v), nil
 }
 
 // Close releases Wasm resources.

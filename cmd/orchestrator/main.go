@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -141,8 +142,16 @@ func main() {
 	go func() {
 		metricsMux := http.NewServeMux()
 		metricsMux.Handle("/metrics", promhttp.Handler())
+		metricsServer := &http.Server{
+			Addr:              metricsAddr,
+			Handler:           metricsMux,
+			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       10 * time.Second,
+			WriteTimeout:      15 * time.Second,
+			IdleTimeout:       60 * time.Second,
+		}
 		log.Printf("orchestrator metrics listening on %s", metricsAddr)
-		if err := http.ListenAndServe(metricsAddr, metricsMux); err != nil {
+		if err := metricsServer.ListenAndServe(); err != nil {
 			log.Fatalf("metrics server failed: %v", err)
 		}
 	}()
@@ -153,9 +162,13 @@ func main() {
 	}
 
 	httpServer := &http.Server{
-		Addr:      ":8080",
-		Handler:   mux,
-		TLSConfig: tlsConfig,
+		Addr:              ":8080",
+		Handler:           mux,
+		TLSConfig:         tlsConfig,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	log.Println("orchestrator listening with mTLS on :8080")
@@ -248,6 +261,11 @@ func loadSecretValue(envKey string, fileEnvKey string) string {
 	if secretFile == "" {
 		return ""
 	}
+	secretFile, err := sanitizePathInput(secretFile)
+	if err != nil {
+		log.Printf("warning: invalid %s path: %v", fileEnvKey, err)
+		return ""
+	}
 	content, err := os.ReadFile(secretFile)
 	if err != nil {
 		log.Printf("warning: failed to read %s: %v", fileEnvKey, err)
@@ -298,6 +316,12 @@ func observePQCPolicyMetrics() {
 }
 
 func observeThinkerClausesFromCapabilities(path string) {
+	cleanPath, err := sanitizePathInput(path)
+	if err != nil {
+		log.Printf("warning: invalid capabilities path %q: %v", path, err)
+		return
+	}
+
 	type thinkerClauses struct {
 		Enabled                         bool    `json:"enabled"`
 		PreserveOutliers                bool    `json:"preserve_outliers"`
@@ -310,7 +334,7 @@ func observeThinkerClausesFromCapabilities(path string) {
 		Thinker thinkerClauses `json:"thinker_clauses"`
 	}
 
-	raw, err := os.ReadFile(path)
+	raw, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return
 	}
@@ -332,4 +356,24 @@ func observeThinkerClausesFromCapabilities(path string) {
 	metrics.ObserveThinkerClauseValue("minority_retention_max", cfg.Thinker.MinorityRetentionMax)
 	metrics.ObserveThinkerClauseValue("outlier_distance_zscore_cap", cfg.Thinker.OutlierDistanceZScoreCap)
 	metrics.ObserveThinkerClauseValue("manual_review_required_above_zscore", cfg.Thinker.ManualReviewRequiredAboveZScore)
+}
+
+func sanitizePathInput(raw string) (string, error) {
+	path := strings.TrimSpace(raw)
+	if path == "" {
+		return "", fmt.Errorf("path is empty")
+	}
+	if strings.Contains(path, "\x00") {
+		return "", fmt.Errorf("path contains NUL byte")
+	}
+	for _, part := range strings.Split(path, string(filepath.Separator)) {
+		if part == ".." {
+			return "", fmt.Errorf("path traversal segment is not allowed")
+		}
+	}
+	cleaned := filepath.Clean(path)
+	if cleaned == "." || cleaned == ".." {
+		return "", fmt.Errorf("path does not resolve to a file")
+	}
+	return cleaned, nil
 }

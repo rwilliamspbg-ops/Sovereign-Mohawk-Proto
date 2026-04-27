@@ -24,6 +24,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tpm"
 )
@@ -50,8 +51,15 @@ func authorizeRequest(r *http.Request) bool {
 
 func main() {
 	http.HandleFunc("/fl/submit", handleSubmit)
+	server := &http.Server{
+		Addr:              ":8090",
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Println("FL aggregator on :8090")
-	log.Fatal(http.ListenAndServe(":8090", nil))
+	log.Fatal(server.ListenAndServe())
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {

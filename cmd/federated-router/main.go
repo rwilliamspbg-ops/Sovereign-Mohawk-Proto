@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
@@ -30,15 +31,31 @@ func main() {
 		metricsAddr := defaultString(os.Getenv("MOHAWK_ROUTER_METRICS_ADDR"), "127.0.0.1:8088")
 		metricsMux := http.NewServeMux()
 		metricsMux.Handle("/metrics", promhttp.Handler())
+		metricsServer := &http.Server{
+			Addr:              metricsAddr,
+			Handler:           metricsMux,
+			ReadHeaderTimeout: 5 * time.Second,
+			ReadTimeout:       10 * time.Second,
+			WriteTimeout:      15 * time.Second,
+			IdleTimeout:       60 * time.Second,
+		}
 		log.Printf("metrics endpoint listening on %s", metricsAddr)
-		if err := http.ListenAndServe(metricsAddr, metricsMux); err != nil {
+		if err := metricsServer.ListenAndServe(); err != nil {
 			log.Printf("metrics server failed: %v", err)
 		}
 	}()
 
 	addr := defaultString(os.Getenv("MOHAWK_ROUTER_ADDR"), ":8087")
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           wrappedMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 	log.Printf("federated router listening on %s", addr)
-	if err := http.ListenAndServe(addr, wrappedMux); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("router server failed: %v", err)
 	}
 }
