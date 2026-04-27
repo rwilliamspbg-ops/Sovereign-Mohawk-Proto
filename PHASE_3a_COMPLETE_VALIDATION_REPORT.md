@@ -428,7 +428,7 @@ Root
   ├── IMMEDIATE_ACTION_PLAN_WEEK1_2.md
   ├── STRATEGIC_PLAN_FORMAL_PROOFS.md
   ├── REVIEW_AND_PLAN_SUMMARY.md
-  └── DOCUMENTATION_INDEX_AND_NAVIGATION.md
+  └── docs/archive/root-cleanup-2026-04/DOCUMENTATION_INDEX_AND_NAVIGATION.md
 ```
 
 ### Supporting Documentation

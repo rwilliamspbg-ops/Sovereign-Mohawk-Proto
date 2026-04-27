@@ -42,6 +42,23 @@ Relocated files:
 - `SPRINT_PQC_BUILD_LOCAL.md`
 - `UPGRADE_IMPLEMENTATION_PLAN_2026_2027.md`
 
+## Pass 3 (Completed)
+
+Relocated files:
+
+- `COMPREHENSIVE_PERFORMANCE_AND_STRESS_TEST_REPORT.md`
+- `DOCUMENTATION_INDEX_AND_NAVIGATION.md`
+- `EU_DATABASE_REGISTRATION_PLAN.md`
+- `EXECUTION_SUMMARY_SDK_EXPANSION.md`
+- `FINAL_TEST_RESULTS_SUMMARY.md`
+- `FORMAL_VALIDATION_TEST_REPORT.md`
+- `MASTER_COMPLETION_REPORT.md`
+
+Deferred files (kept in root for now):
+
+- `TESTING_AND_PERFORMANCE_VALIDATION_COMPLETE.md` (referenced by lint configuration)
+- `VALIDATION_SIGN_OFF.md` (referenced by local comprehensive test validation)
+
 ## Breakage Re-evaluation
 
 Current relocation set is documentation-only and does not modify executable code, workflow logic, or runtime configuration.
@@ -51,10 +68,12 @@ Checks performed:
 1. Verified moved pass-2 files were unreferenced before relocation.
 2. Preserved prior pass-1 index links and expanded docs index.
 3. Reconfirmed known workflow dependency risks remain unrelated to pass-2 files (for example, `docs/BENCHMARKS_AND_REPRODUCIBILITY.md` and `docs/ADOPTION_ACCELERATION_PLAN.md` are still required by release packaging workflow).
+4. Repeated reference-scan and stale-path rewrites for pass-3 files.
+5. Preserved lint/test-sensitive root files that are consumed by repository validation scripts.
 
 Result:
 
-- No expected functional breakage from this pass.
+- No expected functional breakage from passes 1-3.
 - Primary risk class remains stale links for future non-indexed moves; mitigate via grep-based path checks before each relocation batch.
 
 ## Follow-up Backlog

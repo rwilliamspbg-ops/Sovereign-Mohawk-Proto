@@ -120,7 +120,7 @@ Commit Hash: 0d9cf36
 Message: docs(validation): add comprehensive formal validation test report
 
 Files Added:
-  • FORMAL_VALIDATION_TEST_REPORT.md (14.0 KB)
+  • docs/archive/root-cleanup-2026-04/FORMAL_VALIDATION_TEST_REPORT.md (14.0 KB)
   • proofs/validation_run.log (execution log)
 
 Status: SUCCESSFULLY PUSHED TO GITHUB ✓

@@ -115,7 +115,7 @@ KEY DOCUMENTS (READ THESE)
   → docs/NEXT_IMPROVEMENTS_SUMMARY.md
 
 20-min read:
-  → MASTER_COMPLETION_REPORT.md
+  → docs/archive/root-cleanup-2026-04/MASTER_COMPLETION_REPORT.md
 
 Full overview (30 min):
   → docs/NEXT_IMPROVEMENTS_ROADMAP.md
