@@ -47,7 +47,8 @@ func aggregateHandler(w http.ResponseWriter, r *http.Request) {
 
 	var updates []Update
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		log.Printf("aggregate decode error: %v", err)
 		return
 	}
 
@@ -57,8 +58,9 @@ func aggregateHandler(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"status":            "failed",
 			"formal_check_pass": false,
-			"message":           err.Error(),
+			"message":           "formal verification check failed",
 		})
+		log.Printf("formal verification check failed: %v", err)
 		return
 	}
 

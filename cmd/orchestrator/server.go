@@ -20,6 +20,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -175,7 +176,8 @@ func (s *Server) HandleCheckpointPut(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	cid, err := s.Checkpoints.PutCheckpoint(ctx, req.Name, []byte(req.Payload))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadGateway)
+		log.Printf("checkpoint put failed for name=%q: %v", req.Name, err)
+		http.Error(w, "checkpoint storage failed", http.StatusBadGateway)
 		return
 	}
 	_ = json.NewEncoder(w).Encode(map[string]string{"cid": cid})
@@ -197,7 +199,8 @@ func (s *Server) HandleCheckpointGet(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	payload, err := s.Checkpoints.GetCheckpoint(ctx, cid)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadGateway)
+		log.Printf("checkpoint get failed for cid=%q: %v", cid, err)
+		http.Error(w, "checkpoint retrieval failed", http.StatusBadGateway)
 		return
 	}
 	_ = json.NewEncoder(w).Encode(map[string]string{"payload": string(payload)})
@@ -216,7 +219,8 @@ func (s *Server) HandleMeshPlan(w http.ResponseWriter, r *http.Request) {
 	}
 	plan, err := hva.BuildPlan(totalNodes, dimensions)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Printf("mesh plan build failed: total_nodes=%d dimensions=%d err=%v", totalNodes, dimensions, err)
+		http.Error(w, "invalid mesh parameters", http.StatusBadRequest)
 		return
 	}
 	_ = json.NewEncoder(w).Encode(plan)
