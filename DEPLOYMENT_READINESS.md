@@ -44,7 +44,7 @@ sdk/python/tests/
 ```
 ├── SPRINT_EXECUTION_REPORT.md          - Sprint summary
 ├── SDK_EXPANSION_STRATEGY.md           - 5-phase roadmap
-├── EXECUTION_SUMMARY_SDK_EXPANSION.md  - Executive summary
+├── docs/archive/root-cleanup-2026-04/EXECUTION_SUMMARY_SDK_EXPANSION.md  - Executive summary
 └── Inline documentation               - Comprehensive docstrings
 ```
 

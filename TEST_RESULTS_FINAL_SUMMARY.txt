@@ -244,7 +244,7 @@ Test Result Files:
   • COMPREHENSIVE_TEST_VALIDATION_REPORT.md
   • PHASE_3B_COMPLETE.md
   • PHASE_3B_END_TO_END_COMPLETE.md
-  • FINAL_TEST_RESULTS_SUMMARY.md
+  • docs/archive/root-cleanup-2026-04/FINAL_TEST_RESULTS_SUMMARY.md
 
 Formalization Files:
   • proofs/LeanFormalization/Theorem4ChernoffBounds.lean

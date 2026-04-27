@@ -257,7 +257,7 @@ Error Handling:             100%
 - ✅ `test_ci_workflow.sh` (7 KB)
 - ✅ `test_documentation.sh` (11 KB)
 - ✅ `run_master_stress_tests.sh` (12.2 KB)
-- ✅ `COMPREHENSIVE_PERFORMANCE_AND_STRESS_TEST_REPORT.md` (10 KB)
+- ✅ `docs/archive/root-cleanup-2026-04/COMPREHENSIVE_PERFORMANCE_AND_STRESS_TEST_REPORT.md` (10 KB)
 
 ---
 

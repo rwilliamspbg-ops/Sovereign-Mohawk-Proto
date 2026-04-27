@@ -347,7 +347,7 @@ We've taken 52 isolated formal proofs and transformed them into:
 ### Supporting Documentation
 - **Strategic Plan:** `STRATEGIC_PLAN_FORMAL_PROOFS.md`
 - **Review & Plan:** `REVIEW_AND_PLAN_SUMMARY.md`
-- **Documentation Index:** `DOCUMENTATION_INDEX_AND_NAVIGATION.md`
+- **Documentation Index:** `docs/archive/root-cleanup-2026-04/DOCUMENTATION_INDEX_AND_NAVIGATION.md`
 - **Action Plan:** `IMMEDIATE_ACTION_PLAN_WEEK1_2.md`
 
 ### GitHub References

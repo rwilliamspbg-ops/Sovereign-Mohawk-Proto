@@ -231,7 +231,7 @@ make golden-path-e2e
 - Notified body early-engagement checklist: [docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md](docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md)
 - Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
 - Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
-- EU database registration plan: [EU_DATABASE_REGISTRATION_PLAN.md](EU_DATABASE_REGISTRATION_PLAN.md)
+- EU database registration plan: [docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md](docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md)
 - Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md)
 - Roadmap and milestones: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
