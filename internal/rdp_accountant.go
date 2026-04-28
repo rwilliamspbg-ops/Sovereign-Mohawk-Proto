@@ -21,6 +21,8 @@ import (
 	"math"
 	"math/big"
 	"sync"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 )
 
 // RDPAccountant tracks cumulative privacy leakage using Rényi Differential Privacy.
@@ -168,6 +170,9 @@ func (a *RDPAccountant) CheckBudget() error {
 	conversion := math.Log(1.0/a.TargetDelta) / (a.Alpha - 1.0)
 	current := new(big.Rat).Set(a.TotalEpsilon)
 	current.Add(current, ratFromFloat64(conversion))
+	if currentFloat, ok := current.Float64(); ok {
+		metrics.ObserveFormalRDPComposition("accountant", currentFloat)
+	}
 	if current.Cmp(a.MaxBudget) > 0 {
 		return fmt.Errorf(
 			"privacy budget exhausted: current ε=%s exceeds limit ε=%s",

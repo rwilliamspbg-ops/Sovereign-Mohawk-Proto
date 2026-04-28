@@ -3,6 +3,20 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- Strategy:
+  Keep the cryptographic claims abstract and prove scale-invariant verifier
+  behavior from a constant-cost pairing model.
+
+  Tactics used:
+  - `rfl` for model equalities
+  - `simp` for verifier and cost normalization
+  - `norm_num` and `native_decide` for concrete scale guards
+
+  Future work:
+  Extend the abstract verifier story with hybrid proof accounting and size-
+  aware runtime measurements.
+-/
+
 /-- Abstract zk-SNARK statement structure
     Represents the public input/claim that a proof attests to.
 -/

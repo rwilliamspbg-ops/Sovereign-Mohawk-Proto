@@ -3,6 +3,19 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- Strategy:
+  Model tiered Byzantine resistance with natural-number arithmetic over tier lists.
+
+  Tactics used:
+  - `simp` for list and sum normalization
+  - `omega` and `linarith` for concrete threshold inequalities
+  - `decide` for finite profile checks
+
+  Future work:
+  Extend the deterministic 5/9 guard with the probabilistic Chernoff tail model
+  proven in `Theorem4ChernoffBounds.lean`.
+-/
+
 /-- System-level BFT bound used in protocol docs. -/
 def bftBound (tiers : List Tier) : Prop :=
   9 * totalByzantine tiers < 5 * totalNodes tiers

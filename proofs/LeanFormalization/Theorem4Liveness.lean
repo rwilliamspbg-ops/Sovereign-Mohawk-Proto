@@ -3,6 +3,20 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- Strategy:
+  Model liveness as redundancy-backed success probability with a Bernoulli
+  dropout surrogate and concrete redundancy thresholds.
+
+  Tactics used:
+  - `unfold` and `simp` to expose the redundancy model
+  - `norm_num` for the fixed success checks
+  - `linarith` for probability inequalities
+
+  Future work:
+  Replace the surrogate with the probabilistic Chernoff tail lemmas and tie
+  the result to live dropout telemetry.
+-/
+
 /-- Bernoulli dropout model encoded as integer ratio checks. -/
 def successNumerator (dropoutDen redundancy : Nat) : Nat :=
   dropoutDen ^ redundancy - 1

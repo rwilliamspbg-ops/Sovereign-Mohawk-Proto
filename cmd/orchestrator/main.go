@@ -83,6 +83,8 @@ func main() {
 			meshDimensions = parsed
 		}
 	}
+	metrics.ObserveFormalCommunicationCost("orchestrator", float64(meshDimensions)*float64(workerCount))
+	metrics.ObserveFormalLivenessSuccessProbability("orchestrator", 1.0)
 
 	transportCfg := network.DefaultConfig(defaultPort(os.Getenv("MOHAWK_LIBP2P_PORT"), 4101))
 	kexMode, err := network.ParseKEXModeStrict(os.Getenv("MOHAWK_TRANSPORT_KEX_MODE"))

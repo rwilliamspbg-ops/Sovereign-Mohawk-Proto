@@ -3,6 +3,20 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/-- Strategy:
+    Prove communication scaling with explicit path-depth proxies and concrete
+    scale checks for the 10M-node hierarchy.
+
+    Tactics used:
+    - `unfold` and `rw` to expose the closed-form proxies
+    - `norm_num` for scale-specific bounds
+    - `ring` and `omega` for arithmetic normalization
+
+    Future work:
+    Refine the proxy into byte-level telemetry and compare it with the runtime
+    communication metric exported by the Go services.
+-/
+
 /-- Path-depth communication proxy for hierarchical aggregation with branching
   factor b and n total nodes: O(d * log_b(n)) where d is model dimension.
   This captures per-update uplink depth, not total bytes over all edges. -/

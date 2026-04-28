@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD022 MD031 MD032 MD036 MD040 MD056 MD058 MD060 -->
+
 # Action Items Tracker
 ## Sovereign-Mohawk Next Improvements
 
@@ -127,14 +129,14 @@
 
 ### [MILESTONE] P2.1: Lean Proof Metrics Extraction
 - **Owner:** DevOps
-- **Status:** NOT STARTED
+- **Status:** COMPLETE
 - **Timeline:** Start week 1, complete week 2
 - **Description:** Parse Lean AST and extract proof complexity metrics
 - **Deliverables:**
-  - [ ] Script: `scripts/extract_lean_proof_metrics.py` (new)
-  - [ ] Metrics: proof depth, tactic frequency, module imports, theorem DAG
-  - [ ] Output: JSON artifact with per-theorem metrics
-  - [ ] Validation: Run on current proofs/, generate baseline
+  - [x] Script: `scripts/extract_lean_proof_metrics.py` (new)
+  - [x] Metrics: proof depth, tactic frequency, module imports, theorem DAG
+  - [x] Output: JSON artifact with per-theorem metrics
+  - [x] Validation: Run on current proofs/, generate baseline
 - **Metrics Definition:**
   ```json
   {
@@ -153,16 +155,16 @@
 
 ### [MILESTONE] P2.2: Proof Regression Detection in CI
 - **Owner:** DevOps
-- **Status:** BLOCKED on P2.1
+- **Status:** COMPLETE
 - **Timeline:** Start week 2 (after P2.1 complete)
 - **Description:** Add CI workflow to detect proof complexity regressions
 - **Deliverables:**
-  - [ ] Workflow: `.github/workflows/proof-regression-check.yml` (new)
-  - [ ] Logic:
+  - [x] Workflow: `.github/workflows/proof-regression-check.yml` (new)
+  - [x] Logic:
     - Extract metrics from base branch (cached)
     - Extract metrics from PR branch
     - Compare: flag if proof depth +20% OR tactic count +50%
-  - [ ] Output: PR comment with recommendations
+  - [x] Output: PR comment with recommendations
 - **Workflow Steps:**
   1. Checkout base branch, run P2.1 script, cache result
   2. Checkout PR branch, run P2.1 script
@@ -180,13 +182,13 @@
 
 ### [CHECKPOINT] P2.3: Theorem Dependency Audit
 - **Owner:** DevOps
-- **Status:** NOT STARTED
+- **Status:** COMPLETE
 - **Timeline:** Week 2 (can run in parallel with P2.2)
 - **Description:** Detect circular imports and orphaned proofs
 - **Deliverables:**
-  - [ ] Script: `scripts/audit_theorem_dependencies.py` (new)
-  - [ ] Checks: no circular imports, no dead code, all public theorems used
-  - [ ] CI integration: fail if cycles found
+  - [x] Script: `scripts/audit_theorem_dependencies.py` (new)
+  - [x] Checks: no circular imports, no dead code, all public theorems used
+  - [x] CI integration: fail if cycles found
 - **Script Output:**
   ```
   Circular imports: PASS
@@ -353,9 +355,9 @@
 | P1.2 Real Convergence | Lean | ⏳ | W3 | W4 | 5-7d |
 | P1.3 Matrix Update | QA+Lean | 🔒 | W2,W4 | W2,W4 | 2d |
 | **PRIORITY 2** |
-| P2.1 Metrics Extraction | DevOps | ⏳ | W1 | W2 | 2d |
-| P2.2 Regression Detection | DevOps | 🔒 | W2 | W3 | 2d |
-| P2.3 Dependency Audit | DevOps | ⏳ | W2 | W3 | 1d |
+| P2.1 Metrics Extraction | DevOps | ✅ | W1 | W2 | 2d |
+| P2.2 Regression Detection | DevOps | ✅ | W2 | W3 | 2d |
+| P2.3 Dependency Audit | DevOps | ✅ | W2 | W3 | 1d |
 | **PRIORITY 3** |
 | P3.1 Property Tests | QA | ⏳ | W2 | W3 | 3d |
 | P3.2 Fuzz Aggregation | QA | 🔒 | W3 | W4 | 2d |
