@@ -65,7 +65,7 @@ theorem convergence_envelope_concrete_100_1000 :
 -/
 theorem convergence_heterogeneity_effect (K : ℕ) (zeta : ℚ)
     (h_K : K > 0)
-    (h_zeta : 0 ≤ zeta ∧ zeta < 1) :
+    (_ : 0 ≤ zeta ∧ zeta < 1) :
     ∀ T : ℕ, T > 0 → convergence_envelope K T zeta ≥ zeta^2 := by
   intro T h_T
   unfold convergence_envelope
@@ -107,9 +107,9 @@ theorem theorem6_hierarchical_convergence_rate :
     This justifies centralized aggregation without per-dimension overhead.
 -/
 theorem convergence_dimension_independent (K T d : ℕ) (zeta : ℚ)
-    (h_K : K > 0)
-    (h_T : T > 0)
-    (h_d : d > 0) :
+    (_ : K > 0)
+    (_ : T > 0)
+    (_ : d > 0) :
     convergence_envelope K T zeta = convergence_envelope K T zeta := by
   rfl
 
@@ -173,13 +173,14 @@ theorem theorem6_exact_convergence_regime :
     0 ≤ zeta ∧ zeta < 1 →
     let L_T := convergence_envelope K T zeta
     (∃ (c : ℚ), c > 0 ∧ L_T ≤ c / ((K : ℚ) * T) + zeta^2) := by
-  intro K T h_K h_T zeta h_zeta
+  intro K T h_K h_T zeta _
   unfold convergence_envelope
   rw [if_pos ⟨h_K, h_T⟩]
   use 1 / 2
   constructor
   · norm_num
-  · nlinarith
+  · ring_nf
+    exact le_rfl
 
 /-- Theorem 6e: Non-convex lower bound.
     For non-convex objectives without further structure, we cannot do better

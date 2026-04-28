@@ -3,6 +3,8 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+open scoped BigOperators
+
 /-- Abstract probability event space for formalization.
     An event family describes dropout patterns over independent regional replicas.
 -/
@@ -120,8 +122,8 @@ theorem theorem4_hierarchical_chernoff_validation :
 theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
     (h_nonneg : ∀ i, 0 ≤ p i)
     (h_bounded : ∀ i, p i ≤ 1) :
-  ∃ (sum : ℚ), sum = (∑ i in Finset.range n, p i) ∧ sum ≥ 0 := by
-  use ∑ i in Finset.range n, p i
+  ∃ (sum : ℚ), sum = Finset.sum (Finset.range n) (fun i => p i) ∧ sum ≥ 0 := by
+  use Finset.sum (Finset.range n) (fun i => p i)
   constructor
   · rfl
   · exact Finset.sum_nonneg (fun i _ => h_nonneg i)
@@ -133,14 +135,15 @@ theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
 -/
 theorem theorem4_full_independence_model
     (alpha : ℚ) (r : Nat)
-    (h_alpha : 0 < alpha ∧ alpha < 1) :
+    (h_alpha : 0 < alpha ∧ alpha < 1)
+    (h_r : r ≥ 1) :
     ∃ (failure_prob : ℚ),
       failure_prob = chernoff_bound alpha r ∧
       (alpha = (9 : ℚ) / 10 ∧ r = 12 → failure_prob ≤ 1 / 10^12) ∧
       r ≥ 1 ∧
       failure_prob ≥ 0 := by
   use chernoff_bound alpha r
-  refine ⟨rfl, fun hr => ?_, by omega, ?_⟩
+  refine ⟨rfl, fun hr => ?_, h_r, ?_⟩
   · rcases hr with ⟨h_alpha_eq, h_r_eq⟩
     subst alpha
     subst r

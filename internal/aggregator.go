@@ -114,13 +114,19 @@ func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm fl
 		return fmt.Errorf("hierarchical mesh planning failed: %w", err)
 	}
 	a.MeshPlan = meshPlan
-	metrics.ObserveHVALevels(fmt.Sprintf("tier-%d", a.Tier), len(meshPlan.Levels))
+	scope := fmt.Sprintf("tier-%d", a.Tier)
+	metrics.ObserveHVALevels(scope, len(meshPlan.Levels))
+	if totalNodes > 0 {
+		metrics.ObserveFormalBFTResilience(scope, float64(activeNodes)/float64(totalNodes))
+	}
+	metrics.ObserveFormalCommunicationCost(scope, float64(len(meshPlan.Levels))*float64(activeNodes))
 
 	// Active Guard: Theorem 4 (Straggler Resilience)
 	if err := a.Liveness.ValidateLiveness(activeNodes, totalNodes); err != nil {
 		return fmt.Errorf("liveness check failed: %w", err)
 	}
-	metrics.ObserveConsensus(fmt.Sprintf("tier-%d", a.Tier), activeNodes, totalNodes)
+	metrics.ObserveConsensus(scope, activeNodes, totalNodes)
+	metrics.ObserveFormalLivenessSuccessProbability(scope, a.Liveness.CalculateSuccessProbability(activeNodes, 0.5))
 
 	// Active Guard: Theorem 2 (Privacy Budget)
 	if err := a.Accountant.RecordGaussianStepRDP(a.DPSigma); err != nil {
@@ -129,6 +135,7 @@ func (a *Aggregator) ProcessUpdates(activeNodes int, totalNodes int, gradNorm fl
 	if err := a.Accountant.CheckBudget(); err != nil {
 		return fmt.Errorf("privacy guard triggered: %w", err)
 	}
+	metrics.ObserveFormalRDPComposition(scope, a.Accountant.GetCurrentEpsilon())
 
 	// Active Guard: Theorem 6 (Convergence)
 	if !a.Convergence.IsConverging(gradNorm) {

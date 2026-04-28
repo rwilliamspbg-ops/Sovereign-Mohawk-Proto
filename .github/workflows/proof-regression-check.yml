@@ -1,0 +1,196 @@
+name: Proof Regression Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'proofs/**'
+      - 'scripts/extract_lean_proof_metrics.py'
+      - 'scripts/audit_theorem_dependencies.py'
+      - '.github/workflows/proof-regression-check.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'proofs/**'
+      - 'scripts/extract_lean_proof_metrics.py'
+      - 'scripts/audit_theorem_dependencies.py'
+      - '.github/workflows/proof-regression-check.yml'
+
+concurrency:
+  group: proof-regression-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  theorem-dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Run theorem dependency audit
+        run: |
+          python3 scripts/audit_theorem_dependencies.py --output results/proofs/theorem_dependency_audit.json
+
+      - name: Upload dependency audit artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: theorem-dependency-audit
+          path: results/proofs/theorem_dependency_audit.json
+
+  proof-regression-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Resolve base sha
+        id: base_sha
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout base revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: ${{ steps.base_sha.outputs.sha }}
+          path: base
+          fetch-depth: 0
+
+      - name: Checkout head revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          path: head
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.12'
+
+      - name: Extract base proof metrics
+        run: |
+          mkdir -p base/results/proofs
+          cd base && python3 ../head/scripts/extract_lean_proof_metrics.py --repo-root . --output results/proofs/lean_proof_metrics.json || echo "Base metrics extraction failed; proceeding with empty baseline"
+          cd ..
+
+      - name: Extract head proof metrics
+        run: |
+          mkdir -p head/results/proofs
+          cd head && python3 scripts/extract_lean_proof_metrics.py --repo-root . --output results/proofs/lean_proof_metrics.json
+          cd ..
+
+      - name: Compare proof metrics
+        id: compare
+        run: |
+          mkdir -p results/proofs
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          base_file = Path('base/results/proofs/lean_proof_metrics.json')
+          head_file = Path('head/results/proofs/lean_proof_metrics.json')
+          
+          # Handle missing or invalid base file (e.g., older branch without proofs)
+          if not base_file.exists():
+            print('⚠️ Base metrics not found; skipping regression comparison')
+            base = {'theorems': [], 'summary': {'theorem_count': 0}}
+          else:
+            try:
+              base = json.loads(base_file.read_text(encoding='utf-8'))
+            except (json.JSONDecodeError, IOError):
+              print('⚠️ Failed to parse base metrics; treating as empty baseline')
+              base = {'theorems': [], 'summary': {'theorem_count': 0}}
+
+          # Head file must exist and be valid
+          if not head_file.exists():
+            print('❌ Head metrics not found')
+            exit(1)
+          head = json.loads(head_file.read_text(encoding='utf-8'))
+
+          base_map = {item['name']: item for item in base.get('theorems', [])}
+          head_map = {item['name']: item for item in head.get('theorems', [])}
+
+          regressions = []
+          for name, head_item in head_map.items():
+            base_item = base_map.get(name)
+            if base_item is None:
+              continue
+            base_depth = base_item.get('proof_depth', 0)
+            head_depth = head_item.get('proof_depth', 0)
+            base_tactics = base_item.get('tactic_count', 0)
+            head_tactics = head_item.get('tactic_count', 0)
+            depth_limit = base_depth * 1.20 if base_depth else 1
+            tactic_limit = base_tactics * 1.50 if base_tactics else 1
+            if head_depth > depth_limit or head_tactics > tactic_limit:
+              regressions.append(
+                {
+                  'name': name,
+                  'base_depth': base_depth,
+                  'head_depth': head_depth,
+                  'base_tactics': base_tactics,
+                  'head_tactics': head_tactics,
+                }
+              )
+
+          report = {
+            'regression_count': len(regressions),
+            'regressions': regressions,
+            'base_summary': base.get('summary', {}),
+            'head_summary': head.get('summary', {}),
+          }
+          output = Path('results/proofs/proof_regression_report.json')
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          
+          if regressions:
+            with Path('results/proofs/proof_regression_comment.md').open('w', encoding='utf-8') as fh:
+              fh.write('⚠️ Proof regression detected\n\n')
+              for item in regressions:
+                fh.write(
+                  f"- {item['name']}: depth {item['base_depth']}→{item['head_depth']}, "
+                  f"tactics {item['base_tactics']}→{item['head_tactics']}\n"
+                )
+              fh.write('\nSuggestion: simplify the proof or split the theorem into smaller lemmas.\n')
+            print('has_regressions=true')
+          else:
+            print('✅ No proof regressions detected')
+            print('has_regressions=false')
+          PY
+          echo "has_regressions=$(cat results/proofs/proof_regression_report.json | python3 -c 'import json, sys; print(json.load(sys.stdin).get(\"regression_count\", 0) > 0)')" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR with regression summary
+        if: github.event_name == 'pull_request' && steps.compare.outputs.has_regressions == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('results/proofs/proof_regression_comment.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Upload proof regression artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-regression-report
+          path: |
+            results/proofs/proof_regression_report.json
+            results/proofs/proof_regression_comment.md

@@ -3,6 +3,19 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/- Strategy:
+  Use an integer surrogate envelope to keep the convergence argument machine-
+  checked while still matching the runtime guard shape.
+
+  Tactics used:
+  - `unfold` and `rfl` for envelope decomposition
+  - `norm_num` for fixed-scale bounds
+  - `nlinarith` for nonnegativity and monotonicity
+
+  Future work:
+  Keep this surrogate aligned with the richer real-valued model in
+  `Theorem6ConvergenceReals.lean` and live convergence metrics.
+-/
 /-- Integer convergence envelope surrogate for machine-checked bounds. -/
 def envelope (k t zeta : Nat) : ℚ :=
   (zeta : ℚ) * zeta + (1 : ℚ) / ((Nat.sqrt (k * t) : ℚ) + 1)

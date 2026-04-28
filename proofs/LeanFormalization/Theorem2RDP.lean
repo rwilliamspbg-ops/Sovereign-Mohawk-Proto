@@ -3,6 +3,20 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+/- Strategy:
+  Encode RDP composition as an additive ledger so each runtime guard can be
+  validated with exact rational arithmetic.
+
+  Tactics used:
+  - `simp` for concatenation and singleton reductions
+  - `linarith` for monotonicity and conversion inequalities
+  - `omega` for bounded integer budget steps
+
+  Future work:
+  Connect the additive model to proof-metric regression checks and CI trend
+  reporting for privacy-budget growth.
+-/
+
 /-- A randomized mechanism M : D → X with privacy parameter (α, ε) describes
     what happens when the adversary has unbounded computational power but finite
     divergence advantage bounded by ε on adjacent database pairs.

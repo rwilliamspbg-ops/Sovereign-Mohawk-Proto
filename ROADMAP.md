@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Apr 11, 2026
+Apr 28, 2026
 
 ---
 
@@ -179,6 +179,34 @@ TPM production closure sign-off (2026-04-11):
 
 ---
 
+## Concrete Execution Plan
+
+This plan turns the roadmap priorities into the next two execution sprints so contributors can pick up a scoped task and finish it with clear acceptance criteria.
+
+### Sprint 1: Documentation and Telemetry Foundation
+
+- [x] QW1: Add strategy docstrings to the six Lean theorem files in `proofs/LeanFormalization/`
+- [x] QW2: Export the five runtime health metrics from the aggregator, accountant, and orchestrator paths
+- [x] QW3: Publish the Lean contributor playbook at `docs/CONTRIBUTING_LEAN_PROOFS.md`
+- [x] Exit criteria: docstrings merged, metrics visible at `/metrics`, and the playbook reviewed by a contributor
+
+### Sprint 2: Proof Hardening and Test Coverage
+
+- [x] P1.1: Formalize Chernoff bounds in a new Lean module and wire it into the traceability matrix
+- [x] P2.1: Implement Lean proof metrics extraction for baseline analysis
+- [x] P2.2: Add proof regression detection to CI with non-blocking PR comments
+- [ ] P3.1: Add property-based tests for the core formal claims
+- [ ] Exit criteria: new proof module compiles, metrics pipeline runs on current proofs, and the new test layer is green
+
+### Dependencies And Ordering
+
+- QW1, QW2, and QW3 are the fastest path to immediate contributor velocity and operator visibility.
+- P1.1 must land before P1.2 because the real-valued convergence work depends on the probabilistic extension.
+- P2.1 must land before P2.2 because the CI workflow compares the extracted metrics.
+- P3.1 should land before the fuzzing and large-scale simulation work so the property suite can serve as the first regression net.
+
+---
+
 ## 2026 Success Metrics (Remaining)
 
 ### v1.0.0 GA Metrics
@@ -198,7 +226,7 @@ TPM production closure sign-off (2026-04-11):
 
 ## How to Contribute
 
-We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+We welcome contributions at every phase. Start with the [Concrete Execution Plan](#concrete-execution-plan) above, then see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 - Current priority issues
 - Development setup
@@ -218,6 +246,8 @@ We welcome contributions at every phase! See [CONTRIBUTING.md](CONTRIBUTING.md) 
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-04-28 | 3.4 | Completed Sprint 1 and Phase 2 hardening deliverables: Lean proof metrics extraction, theorem dependency audit, proof-regression CI workflow, and traceability expansion for Theorem4ChernoffBounds/Theorem6ConvergenceReals |
+| 2026-04-28 | 3.3 | Added a concrete two-sprint execution plan with explicit dependencies, exit criteria, and contributor routing for the next roadmap slice |
 | 2026-04-11 | 3.2 | TPM production closure signed off: cross-platform matrix PASS, closure validation PASS, production attestation set to approved, and CI workflow evidence linked |
 | 2026-04-09 | 3.1 | Closed runtime hardening docs gap: verifier fail-closed startup and constrained-runtime QUIC disable profile captured across deployment/security/readme guidance |
 | 2026-04-05 | 3.0 | Closed FIPS governance hardening items: profile scope/boundary inventory, regression tests, operator runbook guidance, and release-gate evidence requirement |

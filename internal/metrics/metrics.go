@@ -165,6 +165,57 @@ var (
 		[]string{"scheme"},
 	)
 
+	// proofVerificationP99 records the latency samples used to track p99 proof
+	// verification behavior in Prometheus queries.
+	proofVerificationP99 = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_proof_verification_p99",
+			Help:    "Proof verification latency samples used for p99 tracking.",
+			Buckets: []float64{0.1, 0.5, 1, 2, 5, 10, 15, 20, 50, 100},
+		},
+		[]string{"scheme"},
+	)
+
+	// formalBFTResilienceEstimate records the observed honest-node ratio used as
+	// the runtime BFT resilience estimate.
+	formalBFTResilienceEstimate = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_bft_resilience_estimate",
+			Help: "Observed Byzantine resilience estimate for a scope.",
+		},
+		[]string{"scope"},
+	)
+
+	// formalRDPCompositionCurrent records the current composed epsilon budget.
+	formalRDPCompositionCurrent = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_rdp_composition_current",
+			Help: "Current composed RDP epsilon for a scope.",
+		},
+		[]string{"scope"},
+	)
+
+	// formalCommunicationCostObserved records the current communication-cost
+	// proxy used by the runtime aggregation path.
+	formalCommunicationCostObserved = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "mohawk_communication_cost_observed",
+			Help:    "Observed communication-cost proxy for a scope.",
+			Buckets: []float64{1, 5, 10, 25, 50, 100, 250, 500, 1000, 5000},
+		},
+		[]string{"scope"},
+	)
+
+	// formalLivenessSuccessProbability records the live success probability used
+	// by the runtime liveness monitor.
+	formalLivenessSuccessProbability = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "mohawk_liveness_success_prob",
+			Help: "Observed liveness success probability for a scope.",
+		},
+		[]string{"scope"},
+	)
+
 	// pqcPolicyEnabled exposes whether critical PQC controls are currently enforced.
 	pqcPolicyEnabled = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
@@ -388,6 +439,11 @@ func init() {
 		utilityCoinHoldersCount,
 		proofVerificationsTotal,
 		proofVerificationLatency,
+		proofVerificationP99,
+		formalBFTResilienceEstimate,
+		formalRDPCompositionCurrent,
+		formalCommunicationCostObserved,
+		formalLivenessSuccessProbability,
 		pqcPolicyEnabled,
 		pqcPolicyModeInfo,
 		pqcPolicyEpochUnix,
@@ -545,7 +601,47 @@ func ObserveProofVerification(scheme string, success bool, latencyMS float64) {
 	proofVerificationsTotal.WithLabelValues(scheme, resultLabel(success)).Inc()
 	if latencyMS >= 0 {
 		proofVerificationLatency.WithLabelValues(scheme).Observe(latencyMS)
+		proofVerificationP99.WithLabelValues(scheme).Observe(latencyMS)
 	}
+}
+
+// ObserveFormalBFTResilience records the current honest-node ratio estimate.
+func ObserveFormalBFTResilience(scope string, ratio float64) {
+	scope = sanitizeLabel(scope, "unknown")
+	if ratio < 0 {
+		ratio = 0
+	}
+	formalBFTResilienceEstimate.WithLabelValues(scope).Set(ratio)
+}
+
+// ObserveFormalRDPComposition records the current composed epsilon value.
+func ObserveFormalRDPComposition(scope string, epsilon float64) {
+	scope = sanitizeLabel(scope, "unknown")
+	if epsilon < 0 {
+		epsilon = 0
+	}
+	formalRDPCompositionCurrent.WithLabelValues(scope).Set(epsilon)
+}
+
+// ObserveFormalCommunicationCost records the observed communication-cost proxy.
+func ObserveFormalCommunicationCost(scope string, cost float64) {
+	scope = sanitizeLabel(scope, "unknown")
+	if cost < 0 {
+		return
+	}
+	formalCommunicationCostObserved.WithLabelValues(scope).Observe(cost)
+}
+
+// ObserveFormalLivenessSuccessProbability records the current liveness estimate.
+func ObserveFormalLivenessSuccessProbability(scope string, probability float64) {
+	scope = sanitizeLabel(scope, "unknown")
+	if probability < 0 {
+		probability = 0
+	}
+	if probability > 1 {
+		probability = 1
+	}
+	formalLivenessSuccessProbability.WithLabelValues(scope).Set(probability)
 }
 
 // ObservePQCPolicyEnabled records whether a policy control is enforced.
