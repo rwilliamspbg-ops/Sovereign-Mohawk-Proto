@@ -105,6 +105,7 @@ func f32ToF16Bits(f float32) uint16 {
 		return uint16(sign | 0x7c00)
 	default:
 		return uint16(sign | uint32(rawExp<<10) | (mantissa >> 13))
+	}
 }
 
 // f16BitsToF32 decodes an FP16 bit pattern to float32.
