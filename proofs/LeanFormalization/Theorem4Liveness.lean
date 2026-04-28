@@ -3,7 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Strategy:
+/- Strategy:
   Model liveness as redundancy-backed success probability with a Bernoulli
   dropout surrogate and concrete redundancy thresholds.
 

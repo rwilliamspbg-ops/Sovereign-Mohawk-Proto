@@ -3,7 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Strategy:
+/- Strategy:
   Keep the cryptographic claims abstract and prove scale-invariant verifier
   behavior from a constant-cost pairing model.
 

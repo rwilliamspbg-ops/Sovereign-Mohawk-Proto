@@ -3,7 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Strategy:
+/- Strategy:
   Encode RDP composition as an additive ledger so each runtime guard can be
   validated with exact rational arithmetic.
 

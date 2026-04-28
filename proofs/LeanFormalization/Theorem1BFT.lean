@@ -3,7 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Strategy:
+/- Strategy:
   Model tiered Byzantine resistance with natural-number arithmetic over tier lists.
 
   Tactics used:

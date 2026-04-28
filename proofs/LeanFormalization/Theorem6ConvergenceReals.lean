@@ -180,8 +180,6 @@ theorem theorem6_exact_convergence_regime :
   constructor
   · norm_num
   · ring_nf
-    simp [mul_comm, mul_assoc]
-    norm_num
 
 /-- Theorem 6e: Non-convex lower bound.
     For non-convex objectives without further structure, we cannot do better

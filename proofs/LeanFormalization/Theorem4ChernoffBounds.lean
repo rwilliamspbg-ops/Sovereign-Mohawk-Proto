@@ -3,6 +3,8 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
+open scoped BigOperators
+
 /-- Abstract probability event space for formalization.
     An event family describes dropout patterns over independent regional replicas.
 -/

@@ -3,7 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-/-- Strategy:
+/- Strategy:
     Prove communication scaling with explicit path-depth proxies and concrete
     scale checks for the 10M-node hierarchy.
 
