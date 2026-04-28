@@ -82,12 +82,14 @@ jobs:
       - name: Extract base proof metrics
         run: |
           mkdir -p base/results/proofs
-          python3 head/scripts/extract_lean_proof_metrics.py --repo-root base --output base/results/proofs/lean_proof_metrics.json || echo "Base metrics extraction failed; proceeding with empty baseline"
+          cd base && python3 ../head/scripts/extract_lean_proof_metrics.py --repo-root . --output results/proofs/lean_proof_metrics.json || echo "Base metrics extraction failed; proceeding with empty baseline"
+          cd ..
 
       - name: Extract head proof metrics
         run: |
           mkdir -p head/results/proofs
-          python3 head/scripts/extract_lean_proof_metrics.py --repo-root head --output head/results/proofs/lean_proof_metrics.json
+          cd head && python3 scripts/extract_lean_proof_metrics.py --repo-root . --output results/proofs/lean_proof_metrics.json
+          cd ..
 
       - name: Compare proof metrics
         id: compare

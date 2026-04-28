@@ -19,8 +19,6 @@ import (
 	"math"
 )
 
-const maxUint16Value = 1<<16 - 1
-
 // FP32ToFP16 converts a float32 slice to IEEE 754 half-precision bytes (2 bytes
 // per element, little-endian). Halving the payload from 4 B/param → 2 B/param
 // yields a ~50% wire compression ratio for gradient transmission.
@@ -97,24 +95,16 @@ func f32ToF16Bits(f float32) uint16 {
 	case rawExp <= 0:
 		// Sub-normal or underflow
 		if rawExp < -10 {
-			return uint16FromUint32Bounded(sign)
+			return uint16(sign)
 		}
 		mantissa |= 0x800000
 		mantissa >>= uint(1 - rawExp)
-		return uint16FromUint32Bounded(sign | uint32(mantissa>>13))
+		return uint16(sign | uint32(mantissa>>13))
 	case rawExp >= 31:
 		// Overflow → infinity
-		return uint16FromUint32Bounded(sign | 0x7c00)
+		return uint16(sign | 0x7c00)
 	default:
-		return uint16FromUint32Bounded(sign | uint32(rawExp<<10) | (mantissa >> 13))
-	}
-}
-
-func uint16FromUint32Bounded(v uint32) uint16 {
-	if v > maxUint16Value {
-		return maxUint16Value
-	}
-	return uint16(v)
+		return uint16(sign | uint32(rawExp<<10) | (mantissa >> 13))
 }
 
 // f16BitsToF32 decodes an FP16 bit pattern to float32.
