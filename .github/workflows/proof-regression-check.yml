@@ -81,15 +81,18 @@ jobs:
 
       - name: Extract base proof metrics
         run: |
-          python3 head/scripts/extract_lean_proof_metrics.py --repo-root base --output base/results/proofs/lean_proof_metrics.json
+          mkdir -p base/results/proofs
+          python3 head/scripts/extract_lean_proof_metrics.py --repo-root base --output base/results/proofs/lean_proof_metrics.json || echo "Base metrics extraction failed; proceeding with empty baseline"
 
       - name: Extract head proof metrics
         run: |
+          mkdir -p head/results/proofs
           python3 head/scripts/extract_lean_proof_metrics.py --repo-root head --output head/results/proofs/lean_proof_metrics.json
 
       - name: Compare proof metrics
         id: compare
         run: |
+          mkdir -p results/proofs
           python3 - <<'PY'
           import json
           import os
@@ -97,7 +100,22 @@ jobs:
 
           base_file = Path('base/results/proofs/lean_proof_metrics.json')
           head_file = Path('head/results/proofs/lean_proof_metrics.json')
-          base = json.loads(base_file.read_text(encoding='utf-8'))
+          
+          # Handle missing or invalid base file (e.g., older branch without proofs)
+          if not base_file.exists():
+            print('⚠️ Base metrics not found; skipping regression comparison')
+            base = {'theorems': [], 'summary': {'theorem_count': 0}}
+          else:
+            try:
+              base = json.loads(base_file.read_text(encoding='utf-8'))
+            except (json.JSONDecodeError, IOError):
+              print('⚠️ Failed to parse base metrics; treating as empty baseline')
+              base = {'theorems': [], 'summary': {'theorem_count': 0}}
+
+          # Head file must exist and be valid
+          if not head_file.exists():
+            print('❌ Head metrics not found')
+            exit(1)
           head = json.loads(head_file.read_text(encoding='utf-8'))
 
           base_map = {item['name']: item for item in base.get('theorems', [])}
@@ -135,6 +153,7 @@ jobs:
           output.parent.mkdir(parents=True, exist_ok=True)
           output.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           print(json.dumps(report, indent=2, sort_keys=True))
+          
           if regressions:
             with Path('results/proofs/proof_regression_comment.md').open('w', encoding='utf-8') as fh:
               fh.write('⚠️ Proof regression detected\n\n')
@@ -146,15 +165,10 @@ jobs:
               fh.write('\nSuggestion: simplify the proof or split the theorem into smaller lemmas.\n')
             print('has_regressions=true')
           else:
+            print('✅ No proof regressions detected')
             print('has_regressions=false')
           PY
-          echo "has_regressions=$(python3 - <<'PY'
-          import json
-          from pathlib import Path
-          report = json.loads(Path('results/proofs/proof_regression_report.json').read_text(encoding='utf-8'))
-          print('true' if report.get('regression_count', 0) else 'false')
-          PY
-          )" >> "$GITHUB_OUTPUT"
+          echo "has_regressions=$(cat results/proofs/proof_regression_report.json | python3 -c 'import json, sys; print(json.load(sys.stdin).get(\"regression_count\", 0) > 0)')" >> "$GITHUB_OUTPUT"
 
       - name: Comment on PR with regression summary
         if: github.event_name == 'pull_request' && steps.compare.outputs.has_regressions == 'true'
