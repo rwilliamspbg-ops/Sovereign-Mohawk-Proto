@@ -180,6 +180,7 @@ theorem theorem6_exact_convergence_regime :
   constructor
   · norm_num
   · ring_nf
+    exact le_rfl
 
 /-- Theorem 6e: Non-convex lower bound.
     For non-convex objectives without further structure, we cannot do better

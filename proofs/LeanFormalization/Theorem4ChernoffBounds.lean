@@ -135,14 +135,15 @@ theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
 -/
 theorem theorem4_full_independence_model
     (alpha : ℚ) (r : Nat)
-    (h_alpha : 0 < alpha ∧ alpha < 1) :
+    (h_alpha : 0 < alpha ∧ alpha < 1)
+    (h_r : r ≥ 1) :
     ∃ (failure_prob : ℚ),
       failure_prob = chernoff_bound alpha r ∧
       (alpha = (9 : ℚ) / 10 ∧ r = 12 → failure_prob ≤ 1 / 10^12) ∧
       r ≥ 1 ∧
       failure_prob ≥ 0 := by
   use chernoff_bound alpha r
-  refine ⟨rfl, fun hr => ?_, by omega, ?_⟩
+  refine ⟨rfl, fun hr => ?_, h_r, ?_⟩
   · rcases hr with ⟨h_alpha_eq, h_r_eq⟩
     subst alpha
     subst r
