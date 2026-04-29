@@ -41,9 +41,7 @@ def validate_uses(value: str) -> str | None:
     return None
 
 
-def sha_exists_in_repo(
-    repo_slug: str, ref: str, cache: dict[str, set[str] | None]
-) -> bool:
+def sha_exists_in_repo(repo_slug: str, ref: str, cache: dict[str, set[str] | None]) -> bool:
     if repo_slug not in cache:
         proc = subprocess.run(
             ["git", "ls-remote", f"https://github.com/{repo_slug}.git"],
@@ -75,9 +73,7 @@ def main() -> int:
     sha_cache: dict[str, set[str] | None] = {}
 
     for workflow in sorted(WORKFLOWS_DIR.glob("*.yml")):
-        for i, line in enumerate(
-            workflow.read_text(encoding="utf-8").splitlines(), start=1
-        ):
+        for i, line in enumerate(workflow.read_text(encoding="utf-8").splitlines(), start=1):
             match = USES_RE.match(line)
             if not match:
                 continue
@@ -93,9 +89,7 @@ def main() -> int:
 
             repo_slug = action_repo_slug(action)
             if repo_slug is None:
-                violations.append(
-                    f"{workflow}:{i}: unable to parse action repo: {value}"
-                )
+                violations.append(f"{workflow}:{i}: unable to parse action repo: {value}")
                 continue
 
             if not sha_exists_in_repo(repo_slug, ref, sha_cache):

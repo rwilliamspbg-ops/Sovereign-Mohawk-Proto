@@ -39,8 +39,7 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
         attestation = _load_json(attestation_file)
 
     platform_rows = {
-        str(row.get("platform", "")).strip().lower(): row
-        for row in matrix.get("platforms", [])
+        str(row.get("platform", "")).strip().lower(): row for row in matrix.get("platforms", [])
     }
 
     all_platforms_present = True
@@ -73,9 +72,7 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
         platform_ok = status == "pass" and evidence_count > 0
         if status != "pass":
             all_platforms_pass = False
-            failures.append(
-                f"platform not passing: {platform} status={status or 'missing'}"
-            )
+            failures.append(f"platform not passing: {platform} status={status or 'missing'}")
         if evidence_count == 0:
             all_platforms_have_evidence = False
             failures.append(f"platform missing evidence attachment: {platform}")
@@ -91,9 +88,7 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
     attestation_approved = attestation_status == "approved"
 
     if not attestation_approved:
-        failures.append(
-            f"attestation status is not approved: {attestation_status or 'missing'}"
-        )
+        failures.append(f"attestation status is not approved: {attestation_status or 'missing'}")
 
     checks["all_platforms_present"] = all_platforms_present
     checks["all_platforms_pass"] = all_platforms_pass
@@ -103,9 +98,7 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
     ok = all(checks.values())
 
     return {
-        "generated_utc": dt.datetime.now(dt.timezone.utc)
-        .replace(microsecond=0)
-        .isoformat(),
+        "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "matrix": matrix_path.as_posix(),
         "attestation": attestation_path.as_posix(),
         "checks": checks,
@@ -193,9 +186,7 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    out_json.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     out_md.write_text(to_markdown(report), encoding="utf-8")
 
     print(f"wrote {out_json}")

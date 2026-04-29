@@ -126,9 +126,7 @@ def compute_report(repo_root: Path) -> dict:
     if not modules:
         raise ValueError("no Lean modules found in LeanFormalization.lean")
 
-    module_files = [
-        proof_root / "LeanFormalization" / f"{module}.lean" for module in modules
-    ]
+    module_files = [proof_root / "LeanFormalization" / f"{module}.lean" for module in modules]
     for path in module_files:
         if not path.exists():
             raise FileNotFoundError(f"missing Lean module file: {path}")
@@ -142,9 +140,7 @@ def compute_report(repo_root: Path) -> dict:
         Path("proofs/lean-toolchain"),
         Path("proofs/theorem_claims.json"),
     ]
-    input_paths.extend(
-        Path(f"proofs/LeanFormalization/{module}.lean") for module in modules
-    )
+    input_paths.extend(Path(f"proofs/LeanFormalization/{module}.lean") for module in modules)
 
     input_entries: list[dict] = []
     leaf_hashes: list[str] = []
@@ -152,9 +148,7 @@ def compute_report(repo_root: Path) -> dict:
         abs_path = repo_root / rel_path
         digest = file_sha256(abs_path)
         input_entries.append({"path": rel_path.as_posix(), "sha256": digest})
-        leaf_hashes.append(
-            sha256_hex(f"{rel_path.as_posix()}:{digest}".encode("utf-8"))
-        )
+        leaf_hashes.append(sha256_hex(f"{rel_path.as_posix()}:{digest}".encode("utf-8")))
 
     module_summary: list[dict] = []
     theorem_symbol_total = 0
@@ -212,15 +206,11 @@ def compute_report(repo_root: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Generate or validate formal validation report"
-    )
+    parser = argparse.ArgumentParser(description="Generate or validate formal validation report")
     parser.add_argument("--repo-root", default=".", help="Repository root directory")
     parser.add_argument(
         "--output",

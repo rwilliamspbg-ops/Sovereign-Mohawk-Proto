@@ -28,9 +28,7 @@ def _normalize_parameters(parameters: Any) -> List[float]:
         try:
             flattened.append(float(value))
         except (TypeError, ValueError) as exc:
-            raise TypeError(
-                f"unsupported Flower strategy parameter: {value!r}"
-            ) from exc
+            raise TypeError(f"unsupported Flower strategy parameter: {value!r}") from exc
 
     _walk(parameters)
     return flattened
@@ -97,9 +95,7 @@ class FlowerStrategyForwarder:
                 "parameters",
                 _extract_payload_value(fit_result, "weights", []),
             )
-            num_examples = int(
-                _extract_payload_value(fit_result, "num_examples", 1) or 1
-            )
+            num_examples = int(_extract_payload_value(fit_result, "num_examples", 1) or 1)
             metrics = _extract_payload_value(fit_result, "metrics", {})
 
             updates.append(
@@ -124,9 +120,7 @@ class FlowerStrategyForwarder:
         mohawk_result = self.mohawk.aggregate(updates)
         delegate_result = None
         if self.delegate is not None and hasattr(self.delegate, "aggregate_fit"):
-            delegate_result = self.delegate.aggregate_fit(
-                server_round, results_list, failures_list
-            )
+            delegate_result = self.delegate.aggregate_fit(server_round, results_list, failures_list)
 
         metrics = {
             "strategy": self.strategy_name,
@@ -165,9 +159,7 @@ class FlowerStrategyForwarder:
                 eval_result = item
 
             loss = float(_extract_payload_value(eval_result, "loss", 0.0) or 0.0)
-            num_examples = int(
-                _extract_payload_value(eval_result, "num_examples", 1) or 1
-            )
+            num_examples = int(_extract_payload_value(eval_result, "num_examples", 1) or 1)
             weighted_losses.append((loss, num_examples))
             weighted_metrics.append(
                 (
@@ -201,9 +193,7 @@ class FlowerStrategyForwarder:
         fit_summary = self.aggregate_fit(server_round, fit_results, failures)
         evaluation_summary = None
         if eval_results is not None:
-            evaluation_summary = self.aggregate_evaluate(
-                server_round, eval_results, failures
-            )
+            evaluation_summary = self.aggregate_evaluate(server_round, eval_results, failures)
         return {
             "strategy": self.strategy_name,
             "server_round": server_round,

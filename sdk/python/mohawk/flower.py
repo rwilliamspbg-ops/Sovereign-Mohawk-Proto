@@ -25,9 +25,7 @@ def start_flower_server(
             "Flower dependency missing. Install with: pip install -e .[flower]"
         ) from exc
 
-    resolved_config = (
-        config if config is not None else ServerConfig(num_rounds=num_rounds)
-    )
+    resolved_config = config if config is not None else ServerConfig(num_rounds=num_rounds)
     return start_server(
         server_address=server_address,
         strategy=strategy,

@@ -106,12 +106,8 @@ def write_ndjson(path: Path, values: list[dict]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Export tamper-evident audit events bundle"
-    )
-    parser.add_argument(
-        "--prom-url", default="http://localhost:9090", help="Prometheus base URL"
-    )
+    parser = argparse.ArgumentParser(description="Export tamper-evident audit events bundle")
+    parser.add_argument("--prom-url", default="http://localhost:9090", help="Prometheus base URL")
     parser.add_argument(
         "--output-dir",
         default="results/forensics/tamper-evident-events",

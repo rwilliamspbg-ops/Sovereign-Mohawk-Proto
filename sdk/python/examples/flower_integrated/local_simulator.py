@@ -37,9 +37,7 @@ def _run_single_node(
     return example.run(server_round=server_round)
 
 
-def run_simulation(
-    virtual_nodes: int, rounds: int, compress_format: str
-) -> Dict[str, Any]:
+def run_simulation(virtual_nodes: int, rounds: int, compress_format: str) -> Dict[str, Any]:
     started = time.perf_counter()
     round_summaries: List[Dict[str, Any]] = []
 
@@ -84,16 +82,10 @@ def run_simulation(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run a local Mohawk FL simulation")
-    parser.add_argument(
-        "--virtual-nodes", type=int, default=1024, help="Number of virtual nodes"
-    )
-    parser.add_argument(
-        "--rounds", type=int, default=3, help="Number of simulation rounds"
-    )
+    parser.add_argument("--virtual-nodes", type=int, default=1024, help="Number of virtual nodes")
+    parser.add_argument("--rounds", type=int, default=3, help="Number of simulation rounds")
     parser.add_argument("--compress-format", default="fp16", help="Compression format")
-    parser.add_argument(
-        "--ci", action="store_true", help="Emit machine-readable one-line JSON"
-    )
+    parser.add_argument("--ci", action="store_true", help="Emit machine-readable one-line JSON")
     args = parser.parse_args()
 
     summary = run_simulation(

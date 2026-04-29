@@ -31,9 +31,7 @@ Scalar = Union[bool, int, float, str]
 TrainFn = Callable[
     [Sequence[Any], Mapping[str, Any]], Tuple[Sequence[Any], int, Mapping[str, Scalar]]
 ]
-EvaluateFn = Callable[
-    [Sequence[Any], Mapping[str, Any]], Tuple[float, int, Mapping[str, Scalar]]
-]
+EvaluateFn = Callable[[Sequence[Any], Mapping[str, Any]], Tuple[float, int, Mapping[str, Scalar]]]
 
 
 @dataclass(frozen=True)
@@ -91,9 +89,7 @@ def _flatten_parameters(parameters: Sequence[Any]) -> List[float]:
 
 def _hash_payload(*parts: Any) -> str:
     normalized = [_normalize_value(part) for part in parts]
-    payload = json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    payload = json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
 
@@ -176,12 +172,8 @@ class MohawkFlowerClient(_FlowerNumPyClient):
         config: Mapping[str, Any],
     ) -> FlowerTrainingReport:
         flattened = _flatten_parameters(updated_parameters)
-        selected_format = (
-            config.get("mohawk_format", self.compress_format) or self.compress_format
-        )
-        selected_max_norm = (
-            config.get("mohawk_max_norm", self.max_norm) or self.max_norm
-        )
+        selected_format = config.get("mohawk_format", self.compress_format) or self.compress_format
+        selected_max_norm = config.get("mohawk_max_norm", self.max_norm) or self.max_norm
         compression = self.mohawk.compress_gradients(
             flattened,
             format=str(selected_format),
@@ -217,9 +209,7 @@ class MohawkFlowerClient(_FlowerNumPyClient):
 
     def fit(self, parameters: Sequence[Any], config: Mapping[str, Any]):
         current_parameters = [parameter for parameter in parameters]
-        updated_parameters, num_examples, metrics = self._train_fn(
-            current_parameters, config
-        )
+        updated_parameters, num_examples, metrics = self._train_fn(current_parameters, config)
         report = self.submit_update(
             input_parameters=current_parameters,
             updated_parameters=updated_parameters,

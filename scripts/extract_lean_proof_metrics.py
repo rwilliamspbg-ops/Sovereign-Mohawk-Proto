@@ -125,9 +125,7 @@ def count_tactics(body_text: str) -> dict[str, int]:
     return {name: count for name, count in counts.items() if count > 0}
 
 
-def theorem_dependencies(
-    body_text: str, theorem_names: set[str], current_name: str
-) -> list[str]:
+def theorem_dependencies(body_text: str, theorem_names: set[str], current_name: str) -> list[str]:
     dependencies = []
     for name in sorted(theorem_names):
         if name == current_name:
@@ -153,9 +151,7 @@ def compute_metrics(repo_root: Path) -> dict:
 
         for name, start, end in blocks:
             block_lines = lines[start:end]
-            cleaned_block = "\n".join(
-                strip_inline_comment(line) for line in block_lines
-            )
+            cleaned_block = "\n".join(strip_inline_comment(line) for line in block_lines)
             tactics = count_tactics(cleaned_block)
             deps = theorem_dependencies(cleaned_block, theorem_names, name)
             depth = proof_depth(block_lines)
@@ -200,9 +196,7 @@ def compute_metrics(repo_root: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def main() -> int:

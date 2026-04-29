@@ -36,12 +36,7 @@ class TestPhase1SecurityHardening:
         """Test credential manager setup."""
         os.environ["TEST_TOKEN"] = "test-value-123"
 
-        manager = (
-            CredentialBuilder()
-            .with_environment()
-            .with_auto_rotation(enabled=False)
-            .build()
-        )
+        manager = CredentialBuilder().with_environment().with_auto_rotation(enabled=False).build()
 
         value = await manager.get("TEST_TOKEN")
         assert value == "test-value-123"
@@ -357,10 +352,7 @@ class TestRolloutReadiness:
         """Test documentation references are valid."""
         # Check for comprehensive docstring
         assert mohawk.__doc__ is not None
-        assert (
-            "Security hardening" in mohawk.__doc__
-            or "security" in mohawk.__doc__.lower()
-        )
+        assert "Security hardening" in mohawk.__doc__ or "security" in mohawk.__doc__.lower()
 
 
 if __name__ == "__main__":

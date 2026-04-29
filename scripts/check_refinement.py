@@ -96,9 +96,7 @@ def check_go_symbols(repo_root: Path) -> dict[str, list[str]]:
         abs_file = repo_root / rel_file
         ensure_file(abs_file)
         text = abs_file.read_text(encoding="utf-8")
-        not_found = [
-            pattern for pattern in patterns if re.search(pattern, text) is None
-        ]
+        not_found = [pattern for pattern in patterns if re.search(pattern, text) is None]
         if not_found:
             missing[rel_file] = not_found
     return missing

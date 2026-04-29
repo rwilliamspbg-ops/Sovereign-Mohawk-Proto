@@ -277,8 +277,8 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 
 Watch the short walkthrough showing MOHAWK orchestration + PySyft-style FL flow:
 
- - Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
- - Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
+* Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
+* Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
 
 Preview graphic:
 
@@ -288,38 +288,38 @@ Preview graphic:
 
 ## ✨ Key Capabilities
 
- - 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
- - 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
- - ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
- - 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
- - 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
- - 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
- - 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
- - 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
- - 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
- - 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
- - ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
+* 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
+* 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
+* ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
+* 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
+* 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
+* 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
+* 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
+* 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
+* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
+* 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
+* ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
 
 ### Quantum-Ready Defaults
 
 Default stack profiles enforce these PQC-forward controls:
 
- - `MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid`
- - `MOHAWK_TPM_IDENTITY_SIG_MODE=xmss`
- - `MOHAWK_PQC_MIGRATION_ENABLED=true`
- - `MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=true`
- - `MOHAWK_PQC_MIGRATION_EPOCH=2027-12-31T00:00:00Z`
- - `MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH=true`
+* `MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid`
+* `MOHAWK_TPM_IDENTITY_SIG_MODE=xmss`
+* `MOHAWK_PQC_MIGRATION_ENABLED=true`
+* `MOHAWK_PQC_LOCK_LEGACY_TRANSFERS=true`
+* `MOHAWK_PQC_MIGRATION_EPOCH=2027-12-31T00:00:00Z`
+* `MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH=true`
 
 Migration signing flow:
 
- - Build canonical digest: `POST /ledger/migration/digest`
- - Submit cryptographic transfer: `POST /ledger/migration/migrate`
+* Build canonical digest: `POST /ledger/migration/digest`
+* Submit cryptographic transfer: `POST /ledger/migration/migrate`
 
 Migration transfer supports cryptographic dual-signature fields:
 
- - Legacy path: `legacy_algo`, `legacy_pub_key`, `legacy_sig`
- - PQC path: `pqc_algo`, `pqc_pub_key`, `pqc_sig`
+* Legacy path: `legacy_algo`, `legacy_pub_key`, `legacy_sig`
+* PQC path: `pqc_algo`, `pqc_pub_key`, `pqc_sig`
 
 The canonical payload digest is produced by `MigrationSigningDigest(...)` in `internal/token`.
 
@@ -327,16 +327,16 @@ The canonical payload digest is produced by `MigrationSigningDigest(...)` in `in
 
 The current stack pairs classical and post-quantum controls so migration can happen with explicit cryptographic continuity:
 
- - Transport key exchange: `x25519-mlkem768-hybrid` (classical ECDH + ML-KEM 768 hybrid).
- - Attestation identity signatures: XMSS mode for TPM-backed identity metadata.
- - Proof path for model verification: BN254 Groth16 zk-SNARK + SHA256 commitment-backed STARK transcript path.
- - Migration signing: dual-signature transfer payloads (`legacy_*` + `pqc_*`) with epoch policy enforcement.
+* Transport key exchange: `x25519-mlkem768-hybrid` (classical ECDH + ML-KEM 768 hybrid).
+* Attestation identity signatures: XMSS mode for TPM-backed identity metadata.
+* Proof path for model verification: BN254 Groth16 zk-SNARK + SHA256 commitment-backed STARK transcript path.
+* Migration signing: dual-signature transfer payloads (`legacy_*` + `pqc_*`) with epoch policy enforcement.
 
 Reference docs:
 
- - `RELEASE_NOTES_PQC_OVERHAUL.md`
- - `SECURITY.md`
- - `proofs/HUMAN_READABLE_PROOFS.md`
+* `RELEASE_NOTES_PQC_OVERHAUL.md`
+* `SECURITY.md`
+* `proofs/HUMAN_READABLE_PROOFS.md`
 
 ### PQC Readiness Overhaul (Major Release)
 
@@ -344,11 +344,11 @@ This release closes the 2026–2027 PQC readiness program from migration scaffol
 
 Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.md)
 
- - Hybrid transport negotiation is now policy-bound at runtime (`x25519-mlkem768-hybrid`) with keyshare-size enforcement.
- - TPM quote identity is bound to XMSS-capable attestation metadata and payload digesting.
- - Ledger migration cutover supports epoch-enforced cryptographic dual-signature transfers.
- - Orchestrator exposes digest-first migration signing APIs for deterministic operator workflows.
- - One-click readiness now emits structured PASS/FAIL pipeline artifacts with toolchain alignment metadata.
+* Hybrid transport negotiation is now policy-bound at runtime (`x25519-mlkem768-hybrid`) with keyshare-size enforcement.
+* TPM quote identity is bound to XMSS-capable attestation metadata and payload digesting.
+* Ledger migration cutover supports epoch-enforced cryptographic dual-signature transfers.
+* Orchestrator exposes digest-first migration signing APIs for deterministic operator workflows.
+* One-click readiness now emits structured PASS/FAIL pipeline artifacts with toolchain alignment metadata.
 
 ---
 
@@ -454,8 +454,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 Startup checks validated in this repository:
 
- - `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
- - `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
+* `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
+* `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
 
 Scalable full-stack profile (single `node-agent` service with replicas):
 
@@ -483,15 +483,15 @@ docker compose up -d node-agent-2 node-agent-3
 
 Git Bash / Windows note:
 
- - Use `./scripts/docker-compose-wrapper.sh ...` (with the `./scripts/` path).
- - Running `docker-compose-wrapper.sh ...` without the path will fail with `command not found`.
+* Use `./scripts/docker-compose-wrapper.sh ...` (with the `./scripts/` path).
+* Running `docker-compose-wrapper.sh ...` without the path will fail with `command not found`.
 
 Default endpoints after startup:
 
- - Grafana: `http://localhost:3000`
- - Prometheus: `http://localhost:9090`
- - TPM metrics exporter: `http://localhost:9102/metrics`
- - Orchestrator control plane: `https://localhost:8080` (mTLS enforced)
+* Grafana: `http://localhost:3000`
+* Prometheus: `http://localhost:9090`
+* TPM metrics exporter: `http://localhost:9102/metrics`
+* Orchestrator control plane: `https://localhost:8080` (mTLS enforced)
 
 ### Quick-Start Sandbox (Mini-Mohawk)
 
@@ -509,10 +509,10 @@ make sandbox-up
 
 Sandbox topology:
 
- - 1 orchestrator (`orchestrator`)
- - 1 shard (`shard-us-east`)
- - 2 node agents (`node-agent-1`, `node-agent-2`)
- - bundled Hello World FL WASM task build (`wasm-hello-world-build`)
+* 1 orchestrator (`orchestrator`)
+* 1 shard (`shard-us-east`)
+* 2 node agents (`node-agent-1`, `node-agent-2`)
+* bundled Hello World FL WASM task build (`wasm-hello-world-build`)
 
 Quick checks:
 
@@ -606,8 +606,8 @@ That target builds `dist/windows/testnet-gui.exe`, which opens a native Windows 
 
 Grafana dashboard shortlist:
 
- - `Sovereign Mohawk | Start Here`
- - `Sovereign Mohawk | Operations Overview`
+* `Sovereign Mohawk | Start Here`
+* `Sovereign Mohawk | Operations Overview`
 * `Sovereign Mohawk | Operations Incidents`
 * `Sovereign Mohawk | Security & PQC Compliance`
 * `Sovereign Mohawk | Engineering Latency Drilldown`

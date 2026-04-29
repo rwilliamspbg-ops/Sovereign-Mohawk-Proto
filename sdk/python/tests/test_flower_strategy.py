@@ -29,9 +29,7 @@ class DummyDelegate:
         return {"delegate": "fit"}
 
     def aggregate_evaluate(self, server_round, results, failures):
-        self.aggregate_evaluate_calls.append(
-            (server_round, list(results), list(failures))
-        )
+        self.aggregate_evaluate_calls.append((server_round, list(results), list(failures)))
         return {"delegate": "evaluate"}
 
 

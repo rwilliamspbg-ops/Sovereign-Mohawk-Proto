@@ -14,9 +14,7 @@ from examples.flower_integrated.common import FlowerIntegratedExample, run_examp
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--ci", action="store_true", help="Emit machine-readable output"
-    )
+    parser.add_argument("--ci", action="store_true", help="Emit machine-readable output")
     parser.add_argument("--round", dest="server_round", type=int, default=1)
     args = parser.parse_args()
 

@@ -17,9 +17,7 @@ def _load_json(path: Path) -> dict:
 
 def _write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _render_matrix_markdown(matrix: dict) -> str:
@@ -126,12 +124,8 @@ def main() -> int:
         "all_platforms_pass": all_pass,
     }
 
-    matrix_json = (
-        evidence_dir / f"tpm_attestation_cross_platform_matrix_{args.date_stamp}.json"
-    )
-    matrix_md = (
-        evidence_dir / f"tpm_attestation_cross_platform_matrix_{args.date_stamp}.md"
-    )
+    matrix_json = evidence_dir / f"tpm_attestation_cross_platform_matrix_{args.date_stamp}.json"
+    matrix_md = evidence_dir / f"tpm_attestation_cross_platform_matrix_{args.date_stamp}.md"
     _write_json(matrix_json, matrix)
     matrix_md.parent.mkdir(parents=True, exist_ok=True)
     matrix_md.write_text(_render_matrix_markdown(matrix), encoding="utf-8")
