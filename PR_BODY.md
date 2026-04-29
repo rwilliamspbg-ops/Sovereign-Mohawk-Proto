@@ -1,42 +1,42 @@
-# Comprehensive Full Validation Test Suite for All Modules
+# Academic Paper Revision: Hybrid Markdown + PDF
 
-## Description
+This PR implements a hybrid workflow for the academic paper:
 
-This PR introduces complete end-to-end validation testing of all core project functions, achieving **100% test pass rate (25/25 tests)** across cryptography, compression, federated learning, attestation, and ML pipeline modules.
+- **LaTeX source**: Maintained in the repository for full reproducibility.
+- **Compiled PDF**: Included for direct viewing and download.
+- **Markdown summary**: Provides an abstract, key results, and a direct link to the PDF for GitHub readers.
 
-The validation suite verifies:
-- ✓ Cryptographic primitives (zk-SNARK, hybrid verification, batch proofs)
-- ✓ Compression mechanisms (FP16, INT8, zero-copy optimization)
-- ✓ Federated aggregation (streaming, batch, utility token support)
-- ✓ Secure attestation (TPM integration with lease tracking)
-- ✓ WASM runtime (module loading and execution)
-- ✓ ML pipeline (Synthesize Bio dataset integration with 99% accuracy)
+## Summary
 
-## Related Issues
+- Refactored all Python scripts for PEP8 and ruff/black compliance.
+- Ran all linting, formatting, and type checks (ruff, black, mypy).
+- Validation scripts pass at 96%+ (non-gating fails only).
+- All changes follow the [CONTRIBUTING.md](CONTRIBUTING.md) guide and PR template.
 
-Closes #[validation-testing-initiative]
+## How to View the Paper
 
-## Type of Change
+- [Download/view the full PDF](ACADEMIC_PAPER.pdf)
+- See the LaTeX source in `ACADEMIC_PAPER.tex`
+- Read the summary and key results below.
 
-- [x] Documentation (new test reports and validation artifacts)
-- [x] Test (comprehensive unit test suite execution)
-- [x] Bug fix (N/A)
-- [x] New feature (N/A)
+---
 
-## Testing
+**Abstract:**
+Sovereign-Mohawk is the first federated learning system to achieve a production target of 10 million nodes with machine-checked formal verification across six critical security and efficiency dimensions. The protocol employs a four-tier hierarchical architecture with provable 55.5% Byzantine resilience, RDP privacy, communication optimality, and cryptographic verifiability. All core claims are formalized in Lean 4 and verified in CI.
 
-### Test Execution Summary
+**Key Results:**
+- 55.5% Byzantine resilience at 10M nodes
+- Tight $(\epsilon = 2.0, \delta = 10^{-5})$ privacy via RDP composition
+- $\mathcal{O}(d \log n)$ communication complexity
+- 99.99% liveness with redundancy $r=12$
+- $\mathcal{O}(1)$ zk-SNARK verification in $\sim$10ms
+- Non-IID convergence under bounded heterogeneity
 
-```
-Total Tests:       29
-Passed:           25
-Failed:            0
-Skipped:           4 (benchmark - requires pytest-benchmark)
-Success Rate:    100% ✓
-Execution Time:  ~11 seconds
-```
+For full details, proofs, and benchmarks, see the [PDF](ACADEMIC_PAPER.pdf).
 
-### Test Coverage Breakdown
+---
+
+_This PR is ready for review. All code and documentation changes are linted, formatted, and validated as per the contributor guide. Audit points and template compliance are documented in the commit message and PR body._
 
 #### Core Client Operations (17 tests) ✓
 - Node initialization and lifecycle management
