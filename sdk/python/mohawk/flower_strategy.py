@@ -91,7 +91,9 @@ class FlowerStrategyForwarder:
 
             node_id = _extract_payload_value(client_proxy, "cid", f"client-{index:03d}")
             parameters = _extract_payload_value(
-                fit_result, "parameters", _extract_payload_value(fit_result, "weights", [])
+                fit_result,
+                "parameters",
+                _extract_payload_value(fit_result, "weights", []),
             )
             num_examples = int(_extract_payload_value(fit_result, "num_examples", 1) or 1)
             metrics = _extract_payload_value(fit_result, "metrics", {})
@@ -160,7 +162,10 @@ class FlowerStrategyForwarder:
             num_examples = int(_extract_payload_value(eval_result, "num_examples", 1) or 1)
             weighted_losses.append((loss, num_examples))
             weighted_metrics.append(
-                (float(_extract_payload_value(eval_result, "accuracy", 0.0) or 0.0), num_examples)
+                (
+                    float(_extract_payload_value(eval_result, "accuracy", 0.0) or 0.0),
+                    num_examples,
+                )
             )
 
         metrics = {

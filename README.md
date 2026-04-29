@@ -1,6 +1,6 @@
 # Sovereign Mohawk Proto
 
-**MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge**
+## MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge
 
 [![Latest Tag](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&label=Latest%20Tag)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
 [![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)

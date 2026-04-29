@@ -43,11 +43,19 @@ def test_strategy_forwarder_aggregates_updates():
         [
             (
                 {"cid": "client-a"},
-                {"parameters": [[0.1, 0.2]], "num_examples": 8, "metrics": {"loss": 0.5}},
+                {
+                    "parameters": [[0.1, 0.2]],
+                    "num_examples": 8,
+                    "metrics": {"loss": 0.5},
+                },
             ),
             (
                 {"cid": "client-b"},
-                {"parameters": [[0.3, 0.4]], "num_examples": 16, "metrics": {"loss": 0.25}},
+                {
+                    "parameters": [[0.3, 0.4]],
+                    "num_examples": 16,
+                    "metrics": {"loss": 0.25},
+                },
             ),
         ],
         (),

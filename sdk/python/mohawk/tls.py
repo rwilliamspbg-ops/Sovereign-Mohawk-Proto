@@ -223,7 +223,7 @@ class SecureSSLContext:
                 ctx.load_cert_chain(
                     certfile=str(client_cert_path),
                     keyfile=str(client_key_path),
-                    password=(lambda: client_key_password) if client_key_password else None,
+                    password=((lambda: client_key_password) if client_key_password else None),
                 )
                 logger.info(f"Loaded client certificate: {client_cert}")
 

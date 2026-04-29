@@ -6,7 +6,7 @@ import base64
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, List, Mapping, Optional, Sequence, Tuple, Union
 
 try:  # pragma: no cover - optional dependency
     from flwr.client import NumPyClient as _FlowerNumPyClient

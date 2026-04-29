@@ -17,7 +17,8 @@ VacuousLeanPatterns = [
     (
         "prop_true_def",
         re.compile(
-            r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b", re.MULTILINE
+            r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b",
+            re.MULTILINE,
         ),
         "Prop definition reduces directly to `True`",
     ),

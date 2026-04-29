@@ -12,7 +12,6 @@ Tests cover:
 import os
 import pytest
 import asyncio
-from datetime import datetime, timezone
 from pathlib import Path
 
 # Import the modules we created
@@ -22,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mohawk.credentials import (
     CredentialManager,
-    CredentialProvider,
     EnvironmentProvider,
     CredentialNotFoundError,
     CredentialRotationError,

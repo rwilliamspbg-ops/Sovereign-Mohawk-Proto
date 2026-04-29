@@ -33,7 +33,10 @@ def _train_factory(
     def _train(parameters: Sequence[Any], config: Mapping[str, Any]):
         round_delta = float(config.get("round_delta", delta))
         updated = [_shift_value(parameter, round_delta) for parameter in parameters]
-        metrics = {"loss": base_loss, **{key: float(value) for key, value in extra_metrics.items()}}
+        metrics = {
+            "loss": base_loss,
+            **{key: float(value) for key, value in extra_metrics.items()},
+        }
         return updated, num_examples, metrics
 
     return _train

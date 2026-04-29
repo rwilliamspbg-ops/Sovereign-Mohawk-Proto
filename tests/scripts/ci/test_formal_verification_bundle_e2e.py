@@ -12,11 +12,17 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 TRACE_SCRIPT = REPO_ROOT / "scripts" / "ci" / "validate_formal_traceability.sh"
 ARTIFACT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "generate_formal_proof_artifacts.sh"
 REPORT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "generate_formal_validation_report.py"
-BUILD_BUNDLE_SCRIPT = REPO_ROOT / "scripts" / "ci" / "build_formal_verification_bundle.py"
-VERIFY_BUNDLE_SCRIPT = REPO_ROOT / "scripts" / "ci" / "verify_formal_verification_bundle.py"
+BUILD_BUNDLE_SCRIPT = (
+    REPO_ROOT / "scripts" / "ci" / "build_formal_verification_bundle.py"
+)
+VERIFY_BUNDLE_SCRIPT = (
+    REPO_ROOT / "scripts" / "ci" / "verify_formal_verification_bundle.py"
+)
 
 
-def run(cmd: list[str], expect_success: bool = True) -> subprocess.CompletedProcess[str]:
+def run(
+    cmd: list[str], expect_success: bool = True
+) -> subprocess.CompletedProcess[str]:
     proc = subprocess.run(
         cmd,
         cwd=REPO_ROOT,
@@ -75,14 +81,24 @@ def main() -> int:
         report_in_bundle = bundle_dir / "results/proofs/formal_validation_report.json"
         payload = json.loads(report_in_bundle.read_text(encoding="utf-8"))
         payload["input_merkle_root"] = "0" * 64
-        report_in_bundle.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        report_in_bundle.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
 
-        failed = run(["python3", str(VERIFY_BUNDLE_SCRIPT), "--bundle-dir", str(bundle_dir)], expect_success=False)
+        failed = run(
+            ["python3", str(VERIFY_BUNDLE_SCRIPT), "--bundle-dir", str(bundle_dir)],
+            expect_success=False,
+        )
         if failed.returncode == 0:
-            raise SystemExit("expected bundle verification to fail after report tampering")
+            raise SystemExit(
+                "expected bundle verification to fail after report tampering"
+            )
 
         failure_output = failed.stdout + failed.stderr
-        if "report_input_merkle_root mismatch" not in failure_output and "hash mismatch" not in failure_output:
+        if (
+            "report_input_merkle_root mismatch" not in failure_output
+            and "hash mismatch" not in failure_output
+        ):
             raise SystemExit("expected report/root mismatch in verifier failure output")
 
         if not manifest.get("bundle_merkle_root"):

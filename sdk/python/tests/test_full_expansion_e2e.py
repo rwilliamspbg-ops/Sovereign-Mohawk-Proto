@@ -21,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import mohawk
 from mohawk import (
     CredentialBuilder,
-    CredentialManager,
     EnvironmentProvider,
     TLSConfig,
     SecureSSLContext,
