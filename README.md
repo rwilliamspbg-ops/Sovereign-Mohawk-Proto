@@ -1,6 +1,6 @@
 # Sovereign Mohawk Proto
 
-**MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge**
+## MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge
 
 [![Latest Tag](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&label=Latest%20Tag)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
 [![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
@@ -277,8 +277,8 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 
 Watch the short walkthrough showing MOHAWK orchestration + PySyft-style FL flow:
 
-* Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
-* Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
+ - Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
+ - Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
 
 Preview graphic:
 
@@ -288,17 +288,17 @@ Preview graphic:
 
 ## ✨ Key Capabilities
 
-* 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
-* 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
-* ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
-* 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
-* 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
-* 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
-* 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
-* 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
-* 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
-* 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
-* ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
+ - 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
+ - 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
+ - ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
+ - 🐍 **Python SDK v2:** Accelerator, gradient, hybrid-proof, and utility-ledger helpers in the `mohawk` package.
+ - 🔀 **Hybrid Proof Policies:** Runtime selection for SNARK-only, STARK-backed, or hybrid verification modes.
+ - 💰 **Utility Coin Controls:** Persistent ledger snapshots, audit chaining, nonce replay protection, and role-gated admin operations.
+ - 🔁 **WASM Hash Registry + Hot Reload:** Content-addressed module loading with module-hash tracking in runtime status.
+ - 🧭 **Cross-Vertical Federated Router:** Policy-gated discovery, TPM-gated subscriptions, schema translation, and provenance chaining for inter-domain insight routing.
+ - 📊 **Tokenomics Monitoring:** Pre-provisioned Grafana dashboard for supply, holders, burn/mint dynamics, and proof cost.
+ - 📡 **Genesis Testnet:** Regional shard bootstrap with orchestrator, node-agent, metrics exporter, Prometheus, Grafana, and IPFS.
+ - ⚛️ **Quantum-Ready Controls:** Hybrid transport KEX policy, XMSS attestation mode, and dual-signature migration controls enabled in default deployment profiles.
 
 ### Quantum-Ready Defaults
 
