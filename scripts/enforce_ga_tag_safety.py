@@ -32,7 +32,9 @@ def enforce(repo_root: Path, tag: str) -> tuple[bool, list[str]]:
     if not _is_final_ga_tag(tag):
         return True, failures
 
-    closure_path = _latest_matching(repo_root, "tpm_attestation_closure_validation_*.json")
+    closure_path = _latest_matching(
+        repo_root, "tpm_attestation_closure_validation_*.json"
+    )
     if closure_path is None:
         failures.append("missing TPM closure validation artifact")
     else:
@@ -55,7 +57,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Enforce final GA tag safety based on closure evidence."
     )
-    parser.add_argument("--tag", required=True, help="Tag name to validate (for example: v1.0.0)")
+    parser.add_argument(
+        "--tag", required=True, help="Tag name to validate (for example: v1.0.0)"
+    )
     parser.add_argument("--repo-root", default=".", help="Repository root path")
     return parser.parse_args()
 

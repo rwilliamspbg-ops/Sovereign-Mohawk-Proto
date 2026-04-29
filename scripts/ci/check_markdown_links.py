@@ -79,7 +79,9 @@ def check_file(md_path: Path) -> list[str]:
                 continue
             if not link_exists(md_path, target):
                 rel_md = md_path.relative_to(ROOT)
-                errors.append(f"{rel_md}:{lineno}: broken local link target '{raw_target}'")
+                errors.append(
+                    f"{rel_md}:{lineno}: broken local link target '{raw_target}'"
+                )
     return errors
 
 

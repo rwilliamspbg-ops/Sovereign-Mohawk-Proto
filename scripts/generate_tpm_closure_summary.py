@@ -22,8 +22,12 @@ def _latest_matching(repo_root: Path, pattern: str) -> Path | None:
 
 def build_summary(repo_root: Path) -> dict:
     evidence_dir = repo_root / "results" / "go-live" / "evidence"
-    matrix_path = _latest_matching(repo_root, "tpm_attestation_cross_platform_matrix_*.json")
-    validation_path = _latest_matching(repo_root, "tpm_attestation_closure_validation_*.json")
+    matrix_path = _latest_matching(
+        repo_root, "tpm_attestation_cross_platform_matrix_*.json"
+    )
+    validation_path = _latest_matching(
+        repo_root, "tpm_attestation_closure_validation_*.json"
+    )
     strict_path = _latest_matching(repo_root, "go_live_gate_strict_*.json")
     advisory_path = _latest_matching(repo_root, "go_live_gate_advisory_*.json")
     attestation_path = (
@@ -35,12 +39,16 @@ def build_summary(repo_root: Path) -> dict:
     )
 
     if matrix_path is None or validation_path is None:
-        raise FileNotFoundError("TPM matrix/validation artifacts are required to build summary")
+        raise FileNotFoundError(
+            "TPM matrix/validation artifacts are required to build summary"
+        )
 
     matrix = _load_json(matrix_path)
     validation = _load_json(validation_path)
     attestation = (
-        _load_json(attestation_path) if attestation_path.exists() else {"status": "missing"}
+        _load_json(attestation_path)
+        if attestation_path.exists()
+        else {"status": "missing"}
     )
     strict_gate = (
         _load_json(strict_path)
@@ -55,23 +63,31 @@ def build_summary(repo_root: Path) -> dict:
 
     platform_rows = matrix.get("platforms", [])
     total = len(platform_rows)
-    passed = sum(1 for row in platform_rows if str(row.get("status", "")).strip().lower() == "pass")
+    passed = sum(
+        1
+        for row in platform_rows
+        if str(row.get("status", "")).strip().lower() == "pass"
+    )
 
     completion_pct = round((passed / total) * 100, 2) if total else 0.0
 
     summary = {
-        "generated_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+        "generated_utc": dt.datetime.now(dt.timezone.utc)
+        .replace(microsecond=0)
+        .isoformat(),
         "matrix_artifact": str(matrix_path.relative_to(repo_root)).replace("\\", "/"),
-        "closure_validation_artifact": str(validation_path.relative_to(repo_root)).replace(
-            "\\", "/"
-        ),
+        "closure_validation_artifact": str(
+            validation_path.relative_to(repo_root)
+        ).replace("\\", "/"),
         "go_live_gate_advisory_artifact": (
             str(advisory_path.relative_to(repo_root)).replace("\\", "/")
             if advisory_path
             else "missing"
         ),
         "go_live_gate_strict_artifact": (
-            str(strict_path.relative_to(repo_root)).replace("\\", "/") if strict_path else "missing"
+            str(strict_path.relative_to(repo_root)).replace("\\", "/")
+            if strict_path
+            else "missing"
         ),
         "attestation_status": str(attestation.get("status", "missing")),
         "closure_ok": bool(validation.get("ok", False)),
@@ -142,7 +158,9 @@ def render_markdown(summary: dict) -> str:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate TPM closure summary artifacts")
+    parser = argparse.ArgumentParser(
+        description="Generate TPM closure summary artifacts"
+    )
     parser.add_argument("--repo-root", default=".", help="Repository root path")
     parser.add_argument(
         "--output-json",
@@ -168,7 +186,9 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    out_json.write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     out_md.write_text(render_markdown(summary), encoding="utf-8")
 
     print(f"wrote {out_json}")

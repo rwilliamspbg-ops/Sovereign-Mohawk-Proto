@@ -21,7 +21,9 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def check_readiness(repo_root: Path, failures: list[str], checks: dict[str, bool]) -> None:
+def check_readiness(
+    repo_root: Path, failures: list[str], checks: dict[str, bool]
+) -> None:
     path = repo_root / "results/readiness/readiness-report.json"
     if not path.exists():
         failures.append(f"missing readiness report: {path}")
@@ -128,14 +130,18 @@ def check_host_attack_surface(
     checks["host_attack_surface_ok"] = ok
     checks["host_attack_surface_enforced"] = mode == "strict"
     if not ok:
-        message = "host attack surface preflight failed (unexpected public TCP listeners)"
+        message = (
+            "host attack surface preflight failed (unexpected public TCP listeners)"
+        )
         if mode == "advisory":
             warnings.append(message)
         else:
             failures.append(message)
 
 
-def check_attestations(repo_root: Path, failures: list[str], checks: dict[str, bool]) -> None:
+def check_attestations(
+    repo_root: Path, failures: list[str], checks: dict[str, bool]
+) -> None:
     all_ok = True
     for gate_name, rel_path in REQUIRED_ATTESTATIONS.items():
         path = repo_root / rel_path
@@ -158,7 +164,9 @@ def check_attestations(repo_root: Path, failures: list[str], checks: dict[str, b
         checks[key] = approved
         if not approved:
             all_ok = False
-            failures.append(f"attestation not approved ({gate_name}): status={status or 'missing'}")
+            failures.append(
+                f"attestation not approved ({gate_name}): status={status or 'missing'}"
+            )
 
     checks["all_attestations_approved"] = all_ok
 
@@ -176,7 +184,9 @@ def check_capability_dashboard_matrix(
 def write_report(repo_root: Path, report: dict) -> Path:
     out = repo_root / "results/go-live/go-live-gate-report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    out.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     return out
 
 
@@ -205,7 +215,9 @@ def main() -> int:
     check_readiness(repo_root, failures, checks)
     check_chaos(repo_root, failures, checks)
     check_host_tuning(repo_root, failures, checks, args.host_preflight_mode, warnings)
-    check_host_attack_surface(repo_root, failures, checks, args.host_preflight_mode, warnings)
+    check_host_attack_surface(
+        repo_root, failures, checks, args.host_preflight_mode, warnings
+    )
     check_attestations(repo_root, failures, checks)
     check_capability_dashboard_matrix(repo_root, failures, checks)
 

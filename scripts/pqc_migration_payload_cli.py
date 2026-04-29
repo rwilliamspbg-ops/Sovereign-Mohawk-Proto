@@ -78,7 +78,9 @@ def validate_payload(payload: Dict[str, Any]) -> None:
     ]
     missing = [field for field in required if payload.get(field) in (None, "")]
     if missing:
-        raise ValueError(f"missing required fields for migration payload: {', '.join(missing)}")
+        raise ValueError(
+            f"missing required fields for migration payload: {', '.join(missing)}"
+        )
 
 
 def parse_args() -> argparse.Namespace:
@@ -88,14 +90,20 @@ def parse_args() -> argparse.Namespace:
             "The digest is SHA-256 over canonical JSON of the signing payload."
         )
     )
-    parser.add_argument("--legacy-account", required=True, help="Legacy account identifier")
-    parser.add_argument("--pqc-account", required=True, help="Post-quantum account identifier")
+    parser.add_argument(
+        "--legacy-account", required=True, help="Legacy account identifier"
+    )
+    parser.add_argument(
+        "--pqc-account", required=True, help="Post-quantum account identifier"
+    )
     parser.add_argument("--asset", default="MHC", help="Asset symbol (default: MHC)")
     parser.add_argument(
         "--amount-units", type=int, required=True, help="Transfer amount in base units"
     )
     parser.add_argument("--memo", default="", help="Optional migration memo")
-    parser.add_argument("--idempotency-key", default="", help="Optional idempotency key")
+    parser.add_argument(
+        "--idempotency-key", default="", help="Optional idempotency key"
+    )
     parser.add_argument("--nonce", type=int, required=True, help="Anti-replay nonce")
 
     parser.add_argument(
@@ -105,7 +113,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--legacy-pub-key", help="Legacy public key string")
     parser.add_argument("--legacy-sig", help="Legacy signature string")
-    parser.add_argument("--legacy-pub-key-file", help="Path containing legacy public key")
+    parser.add_argument(
+        "--legacy-pub-key-file", help="Path containing legacy public key"
+    )
     parser.add_argument("--legacy-sig-file", help="Path containing legacy signature")
 
     parser.add_argument(

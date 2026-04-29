@@ -82,7 +82,9 @@ class CertificatePinning:
             logger.debug(f"Certificate hash match: {cert_hash[:16]}...")
             return True
 
-        raise CertificatePinningError(f"Certificate hash not pinned: {cert_hash[:16]}...")
+        raise CertificatePinningError(
+            f"Certificate hash not pinned: {cert_hash[:16]}..."
+        )
 
     def verify_public_key_hash(self, cert_pem: str) -> bool:
         """
@@ -114,7 +116,9 @@ class CertificatePinning:
                 logger.debug(f"Public key hash match: {key_hash[:16]}...")
                 return True
 
-            raise CertificatePinningError(f"Public key hash not pinned: {key_hash[:16]}...")
+            raise CertificatePinningError(
+                f"Public key hash not pinned: {key_hash[:16]}..."
+            )
         except CertificatePinningError:
             raise
         except Exception as e:
@@ -223,7 +227,9 @@ class SecureSSLContext:
                 ctx.load_cert_chain(
                     certfile=str(client_cert_path),
                     keyfile=str(client_key_path),
-                    password=(lambda: client_key_password) if client_key_password else None,
+                    password=(
+                        (lambda: client_key_password) if client_key_password else None
+                    ),
                 )
                 logger.info(f"Loaded client certificate: {client_cert}")
 

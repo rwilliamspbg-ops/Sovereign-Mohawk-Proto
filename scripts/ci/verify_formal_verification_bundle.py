@@ -80,13 +80,17 @@ def main() -> int:
     report_root = str(report.get("input_merkle_root", ""))
     manifest_root = str(manifest.get("report_input_merkle_root", ""))
     if report_root != manifest_root:
-        raise ValueError("report_input_merkle_root mismatch between report and bundle manifest")
+        raise ValueError(
+            "report_input_merkle_root mismatch between report and bundle manifest"
+        )
 
     for item in report.get("inputs", []):
         rel_path = str(item.get("path", ""))
         expected_hash = str(item.get("sha256", ""))
         if not rel_path or not expected_hash:
-            raise ValueError("invalid report input entry in formal_validation_report.json")
+            raise ValueError(
+                "invalid report input entry in formal_validation_report.json"
+            )
         manifest_hash = files.get(rel_path)
         if manifest_hash is None:
             raise ValueError(f"bundle manifest missing report input file: {rel_path}")

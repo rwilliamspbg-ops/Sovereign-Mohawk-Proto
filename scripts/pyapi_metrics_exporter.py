@@ -17,7 +17,9 @@ from mohawk import MohawkNode  # noqa: E402
 
 def _load_token() -> str:
     token_path = Path(
-        os.getenv("MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token"))
+        os.getenv(
+            "MOHAWK_API_TOKEN_FILE", str(ROOT / "runtime-secrets" / "mohawk_api_token")
+        )
     )
     if not token_path.is_absolute():
         token_path = ROOT / token_path
@@ -39,7 +41,9 @@ def _int_env(name: str, default: int) -> int:
 
 class ExporterState:
     def __init__(self) -> None:
-        self.node = MohawkNode(lib_path=os.getenv("MOHAWK_LIB_PATH", str(ROOT / "libmohawk.so")))
+        self.node = MohawkNode(
+            lib_path=os.getenv("MOHAWK_LIB_PATH", str(ROOT / "libmohawk.so"))
+        )
         self.token = _load_token()
         self.lock = threading.Lock()
         self.last_error = ""

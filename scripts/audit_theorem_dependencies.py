@@ -101,9 +101,15 @@ def compute_report(repo_root: Path) -> dict:
 
     for file_path in files:
         lines = file_path.read_text(encoding="utf-8").splitlines()
-        imports = [item for item in parse_imports(lines) if item.startswith("LeanFormalization.")]
+        imports = [
+            item
+            for item in parse_imports(lines)
+            if item.startswith("LeanFormalization.")
+        ]
         local_imports = [
-            item.split(".", 1)[1] for item in imports if item.split(".", 1)[1] in module_names
+            item.split(".", 1)[1]
+            for item in imports
+            if item.split(".", 1)[1] in module_names
         ]
         module_graph[module_name_for(file_path)] = sorted(set(local_imports))
 
@@ -148,7 +154,9 @@ def compute_report(repo_root: Path) -> dict:
 
 def write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def main() -> int:

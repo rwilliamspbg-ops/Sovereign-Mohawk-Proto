@@ -89,7 +89,9 @@ def main():
 
         # Load a WASM module
         print("🧱 Loading WASM module...")
-        wasm_result = node.load_wasm("wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm")
+        wasm_result = node.load_wasm(
+            "wasm-modules/fl_task/target/wasm32-wasi/release/fl_task.wasm"
+        )
         print(f"✅ {wasm_result['message']}")
         print(f"   Module: {wasm_result.get('data', 'N/A')}\n")
 

@@ -17,7 +17,8 @@ VacuousLeanPatterns = [
     (
         "prop_true_def",
         re.compile(
-            r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b", re.MULTILINE
+            r"^\s*def\s+([A-Za-z0-9_']+)\s*\([^)]*\)\s*:\s*Prop\s*:=\s*True\b",
+            re.MULTILINE,
         ),
         "Prop definition reduces directly to `True`",
     ),
@@ -43,7 +44,9 @@ def lint_lean_file(path: Path) -> list[str]:
         lhs = normalize_expr(match.group(2))
         rhs = normalize_expr(match.group(3))
         if lhs == rhs:
-            findings.append(f"{path}: theorem `{match.group(1)}` is a direct self-equality")
+            findings.append(
+                f"{path}: theorem `{match.group(1)}` is a direct self-equality"
+            )
     return findings
 
 
@@ -58,7 +61,9 @@ def lint_proof_docs(paths: list[Path]) -> list[str]:
         text = path.read_text(encoding="utf-8")
         for pattern in forbidden:
             for match in pattern.finditer(text):
-                findings.append(f"{path}: forbidden proof-certification phrase `{match.group(0)}`")
+                findings.append(
+                    f"{path}: forbidden proof-certification phrase `{match.group(0)}`"
+                )
     return findings
 
 
@@ -77,7 +82,9 @@ def lint_claims_file(path: Path) -> list[str]:
         if status not in valid_statuses:
             findings.append(f"{path}: claim `{claim_id}` has invalid status `{status}`")
         if status != "fully_formalized" and not claim.get("blocking_gaps"):
-            findings.append(f"{path}: claim `{claim_id}` is `{status}` but has no `blocking_gaps`")
+            findings.append(
+                f"{path}: claim `{claim_id}` is `{status}` but has no `blocking_gaps`"
+            )
         if not claim.get("lean_modules"):
             findings.append(f"{path}: claim `{claim_id}` is missing `lean_modules`")
     return findings
@@ -122,7 +129,9 @@ def main() -> int:
     print("formal proof claim lint passed")
     print(f"  - claims metadata: {claims_file}")
     print(f"  - lean files checked: {len(lean_files)}")
-    print(f"  - protected docs checked: {len([p for p in protected_docs if p.exists()])}")
+    print(
+        f"  - protected docs checked: {len([p for p in protected_docs if p.exists()])}"
+    )
     return 0
 
 

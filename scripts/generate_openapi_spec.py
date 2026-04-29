@@ -207,7 +207,9 @@ def build_spec(server_url: str) -> dict:
                                                 "items": {"type": "string"},
                                             },
                                             "kex_mode": {"type": "string"},
-                                            "expected_public_key_bytes": {"type": "integer"},
+                                            "expected_public_key_bytes": {
+                                                "type": "integer"
+                                            },
                                         },
                                     }
                                 }

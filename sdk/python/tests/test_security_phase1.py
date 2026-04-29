@@ -12,7 +12,6 @@ Tests cover:
 import os
 import pytest
 import asyncio
-from datetime import datetime, timezone
 from pathlib import Path
 
 # Import the modules we created
@@ -22,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mohawk.credentials import (
     CredentialManager,
-    CredentialProvider,
     EnvironmentProvider,
     CredentialNotFoundError,
     CredentialRotationError,
@@ -240,7 +238,9 @@ class TestTLSConfig:
 
     def test_config_builder_chain(self):
         """Test configuration builder chaining."""
-        config = TLSConfig().with_min_tls_version("TLSv1.3").with_hostname_verification(True)
+        config = (
+            TLSConfig().with_min_tls_version("TLSv1.3").with_hostname_verification(True)
+        )
 
         assert config.min_tls_version == "TLSv1.3"
         assert config.check_hostname is True
@@ -332,7 +332,9 @@ class TestSecurityIntegration:
     def test_secure_tls_and_credentials(self):
         """Test TLS and credential manager together."""
         # Create TLS configuration
-        tls_config = TLSConfig().with_min_tls_version("TLSv1.3").with_hostname_verification(True)
+        tls_config = (
+            TLSConfig().with_min_tls_version("TLSv1.3").with_hostname_verification(True)
+        )
 
         # Create credential manager
         provider = EnvironmentProvider()

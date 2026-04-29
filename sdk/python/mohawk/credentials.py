@@ -16,11 +16,10 @@ Features:
 """
 
 import asyncio
-import hashlib
 import logging
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
@@ -70,7 +69,9 @@ class CredentialProvider(ABC):
         pass
 
     @abstractmethod
-    async def set_credential(self, key: str, value: str, ttl_seconds: Optional[int] = None) -> None:
+    async def set_credential(
+        self, key: str, value: str, ttl_seconds: Optional[int] = None
+    ) -> None:
         """
         Store a credential securely.
 
@@ -126,11 +127,15 @@ class EnvironmentProvider(CredentialProvider):
         """Retrieve credential from environment variable."""
         value = os.getenv(key)
         if not value:
-            raise CredentialNotFoundError(f"Credential '{key}' not found in environment")
+            raise CredentialNotFoundError(
+                f"Credential '{key}' not found in environment"
+            )
         logger.debug(f"Retrieved credential from environment: {key}")
         return value
 
-    async def set_credential(self, key: str, value: str, ttl_seconds: Optional[int] = None) -> None:
+    async def set_credential(
+        self, key: str, value: str, ttl_seconds: Optional[int] = None
+    ) -> None:
         """Set credential in environment."""
         os.environ[key] = value
         logger.info(f"Set credential in environment: {key}")
@@ -190,7 +195,9 @@ class VaultProvider(CredentialProvider):
         logger.debug(f"Retrieving credential from Vault: {key}")
         raise NotImplementedError("Vault integration requires hvac library")
 
-    async def set_credential(self, key: str, value: str, ttl_seconds: Optional[int] = None) -> None:
+    async def set_credential(
+        self, key: str, value: str, ttl_seconds: Optional[int] = None
+    ) -> None:
         """Store credential in Vault."""
         logger.info(f"Setting credential in Vault: {key}")
         raise NotImplementedError("Vault integration requires hvac library")
@@ -233,7 +240,9 @@ class K8sSecretsProvider(CredentialProvider):
         logger.debug(f"Retrieving credential from K8s: {key}")
         raise NotImplementedError("K8s integration requires kubernetes library")
 
-    async def set_credential(self, key: str, value: str, ttl_seconds: Optional[int] = None) -> None:
+    async def set_credential(
+        self, key: str, value: str, ttl_seconds: Optional[int] = None
+    ) -> None:
         """Create/update K8s Secret."""
         logger.info(f"Setting credential in K8s: {key}")
         raise NotImplementedError("K8s integration requires kubernetes library")
@@ -450,7 +459,9 @@ class CredentialBuilder:
         self._provider = K8sSecretsProvider(namespace=namespace)
         return self
 
-    def with_auto_rotation(self, enabled: bool, interval_hours: int = 24) -> "CredentialBuilder":
+    def with_auto_rotation(
+        self, enabled: bool, interval_hours: int = 24
+    ) -> "CredentialBuilder":
         """Configure auto-rotation."""
         self._auto_rotate = enabled
         self._rotation_interval = interval_hours

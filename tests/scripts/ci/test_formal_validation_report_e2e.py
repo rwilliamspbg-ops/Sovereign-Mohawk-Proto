@@ -12,7 +12,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 REPORT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "generate_formal_validation_report.py"
 
 
-def run(cmd: list[str], expect_success: bool = True) -> subprocess.CompletedProcess[str]:
+def run(
+    cmd: list[str], expect_success: bool = True
+) -> subprocess.CompletedProcess[str]:
     proc = subprocess.run(
         cmd,
         cwd=REPO_ROOT,
@@ -56,7 +58,12 @@ def main() -> int:
             raise SystemExit(f"report missing top-level keys: {', '.join(missing)}")
 
         toolchain_lock = payload.get("toolchain_lock", {})
-        for required in ("lean_toolchain", "mathlib4_ref", "go_version", "zk_backend_gnark_crypto"):
+        for required in (
+            "lean_toolchain",
+            "mathlib4_ref",
+            "go_version",
+            "zk_backend_gnark_crypto",
+        ):
             if not toolchain_lock.get(required):
                 raise SystemExit(f"toolchain lock missing required field: {required}")
 

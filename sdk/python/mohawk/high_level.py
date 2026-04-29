@@ -73,7 +73,9 @@ class HybridVerificationReceipt:
         return cls(
             success=bool(result.get("success", False)),
             message=str(result.get("message", "")),
-            mode=(str(data_obj.get("mode")) if data_obj.get("mode") is not None else None),
+            mode=(
+                str(data_obj.get("mode")) if data_obj.get("mode") is not None else None
+            ),
             selected_scheme=(
                 str(data_obj.get("selected_scheme"))
                 if data_obj.get("selected_scheme") is not None

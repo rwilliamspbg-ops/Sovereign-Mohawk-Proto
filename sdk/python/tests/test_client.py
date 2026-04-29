@@ -114,7 +114,9 @@ class TestMohawkNode:
         with pytest.raises(AggregationError):
             node.compress_gradients([0.1, 0.2, 0.3], format="fp16")
 
-    def test_compress_gradients_zero_copy_rejects_oversized_vector(self, node, monkeypatch):
+    def test_compress_gradients_zero_copy_rejects_oversized_vector(
+        self, node, monkeypatch
+    ):
         monkeypatch.setattr(client_module, "MAX_DIM", 2)
         gradients = array.array("f", [0.1, 0.2, 0.3])
         with pytest.raises(AggregationError):

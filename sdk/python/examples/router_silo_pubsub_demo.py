@@ -100,7 +100,9 @@ def main() -> int:
         return 1
     except urllib.error.URLError as exc:
         print(f"Network error: {exc.reason}")
-        print("Tip: start the router first with `docker compose up -d federated-router`.")
+        print(
+            "Tip: start the router first with `docker compose up -d federated-router`."
+        )
         return 1
 
     print("Cross-silo publish/subscribe flow completed.")

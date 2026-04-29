@@ -45,7 +45,8 @@ def load_report(path: Path) -> dict:
 
 def build_manifest(bundle_dir: Path, file_map: dict[str, str], report: dict) -> dict:
     leaf_hashes = [
-        sha256_hex(f"{path}:{digest}".encode("utf-8")) for path, digest in sorted(file_map.items())
+        sha256_hex(f"{path}:{digest}".encode("utf-8"))
+        for path, digest in sorted(file_map.items())
     ]
     return {
         "schema_version": "formal_verification_bundle.v1",
@@ -118,7 +119,9 @@ def main() -> int:
 
     manifest_files: dict[str, str] = {}
     for rel_path in include_paths:
-        src = report_path if rel_path == canonical_report_rel else (repo_root / rel_path)
+        src = (
+            report_path if rel_path == canonical_report_rel else (repo_root / rel_path)
+        )
         dst = bundle_dir / rel_path
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)

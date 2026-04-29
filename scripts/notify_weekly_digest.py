@@ -58,7 +58,9 @@ def build_text(digest_path: Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Post weekly digest webhook notifications")
+    parser = argparse.ArgumentParser(
+        description="Post weekly digest webhook notifications"
+    )
     parser.add_argument(
         "--digest-path",
         default="reports/weekly-readiness-digest.md",
@@ -71,7 +73,8 @@ def main() -> None:
     slack_teams_text = text
     if len(slack_teams_text) > 3500:
         slack_teams_text = (
-            slack_teams_text[:3500] + "\n\n[truncated] See workflow artifacts for full digest."
+            slack_teams_text[:3500]
+            + "\n\n[truncated] See workflow artifacts for full digest."
         )
 
     for env_name in ("SLACK_WEBHOOK_URL", "TEAMS_WEBHOOK_URL"):
