@@ -38,9 +38,7 @@ def validate_capabilities():
         # 2. FL vote threshold: majority required for aggregation acceptance.
         fl_vote = data.get("fl_vote_threshold", 0)
         if fl_vote < 0.5:
-            print(
-                f"ERROR: fl_vote_threshold {fl_vote} is below 0.5 (no majority guarantee)"
-            )
+            print(f"ERROR: fl_vote_threshold {fl_vote} is below 0.5 (no majority guarantee)")
             sys.exit(1)
 
         # 3. BFT safety bound from cluster configuration (f/n < 1/3).
