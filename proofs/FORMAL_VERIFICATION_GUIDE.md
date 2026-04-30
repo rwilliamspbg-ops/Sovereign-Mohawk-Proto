@@ -7,7 +7,7 @@ All 6 claim domains have Lean 4 formalization coverage. Theorem statuses reflect
 - **surrogate_verified**: Integer/rational "guard" model proven; real-valued theorem deferred (noted via explicit axiom or bridge)
 - **model_verified**: Functional/constant-cost model proven; full cryptographic/probabilistic details deferred
 
-For full details on surrogate + bridge modeling approach, see [Proof Strategy](./PROOF_STRATEGY.md).
+For context on our formalization approach, see the theorem claims registry (proofs/theorem_claims.json).
 
 ```bash
 cd proofs
