@@ -47,6 +47,7 @@ import (
 type Config struct {
 	WasmModulePath            string
 	AllowInsecureWASMFallback bool
+	WasmMaxMillis             uint64
 	NodeID                    string
 	OrchestratorURL           string
 	OrchestratorServerName    string
@@ -134,7 +135,7 @@ func main() {
 
 	mockProof := make([]byte, 200)
 	proofStart := time.Now()
-	success, err := runner.Verify(ctx, mockProof)
+	success, err := runner.Verify(ctx, mockProof, conf.WasmMaxMillis)
 	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
 	if err != nil {
 		if isMissingVerifyProofExportErr(err) {
@@ -242,7 +243,7 @@ func runSupervisedRound(rootCtx context.Context, conf Config, meshPlan hva.Plan,
 	if runner != nil {
 		mockProof := make([]byte, 200)
 		proofStart := time.Now()
-		proofOK, proofErr := runner.Verify(roundCtx, mockProof)
+		proofOK, proofErr := runner.Verify(roundCtx, mockProof, conf.WasmMaxMillis)
 		proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
 		if proofErr != nil {
 			metrics.ObserveProofVerification("groth16", false, proofLatency)
@@ -421,6 +422,7 @@ func loadConfig() (Config, error) {
 	return Config{
 		WasmModulePath:            defaultString(os.Getenv("WASM_MODULE_PATH"), "proof_verifier.wasm"),
 		AllowInsecureWASMFallback: allowInsecureFallback,
+		WasmMaxMillis:             defaultUint64(os.Getenv("MOHAWK_WASM_MAX_MILLIS"), wasmhost.DefaultMaxMillis),
 		NodeID:                    defaultString(os.Getenv("NODE_ID"), "edge-node-001"),
 		OrchestratorURL:           os.Getenv("ORCHESTRATOR_URL"),
 		OrchestratorServerName:    defaultString(os.Getenv("ORCHESTRATOR_SERVER_NAME"), "orchestrator"),
@@ -591,6 +593,17 @@ func defaultInt(value string, fallback int) int {
 		return fallback
 	}
 	parsed, err := strconv.Atoi(value)
+	if err != nil {
+		return fallback
+	}
+	return parsed
+}
+
+func defaultUint64(value string, fallback uint64) uint64 {
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseUint(value, 10, 64)
 	if err != nil {
 		return fallback
 	}

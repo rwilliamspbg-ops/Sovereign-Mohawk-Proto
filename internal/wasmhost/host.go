@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
@@ -38,6 +39,7 @@ const (
 	MaxImportCount       = 1000
 	MaxFunctionLocals    = 1024
 	MaxTotalLocalEntries = 20000
+	DefaultMaxMillis     = 30_000
 )
 
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
@@ -451,8 +453,16 @@ func (r *Registry) Close(ctx context.Context) error {
 	return nil
 }
 
-// Verify executes the zk-SNARK proof verification in the Wasm sandbox.
-func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
+// Verify executes the "verify_proof" Wasm export and enforces the per-manifest
+// execution deadline. maxMillis == 0 falls back to DefaultMaxMillis.
+func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool, error) {
+	if maxMillis == 0 {
+		maxMillis = DefaultMaxMillis
+	}
+	deadline := time.Duration(maxMillis) * time.Millisecond
+	execCtx, cancel := context.WithTimeout(ctx, deadline)
+	defer cancel()
+
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -466,8 +476,11 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	results, err := fn.Call(ctx, proofLen)
+	results, err := fn.Call(execCtx, proofLen)
 	if err != nil {
+		if execCtx.Err() != nil {
+			return false, fmt.Errorf("wasm execution timed out after %dms: %w", maxMillis, execCtx.Err())
+		}
 		return false, fmt.Errorf("wasm execution error: %w", err)
 	}
 
@@ -478,9 +491,9 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	return results[0] == 1, nil
 }
 
-// FastVerify is an optimized alias for the Verify method.
+// FastVerify is an optimized alias for Verify with the default timeout.
 func (h *Host) FastVerify(ctx context.Context, proof []byte) (bool, error) {
-	return h.Verify(ctx, proof)
+	return h.Verify(ctx, proof, DefaultMaxMillis)
 }
 
 func safeUint64FromInt(v int) (uint64, error) {

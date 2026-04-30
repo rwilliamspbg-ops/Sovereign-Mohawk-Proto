@@ -13,7 +13,7 @@
 // limitations under the License.
 module github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 
-go 1.25.9
+go 1.25.7
 
 require (
 	github.com/consensys/gnark-crypto v0.20.1
