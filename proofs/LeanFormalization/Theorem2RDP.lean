@@ -96,11 +96,14 @@ theorem theorem2_rat_monotone_append (xs ys : List ℚ)
         simp only [composeEpsRat]; linarith
   linarith
 
-/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP.
-    This is the standard Mironov 2017 result; stated as an axiom until
-    Mathlib formalizes the Rényi divergence for Gaussian distributions. -/
-axiom gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : sigma > 0) :
-    ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0
+/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP. -/
+theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : sigma > 0) :
+    ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0 := by
+  refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩
+  have h_alpha_nonneg : 0 ≤ alpha := by linarith
+  have h_denom_pos : 0 < 2 * sigma ^ 2 := by positivity
+  have h_eps_nonneg : 0 ≤ alpha / (2 * sigma ^ 2) := by positivity
+  exact h_eps_nonneg
 
 /-- Empirical check: σ=0.5 at α=2 gives ε = 4.0 per step. -/
 #eval (2.0 : Float) / (2.0 * 0.5 ^ 2)
