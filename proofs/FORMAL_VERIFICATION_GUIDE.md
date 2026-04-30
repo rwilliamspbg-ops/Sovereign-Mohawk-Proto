@@ -2,7 +2,12 @@
 
 ## Quick Start
 
-All 6 claim domains have Lean 4 formalization coverage, but not all human-readable theorem statements are formalized at full mathematical strength yet:
+All 6 claim domains have Lean 4 formalization coverage. Theorem statuses reflect the current formal scope:
+- **fully_formalized**: Deterministic numeric or logical bound proven directly in Lean
+- **surrogate_verified**: Integer/rational "guard" model proven; real-valued theorem deferred (noted via explicit axiom or bridge)
+- **model_verified**: Functional/constant-cost model proven; full cryptographic/probabilistic details deferred
+
+For full details on surrogate + bridge modeling approach, see [Proof Strategy](./PROOF_STRATEGY.md).
 
 ```bash
 cd proofs
@@ -20,12 +25,12 @@ lake build LeanFormalization Mathlib
 
 | # | Claim | Markdown Proof | Lean Module | Key Theorem | Status |
 |---|-------|---|---|---|---|
-| 1 | 55.5% Byzantine resilience | `bft_resilience.md` | `Theorem1BFT.lean` | `theorem1_global_bound_checked` | ✓ |
-| 2 | Integer privacy-budget composition surrogate | `differential_privacy.md` | `Theorem2RDP.lean` | `theorem2_budget_guard` | surrogate |
-| 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | ✓ |
-| 4 | Integer liveness guard surrogate | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | surrogate |
-| 5 | Constant-cost verifier model | `cryptography.md` | `Theorem5Cryptography.lean` | `theorem5_constant_cost` | model |
-| 6 | Convergence envelope surrogate | `convergence.md` | `Theorem6Convergence.lean` | `theorem6_large_scale_guard` | surrogate |
+| 1 | 55.5% Byzantine resilience | `bft_resilience.md` | `Theorem1BFT.lean` | `theorem1_global_bound_checked` | fully_formalized |
+| 2 | Integer privacy-budget composition surrogate (with Gaussian RDP axiom) | `differential_privacy.md` | `Theorem2RDP.lean` | `theorem2_budget_guard` | surrogate_verified_with_gaussian_axiom |
+| 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | fully_formalized |
+| 4 | Integer liveness guard surrogate (with Chernoff extension) | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | model_verified |
+| 5 | Constant-cost verifier model | `cryptography.md` | `Theorem5Cryptography.lean` | `theorem5_constant_cost` | model_verified |
+| 6 | Convergence envelope surrogate (with real-valued bridge) | `convergence.md` | `Theorem6Convergence.lean` | `theorem6_large_scale_guard` | surrogate_verified_with_cast_bridge |
 
 ## Verification Steps
 

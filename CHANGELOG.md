@@ -413,7 +413,7 @@ Python (mohawk.client) → ctypes → libmohawk.so → CGO → Go Runtime (inter
 
 #### Implementation
 
-- Go 1.24 runtime with Wasmtime integration
+- Go 1.25.9 runtime with Wasmtime integration
 - TPM attestation stub
 - Batch verification system
 - RDP (Rényi Differential Privacy) accountant
