@@ -254,12 +254,16 @@ func parseCodeSectionLocals(section []byte, expectedBodies uint32) (uint32, uint
 			return 0, 0, err
 		}
 		i += n
-		if i+int(bodySize) > len(section) {
+		bodySizeInt, err := safeIntFromUint32(bodySize)
+		if err != nil {
+			return 0, 0, fmt.Errorf("invalid body size: %w", err)
+		}
+		if i+bodySizeInt > len(section) {
 			return 0, 0, fmt.Errorf("function body exceeds bounds")
 		}
 
-		bodyBytes := section[i : i+int(bodySize)]
-		i += int(bodySize)
+		bodyBytes := section[i : i+bodySizeInt]
+		i += bodySizeInt
 
 		locals, err := parseFunctionLocals(bodyBytes)
 		if err != nil {
@@ -304,10 +308,14 @@ func skipName(data []byte, i *int) error {
 		return err
 	}
 	*i += n
-	if *i+int(nameLen) > len(data) {
+	nameLenInt, err := safeIntFromUint32(nameLen)
+	if err != nil {
+		return fmt.Errorf("invalid name length: %w", err)
+	}
+	if *i+nameLenInt > len(data) {
 		return fmt.Errorf("name exceeds bounds")
 	}
-	*i += int(nameLen)
+	*i += nameLenInt
 	return nil
 }
 
@@ -488,6 +496,19 @@ func safeUint64FromInt(v int) (uint64, error) {
 		return 0, fmt.Errorf("negative value %d cannot be converted to uint64", v)
 	}
 	return uint64(v), nil
+}
+
+// safeIntFromUint32 safely converts uint32 to int with bounds checking.
+// Returns an error if the conversion would overflow on the host architecture.
+func safeIntFromUint32(v uint32) (int, error) {
+	// On 32-bit systems, int is 32 bits and can safely hold values up to 2^31-1 (signed)
+	// On 64-bit systems, int is 64 bits and can safely hold all uint32 values
+	// This check ensures we never overflow the signed int range
+	maxInt := int(^uint(0) >> 1) // Maximum value for signed int
+	if int64(v) > int64(maxInt) {
+		return 0, fmt.Errorf("uint32 value %d exceeds maximum int value %d", v, maxInt)
+	}
+	return int(v), nil
 }
 
 // Close releases Wasm resources.
