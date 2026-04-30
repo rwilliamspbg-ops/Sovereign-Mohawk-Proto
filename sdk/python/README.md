@@ -40,7 +40,7 @@ The SDK now includes:
 ### Prerequisites
 
 - Python 3.8+
-- Go 1.24+ (for building the C-shared library)
+- Go 1.25+ (for building the C-shared library)
 - GCC or compatible C compiler
 
 ### From Source

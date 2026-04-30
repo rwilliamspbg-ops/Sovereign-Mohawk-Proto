@@ -264,7 +264,7 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 | Feature | NVIDIA FLARE | PySyft | **Sovereign-Mohawk** |
 | :--- | :---: | :---: | :---: |
 | **Lean Formalization + CI Gate** | Not presented | Not presented | **Yes (`proofs/LeanFormalization` + CI build/placeholder checks)** |
-| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **Concrete 5/9 profile guard check** |
+| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **Concrete 5/9 profile guard check (surrogate verified; see proofs/LeanFormalization/Theorem1BFT.lean)** |
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
 | **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **Logarithmic path-depth proxy; total bytes model-dependent** |
 | **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
@@ -356,7 +356,7 @@ Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.m
 
 ### Go Runtime
 
-Sovereign-Mohawk is built with **Go 1.25+**.
+Sovereign-Mohawk is built with **Go 1.25.9+**.
 
 ```bash
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
