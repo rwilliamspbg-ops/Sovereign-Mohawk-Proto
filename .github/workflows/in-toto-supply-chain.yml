@@ -64,7 +64,7 @@ jobs:
           echo "Recorded $(grep -c . /tmp/in-toto/materials.txt) source files"
 
       - name: Upload materials manifest
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: in-toto-materials
           path: /tmp/in-toto/materials.txt
@@ -127,7 +127,7 @@ jobs:
           cat /tmp/in-toto/products.txt
 
       - name: Upload products manifest
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: in-toto-products
           path: /tmp/in-toto/products.txt
@@ -189,7 +189,7 @@ jobs:
           cat /tmp/in-toto/verification.txt
 
       - name: Upload verification results
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: in-toto-verification
           path: /tmp/in-toto/verification.txt
@@ -386,7 +386,7 @@ jobs:
           ls -la /tmp/in-toto-links/
 
       - name: Upload in-toto metadata
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: in-toto-metadata
           path: |
@@ -406,7 +406,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Download all in-toto artifacts
-        uses: actions/download-artifact@8caf195ad4b1dee92908e476f36f19de4cbee7b6
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           path: /tmp/all-in-toto
 
@@ -462,7 +462,7 @@ jobs:
           cat /tmp/in-toto-attestation-summary.md
 
       - name: Publish attestations to release
-        uses: softprops/action-gh-release@af366c92b540d338d4ab2e88c65caa9d3a3d993e
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           name: "Release ${{ steps.version.outputs.tag }} - In-Toto Attestations"
           tag_name: "${{ steps.version.outputs.tag }}"

@@ -247,4 +247,4 @@ in-toto-verify --layout layout.json --link-dir . --step material
 
 ## Contributing Supply Chain Improvements
 
-See [Contributing](../CONTRIBUTING.md) for how to contribute to supply chain security enhancements.
+See [Contributing](CONTRIBUTING.md) for how to contribute to supply chain security enhancements.

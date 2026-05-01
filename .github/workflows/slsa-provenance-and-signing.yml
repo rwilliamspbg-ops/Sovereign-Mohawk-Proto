@@ -49,15 +49,15 @@ jobs:
           echo "Building for release: ${TAG_VERSION}"
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@49ec582596cee837cb9fad89f1fbf330f5cda4d7
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
         with:
           platforms: linux/amd64,linux/arm64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@fd7a9d7fac257314fd6f2b0234f67ab4a3dad725
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
 
       - name: Log in to Container Registry
-        uses: docker/login-action@b4bedf58911b07a06aagent3605289c90ca4fc78e
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -65,7 +65,7 @@ jobs:
 
       - name: Build and push container image with provenance
         id: image
-        uses: docker/build-push-action@942b1e9d89c2e6af68dafd9e53373cbfc48a3a8a
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
         with:
           context: .
           file: ./Dockerfile
@@ -106,7 +106,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@dc72c7d6007d6ff49b340e2eef612550ef119a23
+        uses: sigstore/cosign-installer@4959ce089c160fddf62f7b42464195ba1a56d382
         with:
           cosign-release: 'v2.2.0'
 
@@ -212,7 +212,7 @@ jobs:
           cat SHA512SUMS
 
       - name: Upload artifact hashes
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-artifacts
           path: /tmp/release-artifacts
@@ -298,7 +298,7 @@ jobs:
           cat /tmp/slsa-provenance.json | jq .
 
       - name: Upload SLSA provenance as artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: slsa-provenance
           path: /tmp/slsa-provenance.json
@@ -317,13 +317,13 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Download release artifacts
-        uses: actions/download-artifact@8caf195ad4b1dee92908e476f36f19de4cbee7b6
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: release-artifacts
           path: /tmp/release-artifacts
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@dc72c7d6007d6ff49b340e2eef612550ef119a23
+        uses: sigstore/cosign-installer@4959ce089c160fddf62f7b42464195ba1a56d382
         with:
           cosign-release: 'v2.2.0'
 
@@ -353,7 +353,7 @@ jobs:
           echo "All artifacts signed with Sigstore keyless signing"
 
       - name: Upload signatures
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb28c91
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: release-signatures
           path: |
@@ -374,7 +374,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Download all artifacts
-        uses: actions/download-artifact@8caf195ad4b1dee92908e476f36f19de4cbee7b6
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           path: /tmp/all-artifacts
 
@@ -448,7 +448,7 @@ jobs:
           echo "body=${BODY}" >> $GITHUB_OUTPUT
 
       - name: Publish release
-        uses: softprops/action-gh-release@af366c92b540d338d4ab2e88c65caa9d3a3d993e
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           name: "Release ${{ steps.version.outputs.tag }}"
           body: ${{ steps.release-body.outputs.body }}

@@ -321,7 +321,7 @@ cat coverage-report.html
 
 ## Contributing to Formal Verification
 
-See [Contributing](../CONTRIBUTING.md) for how to contribute formal verification improvements, especially:
+See [Contributing](CONTRIBUTING.md) for how to contribute formal verification improvements, especially:
 - **Master Auditor track**: 100 points for theorem verification
 - **Cryptography track**: 100 points for cryptographic lemma formalization
 - **SDK track**: 25 points for SDK coverage improvements
