@@ -21,6 +21,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -466,6 +467,10 @@ func (r *Registry) Close(ctx context.Context) error {
 func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool, error) {
 	if maxMillis == 0 {
 		maxMillis = DefaultMaxMillis
+	}
+	maxAllowedMillis := uint64(math.MaxInt64 / int64(time.Millisecond))
+	if maxMillis > maxAllowedMillis {
+		return false, fmt.Errorf("maxMillis %d exceeds supported maximum %d", maxMillis, maxAllowedMillis)
 	}
 	deadline := time.Duration(maxMillis) * time.Millisecond
 	execCtx, cancel := context.WithTimeout(ctx, deadline)
