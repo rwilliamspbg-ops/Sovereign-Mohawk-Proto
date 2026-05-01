@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
@@ -38,6 +39,8 @@ const (
 	MaxImportCount       = 1000
 	MaxFunctionLocals    = 1024
 	MaxTotalLocalEntries = 20000
+	DefaultMaxMillis     = 30_000
+	maxMillisForDuration = uint64(9_223_372_036_854)
 )
 
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
@@ -254,12 +257,16 @@ func parseCodeSectionLocals(section []byte, expectedBodies uint32) (uint32, uint
 			return 0, 0, err
 		}
 		i += n
-		if i+int(bodySize) > len(section) {
+		bodySizeInt, err := safeIntFromUint32(bodySize)
+		if err != nil {
+			return 0, 0, fmt.Errorf("invalid body size: %w", err)
+		}
+		if i+bodySizeInt > len(section) {
 			return 0, 0, fmt.Errorf("function body exceeds bounds")
 		}
 
-		bodyBytes := section[i : i+int(bodySize)]
-		i += int(bodySize)
+		bodyBytes := section[i : i+bodySizeInt]
+		i += bodySizeInt
 
 		locals, err := parseFunctionLocals(bodyBytes)
 		if err != nil {
@@ -304,10 +311,14 @@ func skipName(data []byte, i *int) error {
 		return err
 	}
 	*i += n
-	if *i+int(nameLen) > len(data) {
+	nameLenInt, err := safeIntFromUint32(nameLen)
+	if err != nil {
+		return fmt.Errorf("invalid name length: %w", err)
+	}
+	if *i+nameLenInt > len(data) {
 		return fmt.Errorf("name exceeds bounds")
 	}
-	*i += int(nameLen)
+	*i += nameLenInt
 	return nil
 }
 
@@ -451,8 +462,19 @@ func (r *Registry) Close(ctx context.Context) error {
 	return nil
 }
 
-// Verify executes the zk-SNARK proof verification in the Wasm sandbox.
-func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
+// Verify executes the "verify_proof" Wasm export and enforces the per-manifest
+// execution deadline. maxMillis == 0 falls back to DefaultMaxMillis.
+func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool, error) {
+	if maxMillis == 0 {
+		maxMillis = DefaultMaxMillis
+	}
+	deadline, err := safeDurationFromMillis(maxMillis)
+	if err != nil {
+		return false, err
+	}
+	execCtx, cancel := context.WithTimeout(ctx, deadline)
+	defer cancel()
+
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -466,8 +488,11 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	results, err := fn.Call(ctx, proofLen)
+	results, err := fn.Call(execCtx, proofLen)
 	if err != nil {
+		if execCtx.Err() != nil {
+			return false, fmt.Errorf("wasm execution timed out after %dms: %w", maxMillis, execCtx.Err())
+		}
 		return false, fmt.Errorf("wasm execution error: %w", err)
 	}
 
@@ -478,9 +503,9 @@ func (h *Host) Verify(ctx context.Context, proof []byte) (bool, error) {
 	return results[0] == 1, nil
 }
 
-// FastVerify is an optimized alias for the Verify method.
+// FastVerify is an optimized alias for Verify with the default timeout.
 func (h *Host) FastVerify(ctx context.Context, proof []byte) (bool, error) {
-	return h.Verify(ctx, proof)
+	return h.Verify(ctx, proof, DefaultMaxMillis)
 }
 
 func safeUint64FromInt(v int) (uint64, error) {
@@ -488,6 +513,23 @@ func safeUint64FromInt(v int) (uint64, error) {
 		return 0, fmt.Errorf("negative value %d cannot be converted to uint64", v)
 	}
 	return uint64(v), nil
+}
+
+func safeDurationFromMillis(v uint64) (time.Duration, error) {
+	if v > maxMillisForDuration {
+		return 0, fmt.Errorf("maxMillis %d exceeds supported maximum %d", v, maxMillisForDuration)
+	}
+	return time.Duration(v) * time.Millisecond, nil
+}
+
+// safeIntFromUint32 safely converts uint32 to int with bounds checking.
+// Returns an error if the conversion would overflow on the host architecture.
+func safeIntFromUint32(v uint32) (int, error) {
+	maxInt := int(^uint(0) >> 1)
+	if int64(v) > int64(maxInt) {
+		return 0, fmt.Errorf("uint32 value %d exceeds maximum int value %d", v, maxInt)
+	}
+	return int(v), nil
 }
 
 // Close releases Wasm resources.
