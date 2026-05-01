@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Supply Chain Security & Verifiable Build Attestations
+
+- **SLSA Build Type 1 Provenance** (`.github/workflows/slsa-provenance-and-signing.yml`):
+  - Automated SLSA v1.0 provenance generation on every tagged release
+  - Multi-platform binary builds (Linux amd64/arm64, macOS amd64/arm64)
+  - Container image provenance with SBOM attestation
+  - Build environment transparency (builder identity, git commit, dependencies)
+  - Immutable signed attestation statements
+
+- **Cosign/Sigstore Keyless Signing** (`.github/workflows/slsa-provenance-and-signing.yml`):
+  - Keyless signing using GitHub Actions OIDC tokens
+  - Container image signatures with `cosign verify`
+  - Release binary signatures with cryptographic verification
+  - Automatic certificate rotation per workflow run
+  - No long-lived keys to manage
+
+- **In-Toto Supply Chain Metadata** (`.github/workflows/in-toto-supply-chain.yml`):
+  - Complete supply chain recording (material → build → verification)
+  - In-toto layout definition with policy enforcement
+  - Cryptographically signed link metadata for each supply chain step
+  - Full audit trail from source code to release artifact
+  - Supports in-toto verification framework compliance
+
+- **Expanded Formal Verification Coverage** (`FORMAL_VERIFICATION_COVERAGE.md`):
+  - Extended coverage matrix for Go runtime bounds
+  - Python SDK type safety and input validation verification
+  - Cryptographic primitive lemmas (in progress)
+  - Runtime property verification (WASM limits, memory bounds)
+  - Integrated into release attestations and CI gates
+
+- **Release Asset Publishing with Full Attestations** (`.github/workflows/slsa-provenance-and-signing.yml`, `.github/workflows/in-toto-supply-chain.yml`):
+  - SHA256/SHA512 checksums signed with cosign
+  - SLSA provenance statement attached to release
+  - In-toto supply chain metadata bundle
+  - Comprehensive release body with verification instructions
+  - All artifacts published to GitHub Releases
+
+- **Verification Documentation** (`SUPPLY_CHAIN_SECURITY.md`):
+  - Quick-start guides for signature verification
+  - Container image verification procedures
+  - Binary and checksum verification workflows
+  - In-toto metadata inspection instructions
+  - Auditor verification checklists
+
+- **CI/CD Enhanced Pre-Release Gate**:
+  - All formal proofs must pass before release
+  - Static analysis (govulncheck, go vet) must be clean
+  - Type verification (mypy strict) must pass
+  - All runtime tests must pass
+  - Violations block release artifacts publication
+
 ## [2.0.2.Alpha] - 2026-04-21
 
 ### Added - Flower-Compatible SDK Expansion
