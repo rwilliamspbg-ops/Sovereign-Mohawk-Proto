@@ -882,7 +882,11 @@ func CompressGradientsZeroCopy(gradPtr *C.float, gradLen C.int, format *C.char, 
 		requestedFormat = "auto"
 	}
 
-	fp32 := unsafe.Slice((*float32)(unsafe.Pointer(gradPtr)), int(gradLen))
+	gradLenInt, err := safeIntFromCInt(gradLen)
+	if err != nil {
+		return marshalResult(false, fmt.Sprintf("invalid gradient length: %v", err), "")
+	}
+	fp32 := unsafe.Slice((*float32)(unsafe.Pointer(gradPtr)), gradLenInt)
 
 	originalBytes := len(fp32) * 4
 	tune := accelerator.BuildAutoTuneProfile(len(fp32))
@@ -928,6 +932,14 @@ func CompressGradientsZeroCopy(gradPtr *C.float, gradLen C.int, format *C.char, 
 		"data_b64":           base64.StdEncoding.EncodeToString(compressed),
 	})
 	return marshalResult(true, "Gradients compressed (zero-copy)", string(data))
+}
+
+func safeIntFromCInt(v C.int) (int, error) {
+	maxInt := int(^uint(0) >> 1)
+	if int64(v) > int64(maxInt) {
+		return 0, fmt.Errorf("c.int value %d exceeds maximum int value %d", v, maxInt)
+	}
+	return int(v), nil
 }
 
 //export BatchVerifyProofs

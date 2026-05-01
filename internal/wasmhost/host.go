@@ -524,6 +524,9 @@ func safeDurationFromMillis(v uint64) (time.Duration, error) {
 
 // safeIntFromUint32 safely converts uint32 to int with bounds checking.
 // Returns an error if the conversion would overflow on the host architecture.
+// On 32-bit systems, int is 32 bits and can safely hold values up to 2^31-1 (signed)
+// On 64-bit systems, int is 64 bits and can safely hold all uint32 values
+// This check ensures we never overflow the signed int range
 func safeIntFromUint32(v uint32) (int, error) {
 	maxInt := int(^uint(0) >> 1)
 	if int64(v) > int64(maxInt) {
