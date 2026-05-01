@@ -937,7 +937,7 @@ func CompressGradientsZeroCopy(gradPtr *C.float, gradLen C.int, format *C.char, 
 func safeIntFromCInt(v C.int) (int, error) {
 	maxInt := int(^uint(0) >> 1)
 	if int64(v) > int64(maxInt) {
-		return 0, fmt.Errorf("C.int value %d exceeds maximum int value %d", v, maxInt)
+		return 0, fmt.Errorf("c.int value %d exceeds maximum int value %d", v, maxInt)
 	}
 	return int(v), nil
 }
