@@ -468,11 +468,10 @@ func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool
 	if maxMillis == 0 {
 		maxMillis = DefaultMaxMillis
 	}
-	maxAllowedMillis := uint64(math.MaxInt64 / int64(time.Millisecond))
-	if maxMillis > maxAllowedMillis {
-		return false, fmt.Errorf("maxMillis %d exceeds supported maximum %d", maxMillis, maxAllowedMillis)
+	deadline, err := safeDurationFromMillis(maxMillis)
+	if err != nil {
+		return false, err
 	}
-	deadline := time.Duration(maxMillis) * time.Millisecond
 	execCtx, cancel := context.WithTimeout(ctx, deadline)
 	defer cancel()
 
@@ -514,6 +513,14 @@ func safeUint64FromInt(v int) (uint64, error) {
 		return 0, fmt.Errorf("negative value %d cannot be converted to uint64", v)
 	}
 	return uint64(v), nil
+}
+
+func safeDurationFromMillis(v uint64) (time.Duration, error) {
+	maxAllowedMillis := uint64(math.MaxInt64) / uint64(time.Millisecond)
+	if v > maxAllowedMillis {
+		return 0, fmt.Errorf("maxMillis %d exceeds supported maximum %d", v, maxAllowedMillis)
+	}
+	return time.Duration(v) * time.Millisecond, nil
 }
 
 // safeIntFromUint32 safely converts uint32 to int with bounds checking.
