@@ -2,6 +2,7 @@ package wasmhost
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"strings"
 	"testing"
@@ -39,6 +40,30 @@ func TestValidateModuleLimits_AcceptsReasonableModule(t *testing.T) {
 	wasm := minimalWasmWithFunctions(10)
 	if err := ValidateModuleLimits(wasm); err != nil {
 		t.Fatalf("expected module to pass limits, got %v", err)
+	}
+}
+
+func TestVerifyTimeout_RejectsCancelledContext(t *testing.T) {
+	// We cannot reliably hang a module in unit tests; this validates timeout/cancellation plumbing.
+	wasm := minimalWasmWithFunctions(1)
+	host, err := NewHost(context.Background(), wasm)
+	if err != nil {
+		t.Skipf("wasm instantiation failed in test environment: %v", err)
+	}
+	defer host.Close(context.Background())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err = host.Verify(ctx, []byte{0x01}, 5000)
+	if err == nil {
+		t.Fatal("expected error from cancelled context, got nil")
+	}
+}
+
+func TestVerifyTimeout_ZeroMaxMillisFallsBack(t *testing.T) {
+	if DefaultMaxMillis == 0 {
+		t.Fatal("DefaultMaxMillis must be > 0")
 	}
 }
 

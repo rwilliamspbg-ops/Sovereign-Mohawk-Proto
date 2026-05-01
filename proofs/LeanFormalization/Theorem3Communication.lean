@@ -55,7 +55,7 @@ theorem theorem3_hierarchical_scale_check (d : Nat) :
   unfold sovereign_mohawk_comm hierarchical_comm_complexity
   rw [if_pos (by norm_num : 1 < 10)]
   have h : Nat.log 10 10_000_000 = 7 := by native_decide
-  simpa [h]
+  simp [h]
 
 /-- Improvement factor: Naive FedAvg is d*n, Hierarchical is d*log(n).
     At 10M scale, per-update depth is logarithmic (7 hops vs n fan-in). -/

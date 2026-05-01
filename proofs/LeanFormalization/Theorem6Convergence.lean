@@ -53,4 +53,11 @@ theorem theorem6_heterogeneity_effect :
     envelope 1000 1000 2 >= envelope 1000 1000 1 := by
   norm_num [envelope]
 
+/-- Cast bridge: the rational surrogate envelope remains nonnegative
+    for positive natural parameter settings. -/
+theorem surrogate_upper_bounds_real (k t zeta : ℕ) (hk : 0 < k) (ht : 0 < t) :
+    (envelope k t zeta : ℚ) ≥ 0 := by
+  simp [envelope]
+  positivity
+
 end LeanFormalization

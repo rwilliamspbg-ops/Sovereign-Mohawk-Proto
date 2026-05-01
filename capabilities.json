@@ -3,7 +3,7 @@
   "runtime": "mohawk-proto-v1",
   "bft_safety_theorem_1": "true",
   "timestamp": "2026-03-14T00:00:00Z",
-  "byzantine_threshold": 0.55,
+  "fl_vote_threshold": 0.55,
   "nodes": [
     {
       "id": "node-001",

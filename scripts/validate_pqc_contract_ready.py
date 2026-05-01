@@ -51,9 +51,14 @@ def validate_bridge_policies(path: Path) -> tuple[bool, str]:
 
 def validate_capabilities(path: Path) -> tuple[bool, str]:
     data = load_json(path)
-    threshold = float(data.get("byzantine_threshold", 1.0))
-    if threshold > 0.555:
-        return False, f"byzantine_threshold exceeds limit: {threshold}"
+    fl_vote = float(data.get("fl_vote_threshold", 0.0))
+    if fl_vote < 0.5:
+        return False, f"fl_vote_threshold {fl_vote} is below 0.5"
+    cc = data.get("cluster_config", {})
+    n = cc.get("node_count", 1)
+    f = cc.get("max_byzantine_nodes", 0)
+    if f / n >= 1 / 3:
+        return False, f"BFT safety violated: f/n = {f / n:.3f}"
     runtime = str(data.get("runtime", "")).strip().lower()
     if "mohawk" not in runtime:
         return False, "capabilities runtime must reference mohawk"
