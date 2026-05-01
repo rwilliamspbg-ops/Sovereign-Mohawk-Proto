@@ -102,10 +102,6 @@ theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : si
   refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩
   positivity
 
-/-- Empirical check: σ=0.5 at α=2 gives ε = 4.0 per step. -/
--- The numerical check is documented in the PR description rather than evaluated
--- inline so this file stays proof-only during CI builds.
-
 /-- Adding a bounded step preserves a bounded global budget. -/
 theorem theorem2_budget_step {current step budget : Nat}
     (h_cur : current <= budget)
