@@ -21,7 +21,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"math"
 	"sync"
 	"time"
 
@@ -41,6 +40,7 @@ const (
 	MaxFunctionLocals    = 1024
 	MaxTotalLocalEntries = 20000
 	DefaultMaxMillis     = 30_000
+	maxMillisForDuration = uint64(9_223_372_036_854)
 )
 
 // Host manages the WebAssembly runtime environment for zk-SNARK verification.
@@ -516,9 +516,8 @@ func safeUint64FromInt(v int) (uint64, error) {
 }
 
 func safeDurationFromMillis(v uint64) (time.Duration, error) {
-	maxAllowedMillis := uint64(math.MaxInt64) / uint64(time.Millisecond)
-	if v > maxAllowedMillis {
-		return 0, fmt.Errorf("maxMillis %d exceeds supported maximum %d", v, maxAllowedMillis)
+	if v > maxMillisForDuration {
+		return 0, fmt.Errorf("maxMillis %d exceeds supported maximum %d", v, maxMillisForDuration)
 	}
 	return time.Duration(v) * time.Millisecond, nil
 }
