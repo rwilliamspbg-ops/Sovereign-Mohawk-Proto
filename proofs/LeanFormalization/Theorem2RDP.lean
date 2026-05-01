@@ -96,6 +96,12 @@ theorem theorem2_rat_monotone_append (xs ys : List ℚ)
         simp only [composeEpsRat]; linarith
   linarith
 
+/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP. -/
+theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : sigma > 0) :
+    ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0 := by
+  refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩
+  positivity
+
 /-- Adding a bounded step preserves a bounded global budget. -/
 theorem theorem2_budget_step {current step budget : Nat}
     (h_cur : current <= budget)

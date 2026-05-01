@@ -12,7 +12,7 @@
     },
     {
       "id": "theorem2_rdp",
-      "status": "surrogate_verified",
+      "status": "surrogate_verified_with_gaussian_axiom",
       "formal_scope": "exact rational and integer additive composition with budget guards",
       "lean_modules": [
         "proofs/LeanFormalization/Theorem2RDP.lean",
@@ -70,7 +70,7 @@
     },
     {
       "id": "theorem6_convergence",
-      "status": "surrogate_verified",
+      "status": "surrogate_verified_with_cast_bridge",
       "formal_scope": "integer and rational convergence envelopes with runtime guard alignment",
       "lean_modules": [
         "proofs/LeanFormalization/Theorem6Convergence.lean",
