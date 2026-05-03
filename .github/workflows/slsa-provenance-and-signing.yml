@@ -49,7 +49,7 @@ jobs:
           echo "Building for release: ${TAG_VERSION}"
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a
         with:
           platforms: linux/amd64,linux/arm64
 
@@ -106,7 +106,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@4959ce089c160fddf62f7b42464195ba1a56d382
+        uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003
         with:
           cosign-release: 'v2.2.0'
 
@@ -323,7 +323,7 @@ jobs:
           path: /tmp/release-artifacts
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@4959ce089c160fddf62f7b42464195ba1a56d382
+        uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003
         with:
           cosign-release: 'v2.2.0'
 
@@ -448,7 +448,7 @@ jobs:
           echo "body=${BODY}" >> $GITHUB_OUTPUT
 
       - name: Publish release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
         with:
           name: "Release ${{ steps.version.outputs.tag }}"
           body: ${{ steps.release-body.outputs.body }}

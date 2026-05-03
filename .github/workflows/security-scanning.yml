@@ -43,7 +43,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy Dockerfile results to GitHub Security
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7
         if: always()
         with:
           sarif_file: 'trivy-dockerfile-results.sarif'
@@ -81,7 +81,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy image results to GitHub Security
-        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
+        uses: github/codeql-action/upload-sarif@e46ed2cbd01164d986452f91f178727624ae40d7
         if: always()
         with:
           sarif_file: 'trivy-image-results.sarif'
