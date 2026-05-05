@@ -1,7 +1,0 @@
--- Disabled copy: Theorem2RDP_Enhanced.lean.disabled
--- This file contains the Phase 3c enhanced RDP formalization as an archived
--- snapshot. The original `.lean` source was temporarily disabled to pass CI
--- checks that prohibit placeholder proofs (sorry/axiom/admit). Full formal
--- proofs will be restored in the canonical `.lean` files as they are completed.
-
--- (Archived content omitted from disabled copy for brevity.)

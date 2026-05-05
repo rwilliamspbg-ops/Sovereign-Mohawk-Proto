@@ -475,8 +475,7 @@ grep -R "\bsorry\b" proofs/LeanFormalization/*.lean && echo "FAIL: Placeholders 
 
 - **Active Proofs**: [proofs/LeanFormalization/Theorem2RDP_Enhanced.lean](proofs/LeanFormalization/Theorem2RDP_Enhanced.lean) (93 lines, 8/8 ✅ proven)
 - **Active Proofs**: [proofs/LeanFormalization/Theorem2AdvancedRDP.lean](proofs/LeanFormalization/Theorem2AdvancedRDP.lean) (23 lines, 2/2 ✅ proven)
-- **Deferred Outlines**: [proofs/LeanFormalization/Theorem2RDP_Enhanced.lean.disabled](proofs/LeanFormalization/Theorem2RDP_Enhanced.lean.disabled) (archived reference)
-- **Deferred Outlines**: [proofs/LeanFormalization/Theorem2AdvancedRDP.lean.disabled](proofs/LeanFormalization/Theorem2AdvancedRDP.lean.disabled) (archived reference)
+- **Phase 3e Exact Specs**: [PHASE_3E_EXACT_LEMMA_SPECIFICATIONS.md](PHASE_3E_EXACT_LEMMA_SPECIFICATIONS.md) (exact theorem signatures and proof strategy)
 - **Detailed Plan**: [DEEPENING_FORMAL_PROOFS_PLAN.md](DEEPENING_FORMAL_PROOFS_PLAN.md) (full mathematical exposition)
 - **Traceability**: [FORMAL_TRACEABILITY_MATRIX.md](FORMAL_TRACEABILITY_MATRIX.md) (mapping theorems to implementations)
 - **Lean Formalization Guide**: [proofs/FORMAL_VERIFICATION_GUIDE.md](proofs/FORMAL_VERIFICATION_GUIDE.md) (architecture & conventions)

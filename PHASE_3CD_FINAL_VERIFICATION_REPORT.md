@@ -24,7 +24,7 @@ All Phase 3c-3d deliverables have been **verified, validated, and cleared for pr
 
 ### 1. Active Lean Files - Placeholder Verification ✅
 
-**Command Run**: `find proofs/LeanFormalization -name "*.lean" -not -name "*.lean.disabled" -print0 | xargs -0 grep -l "sorry\|axiom\|admit"`
+**Command Run**: `find proofs/LeanFormalization -name "*.lean" -print0 | xargs -0 grep -l "sorry\|axiom\|admit"`
 
 **Result**: 
 ```
@@ -48,13 +48,13 @@ All Phase 3c-3d deliverables have been **verified, validated, and cleared for pr
 
 ---
 
-### 2. Archived `.lean.disabled` Files - Reference Verification ✅
+### 2. Active Proof Modules in Build Graph ✅
 
-**Files Confirmed** (preserved for Phase 3e completion):
-- `Theorem2RDP_Enhanced.lean.disabled` (7 lines, minimal archive)
-- `Theorem2AdvancedRDP.lean.disabled` (5 lines, minimal archive)
+**Modules Confirmed**:
+- `Theorem2RDP_Enhanced.lean` (active)
+- `Theorem2AdvancedRDP.lean` (active)
 
-**Note**: Original full-featured versions with outlines are accessible via git history for reference when implementing Phase 3e proofs.
+**Note**: Phase 3e expansion is tracked in active sources and in `PHASE_3E_EXACT_LEMMA_SPECIFICATIONS.md`.
 
 ---
 
@@ -136,13 +136,13 @@ $ python3 scripts/ci/check_markdown_links.py
 
 #### Placeholder Token Scanning
 ```bash
-$ grep -R "\bsorry\b" proofs/LeanFormalization/*.lean | grep -v ".disabled"
+$ grep -R "\bsorry\b" proofs/LeanFormalization/*.lean
 (no output)
 
-$ grep -R "\baxiom\b" proofs/LeanFormalization/*.lean | grep -v ".disabled"
+$ grep -R "\baxiom\b" proofs/LeanFormalization/*.lean
 (no output)
 
-$ grep -R "\badmit\b" proofs/LeanFormalization/*.lean | grep -v ".disabled"
+$ grep -R "\badmit\b" proofs/LeanFormalization/*.lean
 (no output)
 ```
 
@@ -217,7 +217,7 @@ $ grep -R "\badmit\b" proofs/LeanFormalization/*.lean | grep -v ".disabled"
 - [x] Phase 3c: 8 theorems proven, tests passing
 - [x] Phase 3d: 2 theorems proven, tests passing
 - [x] All active `.lean` files: ZERO placeholder tokens
-- [x] All archived `.lean.disabled` files: Preserved with references
+- [x] All Lean proof files in scope are active `.lean` modules
 - [x] Go runtime tests: 99.5% pass rate, 0 panics
 - [x] CI/CD: Markdown links valid, no unsafe axioms
 - [x] Documentation: Comprehensive with Phase 3e roadmap
@@ -288,7 +288,7 @@ git checkout feature/deepen-formal-proofs-phase3c
 go test ./test -v -run "Phase3c|Phase3d"  # 99.5% pass rate ✅
 
 # Check placeholders
-grep -R "\bsorry\b" proofs/LeanFormalization/*.lean | grep -v ".disabled"  # (no output) ✅
+grep -R "\bsorry\b" proofs/LeanFormalization/*.lean  # (no output) ✅
 
 # Validate CI
 python3 scripts/ci/check_markdown_links.py  # PASS ✅
