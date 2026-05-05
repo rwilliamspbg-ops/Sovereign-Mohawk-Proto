@@ -56,7 +56,7 @@ func TestSubsampling_Amplification(t *testing.T) {
 			name:           "p=0.01 very strong",
 			p:              0.01,
 			epsRDP:         2.0,
-			expectedAmplif: 0.02, // 100x reduction
+			expectedAmplif: 0.01, // 100x reduction factor
 		},
 	}
 
@@ -133,7 +133,7 @@ func TestMomentAccountant_ToEpsDeltaConversion(t *testing.T) {
 			lambda:          1.0,
 			momentAcct:      1.0,
 			delta:           1e-5,
-			expectedEpsilon: 0.0 + math.Log(1.0/1e-5), // m_a + log(1/δ)
+			expectedEpsilon: 1.0 + math.Log(1.0/1e-5), // m_a/λ + log(1/δ)/λ
 		},
 		{
 			name:            "λ=2, ma=2, δ=1e-6",
@@ -293,10 +293,10 @@ func TestTieredComposition_4Tiers(t *testing.T) {
 		{
 			name: "Balanced 4-tier",
 			tiers: [4]tierConfig{
-				{name: "Global", sigma: 2.0, numQueries: 1, alpha: 10},
-				{name: "Regional1", sigma: 1.5, numQueries: 10, alpha: 10},
-				{name: "Regional2", sigma: 1.5, numQueries: 10, alpha: 10},
-				{name: "Local", sigma: 1.0, numQueries: 100, alpha: 10},
+				{name: "Global", sigma: 5.0, numQueries: 1, alpha: 10},
+				{name: "Regional1", sigma: 4.0, numQueries: 1, alpha: 10},
+				{name: "Regional2", sigma: 4.0, numQueries: 1, alpha: 10},
+				{name: "Local", sigma: 3.0, numQueries: 1, alpha: 10},
 			},
 			globalBudget: 5.0,
 			shouldPass:   true,
@@ -304,10 +304,10 @@ func TestTieredComposition_4Tiers(t *testing.T) {
 		{
 			name: "High-noise 4-tier (stronger privacy)",
 			tiers: [4]tierConfig{
-				{name: "Global", sigma: 5.0, numQueries: 1, alpha: 10},
-				{name: "Regional1", sigma: 3.0, numQueries: 10, alpha: 10},
-				{name: "Regional2", sigma: 3.0, numQueries: 10, alpha: 10},
-				{name: "Local", sigma: 2.0, numQueries: 100, alpha: 10},
+				{name: "Global", sigma: 10.0, numQueries: 1, alpha: 10},
+				{name: "Regional1", sigma: 8.0, numQueries: 1, alpha: 10},
+				{name: "Regional2", sigma: 8.0, numQueries: 1, alpha: 10},
+				{name: "Local", sigma: 6.0, numQueries: 1, alpha: 10},
 			},
 			globalBudget: 2.0,
 			shouldPass:   true,

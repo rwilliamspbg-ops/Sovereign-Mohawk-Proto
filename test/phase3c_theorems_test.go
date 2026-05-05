@@ -166,7 +166,7 @@ func TestGaussianRDP_BoundFormula(t *testing.T) {
 			name:      "alpha=10, sigma=0.5",
 			alpha:     10.0,
 			sigma:     0.5,
-			wantBound: 40.0, // 10 / (2*0.25) = 40
+			wantBound: 20.0, // 10 / (2*0.25) = 20
 		},
 		{
 			name:      "alpha=5, sigma=2",
