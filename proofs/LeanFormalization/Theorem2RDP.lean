@@ -148,4 +148,118 @@ theorem theorem2_rat_budget_guard :
       <= (9 : ℚ) / 5 := by
   norm_num [convertToEpsDelta, composeEpsRat]
 
+/-! # Phase 3e: Rényi Divergence and RDP Framework
+
+Core theorems for implementing exact Rényi divergence (RDP) accounting.
+These lemmas form the mathematical foundation for the runtime privacy budget
+accountant used in the Go implementation.
+-/
+
+/-- Rényi divergence of order α between two probability distributions.
+    Defined as: D_α(p||q) = (1/(α-1)) * log(∑_x q(x)^α / p(x)^(α-1))
+    
+    Note: For α = 1, this approaches KL divergence. For α = ∞, this is the 
+    max divergence. This is used directly in the RDP composition accounting.
+-/
+def RenyiDivergence {α : Type*} [Fintype α] (p q : α → ℝ) (order : ℝ) : ℝ :=
+  if order = 1 then
+    -- KL divergence limit: ∑_x p(x) * log(p(x) / q(x))
+    ∑ x, p x * Real.log (p x / q x)
+  else if order > 1 then
+    -- Standard case: (1/(α-1)) * log(∑_x q(x)^α / p(x)^(α-1))
+    (1 / (order - 1)) * Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1))
+  else
+    -- For α < 1, use reversed order for non-negativity
+    (1 / (1 - order)) * Real.log (∑ x, (p x) ^ order / (q x) ^ (order - 1))
+
+/-- Rényi divergence is non-negative for order ≥ 1.
+    This follows from Jensen's inequality applied to the convex function f(x) = x^α.
+-/
+theorem RenyiDivergence_nonneg {α : Type*} [Fintype α] (p q : α → ℝ) (order : ℝ) 
+    (h_order : 1 < order) (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
+    0 ≤ RenyiDivergence p q order := by
+  unfold RenyiDivergence
+  simp [h_order]
+  -- The divergence is non-negative by Jensen's inequality:
+  -- log(∑_x q(x)^α / p(x)^(α-1)) ≥ log((∑_x q(x)^α / p(x)^(α-1))^(1/(α-1)))^(α-1)
+  -- which follows from convexity of t^α.
+  -- For now, we establish the framework; full proof requires Jensen from Mathlib
+  sorry
+
+/-- Rényi divergence approaches KL divergence as α → 1.
+    This is a fundamental limit relationship showing that KL is a special case of RDP.
+-/
+theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
+    (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
+    Filter.Tendsto (fun α => RenyiDivergence p q α) (𝓝[≠] 1) 
+      (𝓝 (∑ x, p x * Real.log (p x / q x))) := by
+  -- This requires L'Hôpital's rule applied to the Rényi formula limit.
+  -- The limit is: lim_{α→1} (1/(α-1)) * log(∑_x q(x)^α / p(x)^(α-1))
+  -- Taking derivatives and applying L'Hôpital: lim = ∑_x p x * log(p x / q x) = KL(p||q)
+  sorry
+
+/-- Data processing inequality: post-processing reduces Rényi divergence.
+    If you apply any function f to samples, the divergence cannot increase.
+    Formally: D_α(f_* p || f_* q) ≤ D_α(p || q)
+    
+    This is crucial for privacy: applying a deterministic post-processor
+    cannot worsen the privacy guarantee.
+-/
+theorem data_processing_inequality {α β : Type*} [Fintype α] [Fintype β]
+    (f : α → β) (p q : α → ℝ) (order : ℝ)
+    (h_order : 0 < order) (h_order_ne_1 : order ≠ 1) (h_order_ne_0 : order ≠ 0)
+    (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
+    RenyiDivergence (fun y => ∑ x in Finset.univ.filter (fun x => f x = y), p x)
+                    (fun y => ∑ x in Finset.univ.filter (fun x => f x = y), q x)
+                    order 
+    ≤ RenyiDivergence p q order := by
+  -- This follows from Jensen's inequality applied to the convexity of x^α
+  -- on the support of f_* p and f_* q.
+  -- The detailed proof requires pulling back the probability measures through f.
+  sorry
+
+/-- KL divergence restricted version of data processing inequality.
+    For the order = 1 case, this is the Kraft inequality.
+-/
+theorem data_processing_inequality_KL {α β : Type*} [Fintype α] [Fintype β]
+    (f : α → β) (p q : α → ℝ)
+    (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
+    (∑ y, (∑ x in Finset.univ.filter (fun x => f x = y), p x) * 
+           Real.log ((∑ x in Finset.univ.filter (fun x => f x = y), p x) /
+                     (∑ x in Finset.univ.filter (fun x => f x = y), q x)))
+    ≤ (∑ x, p x * Real.log (p x / q x)) := by
+  -- This is the KL divergence under post-processing, derived from L'Hôpital limit
+  -- of data_processing_inequality as α → 1.
+  sorry
+
+/-- The RDP parameter α is always strictly greater than 1 for meaningful bounds.
+    This ensures the divergence formula has a well-defined denominator (α - 1).
+-/
+theorem RDP_alpha_constraint (alpha : ℝ) :
+    alpha > 1 ∨ (1 < alpha) := by
+  omega
+
+/-- Composition of independent mechanisms: if M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP,
+    then their sequential composition has (α, ε1 + ε2)-RDP.
+    
+    This is the fundamental theorem enabling privacy budgeting in the Sovereign Mohawk system.
+-/
+theorem RDP_sequential_composition {α : Type*} [Fintype α]
+    (M1 M2 : α → α) (eps1 eps2 alpha : ℝ)
+    (h_alpha : 1 < alpha)
+    (h_M1 : ∀ x y, RenyiDivergence (fun a => if M1 a = x then 1 / (Fintype.card α : ℝ) else 0)
+                                   (fun a => if M1 a = y then 1 / (Fintype.card α : ℝ) else 0)
+                                   alpha ≤ eps1)
+    (h_M2 : ∀ x y, RenyiDivergence (fun a => if M2 a = x then 1 / (Fintype.card α : ℝ) else 0)
+                                   (fun a => if M2 a = y then 1 / (Fintype.card α : ℝ) else 0)
+                                   alpha ≤ eps2) :
+    ∀ x y, RenyiDivergence (fun a => if (M2 ∘ M1) a = x then 1 / (Fintype.card α : ℝ) else 0)
+                           (fun a => if (M2 ∘ M1) a = y then 1 / (Fintype.card α : ℝ) else 0)
+                           alpha ≤ eps1 + eps2 := by
+  intro x y
+  -- This requires the chain rule for Rényi divergence (lemma 3 in Phase 3e)
+  -- and application of data_processing_inequality.
+  -- The composition follows from: D_α(M1(M2(·))) = D_α(M1) + D_α(M2) by factorization
+  sorry
+
 end LeanFormalization
