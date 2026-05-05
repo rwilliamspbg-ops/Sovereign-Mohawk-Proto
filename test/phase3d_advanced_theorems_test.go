@@ -30,9 +30,9 @@ import (
 func TestSubsampling_Amplification(t *testing.T) {
 	tests := []struct {
 		name           string
-		p              float64      // Sampling probability
-		epsRDP         float64      // Original RDP epsilon
-		expectedAmplif float64      // Expected amplification factor
+		p              float64 // Sampling probability
+		epsRDP         float64 // Original RDP epsilon
+		expectedAmplif float64 // Expected amplification factor
 	}{
 		{
 			name:           "p=0.5 reduces bound by ~2x",
@@ -81,10 +81,10 @@ func TestSubsampling_Amplification(t *testing.T) {
 // Property: p1 < p2 ⟹ eps_sub(p1) ≤ eps_sub(p2)
 func TestSubsample_MonotonicityInParticipation(t *testing.T) {
 	tests := []struct {
-		name     string
-		pLow     float64
-		pHigh    float64
-		epsRDP   float64
+		name   string
+		pLow   float64
+		pHigh  float64
+		epsRDP float64
 	}{
 		{
 			name:   "0.1 vs 0.5",
@@ -171,7 +171,7 @@ func TestMomentAccountant_ToEpsDeltaConversion(t *testing.T) {
 func TestMomentAccountant_VsRDPComparison(t *testing.T) {
 	// In low-privacy regime (ε < 1), moment accountant can yield tighter bounds
 	// This is a known result from privacy accounting literature
-	epsRDP := 0.5  // Low privacy epsilon
+	epsRDP := 0.5 // Low privacy epsilon
 	delta := 1e-5
 	alphaRDP := 10.0
 
@@ -195,7 +195,8 @@ func TestMomentAccountant_VsRDPComparison(t *testing.T) {
 
 // TestOptimalAlpha_Selection validates optimal α minimizes conversion cost
 // Theorem: ∃ α* ∈ (1, ∞), ∀ α ∈ (1, ∞):
-//          eps_dp(α*) ≤ eps_dp(α)
+//
+//	eps_dp(α*) ≤ eps_dp(α)
 func TestOptimalAlpha_Selection(t *testing.T) {
 	epsRDP := 1.0
 	delta := 1e-5
@@ -284,10 +285,10 @@ func TestTieredComposition_4Tiers(t *testing.T) {
 	}
 
 	tests := []struct {
-		name             string
-		tiers            [4]tierConfig
-		globalBudget     float64
-		shouldPass       bool // Composition ≤ budget?
+		name         string
+		tiers        [4]tierConfig
+		globalBudget float64
+		shouldPass   bool // Composition ≤ budget?
 	}{
 		{
 			name: "Balanced 4-tier",
@@ -353,11 +354,11 @@ func TestTieredComposition_4Tiers(t *testing.T) {
 // Theorem: k rounds × ε_per_round ≤ total_budget
 func TestFederatedLearning_KRounds(t *testing.T) {
 	tests := []struct {
-		name           string
-		numRounds      int
-		epsPerRound    float64
-		totalBudget    float64
-		shouldPass     bool
+		name        string
+		numRounds   int
+		epsPerRound float64
+		totalBudget float64
+		shouldPass  bool
 	}{
 		{
 			name:        "10 rounds × 0.1 = 1.0",
@@ -430,15 +431,15 @@ func TestKRoundsOptimalAllocation(t *testing.T) {
 // TestPhase3d_FullAdvancedScenario tests all Phase 3d features in concert
 func TestPhase3d_FullAdvancedScenario(t *testing.T) {
 	const (
-		numRounds        = 10
-		globalBudget     = 2.0
-		delta            = 1e-5
-		samplingProb     = 0.5 // Subsampling rate
-		alphaOptimal     = 15.0
-		sigmaTier0       = 2.0
-		sigmaTier1       = 1.5
-		sigmaTier2       = 1.5
-		sigmaTier3       = 1.0
+		numRounds    = 10
+		globalBudget = 2.0
+		delta        = 1e-5
+		samplingProb = 0.5 // Subsampling rate
+		alphaOptimal = 15.0
+		sigmaTier0   = 2.0
+		sigmaTier1   = 1.5
+		sigmaTier2   = 1.5
+		sigmaTier3   = 1.0
 	)
 
 	// Scenario: 10-round federated learning with subsampling, 4-tier noise

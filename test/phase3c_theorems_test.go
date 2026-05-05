@@ -10,11 +10,11 @@ import (
 
 /**
  * Phase 3c: Strengthen RDP Proofs - Comprehensive Test Suite
- * 
+ *
  * These tests validate the formalized theorems from Theorem2RDP_Enhanced.lean:
  * - Sequential composition additivity
  * - Rational composition on List ℚ
- * - Gaussian mechanism RDP bounds  
+ * - Gaussian mechanism RDP bounds
  * - Conversion monotonicity
  * - Privacy budget tracking
  *
@@ -200,7 +200,7 @@ func TestGaussianRDP_BoundFormula(t *testing.T) {
 func TestGaussianRDP_RecordInRuntimeAccountant(t *testing.T) {
 	acc := internal.NewRDPAccountant(100.0, 1e-5) // Large budget
 	sigma := 1.0
-	expectedEps := 10.0 / (2.0 * sigma * sigma)  // alpha=10, so ε = 10 / (2*σ²)
+	expectedEps := 10.0 / (2.0 * sigma * sigma) // alpha=10, so ε = 10 / (2*σ²)
 
 	if err := acc.RecordGaussianStepRDP(sigma); err != nil {
 		t.Fatalf("RecordGaussianStepRDP failed: %v", err)
@@ -221,7 +221,7 @@ func TestGaussianRDP_RecordInRuntimeAccountant(t *testing.T) {
 // TestConversion_Monotone validates convertToEpsDelta monotonicity
 // Theorem: eps1 ≤ eps2 ⟹ convertToEpsDelta(α, eps1, logδ) ≤ convertToEpsDelta(α, eps2, logδ)
 func TestConversion_Monotone(t *testing.T) {
-	alpha := big.NewRat(10, 1)      // α = 10
+	alpha := big.NewRat(10, 1)           // α = 10
 	logOneOverDelta := big.NewRat(10, 1) // log(1/δ) ≈ 10
 
 	tests := []struct {
@@ -253,8 +253,8 @@ func TestConversion_Monotone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Simulate convertToEpsDelta: ε_rdp + log(1/δ) / (α - 1)
-			conv1 := new(big.Rat).Add(tt.eps1, 
-				new(big.Rat).Quo(logOneOverDelta, 
+			conv1 := new(big.Rat).Add(tt.eps1,
+				new(big.Rat).Quo(logOneOverDelta,
 					new(big.Rat).Sub(alpha, big.NewRat(1, 1))))
 			conv2 := new(big.Rat).Add(tt.eps2,
 				new(big.Rat).Quo(logOneOverDelta,
@@ -277,28 +277,28 @@ func TestConversion_Monotone(t *testing.T) {
 // Tied to: DEEPENING_FORMAL_PROOFS_PLAN.md Phase 4
 func TestFourTier_BudgetAllocation(t *testing.T) {
 	tests := []struct {
-		name              string
-		budgetTiers       []*big.Rat
-		configuredBudget  *big.Rat
-		shouldPass        bool
+		name             string
+		budgetTiers      []*big.Rat
+		configuredBudget *big.Rat
+		shouldPass       bool
 	}{
 		{
-			name:        "Simple 4-tier",
-			budgetTiers: []*big.Rat{big.NewRat(1, 100), big.NewRat(1, 100), big.NewRat(1, 100), big.NewRat(1, 100)},
+			name:             "Simple 4-tier",
+			budgetTiers:      []*big.Rat{big.NewRat(1, 100), big.NewRat(1, 100), big.NewRat(1, 100), big.NewRat(1, 100)},
 			configuredBudget: big.NewRat(1, 10), // 0.1, sum is 0.04, well under
-			shouldPass: true,
+			shouldPass:       true,
 		},
 		{
-			name:        "4-tier at boundary",
-			budgetTiers: []*big.Rat{big.NewRat(1, 10), big.NewRat(1, 10), big.NewRat(1, 10), big.NewRat(1, 10)},
+			name:             "4-tier at boundary",
+			budgetTiers:      []*big.Rat{big.NewRat(1, 10), big.NewRat(1, 10), big.NewRat(1, 10), big.NewRat(1, 10)},
 			configuredBudget: big.NewRat(4, 10), // 0.4, sum is 0.4, exactly at limit
-			shouldPass: true,
+			shouldPass:       true,
 		},
 		{
-			name:        "4-tier over budget",
-			budgetTiers: []*big.Rat{big.NewRat(1, 5), big.NewRat(1, 5), big.NewRat(1, 5), big.NewRat(1, 5)},
+			name:             "4-tier over budget",
+			budgetTiers:      []*big.Rat{big.NewRat(1, 5), big.NewRat(1, 5), big.NewRat(1, 5), big.NewRat(1, 5)},
 			configuredBudget: big.NewRat(3, 5), // 0.6, sum is 0.8, over limit
-			shouldPass: false,
+			shouldPass:       false,
 		},
 	}
 
@@ -385,11 +385,11 @@ func composeEpsRat(xs []*big.Rat) *big.Rat {
 // Validates: All Phase 3c theorems work together in realistic setting
 func TestPhase3c_FullScenario(t *testing.T) {
 	const (
-		alphaOrder         = 10.0
-		targetBudget       = 2.0
-		targetDelta        = 1e-5
-		numRounds          = 10
-		numQueries         = 100
+		alphaOrder   = 10.0
+		targetBudget = 2.0
+		targetDelta  = 1e-5
+		numRounds    = 10
+		numQueries   = 100
 	)
 
 	// Initialize accountant
@@ -415,7 +415,7 @@ func TestPhase3c_FullScenario(t *testing.T) {
 
 	// Final validation
 	currentEps := acc.GetCurrentEpsilon()
-	if currentEps > targetBudget * 10 { // Allow some slack for conversion
+	if currentEps > targetBudget*10 { // Allow some slack for conversion
 		t.Logf("Warning: Current epsilon (%.6f) exceeds configured budget (%.6f)",
 			currentEps, targetBudget)
 	}
