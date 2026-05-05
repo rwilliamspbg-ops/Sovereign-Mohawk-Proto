@@ -32,6 +32,11 @@ def MomentBound (eps : ℝ) (k : ℕ) : ℝ :=
     
     This is Chernoff bound applied to the privacy loss: using our moment bounds,
     we can ensure (ε, δ)-DP by choosing ε from the moment accountant equation.
+    
+    PHASE 3f note: This is a direct application of Chernoff bounds to privacy loss.
+    The full proof requires Mathlib.Probability.Tail which is in Mathlib but requires
+    setting up the probability space infrastructure. For Phase 3f validation,
+    we provide the mathematical statement and conceptual framework.
 -/
 theorem moment_accountant_concentration (k : ℕ) (eps delta : ℝ) (n : ℕ)
     (h_k : 0 < k)
@@ -42,7 +47,7 @@ theorem moment_accountant_concentration (k : ℕ) (eps delta : ℝ) (n : ℕ)
     -- This uses: P[exp(k · sum L_i) > exp(k · n·ε)] ≤ δ
     let dp_eps := (moment_bound / (k : ℝ)) + Real.log (1 / delta) / (k : ℝ)
     dp_eps ≤ eps := by
-  sorry
+  sorry -- Phase 3e Extended: Requires Chernoff bound from probability theory
 
 /-- Optimal k selection: for Gaussian with RDP order alpha,
     optimal k ≈ log(1/delta) / log(alpha) minimizes the DP epsilon bound.
@@ -94,7 +99,16 @@ theorem dp_privacy_guarantee (n : ℕ) (Δ sigma delta : ℝ)
     let dp_eps := compute_dp_budget n Δ sigma log_delta
     0 ≤ dp_eps := by
   unfold compute_dp_budget
-  simp
-  sorry
+  simp only []
+  have h1 : 0 ≤ (Real.sqrt 2 * Δ) / sigma := by
+    apply div_nonneg
+    · positivity
+    · exact (h_sigma).le
+  have h2 : 0 ≤ -Real.log delta / (n : ℝ) := by
+    have : Real.log delta < 0 := Real.log_neg h_delta h_delta_lt_1
+    apply div_nonneg
+    · linarith
+    · exact (Nat.cast_nonneg n)
+  linarith
 
 end LeanFormalization.MomentAccountant
