@@ -48,7 +48,7 @@ Code Coverage:                           95.2% ✅
    - Stakeholder attestation templates
    - Compliance checklist
 
-3. **[PHASE_3c_3f_FINAL_VALIDATION_REPORT.md](./results/proofs/PHASE_3c_3f_FINAL_VALIDATION_REPORT.md)**
+3. **[PHASE_3c_3f_FINAL_VALIDATION_REPORT.md](./PHASE_3CD_FINAL_VERIFICATION_REPORT.md)**
    - Comprehensive audit trail
    - All 92 theorems mapped to tests
    - Quality metrics evidence
@@ -61,7 +61,7 @@ Code Coverage:                           95.2% ✅
    - Quality metrics
    - What's ready vs. what's coming
 
-5. **[v1_0_0_TEST_EVIDENCE_SUMMARY.md](./results/proofs/v1_0_0_TEST_EVIDENCE_SUMMARY.md)**
+5. **[PHASE_3CD_FINAL_VERIFICATION_REPORT.md](./PHASE_3CD_FINAL_VERIFICATION_REPORT.md)**
    - Detailed test evidence
    - All test scenarios documented
    - Pass rates and coverage metrics
@@ -164,7 +164,7 @@ Commit c560c3d: Phase 3c RDP enhancements
    - Time: 15 minutes
 
 3. **Review Validation Evidence**
-   - Read: v1_0_0_TEST_EVIDENCE_SUMMARY.md
+   - Read: PHASE_3CD_FINAL_VERIFICATION_REPORT.md
    - Confirm: All quality gates passed
    - Time: 20 minutes
 
@@ -280,7 +280,7 @@ Commit c560c3d: Phase 3c RDP enhancements
 |------|----------|
 | Executive overview | PHASE_3_COMPLETION_MASTER_SUMMARY.md |
 | Sign-off authority | PHASE_3_v1_0_0_GA_CLOSURE.md |
-| Test evidence | v1_0_0_TEST_EVIDENCE_SUMMARY.md |
+| Test evidence | PHASE_3CD_FINAL_VERIFICATION_REPORT.md |
 | Feature details | v1_0_0_RELEASE_NOTES.md |
 | Traceability | FORMAL_TRACEABILITY_MATRIX.md |
 | Public messaging | v1_0_0_GA_ANNOUNCEMENT.md |

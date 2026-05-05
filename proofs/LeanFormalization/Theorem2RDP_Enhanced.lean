@@ -11,7 +11,9 @@ that are used directly by runtime tests and the Go accountant.
 
 /-- Two databases are adjacent if they differ by exactly one record. -/
 def isAdjacent (d1 d2 : List ℚ) : Prop :=
-  d1.length = d2.length ∧ ∃ i, i < d1.length ∧ d1.get i ≠ d2.get i
+  d1.length = d2.length ∧
+    ∃ i : Nat, ∃ hi1 : i < d1.length, ∃ hi2 : i < d2.length,
+      d1.get ⟨i, hi1⟩ ≠ d2.get ⟨i, hi2⟩
 
 /-- Exact rational composition ledger used for runtime accounting. -/
 def composeEpsRat : List ℚ → ℚ
@@ -35,7 +37,7 @@ theorem theorem2_rat_composition_append (xs ys : List ℚ) :
     simp [composeEpsRat, List.cons_append]
     calc
       x + (composeEpsRat (xs ++ ys)) = x + (composeEpsRat xs + composeEpsRat ys) := by rw [ih]
-      _ = x + composeEpsRat xs + composeEpsRat ys := by ring
+      _ = x + composeEpsRat xs + composeEpsRat ys := by simp [add_assoc]
 
 /-- Monotonicity when appending nonnegative steps. -/
 theorem theorem2_rat_monotone_append
@@ -57,7 +59,7 @@ theorem theorem2_rat_monotone_append
 /-- Conversion monotonicity: increasing eps_rdp increases ε. -/
 theorem theorem2_conversion_monotone
     {alpha logOneOverDelta eps1 eps2 : ℚ}
-    (h_alpha : 1 < alpha)
+    (_h_alpha : 1 < alpha)
     (h_eps : eps1 ≤ eps2) :
   convertToEpsDelta alpha eps1 logOneOverDelta ≤
     convertToEpsDelta alpha eps2 logOneOverDelta := by
@@ -69,12 +71,10 @@ def fourTierBudgetExample : List ℚ := [ (10 : ℚ) / 100, (5 : ℚ) / 100, (3 
 
 theorem theorem2_four_tier_total :
   composeEpsRat fourTierBudgetExample = (20 : ℚ) / 100 := by
-  simp [composeEpsRat, fourTierBudgetExample]
+  norm_num [composeEpsRat, fourTierBudgetExample]
 
 theorem theorem2_four_tier_budgets_safe :
   composeEpsRat fourTierBudgetExample ≤ (2 : ℚ) := by
-  have : composeEpsRat fourTierBudgetExample = (20 : ℚ) / 100 := by simp [composeEpsRat, fourTierBudgetExample]
-  rw [this]
-  norm_num
+  norm_num [composeEpsRat, fourTierBudgetExample]
 
 end LeanFormalization
