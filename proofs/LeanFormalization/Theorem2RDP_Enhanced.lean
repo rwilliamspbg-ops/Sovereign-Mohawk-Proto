@@ -191,7 +191,8 @@ def composeEpsRat : List ℚ → ℚ
 def convertToEpsDelta (alpha epsRdp logOneOverDelta : ℚ) : ℚ :=
   epsRdp + (logOneOverDelta / (alpha - 1))
 
-/-- Theorem: Conversion is monotone in cumulative RDP epsilon. -/
+/-- Theorem: Conversion is monotone in cumulative RDP epsilon. 
+    Higher cumulative RDP epsilon → higher (ε,δ)-DP epsilon (monotonic). -/
 theorem theorem2_conversion_monotone
     {alpha logOneOverDelta eps1 eps2 : ℚ}
     (h_alpha : 1 < alpha)
@@ -199,7 +200,8 @@ theorem theorem2_conversion_monotone
     convertToEpsDelta alpha eps1 logOneOverDelta ≤
       convertToEpsDelta alpha eps2 logOneOverDelta := by
   unfold convertToEpsDelta
-  linarith
+  -- Proof: eps1 + log(1/δ)/(α-1) ≤ eps2 + log(1/δ)/(α-1) follows from eps1 ≤ eps2
+  linarith  -- Linear arithmetic: addition and inequality preservation
 
 /-- Theorem: Higher Rényi orders yield tighter (smaller) RDP bounds.
     This justifies searching for optimal α to minimize (ε, δ)-DP conversion cost.
