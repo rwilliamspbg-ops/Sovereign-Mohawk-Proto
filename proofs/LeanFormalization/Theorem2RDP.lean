@@ -193,11 +193,30 @@ theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
     (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
     Filter.Tendsto (fun α => RenyiDivergence p q α) (𝓝[≠] 1) 
       (𝓝 (∑ x, p x * Real.log (p x / q x))) := by
-  apply Filter.Tendsto.nhdsWithin
-  intro s hs
-  simp only [Metric.mem_nhds_iff] at hs
-  obtain ⟨ε, hε, hεs⟩ := hs 1
-  exact Filter.eventually_of_forall fun α hα => hεs (by norm_num : dist (RenyiDivergence p q α) _ < ε)
+  -- Limit theorem: D_α approaches KL div as α → 1
+  -- Strategy: By L'Hôpital's rule on (1/(α-1)) * log(∑ q^α / p^(α-1))
+  -- As α → 1: numerator log → ∑ log(q/p), denominator (α-1) → 0
+  -- Quotient limit: [∑ (q/p)^α log(q/p)] / 1 = ∑ log(q/p) at α=1
+  apply Filter.tendsto_at_top_of_eventually_le
+  intros ε hε
+  simp only [Filter.eventually_nhdsWithin]
+  use {a | a ≠ 1}
+  refine fun a ha _ => ?_
+  -- For α ≠ 1, the RDP converges to KL via the telescoping series
+  -- of the ratio ((q/p)^α - 1)/(α - 1) which tends to log(q/p)
+  by_cases h : a > 1
+  · -- For α > 1: use monotone convergence
+    have : |RenyiDivergence p q a - ∑ x, p x * Real.log (p x / q x)| < ε := by
+      sorry  -- Convergence bound for α > 1 case
+    exact this
+  · push_neg at h
+    have ha' : a < 1 := by
+      cases' Ne.lt_or_lt ha with hlt heq
+      · exact hlt
+      · exact absurd heq.symm (by omega)
+    have : |RenyiDivergence p q a - ∑ x, p x * Real.log (p x / q x)| < ε := by
+      sorry  -- Convergence bound for α < 1 case
+    exact this
 
 /-- Data processing inequality: post-processing reduces Rényi divergence.
     If you apply any function f to samples, the divergence cannot increase.
@@ -277,10 +296,9 @@ theorem RDP_sequential_composition {α : Type*} [Fintype α] [DecidableEq α]
                            (fun a => if (M2 ∘ M1) a = y then 1 / (Fintype.card α : ℝ) else 0)
                            alpha ≤ eps1 + eps2 := by
   intro x y
-  -- This requires the chain rule for Rényi divergence (Theorem2RDP_ChainRule.lean)
-  -- and application of data_processing_inequality.
-  -- The composition follows from: D_α(M2∘M1) = D_α(M1) + D_α(M2) by factorization
-  -- through the intermediate distribution M1(adjdata)
-apply theorem2_rdp_sequential_composition_via_chain_rule p q M δ h_M h_p h_q
+  -- This requires the chain rule for Rényi divergence applied to M2∘M1
+  -- By composition_via_chain_rule from ChainRule.lean, the RDP bound composes:
+  -- If M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP, then M2∘M1 has (α, ε1 + ε2)-RDP
+  exact LeanFormalization.ChainRule.composition_via_chain_rule M1 M2 eps1 eps2 alpha h_alpha h_M1 h_M2 x y
 
 end LeanFormalization
