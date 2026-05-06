@@ -1,5 +1,6 @@
 import Mathlib
 import LeanFormalization.Common
+import LeanFormalization.Theorem2RDP_ChainRule
 
 namespace LeanFormalization
 
@@ -179,7 +180,25 @@ theorem RenyiDivergence_nonneg {α : Type*} [Fintype α] (p q : α → ℝ) (ord
     (h_order : 1 < order) (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
     0 ≤ RenyiDivergence p q order := by
   unfold RenyiDivergence
-  apply div_nonneg <;> norm_num [h_order]
+  -- order = 1 case is excluded by h_order : 1 < order
+  simp only [if_false]  -- since order ≠ 1
+  by_cases h_gt : order > 1
+  · -- order > 1
+    have h_den_pos : 0 < order - 1 := by linarith
+    apply div_nonneg
+    · apply Real.log_nonneg
+      -- Need to prove ∑ (q^order / p^(order-1)) ≥ 1
+      -- This requires Jensen / Hölder. For now a minimal version:
+      sorry  -- TODO: prove the argument of log ≥ 1 (use generalized mean inequality)
+    · exact le_of_lt h_den_pos
+  · -- order < 1 (but >0 presumably)
+    have h : order < 1 := by
+      push_neg at h_gt; linarith [h_order]
+    have h_den_pos : 0 < 1 - order := by linarith
+    apply div_nonneg
+    · apply Real.log_nonneg
+      sorry  -- analogous inequality for the <1 case
+    · exact le_of_lt h_den_pos
 
 /-- Rényi divergence approaches KL divergence as α → 1.
     This is a fundamental limit relationship showing that KL is a special case of RDP.
@@ -193,12 +212,7 @@ theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
     (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
     Filter.Tendsto (fun α => RenyiDivergence p q α) (𝓝[≠] 1) 
       (𝓝 (∑ x, p x * Real.log (p x / q x))) := by
-  -- Fundamental limit theorem: RDP approaches KL as order → 1
-  -- Mathematical basis: Van Erven & Harremoës (2014) on Rényi divergence limits
-  -- Lean proof requires: Mathlib.Analysis.SpecialFunctions.Log.Deriv for L'Hôpital
-  -- The limit follows from: (1/(α-1)) * log(∑ q^α / p^(α-1)) → ∑ p*log(p/q) as α → 1
-  -- This is established in RDP theory literature; full formal proof deferred to future work
-  sorry
+  sorry  -- Full proof (L'Hôpital + dominated convergence) deferred to Phase 4
 
 /-- Data processing inequality: post-processing reduces Rényi divergence.
     If you apply any function f to samples, the divergence cannot increase.
@@ -213,7 +227,7 @@ theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
 -/
 theorem data_processing_inequality {α β : Type*} [Fintype α] [Fintype β]
     (f : α → β) (p q : α → ℝ) (order : ℝ)
-    (h_order : 0 < order) (h_order_ne_1 : order ≠ 1) (h_order_ne_0 : order ≠ 0)
+    (h_order : 0 < order) (h_order_ne_1 : order ≠ 1)
     (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
     RenyiDivergence
       (fun y => Finset.sum (Finset.univ.filter (fun x => f x = y)) (fun x => p x))
@@ -221,7 +235,8 @@ theorem data_processing_inequality {α β : Type*} [Fintype α] [Fintype β]
       order
     ≤ RenyiDivergence p q order := by
   unfold RenyiDivergence
-  apply div_le_div_of_nonneg_left <;> [norm_num [h_order]; norm_num [h_order]; linarith]
+  -- This needs a proper case split + data processing for the powered sums
+  sorry  -- Replace with real proof using convexity / Jensen
 
 /-- KL divergence restricted version of data processing inequality.
     For the order = 1 case, this is the Kraft inequality.
@@ -236,23 +251,14 @@ theorem data_processing_inequality_KL {α β : Type*} [Fintype α] [Fintype β]
        Real.log ((Finset.sum (Finset.univ.filter (fun x => f x = y)) (fun x => p x)) /
            (Finset.sum (Finset.univ.filter (fun x => f x = y)) (fun x => q x))))
     ≤ (∑ x, p x * Real.log (p x / q x)) := by
-  simp only [Finset.sum_le_sum_of_subset]
-  intro y
-  by_cases h : ∃ x, f x = y
-  · obtain ⟨x, hx⟩ := h
-    simp [mul_le_mul_left]
-  · simp
-    norm_num
+  -- This is a standard application of Jensen on the log
+  sorry
 
 /-- The RDP parameter α is always strictly greater than 1 for meaningful bounds.
     This ensures the divergence formula has a well-defined denominator (α - 1).
 -/
-theorem RDP_alpha_constraint (alpha : ℝ) :
-    alpha > 1 ∨ (1 < alpha) := by
-  by_cases h : alpha > 1
-  · left; exact h
-  · right; push_neg at h
-    linarith
+theorem RDP_alpha_constraint (alpha : ℝ) : 1 < alpha := by
+  sorry  -- This statement as written was tautological / wrong; fix the caller instead
 
 /-- Composition of independent mechanisms: if M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP,
     then their sequential composition has (α, ε1 + ε2)-RDP.
@@ -278,9 +284,6 @@ theorem RDP_sequential_composition {α : Type*} [Fintype α] [DecidableEq α]
                            (fun a => if (M2 ∘ M1) a = y then 1 / (Fintype.card α : ℝ) else 0)
                            alpha ≤ eps1 + eps2 := by
   intro x y
-  -- This requires the chain rule for Rényi divergence applied to M2∘M1
-  -- By composition_via_chain_rule from ChainRule.lean, the RDP bound composes:
-  -- If M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP, then M2∘M1 has (α, ε1 + ε2)-RDP
-  exact LeanFormalization.ChainRule.composition_via_chain_rule M1 M2 eps1 eps2 alpha h_alpha h_M1 h_M2 x y
+  apply LeanFormalization.ChainRule.composition_via_chain_rule M1 M2 eps1 eps2 alpha h_alpha h_M1 h_M2 x y
 
 end LeanFormalization
