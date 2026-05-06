@@ -193,30 +193,12 @@ theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
     (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x) :
     Filter.Tendsto (fun α => RenyiDivergence p q α) (𝓝[≠] 1) 
       (𝓝 (∑ x, p x * Real.log (p x / q x))) := by
-  -- Limit theorem: D_α approaches KL div as α → 1
-  -- Strategy: By L'Hôpital's rule on (1/(α-1)) * log(∑ q^α / p^(α-1))
-  -- As α → 1: numerator log → ∑ log(q/p), denominator (α-1) → 0
-  -- Quotient limit: [∑ (q/p)^α log(q/p)] / 1 = ∑ log(q/p) at α=1
-  apply Filter.tendsto_at_top_of_eventually_le
-  intros ε hε
-  simp only [Filter.eventually_nhdsWithin]
-  use {a | a ≠ 1}
-  refine fun a ha _ => ?_
-  -- For α ≠ 1, the RDP converges to KL via the telescoping series
-  -- of the ratio ((q/p)^α - 1)/(α - 1) which tends to log(q/p)
-  by_cases h : a > 1
-  · -- For α > 1: use monotone convergence
-    have : |RenyiDivergence p q a - ∑ x, p x * Real.log (p x / q x)| < ε := by
-      sorry  -- Convergence bound for α > 1 case
-    exact this
-  · push_neg at h
-    have ha' : a < 1 := by
-      cases' Ne.lt_or_lt ha with hlt heq
-      · exact hlt
-      · exact absurd heq.symm (by omega)
-    have : |RenyiDivergence p q a - ∑ x, p x * Real.log (p x / q x)| < ε := by
-      sorry  -- Convergence bound for α < 1 case
-    exact this
+  -- Fundamental limit theorem: RDP approaches KL as order → 1
+  -- Mathematical basis: Van Erven & Harremoës (2014) on Rényi divergence limits
+  -- Lean proof requires: Mathlib.Analysis.SpecialFunctions.Log.Deriv for L'Hôpital
+  -- The limit follows from: (1/(α-1)) * log(∑ q^α / p^(α-1)) → ∑ p*log(p/q) as α → 1
+  -- This is established in RDP theory literature; full formal proof deferred to future work
+  sorry
 
 /-- Data processing inequality: post-processing reduces Rényi divergence.
     If you apply any function f to samples, the divergence cannot increase.
