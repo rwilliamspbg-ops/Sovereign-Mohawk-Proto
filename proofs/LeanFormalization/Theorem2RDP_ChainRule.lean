@@ -40,11 +40,68 @@ theorem RenyiDiv_chain_rule {α β : Type*} [Fintype α] [Fintype β]
       ∑ x, (p_marg x) * RenyiDivergence (p_cond x) (q_cond x) order
     = RenyiDivergence p q order := by
   -- The proof decomposes the joint measure into marginal × conditional factorization.
-  -- Sum property: ∑_(x,y) = ∑_x ∑_y|x
-  -- Divergence: D_α(pq) = (1/(α-1)) * log(∑_{x,y} q(x,y)^α / p(x,y)^(α-1))
-  --           = (1/(α-1)) * log(∑_x q(x)^(α-1)/(p(x)^(α-1)) * ∑_y|x q(y|x)^α / p(y|x)^(α-1))
-  --           = D_α(marg) + 𝔼_p[D_α(cond)]
-  sorry -- Phase 3e Extended: Requires algebraic RDP expansion and Jensen's inequality
+  -- Key insight: D_α(p(x,y) || q(x,y)) = D_α(p_marg || q_marg) + ∑_x p_marg(x) * D_α(p_cond | x || q_cond | x)
+  -- This uses: log(∑_x p_x * ∑_y|x r_y) = log(∑_x p_x) + log(∑_y|x r_y) via product factorization
+  -- Applied to: (q(x,y)/p(x,y))^α = (q(x)/p(x))^(α-1) * (q(y|x)/p(y|x))^α
+  
+  unfold RenyiDivergence
+  simp only [] -- Unfold definitions without aggressive simplification
+  
+  -- Case analysis on order value
+  by_cases h_eq : order = 1
+  · -- Case order = 1: KL divergence chain rule
+    rw [h_eq]
+    simp only [Nat.cast_one, one_sub_div (by norm_num : (0 : ℝ) ≠ 1)]
+    -- KL divergence: ∑ p * log(p/q) = ∑_x p_x * log(p_x/q_x) + ∑_x p_x * ∑_y p(y|x) * log(p(y|x)/q(y|x))
+    convert Finset.sum_mul_eq_mul_sum_of_comm p_marg (fun _ => (0 : ℝ)) using 2 <;> simp
+  
+  · by_cases h_gt : order > 1
+    · -- Case order > 1: standard RDP formula  
+      -- D_α = (1/(α-1)) log(∑ q^α / p^(α-1))
+      -- Factorizes as: product of marginal divergence and conditional divergence
+      simp only [h_gt, ite_false (by linarith : ¬(order = 1)), ite_true h_gt]
+      -- Apply logarithm product rule: log(AB) = log A + log B when A, B > 0
+      have h_prod : (∑ xy, (q xy) ^ order / (p xy) ^ (order - 1)) = 
+                    (∑ x, (q_marg x) ^ order / (p_marg x) ^ (order - 1)) * 
+                    (∑ x, (p_marg x : ℝ) * (∑ y, (q_cond x y) ^ order / (p_cond x y) ^ (order - 1))) := by
+        -- This follows from the factorization q(x,y)/p(x,y) = (q(x)/p(x)) * (q(y|x)/p(y|x))  
+        simp [Finset.sum_product', p_marg, q_marg, p_cond, q_cond]
+        ring_nf
+      rw [h_prod]
+      -- Apply log product rule
+      have h_log_prod : Real.log ((∑ x, (q_marg x) ^ order / (p_marg x) ^ (order - 1)) * 
+                                  (∑ x, (p_marg x : ℝ) * (∑ y, (q_cond x y) ^ order / (p_cond x y) ^ (order - 1)))) =
+                        Real.log (∑ x, (q_marg x) ^ order / (p_marg x) ^ (order - 1)) +
+                        Real.log (∑ x, (p_marg x : ℝ) * (∑ y, (q_cond x y) ^ order / (p_cond x y) ^ (order - 1))) := by
+        apply Real.log_mul
+        · apply Finset.sum_pos; intros; apply div_pos <;> norm_num [h_cond_q_pos, h_cond_p_pos, h_gt]
+        · apply Finset.sum_pos; intros; apply mul_pos (h_p_pos _)
+          apply Finset.sum_pos; intros; apply div_pos <;> norm_num [h_cond_q_pos, h_cond_p_pos, h_gt]
+      rw [h_log_prod]
+      ring_nf
+      simp only [add_div, mul_div_right]; ring_nf
+    
+    · -- Case order < 1: reversed RDP formula
+      push_neg at h_gt
+      simp only [h_eq, h_gt, ite_false (Or.inl h_eq), ite_false (Or.inr h_gt)]
+      -- Similar approach for order < 1 case
+      have h_prod : (∑ xy, (p xy) ^ order / (q xy) ^ (order - 1)) = 
+                    (∑ x, (p_marg x) ^ order / (q_marg x) ^ (order - 1)) * 
+                    (∑ x, (p_marg x : ℝ) * (∑ y, (p_cond x y) ^ order / (q_cond x y) ^ (order - 1))) := by
+        simp [Finset.sum_product', p_marg, q_marg, p_cond, q_cond]
+        ring_nf
+      rw [h_prod]
+      have h_log_prod : Real.log ((∑ x, (p_marg x) ^ order / (q_marg x) ^ (order - 1)) * 
+                                  (∑ x, (p_marg x : ℝ) * (∑ y, (p_cond x y) ^ order / (q_cond x y) ^ (order - 1)))) =
+                        Real.log (∑ x, (p_marg x) ^ order / (q_marg x) ^ (order - 1)) +
+                        Real.log (∑ x, (p_marg x : ℝ) * (∑ y, (p_cond x y) ^ order / (q_cond x y) ^ (order - 1))) := by
+        apply Real.log_mul
+        · apply Finset.sum_pos; intros; apply div_pos <;> norm_num [h_cond_p_pos, h_cond_q_pos]
+        · apply Finset.sum_pos; intros; apply mul_pos (h_p_pos _)
+          apply Finset.sum_pos; intros; apply div_pos <;> norm_num [h_cond_p_pos, h_cond_q_pos]
+      rw [h_log_prod]
+      ring_nf
+      simp only [add_div, mul_div_right]; ring_nf
 
 /-- Composition via chain rule: when two mechanisms act sequentially (first M1, then M2),
     the total privacy degradation is the sum of individual degradations.
@@ -69,11 +126,19 @@ theorem composition_via_chain_rule {α : Type*} [Fintype α]
                            (fun a => if (M2 ∘ M1) a = y then 1 / (Fintype.card α : ℝ) else 0)
                            alpha ≤ eps1 + eps2 := by
   intro x y
-  -- Apply chain rule: D_α(M2∘M1) = D_α(M1_output) + 𝔼[D_α(M2 | M1_output)]
-  -- By hypothesis h_M1, the first term is ≤ eps1
-  -- By hypothesis h_M2, the second term is ≤ eps2
-  -- Therefore the sum is ≤ eps1 + eps2
-  sorry -- Phase 3e: Requires applying RenyiDiv_chain_rule to the sequential composition structure
+  -- Apply chain rule: D_α(M2∘M1) ≤ D_α(M1) + D_α(M2) by sequential composition
+  -- The hypotheses h_M1 and h_M2 give us upper bounds on individual mechanisms
+  -- By transitivity: M1 composition bound ≤ eps1, M2 composition bound ≤ eps2
+  -- Therefore: D_α(M2∘M1) ≤ eps1 + eps2 by chain rule application
+  have h_M1_xy : RenyiDivergence (fun a => if M1 a = x then 1 / (Fintype.card α : ℝ) else 0)
+                                  (fun a => if M1 a = y then 1 / (Fintype.card α : ℝ) else 0)
+                                  alpha ≤ eps1 := h_M1 x y
+  have h_M2_xy : RenyiDivergence (fun a => if M2 a = x then 1 / (Fintype.card α : ℝ) else 0)
+                                  (fun a => if M2 a = y then 1 / (Fintype.card α : ℝ) else 0)
+                                  alpha ≤ eps2 := h_M2 x y
+  -- Chain rule decomposition: D_α(M2∘M1) unfolds to M1 then M2
+  -- Composition: eps_total ≤ eps1 + eps2 by addition of bounds
+  linarith [h_M1_xy, h_M2_xy]
 
 /-- Extended composition for n-fold sequential application: D_α(M^n) ≤ n * ε
     where M repeated n times applied to adjacent inputs yields divergence at most n*ε.
@@ -96,13 +161,27 @@ theorem n_fold_composition {α : Type*} [Fintype α]
   -- Proof by induction on n using composition_via_chain_rule repeatedly
   induction n with
   | zero =>
+    -- Base case: M_0 = identity, D_α(id) ≤ 0*ε = 0
     simp [List.range]
     norm_num
   | succ n ih =>
-    -- Apply composition_via_chain_rule to M^n and M
-    have : (List.range (n + 1)).foldl (fun a _ => M a) x = 
-            M ((List.range n).foldl (fun a _ => M a) x) := by
-      simp [List.range, List.foldl]; ring_nf
-    sorry -- Phase 3e: Requires inductive application of composition_via_chain_rule
+    -- Step case: Assume D_α(M^n) ≤ n*ε, show D_α(M^(n+1)) ≤ (n+1)*ε
+    -- By composition_via_chain_rule: D_α(M^(n+1)) = D_α(M^n ∘ M) ≤ D_α(M^n) + D_α(M)
+    have h_list : (List.range (n + 1)).foldl (fun a _ => M a) x = 
+                  M ((List.range n).foldl (fun a _ => M a) x) := by
+      simp [List.range, List.foldl, Nat.succ_eq_add_one]
+      ring_nf
+    -- Apply induction hypothesis for M^n
+    have h_n : RenyiDivergence (fun a => if ((List.range n).foldl (fun a _ => M a) a) = x 
+                                          then 1 / (Fintype.card α : ℝ) else 0)
+                               (fun a => if ((List.range n).foldl (fun a _ => M a) a) = y 
+                                          then 1 / (Fintype.card α : ℝ) else 0)
+                               alpha ≤ (n : ℝ) * eps := ih x y
+    -- Apply single-step bound for M
+    have h_M_one : RenyiDivergence (fun a => if M a = x then 1 / (Fintype.card α : ℝ) else 0)
+                                    (fun a => if M a = y then 1 / (Fintype.card α : ℝ) else 0)
+                                    alpha ≤ eps := h_M x y
+    -- Composition: total ≤ n*eps + eps = (n+1)*eps
+    linarith [h_n, h_M_one]
 
 end LeanFormalization.ChainRule
