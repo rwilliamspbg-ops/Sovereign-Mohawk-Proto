@@ -6,8 +6,8 @@ import Mathlib
 namespace LeanFormalization
 
 /-- Helper lemma for BFT bound verification -/
-lemma theorem1_half_bound_of_forall_cons : True := by
-  trivial
+lemma theorem1_half_bound_of_forall_cons (n : ℕ) (h : n > 0) :
+    (2 : ℚ) * (n / 2 - 1) < n := by norm_num
 
 /-- Additional helper lemmas for traceability -/
 lemma theorem1_half_bound_of_forall : True := by trivial
