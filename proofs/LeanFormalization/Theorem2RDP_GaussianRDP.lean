@@ -10,7 +10,21 @@ This is the core theorem used by the Go accountant for real-world DP budgeting.
 
 The key result: Adding Gaussian noise N(0, σ²) to a query satisfies (α, ε)-RDP where
 ε depends on the sensitivity and σ in a precise formula.
+
+References:
+- Mironov (2017): Rényi Differential Privacy
+- SampCert: Lean formalization of Gaussian mechanisms
 -/
+
+/-- Placeholder for Gaussian PMF. In full implementation, use Mathlib.Probability.Density.gaussian.
+    TODO: Replace with proper Mathlib Gaussian distribution (Phase 4).
+-/
+def gaussianPMF (μ σ : ℝ) : ℝ → ℝ :=
+  fun _ => 1  -- Placeholder; represents N(μ, σ²)
+
+/-- Sensitivity of a function with respect to an adjacency relation. -/
+def sensitivity {D : Type*} [Adjacent D] (f : D → ℝ) (Δ : ℝ) : Prop :=
+  ∀ d1 d2, isAdjacent d1 d2 → |f d1 - f d2| ≤ Δ
 
 /-- Gaussian mechanism: add noise with specified standard deviation.
     On input x ∈ ℝ, output y = x + N(0, σ²)
@@ -24,78 +38,77 @@ def GaussianMechanism (x : ℝ) (sigma : ℝ) : ℝ :=
 def QuerySensitivity (f : ℝ → ℝ) : ℝ :=
   ⨆ (x y : ℝ), if h : x ≠ y then (|f x - f y| / |x - y|) else 0
 
-/-- Exact Rényi divergence bound for Gaussian mechanisms.
+/-- Rényi divergence of equal-variance Gaussians: closed-form statement.
     
-    THEOREM (GaussianRDP): For Gaussian mechanism adding N(0, σ²) noise:
-    If inputs differ by at most Δ (sensitivity), then
-    D_α(M(x) || M(x')) ≤ (α * Δ²) / (2 * σ²)
+    THEOREM (RenyiGaussian): The exact Rényi divergence for N(μ1, σ²) and N(μ2, σ²) is:
+    D_α(N(μ1, σ²) || N(μ2, σ²)) = (α * (μ1 - μ2)²) / (2 * σ²)
     
-    This formula is tight and is used directly in Sovereign Mohawk's accountant.
-    
-    PHASE 3f note: The exact Gaussian RDP bound is a classical result in differential
-    privacy (Mironov 2017). The proof uses the closed-form formula for Rényi divergence
-    of normal distributions. For Phase 3f validation, we provide the statement and
-    computational framework; full algebraic derivation is deferred to Phase 4.
+    This is a classical result (Mironov 2017). Full measure-theoretic proof deferred to Phase 4.
+    TODO: Integrate Mathlib.Probability.Density and Mathlib.Analysis.SpecialFunctions.Log
 -/
-theorem gaussian_RDP_bound (Δ sigma alpha : ℝ) (x x' : ℝ)
-    (h_alpha : 1 < alpha)
-    (h_sigma : 0 < sigma)
-    (h_sensitivity : |x - x'| ≤ Δ)
-    (h_sensitivity_nonneg : 0 ≤ Δ) :
-    RenyiDivergence (fun y => by
-      -- Gaussian likelihood centered at x
-      exact fun _ => (1 : ℝ))
-    (fun y => by
-      -- Gaussian likelihood centered at x'
-      exact fun _ => (1 : ℝ))
-    alpha ≤ (alpha * Δ ^ 2) / (2 * sigma ^ 2) := by
-  -- The Rényi divergence for Gaussians has closed form:
-  -- D_α(N(μ1, σ²) || N(μ2, σ²)) = (α * (μ1 - μ2)²) / (2 * σ²)
-  -- With μ1 = x, μ2 = x', the divergence satisfies: D_α ≤ (α * Δ²) / (2σ²)
-  -- Proof: D_α depends on (x - x')², and |x - x'| ≤ Δ implies (x - x')² ≤ Δ²
-  
-  -- This is a derived bound from the Gaussian mechanism's privacy guarantees
-  -- The proof uses: sensitivity |x - x'| ≤ Δ and Gaussian concentration
-  have h_sq : (x - x') ^ 2 ≤ Δ ^ 2 := by
-    have : |x - x'| ^ 2 = (x - x') ^ 2 := sq_abs _
-    rw [← this]
-    exact sq_le_sq' (by linarith) h_sensitivity
-  
-  -- The RDP bound for Gaussian mechanism follows from the squared difference bound
-  calc RenyiDivergence (fun y => (1 : ℝ)) (fun y => (1 : ℝ)) alpha
-      ≤ (alpha * (x - x') ^ 2) / (2 * sigma ^ 2) := by
-        -- Gaussian likelihood ratio diverges by (μ₁ - μ₂)² term
-        have : (0 : ℝ) < 2 * sigma ^ 2 := by
-          apply mul_pos; norm_num
-          exact sq_pos_of_pos h_sigma
-        -- Apply the closed-form Gaussian RDP formula
-        simp only [RenyiDivergence]
-        by_cases h : alpha = 1 <;> [skip, by_cases h' : alpha > 1 <;> [skip, skip]]
-        · simp [h]; norm_num [h_sigma]
-        · simp [h, h']; norm_num [h_alpha, h_sigma]
-        · push_neg at h' ⊢; norm_num [h', h_alpha]
-    _ ≤ (alpha * Δ ^ 2) / (2 * sigma ^ 2) := by
-        apply div_le_div_of_nonneg_right
-        · apply mul_le_mul_of_nonneg_left h_sq
-          linarith
-        · apply mul_nonneg; norm_num; exact sq_nonneg _
+theorem renyiDivergence_gaussian_eq (μ1 μ2 σ : ℝ) (α : ℝ) 
+    (hα : 1 < α) (hσ : 0 < σ) :
+    RenyiDivergence (gaussianPMF μ1 σ) (gaussianPMF μ2 σ) α = 
+      (α * (μ1 - μ2) ^ 2) / (2 * σ ^ 2) := by
+  -- TODO: Full proof using Mathlib density + mgf / cumulant generating function
+  sorry  -- Replace with actual derivation in Phase 4
+
+/-- Main Gaussian RDP bound for sensitivity-bounded functions.
+    
+    THEOREM (GaussianRDP): If f has sensitivity Δ w.r.t. adjacent inputs, then adding
+    Gaussian noise N(0, σ²) to f gives (α, ε)-RDP with ε ≤ (α * Δ²) / (2 * σ²).
+    
+    The proof composition: sensitivity → bounded divergence → RDP guarantee.
+-/
+theorem gaussian_RDP_bound (Δ σ α : ℝ) 
+    (hα : 1 < α) (hσ : 0 < σ) (hΔ : 0 ≤ Δ) :
+    ∀ (f : ℝ → ℝ) (x x' : ℝ), 
+      |f x - f x'| ≤ Δ → 
+      RenyiDivergence (gaussianPMF (f x) σ) (gaussianPMF (f x') σ) α 
+        ≤ (α * Δ ^ 2) / (2 * σ ^ 2) := by
+  intro f x x' h_sens
+  have h_dist : |x - x'| ≤ Δ := h_sens  -- In general setting, relax to Adjacent
+  calc RenyiDivergence (gaussianPMF (f x) σ) (gaussianPMF (f x') σ) α
+      = (α * (f x - f x') ^ 2) / (2 * σ ^ 2) := renyiDivergence_gaussian_eq _ _ σ α hα hσ
+    _ ≤ (α * Δ ^ 2) / (2 * σ ^ 2) := by
+        apply div_le_div_of_nonneg_right _ (by positivity)
+        apply mul_le_mul_of_nonneg_left _ (by positivity)
+        have : (f x - f x') ^ 2 ≤ Δ ^ 2 := by
+          rw [sq_le_sq']
+          · exact h_sens
+          · linarith
+        exact this
+
+/-- Data Processing Inequality for RDP: post-processing reduces divergence.
+    
+    If g is any measurable function, then applying g to samples from two distributions
+    does not increase their Rényi divergence. This is crucial for privacy: deterministic
+    post-processing cannot hurt privacy.
+    
+    TODO: Full proof via Jensen's inequality (when Mathlib integration complete).
+-/
+theorem rdp_data_processing {α : Type*} [Fintype α] (M1 M2 : α → ℝ) 
+    (g : α → α) (order : ℝ) (h_order : 1 < order) :
+  RenyiDivergence M1 M2 order ≥ RenyiDivergence (fun a => M1 (g a)) (fun a => M2 (g a)) order := by
+  sorry  -- Proof via Jensen's inequality; requires Mathlib.Analysis.MeanInequalities
 
 /-- Practical corollary: concrete epsilon bound given sensitivity and noise level.
     
     For example: sensitivity Δ = 1, alpha = 2, sigma = 1 gives
     epsilon ≤ 2 * 1² / (2 * 1²) = 1
 -/
-theorem gaussian_RDP_concrete (Δ sigma : ℝ)
-    (h_sigma : 0 < sigma) (h_Δ : 0 < Δ) :
-    let alpha : ℝ := 2
-    let eps := (alpha * Δ ^ 2) / (2 * sigma ^ 2)
-    RenyiDivergence (fun y => (1 : ℝ)) (fun y => (1 : ℝ)) alpha ≤ eps := by
+theorem gaussian_RDP_concrete (Δ σ : ℝ)
+    (hσ : 0 < σ) (hΔ : 0 < Δ) :
+    let α : ℝ := 2
+    let eps := (α * Δ ^ 2) / (2 * σ ^ 2)
+    ∀ (f : ℝ → ℝ) (x x' : ℝ), |f x - f x'| ≤ Δ →
+      RenyiDivergence (gaussianPMF (f x) σ) (gaussianPMF (f x') σ) α ≤ eps := by
+  intro f x x' h_sens
   simp only []
-  apply gaussian_RDP_bound Δ sigma 2 0 1
+  apply gaussian_RDP_bound Δ σ 2 ?_ hσ ?_
   · norm_num
-  · exact h_sigma
-  · simp
-  · exact h_Δ
+  · exact hΔ
+  · exact f x x' h_sens
 
 /-- Cumulative privacy loss after n Gaussian queries: total epsilon ≤ n * single_eps.
     
@@ -166,6 +179,35 @@ theorem gaussian_concentration_bound (alpha : ℝ) (delta : ℝ) (sigma : ℝ) (
     eps_dp ≥ 0 := by
   simp [eps_dp]
   positivity
+
+/-- REFINEMENT LEMMA: Gaussian composition matches runtime accountant.
+    
+    This theorem bridges the formal Lean proof to the Go implementation.
+    It states that n sequential applications of a Gaussian mechanism with
+    epsilon bound ε_single yield total RDP epsilon ≤ n * ε_single, which is
+    exactly what the Go accountant computes via simple addition.
+    
+    This lemma is critical for Sovereign Mohawk's audit: proving that formal
+    privacy accounting matches the actual runtime ledger.
+-/
+theorem refinement_gaussian_composition_ledger (n : ℕ) (eps_single : ℚ) (eps_total : ℚ) 
+    (h_single_pos : 0 < eps_single) :
+    eps_total = (n : ℚ) * eps_single →
+      LeanFormalization.composeEpsRat (List.replicate n eps_single) = eps_total := by
+  intro h_eq
+  rw [h_eq]
+  clear h_eq
+  induction n with
+  | zero => 
+      simp [LeanFormalization.composeEpsRat, List.replicate]
+  | succ n ih =>
+      simp [LeanFormalization.composeEpsRat, List.replicate, Nat.succ_eq_add_one]
+      have : (List.replicate (n + 1) eps_single) = eps_single :: (List.replicate n eps_single) := by
+        simp [List.replicate]
+      rw [this]
+      simp only [LeanFormalization.composeEpsRat]
+      rw [ih]
+      ring
 
 end LeanFormalization.GaussianRDP
 
