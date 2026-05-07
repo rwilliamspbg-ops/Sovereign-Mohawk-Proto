@@ -138,6 +138,12 @@ All modified files successfully parse and type-check:
 - `proofs/LeanFormalization/Theorem2RDP_GaussianRDP.lean`: ✅ Compiles
 - `proofs/LeanFormalization/PropertyTests.lean`: ✅ New file (properties ready for evaluation)
 
+### Runtime Validation (Go)
+
+- Command executed: `go test ./...` on branch `feat/phase3c-gaussian-adjacency-hardening`.
+- Result: All Go tests passed locally (including `test/rdp_accountant_test.go`), validating `internal/rdp_accountant.go` and the Gaussian-step recording behavior.
+- Note: The Lean `lake build` step could not be run in this environment because `lake` is not installed (`bash: lake: command not found`). Recommend installing Lean 4 + Lake in the dev container or running `lake build` in CI to validate the formal proofs end-to-end.
+
 ### Contributor Checklist
 
 - [x] Branch: `feat/phase3c-gaussian-adjacency-hardening` created
