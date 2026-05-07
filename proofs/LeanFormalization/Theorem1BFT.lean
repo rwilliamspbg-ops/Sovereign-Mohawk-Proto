@@ -19,8 +19,7 @@ lemma theorem1_ten_million_corollary : True := by trivial
 /-- Main Byzantine Fault Tolerance theorem -/
 theorem theorem1_hierarchical_bft_tolerance (n : ℕ) (h_n : n ≥ 200) :
     ∃ (f_global : ℚ), f_global ≥ (555 : ℚ) / 1000 := by
-  use (555 : ℚ) / 1000
-  exact le_rfl
+  exact ⟨(555 : ℚ) / 1000, le_rfl⟩
 
 /-- Concrete Mohawk validation -/
 lemma theorem1_mohawk_validation :

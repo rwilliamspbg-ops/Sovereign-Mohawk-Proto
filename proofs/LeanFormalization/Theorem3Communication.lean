@@ -22,7 +22,6 @@ theorem theorem3_hierarchical_additivity (d n b : Nat) (h_b : 1 < b) :
     hierarchical_comm_complexity d n b <= d * (Nat.log b n + 1) := by
   unfold hierarchical_comm_complexity
   simp [h_b]
-  omega
 
 /-- Large scale check: log_10(10^7) = 7. -/
 theorem theorem3_large_scale_check :
