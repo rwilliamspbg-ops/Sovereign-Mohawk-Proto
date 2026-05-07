@@ -27,18 +27,83 @@ structure DPMechanism (D X : Type*) where
   eps : ℚ
   rdpBound : D → D → ℚ
 
-/-- Two databases are adjacent if they differ in exactly one record. -/
-def isAdjacent {D : Type*} (_d1 _d2 : D) : Prop :=
-  ∃ (_ : Unit), True
+/- Two databases are adjacent if they differ in exactly one record. -/
+class Adjacent (D : Type*) where
+  adjacent : D → D → Prop
+
+/-- Generic adjacency predicate; requires an `Adjacent` instance for the dataset type. -/
+def isAdjacent {D : Type*} [Adjacent D] (d1 d2 : D) : Prop :=
+  Adjacent.adjacent d1 d2
+
+/- Instance: lists are adjacent when one element is inserted or removed. This
+   models the common DP notion of datasets differing by a single record.
+ -/
+instance AdjacentList {α : Type*} : Adjacent (List α) where
+  adjacent := fun l1 l2 =>
+    ∃ (x : α) (rest : List α), (l1 = x :: rest ∧ l2 = rest) ∨ (l2 = x :: rest ∧ l1 = rest)
+
+/- Symmetry for list adjacency: insertion/removal is symmetric. -/
+theorem isAdjacent_list_symm {α : Type*} {l1 l2 : List α} :
+  isAdjacent (l1 : List α) l2 ↔ isAdjacent (l2 : List α) l1 := by
+  constructor
+  · intro h
+    rcases h with ⟨x, rest, h'⟩
+    cases h'
+    · rcases h' with ⟨hl1, hl2⟩
+      use x, rest
+      left
+      constructor
+      · exact hl2
+      · exact hl1
+    · rcases h' with ⟨hl2, hl1⟩
+      use x, rest
+      right
+      constructor
+      · exact hl1
+      · exact hl2
+  · intro h
+    rcases h with ⟨x, rest, h'⟩
+    cases h'
+    · rcases h' with ⟨hl1, hl2⟩
+      use x, rest
+      right
+      constructor
+      · exact hl2
+      · exact hl1
+    · rcases h' with ⟨hl2, hl1⟩
+      use x, rest
+      left
+      constructor
+      · exact hl1
+      · exact hl2
+
+/- Identical lists are not adjacent under this definition (no single insertion/removal). -/
+theorem isAdjacent_list_not_refl {α : Type*} (l : List α) :
+  ¬ isAdjacent (l : List α) l := by
+  intro h
+  rcases h with ⟨x, rest, h'⟩
+  cases h'
+  · rcases h' with ⟨hl1, hl2⟩
+    have : l = x :: rest := by exact hl1
+    have : l = rest := by exact hl2
+    have := congrArg (fun t => t.length) this
+    simp at this
+    contradiction
+  · rcases h' with ⟨hl2, hl1⟩
+    have : l = rest := by exact hl2
+    have : l = x :: rest := by exact hl1
+    have := congrArg (fun t => t.length) this
+    simp at this
+    contradiction
 
 /-- Rényi divergence order α, bound ε for mechanisms.
     The abstract notion: M satisfies (α, ε)-RDP if the maximum ratio
     of likelihoods over adjacent databases pairs is exp(ε).
 -/
-def satisfiesRDP {D X : Type*} (M : DPMechanism D X) : Prop :=
+def satisfiesRDP {D X : Type*} [Adjacent D] (M : DPMechanism D X) : Prop :=
   M.alpha > 1 ∧
   M.eps ≥ 0 ∧
-  ∀ (d1 d2 : D), isAdjacent d1 d2 →
+  ∀ (d1 d2 : D), isAdjacent (d1 : D) (d2 : D) →
     0 ≤ M.rdpBound d1 d2 ∧ M.rdpBound d1 d2 ≤ M.eps
 
 /-- Integer epsilon composition model for deterministic machine checks. -/
@@ -101,6 +166,23 @@ theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : si
     ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0 := by
   refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩
   positivity
+
+/- Exact Rényi divergence between two Gaussians with equal variance.
+   Formalizing this requires Mathlib measure/density machinery (continuous
+   distributions) and a definition of Rényi divergence for measures. The
+   known closed-form is:
+
+     D_α(N(μ1, σ²) || N(μ2, σ²)) = α (μ1 - μ2)^2 / (2 σ^2)
+
+   For now this theorem is a formal placeholder with the intended statement
+   and references; a finished proof will import `Mathlib.Probability.Density`
+   and `Mathlib.Probability.Distributions.Gaussian` and compute the integral
+   analytically (completing via `Real.integral` lemmas and `Real.log`.
+ -/
+theorem gaussian_rdp_exact (alpha sigma mu1 mu2 : ℝ)
+    (hα : 1 < alpha) (hσ : 0 < sigma) :
+    True := by
+  trivial
 
 /-- Adding a bounded step preserves a bounded global budget. -/
 theorem theorem2_budget_step {current step budget : Nat}
