@@ -1,0 +1,81 @@
+
+# Migration Guide: Single-Level → Two-Level Aggregation
+
+## Overview
+Migrate from single-level HVA to two-level aggregation to reduce latency by 50%.
+
+## Prerequisites
+- Genesis network running with 100K+ nodes
+- Gradient compression enabled (reduce network traffic)
+- Sufficient memory for cluster aggregators
+
+## Phase 1: Prepare (Weeks 1-2)
+
+1. **Generate Two-Level Spec**
+   ```python
+   from scripts.03_two_level_aggregation import TwoLevelAggregationArchitecture
+   arch = TwoLevelAggregationArchitecture(num_nodes=100_000, target_cluster_size=50)
+   spec = arch.get_deployment_spec()
+   # Save to docker-compose.two-level.yml
+   ```
+
+2. **Deploy Cluster Aggregators (Staging)**
+   - Deploy to isolated staging environment first
+   - Test with 1000 nodes to verify correctness
+   - Measure latency improvement
+
+3. **Baseline Metrics**
+   - Record current P95 latency (baseline)
+   - Record current throughput
+   - Record current CPU/memory utilization
+
+## Phase 2: Canary Deployment (Weeks 3-4)
+
+1. **Deploy to 10% of Production**
+   - Route 10% of nodes to two-level aggregators
+   - Keep 90% on single-level (fallback)
+   - Monitor for issues
+
+2. **Validation**
+   - Check model convergence rate
+   - Verify loss curves match
+   - Compare latencies
+
+3. **Gradual Rollout**
+   - Week 3: 10% → 25%
+   - Week 4: 25% → 50%
+
+## Phase 3: Full Rollout (Week 5+)
+
+1. **Migrate Remaining Nodes**
+   - 50% → 100%
+   - Monitor continuously
+
+2. **Decommission Single-Level**
+   - After 2 weeks with 100% two-level
+   - Retire old aggregators
+
+## Expected Outcomes
+
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| P95 Latency | 237ms | 120ms | 50% reduction |
+| Training Time | 5.2min/epoch | 2.6min/epoch | 2x speedup |
+| Throughput | 159 msg/sec | 180+ msg/sec | 13% improvement |
+
+## Rollback Plan
+
+If issues occur:
+1. Traffic shift back to single-level (1 hour downtime)
+2. Investigate root cause
+3. Fix and re-deploy
+
+## Success Criteria
+
+- [ ] P95 latency <120ms at 100K nodes
+- [ ] Model convergence rate unchanged
+- [ ] No loss of accuracy
+- [ ] CPU/memory within budget
+- [ ] Zero packet loss
+- [ ] Deployment automated in CI/CD
+

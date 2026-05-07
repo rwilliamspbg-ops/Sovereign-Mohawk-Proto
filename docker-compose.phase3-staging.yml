@@ -1,0 +1,241 @@
+version: '3.8'
+
+# Phase 3 Staging Deployment: Two-Level Aggregation
+# Simulates 100K-node network with hierarchical clustering
+# 2000 clusters x 50 nodes each = 100,000 total nodes
+# L1: Cluster aggregators (local aggregation within cluster)
+# L2: Global aggregator (model aggregation across clusters)
+
+services:
+  # Global Aggregator (L2)
+  # Aggregates models from all cluster aggregators
+  global-aggregator:
+    image: sovereign-mohawk-proto-orchestrator
+    container_name: global-aggregator
+    command: ["./main"]
+    environment:
+      - MOHAWK_LIBP2P_PORT=5001
+      - MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid
+      - MOHAWK_DISABLE_QUIC=true
+      - MOHAWK_ROLE=global-aggregator
+      - MOHAWK_AGGREGATION_MODE=two-level
+      - MOHAWK_MAX_CLUSTER_AGGREGATORS=10  # Staging: 10 clusters instead of 2000
+      - MOHAWK_AGGREGATION_TIMEOUT_MS=5000
+    ports:
+      - "8100:8080"
+      - "5001:5001"
+      - "5001:5001/udp"
+    volumes:
+      - ./data/global-aggregator:/var/lib/mohawk/aggregator
+      - ./runtime-secrets:/run/secrets:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4g
+        reservations:
+          cpus: '2'
+          memory: 2g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - phase3-net
+
+  # Cluster Aggregators (L1)
+  # Each aggregates models from 50 nodes (staging simulation)
+  # In production: 2000 of these, one per cluster
+  
+  cluster-aggregator-1:
+    image: sovereign-mohawk-proto-orchestrator
+    container_name: cluster-agg-1
+    command: ["./main"]
+    environment:
+      - MOHAWK_LIBP2P_PORT=5101
+      - MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid
+      - MOHAWK_DISABLE_QUIC=true
+      - MOHAWK_ROLE=cluster-aggregator
+      - MOHAWK_CLUSTER_ID=cluster-1
+      - MOHAWK_GLOBAL_AGGREGATOR=global-aggregator:5001
+      - MOHAWK_CLUSTER_SIZE=50
+      - MOHAWK_AGGREGATION_TIMEOUT_MS=3000
+      - MOHAWK_COMPRESSION_ENABLED=true
+      - MOHAWK_COMPRESSION_METHOD=top-k-int8
+      - MOHAWK_COMPRESSION_RATIO=10
+    ports:
+      - "8101:8080"
+      - "5101:5101"
+    volumes:
+      - ./data/cluster-agg-1:/var/lib/mohawk/aggregator
+      - ./runtime-secrets:/run/secrets:ro
+    depends_on:
+      global-aggregator:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2g
+        reservations:
+          cpus: '1'
+          memory: 1g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - phase3-net
+
+  cluster-aggregator-2:
+    image: sovereign-mohawk-proto-orchestrator
+    container_name: cluster-agg-2
+    command: ["./main"]
+    environment:
+      - MOHAWK_LIBP2P_PORT=5102
+      - MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid
+      - MOHAWK_DISABLE_QUIC=true
+      - MOHAWK_ROLE=cluster-aggregator
+      - MOHAWK_CLUSTER_ID=cluster-2
+      - MOHAWK_GLOBAL_AGGREGATOR=global-aggregator:5001
+      - MOHAWK_CLUSTER_SIZE=50
+      - MOHAWK_AGGREGATION_TIMEOUT_MS=3000
+      - MOHAWK_COMPRESSION_ENABLED=true
+      - MOHAWK_COMPRESSION_METHOD=top-k-int8
+      - MOHAWK_COMPRESSION_RATIO=10
+    ports:
+      - "8102:8080"
+      - "5102:5102"
+    volumes:
+      - ./data/cluster-agg-2:/var/lib/mohawk/aggregator
+      - ./runtime-secrets:/run/secrets:ro
+    depends_on:
+      global-aggregator:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2g
+        reservations:
+          cpus: '1'
+          memory: 1g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - phase3-net
+
+  cluster-aggregator-3:
+    image: sovereign-mohawk-proto-orchestrator
+    container_name: cluster-agg-3
+    command: ["./main"]
+    environment:
+      - MOHAWK_LIBP2P_PORT=5103
+      - MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid
+      - MOHAWK_DISABLE_QUIC=true
+      - MOHAWK_ROLE=cluster-aggregator
+      - MOHAWK_CLUSTER_ID=cluster-3
+      - MOHAWK_GLOBAL_AGGREGATOR=global-aggregator:5001
+      - MOHAWK_CLUSTER_SIZE=50
+      - MOHAWK_AGGREGATION_TIMEOUT_MS=3000
+      - MOHAWK_COMPRESSION_ENABLED=true
+      - MOHAWK_COMPRESSION_METHOD=top-k-int8
+      - MOHAWK_COMPRESSION_RATIO=10
+    ports:
+      - "8103:8080"
+      - "5103:5103"
+    volumes:
+      - ./data/cluster-agg-3:/var/lib/mohawk/aggregator
+      - ./runtime-secrets:/run/secrets:ro
+    depends_on:
+      global-aggregator:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2g
+        reservations:
+          cpus: '1'
+          memory: 1g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9091/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - phase3-net
+
+  # Monitoring Stack (reuse existing or add specific monitoring)
+  prometheus-phase3:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus-phase3
+    volumes:
+      - ./monitoring/prometheus/prometheus-phase3.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-phase3-data:/prometheus
+    ports:
+      - "9091:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
+        reservations:
+          cpus: '0.5'
+          memory: 512m
+    restart: unless-stopped
+    networks:
+      - phase3-net
+
+  grafana-phase3:
+    image: grafana/grafana:11.5.2
+    container_name: grafana-phase3
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-phase3-data:/var/lib/grafana
+    depends_on:
+      - prometheus-phase3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1g
+        reservations:
+          cpus: '0.5'
+          memory: 512m
+    restart: unless-stopped
+    networks:
+      - phase3-net
+
+networks:
+  phase3-net:
+    driver: bridge
+
+volumes:
+  prometheus-phase3-data:
+    driver: local
+  grafana-phase3-data:
+    driver: local
