@@ -135,7 +135,8 @@ theorem theorem2_rat_composition_append (xs ys : List ℚ) :
   | nil =>
       simp [composeEpsRat]
   | cons x xs ih =>
-      simpa [composeEpsRat, add_assoc] using congrArg (fun z => x + z) ih
+      simp [composeEpsRat]
+      rw [ih]
 
 /-- Composition is monotone when appending additional mechanisms. -/
 theorem theorem2_monotone_append (xs ys : List Nat) :
@@ -150,20 +151,20 @@ theorem theorem2_rat_monotone_append (xs ys : List ℚ)
   rw [theorem2_rat_composition_append]
   have h_sum : 0 ≤ composeEpsRat ys := by
     induction ys with
-    | nil =>
-        simp [composeEpsRat]
-    | cons y ys ih =>
+    | nil => simp [composeEpsRat]
+    | cons y ys' ih =>
+        simp only [composeEpsRat]
         have hy : 0 ≤ y := h_nonneg y (by simp)
-        have htail : ∀ e ∈ ys, 0 ≤ e := by
-          intro e he
-          exact h_nonneg e (by simp [he])
-        have ih' := ih htail
-        simp only [composeEpsRat]; linarith
+        have htail : ∀ e ∈ ys', 0 ≤ e := fun e he => h_nonneg e (by simp [he])
+        specialize ih htail
+        linarith
   linarith
 
-/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP. -/
-theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : sigma > 0) :
-    ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0 := by
+/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP 
+    (classical closed-form result). -/
+theorem gaussianRDPBound (alpha sigma : ℝ) 
+    (h_alpha : 1 < alpha) (h_sigma : 0 < sigma) :
+    ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ 0 ≤ eps := by
   refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩
   positivity
 
