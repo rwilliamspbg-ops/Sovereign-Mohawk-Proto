@@ -1,0 +1,38 @@
+=== RUN   TestProcessGradientBatchWithMultiKrum
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithMultiKrum (0.00s)
+=== RUN   TestProcessGradientBatchWithoutMultiKrum
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithoutMultiKrum (0.00s)
+=== RUN   TestProcessGradientBatchWithWeightedTrimAndHierarchy
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithWeightedTrimAndHierarchy (0.00s)
+=== RUN   TestProcessGradientBatchWithSemiAsyncQuorum
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithSemiAsyncQuorum (0.00s)
+=== RUN   TestProcessGradientBatchWithStalenessWeighting
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithStalenessWeighting (0.00s)
+=== RUN   TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow (0.00s)
+=== RUN   TestProcessGradientBatchWithAdaptiveQuorum
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithAdaptiveQuorum (0.00s)
+=== RUN   TestProcessGradientBatchAsyncFallbackOnMultiKrumError
+2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
+2026/05/06 17:20:03 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchAsyncFallbackOnMultiKrumError (0.00s)
+=== RUN   TestMultiKrumSelect
+--- PASS: TestMultiKrumSelect (0.00s)
+=== RUN   TestMultiKrumAggregate
+--- PASS: TestMultiKrumAggregate (0.00s)
+PASS
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	(cached)
