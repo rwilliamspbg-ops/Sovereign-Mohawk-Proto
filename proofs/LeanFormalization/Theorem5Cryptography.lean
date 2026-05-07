@@ -87,7 +87,7 @@ theorem theorem5_cost_guard : verifyCostMicros 10000000 <= 10000 := by
     independent of the scale or statement complexity.
 -/
 theorem theorem5_proof_soundness (n : Nat) (stmt : ZKStatement) :
-    stmt.claim_id < n → ∃ w : ZKWitness, statementSoundness stmt := by
+  stmt.claim_id < n → ∃ _ : ZKWitness, statementSoundness stmt := by
   intro _
   use { claim_digest := stmt.claim_digest, internal_data := 1 }
   unfold statementSoundness
@@ -107,8 +107,8 @@ theorem theorem5_verifier_completeness (stmt : ZKStatement) (_w : ZKWitness) :
 /-- Theorem 5c: Proof size independence.
     The proof size doesn't scale with witness size or statement count.
 -/
-theorem theorem5_proof_size_independence (w1 w2 : ZKWitness) (n : Nat) :
-    proofSize n = 200 ∧ (w1.internal_data ≠ w2.internal_data → proofSize n = 200) := by
+theorem theorem5_proof_size_independence (_w1 _w2 : ZKWitness) (n : Nat) :
+  proofSize n = 200 ∧ (_w1.internal_data ≠ _w2.internal_data → proofSize n = 200) := by
   simp [proofSize]
 
 /-- Theorem 5d: Security model assumption.

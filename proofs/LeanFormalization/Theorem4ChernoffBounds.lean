@@ -121,7 +121,7 @@ theorem theorem4_hierarchical_chernoff_validation :
 -/
 theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
     (h_nonneg : ∀ i, 0 ≤ p i)
-    (h_bounded : ∀ i, p i ≤ 1) :
+  (_h_bounded : ∀ i, p i ≤ 1) :
   ∃ (sum : ℚ), sum = Finset.sum (Finset.range n) (fun i => p i) ∧ sum ≥ 0 := by
   use Finset.sum (Finset.range n) (fun i => p i)
   constructor
