@@ -119,7 +119,7 @@ verify:
 	@$(MAKE) audit
 
 fips-regression:
-	@bash -lc 'source scripts/ensure_go_toolchain.sh && GODEBUG=fips140=on MOHAWK_REQUIRE_FIPS_MODE_FOR_TESTS=true go test ./test -run "^TestFIPSRegression$$"'
+	@bash -c 'source scripts/ensure_go_toolchain.sh && GODEBUG=fips140=on MOHAWK_REQUIRE_FIPS_MODE_FOR_TESTS=true go test ./test -run "^TestFIPSRegression$$"'
 
 artifact-summary:
 	@bash scripts/manage_artifacts.sh --summary --apply
