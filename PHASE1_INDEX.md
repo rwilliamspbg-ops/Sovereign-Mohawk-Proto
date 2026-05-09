@@ -23,7 +23,7 @@ Welcome! This document maps all Phase 1 deliverables for the Sovereign-Mohawk fe
 - **[PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md)** – Status report, metrics, sign-off (8.8 KB)
 
 ### Implementation
-- **[internal/phase1_tests.go](internal/phase1_tests.go)** – 65 executable tests, 4 simulation functions (38.6 KB)
+- **[internal/p1_test.go](internal/p1_test.go)** – 65 executable tests, 4 simulation functions (38.6 KB)
 
 ## 📊 Phase 1 Overview
 
@@ -59,11 +59,11 @@ Welcome! This document maps all Phase 1 deliverables for the Sovereign-Mohawk fe
 
 ### "I want to verify integration"
 1. Read: [PHASE1_DELIVERY_SUMMARY.md](PHASE1_DELIVERY_SUMMARY.md) (Integration section)
-2. Check: [internal/phase1_tests.go](internal/phase1_tests.go) (Look at imports and function usage)
+2. Check: [internal/p1_test.go](internal/p1_test.go) (Look at imports and function usage)
 
 ### "I want test details"
 1. Ref: [PHASE1_TEST_INVENTORY.md](PHASE1_TEST_INVENTORY.md) (All 65 tests listed)
-2. Code: [internal/phase1_tests.go](internal/phase1_tests.go) (Full implementation)
+2. Code: [internal/p1_test.go](internal/p1_test.go) (Full implementation)
 
 ## 📁 File Structure
 

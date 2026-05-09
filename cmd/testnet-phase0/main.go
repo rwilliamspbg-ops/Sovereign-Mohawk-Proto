@@ -69,7 +69,7 @@ func main() {
 	fmt.Println()
 
 	// 7. Create streaming aggregator
-	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter)
+	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter, internal.StreamingAggregatorOptions{})
 	log.Println("✓ Created streaming aggregator")
 
 	// 8. Start aggregation loop

@@ -132,7 +132,7 @@ go test ./internal -v -run "TestPhase" -timeout 300s
 | [PHASE2_COMPREHENSIVE.md](PHASE2_COMPREHENSIVE.md) | Full technical breakdown | 13.6 KB |
 | [PHASE2_QUICK_REFERENCE.md](PHASE2_QUICK_REFERENCE.md) | Quick start & test list | 8.3 KB |
 | [PHASE2_DELIVERY_SUMMARY.md](PHASE2_DELIVERY_SUMMARY.md) | Status & metrics | 10.5 KB |
-| [internal/phase2_tests.go](internal/phase2_tests.go) | Test implementation | 30.9 KB |
+| [internal/streaming_aggregator_test.go](internal/streaming_aggregator_test.go) | Test implementation | 30.9 KB |
 
 ---
 

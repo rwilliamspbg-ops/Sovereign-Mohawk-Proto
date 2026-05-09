@@ -355,7 +355,8 @@ func SimulateAcceleratedTest(profile HardwareProfile, durationSec int) map[strin
 
 func main() {
 	fmt.Println("🚀 Sovereign Map GPU/NPU Hardware Accelerator Detection")
-	fmt.Println("=======================================================\n")
+	fmt.Println("=======================================================")
+	fmt.Println()
 
 	devices := DetectAccelerators()
 	fmt.Printf("Detected %d accelerator(s):\n\n", len(devices))
@@ -374,7 +375,8 @@ func main() {
 	}
 
 	fmt.Println("📊 Acceleration Comparison (vs CPU Baseline)")
-	fmt.Println("==========================================\n")
+	fmt.Println("==========================================")
+	fmt.Println()
 
 	comparisons := CompareAccelerators()
 	for _, comp := range comparisons {
@@ -388,7 +390,8 @@ func main() {
 	}
 
 	fmt.Println("🔥 Accelerated Stress Test (100ms burst)")
-	fmt.Println("========================================\n")
+	fmt.Println("========================================")
+	fmt.Println()
 
 	for _, d := range devices {
 		result := SimulateAcceleratedTest(d, 1)

@@ -369,7 +369,7 @@ type AsyncUpdateBuffer struct {
 - [PHASE2_QUICK_REFERENCE.md](PHASE2_QUICK_REFERENCE.md) – Quick start
 
 **Implementation:**
-- [internal/phase2_tests.go](internal/phase2_tests.go) – 60 tests
+- [internal/streaming_aggregator_test.go](internal/streaming_aggregator_test.go) – 60 tests
 
 **Related:**
 - [PHASE1_COMPLETION_REPORT.md](PHASE1_COMPLETION_REPORT.md) – Phase 1 status

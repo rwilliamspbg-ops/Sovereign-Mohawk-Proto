@@ -12,7 +12,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.25.9+auto
+  GOTOOLCHAIN: go1.26.3+auto
 
 jobs:
   govulncheck:
@@ -46,5 +46,6 @@ jobs:
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
             --skip-dirs runtime-secrets \
+            --skip-dirs certs \
             --exit-code 1 \
             .

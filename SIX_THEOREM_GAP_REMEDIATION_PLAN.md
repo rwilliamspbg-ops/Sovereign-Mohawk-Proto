@@ -610,8 +610,8 @@ From Chernoff: p_fail ≈ exp(−(2·ε²·c)) / e^{2ε²c·(c-1)/c}
 - Performance report: [artifact](https://github.com/.../actions/runs/5678/artifacts/...)
 
 **Benchmarks:**
-- Hierarchical composition test: [FedAvg Benchmark #890](...)
-- Byzantine tolerance measurement: [Byzantine Forensics #901](...)
+- Hierarchical composition test: FedAvg Benchmark #890
+- Byzantine tolerance measurement: Byzantine Forensics #901
 ```
 
 **Implementation:**

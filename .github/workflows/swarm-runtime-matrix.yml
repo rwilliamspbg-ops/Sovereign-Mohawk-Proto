@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 60
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      GOTOOLCHAIN: go1.25.9+auto
+      GOTOOLCHAIN: go1.26.3+auto
       MOHAWK_ROUTER_ALLOW_INSECURE_DEV_QUOTES: "true"
     steps:
       - name: Checkout code

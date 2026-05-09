@@ -332,8 +332,8 @@ Runtime: 5-8 minutes
 - [Phase 2 Detailed](PHASE2_COMPREHENSIVE.md)
 
 **Test Files:**
-- [Phase 1 Tests](internal/phase1_tests.go)
-- [Phase 2 Tests](internal/phase2_tests.go)
+- [Phase 1 Tests](internal/p1_test.go)
+- [Phase 2 Tests](internal/streaming_aggregator_test.go)
 
 **Status:**
 - [Phase 1 Report](PHASE1_COMPLETION_REPORT.md)
