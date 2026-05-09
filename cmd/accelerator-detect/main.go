@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"sync"
@@ -59,11 +58,11 @@ func DetectAccelerators() []HardwareProfile {
 	// Intel GPU detection
 	if _, err := os.Stat("/dev/dri/renderD128"); err == nil {
 		devices = append(devices, HardwareProfile{
-			Type:         AcceleratorIntelArc,
-			Name:         "Intel Arc GPU",
-			MemoryGB:     8,
-			CoresCount:   512,
-			PeakTFLOPS:   12.0,
+			Type:       AcceleratorIntelArc,
+			Name:       "Intel Arc GPU",
+			MemoryGB:   8,
+			CoresCount: 512,
+			PeakTFLOPS: 12.0,
 		})
 	}
 

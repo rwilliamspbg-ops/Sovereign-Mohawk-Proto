@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -12,14 +13,14 @@ import (
 
 // AttackProfile defines Byzantine attack characteristics
 type AttackProfile struct {
-	Name                   string
-	MaliciousRatio         float64 // Percentage of malicious nodes
-	GradientPoisoningRate  float64 // Probability of poisoning gradient
-	ProofForgeryRate       float64 // Probability of forging proof
-	DataLeakageLevel       string  // "none", "low", "medium", "high"
-	PrivacyBudget          float64 // RDP epsilon budget
-	SybilMultiplicity      int     // How many identities per Sybil node
-	CollaboratingNodes     int     // Number of nodes collaborating on attack
+	Name                  string
+	MaliciousRatio        float64 // Percentage of malicious nodes
+	GradientPoisoningRate float64 // Probability of poisoning gradient
+	ProofForgeryRate      float64 // Probability of forging proof
+	DataLeakageLevel      string  // "none", "low", "medium", "high"
+	PrivacyBudget         float64 // RDP epsilon budget
+	SybilMultiplicity     int     // How many identities per Sybil node
+	CollaboratingNodes    int     // Number of nodes collaborating on attack
 }
 
 // RegionalShard represents a regional aggregator with 2000 nodes
@@ -141,14 +142,14 @@ func rand_float() float64 {
 // RunValidation executes the 10M-node Byzantine validation
 func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile, rounds int) *ValidationResult {
 	result := &ValidationResult{
-		TimestampUTC:      time.Now().UTC().Format(time.RFC3339),
-		NetworkScale:      networkScale,
-		TotalAggregators:  aggregatorCount,
-		AttackProfile:     profile,
-		RegionalShards:    aggregatorCount / 5, // Assume 5 aggregators per shard for routing depth
-		TotalRounds:       rounds,
+		TimestampUTC:       time.Now().UTC().Format(time.RFC3339),
+		NetworkScale:       networkScale,
+		TotalAggregators:   aggregatorCount,
+		AttackProfile:      profile,
+		RegionalShards:     aggregatorCount / 5, // Assume 5 aggregators per shard for routing depth
+		TotalRounds:        rounds,
 		BytantineThreshold: 0.55,
-		DetailedResults:   []map[string]interface{}{},
+		DetailedResults:    []map[string]interface{}{},
 	}
 
 	// Calculate expected honest ratio
@@ -176,10 +177,10 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 
 		for shardIdx := 0; shardIdx < result.RegionalShards; shardIdx++ {
 			shards[shardIdx] = &RegionalShard{
-				ID:             fmt.Sprintf("shard-%d-%d", round, shardIdx),
-				TotalNodes:     shardSize,
-				HonestNodes:    honestPerShard,
-				MaliciousNodes: maliciousPerShard,
+				ID:              fmt.Sprintf("shard-%d-%d", round, shardIdx),
+				TotalNodes:      shardSize,
+				HonestNodes:     honestPerShard,
+				MaliciousNodes:  maliciousPerShard,
 				AggregatorCount: aggregatorCount / result.RegionalShards,
 			}
 		}
@@ -204,15 +205,15 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 			totalProofFail += shard.ProofVerificationFail.Load()
 
 			result.DetailedResults = append(result.DetailedResults, map[string]interface{}{
-				"round":                 round,
-				"shard":                 shard.ID,
-				"rejected_gradients":    shard.RejectedGradients.Load(),
-				"accepted_gradients":    shard.AcceptedGradients.Load(),
-				"forgery_detections":    shard.ForgeryDetections.Load(),
-				"leakage_detections":    shard.LeakageDetections.Load(),
-				"proof_pass":            shard.ProofVerificationPass.Load(),
-				"proof_fail":            shard.ProofVerificationFail.Load(),
-				"differential_privacy":  shard.DifferentialPrivacy,
+				"round":                round,
+				"shard":                shard.ID,
+				"rejected_gradients":   shard.RejectedGradients.Load(),
+				"accepted_gradients":   shard.AcceptedGradients.Load(),
+				"forgery_detections":   shard.ForgeryDetections.Load(),
+				"leakage_detections":   shard.LeakageDetections.Load(),
+				"proof_pass":           shard.ProofVerificationPass.Load(),
+				"proof_fail":           shard.ProofVerificationFail.Load(),
+				"differential_privacy": shard.DifferentialPrivacy,
 			})
 		}
 
@@ -347,13 +348,16 @@ func main() {
 
 	// Generate summary report
 	fmt.Println("\n\n=== VALIDATION SUMMARY ===")
-	summaryJSON, _ := json.MarshalIndent(results, "", "  ")
+	summaryJSON, err := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		log.Fatalf("failed to marshal results: %v", err)
+	}
 	fmt.Println(string(summaryJSON))
 
 	// Write to file
 	reportPath := "byzantine_10m_validation_report.json"
-	if err := json.MarshalIndent(results, "", "  "); err != nil {
-		log.Fatalf("failed to marshal results: %v", err)
+	if err := os.WriteFile(reportPath, summaryJSON, 0644); err != nil {
+		log.Fatalf("failed to write results: %v", err)
 	}
 	fmt.Printf("\nFull report written to: %s\n", reportPath)
 
