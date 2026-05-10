@@ -69,13 +69,7 @@ func main() {
 	fmt.Println()
 
 	// 7. Create streaming aggregator (transport.MRCAdapter implements transport.Transport interface)
-	opts := internal.StreamingAggregatorOptions{
-		MaxBufferedTensors: 1000,
-		TensorTimeoutSec:   60.0,
-		CheckpointInterval: 500 * time.Millisecond,
-		EnableByzantine:    false,
-	}
-	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter, opts)
+	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter)
 	log.Println("✓ Created streaming aggregator")
 
 	// 8. Start aggregation loop
@@ -169,16 +163,9 @@ func displayMetrics(trans transport.Transport, agg *internal.StreamingAggregator
 	fmt.Println("─────────────────────────────")
 	fmt.Println()
 
-	// Transport health
-	health := trans.Health()
-	healthyPaths := 0
-	for _, h := range health {
-		if h.IsHealthy {
-			healthyPaths++
-		}
-	}
-	fmt.Printf("Transport Layer:\n")
-	fmt.Printf("  Total paths: %d\n", len(health))
+	// 7. Create streaming aggregator (transport.MRCAdapter implements transport.Transport interface)
+	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter)
+	log.Println("✓ Created streaming aggregator")
 	fmt.Printf("  Healthy paths: %d (%.1f%%)\n", healthyPaths, float64(healthyPaths)*100/float64(len(health)))
 
 	// Aggregator stats
