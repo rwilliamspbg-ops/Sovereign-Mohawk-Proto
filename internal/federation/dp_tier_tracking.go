@@ -83,7 +83,7 @@ func (t *DPTierTracker) RecordAggregation(tierNodeID string, gradientCount int, 
 	t.totalAggregations++
 
 	// Check if global budget is exhausted
-	globalEps := t.globalBudget.Rdp2Eps(1.0, 1e-7)
+	globalEps := t.globalBudget.GetCurrentEpsilon()
 	if globalEps > 100.0 { // Hard limit
 		t.budgetExhausted = true
 		log.Printf("WARNING: Global DP budget exhausted at tier %s (epsilon=%.4f)", tierNodeID, globalEps)
@@ -91,7 +91,7 @@ func (t *DPTierTracker) RecordAggregation(tierNodeID string, gradientCount int, 
 	}
 
 	log.Printf("[DP-tracking] Tier=%s, Agg=%d, Tier-Epsilon=%.4f, Global-Epsilon=%.4f",
-		tierNodeID, t.aggregationsPerTier[tierNodeID], tierAccountant.Rdp2Eps(1.0, 1e-7), globalEps)
+		tierNodeID, t.aggregationsPerTier[tierNodeID], tierAccountant.GetCurrentEpsilon(), globalEps)
 
 	return nil
 }
@@ -102,7 +102,7 @@ func (t *DPTierTracker) GetTierEpsilon(tierNodeID string) float64 {
 	defer t.mu.RUnlock()
 
 	if accountant, ok := t.accountants[tierNodeID]; ok {
-		return accountant.Rdp2Eps(1.0, 1e-7)
+		return accountant.GetCurrentEpsilon()
 	}
 	return 0.0
 }
@@ -112,7 +112,7 @@ func (t *DPTierTracker) GetGlobalEpsilon() float64 {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
-	return t.globalBudget.Rdp2Eps(1.0, 1e-7)
+	return t.globalBudget.GetCurrentEpsilon()
 }
 
 // GetTierStats returns aggregation statistics for a tier
@@ -126,7 +126,7 @@ func (t *DPTierTracker) GetTierStats(tierNodeID string) map[string]interface{} {
 	}
 
 	if accountant, ok := t.accountants[tierNodeID]; ok {
-		stats["epsilon"] = accountant.Rdp2Eps(1.0, 1e-7)
+		stats["epsilon"] = accountant.GetCurrentEpsilon()
 	}
 
 	return stats
@@ -139,12 +139,12 @@ func (t *DPTierTracker) GetGlobalStats() map[string]interface{} {
 
 	tierStats := make(map[string]float64)
 	for tierID, accountant := range t.accountants {
-		tierStats[tierID] = accountant.Rdp2Eps(1.0, 1e-7)
+		tierStats[tierID] = accountant.GetCurrentEpsilon()
 	}
 
 	return map[string]interface{}{
 		"total_aggregations": t.totalAggregations,
-		"global_epsilon":     t.globalBudget.Rdp2Eps(1.0, 1e-7),
+		"global_epsilon":     t.globalBudget.GetCurrentEpsilon(),
 		"tier_epsilon":       tierStats,
 		"budget_exhausted":   t.budgetExhausted,
 		"num_tiers":          len(t.accountants),

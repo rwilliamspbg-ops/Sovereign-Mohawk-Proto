@@ -140,15 +140,12 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 		}
 	}
 
-	// Aggregate filtered gradients
-	aggregatedResult := a.aggregateGradients(selectedGradients)
-
 	// Track results
 	a.mu.Lock()
 	a.totalGradients += int64(len(selected))
 
 	// Compute privacy loss via RDP Accountant
-	epsilon := a.accountant.Rdp2Eps(1.0, 1e-5)
+	epsilon := a.accountant.GetCurrentEpsilon()
 
 	a.mu.Unlock()
 
@@ -170,15 +167,18 @@ func (a *StreamingAggregator) assembleGradientFromChunks(assembly *ChunkAssembly
 	// Calculate total dimension
 	totalDim := 0
 	for _, chunk := range assembly.chunks {
-		totalDim += len(chunk.GradientData)
+		totalDim += len(chunk.Payload)
 	}
 
 	gradient := make([]float64, totalDim)
 	offset := 0
 	for i := 0; i < assembly.total; i++ {
 		if chunk, ok := assembly.chunks[i]; ok {
-			copy(gradient[offset:], chunk.GradientData)
-			offset += len(chunk.GradientData)
+			// Convert float32 payload to float64
+			for j, val := range chunk.Payload {
+				gradient[offset+j] = float64(val)
+			}
+			offset += len(chunk.Payload)
 		}
 	}
 	return gradient
