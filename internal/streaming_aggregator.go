@@ -23,14 +23,14 @@ type ChunkAssembly struct {
 
 // StreamingAggregator accepts unordered chunks instead of full tensors
 type StreamingAggregator struct {
-	tier               Tier
-	trans              transport.Transport
-	chunkBuffers       map[string]*ChunkAssembly // nodeID -> assembly
-	mu                 sync.RWMutex
-	batchTimeout       time.Duration
-	quorumSize         int
-	accountant         *RDPAccountant
-	liveness           *StragglerMonitor
+	tier                Tier
+	trans               transport.Transport
+	chunkBuffers        map[string]*ChunkAssembly // nodeID -> assembly
+	mu                  sync.RWMutex
+	batchTimeout        time.Duration
+	quorumSize          int
+	accountant          *RDPAccountant
+	liveness            *StragglerMonitor
 	totalChunksIngested int64
 	totalGradients      int64
 }
@@ -104,7 +104,7 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 	// Collect assembled gradients
 	var assemblies []*ChunkAssembly
 	var nodeIDs []string
-	
+
 	for nodeID, assembly := range a.chunkBuffers {
 		if len(assembly.chunks) == assembly.total {
 			assemblies = append(assemblies, assembly)
@@ -129,7 +129,7 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 	// Apply MultiKrum Byzantine filtering
 	byzantineF := len(assemblies) / 3 // Assume up to 1/3 Byzantine attackers
 	selected, selectedGradients, scores, err := a.applyMultiKrumFiltering(gradients, byzantineF)
-	
+
 	if err != nil {
 		log.Printf("WARNING: MultiKrum filtering failed: %v", err)
 		// Fall back to simple mean aggregation
@@ -146,10 +146,10 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 	// Track results
 	a.mu.Lock()
 	a.totalGradients += int64(len(selected))
-	
+
 	// Compute privacy loss via RDP Accountant
 	epsilon := a.accountant.Rdp2Eps(1.0, 1e-5)
-	
+
 	a.mu.Unlock()
 
 	log.Printf("[%s streaming-aggregator] flushed %d gradients (selected %d after MultiKrum, scores: %v, epsilon: %.4f)",
@@ -248,6 +248,7 @@ func (a *StreamingAggregator) getFallbackSelection(count int) []int {
 		indices[i] = i
 	}
 	return indices
+}
 
 // GetStats returns aggregation statistics
 func (a *StreamingAggregator) GetStats() map[string]interface{} {
