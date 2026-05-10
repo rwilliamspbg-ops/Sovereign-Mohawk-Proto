@@ -68,8 +68,14 @@ func main() {
 	log.Println("✓ Assigned redundant aggregation paths (3-way diversity)")
 	fmt.Println()
 
-	// 7. Create streaming aggregator
-	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter, internal.StreamingAggregatorOptions{})
+	// 7. Create streaming aggregator (transport.MRCAdapter implements transport.Transport interface)
+	opts := internal.StreamingAggregatorOptions{
+		MaxBufferedTensors: 1000,
+		TensorTimeoutSec:   60.0,
+		CheckpointInterval: 500 * time.Millisecond,
+		EnableByzantine:    false,
+	}
+	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter, opts)
 	log.Println("✓ Created streaming aggregator")
 
 	// 8. Start aggregation loop
