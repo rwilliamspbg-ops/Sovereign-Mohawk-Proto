@@ -42,7 +42,7 @@ func NewRPCClient(config TierConfig, parentAddr string) *RPCClient {
 func (c *RPCClient) ForwardGradient(ctx context.Context, gradient *GradientMessage) error {
 	// Check if we're in backoff
 	if time.Now().Before(c.nextRetryTime) {
-		return fmt.Errorf("in retry backoff, try again after %v", c.nextRetryTime.Sub(time.Now()))
+		return fmt.Errorf("in retry backoff, try again after %v", time.Until(c.nextRetryTime))
 	}
 
 	// Validate message integrity

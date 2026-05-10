@@ -77,12 +77,12 @@ func TestFederationScenario3Nodes(t *testing.T) {
 	if err := globalHandler.Start(":9101"); err != nil {
 		t.Fatalf("Failed to start global handler: %v", err)
 	}
-	defer globalHandler.Stop()
+	defer globalHandler.Close()
 
 	if err := continentalHandler.Start(":9102"); err != nil {
 		t.Fatalf("Failed to start continental handler: %v", err)
 	}
-	defer continentalHandler.Stop()
+	defer continentalHandler.Close()
 
 	// Send gradients from regional to continental
 	for i := 0; i < 5; i++ {
@@ -187,11 +187,11 @@ func TestFederationScenario10Nodes(t *testing.T) {
 	// Start handlers
 	globalHandler, _ := NewRPCHandler(globalConfig, ":9111")
 	globalHandler.Start(":9111")
-	defer globalHandler.Stop()
+	defer globalHandler.Close()
 
 	continentalHandler, _ := NewRPCHandler(continentalConfig, ":9112")
 	continentalHandler.Start(":9112")
-	defer continentalHandler.Stop()
+	defer continentalHandler.Close()
 
 	// Create regional clients
 	var wg sync.WaitGroup
@@ -270,7 +270,7 @@ func TestFederationScenario100Nodes(t *testing.T) {
 
 	globalHandler, _ := NewRPCHandler(globalConfig, ":9121")
 	globalHandler.Start(":9121")
-	defer globalHandler.Stop()
+	defer globalHandler.Close()
 
 	// Start continental handlers and regional clients
 	var wg sync.WaitGroup
@@ -305,7 +305,7 @@ func TestFederationScenario100Nodes(t *testing.T) {
 			listenAddr := fmt.Sprintf(":%d", port)
 			continentalHandler, _ := NewRPCHandler(continentalConfig, listenAddr)
 			continentalHandler.Start(listenAddr)
-			defer continentalHandler.Stop()
+			defer continentalHandler.Close()
 
 			// Launch regional clients
 			var regionalWg sync.WaitGroup
@@ -377,7 +377,7 @@ func BenchmarkFederationGradientForwarding(b *testing.B) {
 		":9201",
 	)
 	handler.Start(":9201")
-	defer handler.Stop()
+	defer handler.Close()
 
 	client := NewRPCClient(config, "localhost:9201")
 	ctx := context.Background()
@@ -427,7 +427,7 @@ func BenchmarkFederationBatchForwarding(b *testing.B) {
 		":9202",
 	)
 	handler.Start(":9202")
-	defer handler.Stop()
+	defer handler.Close()
 
 	client := NewRPCClient(config, "localhost:9202")
 	ctx := context.Background()
