@@ -196,16 +196,12 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 
 	// Apply MultiKrum Byzantine filtering
 	byzantineF := len(assemblies) / 3 // Assume up to 1/3 Byzantine attackers
-	selected, selectedGradients, scores, err := a.applyMultiKrumFiltering(gradients, byzantineF)
+	selected, _, scores, err := a.applyMultiKrumFiltering(gradients, byzantineF)
 
 	if err != nil {
 		log.Printf("WARNING: MultiKrum filtering failed: %v", err)
 		// Fall back to simple mean aggregation
 		selected = a.getFallbackSelection(len(gradients))
-		selectedGradients = make([][]float64, len(selected))
-		for i, idx := range selected {
-			selectedGradients[i] = gradients[idx]
-		}
 	}
 
 	// Track results

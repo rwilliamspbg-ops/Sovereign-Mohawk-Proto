@@ -118,9 +118,10 @@ func NewSignatureVerifier(profile HardwareProfile) *SignatureVerifier {
 	}
 
 	batchSize := 256
-	if profile.Type == AcceleratorNVIDIA {
+	switch profile.Type {
+	case AcceleratorNVIDIA:
 		batchSize = 1024 // GPU loves batches
-	} else if profile.Type == AcceleratorIntelNPU {
+	case AcceleratorIntelNPU:
 		batchSize = 64 // NPU prefers smaller batches
 	}
 

@@ -57,7 +57,7 @@ func runStressTest(ctx context.Context, name string, numPaths int, chunkSize int
 	// Measurement variables
 	var totalChunks int64
 	var totalErrors int64
-	var minLatency time.Duration = 1 * time.Hour
+	minLatency := 1 * time.Hour
 	var maxLatency time.Duration
 	var mu sync.Mutex
 
