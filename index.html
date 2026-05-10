@@ -70,6 +70,10 @@
             overflow-x: auto;
             padding: 1rem 0;
         }
+        .badge-header img {
+            height: 22px;
+            max-width: 100%;
+        }
     </style>
 <base target="_blank">
 </head>
@@ -87,6 +91,7 @@
                 </div>
                 <div class="hidden md:flex space-x-8">
                     <a href="#abstract" class="text-gray-600 hover:text-indigo-600 transition">Abstract</a>
+                    <a href="#evidence" class="text-gray-600 hover:text-indigo-600 transition">Evidence</a>
                     <a href="#theorems" class="text-gray-600 hover:text-indigo-600 transition">Theorems</a>
                     <a href="#validation" class="text-gray-600 hover:text-indigo-600 transition">Validation</a>
                     <a href="#implementation" class="text-gray-600 hover:text-indigo-600 transition">Implementation</a>
@@ -124,6 +129,41 @@
         </div>
     </section>
 
+    <!-- Full Badge Header -->
+    <section class="py-8 bg-white border-y border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-5">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Repository Badge Header</h2>
+                <p class="text-sm text-gray-600">Live release, CI, security, compatibility, and readiness indicators from the main branch.</p>
+            </div>
+            <div class="badge-header flex flex-wrap justify-center gap-2">
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases"><img alt="Latest Tag" src="https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&amp;label=Latest%20Tag"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml"><img alt="Build" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml"><img alt="Go Test" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml"><img alt="CodeQL" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/codeql-analysis.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml"><img alt="Security Audit Gate" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-audit-gate.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml"><img alt="Security Supply Chain" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/security-supply-chain.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/simulator-scale-smoke.yml"><img alt="Simulator Scale Smoke" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/simulator-scale-smoke.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml"><img alt="Verify Proofs" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/verify-proofs.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml"><img alt="Action Pin Check" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/workflow-action-pin-check.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml"><img alt="Performance Gate" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/performance-gate.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml"><img alt="Latest Release Performance Gate" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml"><img alt="Mainnet Readiness Gate" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-readiness-gate.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml"><img alt="Mainnet Chaos Gate" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/mainnet-chaos-gate.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml"><img alt="GA Tag Safety" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml/badge.svg"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod"><img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto"></a>
+                <a href="https://pypi.org/project/mohawk/"><img alt="Python SDK" src="https://img.shields.io/pypi/v/mohawk?label=Python%20SDK"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/HARDWARE_COMPATIBILITY.md"><img alt="Compatibility" src="https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043"></a>
+                <a href="https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/"><img alt="Testnet Status" src="https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&amp;label=Testnet%20Status"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/SECURITY.md"><img alt="PQC Transport" src="https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/SECURITY.md"><img alt="TPM Identity" src="https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/RELEASE_NOTES_PQC_OVERHAUL.md"><img alt="PQC Migration" src="https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/COMPLIANCE.md"><img alt="EU AI Act High-Risk Readiness" src="https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/LICENSE.md"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
+            </div>
+        </div>
+    </section>
+
     <!-- CI Status Section -->
     <section class="py-10 bg-indigo-50 border-y border-indigo-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -141,8 +181,8 @@
                 <a class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml">
                     <img alt="FedAvg Benchmark Compare" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/fedavg-benchmark-compare.yml/badge.svg">
                 </a>
-                <a class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml">
-                    <img alt="Bridge Compression Benchmark" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/bridge-compression-benchmark.yml/badge.svg">
+                <a class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml">
+                    <img alt="Release Performance Evidence" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml/badge.svg">
                 </a>
             </div>
             <div class="mt-6 text-center">
@@ -154,6 +194,65 @@
                 <a class="inline-flex items-center px-5 py-2.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 font-semibold hover:bg-indigo-50 transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/BENCHMARKS_AND_REPRODUCIBILITY.md">
                     Benchmarks and Reproducibility Guide
                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evidence Section -->
+    <section id="evidence" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Performance, Lean, and Machine-Verified Evidence</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">This documentation map is updated for current repository status so auditors can jump directly to performance evidence, Lean formalization artifacts, CI validation gates, and machine-readable proof outputs.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                    <div class="text-sm font-semibold text-blue-800 mb-2">Performance</div>
+                    <div class="text-3xl font-bold text-blue-700">233/233</div>
+                    <div class="text-sm text-blue-700 mt-1">Test suite pass rate documented</div>
+                    <a class="inline-block mt-3 text-sm font-semibold text-blue-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PERFORMANCE_SUMMARY.md">Open Performance Summary</a>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+                    <div class="text-sm font-semibold text-emerald-800 mb-2">Lean Formalization</div>
+                    <div class="text-3xl font-bold text-emerald-700">6 Theorems</div>
+                    <div class="text-sm text-emerald-700 mt-1">Formal stack and remediation reports</div>
+                    <a class="inline-block mt-3 text-sm font-semibold text-emerald-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/proofs/FORMAL_TRACEABILITY_MATRIX.md">Open Traceability Matrix</a>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
+                    <div class="text-sm font-semibold text-indigo-800 mb-2">Machine Verifiable</div>
+                    <div class="text-3xl font-bold text-indigo-700">JSON</div>
+                    <div class="text-sm text-indigo-700 mt-1">Machine-readable report + bundle manifest</div>
+                    <a class="inline-block mt-3 text-sm font-semibold text-indigo-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/proofs/formal_validation_report.json">Open Formal Validation JSON</a>
+                </div>
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-5">
+                    <div class="text-sm font-semibold text-orange-800 mb-2">CI Gates</div>
+                    <div class="text-3xl font-bold text-orange-700">Live</div>
+                    <div class="text-sm text-orange-700 mt-1">Lean, test, readiness, and performance workflows</div>
+                    <a class="inline-block mt-3 text-sm font-semibold text-orange-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions">Open Actions Dashboard</a>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Today-Relevant Documentation</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PHASE3_COMPLETE_FINAL_REPORT.md">Phase 3 Completion Final Report</a> - empirical validation outcomes and theorem remediation status.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/REMEDIATION_100_PERCENT_COMPLETE.md">Remediation 100 Percent Complete</a> - publication-readiness justification and remaining standard-result notes.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PERFORMANCE_SUMMARY.md">Performance Summary</a> - 233-test summary, phase-by-phase throughput, and runtime metrics.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/TEST_EXECUTION_COMPLETE_REPORT.md">Test Execution Complete Report</a> - full test coverage taxonomy and phase detail.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Machine-Checkable + Lean Paths</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/proofs/LeanFormalization/">Lean Formalization Modules</a> - theorem source modules maintained in-repo.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/proofs/formal_validation_report.json">Formal Validation Report (JSON)</a> - machine-readable verification output.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/proofs/formal-verification-bundle/bundle_manifest.json">Verification Bundle Manifest</a> - traceable artifact inventory for audit.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/workflows/verify-proofs.yml">Verify Proofs Workflow</a> - CI gate wiring for formal proof checks.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
@@ -323,7 +422,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900">Python SDK v2.0.1.Alpha</h3>
+                            <h3 class="font-bold text-gray-900">Python SDK v2.1.0</h3>
                             <p class="text-sm text-gray-500">High-performance C-shared bridge</p>
                         </div>
                     </div>
