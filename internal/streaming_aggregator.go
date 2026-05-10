@@ -6,6 +6,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -17,8 +18,17 @@ import (
 type ChunkAssembly struct {
 	chunks    map[int]transport.GradientChunk
 	total     int
+	created   time.Time
 	assembled time.Time
 	nodeID    string
+}
+
+// StreamingAggregatorOptions preserves the older tunable constructor surface.
+type StreamingAggregatorOptions struct {
+	MaxBufferedTensors int
+	TensorTimeoutSec   float64
+	CheckpointInterval time.Duration
+	EnableByzantine    bool
 }
 
 // StreamingAggregator accepts unordered chunks instead of full tensors
@@ -31,20 +41,43 @@ type StreamingAggregator struct {
 	quorumSize          int
 	accountant          *RDPAccountant
 	liveness            *StragglerMonitor
+	maxBufferedTensors  int
+	tensorTimeout       time.Duration
+	enableByzantine     bool
 	totalChunksIngested int64
 	totalGradients      int64
+	totalTensorsReady   int64
 }
 
 // NewStreamingAggregator creates a streaming aggregator
-func NewStreamingAggregator(t Tier, trans transport.Transport) *StreamingAggregator {
+func NewStreamingAggregator(t Tier, trans transport.Transport, opts ...StreamingAggregatorOptions) *StreamingAggregator {
+	config := StreamingAggregatorOptions{
+		MaxBufferedTensors: 1000,
+		TensorTimeoutSec:   60.0,
+		CheckpointInterval: 500 * time.Millisecond,
+		EnableByzantine:    false,
+	}
+	if len(opts) > 0 {
+		config = opts[0]
+		if config.CheckpointInterval <= 0 {
+			config.CheckpointInterval = 500 * time.Millisecond
+		}
+		if config.TensorTimeoutSec <= 0 {
+			config.TensorTimeoutSec = 60.0
+		}
+	}
+
 	return &StreamingAggregator{
-		tier:         t,
-		trans:        trans,
-		chunkBuffers: make(map[string]*ChunkAssembly),
-		batchTimeout: 500 * time.Millisecond,
-		quorumSize:   getTierQuorum(t),
-		accountant:   NewRDPAccountant(2.0, 1e-7),
-		liveness:     NewStragglerMonitor(),
+		tier:               t,
+		trans:              trans,
+		chunkBuffers:       make(map[string]*ChunkAssembly),
+		batchTimeout:       config.CheckpointInterval,
+		quorumSize:         getTierQuorum(t),
+		accountant:         NewRDPAccountant(2.0, 1e-7),
+		liveness:           NewStragglerMonitor(),
+		maxBufferedTensors: config.MaxBufferedTensors,
+		tensorTimeout:      time.Duration(config.TensorTimeoutSec * float64(time.Second)),
+		enableByzantine:    config.EnableByzantine,
 	}
 }
 
@@ -55,21 +88,35 @@ func (a *StreamingAggregator) IngestChunk(chunk transport.GradientChunk) error {
 
 	a.totalChunksIngested++
 
-	// Create assembly buffer if needed
-	if a.chunkBuffers[chunk.NodeID] == nil {
-		a.chunkBuffers[chunk.NodeID] = &ChunkAssembly{
-			chunks: make(map[int]transport.GradientChunk),
-			total:  chunk.Total,
-			nodeID: chunk.NodeID,
+	bufferKey := chunk.ID
+	if bufferKey == "" {
+		bufferKey = chunk.NodeID
+	}
+
+	if a.maxBufferedTensors > 0 {
+		_, exists := a.chunkBuffers[bufferKey]
+		if !exists && len(a.chunkBuffers) >= a.maxBufferedTensors {
+			return fmt.Errorf("streaming buffer full: max buffered tensors %d reached", a.maxBufferedTensors)
 		}
 	}
 
-	assembly := a.chunkBuffers[chunk.NodeID]
+	// Create assembly buffer if needed
+	if a.chunkBuffers[bufferKey] == nil {
+		a.chunkBuffers[bufferKey] = &ChunkAssembly{
+			chunks:  make(map[int]transport.GradientChunk),
+			total:   chunk.Total,
+			created: time.Now(),
+			nodeID:  chunk.NodeID,
+		}
+	}
+
+	assembly := a.chunkBuffers[bufferKey]
 	assembly.chunks[chunk.Index] = chunk
 
 	// Check if tensor is complete
 	if len(assembly.chunks) == assembly.total {
 		a.totalGradients++
+		a.totalTensorsReady++
 		assembly.assembled = time.Now()
 		// In production: trigger aggregation here
 	}
@@ -93,6 +140,27 @@ func (a *StreamingAggregator) RunAggregationLoop(ctx context.Context) {
 			}
 		case <-ticker.C:
 			a.flushPartialAggregation()
+			a.checkpointStaleBuffers()
+		}
+	}
+}
+
+// checkpointStaleBuffers evicts incomplete assemblies that have timed out.
+func (a *StreamingAggregator) checkpointStaleBuffers() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	if a.tensorTimeout <= 0 {
+		return
+	}
+
+	now := time.Now()
+	for key, assembly := range a.chunkBuffers {
+		if len(assembly.chunks) >= assembly.total {
+			continue
+		}
+		if !assembly.created.IsZero() && now.Sub(assembly.created) > a.tensorTimeout {
+			delete(a.chunkBuffers, key)
 		}
 	}
 }
@@ -149,7 +217,7 @@ func (a *StreamingAggregator) flushPartialAggregation() {
 
 	a.mu.Unlock()
 
-	log.Printf("[%s streaming-aggregator] flushed %d gradients (selected %d after MultiKrum, scores: %v, epsilon: %.4f)",
+	log.Printf("[%v streaming-aggregator] flushed %d gradients (selected %d after MultiKrum, scores: %v, epsilon: %.4f)",
 		a.tier, len(assemblies), len(selected), scores, epsilon)
 
 	// Clean up processed assemblies
@@ -258,7 +326,9 @@ func (a *StreamingAggregator) GetStats() map[string]interface{} {
 	return map[string]interface{}{
 		"total_chunks_ingested": a.totalChunksIngested,
 		"total_gradients":       a.totalGradients,
+		"total_tensors_ready":   a.totalTensorsReady,
 		"active_assemblies":     len(a.chunkBuffers),
+		"buffered_tensors":      len(a.chunkBuffers),
 	}
 }
 

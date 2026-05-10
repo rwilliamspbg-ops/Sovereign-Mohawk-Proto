@@ -120,11 +120,12 @@ func simulateTrainingRounds(ctx context.Context, trans transport.Transport, agg 
 
 				// Get assigned aggregators
 				aggs, _ := topo.GetAssignedAggregators(nid)
+				tensorID := fmt.Sprintf("%s-round%d", nid, round)
 
 				// Each node sends 100 chunks (10 chunks × 10-dim each = full gradient)
 				for chunk := 0; chunk < 100; chunk++ {
 					gradChunk := transport.GradientChunk{
-						ID:      fmt.Sprintf("%s-round%d-chunk%d", nid, round, chunk),
+						ID:      tensorID,
 						NodeID:  nid,
 						Index:   chunk,
 						Total:   100,
@@ -163,10 +164,18 @@ func displayMetrics(trans transport.Transport, agg *internal.StreamingAggregator
 	fmt.Println("─────────────────────────────")
 	fmt.Println()
 
-	// 7. Create streaming aggregator (transport.MRCAdapter implements transport.Transport interface)
-	streamingAgg := internal.NewStreamingAggregator(internal.Regional, mrcAdapter)
-	log.Println("✓ Created streaming aggregator")
-	fmt.Printf("  Healthy paths: %d (%.1f%%)\n", healthyPaths, float64(healthyPaths)*100/float64(len(health)))
+	health := trans.Health()
+	healthyPaths := 0
+	for _, path := range health {
+		if path.IsHealthy {
+			healthyPaths++
+		}
+	}
+	if len(health) > 0 {
+		fmt.Printf("  Healthy paths: %d (%.1f%%)\n", healthyPaths, float64(healthyPaths)*100/float64(len(health)))
+	} else {
+		fmt.Printf("  Healthy paths: %d\n", healthyPaths)
+	}
 
 	// Aggregator stats
 	stats := agg.GetStats()
