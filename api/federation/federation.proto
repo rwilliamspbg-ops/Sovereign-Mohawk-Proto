@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package federation;
+
+option go_package = "github.com/sovereign-mohawk/proto-gen/federation;federationpb";
+
+import "google/protobuf/timestamp.proto";
+
+// FederationService handles gradient forwarding and aggregation across tiers.
+service FederationService {
+  // ForwardGradient sends a single gradient to parent tier
+  rpc ForwardGradient(GradientRequest) returns (ForwardResponse) {}
+  
+  // ForwardBatch sends multiple gradients in bulk (more efficient)
+  rpc ForwardBatch(BatchRequest) returns (ForwardResponse) {}
+  
+  // ReceiveGradients establishes bidirectional streaming for gradient aggregation
+  rpc ReceiveGradients(stream GradientStreamMessage) returns (stream AggregationStreamResponse) {}
+}
+
+// GradientRequest represents a single gradient to forward to parent tier
+message GradientRequest {
+  // Gradient identity
+  string gradient_id = 1;
+  string source_node_id = 2;
+  string source_tier_node_id = 3;
+  uint64 aggregation_round = 4;
+  
+  // Gradient tensor data
+  int32 dimension_count = 5;
+  repeated double gradient_data = 6 [packed = true];
+  double norm = 7;
+  
+  // Timing and provenance
+  google.protobuf.Timestamp timestamp = 8;
+  repeated string path_hops = 9;  // Breadcrumb trail
+  bytes proof = 10;  // Byzantine resilience proof
+}
+
+// BatchRequest forwards multiple gradients efficiently
+message BatchRequest {
+  repeated GradientRequest gradients = 1;
+  string batch_id = 2;
+  int32 batch_size = 3;
+}
+
+// ForwardResponse acknowledges receipt of gradient(s)
+message ForwardResponse {
+  bool success = 1;
+  string message = 2;
+  int32 accepted_count = 3;
+  int64 server_process_time_ms = 4;
+}
+
+// GradientStreamMessage is sent by child nodes to parent (stream client → server)
+message GradientStreamMessage {
+  // Identity for routing
+  string source_node_id = 1;
+  string source_tier_node_id = 2;
+  
+  // Gradient data (one or multiple per message for efficiency)
+  repeated SingleGradient gradients = 3;
+  
+  // Aggregation context
+  uint64 aggregation_round = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+// SingleGradient represents one gradient in a stream
+message SingleGradient {
+  string gradient_id = 1;
+  int32 dimension_count = 2;
+  repeated double gradient_data = 3 [packed = true];
+  double norm = 4;
+  bytes proof = 5;
+}
+
+// AggregationStreamResponse is sent by parent nodes to children (stream server → client)
+message AggregationStreamResponse {
+  // Acknowledgment
+  string gradient_id = 1;
+  bool received = 2;
+  
+  // Aggregation status
+  string aggregation_status = 3;  // "received", "processing", "aggregated"
+  
+  // Health information
+  int64 server_process_time_ms = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  
+  // Batch aggregation result (sent when round complete)
+  AggregationResult round_result = 6;
+}
+
+// AggregationResult represents the aggregated gradients from this tier
+message AggregationResult {
+  uint64 round_id = 1;
+  string tier_node_id = 2;
+  int32 aggregated_count = 3;
+  int32 skipped_count = 4;  // Byzantine filtered
+  repeated double gradient_result = 5 [packed = true];
+  double gradient_norm = 6;
+  int64 aggregation_time_ms = 7;
+  string aggregation_method = 8;  // "mean", "median", "multikrum", etc.
+}
+
+// HealthCheckRequest for periodic health monitoring
+message HealthCheckRequest {
+  string tier_node_id = 1;
+}
+
+// HealthCheckResponse provides tier link status
+message HealthCheckResponse {
+  bool healthy = 1;
+  double latency_ms = 2;
+  double packet_loss = 3;
+  int64 gradients_forwarded = 4;
+  int64 gradients_received = 5;
+  google.protobuf.Timestamp last_check = 6;
+}

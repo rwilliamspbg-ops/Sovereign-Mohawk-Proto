@@ -97,23 +97,157 @@ func (a *StreamingAggregator) RunAggregationLoop(ctx context.Context) {
 	}
 }
 
-// flushPartialAggregation triggers even if not all chunks arrived
+// flushPartialAggregation triggers Byzantine filtering and aggregation
 func (a *StreamingAggregator) flushPartialAggregation() {
 	a.mu.Lock()
-	defer a.mu.Unlock()
 
-	assembled := 0
-	for _, assembly := range a.chunkBuffers {
-		if len(assembly.chunks) > 0 {
-			assembled++
+	// Collect assembled gradients
+	var assemblies []*ChunkAssembly
+	var nodeIDs []string
+	
+	for nodeID, assembly := range a.chunkBuffers {
+		if len(assembly.chunks) == assembly.total {
+			assemblies = append(assemblies, assembly)
+			nodeIDs = append(nodeIDs, nodeID)
 		}
 	}
 
-	if assembled >= a.quorumSize {
-		// In production: trigger aggregation on partial data
-		_ = assembled
+	// Need minimum quorum for Byzantine filtering
+	if len(assemblies) < a.quorumSize {
+		a.mu.Unlock()
+		return
 	}
+
+	// Convert chunk assemblies to full gradient tensors
+	gradients := make([][]float64, len(assemblies))
+	for i, assembly := range assemblies {
+		gradient := a.assembleGradientFromChunks(assembly)
+		gradients[i] = gradient
+	}
+	a.mu.Unlock()
+
+	// Apply MultiKrum Byzantine filtering
+	byzantineF := len(assemblies) / 3 // Assume up to 1/3 Byzantine attackers
+	selected, selectedGradients, scores, err := a.applyMultiKrumFiltering(gradients, byzantineF)
+	
+	if err != nil {
+		log.Printf("WARNING: MultiKrum filtering failed: %v", err)
+		// Fall back to simple mean aggregation
+		selected = a.getFallbackSelection(len(gradients))
+		selectedGradients = make([][]float64, len(selected))
+		for i, idx := range selected {
+			selectedGradients[i] = gradients[idx]
+		}
+	}
+
+	// Aggregate filtered gradients
+	aggregatedResult := a.aggregateGradients(selectedGradients)
+
+	// Track results
+	a.mu.Lock()
+	a.totalGradients += int64(len(selected))
+	
+	// Compute privacy loss via RDP Accountant
+	epsilon := a.accountant.Rdp2Eps(1.0, 1e-5)
+	
+	a.mu.Unlock()
+
+	log.Printf("[%s streaming-aggregator] flushed %d gradients (selected %d after MultiKrum, scores: %v, epsilon: %.4f)",
+		a.tier, len(assemblies), len(selected), scores, epsilon)
+
+	// Clean up processed assemblies
+	a.mu.Lock()
+	for i, nodeID := range nodeIDs {
+		if i < len(selected) {
+			delete(a.chunkBuffers, nodeID)
+		}
+	}
+	a.mu.Unlock()
 }
+
+// assembleGradientFromChunks reconstructs full gradient from chunks
+func (a *StreamingAggregator) assembleGradientFromChunks(assembly *ChunkAssembly) []float64 {
+	// Calculate total dimension
+	totalDim := 0
+	for _, chunk := range assembly.chunks {
+		totalDim += len(chunk.GradientData)
+	}
+
+	gradient := make([]float64, totalDim)
+	offset := 0
+	for i := 0; i < assembly.total; i++ {
+		if chunk, ok := assembly.chunks[i]; ok {
+			copy(gradient[offset:], chunk.GradientData)
+			offset += len(chunk.GradientData)
+		}
+	}
+	return gradient
+}
+
+// applyMultiKrumFiltering uses MultiKrum algorithm for Byzantine resilience
+func (a *StreamingAggregator) applyMultiKrumFiltering(gradients [][]float64, f int) ([]int, [][]float64, []float64, error) {
+	if len(gradients) <= 2*f+2 {
+		// Not enough gradients for Byzantine tolerance, return all
+		indices := make([]int, len(gradients))
+		for i := range indices {
+			indices[i] = i
+		}
+		scores := make([]float64, len(gradients))
+		return indices, gradients, scores, nil
+	}
+
+	// Apply MultiKrum with Byzantine parameter f
+	selected, scores, err := MultiKrumSelect(gradients, f, 0) // m=0 uses default
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Extract selected gradients
+	selectedGradients := make([][]float64, len(selected))
+	for i, idx := range selected {
+		selectedGradients[i] = gradients[idx]
+	}
+
+	return selected, selectedGradients, scores, nil
+}
+
+// aggregateGradients computes mean of multiple gradients
+func (a *StreamingAggregator) aggregateGradients(gradients [][]float64) []float64 {
+	if len(gradients) == 0 {
+		return nil
+	}
+
+	dim := len(gradients[0])
+	result := make([]float64, dim)
+
+	for _, g := range gradients {
+		if len(g) != dim {
+			log.Printf("WARNING: gradient dimension mismatch: %d != %d", len(g), dim)
+			continue
+		}
+		for i := range result {
+			result[i] += g[i]
+		}
+	}
+
+	// Average
+	if len(gradients) > 0 {
+		scale := 1.0 / float64(len(gradients))
+		for i := range result {
+			result[i] *= scale
+		}
+	}
+
+	return result
+}
+
+// getFallbackSelection returns all indices when Byzantine filtering fails
+func (a *StreamingAggregator) getFallbackSelection(count int) []int {
+	indices := make([]int, count)
+	for i := range indices {
+		indices[i] = i
+	}
+	return indices
 
 // GetStats returns aggregation statistics
 func (a *StreamingAggregator) GetStats() map[string]interface{} {

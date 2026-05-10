@@ -21,6 +21,7 @@ type RPCClient struct {
 	gradientsForwarded int64
 	nextRetryTime      time.Time
 	retryBackoff       time.Duration // Exponential backoff on failures
+	grpcBackend        *GRPCClientBackend
 }
 
 // NewRPCClient creates a client for parent tier communication
@@ -33,6 +34,7 @@ func NewRPCClient(config TierConfig, parentAddr string) *RPCClient {
 			ParentNodeID:    config.ParentTierNodeID,
 			LastHealthCheck: time.Now(),
 		},
+		grpcBackend: NewGRPCClientBackend(config, parentAddr),
 	}
 }
 
@@ -51,26 +53,38 @@ func (c *RPCClient) ForwardGradient(ctx context.Context, gradient *GradientMessa
 	// Record routing breadcrumb
 	gradient.PathHops = append(gradient.PathHops, c.config.TierID)
 
-	// TODO: Implement actual gRPC client call
-	// For now, simulate the RPC
+	// Use actual gRPC backend
 	startTime := time.Now()
-	err := c.simulateGRPCForward(ctx, gradient)
+
+	// Ensure connection is established
+	if err := c.grpcBackend.Connect(ctx); err != nil {
+		c.recordFailure(float64(time.Since(startTime).Milliseconds()))
+		c.applyBackoff()
+		return fmt.Errorf("gRPC connect failed: %w", err)
+	}
+
+	// Send gradient via gRPC
+	err := c.grpcBackend.SendGradient(ctx, gradient)
 	latencyMs := float64(time.Since(startTime).Milliseconds())
 
 	if err != nil {
 		c.recordFailure(latencyMs)
-		// Exponential backoff: 500ms, 1s, 2s, 4s, max 30s
-		c.retryBackoff = time.Duration(float64(c.retryBackoff) * 1.5)
-		if c.retryBackoff > 30*time.Second {
-			c.retryBackoff = 30 * time.Second
-		}
-		c.nextRetryTime = time.Now().Add(c.retryBackoff)
-		return fmt.Errorf("forward failed: %w", err)
+		c.applyBackoff()
+		return fmt.Errorf("gRPC forward failed: %w", err)
 	}
 
 	c.recordSuccess(latencyMs)
 	c.retryBackoff = 500 * time.Millisecond // Reset on success
 	return nil
+}
+
+// applyBackoff applies exponential backoff on failure
+func (c *RPCClient) applyBackoff() {
+	c.retryBackoff = time.Duration(float64(c.retryBackoff) * 1.5)
+	if c.retryBackoff > 30*time.Second {
+		c.retryBackoff = 30 * time.Second
+	}
+	c.nextRetryTime = time.Now().Add(c.retryBackoff)
 }
 
 // ForwardBatch forwards multiple gradients to parent tier (more efficient)
@@ -85,12 +99,23 @@ func (c *RPCClient) ForwardBatch(ctx context.Context, gradients []*GradientMessa
 	}
 
 	startTime := time.Now()
-	accepted, err = c.simulateGRPCBatch(ctx, gradients)
+
+	// Ensure connection is established
+	if err := c.grpcBackend.Connect(ctx); err != nil {
+		latencyMs := float64(time.Since(startTime).Milliseconds())
+		c.recordFailure(latencyMs)
+		c.applyBackoff()
+		return 0, fmt.Errorf("gRPC connect failed: %w", err)
+	}
+
+	// Send batch via gRPC
+	accepted, err = c.grpcBackend.SendBatch(ctx, gradients)
 	latencyMs := float64(time.Since(startTime).Milliseconds())
 
 	if err != nil {
 		c.recordFailure(latencyMs)
-		return 0, fmt.Errorf("batch forward failed: %w", err)
+		c.applyBackoff()
+		return 0, fmt.Errorf("gRPC batch forward failed: %w", err)
 	}
 
 	c.recordSuccess(latencyMs)
@@ -132,44 +157,23 @@ func (c *RPCClient) recordFailure(latencyMs float64) {
 
 // simulateGRPCForward simulates gRPC call (placeholder for actual implementation)
 func (c *RPCClient) simulateGRPCForward(ctx context.Context, gradient *GradientMessage) error {
-	// Simulate 50-200ms RPC latency
-	latency := time.Duration(50+int(time.Now().UnixNano()%150)) * time.Millisecond
-	select {
-	case <-time.After(latency):
-		// 99% success rate simulation
-		if (int(c.gradientsForwarded) % 100) > 0 {
-			return nil
-		}
-		return fmt.Errorf("simulated RPC timeout")
-	case <-ctx.Done():
-		return ctx.Err()
-	}
+	// Deprecated: Use actual gRPC backend instead
+	return fmt.Errorf("simulation deprecated, use actual gRPC backend")
 }
 
 // simulateGRPCBatch simulates batched gRPC call (placeholder for actual implementation)
 func (c *RPCClient) simulateGRPCBatch(ctx context.Context, gradients []*GradientMessage) (int, error) {
-	// Simulate batch RPC (scales better than individual)
-	latency := time.Duration(50+int(time.Now().UnixNano()%100)) * time.Millisecond
-	select {
-	case <-time.After(latency):
-		// Batch success rate is higher (99.5%)
-		accepted := len(gradients)
-		if (int(c.gradientsForwarded) % 200) < 1 {
-			accepted = len(gradients) / 2 // Partial failure
-		}
-		if accepted == 0 {
-			return 0, fmt.Errorf("simulated batch RPC timeout")
-		}
-		return accepted, nil
-	case <-ctx.Done():
-		return 0, ctx.Err()
-	}
+	// Deprecated: Use actual gRPC backend instead
+	return 0, fmt.Errorf("simulation deprecated, use actual gRPC backend")
 }
 
-// Close gracefully shuts down RPC client
+// Close gracefully shuts down RPC client and gRPC connection
 func (c *RPCClient) Close() error {
-	// Flush any pending forwards to parent
 	log.Printf("[%s rpc-client] shutting down (forwarded %d gradients)",
 		c.config.TierID, c.gradientsForwarded)
+
+	if c.grpcBackend != nil {
+		return c.grpcBackend.Close()
+	}
 	return nil
 }

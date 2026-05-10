@@ -58,6 +58,40 @@ func NewRPCHandler(config TierConfig, listenAddr string) (*RPCHandler, error) {
 	return handler, nil
 }
 
+// receiveGradient processes an incoming gradient from gRPC or other transport
+func (h *RPCHandler) receiveGradient(gradient *GradientMessage) error {
+	if gradient == nil || len(gradient.GradientData) == 0 {
+		return fmt.Errorf("invalid gradient: nil or empty data")
+	}
+
+	// Add to aggregation channel (non-blocking with buffer fallback)
+	select {
+	case h.aggregationChan <- gradient:
+		h.recordGradientReceived(gradient.SourceNodeID)
+		return nil
+	default:
+		// Channel is full, buffer the gradient
+		h.bufferMu.Lock()
+		defer h.bufferMu.Unlock()
+
+		// Check if we're at capacity
+		totalBuffered := 0
+		for _, buf := range h.childBuffers {
+			totalBuffered += len(buf)
+		}
+		if totalBuffered >= h.maxBufferSize {
+			return fmt.Errorf("aggregation buffer full, dropping gradient")
+		}
+
+		// Buffer the gradient
+		key := fmt.Sprintf("round-%d", gradient.AggregationRound)
+		h.childBuffers[key] = append(h.childBuffers[key], gradient)
+		h.recordGradientReceived(gradient.SourceNodeID)
+
+		return nil
+	}
+}
+
 // Start begins listening for incoming gradients from child nodes
 func (h *RPCHandler) Start(listenAddr string) error {
 	listener, err := net.Listen("tcp", listenAddr)
