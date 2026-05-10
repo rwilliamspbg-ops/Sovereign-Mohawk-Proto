@@ -1,6 +1,6 @@
 # Stage 1: Build the Go binary
 # Pinning to a specific version instead of :latest (DL3007)
-FROM golang:1.26-alpine AS builder
+FROM golang:1.26.3-alpine AS builder
 
 # Install build dependencies without pinning obsolete Alpine package revisions
 RUN apk add --no-cache git make
