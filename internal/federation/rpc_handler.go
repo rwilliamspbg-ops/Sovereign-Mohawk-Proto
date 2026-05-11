@@ -32,6 +32,10 @@ type RPCHandler struct {
 	aggregationChan    chan *GradientMessage
 	aggregationTimeout time.Duration
 	done               chan struct{}
+	// Active connections tracking for graceful shutdown
+	connMu sync.Mutex
+	conns  map[net.Conn]struct{}
+	connWg sync.WaitGroup
 }
 
 // NewRPCHandler creates a handler for child tier gradient streams
@@ -45,6 +49,7 @@ func NewRPCHandler(config TierConfig, listenAddr string) (*RPCHandler, error) {
 		aggregationTimeout: 5 * time.Second,
 		maxBufferSize:      config.MaxBufferedGradients,
 		done:               make(chan struct{}),
+		conns:              make(map[net.Conn]struct{}),
 	}
 
 	// Initialize child health tracking
@@ -127,9 +132,29 @@ func (h *RPCHandler) acceptLoop() {
 			continue
 		}
 
-		// Handle connection in goroutine
-		go h.handleConnection(conn)
+		// Track and handle connection in goroutine
+		h.connWg.Add(1)
+		h.addConn(conn)
+		go func(c net.Conn) {
+			defer h.connWg.Done()
+			defer h.removeConn(c)
+			h.handleConnection(c)
+		}(conn)
 	}
+}
+
+// addConn registers an active connection
+func (h *RPCHandler) addConn(c net.Conn) {
+	h.connMu.Lock()
+	defer h.connMu.Unlock()
+	h.conns[c] = struct{}{}
+}
+
+// removeConn unregisters an active connection
+func (h *RPCHandler) removeConn(c net.Conn) {
+	h.connMu.Lock()
+	defer h.connMu.Unlock()
+	delete(h.conns, c)
 }
 
 // handleConnection processes incoming gradients from a single child node
@@ -206,7 +231,14 @@ func (h *RPCHandler) AggregateLoop(ctx context.Context) {
 			log.Printf("[%s rpc-handler] shutdown requested", h.config.TierID)
 			return
 
-		case gradient := <-h.aggregationChan:
+		case gradient, ok := <-h.aggregationChan:
+			if !ok {
+				log.Printf("[%s rpc-handler] aggregation channel closed, exiting aggregate loop", h.config.TierID)
+				return
+			}
+			if gradient == nil {
+				continue
+			}
 			h.bufferGradient(gradient)
 
 		case <-ticker.C:
@@ -329,11 +361,32 @@ func (h *RPCHandler) Stats() map[string]interface{} {
 
 // Close gracefully shuts down RPC handler
 func (h *RPCHandler) Close() error {
-	close(h.done)
+	// First, close the listener to unblock Accept
 	if h.listener != nil {
-		h.listener.Close()
+		_ = h.listener.Close()
 	}
+
+	// Signal goroutines to stop
+	select {
+	case <-h.done:
+		// already closed
+	default:
+		close(h.done)
+	}
+
+	// Close active connections to unblock any Read/Write
+	h.connMu.Lock()
+	for c := range h.conns {
+		_ = c.Close()
+	}
+	h.connMu.Unlock()
+
+	// Wait for connection handlers to finish
+	h.connWg.Wait()
+
+	// Now safe to close aggregation channel
 	close(h.aggregationChan)
+
 	log.Printf("[%s rpc-handler] shutting down (received %d, aggregated %d)",
 		h.config.TierID, atomic.LoadInt64(&h.gradientsReceived), atomic.LoadInt64(&h.gradientsAggregated))
 	return nil

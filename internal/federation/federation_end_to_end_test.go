@@ -77,12 +77,10 @@ func TestFederationScenario3Nodes(t *testing.T) {
 	if err := globalHandler.Start(":9101"); err != nil {
 		t.Fatalf("Failed to start global handler: %v", err)
 	}
-	defer globalHandler.Close()
 
 	if err := continentalHandler.Start(":9102"); err != nil {
 		t.Fatalf("Failed to start continental handler: %v", err)
 	}
-	defer continentalHandler.Close()
 
 	// Send gradients from regional to continental
 	for i := 0; i < 5; i++ {
@@ -114,6 +112,14 @@ func TestFederationScenario3Nodes(t *testing.T) {
 	health := regionalClient.Health()
 	if health.GradientsForwarded == 0 {
 		t.Logf("NOTE: Regional node may have connection issues (expected in test)")
+	}
+
+	// Explicitly close handlers and wait for shutdown
+	if err := continentalHandler.Close(); err != nil {
+		t.Fatalf("continental handler close failed: %v", err)
+	}
+	if err := globalHandler.Close(); err != nil {
+		t.Fatalf("global handler close failed: %v", err)
 	}
 
 	t.Logf("3-node scenario test completed")
