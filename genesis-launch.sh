@@ -145,13 +145,6 @@ if [[ "$(docker inspect -f '{{.State.Health.Status}}' federated-router 2>/dev/nu
   exit 1
 fi
 
-for i in {1..30}; do
-  if [[ "$(docker inspect -f '{{.State.Health.Status}}' ops-assistant 2>/dev/null || true)" == "healthy" ]]; then
-    break
-  fi
-  sleep 2
-done
-
 if [[ "$NODE_MODE" == "all" ]]; then
   "$COMPOSE_CMD" up -d node-agent-1 node-agent-2 node-agent-3
   expected_nodes=3
@@ -224,6 +217,10 @@ if [[ "$running_nodes" -lt "$expected_nodes" ]]; then
     docker logs "$name" --tail 200 2>&1 || true
   done
   exit 1
+fi
+
+if [[ "$(docker inspect -f '{{.State.Health.Status}}' ops-assistant 2>/dev/null || true)" != "healthy" ]]; then
+  echo "warning: ops-assistant is not healthy yet; continuing with orchestrator and node agents" >&2
 fi
 
 echo ""
