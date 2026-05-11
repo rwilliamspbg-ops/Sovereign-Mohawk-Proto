@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"sync"
 	"time"
+
+	mohawkaccel "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/accelerator"
 )
 
 // AcceleratorType identifies hardware accelerator capabilities
@@ -404,6 +406,24 @@ func main() {
 		fmt.Printf("  Combined Throughput: %.0f ops/sec\n", result["combined_throughput"])
 		fmt.Println()
 	}
+
+	fmt.Println("🧭 Auto-Tune Selector")
+	fmt.Println("====================")
+	fmt.Println()
+
+	profile := mohawkaccel.BuildAutoTuneProfile(8192)
+	fmt.Printf("Selected Backend: %s\n", profile.SelectedDevice.Backend)
+	fmt.Printf("Selected Device: %s\n", profile.SelectedDevice.Name)
+	fmt.Printf("Preferred Gradient Format: %s\n", profile.PreferredFormat)
+	fmt.Printf("Recommended Workers: %d\n", profile.RecommendedWorker)
+	fmt.Printf("Detected Backends: ")
+	for i, device := range profile.DetectedDevices {
+		if i > 0 {
+			fmt.Print(", ")
+		}
+		fmt.Print(device.Backend)
+	}
+	fmt.Println()
 
 	fmt.Println("✅ Hardware acceleration profile ready for deployment")
 }

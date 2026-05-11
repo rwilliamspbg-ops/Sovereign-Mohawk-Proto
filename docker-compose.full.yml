@@ -48,6 +48,11 @@ services:
       file: docker-compose.yml
       service: ipfs
 
+  accelerator-detect:
+    extends:
+      file: docker-compose.yml
+      service: accelerator-detect
+
   shard-us-east:
     extends:
       file: docker-compose.yml
