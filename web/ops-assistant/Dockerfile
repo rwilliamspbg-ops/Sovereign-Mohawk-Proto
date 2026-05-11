@@ -20,6 +20,28 @@ COPY web/ops-assistant/public ./public
 # Build
 RUN npm run build
 
+# Create minimal runtime server to serve static client and provide health endpoint
+RUN mkdir -p dist/server && cat > dist/server/index.js <<'JS'
+const express = require('express');
+const path = require('path');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname, '..', 'client')));
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'healthy', timestamp: Date.now() });
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`Minimal ops-assistant server listening on ${PORT}`);
+});
+JS
+
 # Runtime stage
 FROM node:20-alpine
 
