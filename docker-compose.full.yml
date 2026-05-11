@@ -131,3 +131,10 @@ services:
 networks:
   mohawk-net:
     driver: bridge
+
+# No indentation for top-level keys
+volumes:
+  prometheus-data:
+  alertmanager-data:
+  grafana-data:
+  ipfs-data:
