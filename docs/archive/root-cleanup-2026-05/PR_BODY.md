@@ -11,11 +11,11 @@ This PR implements a hybrid workflow for the academic paper:
 - Refactored all Python scripts for PEP8 and ruff/black compliance.
 - Ran all linting, formatting, and type checks (ruff, black, mypy).
 - Validation scripts pass at 96%+ (non-gating fails only).
-- All changes follow the [CONTRIBUTING.md](CONTRIBUTING.md) guide and PR template.
+- All changes follow the project contributor guide and PR template.
 
 ## How to View the Paper
 
-- [Download/view the full PDF](ACADEMIC_PAPER.pdf)
+- Download/view the full PDF: See ACADEMIC_PAPER.pdf in root
 - See the LaTeX source in `ACADEMIC_PAPER.tex`
 - Read the summary and key results below.
 
@@ -32,7 +32,7 @@ Sovereign-Mohawk is the first federated learning system to achieve a production 
 - $\mathcal{O}(1)$ zk-SNARK verification in $\sim$10ms
 - Non-IID convergence under bounded heterogeneity
 
-For full details, proofs, and benchmarks, see the [PDF](ACADEMIC_PAPER.pdf).
+For full details, proofs, and benchmarks, see the academic paper in the root directory.
 
 ---
 

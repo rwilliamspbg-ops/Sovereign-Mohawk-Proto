@@ -44,7 +44,7 @@ This PR delivers **Phase 1 of the Ease-of-Use Improvement Plan**, implementing c
 
 ### Contributor Guide Compliance
 
-Per [CONTRIBUTING.md](./CONTRIBUTING.md):
+Per project contributor guidelines:
 
 - [x] **Branch naming**: `feat/` prefix (actually `ease-of-use-improvements-phase1`)
 - [x] **Code quality**: Bash scripts with error handling (`set -e`)
@@ -213,7 +213,7 @@ bash scripts/docker-compose-info.sh
 
 ### Contribution Type: Documentation + Developer Tools
 
-Per [CONTRIBUTING.md](./CONTRIBUTING.md):
+Per project contributor guidelines:
 - **Track**: Documentation (5 points)
 - **Role**: Any
 - **Goal**: Improve READMEs and technical specs

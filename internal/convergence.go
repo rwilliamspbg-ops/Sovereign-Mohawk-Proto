@@ -46,7 +46,9 @@ func (c *ConvergenceMonitor) EffectiveThreshold() float64 {
 }
 
 // EnvelopeBound computes the current formalization-aligned envelope
-//   1 / (2KT) + ζ²
+//
+//	1 / (2KT) + ζ²
+//
 // for positive client/round counts. When either parameter is non-positive,
 // the runtime guard falls back to the heterogeneity floor.
 func (c *ConvergenceMonitor) EnvelopeBound(clients int, rounds int) float64 {

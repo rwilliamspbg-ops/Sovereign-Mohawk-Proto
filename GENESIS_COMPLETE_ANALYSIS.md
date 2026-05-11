@@ -32,7 +32,6 @@
 ### Performance Review Documents
 - **[PERFORMANCE_REVIEW_GENESIS_3NODE.md](PERFORMANCE_REVIEW_GENESIS_3NODE.md)** — System setup and baseline metrics
 - **[FIX_SUMMARY.md](FIX_SUMMARY.md)** — CI test fixes applied
-- **[PR_INDEX.md](PR_INDEX.md)** — PR submission navigation
 
 ---
 
