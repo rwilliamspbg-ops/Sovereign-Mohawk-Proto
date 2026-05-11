@@ -7,6 +7,7 @@ WORKDIR /app
 COPY web/ops-assistant/package*.json ./
 COPY web/ops-assistant/tsconfig.json ./
 COPY web/ops-assistant/vite.config.ts ./
+COPY web/ops-assistant/local-packages ./local-packages
 
 # Install dependencies
 RUN npm ci
