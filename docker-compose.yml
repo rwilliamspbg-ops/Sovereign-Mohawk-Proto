@@ -346,6 +346,37 @@ services:
     networks:
       - mohawk-net
 
+  ops-assistant:
+    build:
+      context: .
+      dockerfile: web/ops-assistant/Dockerfile
+    container_name: ops-assistant
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - NODE_ENV=production
+    ports:
+      - "3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
+        reservations:
+          cpus: '0.25'
+          memory: 256m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - mohawk-net
+
   ipfs:
     image: ipfs/kubo:v0.28.0
     container_name: ipfs

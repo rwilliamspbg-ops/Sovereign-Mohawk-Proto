@@ -23,6 +23,7 @@ These dashboards provide a role-based observability model:
 - `v2-10-ops-overview.json`: Golden signals and service-level health trends.
 - `v2-11-ops-incidents.json`: Triage-first incident timeline and impact scope.
 - `v2-13-ops-router-command-center.json`: Dedicated router throughput, reliability, and provenance forensics.
+- `v2-14-ops-mrc-transport.json`: MRC transport path health, gradient throughput, and accelerator proxy telemetry.
 - `v2-12-security-pqc-compliance.json`: Security policy and PQC enforcement posture.
 - `v2-20-eng-latency-drilldown.json`: Latency percentile and bottleneck drilldown.
 - `v2-21-eng-node-agents.json`: Node-agent fleet status and quality metrics.

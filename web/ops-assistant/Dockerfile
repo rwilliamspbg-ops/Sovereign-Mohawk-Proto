@@ -1,0 +1,52 @@
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY vite.config.ts ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY server ./server
+COPY client ./client
+COPY public ./public
+
+# Build
+RUN npm run build
+
+# Runtime stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install curl for healthchecks
+RUN apk add --no-cache curl tini
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# Copy built assets from builder
+COPY --from=builder /app/dist ./dist
+
+# Environment defaults
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV PROMETHEUS_URL=http://prometheus:9090
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use tini to handle signals properly
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start server
+CMD ["node", "dist/server/index.js"]

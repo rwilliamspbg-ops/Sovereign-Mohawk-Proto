@@ -119,6 +119,7 @@ CORE_SERVICES=(
   prometheus
   alertmanager
   grafana
+  ops-assistant
   ipfs
 )
 
@@ -144,6 +145,13 @@ if [[ "$(docker inspect -f '{{.State.Health.Status}}' federated-router 2>/dev/nu
   exit 1
 fi
 
+for i in {1..30}; do
+  if [[ "$(docker inspect -f '{{.State.Health.Status}}' ops-assistant 2>/dev/null || true)" == "healthy" ]]; then
+    break
+  fi
+  sleep 2
+done
+
 if [[ "$NODE_MODE" == "all" ]]; then
   "$COMPOSE_CMD" up -d node-agent-1 node-agent-2 node-agent-3
   expected_nodes=3
@@ -167,4 +175,30 @@ if [[ "$running_nodes" -lt "$expected_nodes" ]]; then
   exit 1
 fi
 
-echo "genesis launch complete: orchestrator + $running_nodes node agent(s) running"
+echo ""
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║  Genesis Launch Complete: Sovereign Mohawk Stack Ready        ║"
+echo "╚════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Core Services:"
+echo "  • Orchestrator:        https://localhost:8080"
+echo "  • Federated Router:    http://localhost:8087"
+echo "  • Grafana:             http://localhost:3000 (admin/admin)"
+echo "  • Prometheus:          http://localhost:9090"
+echo "  • IPFS:                http://localhost:5001"
+echo ""
+echo "AI Operations Assistant:"
+echo "  • CopilotKit Ops:      http://localhost:3001 ✨"
+echo "    → Ask about metrics, dashboards, and incident analysis"
+echo ""
+echo "Cluster Status:"
+echo "  • Orchestrator:        Ready (1 primary)"
+echo "  • Federated Router:    Ready (1 instance)"
+echo "  • Node Agents:         Running ($running_nodes instance(s))"
+echo ""
+echo "Quick Start:"
+echo "  1. Open http://localhost:3001 to access the AI Operations Assistant"
+echo "  2. Ask: 'What is the current gradient throughput?'"
+echo "  3. Ask: 'Generate an incident summary from the last 30 minutes'"
+echo "  4. Ask: 'Explain the v2-10-ops-overview dashboard'"
+echo ""
