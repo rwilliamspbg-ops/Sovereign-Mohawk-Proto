@@ -1,0 +1,117 @@
+======================================================================
+Federation Sharding Scaling Analysis
+======================================================================
+
+
+Network Size: 10,000,000 nodes
+----------------------------------------------------------------------
+Federations: 10
+Avg federation size: 1,000,000 nodes
+
+Within-federation aggregation:
+  Type: TWO_LEVEL_HIERARCHICAL
+  Latency: 38ms
+  Rounds/hour: 1570
+
+Global merging:
+  Strategy: 1h
+  Merge latency: 11sec
+  Loss penalty: 5.0%
+  Merges/day: 24
+
+Training estimates:
+  Model size: 14GB (7B params)
+  Convergence time: 14 days
+  Total communication: 4704GB
+
+
+Network Size: 100,000,000 nodes
+----------------------------------------------------------------------
+Federations: 100
+Avg federation size: 1,000,000 nodes
+
+Within-federation aggregation:
+  Type: TWO_LEVEL_HIERARCHICAL
+  Latency: 38ms
+  Rounds/hour: 1570
+
+Global merging:
+  Strategy: 1h
+  Merge latency: 11sec
+  Loss penalty: 5.0%
+  Merges/day: 24
+
+Training estimates:
+  Model size: 14GB (7B params)
+  Convergence time: 14 days
+  Total communication: 4704GB
+
+
+Network Size: 1,000,000,000 nodes
+----------------------------------------------------------------------
+Federations: 1000
+Avg federation size: 1,000,000 nodes
+
+Within-federation aggregation:
+  Type: TWO_LEVEL_HIERARCHICAL
+  Latency: 38ms
+  Rounds/hour: 1570
+
+Global merging:
+  Strategy: 1h
+  Merge latency: 11sec
+  Loss penalty: 5.0%
+  Merges/day: 24
+
+Training estimates:
+  Model size: 14GB (7B params)
+  Convergence time: 14 days
+  Total communication: 4704GB
+
+
+======================================================================
+Architecture Comparison: >10M Nodes
+======================================================================
+
+Single-Level HVA:
+  Pros:
+    + Simple, minimal overhead
+    + Optimal convergence
+  Cons:
+    - Tree depth = log2(10M) ~24 levels
+    - P95 latency >1 second
+    - High consensus overhead
+
+Two-Level Aggregation:
+  Pros:
+    + 50% latency reduction
+    + Scalable to 1M
+    + Simple cluster management
+  Cons:
+    - Limited to 1M nodes
+    - Cluster imbalance issues
+
+Federation Sharding:
+  Pros:
+    + Unlimited scalability
+    + Fault isolation
+    + Parallel training
+  Cons:
+    - Convergence 2-5% slower
+    - Complex orchestration
+    - Model merge overhead
+
+
+======================================================================
+Recommended Configuration Matrix
+======================================================================
+
+Network Size        | Recommended Architecture   | Max Latency | Time to Convergence
+-------------------------------------------------------------------------------------
+1K - 10K nodes      | Single-Level HVA          | 20ms        | 2 minutes
+10K - 100K nodes    | Single-Level HVA          | 120ms       | 3 minutes
+100K - 1M nodes     | Two-Level Aggregation     | 120ms       | 5 minutes
+1M - 10M nodes      | Two-Level + Federation    | 150ms       | 8 minutes
+10M - 100M nodes    | Federation Sharding       | 200ms       | 12 hours
+100M+ nodes         | Multi-Region Federations  | 500ms       | 24 hours
+

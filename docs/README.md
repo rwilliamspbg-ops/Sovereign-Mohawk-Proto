@@ -69,27 +69,7 @@ docker-compose logs -f
 
 ### Archived Root Docs (April 2026 Cleanup)
 
-- [archive/root-cleanup-2026-04/COMPLETE_CONFIRMATION.md](archive/root-cleanup-2026-04/COMPLETE_CONFIRMATION.md)
-- [archive/root-cleanup-2026-04/FINAL_COMPREHENSIVE_VALIDATION.md](archive/root-cleanup-2026-04/FINAL_COMPREHENSIVE_VALIDATION.md)
-- [archive/root-cleanup-2026-04/MACHINE_VERIFICATION_COMPLETE.md](archive/root-cleanup-2026-04/MACHINE_VERIFICATION_COMPLETE.md)
-- [archive/root-cleanup-2026-04/PRODUCTION_PUSH_COMPLETE.md](archive/root-cleanup-2026-04/PRODUCTION_PUSH_COMPLETE.md)
-- [archive/root-cleanup-2026-04/PR_3_DESCRIPTION.md](archive/root-cleanup-2026-04/PR_3_DESCRIPTION.md)
-- [archive/root-cleanup-2026-04/PR_CREATION_SUMMARY.md](archive/root-cleanup-2026-04/PR_CREATION_SUMMARY.md)
-- [archive/root-cleanup-2026-04/EASE_OF_USE_IMPROVEMENT_PLAN.md](archive/root-cleanup-2026-04/EASE_OF_USE_IMPROVEMENT_PLAN.md)
-- [archive/root-cleanup-2026-04/FULL_FORMAL_VALIDATION_ANALYSIS.md](archive/root-cleanup-2026-04/FULL_FORMAL_VALIDATION_ANALYSIS.md)
-- [archive/root-cleanup-2026-04/GA_CUT_RUNBOOK_v1.0.0.md](archive/root-cleanup-2026-04/GA_CUT_RUNBOOK_v1.0.0.md)
-- [archive/root-cleanup-2026-04/LOCAL_COMPREHENSIVE_TEST_RESULTS.md](archive/root-cleanup-2026-04/LOCAL_COMPREHENSIVE_TEST_RESULTS.md)
-- [archive/root-cleanup-2026-04/MACHINE_VALIDATION_IMPLEMENTATION_PLAN.md](archive/root-cleanup-2026-04/MACHINE_VALIDATION_IMPLEMENTATION_PLAN.md)
-- [archive/root-cleanup-2026-04/SECURITY_SETTINGS_VERIFICATION.md](archive/root-cleanup-2026-04/SECURITY_SETTINGS_VERIFICATION.md)
-- [archive/root-cleanup-2026-04/SPRINT_PQC_BUILD_LOCAL.md](archive/root-cleanup-2026-04/SPRINT_PQC_BUILD_LOCAL.md)
-- [archive/root-cleanup-2026-04/UPGRADE_IMPLEMENTATION_PLAN_2026_2027.md](archive/root-cleanup-2026-04/UPGRADE_IMPLEMENTATION_PLAN_2026_2027.md)
-- [archive/root-cleanup-2026-04/COMPREHENSIVE_PERFORMANCE_AND_STRESS_TEST_REPORT.md](archive/root-cleanup-2026-04/COMPREHENSIVE_PERFORMANCE_AND_STRESS_TEST_REPORT.md)
-- [archive/root-cleanup-2026-04/DOCUMENTATION_INDEX_AND_NAVIGATION.md](archive/root-cleanup-2026-04/DOCUMENTATION_INDEX_AND_NAVIGATION.md)
-- [archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md](archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md)
-- [archive/root-cleanup-2026-04/EXECUTION_SUMMARY_SDK_EXPANSION.md](archive/root-cleanup-2026-04/EXECUTION_SUMMARY_SDK_EXPANSION.md)
-- [archive/root-cleanup-2026-04/FINAL_TEST_RESULTS_SUMMARY.md](archive/root-cleanup-2026-04/FINAL_TEST_RESULTS_SUMMARY.md)
-- [archive/root-cleanup-2026-04/FORMAL_VALIDATION_TEST_REPORT.md](archive/root-cleanup-2026-04/FORMAL_VALIDATION_TEST_REPORT.md)
-- [archive/root-cleanup-2026-04/MASTER_COMPLETION_REPORT.md](archive/root-cleanup-2026-04/MASTER_COMPLETION_REPORT.md)
+- [archive/root-cleanup-2026-04/README.md](archive/root-cleanup-2026-04/README.md) — inventory and entrypoint for the archived root cleanup batch
 
 ### Getting Started
 - **[Quick Start](#quick-start)** — 5-minute setup above

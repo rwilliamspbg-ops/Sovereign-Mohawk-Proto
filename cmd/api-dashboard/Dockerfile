@@ -1,5 +1,5 @@
 # Build stage: Use Go 1.22-alpine for a lightweight build environment
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26.3-alpine AS builder
 
 # Set the working directory to the root of the project
 WORKDIR /app

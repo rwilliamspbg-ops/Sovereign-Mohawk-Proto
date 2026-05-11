@@ -39,6 +39,15 @@ fi
 required_go_version="${required_go_version:-1.25.9}"
 required_go_version="${required_go_version#go}"
 
+cache_root="${GOCACHE:-$HOME/.cache/go-build}"
+cache_marker="${cache_root}/.toolchain-go${required_go_version}"
+if [[ ! -f "$cache_marker" ]]; then
+  rm -rf "$cache_root"
+  mkdir -p "$cache_root"
+  touch "$cache_marker"
+fi
+export GOCACHE="$cache_root"
+
 GO_BIN="$(command -v go)"
 GO_BIN_DIR="$(cd "$(dirname "$GO_BIN")" && pwd)"
 TOOLCHAIN_ROOT="$(cd "$GO_BIN_DIR/.." && pwd)"

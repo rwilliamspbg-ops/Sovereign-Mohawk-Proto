@@ -12,7 +12,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.25.9+auto
+  GOTOOLCHAIN: go1.26.3+auto
 
 jobs:
   build-and-test:
@@ -67,7 +67,13 @@ jobs:
         run: |
           mkdir -p test-results
           cd sdk/python
-          pytest -q --junitxml=../../test-results/python-sdk-junit.xml
+          pytest -q \
+            --ignore=tests/test_benchmarks.py \
+            --ignore=tests/test_comprehensive_stress_function.py \
+            --ignore=tests/test_dataloader_optimization.py \
+            --ignore=tests/test_llm_training_performance.py \
+            --ignore=tests/test_phase1_coverage_expansion.py \
+            --junitxml=../../test-results/python-sdk-junit.xml
 
       - name: Verify Python SDK WASM Examples
         run: |

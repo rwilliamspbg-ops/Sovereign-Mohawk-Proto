@@ -1,0 +1,39 @@
+{
+  "generated_at_unix": 1777394213,
+  "vector_shape": {
+    "clients": 256,
+    "dim": 4096
+  },
+  "results": [
+    {
+      "scenario": "cpu",
+      "selected_backend": "cpu",
+      "preferred_format": "fp16",
+      "recommended_workers": 16,
+      "fp16_quantize_ms": 0.665,
+      "int8_quantize_ms": 0.504,
+      "aggregate_mean_ms": 25.197,
+      "notes": "Policy-driven backend profile; execution performed on current host runtime."
+    },
+    {
+      "scenario": "gpu",
+      "selected_backend": "cuda",
+      "preferred_format": "int8",
+      "recommended_workers": 16,
+      "fp16_quantize_ms": 0.077,
+      "int8_quantize_ms": 0.092,
+      "aggregate_mean_ms": 24.569,
+      "notes": "Policy-driven backend profile; execution performed on current host runtime."
+    },
+    {
+      "scenario": "npu",
+      "selected_backend": "npu",
+      "preferred_format": "int8",
+      "recommended_workers": 32,
+      "fp16_quantize_ms": 0.076,
+      "int8_quantize_ms": 0.092,
+      "aggregate_mean_ms": 24.328,
+      "notes": "Policy-driven backend profile; execution performed on current host runtime."
+    }
+  ]
+}

@@ -41,6 +41,7 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 - [x] Mainnet chaos gate workflow (`.github/workflows/mainnet-chaos-gate.yml`) active
 - [x] Weekly readiness digest workflow (`.github/workflows/weekly-readiness-digest.yml`) active
 - [x] CI monitoring smoke check in build/test workflow (`.github/workflows/build-test.yml`) active
+- [x] PR build/test workflow narrowed to correctness-only Python SDK tests; benchmark-heavy suites run in `performance-gate.yml`
 
 ### A1. Security & Assurance (Critical Path)
 

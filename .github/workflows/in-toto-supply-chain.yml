@@ -19,7 +19,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.25.9+auto
+  GOTOOLCHAIN: go1.26.3+auto
 
 jobs:
   # Record in-toto material step (source code)

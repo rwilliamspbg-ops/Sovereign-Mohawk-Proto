@@ -12,7 +12,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.25.9+auto
+  GOTOOLCHAIN: go1.26.3+auto
   GOVULNCHECK_VERSION: v1.1.4
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Enforce required Go toolchain mode
-        run: echo "GOTOOLCHAIN=go1.25.9+auto" >> "$GITHUB_ENV"
+        run: echo "GOTOOLCHAIN=go1.26.3+auto" >> "$GITHUB_ENV"
 
       - name: Setup Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c
@@ -34,7 +34,7 @@ jobs:
 
       - name: Run govulncheck
         env:
-          GOTOOLCHAIN: go1.25.9+auto
+          GOTOOLCHAIN: go1.26.3+auto
         run: |
           go install golang.org/x/vuln/cmd/govulncheck@${GOVULNCHECK_VERSION}
           govulncheck ./...

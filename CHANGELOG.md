@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - PR Build/Test Split and Archive Navigation
+
+- **Build/test workflow scoping** (`.github/workflows/build-test.yml`):
+  - Excluded benchmark-heavy Python SDK test files from the default PR gate so the build job stays focused on correctness checks
+  - Left benchmark and performance coverage in the dedicated `performance-gate.yml` workflow
+
+- **Archived documentation index** (`docs/archive/root-cleanup-2026-04/README.md`, `docs/README.md`, `docs/INDEX.md`):
+  - Added a dated archive landing page for the April 2026 root cleanup batch
+  - Pointed the main docs navigation at the archive index instead of listing every historical file inline
+
 ### Added - Supply Chain Security & Verifiable Build Attestations
 
 - **SLSA Build Type 1 Provenance** (`.github/workflows/slsa-provenance-and-signing.yml`):
