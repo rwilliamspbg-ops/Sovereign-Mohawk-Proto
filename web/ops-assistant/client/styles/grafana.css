@@ -1,0 +1,72 @@
+/* Grafana styles are in metrics.css to avoid duplication */
+/* Additional integration styles go here */
+
+.grafana-integration {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grafana-connection-status {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.connection-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.indicator-dot.connected {
+  background: #22c55e;
+}
+
+.indicator-dot.disconnected {
+  background: #ef4444;
+}
+
+.grafana-sync {
+  display: flex;
+  gap: 8px;
+}
+
+.sync-btn {
+  padding: 8px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sync-btn:hover {
+  background: #2563eb;
+}
+
+.sync-btn.syncing {
+  background: #f59e0b;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
