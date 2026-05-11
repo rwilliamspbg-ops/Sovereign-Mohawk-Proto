@@ -9,8 +9,8 @@ COPY web/ops-assistant/tsconfig.json ./
 COPY web/ops-assistant/vite.config.ts ./
 COPY web/ops-assistant/local-packages ./local-packages
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (allow local file: packages)
+RUN npm install --no-audit --no-fund
 
 # Copy source code
 COPY web/ops-assistant/server ./server
@@ -32,7 +32,7 @@ RUN apk add --no-cache curl tini
 COPY web/ops-assistant/package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy built assets from builder
 COPY --from=builder /app/dist ./dist
