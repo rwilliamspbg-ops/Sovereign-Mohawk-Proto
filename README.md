@@ -113,6 +113,7 @@ Quick Links:
 - **[API Reference](docs/api/)** - Go packages, Python SDK, gRPC services
 - **[Security](docs/security/)** - PQC, TPM, compliance, threat model
 - **[Performance](docs/performance/)** - Benchmarks, tuning, profiling
+- **[Archive](docs/archive/root-cleanup-2026-04/README.md)** - Historical root cleanup index and superseded docs
 - **[Examples](docs/examples/)** - PyTorch, TensorFlow, Flower integration
 - **[Phase 4](docs/PHASE_4_PRODUCTION_DEPLOYMENT.md)** - Production deployment guide
 
@@ -1052,7 +1053,7 @@ The system leverages a proof-driven monitoring strategy and production CI gates.
 
 All production-grade safety requirements are verified on every push:
 
-* **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config.
+* **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config. The PR build/test workflow keeps benchmark-heavy Python SDK suites in the dedicated performance gate.
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
 * **Local Toolchain Consistency:** Run `make go-env` before local Go lint/test commands to confirm `go` and `compile` resolve to the same toolchain root.
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.

@@ -13,6 +13,7 @@
 - **[Deployment Guide](DEPLOYMENT.md)** - Docker, Kubernetes, Cloud deployment
 - **[Operations Guide](OPERATIONS.md)** - Monitoring, troubleshooting, runbooks
 - **[Security](SECURITY.md)** - PQC, TPM, Byzantine resilience, compliance
+- **[Archive Index](archive/root-cleanup-2026-04/README.md)** - Historical root cleanup inventory
 
 ---
 
@@ -145,7 +146,7 @@ Only index and quick reference files:
 - `performance/` - Benchmarks, tuning, profiling (5-15 pages each)
 - `formal-verification/` - Lean proofs, specifications (20+ pages total)
 - `examples/` - Working code samples, tutorials (5-10 pages each)
-- `archive/` - Deprecated/historical documentation
+- `archive/` - Deprecated/historical documentation with dated inventory pages
 - `tdf/` - Trusted Datacenter Federation specifications
 
 ---
