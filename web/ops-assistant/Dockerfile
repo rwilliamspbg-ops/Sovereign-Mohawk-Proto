@@ -21,7 +21,7 @@ COPY web/ops-assistant/public ./public
 RUN npm run build
 
 # Create minimal runtime server to serve static client and provide health endpoint
-RUN mkdir -p dist/server && cat > dist/server/index.js <<'JS'
+RUN mkdir -p dist/server && cat > dist/server/index.cjs <<'JS'
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -72,4 +72,4 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start server
-CMD ["node", "dist/server/index.js"]
+CMD ["node", "dist/server/index.cjs"]
