@@ -1,0 +1,10 @@
+{
+  "name": "a2ui",
+  "version": "0.1.0",
+  "description": "Local stub for a2ui",
+  "main": "index.js",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0"
+  }
+}

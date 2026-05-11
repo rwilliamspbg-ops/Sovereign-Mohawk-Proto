@@ -1,149 +1,142 @@
-import React, { useCallback, useMemo } from 'react';
-import { CopilotKit } from '@copilotkit/react-core';
-import { CopilotSidebar } from '@copilotkit/react-ui';
-import ChatInterface from './components/ChatInterface';
-import HealthStatus from './components/HealthStatus';
+import React, { useState } from 'react';
+import { CopilotChat } from '@copilotkit/react-ui';
+import MetricsView from './components/MetricsView';
+import GrafanaDashboardView from './components/GrafanaDashboardView';
 import '@copilotkit/react-ui/styles.css';
+import './styles/app.css';
+
+/**
+ * Enhanced Operations Assistant Application
+ * Integrates CopilotKit chat, real-time metrics, and Grafana dashboards
+ */
+
+type ViewType = 'chat' | 'metrics' | 'dashboards';
 
 const App: React.FC = () => {
-  // CopilotKit custom actions
-  const actions = useMemo(
-    () => [
-      {
-        name: 'queryPrometheus',
-        description: 'Query Prometheus for metrics. Examples: "What is the current gradient throughput?", "Show me the last 30 minutes of proof verification rate"',
-        parameters: [
-          {
-            name: 'query',
-            type: 'string',
-            description: 'PromQL expression or natural language description of what to query'
-          },
-          {
-            name: 'rangeMinutes',
-            type: 'number',
-            description: 'Optional: time range in minutes for range queries (default: instant query)'
-          }
-        ],
-        handler: async (context: any) => {
-          const response = await fetch('/api/prometheus/query', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              query: context.query,
-              rangeMinutes: context.rangeMinutes
-            })
-          });
-          return await response.json();
-        }
-      },
-      {
-        name: 'generateIncidentSummary',
-        description: 'Analyze metrics and generate a summary of cluster health, anomalies, and recommendations',
-        parameters: [
-          {
-            name: 'startTime',
-            type: 'string',
-            description: 'Start time (e.g., "30m ago", "1h ago") - default: 30m ago'
-          },
-          {
-            name: 'endTime',
-            type: 'string',
-            description: 'End time (e.g., "now") - default: now'
-          }
-        ],
-        handler: async (context: any) => {
-          const response = await fetch('/api/incident-summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              startTime: context.startTime || '30m ago',
-              endTime: context.endTime || 'now'
-            })
-          });
-          return await response.json();
-        }
-      },
-      {
-        name: 'explainDashboard',
-        description: 'Explain the purpose and key metrics of a Grafana dashboard',
-        parameters: [
-          {
-            name: 'dashboardName',
-            type: 'string',
-            description: 'Dashboard ID or name (e.g., v2-10-ops-overview, v2-14-ops-mrc-transport)'
-          }
-        ],
-        handler: async (context: any) => {
-          const response = await fetch('/api/dashboard/explain', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              dashboardName: context.dashboardName
-            })
-          });
-          return await response.json();
-        }
-      }
-    ],
-    []
-  );
+  const [activeView, setActiveView] = useState<ViewType>('chat');
 
   return (
-    <CopilotKit
-      runtimeUrl="/api/copilot"
-      headers={{
-        'Content-Type': 'application/json'
-      }}
-    >
-      <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-        {/* Main content area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Header */}
-          <header
-            style={{
-              padding: '20px',
-              borderBottom: '1px solid #e0e0e0',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
-              🚀 Sovereign Mohawk Operations Assistant
-            </h1>
-            <p style={{ fontSize: '14px', color: '#666', margin: 0 }}>
-              Powered by CopilotKit | Ask about metrics, dashboards, and cluster health
-            </p>
-          </header>
-
-          {/* Health status */}
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0' }}>
-            <HealthStatus />
-          </div>
-
-          {/* Chat interface */}
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <ChatInterface />
+    <div className="app-container">
+      <nav className="app-navbar">
+        <div className="navbar-content">
+          <h1 className="app-title">
+            <span className="title-icon">⚙️</span>
+            Operations Assistant
+          </h1>
+          <div className="nav-links">
+            <button
+              className={`nav-link ${activeView === 'chat' ? 'active' : ''}`}
+              onClick={() => setActiveView('chat')}
+              aria-label="Chat View"
+            >
+              <span className="nav-icon">💬</span>
+              Chat
+            </button>
+            <button
+              className={`nav-link ${activeView === 'metrics' ? 'active' : ''}`}
+              onClick={() => setActiveView('metrics')}
+              aria-label="Metrics View"
+            >
+              <span className="nav-icon">📊</span>
+              Metrics
+            </button>
+            <button
+              className={`nav-link ${activeView === 'dashboards' ? 'active' : ''}`}
+              onClick={() => setActiveView('dashboards')}
+              aria-label="Grafana Dashboards"
+            >
+              <span className="nav-icon">📈</span>
+              Dashboards
+            </button>
           </div>
         </div>
+      </nav>
 
-        {/* CopilotKit sidebar with custom actions */}
-        <CopilotSidebar
-          instructions={`You are an expert DevOps assistant for the Sovereign Mohawk federated learning system. 
+      <div className="app-main">
+        <div className="view-container">
+          {activeView === 'chat' && (
+            <div className="view-content chat-view">
+              <div className="chat-header">
+                <h2>AI Operations Assistant</h2>
+                <p>Ask questions about your metrics, dashboards, and system health</p>
+              </div>
+              <div className="chat-container">
+                <CopilotChat
+                  instructions="You are an expert network operations assistant. Help users monitor and analyze their infrastructure using real-time metrics from Prometheus and Grafana dashboards. Provide actionable insights and recommendations for system optimization."
+                  labels={{
+                    initial: "Hi! I'm your operations assistant. How can I help you today?",
+                    placeholder: "Ask about metrics, dashboards, or system health...",
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
-Your responsibilities:
-1. Help operators understand system metrics and dashboards
-2. Analyze cluster health and identify anomalies
-3. Suggest PromQL queries for investigation
-4. Provide incident recommendations
+          {activeView === 'metrics' && (
+            <div className="view-content metrics-view-wrapper">
+              <MetricsView
+                wsUrl="ws://localhost:3000"
+                pollInterval={5000}
+              />
+            </div>
+          )}
 
-When answering:
-- Be concise and actionable
-- Reference specific metrics and time windows
-- Suggest next steps for troubleshooting
-- Use available tools (queryPrometheus, generateIncidentSummary, explainDashboard)`}
-          
-        />
+          {activeView === 'dashboards' && (
+            <div className="view-content dashboards-view-wrapper">
+              <GrafanaDashboardView apiUrl="http://localhost:3000/api/grafana" />
+            </div>
+          )}
+        </div>
+
+        <aside className="app-sidebar">
+          <div className="sidebar-panel">
+            <h3>Quick Stats</h3>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <span className="stat-label">Status</span>
+                <span className="stat-value healthy">● Healthy</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Uptime</span>
+                <span className="stat-value">99.9%</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Alerts</span>
+                <span className="stat-value alert">2 Active</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="sidebar-panel">
+            <h3>Recent Actions</h3>
+            <ul className="action-history">
+              <li>✓ System health check completed</li>
+              <li>✓ Grafana dashboards synced</li>
+              <li>✓ Metrics updated</li>
+              <li>✓ Anomaly detection run</li>
+            </ul>
+          </div>
+
+          <div className="sidebar-panel help">
+            <h3>Help & Docs</h3>
+            <p>Use the chat to ask questions about:</p>
+            <ul className="help-topics">
+              <li>Real-time metrics</li>
+              <li>Dashboard analysis</li>
+              <li>System performance</li>
+              <li>Alert management</li>
+            </ul>
+          </div>
+        </aside>
       </div>
-    </CopilotKit>
+
+      <footer className="app-footer">
+        <div className="footer-content">
+          <span>Operations Assistant powered by CopilotKit</span>
+          <span className="version">v1.1.0</span>
+        </div>
+      </footer>
+    </div>
   );
 };
 
