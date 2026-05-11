@@ -14,15 +14,10 @@
 3. 👉 **[PR_REVIEW_GUIDE.md](PR_REVIEW_GUIDE.md)** — Reviewer checklist & guide
 
 ### For Understanding the Fixes
-4. **[FIX_SUMMARY.md](FIX_SUMMARY.md)** — 2-minute overview
-5. **[CI_FAILURE_FIX_COMPLETE.md](CI_FAILURE_FIX_COMPLETE.md)** — Deep technical analysis
+3. **Overview** — 2-minute overview (archived)
 
-### For Verification & Integration
-6. **[FIXUP_CHECKLIST.md](FIXUP_CHECKLIST.md)** — How to verify fixes locally
-7. **[FIX_INDEX.md](FIX_INDEX.md)** — Problem → Solution matrix
-
-### Additional References
-8. **[CI_FAILURE_FIXES_OVERVIEW.txt](CI_FAILURE_FIXES_OVERVIEW.txt)** — Visual summary
+### For Verification & Integration  
+4. **Checklist** — How to verify fixes locally (archived)
 
 ---
 
