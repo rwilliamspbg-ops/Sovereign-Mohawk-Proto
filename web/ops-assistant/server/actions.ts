@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { queryPrometheus, queryPrometheusRange, parseRelativeTime, KEY_METRICS } from '../prometheus-client';
+import { queryPrometheus, queryPrometheusRange, parseRelativeTime, KEY_METRICS } from './prometheus-client';
 
 export async function handleQueryPrometheus(req: Request, res: Response) {
   try {

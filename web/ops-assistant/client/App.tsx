@@ -90,7 +90,7 @@ const App: React.FC = () => {
 
   return (
     <CopilotKit
-      runtimeURL="/api/copilot"
+      runtimeUrl="/api/copilot"
       headers={{
         'Content-Type': 'application/json'
       }}
@@ -140,7 +140,7 @@ When answering:
 - Reference specific metrics and time windows
 - Suggest next steps for troubleshooting
 - Use available tools (queryPrometheus, generateIncidentSummary, explainDashboard)`}
-          actions={actions}
+          
         />
       </div>
     </CopilotKit>
