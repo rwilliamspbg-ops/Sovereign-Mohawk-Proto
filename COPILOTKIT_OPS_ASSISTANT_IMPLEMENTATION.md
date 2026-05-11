@@ -164,7 +164,7 @@ The ops-assistant can query all Sovereign Mohawk metrics:
 | Layer | Technology |
 |-------|-----------|
 | **Frontend** | React 18 + TypeScript + Vite |
-| **Chat AI** | CopilotKit 0.24.0 |
+| **Chat AI** | CopilotKit 1.57.1 |
 | **Backend** | Express.js + Node.js 20 |
 | **Data Source** | Prometheus API |
 | **Styling** | CSS + Tailwind compatibility |
