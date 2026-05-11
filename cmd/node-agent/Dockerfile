@@ -21,7 +21,7 @@ RUN CGO_ENABLED=1 go build -o libmohawk.so -buildmode=c-shared ./internal/pyapi/
 FROM alpine:latest
 WORKDIR /root/
 
-RUN apk --no-cache add ca-certificates libgcc
+RUN apk --no-cache add ca-certificates libgcc wget
 
 COPY --from=builder /app/node-agent-bin .
 COPY --from=builder /app/libmohawk.so .
@@ -37,5 +37,8 @@ RUN mkdir -p /app/wasm
 ENV MOHAWK_LIB_PATH=/root/libmohawk.so
 
 EXPOSE 8082 4001
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \
+	CMD wget -q -O - http://localhost:9100/metrics >/dev/null 2>&1 || exit 1
 
 CMD ["./node-agent-bin"]

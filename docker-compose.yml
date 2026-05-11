@@ -512,6 +512,12 @@ services:
           cpus: '0.75'
           memory: 768m
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9100/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - mohawk-net
 
@@ -569,6 +575,12 @@ services:
           cpus: '0.75'
           memory: 768m
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9100/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - mohawk-net
 
@@ -626,6 +638,12 @@ services:
           cpus: '0.75'
           memory: 768m
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:9100/metrics >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     networks:
       - mohawk-net
 
