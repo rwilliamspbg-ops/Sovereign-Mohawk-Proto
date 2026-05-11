@@ -160,18 +160,69 @@ else
   expected_nodes=1
 fi
 
-for i in {1..30}; do
-  running_nodes="$(docker ps --format '{{.Names}}' | grep -Ec '^node-agent-[1-3]$' || true)"
-  if [[ "$running_nodes" -ge "$expected_nodes" ]]; then
-    break
+  check_runtime_secrets() {
+    # ensure host runtime-secrets exist and look populated before starting node agents
+    missing=0
+    if [[ ! -s "$TOKEN_PATH" ]]; then
+      echo "missing or empty token at $TOKEN_PATH" >&2
+      missing=1
+    fi
+    if [[ ! -s "$TPM_CERT_PATH" ]]; then
+      echo "missing or empty TPM cert at $TPM_CERT_PATH" >&2
+      missing=1
+    fi
+    if [[ ! -s "$TPM_KEY_PATH" ]]; then
+      echo "missing or empty TPM key at $TPM_KEY_PATH" >&2
+      missing=1
+    fi
+    return $missing
+  }
+
+  for attempt in {1..6}; do
+    if check_runtime_secrets; then
+      break
+    fi
+    echo "Waiting for runtime-secrets to be created by runtime-secrets-init (attempt $attempt/6)" >&2
+    sleep 2
+  done
+
+  # If secrets still missing, attempt to run the init service once to populate them.
+  if ! check_runtime_secrets; then
+    echo "runtime-secrets missing after initial wait — running runtime-secrets-init to generate secrets" >&2
+    # Run the init job in the compose context to ensure files are created on the host
+    if ! "$COMPOSE_CMD" run --rm runtime-secrets-init; then
+      echo "Warning: runtime-secrets-init run failed; continuing to wait but startup may fail" >&2
+    else
+      echo "runtime-secrets-init completed, re-checking secrets" >&2
+    fi
+
+    for attempt in {1..6}; do
+      if check_runtime_secrets; then
+        break
+      fi
+      echo "Waiting for runtime-secrets after forced init (attempt $attempt/6)" >&2
+      sleep 2
+    done
   fi
-  sleep 2
-done
+
+  for i in {1..30}; do
+    running_nodes="$(docker ps --format '{{.Names}}' | grep -Ec '^node-agent-[1-3]$' || true)"
+    if [[ "$running_nodes" -ge "$expected_nodes" ]]; then
+      break
+    fi
+    sleep 2
+  done
 
 running_nodes="$(docker ps --format '{{.Names}}' | grep -Ec '^node-agent-[1-3]$' || true)"
 if [[ "$running_nodes" -lt "$expected_nodes" ]]; then
   echo "expected $expected_nodes node-agent containers, found $running_nodes" >&2
   "$COMPOSE_CMD" ps
+  echo "--- recent node-agent logs (tail 200) ---" >&2
+  for n in $(seq 1 $expected_nodes); do
+    name="node-agent-$n"
+    echo "===== logs: $name =====" >&2
+    docker logs "$name" --tail 200 2>&1 || true
+  done
   exit 1
 fi
 
