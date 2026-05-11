@@ -1,11 +1,11 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import axios from 'axios';
-import { WebSocketManager } from './websocket-manager';
-import { GrafanaClient } from './grafana-client';
-import { advancedActions } from './actions';
+import { WebSocketManager } from './websocket-manager.js';
+import { GrafanaClient } from './grafana-client.js';
+import { advancedActions } from './actions.js';
 import http from 'http';
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 
 /**
  * Enhanced CopilotKit Operations Assistant Server
@@ -26,7 +26,7 @@ const server = http.createServer(app);
 
 // WebSocket Manager
 const wsManager = new WebSocketManager(prometheusUrl);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
 // Grafana Client
 const grafanaClient = new GrafanaClient(grafanaUrl);
@@ -34,7 +34,7 @@ const grafanaClient = new GrafanaClient(grafanaUrl);
 /**
  * WebSocket Connection Handler
  */
-wss.on('connection', (ws: WebSocket, req) => {
+wss.on('connection', (ws: WebSocket, _req: http.IncomingMessage) => {
   const clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   console.log(`[Server] New WebSocket connection: ${clientId}`);
@@ -54,7 +54,7 @@ wss.on('connection', (ws: WebSocket, req) => {
 /**
  * Health Check Endpoint
  */
-app.get('/health', (req: Request, res: Response) => {
+app.get(['/health', '/api/health'], (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date(),
@@ -201,11 +201,17 @@ app.get('/api/grafana/annotations', async (req: Request, res: Response) => {
   const { dashboardId, panelId, tags } = req.query;
 
   try {
-    const annotations = await grafanaClient.getAnnotations(
-      dashboardId ? parseInt(dashboardId as string) : undefined,
-      panelId ? parseInt(panelId as string) : undefined,
-      tags ? (typeof tags === 'string' ? [tags] : tags) : undefined
-    );
+      const annotationTags =
+        typeof tags === 'string'
+          ? [tags]
+          : Array.isArray(tags)
+            ? tags.filter((tag): tag is string => typeof tag === 'string')
+            : undefined;
+      const annotations = await grafanaClient.getAnnotations(
+        dashboardId ? parseInt(dashboardId as string) : undefined,
+        panelId ? parseInt(panelId as string) : undefined,
+        annotationTags
+      );
     res.json({
       success: true,
       annotations,

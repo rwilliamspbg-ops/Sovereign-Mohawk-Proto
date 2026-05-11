@@ -6,7 +6,7 @@
   "main": "server/index.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "server": "tsx watch server/index.ts",
     "start": "node dist/server/index.js"
@@ -23,10 +23,7 @@
   "dependencies": {
     "@copilotkit/react-core": "^1.57.1",
     "@copilotkit/react-ui": "^1.57.1",
-    "@copilotkit/react-actions": "file:./local-packages/@copilotkit/react-actions",
     "@tanstack/react-query": "^5.28.0",
-    "a2ui": "file:./local-packages/a2ui",
-    "ag-ui": "file:./local-packages/ag-ui",
     "refractor": "^5.0.0",
     "react-syntax-highlighter": "^16.1.1",
     "axios": "^1.6.2",
