@@ -10,14 +10,15 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 
+
 def generate_certs_with_docker():
     """Generate certificates inside a Docker container (workaround for Windows)"""
-    
-    print("="*70)
+
+    print("=" * 70)
     print("Genesis Phase 1: Certificate Generation")
-    print("="*70)
+    print("=" * 70)
     print()
-    
+
     # Create certificate generation script
     cert_script = """#!/bin/bash
 set -e
@@ -65,27 +66,31 @@ rm -f $CERT_DIR/*.csr $CERT_DIR/*.srl
 echo "Certificate generation complete!"
 ls -lh $CERT_DIR/*.{crt,key} 2>/dev/null
 """
-    
+
     # Write script to temp file
     script_path = Path("certs") / "gen_certs.sh"
     script_path.write_text(cert_script)
     script_path.chmod(0o755)
-    
+
     print("[STEP 1] Using Docker to generate certificates (OpenSSL not available on Windows)")
     print()
-    
+
     # Run certificate generation inside OpenSSL-equipped Docker container
     cmd = [
-        "docker", "run", "--rm",
-        "-v", f"{Path('certs').absolute()}:/certs",
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        f"{Path('certs').absolute()}:/certs",
         "alpine:latest",
-        "sh", "-c",
-        cert_script.replace("#!/bin/bash", "").replace('set -e', '')
+        "sh",
+        "-c",
+        cert_script.replace("#!/bin/bash", "").replace("set -e", ""),
     ]
-    
+
     print("Running: docker run --rm -v ./certs:/certs alpine openssl...")
     print()
-    
+
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
         print(result.stdout)
@@ -99,16 +104,17 @@ ls -lh $CERT_DIR/*.{crt,key} 2>/dev/null
         print(f"Docker error: {e}")
         print("Trying alternative method...")
         return generate_certs_alternative()
-    
+
     return True
+
 
 def generate_certs_alternative():
     """Alternative: Use Docker image that has openssl pre-installed"""
-    
+
     print()
     print("[ALTERNATIVE] Using ubuntu:latest image with pre-installed openssl...")
     print()
-    
+
     cert_commands = """
 set -e
 cd /certs
@@ -140,15 +146,19 @@ rm -f *.csr *.srl
 echo "Certificates generated successfully!"
 ls -lh *.crt *.key
 """
-    
+
     cmd = [
-        "docker", "run", "--rm",
-        "-v", f"{Path('certs').absolute()}:/certs",
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        f"{Path('certs').absolute()}:/certs",
         "ubuntu:latest",
-        "bash", "-c",
-        cert_commands
+        "bash",
+        "-c",
+        cert_commands,
     ]
-    
+
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         print(result.stdout)
@@ -160,35 +170,37 @@ ls -lh *.crt *.key
         print(f"Error: {e}")
         return False
 
+
 def verify_certificates():
     """Verify generated certificates"""
-    
+
     print()
     print("[VERIFICATION] Checking generated certificates...")
     print()
-    
+
     cert_dir = Path("certs")
     certs = list(cert_dir.glob("*.crt")) + list(cert_dir.glob("*.key"))
-    
+
     if not certs:
         print("❌ No certificates found!")
         return False
-    
+
     print(f"Found {len(certs)} certificate files:")
     for cert in sorted(certs):
         size = cert.stat().st_size
         print(f"  ✓ {cert.name} ({size} bytes)")
-    
+
     print()
     print("To verify certificate validity, run:")
     print("  openssl x509 -in certs/orchestrator.crt -noout -dates")
     print()
-    
+
     return len(certs) >= 8  # At least 4 certs + 4 keys
+
 
 def create_docker_compose_update():
     """Show how to update docker-compose.yml"""
-    
+
     update_spec = """
 # Add these volumes to each service in docker-compose.yml:
 
@@ -217,21 +229,22 @@ services:
       - ./certs/node-3.key:/etc/genesis/tls/key.key:ro
       # ... existing volumes ...
 """
-    
+
     print()
-    print("="*70)
+    print("=" * 70)
     print("[NEXT STEP] Update docker-compose.yml")
-    print("="*70)
+    print("=" * 70)
     print(update_spec)
     print()
 
+
 def restart_containers():
     """Instructions for restarting containers"""
-    
+
     print()
-    print("="*70)
+    print("=" * 70)
     print("[DEPLOYMENT] Restart Containers")
-    print("="*70)
+    print("=" * 70)
     print()
     print("After updating docker-compose.yml, run:")
     print()
@@ -246,19 +259,36 @@ def restart_containers():
     print("Should see NO 'certificate has expired' errors")
     print()
 
+
 def generate_status_report():
     """Generate Phase 1 completion status"""
-    
+
     report = {
         "phase": "Phase 1: Certificate Regeneration",
         "status": "COMPLETE",
         "timestamp": datetime.now().isoformat(),
         "certificates_generated": {
             "ca": {"crt": "certs/ca.crt", "key": "certs/ca.key", "validity": "730 days"},
-            "orchestrator": {"crt": "certs/orchestrator.crt", "key": "certs/orchestrator.key", "validity": "365 days"},
-            "node-1": {"crt": "certs/node-1.crt", "key": "certs/node-1.key", "validity": "365 days"},
-            "node-2": {"crt": "certs/node-2.crt", "key": "certs/node-2.key", "validity": "365 days"},
-            "node-3": {"crt": "certs/node-3.crt", "key": "certs/node-3.key", "validity": "365 days"},
+            "orchestrator": {
+                "crt": "certs/orchestrator.crt",
+                "key": "certs/orchestrator.key",
+                "validity": "365 days",
+            },
+            "node-1": {
+                "crt": "certs/node-1.crt",
+                "key": "certs/node-1.key",
+                "validity": "365 days",
+            },
+            "node-2": {
+                "crt": "certs/node-2.crt",
+                "key": "certs/node-2.key",
+                "validity": "365 days",
+            },
+            "node-3": {
+                "crt": "certs/node-3.crt",
+                "key": "certs/node-3.key",
+                "validity": "365 days",
+            },
         },
         "next_steps": [
             "1. Update docker-compose.yml with certificate volume mounts",
@@ -269,51 +299,52 @@ def generate_status_report():
         "expected_downtime": "10 minutes (container restart)",
         "risk_level": "Low",
     }
-    
+
     # Save report
     report_path = Path("phase_1_completion_report.json")
     report_path.write_text(json.dumps(report, indent=2))
-    
+
     print()
-    print("="*70)
+    print("=" * 70)
     print("Phase 1 Completion Report")
-    print("="*70)
+    print("=" * 70)
     print(json.dumps(report, indent=2))
     print()
     print(f"Report saved to: {report_path}")
     print()
 
+
 def main():
     """Execute Phase 1: Certificate Generation"""
-    
+
     print()
-    
+
     # Step 1: Generate certificates
     if generate_certs_with_docker():
         print("[OK] Certificate generation script executed")
     else:
         print("[FAILED] Certificate generation failed")
         return False
-    
+
     print()
-    
+
     # Step 2: Verify
     if verify_certificates():
         print("[OK] Certificates verified")
     else:
         print("[WARNING] Certificate verification incomplete")
-    
+
     # Step 3: Show next steps
     create_docker_compose_update()
     restart_containers()
-    
+
     # Step 4: Generate report
     generate_status_report()
-    
+
     print()
-    print("="*70)
+    print("=" * 70)
     print("Phase 1 Status: READY FOR DEPLOYMENT")
-    print("="*70)
+    print("=" * 70)
     print()
     print("✓ Certificates generated (365-day validity)")
     print("✓ Ready to mount in docker-compose.yml")
@@ -322,6 +353,7 @@ def main():
     print()
     print("NEXT ACTION: Update docker-compose.yml and run containers")
     print()
+
 
 if __name__ == "__main__":
     main()

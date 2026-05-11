@@ -17,7 +17,6 @@ import pytest
 
 from mohawk import MohawkNode
 
-
 # ============================================================================
 # FEDERATED DATASET & DATALOADER SIMULATION
 # ============================================================================
@@ -447,8 +446,7 @@ class TestEndToEndOptimized:
         # Phase 4: Aggregation
         start = time.perf_counter()
         aggregation_updates = [
-            {"node_id": f"node-{i}", "gradient": grads}
-            for i, grads in enumerate(node_gradients)
+            {"node_id": f"node-{i}", "gradient": grads} for i, grads in enumerate(node_gradients)
         ]
         try:
             node.aggregate(aggregation_updates)
@@ -514,8 +512,7 @@ class TestEndToEndOptimized:
         # Phase 4: Aggregation
         start = time.perf_counter()
         aggregation_updates = [
-            {"node_id": f"node-{i}", "gradient": grads}
-            for i, grads in enumerate(node_gradients)
+            {"node_id": f"node-{i}", "gradient": grads} for i, grads in enumerate(node_gradients)
         ]
         try:
             node.aggregate(aggregation_updates)

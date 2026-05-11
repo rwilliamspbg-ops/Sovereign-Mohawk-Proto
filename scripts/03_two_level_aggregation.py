@@ -9,46 +9,52 @@ from dataclasses import dataclass
 from typing import List, Dict
 from enum import Enum
 
+
 class AggregationLevel(Enum):
     CLUSTER = 1
     GLOBAL = 2
 
+
 @dataclass
 class ClusterConfig:
     """Configuration for a cluster-level aggregator"""
+
     cluster_id: int
     node_ids: List[int]
     expected_latency_ms: float
     aggregator_url: str
 
+
 @dataclass
 class GlobalConfig:
     """Configuration for global aggregator"""
+
     clusters: List[ClusterConfig]
     expected_latency_ms: float
     aggregator_url: str
 
+
 class TwoLevelAggregationArchitecture:
     """
     Two-level hierarchical aggregation:
-    
+
     Level 1 (Cluster): Groups nodes into clusters (10-100 nodes each)
       - Each cluster has local aggregator
       - Reduces messages from N to log(N/cluster_size)
       - Latency: ~10-50ms depending on cluster size
-    
+
     Level 2 (Global): Aggregates cluster models
       - Takes aggregated models from all clusters
       - Produces final global model
       - Latency: ~10-20ms (fixed, small number of clusters)
-    
+
     Total latency: L1 + L2 (typically 20-70ms vs 200+ms for single-level)
     """
-    
+
     def __init__(self, num_nodes: int, target_cluster_size: int = 50):
         """
         Initialize two-level architecture
-        
+
         Args:
             num_nodes: Total nodes in federated network
             target_cluster_size: Ideal nodes per cluster (default 50)
@@ -56,41 +62,48 @@ class TwoLevelAggregationArchitecture:
         self.num_nodes = num_nodes
         self.target_cluster_size = target_cluster_size
         self.clusters = self._create_clusters()
-        
+
     def _create_clusters(self) -> List[ClusterConfig]:
         """Partition nodes into clusters"""
-        num_clusters = max(1, (self.num_nodes + self.target_cluster_size - 1) // self.target_cluster_size)
+        num_clusters = max(
+            1, (self.num_nodes + self.target_cluster_size - 1) // self.target_cluster_size
+        )
         clusters = []
-        
+
         for cluster_id in range(num_clusters):
             start_idx = cluster_id * self.target_cluster_size
             end_idx = min(start_idx + self.target_cluster_size, self.num_nodes)
             node_ids = list(range(start_idx, end_idx))
-            
+
             # Estimate latency based on cluster size
             # HVA tree depth for cluster: log2(cluster_size)
             import math
+
             cluster_depth = max(1, math.log2(len(node_ids)))
             cluster_latency = 5 + cluster_depth * 5  # 5ms base + 5ms per level
-            
-            clusters.append(ClusterConfig(
-                cluster_id=cluster_id,
-                node_ids=node_ids,
-                expected_latency_ms=cluster_latency,
-                aggregator_url=f"http://cluster-{cluster_id}-aggregator:8000"
-            ))
-        
+
+            clusters.append(
+                ClusterConfig(
+                    cluster_id=cluster_id,
+                    node_ids=node_ids,
+                    expected_latency_ms=cluster_latency,
+                    aggregator_url=f"http://cluster-{cluster_id}-aggregator:8000",
+                )
+            )
+
         return clusters
-    
+
     def get_architecture(self) -> Dict:
         """Get the complete architecture specification"""
         import math
-        
+
         # Calculate latencies
-        max_cluster_latency = max(c.expected_latency_ms for c in self.clusters) if self.clusters else 5
+        max_cluster_latency = (
+            max(c.expected_latency_ms for c in self.clusters) if self.clusters else 5
+        )
         global_latency = 5 + math.log2(len(self.clusters)) * 3  # 5ms base + overhead per cluster
         total_latency = max_cluster_latency + global_latency
-        
+
         return {
             "architecture": "TWO_LEVEL_HIERARCHICAL",
             "total_nodes": self.num_nodes,
@@ -122,28 +135,37 @@ class TwoLevelAggregationArchitecture:
             "total_expected_latency_ms": total_latency,
             "improvements": {
                 "single_level_latency_ms": self._estimate_single_level_latency(),
-                "latency_reduction_pct": ((self._estimate_single_level_latency() - total_latency) / 
-                                         self._estimate_single_level_latency() * 100),
+                "latency_reduction_pct": (
+                    (self._estimate_single_level_latency() - total_latency)
+                    / self._estimate_single_level_latency()
+                    * 100
+                ),
                 "message_reduction": {
                     "single_level": self.num_nodes,
                     "two_level": len(self.clusters) + self.num_nodes // self.target_cluster_size,
-                    "reduction_pct": (1 - (len(self.clusters) + self.num_nodes // self.target_cluster_size) / self.num_nodes) * 100,
+                    "reduction_pct": (
+                        1
+                        - (len(self.clusters) + self.num_nodes // self.target_cluster_size)
+                        / self.num_nodes
+                    )
+                    * 100,
                 },
             },
         }
-    
+
     def _estimate_single_level_latency(self) -> float:
         """Estimate latency for single-level HVA (for comparison)"""
         import math
+
         tree_depth = math.log2(max(2, self.num_nodes))
         # Base 5ms + 5ms per level
         return 5 + tree_depth * 5
-    
+
     def get_deployment_spec(self) -> str:
         """Generate docker-compose snippet for two-level architecture"""
         spec = "# Two-Level Aggregation Deployment\n\n"
         spec += "services:\n"
-        
+
         # Global aggregator
         spec += "  global-aggregator:\n"
         spec += "    image: sovereign-mohawk:latest\n"
@@ -151,11 +173,11 @@ class TwoLevelAggregationArchitecture:
         spec += "      - MODE=AGGREGATOR_GLOBAL\n"
         spec += "      - NUM_CLUSTERS=" + str(len(self.clusters)) + "\n"
         spec += "    ports:\n"
-        spec += "      - \"8000:8000\"\n"
+        spec += '      - "8000:8000"\n'
         spec += "    networks:\n"
         spec += "      - aggregation\n"
         spec += "\n"
-        
+
         # Cluster aggregators
         for cluster in self.clusters:
             spec += f"  cluster-{cluster.cluster_id}-aggregator:\n"
@@ -167,46 +189,48 @@ class TwoLevelAggregationArchitecture:
             spec += f"      - NODE_IDS={','.join(map(str, cluster.node_ids))}\n"
             spec += "      - PARENT_AGGREGATOR=global-aggregator:8000\n"
             spec += "    ports:\n"
-            spec += f"      - \"{8100 + cluster.cluster_id}:8000\"\n"
+            spec += f'      - "{8100 + cluster.cluster_id}:8000"\n'
             spec += "    networks:\n"
             spec += "      - aggregation\n"
             spec += "    depends_on:\n"
             spec += "      - global-aggregator\n"
             spec += "\n"
-        
+
         spec += "networks:\n"
         spec += "  aggregation:\n"
         spec += "    driver: bridge\n"
-        
+
         return spec
+
 
 def compare_architectures():
     """Compare single-level vs two-level aggregation"""
-    print("="*70)
+    print("=" * 70)
     print("Aggregation Architecture Comparison")
-    print("="*70)
+    print("=" * 70)
     print()
-    
+
     network_sizes = [10_000, 100_000, 1_000_000]
-    
+
     for net_size in network_sizes:
         print(f"\nNetwork Size: {net_size:,} nodes")
         print("-" * 70)
-        
+
         # Single-level (current)
         import math
+
         single_depth = math.log2(max(2, net_size))
         single_latency = 5 + single_depth * 5
-        
+
         # Two-level (proposed)
         two_level = TwoLevelAggregationArchitecture(net_size, target_cluster_size=50)
         arch = two_level.get_architecture()
-        
+
         print(f"Single-level HVA:")
         print(f"  Tree depth: {single_depth:.1f} levels")
         print(f"  Expected P95 latency: {single_latency:.0f}ms")
         print()
-        
+
         print(f"Two-level aggregation:")
         print(f"  Clusters: {arch['num_clusters']}")
         print(f"  Avg cluster size: {arch['avg_cluster_size']:.0f} nodes")
@@ -214,13 +238,16 @@ def compare_architectures():
         print(f"  Global L2 latency: {arch['level_2']['expected_latency_ms']:.0f}ms")
         print(f"  Total latency: {arch['total_expected_latency_ms']:.0f}ms")
         print()
-        
-        improvement = arch['improvements']
+
+        improvement = arch["improvements"]
         print(f"Improvements:")
         print(f"  Latency reduction: {improvement['latency_reduction_pct']:.1f}%")
-        print(f"  Latency speedup: {single_latency / arch['total_expected_latency_ms']:.1f}x faster")
+        print(
+            f"  Latency speedup: {single_latency / arch['total_expected_latency_ms']:.1f}x faster"
+        )
         print(f"  Message reduction: {improvement['message_reduction']['reduction_pct']:.1f}%")
         print()
+
 
 def generate_migration_guide():
     """Generate step-by-step migration guide"""
@@ -307,14 +334,16 @@ If issues occur:
 """
     return guide
 
+
 if __name__ == "__main__":
     compare_architectures()
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Migration Guide")
-    print("="*70)
+    print("=" * 70)
     import io, sys
+
     guide = generate_migration_guide()
     old_stdout = sys.stdout
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
     print(guide)
     sys.stdout = old_stdout

@@ -25,7 +25,6 @@ from typing import List, Dict, Any, Tuple, Callable
 
 from mohawk import MohawkNode, GradientBuffer, AggregationError
 
-
 # ============================================================================
 # BYZANTINE ATTACK GENERATORS
 # ============================================================================
@@ -56,7 +55,9 @@ class ByzantineAttackGenerator:
     @staticmethod
     def label_flip_attack(gradients: List[float], flip_ratio: float = 0.5) -> List[float]:
         """Label flip: corrupt top-k coordinates to highest magnitude."""
-        sorted_indices = sorted(range(len(gradients)), key=lambda i: abs(gradients[i]), reverse=True)
+        sorted_indices = sorted(
+            range(len(gradients)), key=lambda i: abs(gradients[i]), reverse=True
+        )
         flip_count = int(len(gradients) * flip_ratio)
         result = gradients.copy()
         for i in sorted_indices[:flip_count]:
@@ -80,7 +81,7 @@ class ByzantineAttackGenerator:
     ) -> List[float]:
         """
         Adaptive attack: learn from previous aggregations and scale attack proportionally.
-        
+
         Strategy:
         1. If aggregation detected low-magnitude result, increase attack magnitude
         2. If detection occurred, shift attack to different coordinates
@@ -109,7 +110,7 @@ class ByzantineAttackGenerator:
             attack = [random.gauss(0, scale_factor) for _ in honest_mean]
             # Zero out previously used indices
             for i in range(len(attack)):
-                if i not in available[:len(available) // 2]:
+                if i not in available[: len(available) // 2]:
                     attack[i] = 0
             return attack
         else:
@@ -132,7 +133,7 @@ class ByzantineDetector:
     ) -> Tuple[List[float], List[int]]:
         """
         Krum robust aggregation: select update with minimum sum of distances.
-        
+
         Filters out byzantine_count largest distances.
         Reference: [1] Blanchard et al.
         """
@@ -147,7 +148,7 @@ class ByzantineDetector:
         for i in range(n):
             total_dist = 0
             neighbor_count = n - byzantine_count - 1
-            
+
             if neighbor_count <= 0:
                 distances[i] = float("inf")
                 continue
@@ -191,7 +192,7 @@ class ByzantineDetector:
     ) -> Tuple[List[float], List[int]]:
         """
         Trimmed mean: remove top/bottom trim_ratio of values per coordinate.
-        
+
         Robust to trim_ratio% Byzantine.
         """
         if not updates:
@@ -223,7 +224,7 @@ class ByzantineDetector:
     ) -> bool:
         """
         Detect anomalous update using statistical test.
-        
+
         Flags update if any coordinate exceeds threshold_std standard deviations.
         """
         if not honest_mean:
@@ -359,10 +360,11 @@ class TestBasicAttacks:
         num_byzantine = 250
         gradient_dim = 1536
 
-        honest_gradients = [ByzantineAttackGenerator.honest_gradient(gradient_dim) for _ in range(num_honest)]
+        honest_gradients = [
+            ByzantineAttackGenerator.honest_gradient(gradient_dim) for _ in range(num_honest)
+        ]
         honest_updates = [
-            {"node_id": f"honest-{i}", "gradient": grad}
-            for i, grad in enumerate(honest_gradients)
+            {"node_id": f"honest-{i}", "gradient": grad} for i, grad in enumerate(honest_gradients)
         ]
 
         # Label flip: corrupt top-k coordinates
@@ -423,7 +425,9 @@ class TestAdaptiveAttacks:
             ]
 
             # Calculate honest mean for attack adaptation
-            honest_mean = [sum(g[i] for g in honest_gradients) / num_honest for i in range(gradient_dim)]
+            honest_mean = [
+                sum(g[i] for g in honest_gradients) / num_honest for i in range(gradient_dim)
+            ]
 
             # Attack history (simulated)
             attack_history = results_per_round
@@ -459,7 +463,9 @@ class TestAdaptiveAttacks:
             }
             results_per_round.append(round_result)
 
-        overall_success_rate = sum(1 for r in results_per_round if r["success"]) / len(results_per_round)
+        overall_success_rate = sum(1 for r in results_per_round if r["success"]) / len(
+            results_per_round
+        )
 
         report = {
             "test": "adaptive attack (20% Byzantine, 5 rounds)",
@@ -533,7 +539,7 @@ class TestHighByzantineRatios:
     def test_30_percent_byzantine_ratio(self, node):
         """
         Test 30% Byzantine ratio (theoretical maximum for linear aggregation).
-        
+
         Theoretical background:
         - Mean aggregation breaks at >50% Byzantine
         - Byzantine-Robust Aggregation (BRA) threshold: f < n/3
@@ -814,10 +820,14 @@ class TestDetectionUnderAttack:
 
         # Test detection on each update (note: simple z-score may have high false positives on small samples)
         honest_detected = sum(
-            1 for g in honest_grads if ByzantineDetector.detect_anomaly(g, honest_mean, threshold_std=3.0)
+            1
+            for g in honest_grads
+            if ByzantineDetector.detect_anomaly(g, honest_mean, threshold_std=3.0)
         )
         byzantine_detected = sum(
-            1 for g in byzantine_grads if ByzantineDetector.detect_anomaly(g, honest_mean, threshold_std=3.0)
+            1
+            for g in byzantine_grads
+            if ByzantineDetector.detect_anomaly(g, honest_mean, threshold_std=3.0)
         )
 
         true_positive_rate = byzantine_detected / num_byzantine if num_byzantine > 0 else 0
@@ -854,7 +864,7 @@ class TestResilienceThresholds:
     def test_theoretical_limit_33_percent_byzantine(self, node):
         """
         Test theoretical limit: f < n/3 (33.3% Byzantine).
-        
+
         At 33% Byzantine, gradient aggregation becomes non-Byzantine-resilient
         without special aggregation rules.
         """

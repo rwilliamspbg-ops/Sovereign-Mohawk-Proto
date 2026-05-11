@@ -28,6 +28,7 @@ from mohawk import MohawkNode
 @dataclass
 class TheoremValidation:
     """Captures validation of a Lean theorem against runtime evidence."""
+
     theorem_id: str
     theorem_name: str
     lean_claim: str
@@ -49,16 +50,16 @@ class TestTheorem1BFT:
         """
         Lean theorem claims: 9 * totalByzantine < 5 * totalNodes
         for concrete 4-tier Mohawk profile.
-        
+
         Tiers:
         - Tier 1: 9M nodes, 4.999M Byzantine (55.5%)
         - Tier 2: 900K nodes, 400K Byzantine (44.4%)
         - Tier 3: 90K nodes, 30K Byzantine (33.3%)
         - Tier 4: 10K nodes, 1K Byzantine (10%)
-        
+
         Global: 9 * 5,430,999 = 48,878,991 < 50,000,000 = 5 * 10,000,000 ✅
         """
-        
+
         # Tier definitions from Lean
         tiers = [
             {"n": 9_000_000, "f": 4_999_999},
@@ -66,13 +67,13 @@ class TestTheorem1BFT:
             {"n": 90_000, "f": 30_000},
             {"n": 10_000, "f": 1_000},
         ]
-        
+
         total_n = sum(t["n"] for t in tiers)
         total_f = sum(t["f"] for t in tiers)
-        
+
         # Verify Lean claim: 9f < 5n
         lean_satisfied = 9 * total_f < 5 * total_n
-        
+
         report = {
             "theorem": "Theorem 1 - BFT Bound",
             "lean_claim": "9 * totalByzantine < 5 * totalNodes",
@@ -85,7 +86,7 @@ class TestTheorem1BFT:
             "lean_satisfied": lean_satisfied,
             "tier_breakdown": [
                 {
-                    "tier": i+1,
+                    "tier": i + 1,
                     "nodes": t["n"],
                     "byzantine": t["f"],
                     "ratio": round(100 * t["f"] / t["n"], 2),
@@ -105,30 +106,29 @@ class TestTheorem1BFT:
         if node is None:
             node = MohawkNode()
             node.bridge.close()
-        
+
         num_honest = 700
         num_byzantine = 300
         gradient_dim = 1024
-        
+
         honest_updates = [
-            {"node_id": f"honest-{i}", "gradient": [0.01] * gradient_dim}
-            for i in range(num_honest)
+            {"node_id": f"honest-{i}", "gradient": [0.01] * gradient_dim} for i in range(num_honest)
         ]
-        
+
         byzantine_updates = [
             {"node_id": f"byzantine-{i}", "gradient": [10.0] * gradient_dim}
             for i in range(num_byzantine)
         ]
-        
+
         mixed_updates = honest_updates + byzantine_updates
-        
+
         try:
             result = node.aggregate(mixed_updates)
             success = result.get("success", False)
         except Exception as e:
             success = False
             print(f"Aggregation failed: {e}")
-        
+
         report = {
             "test": "Theorem 1 Runtime Validation",
             "byzantine_ratio": "30% (within 55.5% claim)",
@@ -156,9 +156,9 @@ class TestTheorem2RDP:
         eps_sequence = [1, 5, 10, 0]
         composed_eps = sum(eps_sequence)
         expected = 16
-        
+
         assert composed_eps == expected, f"RDP composition failed: {composed_eps} != {expected}"
-        
+
         report = {
             "theorem": "Theorem 2 - RDP Composition",
             "lean_claim": "composeEps([1, 5, 10, 0]) = 16",
@@ -175,13 +175,13 @@ class TestTheorem2RDP:
         Lean theorem: Rational composition preserves additivity
         with exact fractions: (1/10) + (1/2) + 1 = 8/5
         """
-        eps_rat = [1/10, 1/2, 1]
+        eps_rat = [1 / 10, 1 / 2, 1]
         composed = sum(eps_rat)
-        expected = 8/5
-        
+        expected = 8 / 5
+
         # Allow floating point tolerance
         assert abs(composed - expected) < 1e-10, f"RDP rational composition failed"
-        
+
         report = {
             "theorem": "Theorem 2 - RDP Rational Composition",
             "lean_claim": "(1/10) + (1/2) + 1 = 8/5",
@@ -201,10 +201,10 @@ class TestTheorem2RDP:
         eps_sequence = [1, 5, 10, 0]
         composed = sum(eps_sequence)
         guard = 20
-        
+
         satisfied = composed <= guard
         assert satisfied, f"RDP budget guard failed: {composed} > {guard}"
-        
+
         report = {
             "theorem": "Theorem 2 - RDP Budget Guard",
             "epsilon_sequence": eps_sequence,
@@ -228,24 +228,24 @@ class TestTheorem3Communication:
         """
         Lean theorem: hierarchical_comm_complexity(d, n, b) = d * log_b(n)
         For n=10M, b=10: d * log_10(10M) = d * 7
-        
+
         vs Naive FedAvg: d * 10M
         Improvement factor: 10M / 7 ≈ 1.43M x
         """
         d = 1_000_000  # Gradient dimension (1M params)
         n = 10_000_000  # Total nodes
         b = 10  # Branching factor
-        
+
         # Hierarchical: d * log_b(n)
         log_b_n = int(math.log(n, b))
         hierarchical_cost = d * (log_b_n + 1)  # +1 from Lean
-        
+
         # Naive FedAvg: d * n
         naive_cost = d * n
-        
+
         # Improvement
         improvement = naive_cost / hierarchical_cost
-        
+
         report = {
             "theorem": "Theorem 3 - Communication Complexity",
             "lean_claim": "hierarchical_complexity = d * log_b(n)",
@@ -270,10 +270,10 @@ class TestTheorem3Communication:
         """
         d = 1_000_000
         num_tiers = 4
-        
+
         # Each tier contributes d (one message per level)
         total_cost = d * num_tiers
-        
+
         report = {
             "theorem": "Theorem 3 - Tier Additivity",
             "lean_claim": "tier_costs sum additively",
@@ -298,22 +298,22 @@ class TestTheorem4Liveness:
         """
         Lean theorem: Success probability with Bernoulli dropout
         At dropout 1/2, redundancy 10: (1 - (1/2)^10) > 99.9%
-        
+
         successNumerator(2, 10) * 1000 > 999 * 2^10
         1023 * 1000 = 1,023,000 > 999 * 1024 = 1,022,976 ✅
         """
         dropout_den = 2  # 1/2 dropout
         redundancy = 10
-        
+
         # successNumerator = d^r - 1
-        success_num = (dropout_den ** redundancy) - 1
-        total_den = dropout_den ** redundancy
-        
+        success_num = (dropout_den**redundancy) - 1
+        total_den = dropout_den**redundancy
+
         # Success probability: success_num / total_den
         success_prob = success_num / total_den
-        
+
         assert success_prob > 0.999, f"Success probability too low: {success_prob}"
-        
+
         report = {
             "theorem": "Theorem 4 - Liveness Redundancy",
             "lean_claim": "Success > 99.9% at dropout=1/2, redundancy=10",
@@ -333,11 +333,11 @@ class TestTheorem4Liveness:
         """
         dropout_den = 2
         redundancy = 12
-        
-        success_num = (dropout_den ** redundancy) - 1
-        total_den = dropout_den ** redundancy
+
+        success_num = (dropout_den**redundancy) - 1
+        total_den = dropout_den**redundancy
         success_prob = success_num / total_den
-        
+
         report = {
             "theorem": "Theorem 4 - Liveness Stronger",
             "redundancy": redundancy,
@@ -368,10 +368,10 @@ class TestTheorem5Cryptography:
             1_000_000: 200,
             10_000_000: 200,
         }
-        
+
         for nodes, expected_size in proof_sizes.items():
             assert expected_size == 200, f"Proof size changed at {nodes} nodes"
-        
+
         report = {
             "theorem": "Theorem 5 - Proof Size Invariance",
             "lean_claim": "proofSize(n) = 200 bytes for all n",
@@ -392,14 +392,14 @@ class TestTheorem5Cryptography:
             1_000_000: 3,
             10_000_000: 3,
         }
-        
+
         cost_per_op_micros = 1000
         max_cost_micros = 10_000  # 10ms guard
-        
+
         for nodes, ops in verification_ops.items():
             cost_micros = ops * cost_per_op_micros
             assert cost_micros <= max_cost_micros, f"Verification cost exceeded at {nodes} nodes"
-        
+
         report = {
             "theorem": "Theorem 5 - Verification Cost",
             "lean_claim": "verifyOps(n) = 3 (constant) → cost ≤ 10ms",
@@ -428,11 +428,11 @@ class TestTheorem6Convergence:
         k = 100  # Gradient steps
         t = 1000  # Rounds
         zeta = 1  # Heterogeneity
-        
-        heterogeneity_term = zeta ** 2
+
+        heterogeneity_term = zeta**2
         optimization_term = 1 / math.sqrt(k * t)
         envelope = heterogeneity_term + optimization_term
-        
+
         report = {
             "theorem": "Theorem 6 - Convergence Envelope",
             "lean_claim": "envelope(k,t,ζ) = ζ² + 1/√(k*t)",
@@ -444,7 +444,7 @@ class TestTheorem6Convergence:
             "total_envelope": round(envelope, 6),
         }
         print(f"\n{json.dumps(report, indent=2)}")
-        
+
         assert envelope >= 0, "Envelope must be non-negative"
 
     def test_theorem6_rounds_improve(self):
@@ -454,11 +454,11 @@ class TestTheorem6Convergence:
         """
         k = 100
         zeta = 1
-        
+
         # More rounds (1000 vs 100)
-        env_1000 = zeta ** 2 + 1 / math.sqrt(k * 1000)
-        env_100 = zeta ** 2 + 1 / math.sqrt(k * 100)
-        
+        env_1000 = zeta**2 + 1 / math.sqrt(k * 1000)
+        env_100 = zeta**2 + 1 / math.sqrt(k * 100)
+
         report = {
             "theorem": "Theorem 6 - Rounds Improve",
             "lean_claim": "More rounds decrease optimization term",
@@ -478,10 +478,10 @@ class TestTheorem6Convergence:
         k = 1000
         t = 1000
         zeta = 1
-        
-        envelope = zeta ** 2 + 1 / math.sqrt(k * t)
+
+        envelope = zeta**2 + 1 / math.sqrt(k * t)
         guard = 2
-        
+
         report = {
             "theorem": "Theorem 6 - Large Scale Guard",
             "lean_claim": "envelope(1000, 1000, 1) <= 2",

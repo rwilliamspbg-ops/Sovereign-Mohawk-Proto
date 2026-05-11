@@ -19,7 +19,6 @@ from typing import List, Dict, Any, Tuple
 
 from mohawk import MohawkNode, GradientBuffer, AggregationError
 
-
 # ============================================================================
 # DATA GENERATION & LOADING TESTS
 # ============================================================================
@@ -32,8 +31,7 @@ class DataGenerator:
     def generate_token_batch(batch_size: int = 512, seq_len: int = 512, vocab_size: int = 50257):
         """Generate realistic token sequences (GPT-2 tokenizer size)."""
         return [
-            [random.randint(0, vocab_size - 1) for _ in range(seq_len)]
-            for _ in range(batch_size)
+            [random.randint(0, vocab_size - 1) for _ in range(seq_len)] for _ in range(batch_size)
         ]
 
     @staticmethod
@@ -426,9 +424,7 @@ class TestEndToEndTrainingRound:
 
         # Phase 2: Gradient computation (simulated)
         start = time.perf_counter()
-        node_gradients = [
-            DataGenerator.generate_gradients(gradient_dim) for _ in range(num_nodes)
-        ]
+        node_gradients = [DataGenerator.generate_gradients(gradient_dim) for _ in range(num_nodes)]
         timings["gradient_compute_ms"] = (time.perf_counter() - start) * 1000
 
         # Phase 3: Compression at each node
@@ -446,8 +442,7 @@ class TestEndToEndTrainingRound:
         # Phase 4: Aggregation at server
         start = time.perf_counter()
         aggregation_updates = [
-            {"node_id": f"node-{i}", "gradient": grads}
-            for i, grads in enumerate(node_gradients)
+            {"node_id": f"node-{i}", "gradient": grads} for i, grads in enumerate(node_gradients)
         ]
         try:
             agg_result = node.aggregate(aggregation_updates)
@@ -460,7 +455,9 @@ class TestEndToEndTrainingRound:
         start = time.perf_counter()
         updated_model = [
             param - 0.01 * grad
-            for param, grad in zip(DataGenerator.generate_gradients(gradient_dim), node_gradients[0])
+            for param, grad in zip(
+                DataGenerator.generate_gradients(gradient_dim), node_gradients[0]
+            )
         ]
         timings["model_update_ms"] = (time.perf_counter() - start) * 1000
 
@@ -595,6 +592,8 @@ class TestMemoryEfficiency:
             "format": info.get("format"),
             "compressed_bytes": info.get("compressed_bytes"),
             "original_bytes": total_accumulated * 4,
-            "compression_ratio": round((total_accumulated * 4) / info.get("compressed_bytes", 1), 2),
+            "compression_ratio": round(
+                (total_accumulated * 4) / info.get("compressed_bytes", 1), 2
+            ),
         }
         print(f"\n{json.dumps(report, indent=2)}")

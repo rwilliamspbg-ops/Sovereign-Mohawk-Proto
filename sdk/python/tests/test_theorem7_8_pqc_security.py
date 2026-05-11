@@ -28,7 +28,6 @@ from dataclasses import dataclass
 from enum import Enum
 import pytest
 
-
 # ============================================================================
 # DATA MODELS (matching Lean definitions)
 # ============================================================================
@@ -36,6 +35,7 @@ import pytest
 
 class MigrationPhase(Enum):
     """Ledger migration phases"""
+
     PRE_EPOCH = "preEpoch"
     CUTOVER = "cutover"
     POST_EPOCH = "postEpoch"
@@ -44,14 +44,16 @@ class MigrationPhase(Enum):
 @dataclass
 class MigrationAuth:
     """Migration authorization structure"""
+
     legacy_signed: bool  # Classical signature present
-    pqc_signed: bool     # Post-quantum signature present
+    pqc_signed: bool  # Post-quantum signature present
     legacy_compromised: bool = False  # Legacy key compromised
 
 
 @dataclass
 class PQCSig:
     """PQC signature representation"""
+
     algorithm: str  # e.g., "ML-DSA", "SLH-DSA"
     signature_bytes: bytes
     public_key: bytes
@@ -60,12 +62,13 @@ class PQCSig:
 @dataclass
 class SignOracle:
     """UF-CMA sign oracle (adversary's signing capability)"""
+
     signed_messages: List[bytes] = None
-    
+
     def __post_init__(self):
         if self.signed_messages is None:
             self.signed_messages = []
-    
+
     def sign(self, message: bytes) -> bytes:
         """Adversary can sign any message it requests"""
         self.signed_messages.append(message)
@@ -75,10 +78,11 @@ class SignOracle:
 @dataclass
 class Adversary:
     """Generic adversary model"""
+
     queries: List[bytes] = None
     forgery_attempts: int = 0
     successes: int = 0
-    
+
     def __post_init__(self):
         if self.queries is None:
             self.queries = []
@@ -87,6 +91,7 @@ class Adversary:
 @dataclass
 class LedgerState:
     """Ledger state with migration phase"""
+
     phase: MigrationPhase
     auth: MigrationAuth
     timestamp: int = 0
@@ -106,10 +111,10 @@ class TestTheorem7PQCMigrationContinuity:
         theorem7_dual_signature_continuity: legacySigned ∧ pqcSigned → postEpochAccepts
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True, legacy_compromised=False)
-        
+
         # Post-epoch acceptance requires both signatures
         post_epoch_accepts = auth.legacy_signed and auth.pqc_signed
-        
+
         report = {
             "test": "Theorem 7 - Dual Signature Continuity",
             "lean_claim": "legacySigned ∧ pqcSigned → postEpochAccepts",
@@ -132,10 +137,10 @@ class TestTheorem7PQCMigrationContinuity:
         """
         # Scenario: Legacy key compromised, but post-epoch accepts
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True, legacy_compromised=True)
-        
+
         # Post-epoch acceptance must rely on PQC
         post_epoch_accepts = auth.pqc_signed  # Only PQC matters when legacy compromised
-        
+
         report = {
             "test": "Theorem 7 - Legacy Compromise Insufficient",
             "lean_claim": "legacyCompromised ∧ postEpochAccepts → pqcSigned",
@@ -158,24 +163,24 @@ class TestTheorem7PQCMigrationContinuity:
             public_key=b"ml_dsa_pubkey_" + b"y" * 128,
         )
         oracle = SignOracle()
-        
+
         # Adversary can request signatures but cannot forge
         oracle.sign(b"legitimate_message_1")
         oracle.sign(b"legitimate_message_2")
-        
+
         # PQC unforgeability: adversary cannot forge signature for unseen message
         unseen_message = b"unseen_message_3"
         forged_signature = hashlib.sha256(unseen_message).digest()
-        
+
         # Check if forged signature is in oracle's signed messages
         pqc_unforgeable = forged_signature not in [
             hashlib.sha256(msg).digest() for msg in oracle.signed_messages
         ]
-        
+
         # Post-epoch acceptance requires PQC
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
         post_epoch_accepts = auth.pqc_signed
-        
+
         report = {
             "test": "Theorem 7 - PQC Hardness Ensures Continuity",
             "lean_claim": "pqcUnforgeable ∧ postEpochAccepts → pqcSigned",
@@ -196,11 +201,11 @@ class TestTheorem7PQCMigrationContinuity:
         theorem7_scale_guard: globalScale ≥ 10,000,000 → postEpochAccepts(dual_auth)
         """
         global_scale = 10_000_000
-        
+
         # At 10M scale with dual signatures
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True, legacy_compromised=False)
         post_epoch_accepts = auth.legacy_signed and auth.pqc_signed
-        
+
         report = {
             "test": "Theorem 7 - Scale Guard 10M",
             "lean_claim": "globalScale ≥ 10M → postEpochAccepts(dual_auth)",
@@ -222,13 +227,13 @@ class TestTheorem7PQCMigrationContinuity:
         theorem7_refines_go_migration: postEpochAccepts → (legacySigned ∧ pqcSigned)
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
-        
+
         # Go function: verifyMigrationSignatureBundle
         def go_verify_migration_bundle(auth: MigrationAuth) -> bool:
             return auth.legacy_signed and auth.pqc_signed
-        
+
         result = go_verify_migration_bundle(auth)
-        
+
         report = {
             "test": "Theorem 7 - Go Refinement Migration",
             "lean_claim": "postEpochAccepts → goVerifyMigrationSignatureBundle",
@@ -248,13 +253,13 @@ class TestTheorem7PQCMigrationContinuity:
         theorem7_refines_go_migration_sound: goVerifyMigrationSignatureBundle → postEpochAccepts
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
-        
+
         # Go function: postEpochAccept (settlement check)
         def go_post_epoch_accept(auth: MigrationAuth) -> bool:
             return auth.pqc_signed
-        
+
         result = go_post_epoch_accept(auth)
-        
+
         report = {
             "test": "Theorem 7 - Go Refinement Post-Epoch Accept",
             "lean_claim": "goVerifyMigrationSignatureBundle → postEpochAccepts",
@@ -280,13 +285,13 @@ class TestTheorem8DualSignatureNonHijack:
         theorem8_post_epoch_non_hijack: postEpochAccepts → hijackSafe
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
-        
+
         # Post-epoch acceptance
         post_epoch_accepts = auth.legacy_signed and auth.pqc_signed
-        
+
         # Hijack safety: cannot compromise post-epoch state with dual signatures
         hijack_safe = auth.pqc_signed  # PQC is unhygienic, prevents hijack
-        
+
         report = {
             "test": "Theorem 8 - Post-Epoch Non-Hijack",
             "lean_claim": "postEpochAccepts → hijackSafe",
@@ -308,10 +313,10 @@ class TestTheorem8DualSignatureNonHijack:
         theorem8_no_pqc_not_safe: ¬pqcSigned → ¬hijackSafe
         """
         auth_no_pqc = MigrationAuth(legacy_signed=True, pqc_signed=False)
-        
+
         # Without PQC, hijack is possible
         hijack_safe = False  # Cannot guarantee safety
-        
+
         report = {
             "test": "Theorem 8 - No PQC Not Safe",
             "lean_claim": "¬pqcSigned → ¬hijackSafe",
@@ -333,26 +338,26 @@ class TestTheorem8DualSignatureNonHijack:
             public_key=b"slh_dsa_pk_" + b"b" * 128,
         )
         oracle = SignOracle()
-        
+
         # Adversary gets signing oracle access
         oracle.sign(b"epoch_transition_1")
         oracle.sign(b"epoch_transition_2")
         oracle.sign(b"settlement_check_1")
-        
+
         # PQC unforgeability: adversary fails to forge new signature
         attack_message = b"hijack_attempt_not_in_oracle"
         legitimate_sigs = set(hashlib.sha256(msg).digest() for msg in oracle.signed_messages)
         attack_sig = hashlib.sha256(attack_message).digest()
-        
+
         pqc_unforgeable = attack_sig not in legitimate_sigs
-        
+
         # Auth with PQC
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
         post_epoch_accepts = auth.pqc_signed
-        
+
         # Hijack safety
         hijack_safe = pqc_unforgeable and post_epoch_accepts
-        
+
         report = {
             "test": "Theorem 8 - PQC Prevents Hijack",
             "lean_claim": "pqcUnforgeable ∧ postEpochAccepts → hijackSafe",
@@ -378,34 +383,34 @@ class TestTheorem8DualSignatureNonHijack:
             public_key=b"pubkey_" + b"d" * 128,
         )
         oracle = SignOracle()
-        
+
         # Adversary's queries to oracle
         oracle.sign(b"query_1")
         oracle.sign(b"query_2")
         oracle.sign(b"query_3")
-        
+
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
         post_epoch_accepts = auth.pqc_signed
-        
+
         adversary = Adversary()
-        
+
         # Attempt hijack
         adversary.queries = [b"query_1", b"query_2", b"query_3"]
         adversary.forgery_attempts = 10
-        
+
         # Check if any forgery succeeded
         forgery_succeeded = False
         for attempt in range(adversary.forgery_attempts):
             # Generate random forgery attempt
             attempt_sig = hashlib.sha256(f"forgery_{attempt}".encode()).digest()
             legitimate_sigs = {hashlib.sha256(q).digest() for q in adversary.queries}
-            
+
             if attempt_sig in legitimate_sigs:
                 forgery_succeeded = True
                 adversary.successes += 1
-        
+
         can_hijack = forgery_succeeded and post_epoch_accepts
-        
+
         report = {
             "test": "Theorem 8 - No Hijack Possible",
             "lean_claim": "pqcUnforgeable ∧ postEpochAccepts → ¬canHijack",
@@ -427,9 +432,9 @@ class TestTheorem8DualSignatureNonHijack:
         """
         global_scale = 10_000_000
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True, legacy_compromised=False)
-        
+
         hijack_safe = auth.pqc_signed  # PQC signature ensures safety
-        
+
         report = {
             "test": "Theorem 8 - Scale Non-Hijack Guard",
             "lean_claim": "globalScale ≥ 10M ∧ dualAuth → hijackSafe",
@@ -455,24 +460,24 @@ class TestTheorem8DualSignatureNonHijack:
             phase=MigrationPhase.PRE_EPOCH,
             auth=MigrationAuth(legacy_signed=True, pqc_signed=True),
         )
-        
+
         # Transition: pre-epoch → cutover
         t_cutover = LedgerState(
             phase=MigrationPhase.CUTOVER,
             auth=s.auth,
         )
-        
+
         # Transition: cutover → post-epoch
         t_post = LedgerState(
             phase=MigrationPhase.POST_EPOCH,
             auth=s.auth,
         )
-        
+
         # Safety invariant
         pre_epoch_safe = s.auth.legacy_signed and s.auth.pqc_signed
         cutover_safe = t_cutover.auth.legacy_signed and t_cutover.auth.pqc_signed
         post_epoch_safe = t_post.auth.pqc_signed
-        
+
         report = {
             "test": "Theorem 8 - Ledger Transition Safety",
             "lean_claim": "LedgerTransition preserves postEpochAccepts invariant",
@@ -494,14 +499,14 @@ class TestTheorem8DualSignatureNonHijack:
         theorem8_refines_go_settlement: postEpochAccepts → goSettleTaskPayoutSafe(auth, true)
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
-        
+
         # Go function: SettleTaskPayout safety gate
         def go_settle_task_payout_safe(auth: MigrationAuth, proof_valid: bool) -> bool:
             return auth.pqc_signed and proof_valid
-        
+
         proof_valid = True
         result = go_settle_task_payout_safe(auth, proof_valid)
-        
+
         report = {
             "test": "Theorem 8 - Go Settlement Safety",
             "lean_claim": "postEpochAccepts → goSettleTaskPayoutSafe",
@@ -520,13 +525,13 @@ class TestTheorem8DualSignatureNonHijack:
         """
         auth = MigrationAuth(legacy_signed=True, pqc_signed=True)
         proof_valid = True
-        
+
         # Go settlement safe
         go_settle_safe = auth.pqc_signed and proof_valid
-        
+
         # Implies Lean hijack safety
         hijack_safe = auth.pqc_signed
-        
+
         report = {
             "test": "Theorem 8 - Go Settlement Soundness",
             "lean_claim": "goSettleTaskPayoutSafe → hijackSafe",
@@ -552,22 +557,30 @@ class TestTheorems7And8Coverage:
         test_cases = [
             {
                 "name": "Dual signatures active",
-                "auth": MigrationAuth(legacy_signed=True, pqc_signed=True, legacy_compromised=False),
+                "auth": MigrationAuth(
+                    legacy_signed=True, pqc_signed=True, legacy_compromised=False
+                ),
                 "expected_safe": True,
             },
             {
                 "name": "Only PQC signed",
-                "auth": MigrationAuth(legacy_signed=False, pqc_signed=True, legacy_compromised=False),
+                "auth": MigrationAuth(
+                    legacy_signed=False, pqc_signed=True, legacy_compromised=False
+                ),
                 "expected_safe": True,
             },
             {
                 "name": "Only legacy signed",
-                "auth": MigrationAuth(legacy_signed=True, pqc_signed=False, legacy_compromised=False),
+                "auth": MigrationAuth(
+                    legacy_signed=True, pqc_signed=False, legacy_compromised=False
+                ),
                 "expected_safe": False,
             },
             {
                 "name": "Neither signed",
-                "auth": MigrationAuth(legacy_signed=False, pqc_signed=False, legacy_compromised=False),
+                "auth": MigrationAuth(
+                    legacy_signed=False, pqc_signed=False, legacy_compromised=False
+                ),
                 "expected_safe": False,
             },
             {
@@ -576,25 +589,27 @@ class TestTheorems7And8Coverage:
                 "expected_safe": True,
             },
         ]
-        
+
         results = []
         for case in test_cases:
             # Determine safety based on PQC signature
             is_safe = case["auth"].pqc_signed
             passed = is_safe == case["expected_safe"]
-            
-            results.append({
-                "case": case["name"],
-                "auth": {
-                    "legacy": case["auth"].legacy_signed,
-                    "pqc": case["auth"].pqc_signed,
-                    "compromised": case["auth"].legacy_compromised,
-                },
-                "expected_safe": case["expected_safe"],
-                "actual_safe": is_safe,
-                "passed": passed,
-            })
-        
+
+            results.append(
+                {
+                    "case": case["name"],
+                    "auth": {
+                        "legacy": case["auth"].legacy_signed,
+                        "pqc": case["auth"].pqc_signed,
+                        "compromised": case["auth"].legacy_compromised,
+                    },
+                    "expected_safe": case["expected_safe"],
+                    "actual_safe": is_safe,
+                    "passed": passed,
+                }
+            )
+
         report = {
             "test": "Theorem 7+8 Comprehensive Coverage",
             "test_cases": len(test_cases),
@@ -602,7 +617,7 @@ class TestTheorems7And8Coverage:
             "all_passed": all(r["passed"] for r in results),
         }
         print(f"\n{json.dumps(report, indent=2)}")
-        
+
         assert all(r["passed"] for r in results), "Some test cases failed"
 
     def test_comprehensive_hijack_prevention_coverage(self):
@@ -630,30 +645,32 @@ class TestTheorems7And8Coverage:
                 "expected_hijack_possible": True,
             },
         ]
-        
+
         results = []
         for scenario in test_scenarios:
             oracle = SignOracle()
             for i in range(scenario["attacker_queries"]):
                 oracle.sign(f"query_{i}".encode())
-            
+
             # Hijack possible only if PQC not signed
             hijack_possible = not scenario["auth"].pqc_signed
             passed = hijack_possible == scenario["expected_hijack_possible"]
-            
-            results.append({
-                "scenario": scenario["name"],
-                "phase": scenario["phase"].value,
-                "auth": {
-                    "legacy": scenario["auth"].legacy_signed,
-                    "pqc": scenario["auth"].pqc_signed,
-                },
-                "attacker_queries": scenario["attacker_queries"],
-                "expected_hijack": scenario["expected_hijack_possible"],
-                "actual_hijack": hijack_possible,
-                "passed": passed,
-            })
-        
+
+            results.append(
+                {
+                    "scenario": scenario["name"],
+                    "phase": scenario["phase"].value,
+                    "auth": {
+                        "legacy": scenario["auth"].legacy_signed,
+                        "pqc": scenario["auth"].pqc_signed,
+                    },
+                    "attacker_queries": scenario["attacker_queries"],
+                    "expected_hijack": scenario["expected_hijack_possible"],
+                    "actual_hijack": hijack_possible,
+                    "passed": passed,
+                }
+            )
+
         report = {
             "test": "Theorem 8 Hijack Prevention Coverage",
             "scenarios": len(test_scenarios),
@@ -661,7 +678,7 @@ class TestTheorems7And8Coverage:
             "all_passed": all(r["passed"] for r in results),
         }
         print(f"\n{json.dumps(report, indent=2)}")
-        
+
         assert all(r["passed"] for r in results), "Some hijack scenarios failed"
 
 

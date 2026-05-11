@@ -22,7 +22,6 @@ from unittest.mock import Mock, patch
 
 from mohawk import MohawkNode, AggregationError
 
-
 # ============================================================================
 # NETWORK SIMULATION TESTS (10)
 # ============================================================================
@@ -35,16 +34,19 @@ class TestNetworkSimulation:
         """Network latency 10ms - minimal impact"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 100
         gradient_dim = 512
         network_latency_ms = 10
-        
+
         updates = [
-            {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)]}
+            {
+                "node_id": f"node-{i}",
+                "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)],
+            }
             for i in range(num_nodes)
         ]
-        
+
         # Simulate network latency
         start = time.perf_counter()
         time.sleep(network_latency_ms / 1000)
@@ -54,7 +56,7 @@ class TestNetworkSimulation:
         except:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
-        
+
         # Should complete in <50ms with 10ms latency
         report = {
             "test": "Network Latency 10ms",
@@ -70,16 +72,19 @@ class TestNetworkSimulation:
         """Network latency 100ms - moderate impact"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 50
         gradient_dim = 256
         network_latency_ms = 100
-        
+
         updates = [
-            {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)]}
+            {
+                "node_id": f"node-{i}",
+                "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)],
+            }
             for i in range(num_nodes)
         ]
-        
+
         start = time.perf_counter()
         time.sleep(network_latency_ms / 1000)
         try:
@@ -88,7 +93,7 @@ class TestNetworkSimulation:
         except:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
-        
+
         report = {
             "test": "Network Latency 100ms",
             "network_latency_ms": network_latency_ms,
@@ -103,16 +108,19 @@ class TestNetworkSimulation:
         """Network latency 1000ms - high impact"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 20
         gradient_dim = 128
         network_latency_ms = 1000
-        
+
         updates = [
-            {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)]}
+            {
+                "node_id": f"node-{i}",
+                "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)],
+            }
             for i in range(num_nodes)
         ]
-        
+
         start = time.perf_counter()
         time.sleep(network_latency_ms / 1000)
         try:
@@ -121,7 +129,7 @@ class TestNetworkSimulation:
         except:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
-        
+
         report = {
             "test": "Network Latency 1000ms",
             "network_latency_ms": network_latency_ms,
@@ -136,23 +144,23 @@ class TestNetworkSimulation:
         """Simulate 1% packet loss - automatic retry"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 100
         packet_loss_rate = 0.01
-        
+
         # Simulate some nodes not sending
         successful_nodes = int(num_nodes * (1 - packet_loss_rate))
         updates = [
             {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
             for i in range(successful_nodes)
         ]
-        
+
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
         except:
             success = False
-        
+
         report = {
             "test": "Packet Loss 1%",
             "sent_nodes": num_nodes,
@@ -168,22 +176,22 @@ class TestNetworkSimulation:
         """Simulate 10% packet loss - partial aggregation"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 100
         packet_loss_rate = 0.10
         successful_nodes = int(num_nodes * (1 - packet_loss_rate))
-        
+
         updates = [
             {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
             for i in range(successful_nodes)
         ]
-        
+
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
         except:
             success = False
-        
+
         report = {
             "test": "Packet Loss 10%",
             "sent_nodes": num_nodes,
@@ -199,16 +207,16 @@ class TestNetworkSimulation:
         """Network partition - detect within timeout"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 50
         partition_timeout_ms = 5000
-        
+
         # Simulate nodes in partition (no response)
         updates = [
             {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
             for i in range(num_nodes)
         ]
-        
+
         start = time.perf_counter()
         try:
             result = node.aggregate(updates)
@@ -216,7 +224,7 @@ class TestNetworkSimulation:
         except:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
-        
+
         report = {
             "test": "Network Partition Detection",
             "num_nodes": num_nodes,
@@ -230,27 +238,27 @@ class TestNetworkSimulation:
         """Intermittent node connectivity - graceful handling"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_rounds = 5
         success_count = 0
-        
+
         for round_idx in range(num_rounds):
             # Random connectivity (70-90% available)
             availability_rate = random.uniform(0.7, 0.9)
             num_available = int(100 * availability_rate)
-            
+
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
                 for i in range(num_available)
             ]
-            
+
             try:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
             except:
                 pass
-        
+
         report = {
             "test": "Intermittent Connectivity",
             "rounds": num_rounds,
@@ -274,20 +282,20 @@ class TestFailoverRecovery:
         """One node crashes - system continues"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         # Simulate 100 nodes, one crashes
         working_nodes = 99
         updates = [
             {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
             for i in range(working_nodes)
         ]
-        
+
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
         except:
             success = False
-        
+
         report = {
             "test": "Single Node Crash",
             "total_nodes": 100,
@@ -302,27 +310,27 @@ class TestFailoverRecovery:
         """Multiple nodes fail sequentially"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_rounds = 5
         node_failures_per_round = 10
         initial_nodes = 100
         success_count = 0
-        
+
         for round_idx in range(num_rounds):
             available_nodes = max(10, initial_nodes - (node_failures_per_round * (round_idx + 1)))
-            
+
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
                 for i in range(available_nodes)
             ]
-            
+
             try:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
             except:
                 pass
-        
+
         report = {
             "test": "Cascading Failures",
             "rounds": num_rounds,
@@ -337,28 +345,28 @@ class TestFailoverRecovery:
         """Node crashes and restarts - rejoins successfully"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         # Simulate restart cycle
         num_nodes = 50
         restart_cycles = 3
         success_count = 0
-        
+
         for cycle in range(restart_cycles):
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
                 for i in range(num_nodes)
             ]
-            
+
             try:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
             except:
                 pass
-            
+
             # Simulate restart delay
             time.sleep(0.01)
-        
+
         report = {
             "test": "Node Restart Recovery",
             "cycles": restart_cycles,
@@ -373,26 +381,26 @@ class TestFailoverRecovery:
         """Recover from failures while processing high load"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 200
         failure_rate = 0.2
         rounds = 5
         successful = 0
-        
+
         for round_idx in range(rounds):
             available = int(num_nodes * (1 - failure_rate))
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(512)]}
                 for i in range(available)
             ]
-            
+
             try:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     successful += 1
             except:
                 pass
-        
+
         report = {
             "test": "Recovery Under Load",
             "nodes": num_nodes,
@@ -407,27 +415,26 @@ class TestFailoverRecovery:
         """Verify state consistency after node failures"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         # Two aggregations: one with failures, verify results are consistent
         all_nodes_updates = [
-            {"node_id": f"node-{i}", "gradient": [i * 0.01 for _ in range(100)]}
-            for i in range(100)
+            {"node_id": f"node-{i}", "gradient": [i * 0.01 for _ in range(100)]} for i in range(100)
         ]
-        
+
         partial_updates = all_nodes_updates[:90]  # 90 nodes (10% failure)
-        
+
         try:
             result1 = node.aggregate(partial_updates)
             success1 = result1.get("success", False)
         except:
             success1 = False
-        
+
         try:
             result2 = node.aggregate(partial_updates)
             success2 = result2.get("success", False)
         except:
             success2 = False
-        
+
         report = {
             "test": "State Consistency After Failure",
             "aggregation1_success": success1,
@@ -451,16 +458,16 @@ class TestPrivacyValidation:
         """Track privacy budget across rounds"""
         epsilon_budget = 1.0
         delta = 1e-5
-        
+
         rounds = 5
         epsilon_per_round = epsilon_budget / rounds
         accumulated_epsilon = 0
-        
+
         for round_idx in range(rounds):
             # Simulate DP-SGD round
             accumulated_epsilon += epsilon_per_round
             privacy_remaining = epsilon_budget - accumulated_epsilon
-            
+
             report = {
                 "test": "Privacy Budget Tracking",
                 "round": round_idx + 1,
@@ -469,7 +476,7 @@ class TestPrivacyValidation:
                 "budget_remaining": round(privacy_remaining, 4),
                 "budget_exhausted": accumulated_epsilon >= epsilon_budget,
             }
-            
+
             if round_idx == rounds - 1:
                 print(f"\n{json.dumps(report, indent=2)}")
 
@@ -477,14 +484,14 @@ class TestPrivacyValidation:
         """Verify DP noise is added correctly"""
         gradients = [0.1] * 100
         noise_scale = 0.1
-        
+
         # Add Gaussian noise (DP-SGD mechanism)
         noisy_gradients = [g + random.gauss(0, noise_scale) for g in gradients]
-        
+
         # Verify noise added
         noise_added = sum(abs(noisy - orig) for noisy, orig in zip(noisy_gradients, gradients))
         avg_noise = noise_added / len(gradients)
-        
+
         report = {
             "test": "Differential Privacy Noise Addition",
             "original_gradients": len(gradients),
@@ -498,20 +505,22 @@ class TestPrivacyValidation:
     def test_privacy_convergence_tradeoff(self):
         """Privacy vs model quality tradeoff"""
         noise_scales = [0.01, 0.1, 1.0, 10.0]
-        
+
         results = []
         for noise_scale in noise_scales:
             # Simulate training with noise
             loss = 1.0 + noise_scale * 0.1  # More noise = worse loss
             privacy_epsilon = 1.0 / (noise_scale + 0.1)  # More noise = better privacy
-            
-            results.append({
-                "noise_scale": noise_scale,
-                "model_loss": round(loss, 4),
-                "privacy_epsilon": round(privacy_epsilon, 4),
-                "privacy_level": "high" if privacy_epsilon < 0.5 else "low",
-            })
-        
+
+            results.append(
+                {
+                    "noise_scale": noise_scale,
+                    "model_loss": round(loss, 4),
+                    "privacy_epsilon": round(privacy_epsilon, 4),
+                    "privacy_level": "high" if privacy_epsilon < 0.5 else "low",
+                }
+            )
+
         report = {
             "test": "Privacy-Convergence Tradeoff",
             "tradeoffs": results,
@@ -531,10 +540,10 @@ class TestConcurrency:
         """Multiple threads submitting gradients concurrently"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_threads = 10
         results = []
-        
+
         def submit_gradient(thread_id):
             gradients = [random.gauss(0, 0.01) for _ in range(256)]
             try:
@@ -542,13 +551,13 @@ class TestConcurrency:
                 results.append({"thread": thread_id, "success": result.get("success", False)})
             except Exception as e:
                 results.append({"thread": thread_id, "success": False, "error": str(e)})
-        
+
         threads = [threading.Thread(target=submit_gradient, args=(i,)) for i in range(num_threads)]
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        
+
         success_count = sum(1 for r in results if r.get("success"))
         report = {
             "test": "Concurrent Gradient Submissions",
@@ -563,10 +572,10 @@ class TestConcurrency:
         """Multiple concurrent aggregations"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_concurrent = 5
         results = []
-        
+
         def run_aggregation(agg_id):
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(256)]}
@@ -577,13 +586,15 @@ class TestConcurrency:
                 results.append({"agg": agg_id, "success": result.get("success", False)})
             except Exception as e:
                 results.append({"agg": agg_id, "success": False})
-        
-        threads = [threading.Thread(target=run_aggregation, args=(i,)) for i in range(num_concurrent)]
+
+        threads = [
+            threading.Thread(target=run_aggregation, args=(i,)) for i in range(num_concurrent)
+        ]
         for t in threads:
             t.start()
         for t in threads:
             t.join()
-        
+
         success_count = sum(1 for r in results if r.get("success"))
         report = {
             "test": "Concurrent Aggregations",
@@ -606,17 +617,17 @@ class TestResourceExhaustion:
         """System behavior under memory pressure"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         # Simulate increasing memory usage
         batch_sizes = [100, 500, 1000, 2000]
         results = []
-        
+
         for batch_size in batch_sizes:
             updates = [
                 {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(3072)]}
                 for i in range(batch_size)
             ]
-            
+
             start = time.perf_counter()
             try:
                 result = node.aggregate(updates)
@@ -624,13 +635,15 @@ class TestResourceExhaustion:
             except:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
-            
-            results.append({
-                "batch_size": batch_size,
-                "time_ms": round(elapsed, 3),
-                "success": success,
-            })
-        
+
+            results.append(
+                {
+                    "batch_size": batch_size,
+                    "time_ms": round(elapsed, 3),
+                    "success": success,
+                }
+            )
+
         report = {
             "test": "Memory Pressure Graceful Degradation",
             "results": results,
@@ -642,16 +655,19 @@ class TestResourceExhaustion:
         """Performance under simulated CPU throttling"""
         node = MohawkNode()
         node.bridge.close()
-        
+
         num_nodes = 100
         gradient_dim = 1024
-        
+
         # Simulate heavy computation
         updates = [
-            {"node_id": f"node-{i}", "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)]}
+            {
+                "node_id": f"node-{i}",
+                "gradient": [random.gauss(0, 0.01) for _ in range(gradient_dim)],
+            }
             for i in range(num_nodes)
         ]
-        
+
         start = time.perf_counter()
         try:
             result = node.aggregate(updates)
@@ -659,7 +675,7 @@ class TestResourceExhaustion:
         except:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
-        
+
         report = {
             "test": "CPU Throttling Performance",
             "nodes": num_nodes,
@@ -687,9 +703,9 @@ class TestPhase1Summary:
             "Concurrency": 10,
             "Resource Exhaustion": 10,
         }
-        
+
         total_tests = sum(coverage_areas.values())
-        
+
         report = {
             "phase": "Phase 1 Coverage Expansion",
             "coverage_areas": coverage_areas,
