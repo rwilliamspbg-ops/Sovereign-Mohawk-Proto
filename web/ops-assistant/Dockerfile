@@ -4,17 +4,17 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY vite.config.ts ./
+COPY web/ops-assistant/package*.json ./
+COPY web/ops-assistant/tsconfig.json ./
+COPY web/ops-assistant/vite.config.ts ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source code
-COPY server ./server
-COPY client ./client
-COPY public ./public
+COPY web/ops-assistant/server ./server
+COPY web/ops-assistant/client ./client
+COPY web/ops-assistant/public ./public
 
 # Build
 RUN npm run build
@@ -28,7 +28,7 @@ WORKDIR /app
 RUN apk add --no-cache curl tini
 
 # Copy package files
-COPY package*.json ./
+COPY web/ops-assistant/package*.json ./
 
 # Install production dependencies only
 RUN npm ci --only=production
