@@ -4,6 +4,13 @@ import axios from 'axios';
 import { WebSocketManager } from './websocket-manager.js';
 import { GrafanaClient } from './grafana-client.js';
 import { advancedActions } from './actions.js';
+import {
+  queryPrometheus,
+  queryPrometheusRange,
+  queryPrometheusHealth,
+  parseRelativeTime,
+  KEY_METRICS,
+} from './prometheus-client.js';
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 
@@ -61,6 +68,35 @@ app.get(['/health', '/api/health'], (req: Request, res: Response) => {
     uptime: process.uptime(),
     wsClients: wsManager.getClientCount(),
     wsSubscriptions: wsManager.getSubscriptionCount(),
+  });
+});
+
+/**
+ * Prometheus Health Check Endpoint
+ * Uses prometheus-client module to verify Prometheus connectivity
+ */
+app.get('/api/prometheus/health', async (req: Request, res: Response) => {
+  try {
+    const isHealthy = await queryPrometheusHealth();
+    res.json({
+      healthy: isHealthy,
+      message: isHealthy ? 'Prometheus is healthy' : 'Prometheus is unreachable',
+    });
+  } catch (error) {
+    res.status(500).json({
+      healthy: false,
+      error: error instanceof Error ? error.message : 'Health check failed',
+    });
+  }
+});
+
+/**
+ * Key Metrics Endpoint
+ * Returns pre-configured key metrics for Sovereign Mohawk
+ */
+app.get('/api/prometheus/key-metrics', (req: Request, res: Response) => {
+  res.json({
+    keyMetrics: KEY_METRICS,
   });
 });
 
