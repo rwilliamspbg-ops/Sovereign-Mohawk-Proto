@@ -23,6 +23,10 @@
   "dependencies": {
     "@copilotkit/react-core": "^1.57.1",
     "@copilotkit/react-ui": "^1.57.1",
+    "@copilotkit/react-actions": "file:./local-packages/@copilotkit/react-actions",
+    "@tanstack/react-query": "^5.28.0",
+    "a2ui": "^0.1.0",
+    "ag-ui": "^0.2.0",
     "refractor": "^5.0.0",
     "react-syntax-highlighter": "^16.1.1",
     "axios": "^1.6.2",
@@ -31,7 +35,17 @@
     "express": "^4.18.2",
     "prismjs": "^1.30.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "ws": "^8.14.2",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
+    "recharts": "^2.10.3",
+    "react-flow-renderer": "^10.3.17",
+    "zod": "^3.22.4",
+    "dayjs": "^1.11.10",
+    "lodash-es": "^4.17.21",
+    "react-hot-toast": "^2.4.1",
+    "zustand": "^4.4.1"
   },
   "overrides": {
     "@copilotkit/react-ui": {
@@ -47,9 +61,14 @@
     "@types/node": "^20.8.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@types/ws": "^8.5.8",
+    "@types/lodash-es": "^4.17.11",
     "@vitejs/plugin-react": "^4.1.0",
     "tsx": "^4.0.0",
     "typescript": "^5.2.0",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
+    "vitest": "^1.0.4"
   }
 }
