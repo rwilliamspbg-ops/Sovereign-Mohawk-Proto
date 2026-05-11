@@ -85,6 +85,7 @@ services:
       - MOHAWK_ROUTER_SOURCE_VERTICAL=climate
       - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
       - MOHAWK_ROUTER_MODEL_ID=node-agent-scale-insight
+      - MOHAWK_PRECISION=fp32
     # Make each replica unique without hard-coding node IDs and pick per-replica mTLS cert/key.
     command:
       - /bin/sh
