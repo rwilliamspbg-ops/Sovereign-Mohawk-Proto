@@ -371,6 +371,20 @@ services:
     networks:
       - mohawk-net
 
+  accelerator-detect:
+    build:
+      context: .
+      dockerfile: cmd/accelerator-detect/Dockerfile
+    container_name: accelerator-detect
+    environment:
+      - MOHAWK_ACCELERATOR_BACKEND=${MOHAWK_ACCELERATOR_BACKEND:-auto}
+      - MOHAWK_ACCELERATOR_WORKERS=${MOHAWK_ACCELERATOR_WORKERS:-}
+      - MOHAWK_NPU_AVAILABLE=${MOHAWK_NPU_AVAILABLE:-false}
+    command: ["./accelerator-detect"]
+    restart: "no"
+    networks:
+      - mohawk-net
+
   shard-us-east:
     build:
       context: .

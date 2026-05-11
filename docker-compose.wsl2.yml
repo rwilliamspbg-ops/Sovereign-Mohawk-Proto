@@ -13,7 +13,8 @@ services:
       - MOHAWK_ROUTER_MODEL_ID=synthesize-bio-validation
       - MOHAWK_ROUTER_SOURCE_VERTICAL=oncology
       - MOHAWK_ROUTER_TARGET_VERTICAL=supply-chain
-      - MOHAWK_ACCELERATOR=npu
+      - MOHAWK_ACCELERATOR_BACKEND=npu
+      - MOHAWK_NPU_AVAILABLE=true
       - MOHAWK_TPM_DEVICE=/dev/tpmrm0
       - MOHAWK_SOFTWARE_MAP_NAME=Sovereign Map
       - MOHAWK_VALIDATION_PROFILE=wsl2
