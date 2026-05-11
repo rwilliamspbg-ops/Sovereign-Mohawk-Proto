@@ -108,7 +108,21 @@ fi
 echo "Launching regional shard: $MOHAWK_REGIONAL_SHARD"
 echo "Metrics profile: $MOHAWK_METRICS_PROFILE"
 
-"$COMPOSE_CMD" up -d orchestrator shard-us-east federated-router tpm-metrics prometheus grafana ipfs
+CORE_SERVICES=(
+  orchestrator
+  shard-us-east
+  shard-eu-west
+  federated-router
+  tpm-metrics
+  pyapi-metrics-exporter
+  accelerator-detect
+  prometheus
+  alertmanager
+  grafana
+  ipfs
+)
+
+"$COMPOSE_CMD" up -d "${CORE_SERVICES[@]}"
 
 for i in {1..45}; do
   if docker logs orchestrator 2>&1 | grep -q "orchestrator listening with mTLS on :8080"; then
