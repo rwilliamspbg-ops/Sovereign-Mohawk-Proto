@@ -19,16 +19,22 @@ interface SubscriptionCallback {
   (data: any): void;
 }
 
+interface SubscriptionEntry {
+  interval: number;
+  callback?: SubscriptionCallback;
+}
+
 export const useWebSocket = (url: string = 'ws://localhost:3000') => {
   const [isConnected, setIsConnected] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
-  const [subscriptions, setSubscriptions] = useState<
-    Map<string, SubscriptionCallback>
-  >(new Map());
 
   const wsRef = useRef<WebSocket | null>(null);
-  const callbacksRef = useRef<Map<string, SubscriptionCallback>>(
+  const reconnectTimerRef = useRef<number | null>(null);
+  const reconnectAttemptRef = useRef(0);
+  const manualDisconnectRef = useRef(false);
+  const maxReconnectDelayMs = 30000;
+  const desiredSubscriptionsRef = useRef<Map<string, SubscriptionEntry>>(
     new Map()
   );
 
@@ -36,6 +42,15 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
    * Connect to WebSocket
    */
   const connect = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      return;
+    }
+
+    if (reconnectTimerRef.current !== null) {
+      window.clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+
     try {
       const ws = new WebSocket(url);
 
@@ -43,6 +58,18 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
         console.log('[Hook] Connected to WebSocket');
         setIsConnected(true);
         wsRef.current = ws;
+        reconnectAttemptRef.current = 0;
+
+        // Rehydrate all subscriptions after reconnect.
+        desiredSubscriptionsRef.current.forEach((entry, query) => {
+          ws.send(
+            JSON.stringify({
+              type: 'subscribe',
+              query,
+              interval: entry.interval,
+            })
+          );
+        });
       };
 
       ws.onmessage = (event) => {
@@ -56,8 +83,8 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
           setLastMessage(message);
 
           // Trigger subscription callbacks
-          if (message.query && callbacksRef.current.has(message.query)) {
-            const callback = callbacksRef.current.get(message.query);
+          if (message.query && desiredSubscriptionsRef.current.has(message.query)) {
+            const callback = desiredSubscriptionsRef.current.get(message.query)?.callback;
             if (callback) {
               callback(message);
             }
@@ -71,6 +98,17 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
         console.log('[Hook] Disconnected from WebSocket');
         setIsConnected(false);
         setClientId(null);
+        wsRef.current = null;
+
+        if (!manualDisconnectRef.current) {
+          const attempt = reconnectAttemptRef.current + 1;
+          reconnectAttemptRef.current = attempt;
+          const delay = Math.min(1000 * 2 ** (attempt - 1), maxReconnectDelayMs);
+
+          reconnectTimerRef.current = window.setTimeout(() => {
+            connect();
+          }, delay);
+        }
       };
 
       ws.onerror = (error) => {
@@ -88,6 +126,13 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
    * Disconnect from WebSocket
    */
   const disconnect = useCallback(() => {
+    manualDisconnectRef.current = true;
+
+    if (reconnectTimerRef.current !== null) {
+      window.clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -101,14 +146,11 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
    */
   const subscribe = useCallback(
     (query: string, interval: number = 1000, callback?: SubscriptionCallback) => {
+      desiredSubscriptionsRef.current.set(query, { interval, callback });
+
       if (!wsRef.current || !isConnected) {
         console.warn('[Hook] WebSocket not connected');
         return;
-      }
-
-      // Store callback if provided
-      if (callback) {
-        callbacksRef.current.set(query, callback);
       }
 
       const message = {
@@ -127,6 +169,8 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
    * Unsubscribe from metric query
    */
   const unsubscribe = useCallback((query: string) => {
+    desiredSubscriptionsRef.current.delete(query);
+
     if (!wsRef.current || !isConnected) return;
 
     const message = {
@@ -135,7 +179,6 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
     };
 
     wsRef.current.send(JSON.stringify(message));
-    callbacksRef.current.delete(query);
     console.log(`[Hook] Unsubscribed from: ${query}`);
   }, [isConnected]);
 
@@ -172,6 +215,7 @@ export const useWebSocket = (url: string = 'ws://localhost:3000') => {
    * Connect on mount
    */
   useEffect(() => {
+    manualDisconnectRef.current = false;
     connect();
 
     return () => {

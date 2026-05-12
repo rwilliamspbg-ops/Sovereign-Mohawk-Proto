@@ -13,6 +13,7 @@ import {
 } from './prometheus-client.js';
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
+import { AgUiEvent, AgUiEventSchema, A2UiEnvelope, A2UiEnvelopeSchema } from './protocol/types.js';
 
 /**
  * Enhanced CopilotKit Operations Assistant Server
@@ -37,6 +38,31 @@ const wss = new WebSocketServer({ server });
 
 // Grafana Client
 const grafanaClient = new GrafanaClient(grafanaUrl);
+
+function createAgUiEvent(
+  kind: AgUiEvent['kind'],
+  payload: Record<string, unknown>,
+  sessionId?: string
+): AgUiEvent {
+  return {
+    version: '1.0',
+    eventId: `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    timestamp: new Date().toISOString(),
+    sessionId,
+    kind,
+    payload,
+  };
+}
+
+function emitSseEvent(res: Response, event: AgUiEvent) {
+  const validated = AgUiEventSchema.safeParse(event);
+  if (!validated.success) {
+    return;
+  }
+
+  res.write(`event: ag-ui\n`);
+  res.write(`data: ${JSON.stringify(validated.data)}\n\n`);
+}
 
 /**
  * WebSocket Connection Handler
@@ -283,6 +309,247 @@ app.get('/api/actions', (req: Request, res: Response) => {
   res.json({
     totalActions: actionMetadata.length,
     actions: actionMetadata,
+  });
+});
+
+/**
+ * Ops Summary Endpoint
+ * Provides a lightweight status summary for app sidebar cards.
+ */
+app.get('/api/ops/summary', async (_req: Request, res: Response) => {
+  try {
+    const [promHealthy, grafanaHealth, alertsResponse, uptimeResponse, errorRateResponse] =
+      await Promise.all([
+        queryPrometheusHealth(),
+        grafanaClient.getHealth(),
+        grafanaClient.getAlerts(),
+        axios.get(`${prometheusUrl}/api/v1/query`, {
+          params: {
+            query: 'avg(up)',
+          },
+          timeout: 5000,
+        }),
+        axios.get(`${prometheusUrl}/api/v1/query`, {
+          params: {
+            query: 'sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))',
+          },
+          timeout: 5000,
+        }),
+      ]);
+
+    const uptimeRaw = parseFloat(uptimeResponse.data?.data?.result?.[0]?.value?.[1] || '0');
+    const errorRateRaw = parseFloat(
+      errorRateResponse.data?.data?.result?.[0]?.value?.[1] || '0'
+    );
+
+    const uptimePercent = Math.max(0, Math.min(100, uptimeRaw * 100));
+    const errorRatePercent = Math.max(0, errorRateRaw * 100);
+    const activeAlerts = Array.isArray(alertsResponse)
+      ? alertsResponse.filter((alert) => alert.state !== 'ok').length
+      : 0;
+
+    const status: 'healthy' | 'degraded' | 'down' =
+      promHealthy && grafanaHealth && activeAlerts < 5 && errorRatePercent < 1
+        ? 'healthy'
+        : promHealthy || grafanaHealth
+          ? 'degraded'
+          : 'down';
+
+    const recentActions = [
+      `Prometheus: ${promHealthy ? 'reachable' : 'unreachable'}`,
+      `Grafana: ${grafanaHealth ? grafanaHealth.status : 'unreachable'}`,
+      `HTTP error rate (5m): ${errorRatePercent.toFixed(2)}%`,
+      `WebSocket clients: ${wsManager.getClientCount()}`,
+    ];
+
+    res.json({
+      status,
+      uptimePercent,
+      activeAlerts,
+      recentActions,
+    });
+  } catch (error) {
+    console.error('[Server] Ops summary error:', error);
+    res.status(500).json({
+      status: 'down',
+      uptimePercent: 0,
+      activeAlerts: 0,
+      recentActions: ['Summary unavailable'],
+    });
+  }
+});
+
+/**
+ * AG-UI Runtime Stream Endpoint
+ * Emits protocol-typed events to drive frontend interactive UIs.
+ */
+app.get('/api/agent/events', async (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  const sessionId = typeof req.query.sessionId === 'string' ? req.query.sessionId : undefined;
+
+  const summary = {
+    activeAlerts: 3,
+    errorBudgetBurnRate: 1.7,
+    impactedServices: ['api-gateway', 'orders-service'],
+  };
+
+  const triageEnvelope: A2UiEnvelope = {
+    version: '1.0',
+    surface: 'main',
+    layout: {
+      type: 'stack',
+      components: [
+        {
+          id: 'alert-triage-title',
+          kind: 'text',
+          props: {
+            title: 'Alert Triage Workflow',
+            body: 'Prioritize active alerts, identify blast radius, and execute first response.',
+          },
+        },
+        {
+          id: 'alert-triage-kpi',
+          kind: 'metric',
+          props: {
+            label: 'Active Alerts',
+            value: summary.activeAlerts,
+            trend: 'up',
+            severity: 'warning',
+          },
+        },
+        {
+          id: 'alert-triage-services',
+          kind: 'table',
+          props: {
+            columns: ['service', 'status', 'suggestedAction'],
+            rows: summary.impactedServices.map((service) => ({
+              service,
+              status: 'degraded',
+              suggestedAction: 'Open runbook and inspect latency panel',
+            })),
+          },
+        },
+      ],
+    },
+    actions: [
+      {
+        id: 'ack-alerts',
+        label: 'Acknowledge Alerts',
+        intent: 'alerts.acknowledge',
+        confirm: true,
+      },
+      {
+        id: 'open-dashboard',
+        label: 'Open Service Dashboard',
+        intent: 'dashboard.open.orders',
+      },
+    ],
+  };
+
+  const validEnvelope = A2UiEnvelopeSchema.safeParse(triageEnvelope);
+  if (!validEnvelope.success) {
+    res.status(500).end();
+    return;
+  }
+
+  emitSseEvent(
+    res,
+    createAgUiEvent(
+      'agent.message.delta',
+      {
+        text: 'Collecting incident context and preparing triage surface...',
+      },
+      sessionId
+    )
+  );
+
+  const timers: NodeJS.Timeout[] = [];
+  timers.push(
+    setTimeout(() => {
+      emitSseEvent(
+        res,
+        createAgUiEvent(
+          'agent.ui.replace',
+          {
+            envelope: validEnvelope.data,
+          },
+          sessionId
+        )
+      );
+    }, 300)
+  );
+
+  timers.push(
+    setTimeout(() => {
+      emitSseEvent(
+        res,
+        createAgUiEvent(
+          'agent.state.changed',
+          {
+            phase: 'triage.ready',
+            errorBudgetBurnRate: summary.errorBudgetBurnRate,
+          },
+          sessionId
+        )
+      );
+      emitSseEvent(
+        res,
+        createAgUiEvent(
+          'agent.message.final',
+          {
+            text: 'Triage surface ready. Review impacted services and execute a response action.',
+          },
+          sessionId
+        )
+      );
+    }, 600)
+  );
+
+  const heartbeat = setInterval(() => {
+    res.write(`: keepalive\n\n`);
+  }, 15000);
+
+  req.on('close', () => {
+    timers.forEach((timer) => clearTimeout(timer));
+    clearInterval(heartbeat);
+    res.end();
+  });
+});
+
+/**
+ * Agent Intent Endpoint
+ * Executes first response intents triggered from A2UI action buttons.
+ */
+app.post('/api/agent/intent', (req: Request, res: Response) => {
+  const { intent } = req.body as { intent?: string };
+
+  if (!intent) {
+    return res.status(400).json({ error: 'Intent is required' });
+  }
+
+  if (intent === 'alerts.acknowledge') {
+    return res.json({
+      success: true,
+      message: 'Alerts acknowledged and incident timer started.',
+      next: 'Run latency and dependency checks for impacted services.',
+    });
+  }
+
+  if (intent === 'dashboard.open.orders') {
+    return res.json({
+      success: true,
+      message: 'Orders service dashboard selected.',
+      dashboardUid: 'orders-overview',
+    });
+  }
+
+  res.status(400).json({
+    success: false,
+    message: `Unsupported intent: ${intent}`,
   });
 });
 

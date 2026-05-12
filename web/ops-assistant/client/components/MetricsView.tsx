@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { getRuntimeConfig } from '../config';
 import '../styles/metrics.css';
 
 /**
@@ -23,7 +24,7 @@ interface MetricsViewProps {
 }
 
 const MetricsView: React.FC<MetricsViewProps> = ({
-  wsUrl = 'ws://localhost:3000',
+  wsUrl = getRuntimeConfig().wsUrl,
   pollInterval = 5000,
 }) => {
   const [metrics, setMetrics] = useState<Metric[]>([]);

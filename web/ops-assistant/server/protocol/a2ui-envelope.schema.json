@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sovereign-mohawk.dev/schemas/a2ui-envelope.schema.json",
+  "title": "A2UI Payload Envelope",
+  "type": "object",
+  "required": ["version", "surface", "layout"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$"
+    },
+    "surface": {
+      "type": "string",
+      "enum": ["main", "sidebar", "modal", "mcp-dock"]
+    },
+    "layout": {
+      "type": "object",
+      "required": ["type", "components"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["stack", "grid", "tabs"]
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "required": ["id", "kind", "props"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["text", "metric", "table", "chart", "form", "timeline", "button"]
+        },
+        "props": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": ["id", "label", "intent"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

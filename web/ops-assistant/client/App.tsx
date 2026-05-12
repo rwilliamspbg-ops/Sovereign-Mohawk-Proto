@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CopilotChat } from '@copilotkit/react-ui';
 import MetricsView from './components/MetricsView';
 import GrafanaDashboardView from './components/GrafanaDashboardView';
+import A2UIRenderer from './components/A2UIRenderer';
+import { buildApiUrl, getRuntimeConfig } from './config';
+import { useAgUiStream } from './hooks/useAgUiStream';
+import { A2UiAction } from './types/protocol';
 import '@copilotkit/react-ui/styles.css';
 import './styles/app.css';
 
@@ -12,8 +16,99 @@ import './styles/app.css';
 
 type ViewType = 'chat' | 'metrics' | 'dashboards';
 
+interface OpsSummary {
+  status: 'healthy' | 'degraded' | 'down';
+  uptimePercent: number;
+  activeAlerts: number;
+  recentActions: string[];
+}
+
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('chat');
+  const [summary, setSummary] = useState<OpsSummary | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [intentMessage, setIntentMessage] = useState<string | null>(null);
+  const [busyIntent, setBusyIntent] = useState<string | null>(null);
+
+  const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
+  const { events, latestEnvelope, connectionStatus } = useAgUiStream();
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchSummary = async () => {
+      try {
+        const response = await fetch(buildApiUrl('/api/ops/summary'));
+        if (!response.ok) {
+          throw new Error(`Summary API returned ${response.status}`);
+        }
+
+        const data = (await response.json()) as OpsSummary;
+        if (active) {
+          setSummary(data);
+          setSummaryError(null);
+        }
+      } catch (error) {
+        if (active) {
+          setSummaryError(error instanceof Error ? error.message : 'Failed to load summary');
+        }
+      }
+    };
+
+    fetchSummary();
+    const interval = window.setInterval(fetchSummary, 15000);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  const statusClass =
+    summary?.status === 'healthy'
+      ? 'healthy'
+      : summary?.status === 'degraded'
+        ? 'warning'
+        : 'alert';
+
+  const statusText =
+    summary?.status === 'healthy'
+      ? 'Healthy'
+      : summary?.status === 'degraded'
+        ? 'Degraded'
+        : 'Unavailable';
+
+  const handleA2UiAction = async (action: A2UiAction) => {
+    if (action.confirm) {
+      const confirmed = window.confirm(`Run action: ${action.label}?`);
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    try {
+      setBusyIntent(action.intent);
+      setIntentMessage(null);
+      const response = await fetch(buildApiUrl('/api/agent/intent'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ intent: action.intent }),
+      });
+
+      const result = (await response.json()) as { message?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(result.error || result.message || 'Intent execution failed');
+      }
+
+      setIntentMessage(result.message || 'Intent completed.');
+    } catch (error) {
+      setIntentMessage(error instanceof Error ? error.message : 'Intent execution failed');
+    } finally {
+      setBusyIntent(null);
+    }
+  };
 
   return (
     <div className="app-container">
@@ -69,13 +164,28 @@ const App: React.FC = () => {
                   }}
                 />
               </div>
+              <div className="agent-workflow-panel">
+                <div className="agent-workflow-header">
+                  <h3>Agent Workflow Surface</h3>
+                  <span className={`stream-status ${connectionStatus}`}>
+                    Stream: {connectionStatus}
+                  </span>
+                </div>
+                <A2UIRenderer
+                  envelope={latestEnvelope}
+                  busyIntent={busyIntent}
+                  onAction={handleA2UiAction}
+                />
+                {intentMessage && <p className="intent-message">{intentMessage}</p>}
+                <p className="event-count">AG-UI events received: {events.length}</p>
+              </div>
             </div>
           )}
 
           {activeView === 'metrics' && (
             <div className="view-content metrics-view-wrapper">
               <MetricsView
-                wsUrl="ws://localhost:3000"
+                wsUrl={runtimeConfig.wsUrl}
                 pollInterval={5000}
               />
             </div>
@@ -83,7 +193,7 @@ const App: React.FC = () => {
 
           {activeView === 'dashboards' && (
             <div className="view-content dashboards-view-wrapper">
-              <GrafanaDashboardView apiUrl="http://localhost:3000/api/grafana" />
+              <GrafanaDashboardView apiUrl={buildApiUrl('/api/grafana')} />
             </div>
           )}
         </div>
@@ -94,26 +204,30 @@ const App: React.FC = () => {
             <div className="stats-grid">
               <div className="stat-item">
                 <span className="stat-label">Status</span>
-                <span className="stat-value healthy">● Healthy</span>
+                <span className={`stat-value ${statusClass}`}>● {statusText}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Uptime</span>
-                <span className="stat-value">99.9%</span>
+                <span className="stat-value">
+                  {summary ? `${summary.uptimePercent.toFixed(2)}%` : 'Loading...'}
+                </span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Alerts</span>
-                <span className="stat-value alert">2 Active</span>
+                <span className={`stat-value ${summary?.activeAlerts ? 'alert' : 'healthy'}`}>
+                  {summary ? `${summary.activeAlerts} Active` : 'Loading...'}
+                </span>
               </div>
             </div>
+            {summaryError && <p className="panel-error">Summary sync error: {summaryError}</p>}
           </div>
 
           <div className="sidebar-panel">
             <h3>Recent Actions</h3>
             <ul className="action-history">
-              <li>✓ System health check completed</li>
-              <li>✓ Grafana dashboards synced</li>
-              <li>✓ Metrics updated</li>
-              <li>✓ Anomaly detection run</li>
+              {(summary?.recentActions || ['Loading recent actions...']).map((action, index) => (
+                <li key={`${index}-${action}`}>{action}</li>
+              ))}
             </ul>
           </div>
 
