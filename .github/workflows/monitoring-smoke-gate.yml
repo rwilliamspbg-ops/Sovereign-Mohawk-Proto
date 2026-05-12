@@ -34,18 +34,59 @@ jobs:
 
       - name: Start monitoring stack
         run: |
-          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana
+          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana ops-assistant
 
       - name: Wait for Prometheus and Grafana
         run: |
           for _ in $(seq 1 60); do
-            if curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/health >/dev/null 2>&1; then
+            if curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/health >/dev/null 2>&1 && curl -fsS http://localhost:3001/api/health >/dev/null 2>&1; then
               exit 0
             fi
             sleep 2
           done
           echo "Prometheus/Grafana did not become healthy in time"
           exit 1
+
+      - name: Validate ops-assistant endpoints
+        run: |
+          python3 - <<'PY'
+          import json
+          import time
+          import urllib.request
+          from statistics import mean
+
+          endpoints = {
+              'health': 'http://localhost:3001/api/health',
+              'summary': 'http://localhost:3001/api/ops/summary',
+              'metrics': 'http://localhost:3001/metrics',
+          }
+
+          timings = {name: [] for name in endpoints}
+
+          for _ in range(5):
+              for name, url in endpoints.items():
+                  start = time.perf_counter()
+                  with urllib.request.urlopen(url, timeout=15) as resp:
+                      body = resp.read().decode('utf-8')
+                  elapsed = time.perf_counter() - start
+                  timings[name].append(elapsed)
+
+                  if name == 'summary':
+                      payload = json.loads(body)
+                      if 'federatedIntelligence' not in payload:
+                          raise SystemExit('ops summary missing federatedIntelligence payload')
+                  elif name == 'metrics':
+                      if 'sov_mohawk_federated_drift_score' not in body:
+                          raise SystemExit('metrics output missing federated drift metric')
+
+          summary_avg_ms = mean(timings['summary']) * 1000.0
+          summary_max_ms = max(timings['summary']) * 1000.0
+
+          if summary_max_ms > 2500:
+              raise SystemExit(f'ops summary latency too high: {summary_max_ms:.1f}ms')
+
+          print('ops-assistant latency ms avg/max:', f'{summary_avg_ms:.1f}', f'{summary_max_ms:.1f}')
+          PY
 
       - name: Verify Prometheus targets
         run: |
@@ -97,6 +138,7 @@ jobs:
           checks = {
               "mohawk_metrics_family": "count({__name__=~\"mohawk_.*\"})",
               "tpm_metrics_family": "count({__name__=~\"mohawk_tpm_.*\"})",
+              "federated_metrics_family": "count({__name__=~\"mohawk:federated_.*\"})",
           }
 
           output = {}
