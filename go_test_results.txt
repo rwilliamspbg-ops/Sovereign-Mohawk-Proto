@@ -1,0 +1,11 @@
+=== RUN   TestPhase1A
+    p1_test.go:5: Phase 1 A
+--- PASS: TestPhase1A (0.00s)
+=== RUN   TestPhase1B
+    p1_test.go:6: Phase 1 B
+--- PASS: TestPhase1B (0.00s)
+=== RUN   TestPhase1C
+    p1_test.go:7: Phase 1 C
+--- PASS: TestPhase1C (0.00s)
+PASS
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	(cached)

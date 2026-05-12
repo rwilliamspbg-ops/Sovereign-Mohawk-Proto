@@ -1,0 +1,66 @@
+# TEST EXECUTION ANALYSIS REPORT
+Generated: 2026-05-12 23:43:46
+
+## EXECUTIVE SUMMARY
+- **Total Tests Executed:** 3
+- **Passed:** 3
+- **Failed:** 0
+- **Pass Rate:** 3/3 (100.0%)
+- **Total Runtime:** 0.00s (0.0 minutes)
+
+## PHASE-BY-PHASE RESULTS
+
+### Phase 1
+- **Tests:** 3/65
+- **Passed:** 3 (Expected: 59)
+- **Failed:** 0
+- **Pass Rate:** 100.0% (Expected: 90.0%)
+- **Variance:** -56 tests (+10.0%)
+
+### Phase 2
+- **Tests:** 0/60
+- **Passed:** 0 (Expected: 54)
+- **Failed:** 0
+- **Pass Rate:** 0.0% (Expected: 90.0%)
+- **Variance:** -54 tests (-90.0%)
+
+### Phase 3
+- **Tests:** 0/48
+- **Passed:** 0 (Expected: 43)
+- **Failed:** 0
+- **Pass Rate:** 0.0% (Expected: 89.0%)
+- **Variance:** -43 tests (-89.0%)
+
+### Phase 4
+- **Tests:** 0/55
+- **Passed:** 0 (Expected: 49)
+- **Failed:** 0
+- **Pass Rate:** 0.0% (Expected: 89.0%)
+- **Variance:** -49 tests (-89.0%)
+
+## FAILED TESTS
+✅ No failed tests
+
+## PERFORMANCE ANALYSIS
+
+- **Phase 1:** 0.00s total, 0.0ms per test
+- **Total Suite Runtime:** 0.00s
+
+## COMPARISON TO EXPECTED RESULTS
+
+| Phase | Expected | Actual | Pass Rate | Status |
+|-------|----------|--------|-----------|--------|
+| 1 | 59/65 | 3/3 | 100.0% | ⚠️ BELOW |
+| 2 | 54/60 | 0/0 | 0.0% | ⚠️ BELOW |
+| 3 | 43/48 | 0/0 | 0.0% | ⚠️ BELOW |
+| 4 | 49/55 | 0/0 | 0.0% | ⚠️ BELOW |
+
+## FINAL STATUS
+
+⚠️ **REVIEW REQUIRED** - Some tests did not meet expectations
+Pass rate 3/3 (10000.0%) is below 90% target
+
+---
+Report generated: 2026-05-12T23:43:46.032596
+
+Analysis saved to TEST_EXECUTION_ANALYSIS.md
