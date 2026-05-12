@@ -62,3 +62,5 @@ Pass rate 3/3 (10000.0%) is below 90% target
 
 ---
 Report generated: 2026-05-12T23:40:12.490151
+
+Analysis saved to TEST_EXECUTION_ANALYSIS.md
