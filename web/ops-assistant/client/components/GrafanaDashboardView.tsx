@@ -57,14 +57,30 @@ const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
     try {
       setLoading(true);
       setError(null);
+      console.log('[GrafanaDashboard] Fetching dashboards from:', `${apiUrl}/dashboards`);
 
-      const response = await axios.get(`${apiUrl}/dashboards`);
-      if (response.data.dashboards) {
-        setDashboards(response.data.dashboards);
+      const response = await axios.get(`${apiUrl}/dashboards`, {
+        timeout: 5000,
+      });
+      
+      console.log('[GrafanaDashboard] Response:', response.data);
+      
+      // Handle both { dashboards: [...] } and { success: true, dashboards: [...] }
+      const dashboardsData = response.data?.dashboards || response.data;
+      
+      if (Array.isArray(dashboardsData)) {
+        setDashboards(dashboardsData);
+        console.log('[GrafanaDashboard] Loaded', dashboardsData.length, 'dashboards');
+      } else {
+        console.warn('[GrafanaDashboard] Unexpected response structure:', response.data);
+        setError('Invalid dashboard response format');
+        setDashboards([]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch dashboards');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to fetch dashboards';
       console.error('[GrafanaDashboard] Error:', err);
+      setError(errorMsg);
+      setDashboards([]);
     } finally {
       setLoading(false);
     }
@@ -76,16 +92,32 @@ const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
   const fetchDashboardDetail = async (uid: string): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get(`${apiUrl}/dashboards/${uid}`);
-      if (response.data.dashboard) {
+      console.log('[GrafanaDashboard] Fetching dashboard:', uid);
+      
+      const response = await axios.get(`${apiUrl}/dashboards/${uid}`, {
+        timeout: 5000,
+      });
+      
+      console.log('[GrafanaDashboard] Dashboard response:', response.data);
+      
+      const dashData = response.data?.dashboard || response.data;
+      
+      if (dashData) {
         setDashboardDetail({
-          title: response.data.dashboard.title,
-          description: response.data.dashboard.description,
-          panels: response.data.dashboard.panels || [],
+          title: dashData.title || 'Untitled',
+          description: dashData.description || '',
+          panels: (dashData.panels || []).map((p: any) => ({
+            id: p.id || 0,
+            title: p.title || 'Untitled Panel',
+            type: p.type || 'unknown',
+          })),
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch dashboard');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to fetch dashboard';
+      console.error('[GrafanaDashboard] Dashboard fetch error:', err);
+      setError(errorMsg);
+      setDashboardDetail(null);
     } finally {
       setLoading(false);
     }
@@ -95,6 +127,7 @@ const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
    * Handle dashboard selection
    */
   const handleSelectDashboard = (dashboard: Dashboard): void => {
+    console.log('[GrafanaDashboard] Selecting dashboard:', dashboard.title);
     setSelectedDashboard(dashboard);
     fetchDashboardDetail(dashboard.uid);
   };
@@ -112,12 +145,23 @@ const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
 
     try {
       setLoading(true);
-      const response = await axios.get(`${apiUrl}/search?query=${encodeURIComponent(query)}`);
-      if (response.data.results) {
-        setDashboards(response.data.results);
+      console.log('[GrafanaDashboard] Searching for:', query);
+      
+      const response = await axios.get(`${apiUrl}/search`, {
+        params: { query },
+        timeout: 5000,
+      });
+      
+      console.log('[GrafanaDashboard] Search results:', response.data);
+      
+      const results = response.data?.results || response.data;
+      if (Array.isArray(results)) {
+        setDashboards(results);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
+      const errorMsg = err instanceof Error ? err.message : 'Search failed';
+      console.error('[GrafanaDashboard] Search error:', err);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -135,19 +179,24 @@ const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"
           />
-          <button onClick={fetchDashboards} className="refresh-btn">
+          <button onClick={fetchDashboards} className="refresh-btn" title="Refresh">
             ↻
           </button>
         </div>
       </div>
 
+      {error && <div className="grafana-error">⚠️ {error}</div>}
+
       <div className="grafana-content">
         <div className="dashboards-list">
-          <h3>Available Dashboards</h3>
+          <h3>Available Dashboards ({dashboards.length})</h3>
           {loading && dashboards.length === 0 ? (
             <div className="loading">Loading dashboards...</div>
           ) : dashboards.length === 0 ? (
-            <div className="empty-state">No dashboards found</div>
+            <div className="empty-state">
+              <p>No dashboards found</p>
+              <p className="hint">Try connecting to your Grafana instance</p>
+            </div>
           ) : (
             <ul className="dashboard-items">
               {dashboards.map((dashboard) => (
