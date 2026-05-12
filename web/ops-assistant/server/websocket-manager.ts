@@ -12,6 +12,7 @@ interface Client {
   ws: WebSocket;
   subscriptions: Set<string>;
   connected: boolean;
+  remoteAddress?: string;
 }
 
 interface MetricSubscription {
@@ -35,12 +36,13 @@ export class WebSocketManager extends EventEmitter {
   /**
    * Register a WebSocket client
    */
-  registerClient(clientId: string, ws: WebSocket): void {
+  registerClient(clientId: string, ws: WebSocket, remoteAddress?: string): void {
     const client: Client = {
       id: clientId,
       ws,
       subscriptions: new Set(),
       connected: true,
+      remoteAddress,
     };
 
     this.clients.set(clientId, client);
@@ -50,7 +52,9 @@ export class WebSocketManager extends EventEmitter {
     ws.on('close', () => this.handleDisconnect(clientId));
     ws.on('error', (error) => this.handleError(clientId, error));
 
-    console.log(`[WebSocket] Client registered: ${clientId}`);
+    console.log(
+      `[WebSocket] Client registered: ${clientId}${remoteAddress ? ` from ${remoteAddress}` : ''}`
+    );
     this.emit('client_connected', { clientId });
   }
 
@@ -60,6 +64,7 @@ export class WebSocketManager extends EventEmitter {
   private handleMessage(clientId: string, data: WebSocket.Data): void {
     try {
       const message = JSON.parse(data.toString());
+      console.log(`[WebSocket] Message from ${clientId}: ${message.type}`);
 
       switch (message.type) {
         case 'subscribe':
@@ -280,7 +285,9 @@ export class WebSocketManager extends EventEmitter {
     this.clients.delete(clientId);
     this.messageQueue.delete(clientId);
 
-    console.log(`[WebSocket] Client disconnected: ${clientId}`);
+    console.log(
+      `[WebSocket] Client disconnected: ${clientId}${client.remoteAddress ? ` from ${client.remoteAddress}` : ''}`
+    );
     this.emit('client_disconnected', { clientId });
   }
 

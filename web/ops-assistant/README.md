@@ -39,6 +39,10 @@ npm start
 
 ```
 PROMETHEUS_URL=http://prometheus:9090   # Prometheus API endpoint
+GRAFANA_URL=http://grafana:3000         # Grafana API endpoint
+GRAFANA_API_TOKEN=admin                 # Grafana API token with dashboard read privileges
+CORS_ORIGIN=http://localhost:3000       # Comma-separated browser origins allowed to call the API
+CORS_METHODS=GET,POST,OPTIONS           # Allowed CORS methods
 PORT=3000                                # Backend port
 NODE_ENV=production                      # Environment
 VITE_API_BASE_URL=http://localhost:3000  # Frontend API base URL (optional)
@@ -124,7 +128,11 @@ Multi-stage build for optimized production images:
 
 ```bash
 docker build -t ops-assistant:latest .
-docker run -e PROMETHEUS_URL=http://prometheus:9090 -p 3000:3000 ops-assistant:latest
+docker run \
+  -e PROMETHEUS_URL=http://prometheus:9090 \
+  -e GRAFANA_URL=http://grafana:3000 \
+  -p 3000:3000 \
+  ops-assistant:latest
 ```
 
 ## Integration with docker-compose
@@ -139,9 +147,13 @@ ops-assistant:
     - "3001:3000"
   environment:
     - PROMETHEUS_URL=http://prometheus:9090
+    - GRAFANA_URL=http://grafana:3000
+    - GRAFANA_API_TOKEN=${GRAFANA_API_TOKEN}
+    - CORS_ORIGIN=http://localhost:3001,http://localhost:5173
     - NODE_ENV=production
   depends_on:
     - prometheus
+    - grafana
   networks:
     - mohawk-net
   healthcheck:
@@ -152,6 +164,8 @@ ops-assistant:
 ```
 
 Then access at: `http://localhost:3001`
+
+If you expose the API from a different browser origin, set `CORS_ORIGIN` to a comma-separated allowlist of exact origins before starting the server.
 
 ## Project Structure
 

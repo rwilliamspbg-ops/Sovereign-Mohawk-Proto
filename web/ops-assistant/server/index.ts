@@ -29,9 +29,24 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 const prometheusUrl = process.env.PROMETHEUS_URL || 'http://prometheus:9090';
 const grafanaUrl = process.env.GRAFANA_URL || 'http://grafana:3000';
+const corsOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsMethods = (process.env.CORS_METHODS || 'GET,POST,OPTIONS')
+  .split(',')
+  .map((method) => method.trim())
+  .filter(Boolean);
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: corsOrigins.length > 0 ? corsOrigins : false,
+    methods: corsMethods,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Create HTTP server for WebSocket support
@@ -74,9 +89,21 @@ function emitSseEvent(res: Response, event: AgUiEvent) {
  */
 wss.on('connection', (ws: WebSocket, _req: http.IncomingMessage) => {
   const clientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const remoteAddress = _req.socket.remoteAddress || 'unknown';
 
-  console.log(`[Server] New WebSocket connection: ${clientId}`);
-  wsManager.registerClient(clientId, ws);
+  console.log(`[Server] New WebSocket connection: ${clientId} from ${remoteAddress}`);
+  ws.on('error', (error) => {
+    console.error(`[Server] WebSocket error for ${clientId}:`, error);
+  });
+  ws.on('close', (code, reason) => {
+    const closeReason = reason.toString() || 'no reason provided';
+    console.log(`[Server] WebSocket closed: ${clientId} code=${code} reason=${closeReason}`);
+  });
+  ws.on('message', (message) => {
+    const preview = message.toString().slice(0, 160);
+    console.log(`[Server] WebSocket message from ${clientId}: ${preview}`);
+  });
+  wsManager.registerClient(clientId, ws, remoteAddress);
 
   // Send welcome message
   ws.send(

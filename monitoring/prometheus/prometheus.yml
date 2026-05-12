@@ -37,3 +37,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["federated-router:8088"]
+
+  - job_name: ops-assistant
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["ops-assistant:3000"]

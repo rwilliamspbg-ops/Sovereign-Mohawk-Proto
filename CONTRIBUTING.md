@@ -169,6 +169,9 @@ Common pitfalls and fixes:
   * Run `scripts/validate_host_network_tuning.sh` and then apply via `sudo bash scripts/host_tuning.sh --persist`.
 * Docker Desktop + TPM flow mismatch on non-Linux hosts:
   * Use `make strict-auth-smoke-container` to validate the glibc path in a reproducible container.
+* Windows checkout fails with `Filename too long`:
+  * Enable long paths before cloning or checking out: `git config --system core.longpaths true`.
+  * If the repository is still too deep for the host, clone it into a shorter path such as `C:\src\Sovereign-Mohawk-Proto`.
 
 ---
 
