@@ -5,6 +5,11 @@ import { WebSocketManager } from './websocket-manager.js';
 import { GrafanaClient } from './grafana-client.js';
 import { advancedActions } from './actions.js';
 import {
+  getFederatedOverview,
+  getIntelligenceScoreboard,
+  getRoundStatus,
+} from './federated-intelligence.js';
+import {
   queryPrometheus,
   queryPrometheusRange,
   queryPrometheusHealth,
@@ -337,6 +342,8 @@ app.get('/api/ops/summary', async (_req: Request, res: Response) => {
         }),
       ]);
 
+    const federatedOverview = await getFederatedOverview();
+
     const uptimeRaw = parseFloat(uptimeResponse.data?.data?.result?.[0]?.value?.[1] || '0');
     const errorRateRaw = parseFloat(
       errorRateResponse.data?.data?.result?.[0]?.value?.[1] || '0'
@@ -367,6 +374,21 @@ app.get('/api/ops/summary', async (_req: Request, res: Response) => {
       uptimePercent,
       activeAlerts,
       recentActions,
+      federatedIntelligence: {
+        roundId: federatedOverview.roundId,
+        phase: federatedOverview.phase,
+        progress: federatedOverview.progress,
+        modelConfidence: federatedOverview.modelConfidence,
+        driftScore: federatedOverview.driftScore,
+        convergenceTrend: federatedOverview.convergenceTrend,
+        participatingNodes: federatedOverview.participatingNodes,
+        honestNodeRatio: federatedOverview.honestNodeRatio,
+        topContributors: federatedOverview.topContributors,
+        anomalies: federatedOverview.anomalies,
+        recommendedAction: federatedOverview.recommendedAction,
+        requiresConfirmation: federatedOverview.requiresConfirmation,
+        reasoningTrail: federatedOverview.supportingEvidence,
+      },
     });
   } catch (error) {
     console.error('[Server] Ops summary error:', error);
@@ -375,7 +397,48 @@ app.get('/api/ops/summary', async (_req: Request, res: Response) => {
       uptimePercent: 0,
       activeAlerts: 0,
       recentActions: ['Summary unavailable'],
+      federatedIntelligence: {
+        roundId: 'round-unknown',
+        phase: 'failure',
+        progress: 0,
+        modelConfidence: 0,
+        driftScore: 0,
+        convergenceTrend: 'degrading',
+        participatingNodes: 0,
+        honestNodeRatio: 0,
+        topContributors: [],
+        anomalies: [],
+        recommendedAction: 'Restore federation connectivity before executing FL operations.',
+        requiresConfirmation: false,
+        reasoningTrail: ['Federated intelligence summary unavailable.'],
+      },
     });
+  }
+});
+
+/**
+ * Federated Intelligence Scoreboard Endpoint
+ */
+app.get('/api/fl/intelligence/scoreboard', async (_req: Request, res: Response) => {
+  try {
+    const scoreboard = await getIntelligenceScoreboard();
+    res.json({ success: true, scoreboard });
+  } catch (error) {
+    console.error('[Server] FL scoreboard error:', error);
+    res.status(500).json({ success: false, error: 'Failed to build federated intelligence scoreboard' });
+  }
+});
+
+/**
+ * Federated Learning Round Status Endpoint
+ */
+app.get('/api/fl/round/status', async (_req: Request, res: Response) => {
+  try {
+    const status = await getRoundStatus();
+    res.json({ success: true, status });
+  } catch (error) {
+    console.error('[Server] FL round status error:', error);
+    res.status(500).json({ success: false, error: 'Failed to resolve federated round status' });
   }
 });
 
@@ -554,6 +617,29 @@ app.post('/api/agent/intent', (req: Request, res: Response) => {
 });
 
 /**
+ * Acknowledge/confirm an anomaly for manual review.
+ */
+app.post('/api/fl/anomalies/ack', async (req: Request, res: Response) => {
+  const { nodeId } = req.body as { nodeId?: string };
+  if (!nodeId) return res.status(400).json({ success: false, error: 'nodeId required' });
+
+  try {
+    // Update metrics counter if available
+    try {
+      const { anomaliesCounter } = await import('./federated-intelligence.js');
+      anomaliesCounter.inc({ category: 'acknowledge', severity: 'info' }, 1);
+    } catch (e) {
+      // ignore metric update errors
+    }
+
+    // In real system: persist acknowledgment, trigger audit workflow
+    res.json({ success: true, message: `Anomaly ${nodeId} acknowledged` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to acknowledge anomaly' });
+  }
+});
+
+/**
  * Test Metric Generation Endpoint (for demo purposes)
  */
 app.get('/api/test-metrics', async (req: Request, res: Response) => {
@@ -573,6 +659,21 @@ app.get('/api/test-metrics', async (req: Request, res: Response) => {
     res.json(metrics);
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate test metrics' });
+  }
+});
+
+/**
+ * Prometheus metrics endpoint
+ */
+app.get('/metrics', async (_req: Request, res: Response) => {
+  try {
+    // dynamic import to avoid errors if prom-client missing during some builds
+    const { getMetrics } = await import('./federated-intelligence.js');
+    const metrics = await getMetrics();
+    res.setHeader('Content-Type', 'text/plain; version=0.0.4');
+    res.send(metrics);
+  } catch (error) {
+    res.status(500).send('# metrics unavailable\n');
   }
 });
 

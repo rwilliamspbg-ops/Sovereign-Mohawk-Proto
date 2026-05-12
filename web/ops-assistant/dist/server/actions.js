@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { GrafanaClient } from './grafana-client.js';
+import { detectAnomalies, explainModelDrift, getIntelligenceScoreboard, getRoundStatus, listContributingNodes, } from './federated-intelligence.js';
 /**
  * Advanced CopilotKit Actions for Network Operations
  * Provides sophisticated operations for network monitoring and analysis
@@ -480,6 +481,129 @@ export const analyzePerformanceAction = {
     },
 };
 /**
+ * Get federated learning round status
+ */
+export const getRoundStatusAction = {
+    name: 'get_round_status',
+    description: 'Get the current federated learning round status, including phase, progress, confidence, drift, and reasoning.',
+    parameters: {
+        type: 'object',
+        properties: {
+            includeEvidence: {
+                type: 'boolean',
+                default: true,
+            },
+        },
+    },
+    handler: async () => {
+        const status = await getRoundStatus();
+        const scoreboard = await getIntelligenceScoreboard();
+        return {
+            success: true,
+            status,
+            reasoning: scoreboard.supportingEvidence,
+            requiresConfirmation: scoreboard.requiresConfirmation,
+        };
+    },
+};
+/**
+ * Explain model drift
+ */
+export const explainModelDriftAction = {
+    name: 'explain_model_drift',
+    description: 'Explain why model drift is changing, which nodes are affected, and what operator action is recommended.',
+    parameters: {
+        type: 'object',
+        properties: {
+            objective: {
+                type: 'string',
+                default: 'Objective Z',
+            },
+        },
+    },
+    handler: async () => {
+        const drift = await explainModelDrift();
+        return {
+            success: true,
+            ...drift,
+            reasoning: [drift.reasoning, drift.recommendation],
+            requiresConfirmation: false,
+        };
+    },
+};
+/**
+ * List contributing nodes
+ */
+export const listContributingNodesAction = {
+    name: 'list_contributing_nodes',
+    description: 'Rank contributing federated nodes by their value to the current objective and return reasoning for each.',
+    parameters: {
+        type: 'object',
+        properties: {
+            objective: {
+                type: 'string',
+                default: 'Objective Z',
+            },
+        },
+    },
+    handler: async () => {
+        const nodes = await listContributingNodes();
+        return {
+            success: true,
+            nodes,
+            reasoning: nodes.map((node) => node.reasoning),
+            requiresConfirmation: false,
+        };
+    },
+};
+/**
+ * Detect federated anomalies
+ */
+export const detectAnomaliesAction = {
+    name: 'detect_anomalies',
+    description: 'Detect drift, poisoning, Byzantine, attestation, or latency anomalies in the current federated round.',
+    parameters: {
+        type: 'object',
+        properties: {
+            severityThreshold: {
+                type: 'string',
+                enum: ['low', 'medium', 'high'],
+                default: 'medium',
+            },
+        },
+    },
+    handler: async () => {
+        const anomalies = await detectAnomalies();
+        const filtered = anomalies.filter((anomaly) => anomaly.severity !== 'low');
+        return {
+            success: true,
+            anomalies: filtered,
+            reasoning: filtered.map((anomaly) => anomaly.evidence),
+            requiresConfirmation: filtered.some((anomaly) => anomaly.severity === 'high'),
+        };
+    },
+};
+/**
+ * Get federated intelligence scoreboard
+ */
+export const getIntelligenceScoreboardAction = {
+    name: 'get_intelligence_scoreboard',
+    description: 'Return the current federated intelligence scoreboard with confidence, drift, contributors, and anomaly summary.',
+    parameters: {
+        type: 'object',
+        properties: {},
+    },
+    handler: async () => {
+        const scoreboard = await getIntelligenceScoreboard();
+        return {
+            success: true,
+            scoreboard,
+            reasoning: scoreboard.supportingEvidence,
+            requiresConfirmation: scoreboard.requiresConfirmation,
+        };
+    },
+};
+/**
  * Get network statistics and health overview
  */
 export const getNetworkStatsAction = {
@@ -538,5 +662,10 @@ export const advancedActions = [
     alertOnConditionAction,
     analyzePerformanceAction,
     getNetworkStatsAction,
+    getRoundStatusAction,
+    explainModelDriftAction,
+    listContributingNodesAction,
+    detectAnomaliesAction,
+    getIntelligenceScoreboardAction,
 ];
 //# sourceMappingURL=actions.js.map
