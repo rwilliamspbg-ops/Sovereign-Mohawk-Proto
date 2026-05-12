@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sovereign-mohawk.dev/schemas/ag-ui-events.schema.json",
+  "title": "AG-UI Event Envelope",
+  "type": "object",
+  "required": ["version", "eventId", "timestamp", "kind", "payload"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$",
+      "description": "Protocol version for backward compatibility"
+    },
+    "eventId": {
+      "type": "string",
+      "description": "Unique identifier for event replay and dedupe"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sessionId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "agent.message.delta",
+        "agent.message.final",
+        "agent.tool.call.started",
+        "agent.tool.call.completed",
+        "agent.tool.call.failed",
+        "agent.ui.patch",
+        "agent.ui.replace",
+        "agent.state.changed"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "null"]
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { buildApiUrl } from '../config';
 import '../styles/grafana.css';
 
 /**
@@ -33,7 +34,7 @@ interface GrafanaDashboardViewProps {
 }
 
 const GrafanaDashboardView: React.FC<GrafanaDashboardViewProps> = ({
-  apiUrl = 'http://localhost:3000/api/grafana',
+  apiUrl = buildApiUrl('/api/grafana'),
 }) => {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard | null>(null);

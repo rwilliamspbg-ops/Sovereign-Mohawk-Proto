@@ -152,6 +152,137 @@ body {
   overflow: hidden;
 }
 
+.agent-workflow-panel {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #12253a 0%, #0f172a 100%);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.agent-workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.agent-workflow-header h3 {
+  font-size: 16px;
+  color: #93c5fd;
+}
+
+.stream-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+}
+
+.stream-status.open {
+  color: #22c55e;
+  border-color: #22c55e;
+}
+
+.stream-status.connecting {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.stream-status.closed {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.a2ui-surface {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.a2ui-layout {
+  display: grid;
+  gap: 10px;
+}
+
+.a2ui-block {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.a2ui-text h4 {
+  margin-bottom: 6px;
+  color: #e2e8f0;
+}
+
+.a2ui-text p {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.a2ui-metric-label {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.a2ui-metric-value {
+  font-size: 28px;
+  color: #38bdf8;
+}
+
+.a2ui-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.a2ui-table th,
+.a2ui-table td {
+  border-bottom: 1px solid #334155;
+  text-align: left;
+  padding: 8px;
+  font-size: 12px;
+}
+
+.a2ui-table th {
+  color: #93c5fd;
+  text-transform: capitalize;
+}
+
+.a2ui-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.a2ui-action-button {
+  border: 1px solid #0284c7;
+  color: #e0f2fe;
+  background: #0c4a6e;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.a2ui-action-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.intent-message {
+  color: #bfdbfe;
+  font-size: 12px;
+}
+
+.event-count {
+  color: #64748b;
+  font-size: 11px;
+}
+
 /* Sidebar */
 
 .app-sidebar {
@@ -209,8 +340,18 @@ body {
   color: #22c55e;
 }
 
+.stat-value.warning {
+  color: #f59e0b;
+}
+
 .stat-value.alert {
   color: #ef4444;
+}
+
+.panel-error {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #fda4af;
 }
 
 .action-history {

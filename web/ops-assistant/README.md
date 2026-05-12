@@ -41,6 +41,8 @@ npm start
 PROMETHEUS_URL=http://prometheus:9090   # Prometheus API endpoint
 PORT=3000                                # Backend port
 NODE_ENV=production                      # Environment
+VITE_API_BASE_URL=http://localhost:3000  # Frontend API base URL (optional)
+VITE_WS_URL=ws://localhost:3000          # Frontend WebSocket URL (optional)
 ```
 
 ## API Endpoints
