@@ -4,9 +4,11 @@ import axios from 'axios';
 import { WebSocketManager } from './websocket-manager.js';
 import { GrafanaClient } from './grafana-client.js';
 import { advancedActions } from './actions.js';
+import { getFederatedOverview, getIntelligenceScoreboard, getRoundStatus, } from './federated-intelligence.js';
 import { queryPrometheusHealth, KEY_METRICS, } from './prometheus-client.js';
 import http from 'http';
 import { WebSocketServer } from 'ws';
+import { AgUiEventSchema, A2UiEnvelopeSchema } from './protocol/types.js';
 /**
  * Enhanced CopilotKit Operations Assistant Server
  * Provides real-time metrics, Grafana integration, and advanced AI actions
@@ -25,6 +27,24 @@ const wsManager = new WebSocketManager(prometheusUrl);
 const wss = new WebSocketServer({ server });
 // Grafana Client
 const grafanaClient = new GrafanaClient(grafanaUrl);
+function createAgUiEvent(kind, payload, sessionId) {
+    return {
+        version: '1.0',
+        eventId: `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: new Date().toISOString(),
+        sessionId,
+        kind,
+        payload,
+    };
+}
+function emitSseEvent(res, event) {
+    const validated = AgUiEventSchema.safeParse(event);
+    if (!validated.success) {
+        return;
+    }
+    res.write(`event: ag-ui\n`);
+    res.write(`data: ${JSON.stringify(validated.data)}\n\n`);
+}
 /**
  * WebSocket Connection Handler
  */
@@ -248,6 +268,248 @@ app.get('/api/actions', (req, res) => {
     });
 });
 /**
+ * Ops Summary Endpoint
+ * Provides a lightweight status summary for app sidebar cards.
+ */
+app.get('/api/ops/summary', async (_req, res) => {
+    try {
+        const [promHealthy, grafanaHealth, alertsResponse, uptimeResponse, errorRateResponse] = await Promise.all([
+            queryPrometheusHealth(),
+            grafanaClient.getHealth(),
+            grafanaClient.getAlerts(),
+            axios.get(`${prometheusUrl}/api/v1/query`, {
+                params: {
+                    query: 'avg(up)',
+                },
+                timeout: 5000,
+            }),
+            axios.get(`${prometheusUrl}/api/v1/query`, {
+                params: {
+                    query: 'sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))',
+                },
+                timeout: 5000,
+            }),
+        ]);
+        const federatedOverview = await getFederatedOverview();
+        const uptimeRaw = parseFloat(uptimeResponse.data?.data?.result?.[0]?.value?.[1] || '0');
+        const errorRateRaw = parseFloat(errorRateResponse.data?.data?.result?.[0]?.value?.[1] || '0');
+        const uptimePercent = Math.max(0, Math.min(100, uptimeRaw * 100));
+        const errorRatePercent = Math.max(0, errorRateRaw * 100);
+        const activeAlerts = Array.isArray(alertsResponse)
+            ? alertsResponse.filter((alert) => alert.state !== 'ok').length
+            : 0;
+        const status = promHealthy && grafanaHealth && activeAlerts < 5 && errorRatePercent < 1
+            ? 'healthy'
+            : promHealthy || grafanaHealth
+                ? 'degraded'
+                : 'down';
+        const recentActions = [
+            `Prometheus: ${promHealthy ? 'reachable' : 'unreachable'}`,
+            `Grafana: ${grafanaHealth ? grafanaHealth.status : 'unreachable'}`,
+            `HTTP error rate (5m): ${errorRatePercent.toFixed(2)}%`,
+            `WebSocket clients: ${wsManager.getClientCount()}`,
+        ];
+        res.json({
+            status,
+            uptimePercent,
+            activeAlerts,
+            recentActions,
+            federatedIntelligence: {
+                roundId: federatedOverview.roundId,
+                phase: federatedOverview.phase,
+                progress: federatedOverview.progress,
+                modelConfidence: federatedOverview.modelConfidence,
+                driftScore: federatedOverview.driftScore,
+                convergenceTrend: federatedOverview.convergenceTrend,
+                participatingNodes: federatedOverview.participatingNodes,
+                honestNodeRatio: federatedOverview.honestNodeRatio,
+                topContributors: federatedOverview.topContributors,
+                anomalies: federatedOverview.anomalies,
+                recommendedAction: federatedOverview.recommendedAction,
+                requiresConfirmation: federatedOverview.requiresConfirmation,
+                reasoningTrail: federatedOverview.supportingEvidence,
+            },
+        });
+    }
+    catch (error) {
+        console.error('[Server] Ops summary error:', error);
+        res.status(500).json({
+            status: 'down',
+            uptimePercent: 0,
+            activeAlerts: 0,
+            recentActions: ['Summary unavailable'],
+            federatedIntelligence: {
+                roundId: 'round-unknown',
+                phase: 'failure',
+                progress: 0,
+                modelConfidence: 0,
+                driftScore: 0,
+                convergenceTrend: 'degrading',
+                participatingNodes: 0,
+                honestNodeRatio: 0,
+                topContributors: [],
+                anomalies: [],
+                recommendedAction: 'Restore federation connectivity before executing FL operations.',
+                requiresConfirmation: false,
+                reasoningTrail: ['Federated intelligence summary unavailable.'],
+            },
+        });
+    }
+});
+/**
+ * Federated Intelligence Scoreboard Endpoint
+ */
+app.get('/api/fl/intelligence/scoreboard', async (_req, res) => {
+    try {
+        const scoreboard = await getIntelligenceScoreboard();
+        res.json({ success: true, scoreboard });
+    }
+    catch (error) {
+        console.error('[Server] FL scoreboard error:', error);
+        res.status(500).json({ success: false, error: 'Failed to build federated intelligence scoreboard' });
+    }
+});
+/**
+ * Federated Learning Round Status Endpoint
+ */
+app.get('/api/fl/round/status', async (_req, res) => {
+    try {
+        const status = await getRoundStatus();
+        res.json({ success: true, status });
+    }
+    catch (error) {
+        console.error('[Server] FL round status error:', error);
+        res.status(500).json({ success: false, error: 'Failed to resolve federated round status' });
+    }
+});
+/**
+ * AG-UI Runtime Stream Endpoint
+ * Emits protocol-typed events to drive frontend interactive UIs.
+ */
+app.get('/api/agent/events', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+    const sessionId = typeof req.query.sessionId === 'string' ? req.query.sessionId : undefined;
+    const summary = {
+        activeAlerts: 3,
+        errorBudgetBurnRate: 1.7,
+        impactedServices: ['api-gateway', 'orders-service'],
+    };
+    const triageEnvelope = {
+        version: '1.0',
+        surface: 'main',
+        layout: {
+            type: 'stack',
+            components: [
+                {
+                    id: 'alert-triage-title',
+                    kind: 'text',
+                    props: {
+                        title: 'Alert Triage Workflow',
+                        body: 'Prioritize active alerts, identify blast radius, and execute first response.',
+                    },
+                },
+                {
+                    id: 'alert-triage-kpi',
+                    kind: 'metric',
+                    props: {
+                        label: 'Active Alerts',
+                        value: summary.activeAlerts,
+                        trend: 'up',
+                        severity: 'warning',
+                    },
+                },
+                {
+                    id: 'alert-triage-services',
+                    kind: 'table',
+                    props: {
+                        columns: ['service', 'status', 'suggestedAction'],
+                        rows: summary.impactedServices.map((service) => ({
+                            service,
+                            status: 'degraded',
+                            suggestedAction: 'Open runbook and inspect latency panel',
+                        })),
+                    },
+                },
+            ],
+        },
+        actions: [
+            {
+                id: 'ack-alerts',
+                label: 'Acknowledge Alerts',
+                intent: 'alerts.acknowledge',
+                confirm: true,
+            },
+            {
+                id: 'open-dashboard',
+                label: 'Open Service Dashboard',
+                intent: 'dashboard.open.orders',
+            },
+        ],
+    };
+    const validEnvelope = A2UiEnvelopeSchema.safeParse(triageEnvelope);
+    if (!validEnvelope.success) {
+        res.status(500).end();
+        return;
+    }
+    emitSseEvent(res, createAgUiEvent('agent.message.delta', {
+        text: 'Collecting incident context and preparing triage surface...',
+    }, sessionId));
+    const timers = [];
+    timers.push(setTimeout(() => {
+        emitSseEvent(res, createAgUiEvent('agent.ui.replace', {
+            envelope: validEnvelope.data,
+        }, sessionId));
+    }, 300));
+    timers.push(setTimeout(() => {
+        emitSseEvent(res, createAgUiEvent('agent.state.changed', {
+            phase: 'triage.ready',
+            errorBudgetBurnRate: summary.errorBudgetBurnRate,
+        }, sessionId));
+        emitSseEvent(res, createAgUiEvent('agent.message.final', {
+            text: 'Triage surface ready. Review impacted services and execute a response action.',
+        }, sessionId));
+    }, 600));
+    const heartbeat = setInterval(() => {
+        res.write(`: keepalive\n\n`);
+    }, 15000);
+    req.on('close', () => {
+        timers.forEach((timer) => clearTimeout(timer));
+        clearInterval(heartbeat);
+        res.end();
+    });
+});
+/**
+ * Agent Intent Endpoint
+ * Executes first response intents triggered from A2UI action buttons.
+ */
+app.post('/api/agent/intent', (req, res) => {
+    const { intent } = req.body;
+    if (!intent) {
+        return res.status(400).json({ error: 'Intent is required' });
+    }
+    if (intent === 'alerts.acknowledge') {
+        return res.json({
+            success: true,
+            message: 'Alerts acknowledged and incident timer started.',
+            next: 'Run latency and dependency checks for impacted services.',
+        });
+    }
+    if (intent === 'dashboard.open.orders') {
+        return res.json({
+            success: true,
+            message: 'Orders service dashboard selected.',
+            dashboardUid: 'orders-overview',
+        });
+    }
+    res.status(400).json({
+        success: false,
+        message: `Unsupported intent: ${intent}`,
+    });
+});
+/**
  * Test Metric Generation Endpoint (for demo purposes)
  */
 app.get('/api/test-metrics', async (req, res) => {
@@ -267,6 +529,21 @@ app.get('/api/test-metrics', async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ error: 'Failed to generate test metrics' });
+    }
+});
+/**
+ * Prometheus metrics endpoint
+ */
+app.get('/metrics', async (_req, res) => {
+    try {
+        // dynamic import to avoid errors if prom-client missing during some builds
+        const { getMetrics } = await import('./federated-intelligence.js');
+        const metrics = await getMetrics();
+        res.setHeader('Content-Type', 'text/plain; version=0.0.4');
+        res.send(metrics);
+    }
+    catch (error) {
+        res.status(500).send('# metrics unavailable\n');
     }
 });
 /**

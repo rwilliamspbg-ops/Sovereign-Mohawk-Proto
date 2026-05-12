@@ -299,6 +299,116 @@ export declare const analyzePerformanceAction: {
     }>;
 };
 /**
+ * Get federated learning round status
+ */
+export declare const getRoundStatusAction: {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            includeEvidence: {
+                type: string;
+                default: boolean;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        status: import("./federated-intelligence.js").FLRoundStatus;
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+};
+/**
+ * Explain model drift
+ */
+export declare const explainModelDriftAction: {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            objective: {
+                type: string;
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        reasoning: string[];
+        requiresConfirmation: boolean;
+        objective: string;
+        driftScore: number;
+        confidenceDelta: number;
+        affectedNodes: string[];
+        recommendation: string;
+        success: boolean;
+    }>;
+};
+/**
+ * List contributing nodes
+ */
+export declare const listContributingNodesAction: {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            objective: {
+                type: string;
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        nodes: import("./federated-intelligence.js").FLContributor[];
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+};
+/**
+ * Detect federated anomalies
+ */
+export declare const detectAnomaliesAction: {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            severityThreshold: {
+                type: string;
+                enum: string[];
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        anomalies: import("./federated-intelligence.js").FLAnomaly[];
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+};
+/**
+ * Get federated intelligence scoreboard
+ */
+export declare const getIntelligenceScoreboardAction: {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {};
+    };
+    handler: () => Promise<{
+        success: boolean;
+        scoreboard: import("./federated-intelligence.js").FLIntelligenceScoreboard;
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+};
+/**
  * Get network statistics and health overview
  */
 export declare const getNetworkStatsAction: {
@@ -595,6 +705,96 @@ export declare const advancedActions: ({
         success?: undefined;
         component?: undefined;
         metrics?: undefined;
+    }>;
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            includeEvidence: {
+                type: string;
+                default: boolean;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        status: import("./federated-intelligence.js").FLRoundStatus;
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            objective: {
+                type: string;
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        reasoning: string[];
+        requiresConfirmation: boolean;
+        objective: string;
+        driftScore: number;
+        confidenceDelta: number;
+        affectedNodes: string[];
+        recommendation: string;
+        success: boolean;
+    }>;
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            objective: {
+                type: string;
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        nodes: import("./federated-intelligence.js").FLContributor[];
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {
+            severityThreshold: {
+                type: string;
+                enum: string[];
+                default: string;
+            };
+        };
+    };
+    handler: () => Promise<{
+        success: boolean;
+        anomalies: import("./federated-intelligence.js").FLAnomaly[];
+        reasoning: string[];
+        requiresConfirmation: boolean;
+    }>;
+} | {
+    name: string;
+    description: string;
+    parameters: {
+        type: string;
+        properties: {};
+    };
+    handler: () => Promise<{
+        success: boolean;
+        scoreboard: import("./federated-intelligence.js").FLIntelligenceScoreboard;
+        reasoning: string[];
+        requiresConfirmation: boolean;
     }>;
 } | {
     name: string;

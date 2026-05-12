@@ -21,6 +21,37 @@ interface OpsSummary {
   uptimePercent: number;
   activeAlerts: number;
   recentActions: string[];
+  federatedIntelligence?: {
+    roundId: string;
+    phase: string;
+    progress: number;
+    modelConfidence: number;
+    driftScore: number;
+    convergenceTrend: 'improving' | 'stable' | 'degrading';
+    participatingNodes: number;
+    honestNodeRatio: number;
+    topContributors: Array<{
+      nodeId: string;
+      tier: string;
+      region: string;
+      objective: string;
+      contributionScore: number;
+      verificationWeight: number;
+      attestationStatus: string;
+      reasoning: string;
+    }>;
+    anomalies: Array<{
+      nodeId: string;
+      category: string;
+      severity: string;
+      score: number;
+      evidence: string;
+      recommendation: string;
+    }>;
+    recommendedAction: string;
+    requiresConfirmation: boolean;
+    reasoningTrail: string[];
+  };
 }
 
 const App: React.FC = () => {
@@ -231,13 +262,105 @@ const App: React.FC = () => {
             </ul>
           </div>
 
+          <div className="sidebar-panel fl-intelligence-panel">
+            <h3>Federated Intelligence</h3>
+            {summary?.federatedIntelligence ? (
+              <div className="fl-intelligence-grid">
+                <div className="stat-item">
+                  <span className="stat-label">Round</span>
+                  <span className="stat-value">{summary.federatedIntelligence.roundId}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Phase</span>
+                  <span className="stat-value">{summary.federatedIntelligence.phase}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Model Confidence</span>
+                  <span className="stat-value healthy">
+                    {(summary.federatedIntelligence.modelConfidence * 100).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Drift Score</span>
+                  <span className={`stat-value ${summary.federatedIntelligence.driftScore > 0.2 ? 'warning' : 'healthy'}`}>
+                    {(summary.federatedIntelligence.driftScore * 100).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Contributors</span>
+                  <span className="stat-value">{summary.federatedIntelligence.topContributors.length}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Anomalies</span>
+                  <span className={`stat-value ${summary.federatedIntelligence.anomalies.length ? 'warning' : 'healthy'}`}>
+                    {summary.federatedIntelligence.anomalies.length}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="panel-error">Federated intelligence summary unavailable.</p>
+            )}
+
+            {summary?.federatedIntelligence && (
+              <>
+                <div className="fl-intelligence-callout">
+                  <strong>Recommended action:</strong>
+                  <p>{summary.federatedIntelligence.recommendedAction}</p>
+                </div>
+                <div className="fl-intelligence-reasoning">
+                  <strong>Reasoning trail</strong>
+                  <ul>
+                    {summary.federatedIntelligence.reasoningTrail.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
+            {summary?.federatedIntelligence?.anomalies?.length ? (
+              <div className="fl-anomalies-list">
+                <strong>Anomalies</strong>
+                <ul>
+                  {summary.federatedIntelligence.anomalies.map((a) => (
+                    <li key={a.nodeId} className="anomaly-item">
+                      <div className="anomaly-meta">
+                        <span className={`anomaly-severity ${a.severity}`}>{a.severity}</span>
+                        <span className="anomaly-id">{a.nodeId}</span>
+                        <span className="anomaly-score">{(a.score * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="anomaly-actions">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const resp = await fetch(buildApiUrl('/api/fl/anomalies/ack'), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ nodeId: a.nodeId }),
+                              });
+                              if (!resp.ok) throw new Error('Ack failed');
+                              alert(`Anomaly ${a.nodeId} acknowledged`);
+                            } catch (err) {
+                              alert(err instanceof Error ? err.message : 'Failed');
+                            }
+                          }}
+                        >
+                          Acknowledge
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+
           <div className="sidebar-panel help">
             <h3>Help & Docs</h3>
             <p>Use the chat to ask questions about:</p>
             <ul className="help-topics">
               <li>Real-time metrics</li>
+              <li>Federated round intelligence</li>
               <li>Dashboard analysis</li>
-              <li>System performance</li>
               <li>Alert management</li>
             </ul>
           </div>

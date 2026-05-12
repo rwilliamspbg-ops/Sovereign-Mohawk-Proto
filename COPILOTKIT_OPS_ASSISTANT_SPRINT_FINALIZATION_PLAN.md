@@ -1,264 +1,359 @@
-# CopilotKit Operations Assistant - 1 Sprint Finalization Plan
+# CopilotKit Operations Assistant - Federated Intelligence Sprint Plan
 
-**Sprint Duration**: 5 Working Days (1 week)  
-**Status**: Ready for Execution  
-**Owner**: Development Team  
-**Target Date**: End of Sprint Week  
-
----
-
-## 📋 Sprint Overview
-
-This plan finalizes the CopilotKit Operations Assistant implementation with comprehensive testing across all functional areas, performance validation, security checks, and production readiness verification.
-
-### Sprint Goals
-
-✅ Complete all remaining code validations  
-✅ Achieve 90%+ test coverage for all modules  
-✅ Verify end-to-end workflows (5+ scenarios)  
-✅ Validate performance under load  
-✅ Security audit and compliance verification  
-✅ Production deployment readiness  
+**Sprint Duration**: 5 working days
+**Status**: Ready for execution
+**Owner**: Development team
+**Primary Outcome**: Turn the existing ops-assistant into a human-in-the-loop federated intelligence partner that explains round state, detects risk, and recommends next actions without becoming autonomous.
 
 ---
 
-## 📅 Daily Sprint Schedule
+## Sprint Objective
+
+The current assistant already exposes Prometheus, Grafana, WebSocket, and CopilotKit-oriented surfaces in `web/ops-assistant/`. This sprint upgrades that stack so the assistant reasons about collective learning behavior instead of isolated infrastructure metrics.
+
+The sprint will deliver:
+
+1. A federated learning round state machine in the backend.
+2. A secure proxy layer for federation and Prometheus telemetry.
+3. A first-pass intelligence engine for drift, contribution, and anomaly scoring.
+4. A frontend scoreboard with reasoning trail and confirmation gates.
+5. End-to-end tests proving the assistant can explain, advise, and escalate safely.
 
 ---
 
-## **DAY 1: Foundation & Unit Tests** 
-**Focus**: Code completeness, unit test coverage, dependency validation
+## Definition of Done
 
-### Morning (4 hours: 9:00-13:00)
+The sprint is complete when all of the following are true:
 
-#### Task 1.1: Code Completion Audit
-- [ ] Verify all TypeScript files compile without errors
-- [ ] Check all imports/exports are properly resolved
-- [ ] Remove any TODO/FIXME comments or resolve them
-- [ ] Validate package.json dependencies are pinned versions
-- [ ] Run ESLint and fix any style violations
-- [ ] Update all JSDoc comments for exported functions
+- The assistant can return round status, contributing nodes, drift score, anomaly summary, and a why/explanation field for each recommendation.
+- High-impact actions require explicit confirmation and are logged.
+- Backend and frontend build successfully in `web/ops-assistant/`.
+- A focused test suite covers the new FL round state machine and the new action/tool surfaces.
+- The new docs page `docs/ops-assistant-federated-intelligence.md` exists and matches implementation.
 
-**Deliverable**: Clean compile log with 0 errors, 0 warnings
+---
 
-**Commands**:
+## Current Anchor Points
+
+Work should start from the existing implementation surfaces:
+
+- Backend entrypoint: [web/ops-assistant/server/index.ts](web/ops-assistant/server/index.ts)
+- Existing action handlers: [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+- Frontend shell: [web/ops-assistant/client/App.tsx](web/ops-assistant/client/App.tsx)
+- Chat experience: [web/ops-assistant/client/components/ChatInterface.tsx](web/ops-assistant/client/components/ChatInterface.tsx)
+- Status card area: [web/ops-assistant/client/components/HealthStatus.tsx](web/ops-assistant/client/components/HealthStatus.tsx)
+- Existing UI styles: [web/ops-assistant/client/styles/app.css](web/ops-assistant/client/styles/app.css)
+
+---
+
+## Sprint Backlog
+
+### P0: Foundation and Scope Lock
+
+Goal: establish the FL intelligence contract and the exact data shape the assistant will expose.
+
+- Define the minimum federated intelligence payloads: round status, contributing nodes, model confidence, drift score, anomaly findings, recommendation rationale, and policy flags.
+- Map those payloads to backend handlers and frontend cards before coding new features.
+- Document the non-goals: no raw model update exposure, no autonomous policy overrides, and no hidden actions without operator confirmation.
+
+Deliverables:
+
+- One source of truth for federated intelligence response shapes.
+- Updated sprint checklist with clear ownership for backend, frontend, and test work.
+
+### P1: FL State Machine Service
+
+Goal: track the round lifecycle as an explicit state machine rather than ad hoc request handlers.
+
+- Add a backend service under `web/ops-assistant/server/internal/` or `web/ops-assistant/server/services/` for round state.
+- Encode states: Initialization, Client Selection, Distribution, Local Training, Submission, Aggregation, Validation, Convergence, Failure, Rollback.
+- Make transitions idempotent and reject invalid state jumps.
+- Attach preconditions for minimum honest nodes, attestation thresholds, and privacy budget limits.
+- Expose the round lifecycle through a dedicated tool/action such as `get_round_status`.
+
+Implementation targets:
+
+- [web/ops-assistant/server/index.ts](web/ops-assistant/server/index.ts)
+- [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+
+### P2: Secure Federation Proxy
+
+Goal: retrieve intelligence from the federation API and Prometheus without leaking raw updates or untrusted metadata.
+
+- Add a proxy client for federation round state, client summaries, and validation results.
+- Keep encrypted weight metadata and proof references, never raw gradients or model updates.
+- Add resilience controls: request timeouts, retries, circuit breaker behavior, and rate limiting.
+- Extend the existing backend endpoints so the assistant can retrieve round state and diagnostics.
+
+Implementation targets:
+
+- [web/ops-assistant/server/prometheus-client.ts](web/ops-assistant/server/prometheus-client.ts)
+- [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+
+### P3: Intelligence Analytics Engine
+
+Goal: turn telemetry into decision support instead of raw dashboards.
+
+- Compute model confidence, drift score, convergence trend, contribution score, and anomaly severity.
+- Add a lightweight predictor that estimates round delay or risk based on churn and anomaly rate.
+- Add attribution fields: which tier, region, or node class contributed to improvement or degradation.
+- Make every recommendation return a `reasoning` field and a `supporting_evidence` structure.
+
+Implementation targets:
+
+- [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+- [web/ops-assistant/server/websocket-manager.ts](web/ops-assistant/server/websocket-manager.ts)
+
+### P4: CopilotKit Tool Expansion
+
+Goal: expose 8 to 10 high-value FL tools that support the new workflow.
+
+Required first-wave tools:
+
+- `get_round_status`
+- `explain_model_drift`
+- `list_contributing_nodes`
+- `detect_anomalies`
+- `get_intelligence_scoreboard`
+- `get_round_timeline`
+- `simulate_next_round`
+- `recommend_client_selection`
+- `request_reaggregation`
+- `explain_policy_block`
+
+Tool requirements:
+
+- Inputs must be schema-validated.
+- Outputs must include a concise action summary and a why/explanation trail.
+- High-impact tools must return `requires_confirmation: true`.
+
+### P5: UI and Human Oversight
+
+Goal: make the assistant visibly reason about collective intelligence.
+
+- Add an Intelligence Scoreboard to the existing assistant layout.
+- Add a Protocol Monitor card showing round phase, participating nodes, and contribution heatmap.
+- Add an Anomaly panel with node attribution and recommended operator action.
+- Add a Reasoning Trail panel that always explains why the assistant suggested something.
+- Add confirmation gates for re-aggregation, client exclusion, and policy changes.
+
+Implementation targets:
+
+- [web/ops-assistant/client/App.tsx](web/ops-assistant/client/App.tsx)
+- [web/ops-assistant/client/components/ChatInterface.tsx](web/ops-assistant/client/components/ChatInterface.tsx)
+- [web/ops-assistant/client/components/HealthStatus.tsx](web/ops-assistant/client/components/HealthStatus.tsx)
+- [web/ops-assistant/client/styles/app.css](web/ops-assistant/client/styles/app.css)
+
+### P6: Audit, Traceability, and Policy
+
+Goal: ensure every meaningful assistant recommendation is explainable and auditable.
+
+- Log each round event and assistant recommendation with timestamps, actor, inputs, outputs, and proof references.
+- Link logs to zk-SNARK proof IDs, TPM attestation status, and contribution scores where available.
+- Add a declarative policy layer that enforces thresholds for Byzantine rate, RDP epsilon, attestation, and tier-based access.
+- Keep the policy layer operator-readable now, with formal verification hooks later.
+
+### P7: Simulation Sandbox and Tests
+
+Goal: prove the assistant works on realistic and adversarial round scenarios before production exposure.
+
+- Add a simulation mode driven by historical telemetry or synthetic round data.
+- Test at least these scenarios:
+  - healthy convergence
+  - drift spike in low-attestation clients
+  - Byzantine rate above threshold
+  - re-aggregation request after anomaly detection
+  - policy-blocked action with explanation
+- Add regression tests for backend round-state transitions and tool outputs.
+- Add UI smoke tests for the scoreboard and reasoning trail.
+
+---
+
+## Five-Day Execution Plan
+
+### Day 1: Architecture Lock and Backend Skeleton
+
+Primary outcome: the new federated intelligence contract is defined and wired into backend scaffolding.
+
+- Finalize the response schema for round status, drift, anomalies, and recommendations.
+- Add the FL state machine service.
+- Add the secure proxy client boundaries for federation and Prometheus.
+- Add stub actions for the first tool set so the frontend can consume stable shapes early.
+
+Exit criteria:
+
+- Round state machine exists.
+- The assistant can return a mocked round status and explanation payload.
+
+### Day 2: Intelligence Engine and Tool Surface
+
+Primary outcome: the assistant can reason about contribution, drift, and risk.
+
+- Implement the first-pass intelligence analytics engine.
+- Add contribution scoring and anomaly detection logic.
+- Add the first-wave CopilotKit tools.
+- Make sure all tools include reasoning text and confirmation metadata where required.
+
+Exit criteria:
+
+- `get_round_status`, `explain_model_drift`, `list_contributing_nodes`, and `detect_anomalies` return usable values.
+
+### Day 3: UI and Oversight Experience
+
+Primary outcome: the frontend shows intelligence, not just metrics.
+
+- Add the intelligence scoreboard cards.
+- Add the protocol monitor and anomaly panel.
+- Add the reasoning trail component.
+- Add confirmation gates to the chat flow for high-impact actions.
+
+Exit criteria:
+
+- A user can see why the assistant recommended an action before approving it.
+
+### Day 4: Audit, Policy, and Simulation
+
+Primary outcome: the assistant is safe to use under federation constraints.
+
+- Add event logging for round transitions and recommendations.
+- Add policy checks for Byzantine thresholds, attestation, and RDP limits.
+- Add simulation mode for at least two failure scenarios.
+- Add explicit denial responses when policy blocks an action.
+
+Exit criteria:
+
+- Policy-blocked actions explain the reason and suggest a safer alternative.
+
+### Day 5: End-to-End Validation and Docs
+
+Primary outcome: the implementation is testable, documented, and release-ready.
+
+- Run backend build and frontend build.
+- Run the new unit and integration tests.
+- Exercise the assistant against the simulated federation scenarios.
+- Update the README and create `docs/ops-assistant-federated-intelligence.md`.
+- Capture any follow-up work as a post-sprint backlog.
+
+Exit criteria:
+
+- Build passes.
+- Tests pass.
+- Documentation matches implementation.
+
+---
+
+## Validation Plan
+
+Run these checks in order once implementation begins:
+
 ```bash
 cd /workspaces/Sovereign-Mohawk-Proto/web/ops-assistant
 npm install
 npm run build
-npm run lint
-npm run type-check
+npm run server
 ```
 
-**Success Criteria**:
-- ✅ Zero TypeScript compilation errors
-- ✅ All ESLint rules pass
-- ✅ All imports properly resolved
+Then validate the new surfaces with targeted tests:
+
+- Backend unit tests for the FL state machine and intelligence engine.
+- API tests for the new tool-backed endpoints.
+- Frontend smoke tests for scoreboard rendering and confirmation gates.
+- Manual end-to-end walkthrough: query round status, inspect drift, review reasoning, approve or reject a high-impact recommendation.
+
+Success means the assistant can answer questions like:
+
+- What phase is the current round in?
+- Which nodes contributed most to the current objective?
+- Why did model confidence increase or drop?
+- Which nodes look suspicious and why?
+- What is the safest next operator action?
 
 ---
 
-#### Task 1.2: Create Unit Test Suite - Backend
-- [ ] Create `server/__tests__/` directory structure
-- [ ] Write unit tests for `prometheus-client.ts`
-  - Test: PromQL query formatting
-  - Test: Error handling for invalid queries
-  - Test: Response parsing from Prometheus API
-  - Test: Timeout handling
-- [ ] Write unit tests for action handlers (`actions/`)
-  - Test: `queryPrometheus` with valid/invalid inputs
-  - Test: `generateIncidentSummary` logic
-  - Test: `explainDashboard` response format
-- [ ] Write unit tests for middleware
-  - Test: Error handling
-  - Test: CORS configuration
-- [ ] Achieve 85%+ coverage for backend code
+## Risks and Constraints
 
-**Deliverable**: Unit test suite with coverage report
-
-**Test Framework**: Jest + ts-jest
-
-**Commands**:
-```bash
-npm install --save-dev jest ts-jest @types/jest
-npm test -- --coverage --verbose
-```
-
-**Success Criteria**:
-- ✅ All tests pass
-- ✅ Backend coverage ≥ 85%
-- ✅ Coverage report generated
+- The assistant must not expose raw updates or hidden federation internals.
+- High-impact actions require explicit operator confirmation.
+- If federation or Prometheus is unavailable, the assistant must fail closed and explain the outage.
+- All new intelligence outputs should be explainable from telemetry, proofs, or policy rules.
 
 ---
 
-### Afternoon (4 hours: 14:00-18:00)
+## Immediate Next Step
 
-#### Task 1.3: Create Unit Test Suite - Frontend
-- [ ] Create `client/__tests__/` directory structure
-- [ ] Write unit tests for `ChatInterface.tsx`
-  - Test: Message input/output rendering
-  - Test: Chat history persistence
-  - Test: Error message display
-- [ ] Write unit tests for `HealthStatus.tsx`
-  - Test: Health status color coding
-  - Test: Metric value formatting
-- [ ] Write unit tests for utility functions
-  - Test: Metric parsing
-  - Test: Time formatting
-  - Test: Query builders
-- [ ] Achieve 80%+ coverage for frontend code
+Implement Day 1 and Day 2 together if the team wants the fastest path to a visible result: backend round state, first-wave FL tools, and mocked intelligence payloads. That gives the frontend stable shapes to render while the deeper analytics and policy layers are completed.
 
-**Deliverable**: Frontend unit test suite with coverage report
+## Suggested Implementation Order
 
-**Test Framework**: Vitest + @testing-library/react
+If the goal is to complete the plan with the fewest blocking dependencies, use this order:
 
-**Commands**:
-```bash
-npm install --save-dev vitest @testing-library/react @testing-library/jest-dom
-npm run test:ui -- --coverage
-```
+1. Define backend data contracts and round states.
+2. Add the FL state machine service and a federation proxy wrapper.
+3. Implement the first four tools: `get_round_status`, `explain_model_drift`, `list_contributing_nodes`, and `detect_anomalies`.
+4. Wire the UI to render the new intelligence payloads.
+5. Add confirmation gates and reasoning trail output for high-impact actions.
+6. Add tests before expanding the remaining tools.
 
-**Success Criteria**:
-- ✅ All React component tests pass
-- ✅ Frontend coverage ≥ 80%
-- ✅ Accessibility tests included
+## Day 1 Suggested Tasks
 
----
+File-by-file focus for the first implementation day:
 
-#### Task 1.4: Dependency & Security Scan
-- [ ] Run npm audit for vulnerabilities
-- [ ] Update any flagged dependencies (non-breaking)
-- [ ] Verify no high/critical vulnerabilities remain
-- [ ] Create dependency report
-- [ ] Document any accepted medium vulnerabilities with justification
+- [web/ops-assistant/server/index.ts](web/ops-assistant/server/index.ts)
+  - Add or expose FL-specific routes and health hooks.
+  - Keep the existing Prometheus and Grafana endpoints intact.
+- [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+  - Add the first stubbed FL tool handlers with validated inputs and stable response shapes.
+  - Return `reasoning` and `requires_confirmation` fields where appropriate.
+- [web/ops-assistant/server/prometheus-client.ts](web/ops-assistant/server/prometheus-client.ts)
+  - Add helper queries for round confidence, drift, and contribution summaries.
+  - Centralize timeout and retry behavior.
+- [web/ops-assistant/client/App.tsx](web/ops-assistant/client/App.tsx)
+  - Reserve layout space for the scoreboard and reasoning trail.
+  - Pass the new intelligence payloads into the view layer.
 
-**Deliverable**: Security audit report with remediation status
+Day 1 test cases:
 
-**Commands**:
-```bash
-npm audit --production
-npm audit fix
-npm list --depth=0
-```
+- `GET /api/health` returns a healthy response and still reports backend uptime.
+- A mocked `get_round_status` response returns phase, progress, and evidence fields.
+- Invalid tool input is rejected with a validation error, not a crash.
+- The UI still loads with mocked intelligence payloads present or absent.
 
-**Success Criteria**:
-- ✅ Zero high/critical vulnerabilities
-- ✅ All critical patches applied
-- ✅ Audit report generated
+## Day 2 Suggested Tasks
 
----
+File-by-file focus for the second implementation day:
 
-### End of Day 1 Checklist
-- [ ] Code compiles cleanly
-- [ ] Unit tests: backend (85%+), frontend (80%+)
-- [ ] All dependencies scanned and secure
-- [ ] Code review passed (peer/self)
+- [web/ops-assistant/server/actions.ts](web/ops-assistant/server/actions.ts)
+  - Implement drift explanation, contributing-node ranking, and anomaly detection logic.
+  - Ensure each result includes a human-readable why/explanation trail.
+- [web/ops-assistant/server/websocket-manager.ts](web/ops-assistant/server/websocket-manager.ts)
+  - Add a broadcast path for round-state updates and anomaly alerts.
+  - Keep the socket payloads small and summary-oriented.
+- [web/ops-assistant/client/components/HealthStatus.tsx](web/ops-assistant/client/components/HealthStatus.tsx)
+  - Replace infrastructure-only summary content with intelligence scoreboard content.
+  - Surface drift and model confidence first.
+- [web/ops-assistant/client/components/ChatInterface.tsx](web/ops-assistant/client/components/ChatInterface.tsx)
+  - Render the reasoning trail below any recommendation.
+  - Add an explicit confirmation flow for high-impact actions.
 
----
+Day 2 test cases:
 
-## **DAY 2: Integration & API Tests**
-**Focus**: Component integration, API endpoint validation, docker build verification
+- Drift explanation returns a cause, an affected node/tier summary, and a suggested operator action.
+- `detect_anomalies` flags a synthetic poisoned update and names the attribution source.
+- `list_contributing_nodes` returns a ranked set of contributors with an evidence summary.
+- High-impact actions cannot proceed unless the confirmation gate is accepted.
 
-### Morning (4 hours: 9:00-13:00)
+## Practical Priority Notes
 
-#### Task 2.1: Integration Tests - Backend
-- [ ] Create `server/__tests__/integration/` directory
-- [ ] Test: Express app startup and middleware chain
-- [ ] Test: Prometheus connectivity (mocked)
-  - Test: Successful query→response flow
-  - Test: Prometheus timeout handling
-  - Test: Network error handling
-- [ ] Test: Multi-action orchestration
-  - Test: Query → parse → analyze flow
-  - Test: Concurrent query handling
-- [ ] Test: Health check endpoint
-- [ ] Achieve 75%+ integration test coverage
-
-**Deliverable**: Integration test suite with execution logs
-
-**Test Scenarios**:
-```
-Scenario 1: User queries current throughput
-  → Frontend calls /api/prometheus/query
-  → Backend validates query format
-  → Backend proxies to Prometheus
-  → Response parsed and returned
-
-Scenario 2: Incident summary generation
-  → Frontend requests 30-minute analysis
-  → Backend queries multiple metrics
-  → Backend aggregates results
-  → Summary generated and returned
-
-Scenario 3: Dashboard explanation
-  → Frontend requests dashboard details
-  → Backend returns metric list and descriptions
-  → Frontend renders explanation
-```
-
-**Success Criteria**:
-- ✅ All integration tests pass
-- ✅ Request/response formats validated
-- ✅ Error scenarios handled gracefully
+- Build the backend contract before expanding the UI, or the frontend will churn on unstable response shapes.
+- Keep the first implementation synthetic or mocked where needed so the assistant can be exercised before federation integration is fully available.
+- Treat reasoning text as a required output, not a cosmetic addition, because that is what makes the assistant trustworthy in operator workflows.
+- Defer the simulation sandbox and policy formalization until the core round-state and intelligence paths are stable.
 
 ---
 
-#### Task 2.2: API Endpoint Validation Tests
-- [ ] Create comprehensive REST API test suite
-- [ ] Test all endpoints defined in documentation:
-  - `GET /api/health` - Verify response format
-  - `POST /api/prometheus/query` - Query with range/instant
-  - `POST /api/incident-summary` - Time range analysis
-  - `POST /api/dashboard/explain` - Dashboard explanation
-- [ ] Test request validation
-  - Test: Missing required fields
-  - Test: Invalid data types
-  - Test: Oversized payloads
-- [ ] Test response validation
-  - Test: Response format compliance
-  - Test: Error message format
-  - Test: HTTP status codes
-- [ ] Test rate limiting (if implemented)
-
-**Deliverable**: API test report with pass/fail for each endpoint
-
-**Tools**: Postman/Newman or Jest API tests
-
-**Success Criteria**:
-- ✅ All endpoints respond correctly
-- ✅ Input validation working
-- ✅ Error responses properly formatted
-
----
-
-### Afternoon (4 hours: 14:00-18:00)
-
-#### Task 2.3: Docker Build & Image Tests
-- [ ] Build Docker image
-  - [ ] Verify build completes successfully
-  - [ ] Check build logs for warnings
-  - [ ] Validate image size (target: <350MB)
-- [ ] Test Docker image
-  - [ ] Run container with environment variables
-  - [ ] Verify app starts correctly
-  - [ ] Verify health check passes
-  - [ ] Test port mapping (3000 internal → 3001 external)
-- [ ] Test multi-stage build efficiency
-  - [ ] Verify final image doesn't include dev dependencies
-  - [ ] Validate Alpine Linux base (minimal attack surface)
-- [ ] Push image to registry (if applicable)
-
-**Deliverable**: Docker image test report
-
-**Commands**:
-```bash
-docker build -t ops-assistant:latest .
-docker inspect ops-assistant:latest
-docker run -d --name ops-test \
-  -e PROMETHEUS_URL=http://prometheus:9090 \
-  -p 3001:3000 \
-  ops-assistant:latest
-docker logs ops-test
-docker exec ops-test curl http://localhost:3000/api/health
+**Status**: Ready for execution
+**Updated**: May 12, 2026
+**Scope**: Federated intelligence finalization for the CopilotKit Operations Assistant
 ```
 
 **Success Criteria**:
