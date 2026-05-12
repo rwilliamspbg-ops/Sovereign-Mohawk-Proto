@@ -7,6 +7,11 @@ function getFederationApiUrl(): string {
   return process.env.FEDERATION_API_URL || 'http://federation-api:8080';
 }
 
+function getFederationApiTimeoutMs(): number {
+  const parsed = Number(process.env.FEDERATION_API_TIMEOUT_MS || '1000');
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1000;
+}
+
 export type FLRoundPhase =
   | 'initialization'
   | 'client_selection'
@@ -139,7 +144,7 @@ async function fetchFederationSnapshot(): Promise<RoundSnapshot | null> {
   try {
     const FEDERATION_API_URL = getFederationApiUrl();
     const response = await axios.get(`${FEDERATION_API_URL}/api/v1/round/current`, {
-      timeout: 5000,
+      timeout: getFederationApiTimeoutMs(),
     });
 
     const payload = response.data?.data ?? response.data;

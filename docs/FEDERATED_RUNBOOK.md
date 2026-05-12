@@ -38,6 +38,11 @@ Operator steps for manual review:
 
 - Monitor `sov_mohawk_federated_drift_score` and create a recording rule/alert when > 0.5 for sustained windows.
 - Alert when `sov_mohawk_federated_anomalies_total{severity="high"}` increases.
+- Prometheus recording rules are available for:
+	- `mohawk:federated_drift_score:avg5m`
+	- `mohawk:federated_round_progress:avg5m`
+	- `mohawk:federated_anomalies:increase5m`
+	- `mohawk:federated_high_anomalies:increase5m`
 
 ## Contact & Escalation
 

@@ -94,3 +94,15 @@ groups:
         expr: stddev_over_time(mohawk_aggregation_workers[5m])
       - record: mohawk:fedavg_gradient_throughput:avg5m
         expr: avg_over_time(mohawk_fedavg_gradient_throughput_per_sec[5m])
+
+  - name: mohawk_v2_federated_intelligence
+    interval: 30s
+    rules:
+      - record: mohawk:federated_drift_score:avg5m
+        expr: avg_over_time(sov_mohawk_federated_drift_score[5m])
+      - record: mohawk:federated_round_progress:avg5m
+        expr: avg_over_time(sov_mohawk_federated_round_progress[5m])
+      - record: mohawk:federated_anomalies:increase5m
+        expr: sum(increase(sov_mohawk_federated_anomalies_total[5m]))
+      - record: mohawk:federated_high_anomalies:increase5m
+        expr: sum(increase(sov_mohawk_federated_anomalies_total{severity="high"}[5m]))
