@@ -350,7 +350,8 @@ app.get('/api/actions', (req: Request, res: Response) => {
  */
 app.get('/api/ops/summary', async (_req: Request, res: Response) => {
   try {
-    const [promHealthy, grafanaHealth, alertsResponse, uptimeResponse, errorRateResponse] =
+    const federatedOverviewPromise = getFederatedOverview();
+    const [promHealthy, grafanaHealth, alertsResponse, uptimeResponse, errorRateResponse, federatedOverview] =
       await Promise.all([
         queryPrometheusHealth(),
         grafanaClient.getHealth(),
@@ -367,9 +368,8 @@ app.get('/api/ops/summary', async (_req: Request, res: Response) => {
           },
           timeout: 5000,
         }),
+        federatedOverviewPromise,
       ]);
-
-    const federatedOverview = await getFederatedOverview();
 
     const uptimeRaw = parseFloat(uptimeResponse.data?.data?.result?.[0]?.value?.[1] || '0');
     const errorRateRaw = parseFloat(
