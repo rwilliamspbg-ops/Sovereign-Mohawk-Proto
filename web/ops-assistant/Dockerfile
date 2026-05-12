@@ -40,6 +40,7 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV PROMETHEUS_URL=http://prometheus:9090
+ENV GRAFANA_URL=http://grafana:3000
 
 # Health check
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
