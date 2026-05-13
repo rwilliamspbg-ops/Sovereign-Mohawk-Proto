@@ -1,0 +1,37 @@
+  ops-assistant:
+    build:
+      context: .
+      dockerfile: web/ops-assistant/Dockerfile
+    container_name: ops-assistant
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+      - GRAFANA_API_TOKEN=${GRAFANA_API_TOKEN}  # REQUIRED - no fallback
+      - CORS_ORIGIN=http://localhost:3001,http://localhost:5173,http://localhost:3000
+      - NODE_ENV=production
+    ports:
+      - "3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+    volumes:
+      - ./runtime-secrets:/run/secrets:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
+        reservations:
+          cpus: '0.25'
+          memory: 256m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - mohawk-net

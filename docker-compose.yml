@@ -366,8 +366,8 @@ services:
     environment:
       - PROMETHEUS_URL=http://prometheus:9090
       - GRAFANA_URL=http://grafana:3000
-      - GRAFANA_API_TOKEN=${GRAFANA_API_TOKEN:-admin}
-      - CORS_ORIGIN=http://localhost:3001,http://localhost:5173
+      - GRAFANA_API_TOKEN=${GRAFANA_API_TOKEN}
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:3001,http://localhost:5173
       - NODE_ENV=production
     ports:
       - "3001:3000"
