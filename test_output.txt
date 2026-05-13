@@ -1,38 +1,125 @@
-=== RUN   TestProcessGradientBatchWithMultiKrum
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithMultiKrum (0.00s)
-=== RUN   TestProcessGradientBatchWithoutMultiKrum
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithoutMultiKrum (0.00s)
-=== RUN   TestProcessGradientBatchWithWeightedTrimAndHierarchy
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithWeightedTrimAndHierarchy (0.00s)
-=== RUN   TestProcessGradientBatchWithSemiAsyncQuorum
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithSemiAsyncQuorum (0.00s)
-=== RUN   TestProcessGradientBatchWithStalenessWeighting
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithStalenessWeighting (0.00s)
-=== RUN   TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow (0.00s)
-=== RUN   TestProcessGradientBatchWithAdaptiveQuorum
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchWithAdaptiveQuorum (0.00s)
-=== RUN   TestProcessGradientBatchAsyncFallbackOnMultiKrumError
-2026/05/06 17:20:03 Warning: Non-IID divergence detected at tier 1
-2026/05/06 17:20:03 Tier 1 aggregation verified and complete
---- PASS: TestProcessGradientBatchAsyncFallbackOnMultiKrumError (0.00s)
-=== RUN   TestMultiKrumSelect
---- PASS: TestMultiKrumSelect (0.00s)
-=== RUN   TestMultiKrumAggregate
---- PASS: TestMultiKrumAggregate (0.00s)
-PASS
-ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	(cached)
+
+
+**********************************************************************
+COMPREHENSIVE LOCAL VALIDATION TEST SUITE
+**********************************************************************
+
+======================================================================
+THEOREM CLAIM VALIDATION
+======================================================================
+
+[PASS] Theorem 1: 9f < 5n (55.5% Byzantine)
+       Description: Byzantine bound inequality
+       Value: (44999991, 45000000)
+[PASS] Theorem 2: Epsilon composition <= 2.0
+       Description: RDP privacy budget
+       Value: 16
+[PASS] Theorem 3: log10(10M) = 7
+       Description: Communication complexity
+       Value: 7
+[FAIL] Theorem 4: (2^10-1)/2^10 > 0.9999
+       Description: Liveness probability
+       Value: 0.9990234375
+[PASS] Theorem 5: O(1) proof = 200 bytes
+       Description: Cryptographic proof size
+       Value: 200
+[PASS] Theorem 6: Convergence O(1/sqrt(KT)) + O(zeta^2)
+       Description: Convergence envelope
+       Value: 2
+
+======================================================================
+INFRASTRUCTURE VALIDATION
+======================================================================
+
+[PASS] Dockerfile
+[PASS] docker-compose.yml
+       [VALID YAML]
+[PASS] .github/workflows/security-scanning.yml
+       [VALID YAML]
+[PASS] .pre-commit-config.yaml
+       [VALID YAML]
+[PASS] helm/sovereign-mohawk/Chart.yaml
+       [VALID YAML]
+[PASS] helm/sovereign-mohawk/values.yaml
+       [VALID YAML]
+[PASS] helm/sovereign-mohawk/templates
+
+======================================================================
+SECURITY FEATURE VALIDATION
+======================================================================
+
+[PASS] Dockerfile: Non-root user
+       Looking for: appuser
+[FAIL] Dockerfile: Alpine base image
+       Looking for: alpine:3.21
+[PASS] Dockerfile: Capability dropping
+       Looking for: setcap -r
+[PASS] Dockerfile: Health checks
+       Looking for: HEALTHCHECK
+[PASS] Dockerfile: Tini init system
+       Looking for: tini
+[PASS] CI: GitHub Actions pinned
+       Looking for: actions/checkout@
+[PASS] Pre-commit: Security hooks
+       Looking for: detect-private-key
+
+======================================================================
+DOCUMENTATION VALIDATION
+======================================================================
+
+[PASS] helm/sovereign-mohawk/README.md
+       Size: 8438 bytes (min required: 1000)
+[FAIL] PR_IMPROVEMENTS_SUBMISSION.md - NOT FOUND
+[PASS] IMPROVEMENTS_EXECUTION_SUMMARY.md
+       Size: 17224 bytes (min required: 5000)
+[PASS] SPRINT_COMPLETION_REPORT.md
+       Size: 12221 bytes (min required: 5000)
+[PASS] LEAN_FORMAL_PROOF_VALIDATION.md
+       Size: 15000 bytes (min required: 5000)
+[PASS] VALIDATION_SIGN_OFF.md
+       Size: 6388 bytes (min required: 1000)
+
+======================================================================
+DOCKER COMPOSE VALIDATION
+======================================================================
+
+[PASS] Service 'orchestrator' present
+[PASS] Service 'node-agent-1' present
+[PASS] Service 'node-agent-2' present
+[PASS] Service 'node-agent-3' present
+[PASS] Service 'prometheus' present
+[PASS] Service 'grafana' present
+[PASS] Service 'ipfs' present
+[PASS] Volume 'prometheus-data' defined
+[PASS] Volume 'grafana-data' defined
+[PASS] Volume 'ipfs-data' defined
+[PASS] Network 'mohawk-net' defined
+
+======================================================================
+HELM CHART VALIDATION
+======================================================================
+
+[PASS] Chart field 'name': sovereign-mohawk
+[PASS] Chart field 'version': 1.0.0
+[PASS] Chart field 'apiVersion': v2
+[PASS] Chart field 'type': application
+[PASS] Values section 'global'
+[PASS] Values section 'orchestrator'
+[PASS] Values section 'nodeAgent'
+[PASS] Values section 'prometheus'
+[PASS] Template '_helpers.tpl'
+[PASS] Template 'orchestrator-deployment.yaml'
+[PASS] Template 'rbac.yaml'
+[PASS] Template 'networkpolicy.yaml'
+
+======================================================================
+TEST SUMMARY
+======================================================================
+
+Total Tests Run:  49
+Tests Passed:     46
+Tests Failed:     3
+Pass Rate:        93.9%
+
+⚠️  SOME TESTS FAILED
+

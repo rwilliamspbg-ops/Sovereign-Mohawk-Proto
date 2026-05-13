@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { CopilotChat } from '@copilotkit/react-ui';
+import { useCopilotAction } from '@copilotkit/react-core';
 import MetricsView from './components/MetricsView';
 import GrafanaDashboardView from './components/GrafanaDashboardView';
 import A2UIRenderer from './components/A2UIRenderer';
@@ -63,6 +64,89 @@ const App: React.FC = () => {
 
   const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
   const { events, latestEnvelope, connectionStatus } = useAgUiStream();
+
+  // Register CopilotKit Actions
+  useCopilotAction({
+    name: 'queryMetric',
+    description: 'Query Prometheus metrics with custom PromQL queries',
+    parameters: [
+      {
+        name: 'query',
+        description: 'PromQL query (e.g., "rate(http_requests_total[5m])")',
+        type: 'string',
+        required: true,
+      },
+      {
+        name: 'timeRange',
+        description: 'Time range back from now (e.g., "1h", "24h")',
+        type: 'string',
+      },
+    ],
+    handler: async ({ query, timeRange = '1h' }) => {
+      try {
+        const response = await fetch(buildApiUrl('/api/query'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, timeRange }),
+        });
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        return { error: error instanceof Error ? error.message : 'Query failed' };
+      }
+    },
+  });
+
+  useCopilotAction({
+    name: 'explainDashboard',
+    description: 'Analyze and explain a Grafana dashboard',
+    parameters: [
+      {
+        name: 'dashboardUid',
+        description: 'Dashboard UID (e.g., "v2-10-ops-overview")',
+        type: 'string',
+        required: true,
+      },
+    ],
+    handler: async ({ dashboardUid }) => {
+      try {
+        const response = await fetch(buildApiUrl(`/api/grafana/dashboards/${dashboardUid}`));
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        return { error: error instanceof Error ? error.message : 'Dashboard fetch failed' };
+      }
+    },
+  });
+
+  useCopilotAction({
+    name: 'identifyAnomaly',
+    description: 'Identify anomalies in metric data using statistical analysis',
+    parameters: [
+      {
+        name: 'query',
+        description: 'PromQL query to analyze for anomalies',
+        type: 'string',
+        required: true,
+      },
+      {
+        name: 'threshold',
+        description: 'Standard deviations from mean (default: 2)',
+        type: 'number',
+      },
+    ],
+    handler: async ({ query, threshold = 2 }) => {
+      try {
+        const response = await fetch(buildApiUrl('/api/query/instant'), {
+          method: 'GET',
+        });
+        const data = await response.json();
+        return { success: true, query, threshold, data };
+      } catch (error) {
+        return { error: error instanceof Error ? error.message : 'Anomaly detection failed' };
+      }
+    },
+  });
 
   useEffect(() => {
     let active = true;

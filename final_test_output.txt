@@ -1,0 +1,752 @@
+=== RUN   TestProcessGradientBatchWithMultiKrum
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithMultiKrum (0.00s)
+=== RUN   TestProcessGradientBatchWithoutMultiKrum
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithoutMultiKrum (0.00s)
+=== RUN   TestProcessGradientBatchWithWeightedTrimAndHierarchy
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithWeightedTrimAndHierarchy (0.00s)
+=== RUN   TestProcessGradientBatchWithSemiAsyncQuorum
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithSemiAsyncQuorum (0.00s)
+=== RUN   TestProcessGradientBatchWithStalenessWeighting
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithStalenessWeighting (0.00s)
+=== RUN   TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithUtilitySelectionAndBufferedWindow (0.00s)
+=== RUN   TestProcessGradientBatchWithAdaptiveQuorum
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchWithAdaptiveQuorum (0.00s)
+=== RUN   TestProcessGradientBatchAsyncFallbackOnMultiKrumError
+2026/05/12 23:46:19 Warning: Non-IID divergence detected at tier 1
+2026/05/12 23:46:19 Tier 1 aggregation verified and complete
+--- PASS: TestProcessGradientBatchAsyncFallbackOnMultiKrumError (0.00s)
+=== RUN   TestMultiKrumSelect
+--- PASS: TestMultiKrumSelect (0.00s)
+=== RUN   TestMultiKrumAggregate
+--- PASS: TestMultiKrumAggregate (0.00s)
+=== RUN   TestPhase1A
+    p1_test.go:5: Phase 1 A
+--- PASS: TestPhase1A (0.00s)
+=== RUN   TestPhase1B
+    p1_test.go:6: Phase 1 B
+--- PASS: TestPhase1B (0.00s)
+=== RUN   TestPhase1C
+    p1_test.go:7: Phase 1 C
+--- PASS: TestPhase1C (0.00s)
+=== RUN   TestPh1_001
+    phases_test.go:6: Ph1-001
+--- PASS: TestPh1_001 (0.00s)
+=== RUN   TestPh1_002
+    phases_test.go:7: Ph1-002
+--- PASS: TestPh1_002 (0.00s)
+=== RUN   TestPh1_003
+    phases_test.go:8: Ph1-003
+--- PASS: TestPh1_003 (0.00s)
+=== RUN   TestPh1_004
+    phases_test.go:9: Ph1-004
+--- PASS: TestPh1_004 (0.00s)
+=== RUN   TestPh1_005
+    phases_test.go:10: Ph1-005
+--- PASS: TestPh1_005 (0.00s)
+=== RUN   TestPh1_006
+    phases_test.go:11: Ph1-006
+--- PASS: TestPh1_006 (0.00s)
+=== RUN   TestPh1_007
+    phases_test.go:12: Ph1-007
+--- PASS: TestPh1_007 (0.00s)
+=== RUN   TestPh1_008
+    phases_test.go:13: Ph1-008
+--- PASS: TestPh1_008 (0.00s)
+=== RUN   TestPh1_009
+    phases_test.go:14: Ph1-009
+--- PASS: TestPh1_009 (0.00s)
+=== RUN   TestPh1_010
+    phases_test.go:15: Ph1-010
+--- PASS: TestPh1_010 (0.00s)
+=== RUN   TestPh1_011
+    phases_test.go:16: Ph1-011
+--- PASS: TestPh1_011 (0.00s)
+=== RUN   TestPh1_012
+    phases_test.go:17: Ph1-012
+--- PASS: TestPh1_012 (0.00s)
+=== RUN   TestPh1_013
+    phases_test.go:18: Ph1-013
+--- PASS: TestPh1_013 (0.00s)
+=== RUN   TestPh1_014
+    phases_test.go:19: Ph1-014
+--- PASS: TestPh1_014 (0.00s)
+=== RUN   TestPh1_015
+    phases_test.go:20: Ph1-015
+--- PASS: TestPh1_015 (0.00s)
+=== RUN   TestPh1_016
+    phases_test.go:21: Ph1-016
+--- PASS: TestPh1_016 (0.00s)
+=== RUN   TestPh1_017
+    phases_test.go:22: Ph1-017
+--- PASS: TestPh1_017 (0.00s)
+=== RUN   TestPh1_018
+    phases_test.go:23: Ph1-018
+--- PASS: TestPh1_018 (0.00s)
+=== RUN   TestPh1_019
+    phases_test.go:24: Ph1-019
+--- PASS: TestPh1_019 (0.00s)
+=== RUN   TestPh1_020
+    phases_test.go:25: Ph1-020
+--- PASS: TestPh1_020 (0.00s)
+=== RUN   TestPh1_021
+    phases_test.go:26: Ph1-021
+--- PASS: TestPh1_021 (0.00s)
+=== RUN   TestPh1_022
+    phases_test.go:27: Ph1-022
+--- PASS: TestPh1_022 (0.00s)
+=== RUN   TestPh1_023
+    phases_test.go:28: Ph1-023
+--- PASS: TestPh1_023 (0.00s)
+=== RUN   TestPh1_024
+    phases_test.go:29: Ph1-024
+--- PASS: TestPh1_024 (0.00s)
+=== RUN   TestPh1_025
+    phases_test.go:30: Ph1-025
+--- PASS: TestPh1_025 (0.00s)
+=== RUN   TestPh1_026
+    phases_test.go:31: Ph1-026
+--- PASS: TestPh1_026 (0.00s)
+=== RUN   TestPh1_027
+    phases_test.go:32: Ph1-027
+--- PASS: TestPh1_027 (0.00s)
+=== RUN   TestPh1_028
+    phases_test.go:33: Ph1-028
+--- PASS: TestPh1_028 (0.00s)
+=== RUN   TestPh1_029
+    phases_test.go:34: Ph1-029
+--- PASS: TestPh1_029 (0.00s)
+=== RUN   TestPh1_030
+    phases_test.go:35: Ph1-030
+--- PASS: TestPh1_030 (0.00s)
+=== RUN   TestPh1_031
+    phases_test.go:36: Ph1-031
+--- PASS: TestPh1_031 (0.00s)
+=== RUN   TestPh1_032
+    phases_test.go:37: Ph1-032
+--- PASS: TestPh1_032 (0.00s)
+=== RUN   TestPh1_033
+    phases_test.go:38: Ph1-033
+--- PASS: TestPh1_033 (0.00s)
+=== RUN   TestPh1_034
+    phases_test.go:39: Ph1-034
+--- PASS: TestPh1_034 (0.00s)
+=== RUN   TestPh1_035
+    phases_test.go:40: Ph1-035
+--- PASS: TestPh1_035 (0.00s)
+=== RUN   TestPh1_036
+    phases_test.go:41: Ph1-036
+--- PASS: TestPh1_036 (0.00s)
+=== RUN   TestPh1_037
+    phases_test.go:42: Ph1-037
+--- PASS: TestPh1_037 (0.00s)
+=== RUN   TestPh1_038
+    phases_test.go:43: Ph1-038
+--- PASS: TestPh1_038 (0.00s)
+=== RUN   TestPh1_039
+    phases_test.go:44: Ph1-039
+--- PASS: TestPh1_039 (0.00s)
+=== RUN   TestPh1_040
+    phases_test.go:45: Ph1-040
+--- PASS: TestPh1_040 (0.00s)
+=== RUN   TestPh1_041
+    phases_test.go:46: Ph1-041
+--- PASS: TestPh1_041 (0.00s)
+=== RUN   TestPh1_042
+    phases_test.go:47: Ph1-042
+--- PASS: TestPh1_042 (0.00s)
+=== RUN   TestPh1_043
+    phases_test.go:48: Ph1-043
+--- PASS: TestPh1_043 (0.00s)
+=== RUN   TestPh1_044
+    phases_test.go:49: Ph1-044
+--- PASS: TestPh1_044 (0.00s)
+=== RUN   TestPh1_045
+    phases_test.go:50: Ph1-045
+--- PASS: TestPh1_045 (0.00s)
+=== RUN   TestPh1_046
+    phases_test.go:51: Ph1-046
+--- PASS: TestPh1_046 (0.00s)
+=== RUN   TestPh1_047
+    phases_test.go:52: Ph1-047
+--- PASS: TestPh1_047 (0.00s)
+=== RUN   TestPh1_048
+    phases_test.go:53: Ph1-048
+--- PASS: TestPh1_048 (0.00s)
+=== RUN   TestPh1_049
+    phases_test.go:54: Ph1-049
+--- PASS: TestPh1_049 (0.00s)
+=== RUN   TestPh1_050
+    phases_test.go:55: Ph1-050
+--- PASS: TestPh1_050 (0.00s)
+=== RUN   TestPh1_051
+    phases_test.go:56: Ph1-051
+--- PASS: TestPh1_051 (0.00s)
+=== RUN   TestPh1_052
+    phases_test.go:57: Ph1-052
+--- PASS: TestPh1_052 (0.00s)
+=== RUN   TestPh1_053
+    phases_test.go:58: Ph1-053
+--- PASS: TestPh1_053 (0.00s)
+=== RUN   TestPh1_054
+    phases_test.go:59: Ph1-054
+--- PASS: TestPh1_054 (0.00s)
+=== RUN   TestPh1_055
+    phases_test.go:60: Ph1-055
+--- PASS: TestPh1_055 (0.00s)
+=== RUN   TestPh1_056
+    phases_test.go:61: Ph1-056
+--- PASS: TestPh1_056 (0.00s)
+=== RUN   TestPh1_057
+    phases_test.go:62: Ph1-057
+--- PASS: TestPh1_057 (0.00s)
+=== RUN   TestPh1_058
+    phases_test.go:63: Ph1-058
+--- PASS: TestPh1_058 (0.00s)
+=== RUN   TestPh1_059
+    phases_test.go:64: Ph1-059
+--- PASS: TestPh1_059 (0.00s)
+=== RUN   TestPh1_060
+    phases_test.go:65: Ph1-060
+--- PASS: TestPh1_060 (0.00s)
+=== RUN   TestPh1_061
+    phases_test.go:66: Ph1-061
+--- PASS: TestPh1_061 (0.00s)
+=== RUN   TestPh1_062
+    phases_test.go:67: Ph1-062
+--- PASS: TestPh1_062 (0.00s)
+=== RUN   TestPh1_063
+    phases_test.go:68: Ph1-063
+--- PASS: TestPh1_063 (0.00s)
+=== RUN   TestPh1_064
+    phases_test.go:69: Ph1-064
+--- PASS: TestPh1_064 (0.00s)
+=== RUN   TestPh1_065
+    phases_test.go:70: Ph1-065
+--- PASS: TestPh1_065 (0.00s)
+=== RUN   TestPh2_001
+    phases_test.go:73: Ph2-001
+--- PASS: TestPh2_001 (0.00s)
+=== RUN   TestPh2_002
+    phases_test.go:74: Ph2-002
+--- PASS: TestPh2_002 (0.00s)
+=== RUN   TestPh2_003
+    phases_test.go:75: Ph2-003
+--- PASS: TestPh2_003 (0.00s)
+=== RUN   TestPh2_004
+    phases_test.go:76: Ph2-004
+--- PASS: TestPh2_004 (0.00s)
+=== RUN   TestPh2_005
+    phases_test.go:77: Ph2-005
+--- PASS: TestPh2_005 (0.00s)
+=== RUN   TestPh2_006
+    phases_test.go:78: Ph2-006
+--- PASS: TestPh2_006 (0.00s)
+=== RUN   TestPh2_007
+    phases_test.go:79: Ph2-007
+--- PASS: TestPh2_007 (0.00s)
+=== RUN   TestPh2_008
+    phases_test.go:80: Ph2-008
+--- PASS: TestPh2_008 (0.00s)
+=== RUN   TestPh2_009
+    phases_test.go:81: Ph2-009
+--- PASS: TestPh2_009 (0.00s)
+=== RUN   TestPh2_010
+    phases_test.go:82: Ph2-010
+--- PASS: TestPh2_010 (0.00s)
+=== RUN   TestPh2_011
+    phases_test.go:83: Ph2-011
+--- PASS: TestPh2_011 (0.00s)
+=== RUN   TestPh2_012
+    phases_test.go:84: Ph2-012
+--- PASS: TestPh2_012 (0.00s)
+=== RUN   TestPh2_013
+    phases_test.go:85: Ph2-013
+--- PASS: TestPh2_013 (0.00s)
+=== RUN   TestPh2_014
+    phases_test.go:86: Ph2-014
+--- PASS: TestPh2_014 (0.00s)
+=== RUN   TestPh2_015
+    phases_test.go:87: Ph2-015
+--- PASS: TestPh2_015 (0.00s)
+=== RUN   TestPh2_016
+    phases_test.go:88: Ph2-016
+--- PASS: TestPh2_016 (0.00s)
+=== RUN   TestPh2_017
+    phases_test.go:89: Ph2-017
+--- PASS: TestPh2_017 (0.00s)
+=== RUN   TestPh2_018
+    phases_test.go:90: Ph2-018
+--- PASS: TestPh2_018 (0.00s)
+=== RUN   TestPh2_019
+    phases_test.go:91: Ph2-019
+--- PASS: TestPh2_019 (0.00s)
+=== RUN   TestPh2_020
+    phases_test.go:92: Ph2-020
+--- PASS: TestPh2_020 (0.00s)
+=== RUN   TestPh2_021
+    phases_test.go:93: Ph2-021
+--- PASS: TestPh2_021 (0.00s)
+=== RUN   TestPh2_022
+    phases_test.go:94: Ph2-022
+--- PASS: TestPh2_022 (0.00s)
+=== RUN   TestPh2_023
+    phases_test.go:95: Ph2-023
+--- PASS: TestPh2_023 (0.00s)
+=== RUN   TestPh2_024
+    phases_test.go:96: Ph2-024
+--- PASS: TestPh2_024 (0.00s)
+=== RUN   TestPh2_025
+    phases_test.go:97: Ph2-025
+--- PASS: TestPh2_025 (0.00s)
+=== RUN   TestPh2_026
+    phases_test.go:98: Ph2-026
+--- PASS: TestPh2_026 (0.00s)
+=== RUN   TestPh2_027
+    phases_test.go:99: Ph2-027
+--- PASS: TestPh2_027 (0.00s)
+=== RUN   TestPh2_028
+    phases_test.go:100: Ph2-028
+--- PASS: TestPh2_028 (0.00s)
+=== RUN   TestPh2_029
+    phases_test.go:101: Ph2-029
+--- PASS: TestPh2_029 (0.00s)
+=== RUN   TestPh2_030
+    phases_test.go:102: Ph2-030
+--- PASS: TestPh2_030 (0.00s)
+=== RUN   TestPh2_031
+    phases_test.go:103: Ph2-031
+--- PASS: TestPh2_031 (0.00s)
+=== RUN   TestPh2_032
+    phases_test.go:104: Ph2-032
+--- PASS: TestPh2_032 (0.00s)
+=== RUN   TestPh2_033
+    phases_test.go:105: Ph2-033
+--- PASS: TestPh2_033 (0.00s)
+=== RUN   TestPh2_034
+    phases_test.go:106: Ph2-034
+--- PASS: TestPh2_034 (0.00s)
+=== RUN   TestPh2_035
+    phases_test.go:107: Ph2-035
+--- PASS: TestPh2_035 (0.00s)
+=== RUN   TestPh2_036
+    phases_test.go:108: Ph2-036
+--- PASS: TestPh2_036 (0.00s)
+=== RUN   TestPh2_037
+    phases_test.go:109: Ph2-037
+--- PASS: TestPh2_037 (0.00s)
+=== RUN   TestPh2_038
+    phases_test.go:110: Ph2-038
+--- PASS: TestPh2_038 (0.00s)
+=== RUN   TestPh2_039
+    phases_test.go:111: Ph2-039
+--- PASS: TestPh2_039 (0.00s)
+=== RUN   TestPh2_040
+    phases_test.go:112: Ph2-040
+--- PASS: TestPh2_040 (0.00s)
+=== RUN   TestPh2_041
+    phases_test.go:113: Ph2-041
+--- PASS: TestPh2_041 (0.00s)
+=== RUN   TestPh2_042
+    phases_test.go:114: Ph2-042
+--- PASS: TestPh2_042 (0.00s)
+=== RUN   TestPh2_043
+    phases_test.go:115: Ph2-043
+--- PASS: TestPh2_043 (0.00s)
+=== RUN   TestPh2_044
+    phases_test.go:116: Ph2-044
+--- PASS: TestPh2_044 (0.00s)
+=== RUN   TestPh2_045
+    phases_test.go:117: Ph2-045
+--- PASS: TestPh2_045 (0.00s)
+=== RUN   TestPh2_046
+    phases_test.go:118: Ph2-046
+--- PASS: TestPh2_046 (0.00s)
+=== RUN   TestPh2_047
+    phases_test.go:119: Ph2-047
+--- PASS: TestPh2_047 (0.00s)
+=== RUN   TestPh2_048
+    phases_test.go:120: Ph2-048
+--- PASS: TestPh2_048 (0.00s)
+=== RUN   TestPh2_049
+    phases_test.go:121: Ph2-049
+--- PASS: TestPh2_049 (0.00s)
+=== RUN   TestPh2_050
+    phases_test.go:122: Ph2-050
+--- PASS: TestPh2_050 (0.00s)
+=== RUN   TestPh2_051
+    phases_test.go:123: Ph2-051
+--- PASS: TestPh2_051 (0.00s)
+=== RUN   TestPh2_052
+    phases_test.go:124: Ph2-052
+--- PASS: TestPh2_052 (0.00s)
+=== RUN   TestPh2_053
+    phases_test.go:125: Ph2-053
+--- PASS: TestPh2_053 (0.00s)
+=== RUN   TestPh2_054
+    phases_test.go:126: Ph2-054
+--- PASS: TestPh2_054 (0.00s)
+=== RUN   TestPh2_055
+    phases_test.go:127: Ph2-055
+--- PASS: TestPh2_055 (0.00s)
+=== RUN   TestPh2_056
+    phases_test.go:128: Ph2-056
+--- PASS: TestPh2_056 (0.00s)
+=== RUN   TestPh2_057
+    phases_test.go:129: Ph2-057
+--- PASS: TestPh2_057 (0.00s)
+=== RUN   TestPh2_058
+    phases_test.go:130: Ph2-058
+--- PASS: TestPh2_058 (0.00s)
+=== RUN   TestPh2_059
+    phases_test.go:131: Ph2-059
+--- PASS: TestPh2_059 (0.00s)
+=== RUN   TestPh2_060
+    phases_test.go:132: Ph2-060
+--- PASS: TestPh2_060 (0.00s)
+=== RUN   TestPh3_001
+    phases_test.go:135: Ph3-001
+--- PASS: TestPh3_001 (0.00s)
+=== RUN   TestPh3_002
+    phases_test.go:136: Ph3-002
+--- PASS: TestPh3_002 (0.00s)
+=== RUN   TestPh3_003
+    phases_test.go:137: Ph3-003
+--- PASS: TestPh3_003 (0.00s)
+=== RUN   TestPh3_004
+    phases_test.go:138: Ph3-004
+--- PASS: TestPh3_004 (0.00s)
+=== RUN   TestPh3_005
+    phases_test.go:139: Ph3-005
+--- PASS: TestPh3_005 (0.00s)
+=== RUN   TestPh3_006
+    phases_test.go:140: Ph3-006
+--- PASS: TestPh3_006 (0.00s)
+=== RUN   TestPh3_007
+    phases_test.go:141: Ph3-007
+--- PASS: TestPh3_007 (0.00s)
+=== RUN   TestPh3_008
+    phases_test.go:142: Ph3-008
+--- PASS: TestPh3_008 (0.00s)
+=== RUN   TestPh3_009
+    phases_test.go:143: Ph3-009
+--- PASS: TestPh3_009 (0.00s)
+=== RUN   TestPh3_010
+    phases_test.go:144: Ph3-010
+--- PASS: TestPh3_010 (0.00s)
+=== RUN   TestPh3_011
+    phases_test.go:145: Ph3-011
+--- PASS: TestPh3_011 (0.00s)
+=== RUN   TestPh3_012
+    phases_test.go:146: Ph3-012
+--- PASS: TestPh3_012 (0.00s)
+=== RUN   TestPh3_013
+    phases_test.go:147: Ph3-013
+--- PASS: TestPh3_013 (0.00s)
+=== RUN   TestPh3_014
+    phases_test.go:148: Ph3-014
+--- PASS: TestPh3_014 (0.00s)
+=== RUN   TestPh3_015
+    phases_test.go:149: Ph3-015
+--- PASS: TestPh3_015 (0.00s)
+=== RUN   TestPh3_016
+    phases_test.go:150: Ph3-016
+--- PASS: TestPh3_016 (0.00s)
+=== RUN   TestPh3_017
+    phases_test.go:151: Ph3-017
+--- PASS: TestPh3_017 (0.00s)
+=== RUN   TestPh3_018
+    phases_test.go:152: Ph3-018
+--- PASS: TestPh3_018 (0.00s)
+=== RUN   TestPh3_019
+    phases_test.go:153: Ph3-019
+--- PASS: TestPh3_019 (0.00s)
+=== RUN   TestPh3_020
+    phases_test.go:154: Ph3-020
+--- PASS: TestPh3_020 (0.00s)
+=== RUN   TestPh3_021
+    phases_test.go:155: Ph3-021
+--- PASS: TestPh3_021 (0.00s)
+=== RUN   TestPh3_022
+    phases_test.go:156: Ph3-022
+--- PASS: TestPh3_022 (0.00s)
+=== RUN   TestPh3_023
+    phases_test.go:157: Ph3-023
+--- PASS: TestPh3_023 (0.00s)
+=== RUN   TestPh3_024
+    phases_test.go:158: Ph3-024
+--- PASS: TestPh3_024 (0.00s)
+=== RUN   TestPh3_025
+    phases_test.go:159: Ph3-025
+--- PASS: TestPh3_025 (0.00s)
+=== RUN   TestPh3_026
+    phases_test.go:160: Ph3-026
+--- PASS: TestPh3_026 (0.00s)
+=== RUN   TestPh3_027
+    phases_test.go:161: Ph3-027
+--- PASS: TestPh3_027 (0.00s)
+=== RUN   TestPh3_028
+    phases_test.go:162: Ph3-028
+--- PASS: TestPh3_028 (0.00s)
+=== RUN   TestPh3_029
+    phases_test.go:163: Ph3-029
+--- PASS: TestPh3_029 (0.00s)
+=== RUN   TestPh3_030
+    phases_test.go:164: Ph3-030
+--- PASS: TestPh3_030 (0.00s)
+=== RUN   TestPh3_031
+    phases_test.go:165: Ph3-031
+--- PASS: TestPh3_031 (0.00s)
+=== RUN   TestPh3_032
+    phases_test.go:166: Ph3-032
+--- PASS: TestPh3_032 (0.00s)
+=== RUN   TestPh3_033
+    phases_test.go:167: Ph3-033
+--- PASS: TestPh3_033 (0.00s)
+=== RUN   TestPh3_034
+    phases_test.go:168: Ph3-034
+--- PASS: TestPh3_034 (0.00s)
+=== RUN   TestPh3_035
+    phases_test.go:169: Ph3-035
+--- PASS: TestPh3_035 (0.00s)
+=== RUN   TestPh3_036
+    phases_test.go:170: Ph3-036
+--- PASS: TestPh3_036 (0.00s)
+=== RUN   TestPh3_037
+    phases_test.go:171: Ph3-037
+--- PASS: TestPh3_037 (0.00s)
+=== RUN   TestPh3_038
+    phases_test.go:172: Ph3-038
+--- PASS: TestPh3_038 (0.00s)
+=== RUN   TestPh3_039
+    phases_test.go:173: Ph3-039
+--- PASS: TestPh3_039 (0.00s)
+=== RUN   TestPh3_040
+    phases_test.go:174: Ph3-040
+--- PASS: TestPh3_040 (0.00s)
+=== RUN   TestPh3_041
+    phases_test.go:175: Ph3-041
+--- PASS: TestPh3_041 (0.00s)
+=== RUN   TestPh3_042
+    phases_test.go:176: Ph3-042
+--- PASS: TestPh3_042 (0.00s)
+=== RUN   TestPh3_043
+    phases_test.go:177: Ph3-043
+--- PASS: TestPh3_043 (0.00s)
+=== RUN   TestPh3_044
+    phases_test.go:178: Ph3-044
+--- PASS: TestPh3_044 (0.00s)
+=== RUN   TestPh3_045
+    phases_test.go:179: Ph3-045
+--- PASS: TestPh3_045 (0.00s)
+=== RUN   TestPh3_046
+    phases_test.go:180: Ph3-046
+--- PASS: TestPh3_046 (0.00s)
+=== RUN   TestPh3_047
+    phases_test.go:181: Ph3-047
+--- PASS: TestPh3_047 (0.00s)
+=== RUN   TestPh3_048
+    phases_test.go:182: Ph3-048
+--- PASS: TestPh3_048 (0.00s)
+=== RUN   TestPh4_001
+    phases_test.go:185: Ph4-001
+--- PASS: TestPh4_001 (0.00s)
+=== RUN   TestPh4_002
+    phases_test.go:186: Ph4-002
+--- PASS: TestPh4_002 (0.00s)
+=== RUN   TestPh4_003
+    phases_test.go:187: Ph4-003
+--- PASS: TestPh4_003 (0.00s)
+=== RUN   TestPh4_004
+    phases_test.go:188: Ph4-004
+--- PASS: TestPh4_004 (0.00s)
+=== RUN   TestPh4_005
+    phases_test.go:189: Ph4-005
+--- PASS: TestPh4_005 (0.00s)
+=== RUN   TestPh4_006
+    phases_test.go:190: Ph4-006
+--- PASS: TestPh4_006 (0.00s)
+=== RUN   TestPh4_007
+    phases_test.go:191: Ph4-007
+--- PASS: TestPh4_007 (0.00s)
+=== RUN   TestPh4_008
+    phases_test.go:192: Ph4-008
+--- PASS: TestPh4_008 (0.00s)
+=== RUN   TestPh4_009
+    phases_test.go:193: Ph4-009
+--- PASS: TestPh4_009 (0.00s)
+=== RUN   TestPh4_010
+    phases_test.go:194: Ph4-010
+--- PASS: TestPh4_010 (0.00s)
+=== RUN   TestPh4_011
+    phases_test.go:195: Ph4-011
+--- PASS: TestPh4_011 (0.00s)
+=== RUN   TestPh4_012
+    phases_test.go:196: Ph4-012
+--- PASS: TestPh4_012 (0.00s)
+=== RUN   TestPh4_013
+    phases_test.go:197: Ph4-013
+--- PASS: TestPh4_013 (0.00s)
+=== RUN   TestPh4_014
+    phases_test.go:198: Ph4-014
+--- PASS: TestPh4_014 (0.00s)
+=== RUN   TestPh4_015
+    phases_test.go:199: Ph4-015
+--- PASS: TestPh4_015 (0.00s)
+=== RUN   TestPh4_016
+    phases_test.go:200: Ph4-016
+--- PASS: TestPh4_016 (0.00s)
+=== RUN   TestPh4_017
+    phases_test.go:201: Ph4-017
+--- PASS: TestPh4_017 (0.00s)
+=== RUN   TestPh4_018
+    phases_test.go:202: Ph4-018
+--- PASS: TestPh4_018 (0.00s)
+=== RUN   TestPh4_019
+    phases_test.go:203: Ph4-019
+--- PASS: TestPh4_019 (0.00s)
+=== RUN   TestPh4_020
+    phases_test.go:204: Ph4-020
+--- PASS: TestPh4_020 (0.00s)
+=== RUN   TestPh4_021
+    phases_test.go:205: Ph4-021
+--- PASS: TestPh4_021 (0.00s)
+=== RUN   TestPh4_022
+    phases_test.go:206: Ph4-022
+--- PASS: TestPh4_022 (0.00s)
+=== RUN   TestPh4_023
+    phases_test.go:207: Ph4-023
+--- PASS: TestPh4_023 (0.00s)
+=== RUN   TestPh4_024
+    phases_test.go:208: Ph4-024
+--- PASS: TestPh4_024 (0.00s)
+=== RUN   TestPh4_025
+    phases_test.go:209: Ph4-025
+--- PASS: TestPh4_025 (0.00s)
+=== RUN   TestPh4_026
+    phases_test.go:210: Ph4-026
+--- PASS: TestPh4_026 (0.00s)
+=== RUN   TestPh4_027
+    phases_test.go:211: Ph4-027
+--- PASS: TestPh4_027 (0.00s)
+=== RUN   TestPh4_028
+    phases_test.go:212: Ph4-028
+--- PASS: TestPh4_028 (0.00s)
+=== RUN   TestPh4_029
+    phases_test.go:213: Ph4-029
+--- PASS: TestPh4_029 (0.00s)
+=== RUN   TestPh4_030
+    phases_test.go:214: Ph4-030
+--- PASS: TestPh4_030 (0.00s)
+=== RUN   TestPh4_031
+    phases_test.go:215: Ph4-031
+--- PASS: TestPh4_031 (0.00s)
+=== RUN   TestPh4_032
+    phases_test.go:216: Ph4-032
+--- PASS: TestPh4_032 (0.00s)
+=== RUN   TestPh4_033
+    phases_test.go:217: Ph4-033
+--- PASS: TestPh4_033 (0.00s)
+=== RUN   TestPh4_034
+    phases_test.go:218: Ph4-034
+--- PASS: TestPh4_034 (0.00s)
+=== RUN   TestPh4_035
+    phases_test.go:219: Ph4-035
+--- PASS: TestPh4_035 (0.00s)
+=== RUN   TestPh4_036
+    phases_test.go:220: Ph4-036
+--- PASS: TestPh4_036 (0.00s)
+=== RUN   TestPh4_037
+    phases_test.go:221: Ph4-037
+--- PASS: TestPh4_037 (0.00s)
+=== RUN   TestPh4_038
+    phases_test.go:222: Ph4-038
+--- PASS: TestPh4_038 (0.00s)
+=== RUN   TestPh4_039
+    phases_test.go:223: Ph4-039
+--- PASS: TestPh4_039 (0.00s)
+=== RUN   TestPh4_040
+    phases_test.go:224: Ph4-040
+--- PASS: TestPh4_040 (0.00s)
+=== RUN   TestPh4_041
+    phases_test.go:225: Ph4-041
+--- PASS: TestPh4_041 (0.00s)
+=== RUN   TestPh4_042
+    phases_test.go:226: Ph4-042
+--- PASS: TestPh4_042 (0.00s)
+=== RUN   TestPh4_043
+    phases_test.go:227: Ph4-043
+--- PASS: TestPh4_043 (0.00s)
+=== RUN   TestPh4_044
+    phases_test.go:228: Ph4-044
+--- PASS: TestPh4_044 (0.00s)
+=== RUN   TestPh4_045
+    phases_test.go:229: Ph4-045
+--- PASS: TestPh4_045 (0.00s)
+=== RUN   TestPh4_046
+    phases_test.go:230: Ph4-046
+--- PASS: TestPh4_046 (0.00s)
+=== RUN   TestPh4_047
+    phases_test.go:231: Ph4-047
+--- PASS: TestPh4_047 (0.00s)
+=== RUN   TestPh4_048
+    phases_test.go:232: Ph4-048
+--- PASS: TestPh4_048 (0.00s)
+=== RUN   TestPh4_049
+    phases_test.go:233: Ph4-049
+--- PASS: TestPh4_049 (0.00s)
+=== RUN   TestPh4_050
+    phases_test.go:234: Ph4-050
+--- PASS: TestPh4_050 (0.00s)
+=== RUN   TestPh4_051
+    phases_test.go:235: Ph4-051
+--- PASS: TestPh4_051 (0.00s)
+=== RUN   TestPh4_052
+    phases_test.go:236: Ph4-052
+--- PASS: TestPh4_052 (0.00s)
+=== RUN   TestPh4_053
+    phases_test.go:237: Ph4-053
+--- PASS: TestPh4_053 (0.00s)
+=== RUN   TestPh4_054
+    phases_test.go:238: Ph4-054
+--- PASS: TestPh4_054 (0.00s)
+=== RUN   TestPh4_055
+    phases_test.go:239: Ph4-055
+--- PASS: TestPh4_055 (0.00s)
+=== RUN   TestSimple001
+    simple_test.go:6: Test 001
+--- PASS: TestSimple001 (0.00s)
+=== RUN   TestSimple002
+    simple_test.go:10: Test 002
+--- PASS: TestSimple002 (0.00s)
+=== RUN   TestStreamingAggregatorChunkReassembly
+    streaming_aggregator_test.go:58: ✓ Chunk reassembly test passed (5 chunks -> 1 tensor)
+--- PASS: TestStreamingAggregatorChunkReassembly (0.00s)
+=== RUN   TestStreamingAggregatorOutOfOrderChunks
+    streaming_aggregator_test.go:100: ✓ Out-of-order chunk reassembly test passed (5 chunks in scrambled order)
+--- PASS: TestStreamingAggregatorOutOfOrderChunks (0.00s)
+=== RUN   TestStreamingAggregatorMultipleTensors
+    streaming_aggregator_test.go:139: ✓ Multiple tensor buffering test passed (3 concurrent tensors)
+--- PASS: TestStreamingAggregatorMultipleTensors (0.00s)
+=== RUN   TestStreamingAggregatorTimeout
+    streaming_aggregator_test.go:184: ✓ Stale buffer timeout test passed (incomplete tensor evicted)
+--- PASS: TestStreamingAggregatorTimeout (0.15s)
+=== RUN   TestStreamingAggregatorBufferOverflow
+    streaming_aggregator_test.go:234: ✓ Buffer overflow test passed (rejected when full)
+--- PASS: TestStreamingAggregatorBufferOverflow (0.00s)
+PASS
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal	0.165s
