@@ -34,7 +34,7 @@ jobs:
 
       - name: Start monitoring stack
         run: |
-          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana ops-assistant
+,          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana ops-assistant
 
       - name: Wait for Prometheus and Grafana
         run: |
