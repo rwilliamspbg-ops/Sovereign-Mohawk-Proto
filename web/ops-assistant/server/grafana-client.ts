@@ -1,8 +1,15 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
+import { getAuthManager, type AuthManager } from './auth-manager.js';
 
 /**
  * Grafana API Client
  * Provides methods to interact with Grafana dashboards, alerts, and annotations
+ * 
+ * Enhanced with:
+ * - Unified authentication management via AuthManager
+ * - Automatic 401 detection and re-authentication
+ * - Request tracing for audit and debugging
+ * - Detailed error reporting
  */
 
 export interface Dashboard {
@@ -65,22 +72,142 @@ export class GrafanaClient {
   private axiosInstance: AxiosInstance;
   private baseUrl: string;
   private apiToken: string;
+  private authManager: AuthManager;
+  private isReauthenticating: boolean = false;
 
   constructor(
     baseUrl: string = 'http://grafana:3000',
-    apiToken: string = process.env.GRAFANA_API_TOKEN || 'admin'
+    apiToken?: string
   ) {
     this.baseUrl = baseUrl;
-    this.apiToken = apiToken;
+    this.apiToken = apiToken || process.env.GRAFANA_API_TOKEN || 'admin';
+    this.authManager = getAuthManager();
 
+    if (this.apiToken === 'admin') {
+      console.warn(
+        '[GrafanaClient] ⚠️ WARNING: Using default "admin" token. ' +
+        'Set GRAFANA_API_TOKEN environment variable or /run/secrets/grafana_api_token file'
+      );
+    }
+
+    // Create axios instance with interceptors for auth handling
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
       headers: {
-        Authorization: `Bearer ${apiToken}`,
+        Authorization: `Bearer ${this.apiToken}`,
         'Content-Type': 'application/json',
       },
       timeout: 10000,
     });
+
+    // Add response interceptor for 401 handling
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      async (error: AxiosError) => {
+        if (error.response?.status === 401 && !this.isReauthenticating) {
+          console.warn('[GrafanaClient] 🔄 Received 401 Unauthorized, attempting re-authentication...');
+          
+          // Trace the auth failure
+          this.authManager.addRequestTrace(
+            'ops-assistant',
+            'grafana',
+            error.config?.method || 'GET',
+            401,
+            'Unauthorized - token may be invalid'
+          );
+
+          this.isReauthenticating = true;
+          try {
+            // Attempt to refresh/validate token
+            await this.revalidateAndRefreshToken();
+            
+            // Retry the original request with new token
+            if (error.config) {
+              error.config.headers.Authorization = `Bearer ${this.apiToken}`;
+              this.isReauthenticating = false;
+              return this.axiosInstance(error.config);
+            }
+          } catch (refreshError) {
+            console.error('[GrafanaClient] ✗ Re-authentication failed:', refreshError);
+            this.authManager.addRequestTrace(
+              'ops-assistant',
+              'grafana',
+              're-auth',
+              401,
+              refreshError instanceof Error ? refreshError.message : 'Re-auth failed'
+            );
+          }
+          this.isReauthenticating = false;
+        }
+
+        // Trace all non-2xx responses
+        if (error.response?.status && error.response.status >= 400) {
+          this.authManager.addRequestTrace(
+            'ops-assistant',
+            'grafana',
+            error.config?.method || 'GET',
+            error.response.status,
+            error.message
+          );
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  /**
+   * Revalidate and refresh Grafana token
+   * Called when a 401 is received
+   */
+  private async revalidateAndRefreshToken(): Promise<void> {
+    try {
+      const token = await this.authManager.getGrafanaToken();
+      this.apiToken = token;
+      
+      // Update axios instance headers
+      this.axiosInstance.defaults.headers.Authorization = `Bearer ${token}`;
+      
+      console.log('[GrafanaClient] ✓ Token refreshed successfully');
+    } catch (error) {
+      console.error('[GrafanaClient] ✗ Token refresh failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle Grafana API errors with detailed diagnostics
+   */
+  private handleError(operation: string, error: any, endpoint: string): void {
+    const axiosError = error as AxiosError;
+    const statusCode = axiosError.response?.status;
+    const errorData = axiosError.response?.data as any;
+
+    let errorMessage = `${operation} failed`;
+    if (statusCode === 401) {
+      errorMessage += ' (Unauthorized - invalid or expired token)';
+    } else if (statusCode === 403) {
+      errorMessage += ' (Forbidden - insufficient permissions)';
+    } else if (statusCode === 404) {
+      errorMessage += ' (Not Found)';
+    } else if (statusCode && statusCode >= 500) {
+      errorMessage += ` (Server error: ${statusCode})`;
+    }
+
+    console.error(`[GrafanaClient] ✗ ${errorMessage}`, {
+      endpoint,
+      statusCode,
+      errorMessage: errorData?.message,
+      tokenLength: this.apiToken.length,
+    });
+
+    this.authManager.addRequestTrace(
+      'ops-assistant',
+      'grafana',
+      'GET',
+      statusCode,
+      errorMessage
+    );
   }
 
   /**
@@ -96,9 +223,10 @@ export class GrafanaClient {
       }
 
       const response = await this.axiosInstance.get<Dashboard[]>(url);
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching dashboards:', error);
+      this.handleError('getDashboards', error, '/api/search?type=dash-db');
       return [];
     }
   }
@@ -111,9 +239,10 @@ export class GrafanaClient {
       const response = await this.axiosInstance.get<DashboardDetail>(
         `/api/dashboards/uid/${uid}`
       );
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error(`[GrafanaClient] Error fetching dashboard ${uid}:`, error);
+      this.handleError(`getDashboardByUid(${uid})`, error, `/api/dashboards/uid/${uid}`);
       return null;
     }
   }
@@ -129,9 +258,10 @@ export class GrafanaClient {
           params: { query, type: 'dash-db' },
         }
       );
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error searching dashboards:', error);
+      this.handleError('searchDashboards', error, '/api/search');
       return [];
     }
   }
@@ -142,9 +272,10 @@ export class GrafanaClient {
   async getAlerts(): Promise<Alert[]> {
     try {
       const response = await this.axiosInstance.get<Alert[]>('/api/alerts');
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching alerts:', error);
+      this.handleError('getAlerts', error, '/api/alerts');
       return [];
     }
   }
@@ -157,12 +288,10 @@ export class GrafanaClient {
       const response = await this.axiosInstance.get<Alert[]>(
         `/api/alerts?dashboardId=${dashboardId}`
       );
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error(
-        `[GrafanaClient] Error fetching alerts for dashboard ${dashboardId}:`,
-        error
-      );
+      this.handleError(`getDashboardAlerts(${dashboardId})`, error, `/api/alerts`);
       return [];
     }
   }
@@ -185,9 +314,10 @@ export class GrafanaClient {
         '/api/annotations',
         { params }
       );
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching annotations:', error);
+      this.handleError('getAnnotations', error, '/api/annotations');
       return [];
     }
   }
@@ -209,9 +339,10 @@ export class GrafanaClient {
         tags,
         time: Date.now(),
       });
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'POST', 200);
       return response.data.id;
     } catch (error) {
-      console.error('[GrafanaClient] Error creating annotation:', error);
+      this.handleError('createAnnotation', error, '/api/annotations');
       return null;
     }
   }
@@ -222,9 +353,10 @@ export class GrafanaClient {
   async getDataSources(): Promise<any[]> {
     try {
       const response = await this.axiosInstance.get('/api/datasources');
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching datasources:', error);
+      this.handleError('getDataSources', error, '/api/datasources');
       return [];
     }
   }
@@ -238,9 +370,10 @@ export class GrafanaClient {
         `/api/datasources/${datasourceId}/query`,
         { targets }
       );
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'POST', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error querying datasource:', error);
+      this.handleError(`queryDatasource(${datasourceId})`, error, `/api/datasources/${datasourceId}/query`);
       return null;
     }
   }
@@ -251,12 +384,13 @@ export class GrafanaClient {
   async getHealth(): Promise<{ version: string; status: string } | null> {
     try {
       const response = await this.axiosInstance.get('/api/health');
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return {
         version: response.data.version,
         status: response.data.status,
       };
     } catch (error) {
-      console.error('[GrafanaClient] Error checking health:', error);
+      this.handleError('getHealth', error, '/api/health');
       return null;
     }
   }
@@ -267,9 +401,10 @@ export class GrafanaClient {
   async getCurrentUser(): Promise<any> {
     try {
       const response = await this.axiosInstance.get('/api/user');
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching current user:', error);
+      this.handleError('getCurrentUser', error, '/api/user');
       return null;
     }
   }
@@ -280,9 +415,10 @@ export class GrafanaClient {
   async getOrganization(): Promise<any> {
     try {
       const response = await this.axiosInstance.get('/api/org');
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
-      console.error('[GrafanaClient] Error fetching organization:', error);
+      this.handleError('getOrganization', error, '/api/org');
       return null;
     }
   }
@@ -293,13 +429,18 @@ export class GrafanaClient {
   async testDatasource(datasourceId: number): Promise<boolean> {
     try {
       await this.axiosInstance.get(`/api/datasources/${datasourceId}`);
+      this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return true;
     } catch (error) {
-      console.error(
-        `[GrafanaClient] Error testing datasource ${datasourceId}:`,
-        error
-      );
+      this.handleError(`testDatasource(${datasourceId})`, error, `/api/datasources/${datasourceId}`);
       return false;
     }
+  }
+
+  /**
+   * Get authentication and connection diagnostics
+   */
+  getDiagnostics() {
+    return this.authManager.getDiagnostics();
   }
 }
