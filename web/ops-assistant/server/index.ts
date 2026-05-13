@@ -3,6 +3,7 @@ import cors from 'cors';
 import axios from 'axios';
 import { WebSocketManager } from './websocket-manager.js';
 import { GrafanaClient } from './grafana-client.js';
+import { initializeAuthManager, getAuthManager } from './auth-manager.js';
 import { advancedActions } from './actions.js';
 import {
   getFederatedOverview,
@@ -23,6 +24,12 @@ import { AgUiEvent, AgUiEventSchema, A2UiEnvelope, A2UiEnvelopeSchema } from './
 /**
  * Enhanced CopilotKit Operations Assistant Server
  * Provides real-time metrics, Grafana integration, and advanced AI actions
+ * 
+ * Features:
+ * - Unified authentication manager with credential lifecycle
+ * - Automatic token refresh and 401 error recovery
+ * - Request tracing and audit logging
+ * - Diagnostic endpoints for auth debugging
  */
 
 const app: Express = express();
@@ -58,6 +65,7 @@ const wss = new WebSocketServer({ server });
 
 // Grafana Client
 const grafanaClient = new GrafanaClient(grafanaUrl);
+
 
 function createAgUiEvent(
   kind: AgUiEvent['kind'],
@@ -144,6 +152,55 @@ app.get('/api/prometheus/health', async (req: Request, res: Response) => {
     res.status(500).json({
       healthy: false,
       error: error instanceof Error ? error.message : 'Health check failed',
+    });
+  }
+});
+
+/**
+ * Authentication & Connection Diagnostics Endpoint
+ * Returns detailed information about auth configuration and recent request traces
+ */
+app.get('/api/diagnostics', (req: Request, res: Response) => {
+  const authManager = getAuthManager();
+  const diagnostics = authManager.getDiagnostics();
+  const grafanaDiagnostics = grafanaClient.getDiagnostics();
+
+  res.json({
+    timestamp: new Date().toISOString(),
+    auth: diagnostics,
+    grafanaConnection: {
+      baseUrl: grafanaUrl,
+      diagnostics: grafanaDiagnostics,
+    },
+    prometheus: {
+      baseUrl: prometheusUrl,
+    },
+    recentRequests: authManager.getRequestTraces(20),
+  });
+});
+
+/**
+ * Authentication Status Endpoint
+ * Quick check of auth credentials and validity
+ */
+app.get('/api/auth/status', async (req: Request, res: Response) => {
+  try {
+    const authManager = getAuthManager();
+    const diagnostics = authManager.getDiagnostics();
+
+    const status = {
+      initialized: diagnostics.credentialsLoaded,
+      grafanaTokenPresent: diagnostics.grafanaTokenPresent,
+      grafanaTokenLength: diagnostics.grafanaTokenLength,
+      lastValidation: diagnostics.lastValidation,
+      timeSinceValidationSeconds: diagnostics.timeSinceValidationSeconds,
+      healthy: diagnostics.grafanaTokenPresent && diagnostics.timeSinceValidationSeconds < 3600,
+    };
+
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({
+      error: error instanceof Error ? error.message : 'Status check failed',
     });
   }
 });
@@ -735,15 +792,32 @@ process.on('SIGINT', () => {
 });
 
 /**
- * Start Server
+ * Start Server with Authentication Initialization
  */
-server.listen(port, () => {
-  console.log(`[Server] Operations Assistant running on port ${port}`);
-  console.log(`[Server] WebSocket: ws://localhost:${port}`);
-  console.log(`[Server] Health: http://localhost:${port}/health`);
-  console.log(`[Server] Prometheus: ${prometheusUrl}`);
-  console.log(`[Server] Grafana: ${grafanaUrl}`);
-  console.log(`[Server] Available Actions: ${advancedActions.length}`);
-});
+async function startServer() {
+  try {
+    // Initialize authentication manager before starting server
+    console.log('[Server] Initializing authentication manager...');
+    await initializeAuthManager();
+    console.log('[Server] ✓ Authentication manager initialized');
+
+    // Start listening
+    server.listen(port, () => {
+      console.log(`[Server] Operations Assistant running on port ${port}`);
+      console.log(`[Server] WebSocket: ws://localhost:${port}`);
+      console.log(`[Server] Health: http://localhost:${port}/health`);
+      console.log(`[Server] Prometheus: ${prometheusUrl}`);
+      console.log(`[Server] Grafana: ${grafanaUrl}`);
+      console.log(`[Server] Available Actions: ${advancedActions.length}`);
+      console.log('[Server] Diagnostics: http://localhost:' + port + '/api/diagnostics');
+    });
+  } catch (error) {
+    console.error('[Server] ✗ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 export default app;

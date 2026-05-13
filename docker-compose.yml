@@ -376,6 +376,8 @@ services:
         condition: service_healthy
       grafana:
         condition: service_healthy
+    volumes:
+      - ./runtime-secrets:/run/secrets:ro
     deploy:
       resources:
         limits:
