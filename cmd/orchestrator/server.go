@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -382,14 +381,17 @@ func (s *Server) HandleMigrationTransfer(w http.ResponseWriter, r *http.Request)
 	success = true
 }
 
+// authorizeAdmin validates the Bearer token for all admin endpoints.
+// A missing or empty AdminToken is always an error — there is no bypass.
+// Configure AdminToken with a cryptographically random 256-bit (32-byte) value.
 func (s *Server) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {
 	expected := strings.TrimSpace(s.AdminToken)
 	if expected == "" {
-		if strings.EqualFold(strings.TrimSpace(os.Getenv("MOHAWK_ALLOW_UNAUTH_ADMIN")), "true") {
-			return true
-		}
+		// Fail-closed: an unconfigured token blocks all admin access.
+		// Previously this path allowed bypass via MOHAWK_ALLOW_UNAUTH_ADMIN; that
+		// env-var backdoor has been removed. Configure AdminToken before deploying.
 		metrics.ObserveAuthzDenial(strings.TrimSpace(r.URL.Path), "admin_token_not_configured")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized: admin token not configured on server", http.StatusUnauthorized)
 		return false
 	}
 	auth := strings.TrimSpace(r.Header.Get("Authorization"))
