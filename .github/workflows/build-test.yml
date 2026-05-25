@@ -99,19 +99,26 @@ jobs:
 
       - name: Monitoring Smoke Check
         run: |
+          set -euo pipefail
           mkdir -p test-results
           docker compose up -d --build orchestrator prometheus tpm-metrics
-          for i in {1..30}; do
+          # Wait for Prometheus to become ready; increase timeout for CI runners
+          for i in {1..60}; do
             if curl -fsS http://localhost:9090/-/healthy >/dev/null; then
+              echo "prometheus ready after attempt=$i"
               break
             fi
-            sleep 2
+            echo "waiting for prometheus... attempt=$i"
+            docker compose ps --all || true
+            sleep 5
           done
-          for i in {1..30}; do
+          # Wait for the metric to appear in Prometheus
+          for i in {1..60}; do
             if curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep -q 'mohawk_utility_coin_total_supply'; then
+              echo "metric present after attempt=$i"
               break
             fi
-            sleep 2
+            sleep 5
           done
           curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | tee test-results/monitoring-smoke-query.json
           grep 'mohawk_utility_coin_total_supply' test-results/monitoring-smoke-query.json

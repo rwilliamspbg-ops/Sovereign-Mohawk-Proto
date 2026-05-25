@@ -38,13 +38,18 @@ jobs:
 
       - name: Wait for Prometheus and Grafana
         run: |
-          for _ in $(seq 1 60); do
+          set -euo pipefail
+          for i in $(seq 1 60); do
             if curl -fsS http://localhost:9090/-/healthy >/dev/null 2>&1 && curl -fsS http://localhost:3000/api/health >/dev/null 2>&1 && curl -fsS http://localhost:3001/api/health >/dev/null 2>&1; then
+              echo "Prometheus/Grafana healthy"
               exit 0
             fi
-            sleep 2
+            echo "waiting for services... attempt=$i"
+            docker compose ps --all || true
+            sleep 5
           done
-          echo "Prometheus/Grafana did not become healthy in time"
+          echo "Prometheus/Grafana did not become healthy in time; dumping recent logs"
+          docker compose logs --no-color --since 5m || true
           exit 1
 
       - name: Validate ops-assistant endpoints
