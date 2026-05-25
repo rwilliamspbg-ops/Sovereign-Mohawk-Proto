@@ -170,7 +170,15 @@ jobs:
             print('✅ No proof regressions detected')
             print('has_regressions=false')
           PY
-          echo "has_regressions=$(cat results/proofs/proof_regression_report.json | python3 -c 'import json, sys; print(json.load(sys.stdin).get(\"regression_count\", 0) > 0)')" >> "$GITHUB_OUTPUT"
+          has_regressions=$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path('results/proofs/proof_regression_report.json').read_text(encoding='utf-8'))
+          print('true' if report.get('regression_count', 0) > 0 else 'false')
+          PY
+          )
+          echo "has_regressions=${has_regressions}" >> "$GITHUB_OUTPUT"
 
       - name: Comment on PR with regression summary
         if: github.event_name == 'pull_request' && steps.compare.outputs.has_regressions == 'true'
