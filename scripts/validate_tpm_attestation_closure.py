@@ -19,7 +19,13 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path, *, allow_missing_platforms: bool = False) -> dict:
+def build_report(
+    repo_root: Path,
+    matrix_path: Path,
+    attestation_path: Path,
+    *,
+    allow_missing_platforms: bool = False,
+) -> dict:
     failures: list[str] = []
     checks: dict[str, bool] = {}
 
@@ -190,7 +196,10 @@ def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
 
     report = build_report(
-        repo_root, Path(args.matrix), Path(args.attestation), allow_missing_platforms=bool(getattr(args, "allow_missing_platforms", False))
+        repo_root,
+        Path(args.matrix),
+        Path(args.attestation),
+        allow_missing_platforms=bool(getattr(args, "allow_missing_platforms", False)),
     )
 
     out_json = repo_root / Path(args.output_json)

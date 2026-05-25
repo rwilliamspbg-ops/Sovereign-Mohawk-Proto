@@ -21,9 +21,7 @@ jobs:
       - name: Prepare runtime secrets
         run: |
           mkdir -p runtime-secrets
-          if [ ! -s runtime-secrets/mohawk_api_token ]; then
-            python3 -c 'import os, pathlib, secrets; p = pathlib.Path("runtime-secrets/mohawk_api_token"); p.write_text(secrets.token_hex(24), encoding="utf-8"); os.chmod(p, 0o600)'
-          fi
+          python3 -c 'import os, pathlib, secrets; base = pathlib.Path("runtime-secrets"); base.mkdir(parents=True, exist_ok=True); api = base / "mohawk_api_token"; grafana = base / "grafana_api_token"; token = api.read_text(encoding="utf-8").strip() if api.exists() and api.stat().st_size > 0 else secrets.token_hex(24); api.write_text(token + "\n", encoding="utf-8"); grafana.write_text(token + "\n", encoding="utf-8"); os.chmod(api, 0o600); os.chmod(grafana, 0o600)'
           if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
             openssl req -x509 -newkey rsa:3072 \
               -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
