@@ -19,7 +19,7 @@ def _load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> dict:
+def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path, *, allow_missing_platforms: bool = False) -> dict:
     failures: list[str] = []
     checks: dict[str, bool] = {}
 
@@ -51,10 +51,15 @@ def build_report(repo_root: Path, matrix_path: Path, attestation_path: Path) -> 
     for platform in REQUIRED_PLATFORMS:
         row = platform_rows.get(platform)
         if row is None:
-            all_platforms_present = False
-            all_platforms_pass = False
-            all_platforms_have_evidence = False
-            failures.append(f"platform missing from matrix: {platform}")
+            # Missing platform: record status, and if missing platforms are not
+            # allowed, register failures that will cause the script to return
+            # non-zero. This allows CI to opt-out of requiring every platform
+            # (e.g. when Windows matrix rows are intentionally skipped).
+            if not allow_missing_platforms:
+                all_platforms_present = False
+                all_platforms_pass = False
+                all_platforms_have_evidence = False
+                failures.append(f"platform missing from matrix: {platform}")
             platform_status[platform] = {
                 "present": False,
                 "status": "missing",
@@ -172,6 +177,11 @@ def parse_args() -> argparse.Namespace:
         default="results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md",
         help="Output markdown path (relative to repo root).",
     )
+    parser.add_argument(
+        "--allow-missing-platforms",
+        action="store_true",
+        help="Do not fail when some REQUIRED_PLATFORMS are missing from the matrix (useful for CI runs that skip Windows).",
+    )
     return parser.parse_args()
 
 
@@ -179,7 +189,9 @@ def main() -> int:
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[1]
 
-    report = build_report(repo_root, Path(args.matrix), Path(args.attestation))
+    report = build_report(
+        repo_root, Path(args.matrix), Path(args.attestation), allow_missing_platforms=bool(getattr(args, "allow_missing_platforms", False))
+    )
 
     out_json = repo_root / Path(args.output_json)
     out_md = repo_root / Path(args.output_md)
