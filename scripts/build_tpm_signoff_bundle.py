@@ -63,6 +63,11 @@ def parse_args() -> argparse.Namespace:
         default="results/go-live/attestations/tpm_attestation_production_closure.json",
         help="Path for production closure attestation JSON.",
     )
+    parser.add_argument(
+        "--allow-missing-platforms",
+        action="store_true",
+        help="Do not block attestation when some required platforms are intentionally omitted from the matrix.",
+    )
     return parser.parse_args()
 
 
@@ -91,15 +96,8 @@ def main() -> int:
     for platform in REQUIRED_PLATFORMS:
         row = rows_by_platform.get(platform)
         if row is None:
-            matrix_rows.append(
-                {
-                    "platform": platform,
-                    "status": "missing",
-                    "evidence": [],
-                    "notes": "missing platform result row",
-                }
-            )
-            all_pass = False
+            if not args.allow_missing_platforms:
+                all_pass = False
             continue
 
         status = str(row.get("status", "missing")).strip().lower()

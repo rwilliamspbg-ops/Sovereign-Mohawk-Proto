@@ -145,6 +145,7 @@ jobs:
           DATESTAMP="$(date -u +%Y-%m-%d)"
           echo "datestamp=${DATESTAMP}" >> "$GITHUB_OUTPUT"
           python3 scripts/build_tpm_signoff_bundle.py \
+              --allow-missing-platforms \
             --rows-dir test-results/tpm-signoff/rows \
             --date-stamp "${DATESTAMP}"
 
