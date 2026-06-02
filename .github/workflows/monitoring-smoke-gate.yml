@@ -75,18 +75,19 @@ jobs:
           from statistics import mean
 
           request_timeout_seconds = 30
-          request_attempts = 3
+          request_attempts = 5
+          warmup_timeout_seconds = 120
 
-          def fetch_url(url: str) -> str:
+          def fetch_url(url: str, attempts: int = request_attempts, timeout_seconds: int = request_timeout_seconds, sleep_seconds: int = 2) -> str:
             last_error = None
-            for attempt in range(1, request_attempts + 1):
+            for attempt in range(1, attempts + 1):
               try:
-                with urllib.request.urlopen(url, timeout=request_timeout_seconds) as resp:
+                with urllib.request.urlopen(url, timeout=timeout_seconds) as resp:
                   return resp.read().decode('utf-8')
               except Exception as exc:  # noqa: BLE001
                 last_error = exc
-                if attempt < request_attempts:
-                  time.sleep(2)
+                if attempt < attempts:
+                  time.sleep(sleep_seconds)
             raise last_error
 
           endpoints = {
@@ -94,6 +95,34 @@ jobs:
               'summary': 'http://localhost:3001/api/ops/summary',
               'metrics': 'http://localhost:3001/metrics',
           }
+
+            def validate_summary(body: str) -> None:
+              payload = json.loads(body)
+              if 'federatedIntelligence' not in payload:
+                raise RuntimeError('ops summary missing federatedIntelligence payload')
+
+            def validate_metrics(body: str) -> None:
+              if 'sov_mohawk_federated_drift_score' not in body:
+                raise RuntimeError('metrics output missing federated drift metric')
+
+            validators = {
+              'summary': validate_summary,
+              'metrics': validate_metrics,
+            }
+
+            for endpoint_name in ('summary', 'metrics'):
+              deadline = time.time() + warmup_timeout_seconds
+              last_error = None
+              while time.time() < deadline:
+                try:
+                  warmup_body = fetch_url(endpoints[endpoint_name], attempts=2, timeout_seconds=10, sleep_seconds=1)
+                  validators[endpoint_name](warmup_body)
+                  break
+                except Exception as exc:  # noqa: BLE001
+                  last_error = exc
+                  time.sleep(2)
+              else:
+                raise SystemExit(f"{endpoint_name} endpoint did not stabilize within {warmup_timeout_seconds}s: {last_error}")
 
           timings = {name: [] for name in endpoints}
 
@@ -105,12 +134,9 @@ jobs:
                   timings[name].append(elapsed)
 
                   if name == 'summary':
-                      payload = json.loads(body)
-                      if 'federatedIntelligence' not in payload:
-                          raise SystemExit('ops summary missing federatedIntelligence payload')
+            validate_summary(body)
                   elif name == 'metrics':
-                      if 'sov_mohawk_federated_drift_score' not in body:
-                          raise SystemExit('metrics output missing federated drift metric')
+            validate_metrics(body)
 
           summary_avg_ms = mean(timings['summary']) * 1000.0
           summary_max_ms = max(timings['summary']) * 1000.0
