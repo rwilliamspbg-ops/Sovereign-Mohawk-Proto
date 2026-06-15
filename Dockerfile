@@ -16,7 +16,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o aggregator ./cmd/aggregator/main.go
 
 # Stage 2: Final lightweight image
-# Using explicit alpine version (3.21) - latest stable
+# Using explicit alpine version (3.24) - latest stable
 FROM alpine:3.24
 
 # Install runtime dependencies without pinning unavailable Alpine package revisions
