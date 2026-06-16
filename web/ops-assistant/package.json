@@ -33,7 +33,7 @@
     "prismjs": "^1.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "ws": "^8.14.2",
+    "ws": "^8.21.0",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "recharts": "^2.10.3",
@@ -46,6 +46,8 @@
     "zustand": "^4.4.1"
   },
   "overrides": {
+    "form-data": "^4.0.6",
+    "ws": "$ws",
     "@copilotkit/react-ui": {
       "react-syntax-highlighter": {
         "refractor": "^5.0.0"
