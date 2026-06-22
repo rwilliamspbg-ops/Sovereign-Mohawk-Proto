@@ -115,7 +115,12 @@ jobs:
             last_error = None
             while time.time() < deadline:
               try:
-                warmup_body = fetch_url(endpoints[endpoint_name], attempts=2, timeout_seconds=10, sleep_seconds=1)
+                warmup_body = fetch_url(
+                  endpoints[endpoint_name],
+                  attempts=2,
+                  timeout_seconds=request_timeout_seconds,
+                  sleep_seconds=1,
+                )
                 validators[endpoint_name](warmup_body)
                 break
               except Exception as exc:  # noqa: BLE001
