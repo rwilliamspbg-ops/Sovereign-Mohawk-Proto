@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
+import axios, { AxiosInstance, AxiosError, type AxiosRequestConfig } from 'axios';
 import { getAuthManager, type AuthManager } from './auth-manager.js';
 
 /**
@@ -94,7 +94,7 @@ export class GrafanaClient {
     this.axiosInstance = axios.create({
       baseURL: baseUrl,
       headers: {
-        Authorization: `Bearer ${this.apiToken}`,
+        Authorization: 'Bearer ' + this.apiToken,
         'Content-Type': 'application/json',
       },
       timeout: 10000,
@@ -104,8 +104,8 @@ export class GrafanaClient {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const requestConfig = error.config as (typeof error.config & { _grafanaAuthRetried?: boolean }) | undefined;
-        if (error.response?.status === 401 && !this.isReauthenticating && !requestConfig?._grafanaAuthRetried) {
+        const configWithRetryMarker = error.config as (AxiosRequestConfig & { _grafanaAuthRetried?: boolean }) | undefined;
+        if (error.response?.status === 401 && !this.isReauthenticating && !configWithRetryMarker?._grafanaAuthRetried) {
           console.warn('[GrafanaClient] 🔄 Received 401 Unauthorized, attempting re-authentication...');
           
           // Trace the auth failure
@@ -123,12 +123,12 @@ export class GrafanaClient {
             await this.revalidateAndRefreshToken();
             
             // Retry the original request with new token
-            if (error.config) {
-              (error.config as typeof error.config & { _grafanaAuthRetried?: boolean })._grafanaAuthRetried = true;
-              error.config.headers = error.config.headers || {};
-              error.config.headers.Authorization = `Bearer ${this.apiToken}`;
+            if (configWithRetryMarker) {
+              configWithRetryMarker._grafanaAuthRetried = true;
+              configWithRetryMarker.headers = configWithRetryMarker.headers || {};
+              configWithRetryMarker.headers.Authorization = 'Bearer ' + this.apiToken;
               this.isReauthenticating = false;
-              return this.axiosInstance(error.config);
+              return this.axiosInstance(configWithRetryMarker);
             }
           } catch (refreshError) {
             console.error('[GrafanaClient] ✗ Re-authentication failed:', refreshError);
