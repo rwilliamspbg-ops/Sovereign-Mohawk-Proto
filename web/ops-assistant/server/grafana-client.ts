@@ -104,7 +104,8 @@ export class GrafanaClient {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        if (error.response?.status === 401 && !this.isReauthenticating) {
+        const requestConfig = error.config as (typeof error.config & { _grafanaAuthRetried?: boolean }) | undefined;
+        if (error.response?.status === 401 && !this.isReauthenticating && !requestConfig?._grafanaAuthRetried) {
           console.warn('[GrafanaClient] 🔄 Received 401 Unauthorized, attempting re-authentication...');
           
           // Trace the auth failure
@@ -123,6 +124,8 @@ export class GrafanaClient {
             
             // Retry the original request with new token
             if (error.config) {
+              (error.config as typeof error.config & { _grafanaAuthRetried?: boolean })._grafanaAuthRetried = true;
+              error.config.headers = error.config.headers || {};
               error.config.headers.Authorization = `Bearer ${this.apiToken}`;
               this.isReauthenticating = false;
               return this.axiosInstance(error.config);
