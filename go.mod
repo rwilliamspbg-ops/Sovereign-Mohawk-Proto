@@ -13,7 +13,7 @@
 // limitations under the License.
 module github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/consensys/gnark-crypto v0.20.1
@@ -86,7 +86,7 @@ require (
 	github.com/pion/webrtc/v4 v4.2.11 // indirect
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	github.com/quic-go/quic-go v0.59.0 // indirect
+	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/quic-go/webtransport-go v0.10.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/wlynxg/anet v0.0.5 // indirect
