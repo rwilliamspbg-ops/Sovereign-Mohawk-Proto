@@ -47,31 +47,32 @@ func MultiKrumSelect(updates [][]float64, f int, m int) ([]int, []float64, error
 	}
 
 	// Build a full pairwise distance matrix once, then reuse for per-row Krum scores.
-	distMatrix := make([][]float64, n)
-	for i := 0; i < n; i++ {
-		distMatrix[i] = make([]float64, n)
-	}
+	// Optimized to flat 1D array of size n*n to require exactly 1 allocation instead of n+1.
+	distMatrix := make([]float64, n*n)
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
 			d := squaredL2(updates[i], updates[j])
-			distMatrix[i][j] = d
-			distMatrix[j][i] = d
+			distMatrix[i*n+j] = d
+			distMatrix[j*n+i] = d
 		}
 	}
 
 	scores := make([]float64, n)
+	// Reusing a single row buffer across loop iterations saves n heap allocations of size n-1.
+	rowBuf := make([]float64, n-1)
 	for i := 0; i < n; i++ {
-		row := make([]float64, 0, n-1)
+		rowIdx := 0
 		for j := 0; j < n; j++ {
 			if j == i {
 				continue
 			}
-			row = append(row, distMatrix[i][j])
+			rowBuf[rowIdx] = distMatrix[i*n+j]
+			rowIdx++
 		}
-		sort.Float64s(row)
+		sort.Float64s(rowBuf)
 		sum := 0.0
 		for k := 0; k < neighbors; k++ {
-			sum += row[k]
+			sum += rowBuf[k]
 		}
 		scores[i] = sum
 	}
