@@ -370,15 +370,19 @@ func trimByGradientNorm(updates [][]float64, fraction float64) ([][]float64, err
 	}
 
 	type ranked struct {
-		idx  int
-		norm float64
+		idx    int
+		normSq float64
 	}
 	rankedUpdates := make([]ranked, 0, len(updates))
 	for i, update := range updates {
-		rankedUpdates = append(rankedUpdates, ranked{idx: i, norm: maxGradNorm([][]float64{update})})
+		sqNorm := 0.0
+		for _, value := range update {
+			sqNorm += value * value
+		}
+		rankedUpdates = append(rankedUpdates, ranked{idx: i, normSq: sqNorm})
 	}
 	sort.Slice(rankedUpdates, func(i, j int) bool {
-		return rankedUpdates[i].norm < rankedUpdates[j].norm
+		return rankedUpdates[i].normSq < rankedUpdates[j].normSq
 	})
 
 	trimmed := make([][]float64, 0, keep)
@@ -426,13 +430,15 @@ func meanGradient(updates [][]float64) []float64 {
 }
 
 func maxGradNorm(updates [][]float64) float64 {
-	maxNorm := 0.0
+	maxSqNorm := 0.0
 	for _, update := range updates {
-		norm := 0.0
+		sqNorm := 0.0
 		for _, value := range update {
-			norm += value * value
+			sqNorm += value * value
 		}
-		maxNorm = math.Max(maxNorm, math.Sqrt(norm))
+		if sqNorm > maxSqNorm {
+			maxSqNorm = sqNorm
+		}
 	}
-	return maxNorm
+	return math.Sqrt(maxSqNorm)
 }
