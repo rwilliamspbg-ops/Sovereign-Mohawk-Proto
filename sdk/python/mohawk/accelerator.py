@@ -157,7 +157,14 @@ def _cuda_devices() -> List[DeviceInfo]:
     return devices
 
 
+_cached_npu_devices: Optional[List[DeviceInfo]] = None
+
+
 def _npu_devices() -> List[DeviceInfo]:
+    global _cached_npu_devices
+    if _cached_npu_devices is not None:
+        return _cached_npu_devices.copy()
+
     devices: List[DeviceInfo] = []
     force = str(_env("MOHAWK_NPU_AVAILABLE", "")).strip().lower() in {
         "1",
@@ -167,7 +174,8 @@ def _npu_devices() -> List[DeviceInfo]:
     }
     if force:
         devices.append(DeviceInfo(backend=Backend.NPU, name="Generic NPU", simd_width=128))
-        return devices
+        _cached_npu_devices = devices
+        return devices.copy()
 
     for candidate in ("/dev/apex_0", "/dev/npu0", "/dev/accel/npu0"):
         try:
@@ -179,7 +187,8 @@ def _npu_devices() -> List[DeviceInfo]:
             break
         except Exception:
             continue
-    return devices
+    _cached_npu_devices = devices
+    return devices.copy()
 
 
 def _has_metal() -> bool:
