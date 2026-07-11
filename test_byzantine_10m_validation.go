@@ -139,8 +139,8 @@ func rand_float() float64 {
 	return float64(time.Now().UnixNano()%1000) / 1000.0
 }
 
-// RunValidation executes the 10M-node Byzantine validation
-func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile, rounds int) *ValidationResult {
+// initValidationResult initializes the validation result struct with setup parameters.
+func initValidationResult(networkScale int, aggregatorCount int, profile AttackProfile, rounds int) *ValidationResult {
 	result := &ValidationResult{
 		TimestampUTC:       time.Now().UTC().Format(time.RFC3339),
 		NetworkScale:       networkScale,
@@ -160,16 +160,14 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 	// Resilience requires < 50% malicious (or apply Krum for up to 55%)
 	result.ResilienceVerified = expectedHonestRatio > (1.0 - result.BytantineThreshold)
 
+	return result
+}
+
+// simulateRounds processes regional shards for multiple rounds and aggregates data metrics.
+func simulateRounds(result *ValidationResult, networkScale int, aggregatorCount int, profile AttackProfile, rounds int) (totalRejected, totalAccepted, totalForgeries, totalLeakages, totalProofPass, totalProofFail int64) {
 	shardSize := networkScale / result.RegionalShards
 	maliciousPerShard := int(float64(shardSize) * profile.MaliciousRatio)
 	honestPerShard := shardSize - maliciousPerShard
-
-	totalRejected := int64(0)
-	totalAccepted := int64(0)
-	totalForgeries := int64(0)
-	totalLeakages := int64(0)
-	totalProofPass := int64(0)
-	totalProofFail := int64(0)
 
 	for round := 0; round < rounds; round++ {
 		var wg sync.WaitGroup
@@ -221,7 +219,11 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 			round+1, rounds, totalRejected, totalAccepted, totalForgeries, totalLeakages)
 	}
 
-	// Calculate final metrics
+	return
+}
+
+// calculateFinalMetrics computes the finalized rates and thresholds after simulation.
+func calculateFinalMetrics(result *ValidationResult, totalRejected, totalAccepted, totalForgeries, totalLeakages, totalProofPass, totalProofFail int64) {
 	totalGradients := totalRejected + totalAccepted
 	if totalGradients > 0 {
 		result.RejectionRate = float64(totalRejected) / float64(totalGradients)
@@ -241,21 +243,23 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 	}
 
 	// Privacy analysis
-	result.PrivacyBudgetRespected = profile.PrivacyBudget > 0 && result.RejectionRate > 0.5
-	result.DifferentialPrivacyGap = math.Abs(profile.PrivacyBudget - float64(totalLeakages)/1000.0)
+	result.PrivacyBudgetRespected = result.AttackProfile.PrivacyBudget > 0 && result.RejectionRate > 0.5
+	result.DifferentialPrivacyGap = math.Abs(result.AttackProfile.PrivacyBudget - float64(totalLeakages)/1000.0)
 
 	// Determine if attacks were detected
 	result.DataLeakageDetected = totalLeakages > 0
 	result.ProofForgeryDetected = totalForgeries > 0
 	result.GradientPoisoningDetected = result.RejectionRate > 0.3
+}
 
-	// Generate recommendations
+// generateRecommendations updates validation result suggestions based on simulations.
+func generateRecommendations(result *ValidationResult, totalLeakages int64) {
 	result.Recommendations = []string{
 		"✓ Byzantine resilience enforced via Multi-Krum filter (threshold 55% honest majority)",
 		"✓ Proof verification rate: " + fmt.Sprintf("%.2f%%", result.ProofVerificationRate*100),
 		"✓ Gradient rejection rate: " + fmt.Sprintf("%.2f%%", result.RejectionRate*100) + " (defense against poisoning)",
 		"✓ Data leakage detection: " + fmt.Sprintf("%d events", int64(totalLeakages)) + " (RDP epsilon tracking)",
-		fmt.Sprintf("✓ Differential privacy epsilon: %.4f (RDP accounting)", profile.PrivacyBudget),
+		fmt.Sprintf("✓ Differential privacy epsilon: %.4f (RDP accounting)", result.AttackProfile.PrivacyBudget),
 	}
 
 	if !result.ResilienceVerified {
@@ -270,6 +274,21 @@ func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile,
 		result.Recommendations = append(result.Recommendations,
 			"⚠ Proof forgeries detected - verify zk-SNARK verifier implementation")
 	}
+}
+
+// RunValidation executes the 10M-node Byzantine validation
+func RunValidation(networkScale int, aggregatorCount int, profile AttackProfile, rounds int) *ValidationResult {
+	result := initValidationResult(networkScale, aggregatorCount, profile, rounds)
+
+	totalRejected, totalAccepted, totalForgeries, totalLeakages, totalProofPass, totalProofFail := simulateRounds(
+		result, networkScale, aggregatorCount, profile, rounds,
+	)
+
+	calculateFinalMetrics(
+		result, totalRejected, totalAccepted, totalForgeries, totalLeakages, totalProofPass, totalProofFail,
+	)
+
+	generateRecommendations(result, totalLeakages)
 
 	return result
 }
