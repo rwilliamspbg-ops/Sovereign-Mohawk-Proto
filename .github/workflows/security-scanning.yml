@@ -43,7 +43,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy Dockerfile results to GitHub Security
-        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9
+        uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a
         if: always()
         with:
           sarif_file: 'trivy-dockerfile-results.sarif'
@@ -81,7 +81,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy image results to GitHub Security
-        uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9
+        uses: github/codeql-action/upload-sarif@7188fc363630916deb702c7fdcf4e481b751f97a
         if: always()
         with:
           sarif_file: 'trivy-image-results.sarif'
@@ -99,7 +99,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
       
       - name: Set up Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
           go-version: '1.26'
       
