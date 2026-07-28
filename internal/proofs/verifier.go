@@ -4,6 +4,7 @@ package proofs
 
 import (
 	"crypto/sha256"
+	"crypto/subtle"
 	"fmt"
 )
 
@@ -25,7 +26,12 @@ func VerifyZKProof(expectedRoot string, proofData []byte, salt [32]byte) (bool, 
 	}
 
 	actualRoot := fmt.Sprintf("%x", h.Sum(nil))
-	if actualRoot != expectedRoot {
+	// Constant-time comparison: the caller-supplied expectedRoot isn't a secret
+	// in any current call path (see internal/router.PublishInsight, which takes
+	// both expectedRoot and proofData from the same request), but this is an
+	// exported, general-purpose verifier - hardening it here is free and avoids
+	// relying on that being true for every future caller.
+	if subtle.ConstantTimeCompare([]byte(actualRoot), []byte(expectedRoot)) != 1 {
 		return false, fmt.Errorf("integrity check failed: expected %s, got %s", expectedRoot, actualRoot)
 	}
 
