@@ -283,7 +283,7 @@ func TestParseECDSAP256PublicKey_PKIXEncoded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
-	if pub.X.Cmp(priv.PublicKey.X) != 0 || pub.Y.Cmp(priv.PublicKey.Y) != 0 {
+	if !pub.Equal(&priv.PublicKey) {
 		t.Fatal("parsed public key does not match original")
 	}
 }
@@ -298,7 +298,7 @@ func TestParseECDSAP256PublicKey_RawUncompressedPoint(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse failed: %v", err)
 	}
-	if pub.X.Cmp(priv.PublicKey.X) != 0 || pub.Y.Cmp(priv.PublicKey.Y) != 0 {
+	if !pub.Equal(&priv.PublicKey) {
 		t.Fatal("parsed public key does not match original")
 	}
 }

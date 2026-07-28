@@ -362,8 +362,8 @@ PORT=3000
 ## Documentation
 
 - **[Full Implementation Guide](AUTH_LAYER_IMPLEMENTATION_GUIDE.md)** - Complete technical documentation (800+ lines)
-- **[Setup Script Help](scripts/setup-auth-system.sh)** - Interactive setup guide
-- **[Test Suite](scripts/test-auth-system.sh)** - Comprehensive validation
+- **[Setup Script Help](../scripts/setup-auth-system.sh)** - Interactive setup guide
+- **[Test Suite](../scripts/test-auth-system.sh)** - Comprehensive validation
 
 ---
 

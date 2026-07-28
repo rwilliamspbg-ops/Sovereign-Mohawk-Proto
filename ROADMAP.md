@@ -135,8 +135,8 @@ TPM production closure sign-off (2026-04-11):
   - Report (md): [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md)
   - Report (json): [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.json)
 - [x] v1.0.0 RC checklist and rollout guide published:
-  - Checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](../docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md)
-  - Deployment guide: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](../docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+  - Checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md)
+  - Deployment guide: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
 
 **Exit Criteria for v1.0.0 GA:**
 

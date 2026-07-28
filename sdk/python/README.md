@@ -585,6 +585,6 @@ Apache License 2.0 - See [LICENSE.md](../../LICENSE.md)
 ## Links
 
 - [Main Repository](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto)
-- [White Paper](../../WHITE_PAPER.md)
-- [Academic Paper](../../ACADEMIC_PAPER.md)
+- [White Paper](../../docs/WHITE_PAPER.md)
+- [Academic Paper](../../docs/ACADEMIC_PAPER.md)
 - [API Documentation](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/)

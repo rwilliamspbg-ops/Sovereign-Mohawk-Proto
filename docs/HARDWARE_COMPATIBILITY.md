@@ -107,7 +107,7 @@ When running validation on Windows 11 with WSL2, treat TPM and accelerator passt
 - TPM passthrough should only be enabled if the host exposes a usable `/dev/tpmrm0` device inside WSL2.
 - Accelerator passthrough paths such as `/dev/accel/accel0` are not universally available in WSL2 and should be configured only when the host kernel and drivers expose them.
 - The base compose stack should stay portable; host-specific devices are best handled through an override or validation profile, not hardcoded into the primary deployment path.
-- The repository now includes [docker-compose.wsl2.yml](docker-compose.wsl2.yml) as an explicit host-passthrough overlay for WSL2 validation nodes.
+- The repository now includes [docker-compose.wsl2.yml](../docker-compose.wsl2.yml) as an explicit host-passthrough overlay for WSL2 validation nodes.
 - Any claim of NPU acceleration or TPM-backed validation should be backed by the corresponding evidence artifacts in `results/` rather than by the compose file alone.
 
 ## Related Release Evidence

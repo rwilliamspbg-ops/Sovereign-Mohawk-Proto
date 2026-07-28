@@ -5,7 +5,7 @@
 **Program Stage:** Go-Live Formalization Complete  
 **Current Phase:** v1.0.0 GA Closure (Q2 2026)
 
-**PQC Release Notes:** [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.md)
+**PQC Release Notes:** [RELEASE_NOTES_PQC_OVERHAUL.md](docs/RELEASE_NOTES_PQC_OVERHAUL.md)
 
 ### Current Critical Path
 

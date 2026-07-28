@@ -209,7 +209,7 @@ Only index and quick reference files:
 2. [Theorem Specifications](formal-verification/THEOREM_SPECIFICATIONS.md)
 3. [Byzantine Resilience Architecture](architecture/BYZANTINE_RESILIENCE.md)
 4. [Differential Privacy](architecture/DIFFERENTIAL_PRIVACY.md)
-5. [Academic Paper](../ACADEMIC_PAPER.md)
+5. [Academic Paper](ACADEMIC_PAPER.md)
 
 ---
 
@@ -282,8 +282,8 @@ Only index and quick reference files:
 ## Related Resources
 
 - **GitHub Repository:** https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
-- **Academic Paper:** [ACADEMIC_PAPER.md](../ACADEMIC_PAPER.md)
-- **White Paper:** [WHITE_PAPER.md](../WHITE_PAPER.md)
+- **Academic Paper:** [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md)
+- **White Paper:** [WHITE_PAPER.md](WHITE_PAPER.md)
 - **Roadmap:** [ROADMAP.md](../ROADMAP.md)
 - **Contributing:** [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Security Policy:** [SECURITY.md](security/SECURITY.md)

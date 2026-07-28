@@ -18,11 +18,11 @@
 [![GA Tag Safety](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod)
 [![Python SDK](https://img.shields.io/pypi/v/mohawk?label=Python%20SDK)](https://pypi.org/project/mohawk/)
-[![Compatibility](https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043)](HARDWARE_COMPATIBILITY.md)
+[![Compatibility](https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043)](docs/HARDWARE_COMPATIBILITY.md)
 [![Testnet Status](https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&label=Testnet%20Status)](https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/)
 [![PQC Transport](https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1)](SECURITY.md)
 [![TPM Identity](https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1)](SECURITY.md)
-[![PQC Migration](https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043)](RELEASE_NOTES_PQC_OVERHAUL.md)
+[![PQC Migration](https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043)](docs/RELEASE_NOTES_PQC_OVERHAUL.md)
 [![EU AI Act High-Risk Readiness](https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043)](COMPLIANCE.md)
 [![MRC Transport](https://img.shields.io/badge/MRC%20Transport-Multi--Path%20Spraying-FF8C00)](docs/architecture/TRANSPORT_LAYER.md)
 [![Streaming Aggregator](https://img.shields.io/badge/Streaming%20Aggregator-160K%2B%20ops%2Fsec-green)](docs/architecture/STREAMING_AGGREGATOR.md)
@@ -320,18 +320,18 @@ make golden-path-e2e
 ## Documentation Map
 
 - Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
-- Operations and incident response: [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)
+- Operations and incident response: [OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md)
 - Performance benchmarking contract and regression policy: [PERFORMANCE.md](PERFORMANCE.md)
 - Security policy and threat model: [SECURITY.md](SECURITY.md)
 - EU AI compliance matrix (Articles 8-15): [COMPLIANCE.md](COMPLIANCE.md)
-- QMS manual: [QMS_SYSTEM_MANUAL.md](QMS_SYSTEM_MANUAL.md)
+- QMS manual: [QMS_SYSTEM_MANUAL.md](docs/QMS_SYSTEM_MANUAL.md)
 - Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](docs/archive/root-cleanup-2026-07/TECHNICAL_DOCUMENTATION_FILE.md)
 - Technical documentation template: [docs/tdf/TECHNICAL_FILE_TEMPLATE.md](docs/tdf/TECHNICAL_FILE_TEMPLATE.md)
 - Cross-vertical federated router: [docs/CROSS_VERTICAL_FEDERATED_ROUTER.md](docs/CROSS_VERTICAL_FEDERATED_ROUTER.md)
 - Artifact governance and retention policy: [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md)
 - Notified body early-engagement checklist: [docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md](docs/tdf/NOTIFIED_BODY_EARLY_ENGAGEMENT.md)
-- Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
-- Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
+- Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](docs/CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
+- Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](docs/POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
 - EU database registration plan: [docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md](docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md)
 - Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md)
 - Roadmap and milestones: [ROADMAP.md](ROADMAP.md)
@@ -442,7 +442,7 @@ Reference docs:
 
 This release closes the 2026–2027 PQC readiness program from migration scaffolding to production enforcement:
 
-Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](RELEASE_NOTES_PQC_OVERHAUL.md)
+Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](docs/RELEASE_NOTES_PQC_OVERHAUL.md)
 
 * Hybrid transport negotiation is now policy-bound at runtime (`x25519-mlkem768-hybrid`) with keyshare-size enforcement.
 * TPM quote identity is bound to XMSS-capable attestation metadata and payload digesting.
@@ -1210,18 +1210,18 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 ## 📖 Documentation
 
-* [WHITE_PAPER.md](WHITE_PAPER.md) - Protocol design and architecture
-* [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md) - Theorem statements and derivations
+* [WHITE_PAPER.md](docs/WHITE_PAPER.md) - Protocol design and architecture
+* [ACADEMIC_PAPER.md](docs/ACADEMIC_PAPER.md) - Theorem statements and derivations
 * [proofs/LeanFormalization/](proofs/LeanFormalization/) - Lean machine-checked formalization modules
 * [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) - Claim-to-proof-to-test traceability
 * [sdk/python/README.md](sdk/python/README.md) - Python SDK guide
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
-* [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md) - Production operations runbook
-* [HARDWARE_COMPATIBILITY.md](HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and 10 ms validation criteria
-* [EDGE_LITE_RESOURCE_PROFILE.md](EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
-* [COMPLIANCE_MAPPING.md](COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
-* [CERTIK_AUDIT_SUMMARY.md](CERTIK_AUDIT_SUMMARY.md) - Redacted external-audit findings and mitigation summary
+* [OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md) - Production operations runbook
+* [HARDWARE_COMPATIBILITY.md](docs/HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and 10 ms validation criteria
+* [EDGE_LITE_RESOURCE_PROFILE.md](docs/EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
+* [COMPLIANCE_MAPPING.md](docs/COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
+* [CERTIK_AUDIT_SUMMARY.md](docs/CERTIK_AUDIT_SUMMARY.md) - Redacted external-audit findings and mitigation summary
 * [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
 * [RELEASE_CHECKLIST_v1.0.0_RC.md](docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow

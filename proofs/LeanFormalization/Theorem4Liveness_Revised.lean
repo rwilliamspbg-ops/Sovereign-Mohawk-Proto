@@ -5,9 +5,9 @@
 -- stood in for `binomial_sum_one` and `per_cluster_success_r100` have been
 -- replaced with real proof terms. Each was verified in isolation via
 -- `lake env lean` on a standalone scratch file, compiling cleanly against
--- only the standard axioms (propext, Classical.choice, Quot.sound; no
--- sorryAx). However, a full-file `lake build`/`lake env lean` run of this
--- file, together with its pre-existing later theorems, has not completed
+-- only Lean's own foundational primitives (propext, Classical.choice,
+-- Quot.sound; no sorryAx). However, a full-file `lake build`/`lake env lean`
+-- run of this file, together with its pre-existing later theorems, has not completed
 -- successfully in this environment -- repeated attempts ran 10+ minutes and
 -- 3GB+ RAM without finishing or erroring. The root cause has not been
 -- isolated (cold Mathlib environment load vs. a real interaction with this

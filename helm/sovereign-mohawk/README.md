@@ -338,6 +338,6 @@ Development configuration with:
 ## Related Documentation
 
 - [Main README](../../README.md)
-- [Deployment Guide](../../DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
-- [Operations Runbook](../../OPERATIONS_RUNBOOK.md)
+- [Deployment Guide](../../docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+- [Operations Runbook](../../docs/OPERATIONS_RUNBOOK.md)
 - [Security Policy](../../SECURITY.md)

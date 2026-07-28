@@ -71,7 +71,7 @@ Persist:
 
 ## Performance Evidence
 
-Performance Evidence: [Release performance index](results/metrics/release_performance_evidence.md), [FedAvg benchmark compare](results/metrics/fedavg_benchmark_compare.md), and [Bridge compression benchmark](results/metrics/bridge_compression_benchmark_compare.md).
+Performance Evidence: [Release performance index](../results/metrics/release_performance_evidence.md), [FedAvg benchmark compare](../results/metrics/fedavg_benchmark_compare.md), and [Bridge compression benchmark](../results/metrics/bridge_compression_benchmark_compare.md).
 
 - `results/readiness/one-click-pipeline-report.json`
 - `results/readiness/one-click-pipeline-report.md`
