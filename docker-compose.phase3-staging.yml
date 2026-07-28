@@ -1,15 +1,23 @@
-version: '3.8'
-
 # Phase 3 Staging Deployment: Two-Level Aggregation
 # Simulates 100K-node network with hierarchical clustering
 # 2000 clusters x 50 nodes each = 100,000 total nodes
 # L1: Cluster aggregators (local aggregation within cluster)
 # L2: Global aggregator (model aggregation across clusters)
+#
+# This models a genuinely different topology than docker-compose.yml (distinct
+# service roles/names, its own "phase3-net" network) rather than being a
+# variant of the same services, so it does not `extends:` the base file the
+# way docker-compose.full.yml/sandbox.yml/wsl2.yml do. It now builds its own
+# image instead of depending on the base compose file having been run first.
+# Run standalone: docker compose -f docker-compose.phase3-staging.yml up -d
 
 services:
   # Global Aggregator (L2)
   # Aggregates models from all cluster aggregators
   global-aggregator:
+    build:
+      context: .
+      dockerfile: cmd/orchestrator/Dockerfile
     image: sovereign-mohawk-proto-orchestrator
     container_name: global-aggregator
     command: ["./main"]
@@ -51,6 +59,9 @@ services:
   # In production: 2000 of these, one per cluster
   
   cluster-aggregator-1:
+    build:
+      context: .
+      dockerfile: cmd/orchestrator/Dockerfile
     image: sovereign-mohawk-proto-orchestrator
     container_name: cluster-agg-1
     command: ["./main"]
@@ -94,6 +105,9 @@ services:
       - phase3-net
 
   cluster-aggregator-2:
+    build:
+      context: .
+      dockerfile: cmd/orchestrator/Dockerfile
     image: sovereign-mohawk-proto-orchestrator
     container_name: cluster-agg-2
     command: ["./main"]
@@ -137,6 +151,9 @@ services:
       - phase3-net
 
   cluster-aggregator-3:
+    build:
+      context: .
+      dockerfile: cmd/orchestrator/Dockerfile
     image: sovereign-mohawk-proto-orchestrator
     container_name: cluster-agg-3
     command: ["./main"]

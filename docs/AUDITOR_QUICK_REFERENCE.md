@@ -11,7 +11,7 @@
 | Resource | Purpose | Link |
 |----------|---------|------|
 | Supply Chain Guide | Full documentation | [SUPPLY_CHAIN_SECURITY.md](SUPPLY_CHAIN_SECURITY.md) |
-| Verification Coverage | Expanded formal proofs | [FORMAL_VERIFICATION_COVERAGE.md](FORMAL_VERIFICATION_COVERAGE.md) |
+| Verification Coverage | Expanded formal proofs | [FORMAL_VERIFICATION_COVERAGE.md](archive/root-cleanup-2026-07/FORMAL_VERIFICATION_COVERAGE.md) |
 | Release Checklist | Release validation steps | Below (section: Release Checklist) |
 | Standards | Industry references | SLSA, Sigstore, in-toto v0.1 |
 

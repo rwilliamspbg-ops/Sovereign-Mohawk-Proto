@@ -13,7 +13,8 @@
 - **[Deployment Guide](DEPLOYMENT.md)** - Docker, Kubernetes, Cloud deployment
 - **[Operations Guide](OPERATIONS.md)** - Monitoring, troubleshooting, runbooks
 - **[Security](SECURITY.md)** - PQC, TPM, Byzantine resilience, compliance
-- **[Archive Index](archive/root-cleanup-2026-04/README.md)** - Historical root cleanup inventory
+- **[Archive Index (April 2026)](archive/root-cleanup-2026-04/README.md)** - Historical root cleanup inventory
+- **[Archive Index (July 2026)](archive/root-cleanup-2026-07/README.md)** - Largest root cleanup batch (196 files)
 
 ---
 

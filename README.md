@@ -319,13 +319,13 @@ make golden-path-e2e
 
 ## Documentation Map
 
-- Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
+- Deployment flow: [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md)
 - Operations and incident response: [OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md)
 - Performance benchmarking contract and regression policy: [PERFORMANCE.md](PERFORMANCE.md)
 - Security policy and threat model: [SECURITY.md](SECURITY.md)
 - EU AI compliance matrix (Articles 8-15): [COMPLIANCE.md](COMPLIANCE.md)
 - QMS manual: [QMS_SYSTEM_MANUAL.md](QMS_SYSTEM_MANUAL.md)
-- Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](TECHNICAL_DOCUMENTATION_FILE.md)
+- Technical documentation file structure: [TECHNICAL_DOCUMENTATION_FILE.md](docs/archive/root-cleanup-2026-07/TECHNICAL_DOCUMENTATION_FILE.md)
 - Technical documentation template: [docs/tdf/TECHNICAL_FILE_TEMPLATE.md](docs/tdf/TECHNICAL_FILE_TEMPLATE.md)
 - Cross-vertical federated router: [docs/CROSS_VERTICAL_FEDERATED_ROUTER.md](docs/CROSS_VERTICAL_FEDERATED_ROUTER.md)
 - Artifact governance and retention policy: [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md)
@@ -333,7 +333,7 @@ make golden-path-e2e
 - Conformity assessment and CE path: [CONFORMITY_ASSESSMENT_AND_CE_PATH.md](CONFORMITY_ASSESSMENT_AND_CE_PATH.md)
 - Post-market monitoring and incident reporting: [POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md](POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md)
 - EU database registration plan: [docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md](docs/archive/root-cleanup-2026-04/EU_DATABASE_REGISTRATION_PLAN.md)
-- Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md)
+- Release checklist: [RELEASE_CHECKLIST_v1.0.0_RC.md](docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md)
 - Roadmap and milestones: [ROADMAP.md](ROADMAP.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
@@ -1222,8 +1222,8 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [EDGE_LITE_RESOURCE_PROFILE.md](EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
 * [COMPLIANCE_MAPPING.md](COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
 * [CERTIK_AUDIT_SUMMARY.md](CERTIK_AUDIT_SUMMARY.md) - Redacted external-audit findings and mitigation summary
-* [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
-* [RELEASE_CHECKLIST_v1.0.0_RC.md](RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
+* [DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md](docs/archive/root-cleanup-2026-07/DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md) - Genesis-to-production rollout guide
+* [RELEASE_CHECKLIST_v1.0.0_RC.md](docs/archive/root-cleanup-2026-07/RELEASE_CHECKLIST_v1.0.0_RC.md) - v1.0.0 release candidate sign-off checklist
 * [proofs/HUMAN_READABLE_PROOFS.md](proofs/HUMAN_READABLE_PROOFS.md) - Operator-focused proof interpretation workflow
 * [proofs/pyapi_bridge_auth_denial.md](proofs/pyapi_bridge_auth_denial.md) - Formal proof sketch for bridge auth denial semantics
 * [proofs/THINKER_CLAUSES_CAPABILITIES.md](proofs/THINKER_CLAUSES_CAPABILITIES.md) - Thinker Clause edge-case configuration guidance
