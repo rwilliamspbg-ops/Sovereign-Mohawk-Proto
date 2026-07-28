@@ -12,13 +12,9 @@ Full scope testing of all system aspects:
 import json
 import time
 import random
-import threading
-import math
-from typing import List, Dict, Any, Tuple
-from dataclasses import dataclass
 import pytest
 
-from mohawk import MohawkNode, GradientBuffer, AggregationError
+from mohawk import MohawkNode, AggregationError
 
 # ============================================================================
 # STRESS TESTS
@@ -47,6 +43,7 @@ class TestStressHighLoad:
 
         # Stress test aggregation
         start = time.perf_counter()
+        error = None
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
@@ -63,6 +60,7 @@ class TestStressHighLoad:
             "time_ms": round(elapsed, 3),
             "time_per_node_ms": round(elapsed / num_nodes, 3),
             "success": success,
+            "error": error,
             "memory_efficient": elapsed < 30_000,  # Should complete in <30s
         }
         print(f"\n{json.dumps(report, indent=2)}")
@@ -80,7 +78,7 @@ class TestStressHighLoad:
         peak_memory_estimate = 0
 
         for batch_idx in range(min(batches, 1000)):  # Cap iterations for CI
-            batch_data = [random.randint(0, 50256) for _ in range(batch_size * 512)]
+            [random.randint(0, 50256) for _ in range(batch_size * 512)]
             samples_loaded += batch_size
 
             # Estimate memory (512 tokens per sample, 4 bytes each)
@@ -151,7 +149,7 @@ class TestStressHighLoad:
         start = time.perf_counter()
         for i in range(transitions):
             # Simulate phase transition
-            phase = ["preEpoch", "cutover", "postEpoch"][i % 3]
+            ["preEpoch", "cutover", "postEpoch"][i % 3]
         elapsed = (time.perf_counter() - start) * 1000
 
         report = {
@@ -238,7 +236,7 @@ class TestFunctionAllFeatures:
                 else:
                     result = node.compress_gradients(gradients, format=fmt)
                 results[fmt] = result.get("success", False)
-            except Exception as e:
+            except Exception:
                 results[fmt] = False
 
         report = {
@@ -275,7 +273,7 @@ class TestFunctionAllFeatures:
         for update in updates:
             try:
                 node.compress_gradients(update["gradient"], format="fp16")
-            except:
+            except Exception:
                 pass
         step2_elapsed = (time.perf_counter() - step2_time) * 1000
 
@@ -284,7 +282,7 @@ class TestFunctionAllFeatures:
         try:
             result = node.aggregate(updates)
             agg_success = result.get("success", False)
-        except:
+        except Exception:
             agg_success = False
         step3_elapsed = (time.perf_counter() - step3_time) * 1000
 
@@ -325,7 +323,7 @@ class TestFunctionAllFeatures:
             try:
                 result = node.aggregate(updates)
                 success = result.get("success", False)
-            except:
+            except Exception:
                 success = False
 
             round_time = (time.perf_counter() - round_start) * 1000
@@ -408,7 +406,7 @@ class TestChaosResilience:
             try:
                 result = node.compress_gradients(case["values"], format="fp16")
                 success = result.get("success", False)
-            except Exception as e:
+            except Exception:
                 success = False
 
             results.append(
@@ -463,7 +461,7 @@ class TestChaosResilience:
             try:
                 result = node.aggregate(mixed)
                 success = result.get("success", False)
-            except:
+            except Exception:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
 
@@ -507,7 +505,7 @@ class TestScaleLimits:
             try:
                 result = node.compress_gradients(gradients, format="fp16")
                 success = result.get("success", False)
-            except Exception as e:
+            except Exception:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
 
@@ -550,7 +548,7 @@ class TestScaleLimits:
             try:
                 result = node.aggregate(updates)
                 success = result.get("success", False)
-            except:
+            except Exception:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
 
@@ -604,7 +602,7 @@ class TestEndurance:
                 result = node.aggregate(updates)
                 if result.get("success", False):
                     success_count += 1
-            except:
+            except Exception:
                 pass
             elapsed = (time.perf_counter() - start) * 1000
             round_times.append(elapsed)
@@ -639,7 +637,7 @@ class TestEndurance:
                 result = node.compress_gradients(gradients, format="fp16")
                 if result.get("success", False):
                     success_count += 1
-            except:
+            except Exception:
                 pass
             elapsed = (time.perf_counter() - start) * 1000
             batch_times.append(elapsed)
@@ -700,7 +698,7 @@ class TestIntegration:
         for gradients in gradients_list:
             try:
                 node.compress_gradients(gradients, format="fp16")
-            except:
+            except Exception:
                 pass
         step3_time = (time.perf_counter() - step3_start) * 1000
         pipeline_steps.append(("Compression (20 gradients)", step3_time))
@@ -711,7 +709,7 @@ class TestIntegration:
         try:
             result = node.aggregate(updates)
             agg_success = result.get("success", False)
-        except:
+        except Exception:
             agg_success = False
         step4_time = (time.perf_counter() - step4_start) * 1000
         pipeline_steps.append(("Aggregation", step4_time))
@@ -767,7 +765,7 @@ class TestIntegration:
             try:
                 result = node.aggregate(mixed)
                 success = result.get("success", False)
-            except:
+            except Exception:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
 

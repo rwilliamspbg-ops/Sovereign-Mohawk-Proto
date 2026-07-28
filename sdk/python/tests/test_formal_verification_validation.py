@@ -16,10 +16,9 @@ Theorems:
 """
 
 import json
-import time
 import math
 import pytest
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
 from dataclasses import dataclass
 
 from mohawk import MohawkNode
@@ -180,7 +179,7 @@ class TestTheorem2RDP:
         expected = 8 / 5
 
         # Allow floating point tolerance
-        assert abs(composed - expected) < 1e-10, f"RDP rational composition failed"
+        assert abs(composed - expected) < 1e-10, "RDP rational composition failed"
 
         report = {
             "theorem": "Theorem 2 - RDP Rational Composition",

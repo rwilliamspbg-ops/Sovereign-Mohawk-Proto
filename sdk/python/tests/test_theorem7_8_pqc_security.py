@@ -20,10 +20,8 @@ Tests cover:
 """
 
 import json
-import time
-import random
 import hashlib
-from typing import Dict, List, Any, Tuple, Optional
+from typing import List
 from dataclasses import dataclass
 from enum import Enum
 import pytest
@@ -377,7 +375,7 @@ class TestTheorem8DualSignatureNonHijack:
         Lean theorem: No successful hijack possible under UF-CMA game.
         theorem8_no_hijack_possible: pqcUnforgeable ∧ postEpochAccepts → ¬canHijack
         """
-        pqc = PQCSig(
+        PQCSig(
             algorithm="ML-DSA",
             signature_bytes=b"ml_dsa_" + b"c" * 128,
             public_key=b"pubkey_" + b"d" * 128,

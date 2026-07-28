@@ -15,7 +15,7 @@ import time
 import random
 import array
 import pytest
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict
 
 from mohawk import MohawkNode, GradientBuffer, AggregationError
 
@@ -136,7 +136,7 @@ class TestDataLoadingPerformance:
         latencies = []
         for _ in range(num_batches):
             start = time.perf_counter()
-            batch = DataGenerator.generate_token_batch(batch_size)
+            DataGenerator.generate_token_batch(batch_size)
             latency = (time.perf_counter() - start) * 1000  # Convert to ms
 
             latencies.append(latency)
@@ -251,7 +251,7 @@ class TestGradientCompressionAtScale:
             result = node.compress_gradients_zero_copy(view, format="fp16")
             elapsed = (time.perf_counter() - start) * 1000
 
-            memory_overhead_bytes = result.get("count", size) * 4
+            result.get("count", size) * 4
             compression_bytes = result.get("compressed_bytes", size * 2)
 
             results.append(
@@ -453,7 +453,7 @@ class TestEndToEndTrainingRound:
 
         # Phase 5: Model update (simulated)
         start = time.perf_counter()
-        updated_model = [
+        [
             param - 0.01 * grad
             for param, grad in zip(
                 DataGenerator.generate_gradients(gradient_dim), node_gradients[0]

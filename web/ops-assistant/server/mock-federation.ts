@@ -13,7 +13,6 @@ export function createMockFederation(payload: unknown, port = 0) {
 
   return new Promise<{ url: string; close: () => Promise<void> }>((resolve, reject) => {
     server.listen(port, () => {
-      // @ts-ignore
       const address = server.address();
       if (!address) return reject(new Error('Failed to bind mock federation server'));
       const actualPort = typeof address === 'string' ? 0 : address.port;

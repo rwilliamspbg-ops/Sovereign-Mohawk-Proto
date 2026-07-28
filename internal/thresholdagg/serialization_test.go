@@ -1,4 +1,4 @@
-package fhe
+package thresholdagg
 
 import (
 	"strings"
@@ -8,13 +8,13 @@ import (
 func TestMarshalUnmarshalUpdate_RoundTrip(t *testing.T) {
 	tests := []struct {
 		name   string
-		update EncryptedUpdate
+		update Update
 	}{
-		{"typical values", EncryptedUpdate{Contributor: "node-x", Values: []int64{9, 8, 7}}},
-		{"negative values", EncryptedUpdate{Contributor: "node-y", Values: []int64{-1, -2, -3}}},
-		{"empty contributor", EncryptedUpdate{Contributor: "", Values: []int64{1}}},
-		{"single value", EncryptedUpdate{Contributor: "solo", Values: []int64{42}}},
-		{"large values", EncryptedUpdate{Contributor: "big", Values: []int64{9223372036854775807, -9223372036854775808}}},
+		{"typical values", Update{Contributor: "node-x", Values: []int64{9, 8, 7}}},
+		{"negative values", Update{Contributor: "node-y", Values: []int64{-1, -2, -3}}},
+		{"empty contributor", Update{Contributor: "", Values: []int64{1}}},
+		{"single value", Update{Contributor: "solo", Values: []int64{42}}},
+		{"large values", Update{Contributor: "big", Values: []int64{9223372036854775807, -9223372036854775808}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -42,7 +42,7 @@ func TestMarshalUnmarshalUpdate_RoundTrip(t *testing.T) {
 }
 
 func TestMarshalUpdate_UsesExpectedJSONFieldNames(t *testing.T) {
-	raw, err := MarshalUpdate(EncryptedUpdate{Contributor: "node-x", Values: []int64{1, 2}})
+	raw, err := MarshalUpdate(Update{Contributor: "node-x", Values: []int64{1, 2}})
 	if err != nil {
 		t.Fatalf("marshal failed: %v", err)
 	}

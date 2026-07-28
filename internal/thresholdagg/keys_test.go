@@ -1,4 +1,4 @@
-package fhe
+package thresholdagg
 
 import "testing"
 

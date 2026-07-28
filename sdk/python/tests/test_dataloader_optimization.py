@@ -10,8 +10,8 @@ import time
 import random
 import threading
 import queue
-from typing import List, Iterator, Tuple, Optional, Any
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from typing import List, Iterator, Tuple, Optional
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 import pytest
 
@@ -521,11 +521,6 @@ class TestEndToEndOptimized:
         timings["aggregation_ms"] = (time.perf_counter() - start) * 1000
 
         total_time = sum(timings.values())
-        improvement = (
-            (timings["data_load_ms"] - timings["data_load_ms"]) / timings["data_load_ms"] * 100
-            if timings["data_load_ms"] > 0
-            else 0
-        )
 
         report = {
             "test": "optimized E2E (8-worker parallel data loading)",
