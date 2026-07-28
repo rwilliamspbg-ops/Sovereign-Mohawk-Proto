@@ -14,7 +14,7 @@ RUN npm ci
 # Copy source code
 COPY web/ops-assistant/server ./server
 COPY web/ops-assistant/client ./client
-COPY web/ops-assistant/public ./public
+COPY web/ops-assistant/index.html ./index.html
 
 # Build
 RUN npm run build
