@@ -1,9 +1,9 @@
-package fhe
+package thresholdagg
 
 import "testing"
 
-// NOTE on scope: as implemented, EncryptedUpdate.Values are plain int64s and
-// AggregateCiphertexts/DecryptAggregate perform ordinary integer arithmetic
+// NOTE on scope: as implemented, Update.Values are plain int64s and
+// AggregateUpdates/RevealAggregate perform ordinary integer arithmetic
 // -- there is no actual homomorphic encryption, key generation, or
 // ciphertext transformation anywhere in this package (see keys_test.go and
 // the package-level finding recorded there). These tests therefore verify
@@ -12,41 +12,41 @@ import "testing"
 // round-trip correctness in the cryptographic sense, since no encryption
 // exists to round-trip.
 
-func TestAggregateCiphertexts_EmptyUpdatesErrors(t *testing.T) {
-	if _, err := AggregateCiphertexts(nil); err == nil {
+func TestAggregateUpdates_EmptyUpdatesErrors(t *testing.T) {
+	if _, err := AggregateUpdates(nil); err == nil {
 		t.Fatal("expected empty updates slice to fail")
 	}
-	if _, err := AggregateCiphertexts([]EncryptedUpdate{}); err == nil {
+	if _, err := AggregateUpdates([]Update{}); err == nil {
 		t.Fatal("expected empty updates slice to fail")
 	}
 }
 
-func TestAggregateCiphertexts_EmptyVectorErrors(t *testing.T) {
-	updates := []EncryptedUpdate{{Contributor: "a", Values: []int64{}}}
-	if _, err := AggregateCiphertexts(updates); err == nil {
+func TestAggregateUpdates_EmptyVectorErrors(t *testing.T) {
+	updates := []Update{{Contributor: "a", Values: []int64{}}}
+	if _, err := AggregateUpdates(updates); err == nil {
 		t.Fatal("expected an empty ciphertext vector to fail")
 	}
 }
 
-func TestAggregateCiphertexts_MismatchedDimensionsErrors(t *testing.T) {
-	updates := []EncryptedUpdate{
+func TestAggregateUpdates_MismatchedDimensionsErrors(t *testing.T) {
+	updates := []Update{
 		{Contributor: "a", Values: []int64{1, 2, 3}},
 		{Contributor: "b", Values: []int64{1, 2}},
 	}
-	if _, err := AggregateCiphertexts(updates); err == nil {
+	if _, err := AggregateUpdates(updates); err == nil {
 		t.Fatal("expected mismatched dimensions to fail")
 	}
 }
 
-func TestAggregateCiphertexts_MatchesPlaintextSum(t *testing.T) {
+func TestAggregateUpdates_MatchesPlaintextSum(t *testing.T) {
 	tests := []struct {
 		name    string
-		updates []EncryptedUpdate
+		updates []Update
 		want    []int64
 	}{
 		{
 			name: "two contributors positive values",
-			updates: []EncryptedUpdate{
+			updates: []Update{
 				{Contributor: "a", Values: []int64{1, 2, 3}},
 				{Contributor: "b", Values: []int64{2, 3, 4}},
 			},
@@ -54,14 +54,14 @@ func TestAggregateCiphertexts_MatchesPlaintextSum(t *testing.T) {
 		},
 		{
 			name: "single contributor is identity",
-			updates: []EncryptedUpdate{
+			updates: []Update{
 				{Contributor: "solo", Values: []int64{9, 8, 7}},
 			},
 			want: []int64{9, 8, 7},
 		},
 		{
 			name: "negative and positive values cancel",
-			updates: []EncryptedUpdate{
+			updates: []Update{
 				{Contributor: "a", Values: []int64{10, -10, 5}},
 				{Contributor: "b", Values: []int64{-10, 10, -5}},
 			},
@@ -69,7 +69,7 @@ func TestAggregateCiphertexts_MatchesPlaintextSum(t *testing.T) {
 		},
 		{
 			name: "many contributors single dimension",
-			updates: []EncryptedUpdate{
+			updates: []Update{
 				{Contributor: "a", Values: []int64{1}},
 				{Contributor: "b", Values: []int64{1}},
 				{Contributor: "c", Values: []int64{1}},
@@ -80,7 +80,7 @@ func TestAggregateCiphertexts_MatchesPlaintextSum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			agg, err := AggregateCiphertexts(tt.updates)
+			agg, err := AggregateUpdates(tt.updates)
 			if err != nil {
 				t.Fatalf("aggregate failed: %v", err)
 			}
@@ -99,11 +99,11 @@ func TestAggregateCiphertexts_MatchesPlaintextSum(t *testing.T) {
 	}
 }
 
-func TestAggregateCiphertexts_DoesNotMutateInputs(t *testing.T) {
-	a := EncryptedUpdate{Contributor: "a", Values: []int64{1, 2, 3}}
-	b := EncryptedUpdate{Contributor: "b", Values: []int64{4, 5, 6}}
-	updates := []EncryptedUpdate{a, b}
-	if _, err := AggregateCiphertexts(updates); err != nil {
+func TestAggregateUpdates_DoesNotMutateInputs(t *testing.T) {
+	a := Update{Contributor: "a", Values: []int64{1, 2, 3}}
+	b := Update{Contributor: "b", Values: []int64{4, 5, 6}}
+	updates := []Update{a, b}
+	if _, err := AggregateUpdates(updates); err != nil {
 		t.Fatalf("aggregate failed: %v", err)
 	}
 	if updates[0].Values[0] != 1 || updates[1].Values[0] != 4 {
@@ -111,20 +111,20 @@ func TestAggregateCiphertexts_DoesNotMutateInputs(t *testing.T) {
 	}
 }
 
-// --- DecryptAggregate ---------------------------------------------------------
+// --- RevealAggregate ---------------------------------------------------------
 
-func TestDecryptAggregate_InsufficientQuorumErrors(t *testing.T) {
-	agg := EncryptedUpdate{Contributor: "threshold-aggregate", Values: []int64{1, 2, 3}}
+func TestRevealAggregate_InsufficientQuorumErrors(t *testing.T) {
+	agg := Update{Contributor: "threshold-aggregate", Values: []int64{1, 2, 3}}
 	shares := ShareMap([]KeyShare{{NodeID: "a", Weight: 1}, {NodeID: "b", Weight: 1}})
-	if _, err := DecryptAggregate(agg, []string{"a"}, shares, 2); err == nil {
+	if _, err := RevealAggregate(agg, []string{"a"}, shares, 2); err == nil {
 		t.Fatal("expected insufficient quorum to fail")
 	}
 }
 
-func TestDecryptAggregate_QuorumMetReturnsValues(t *testing.T) {
-	agg := EncryptedUpdate{Contributor: "threshold-aggregate", Values: []int64{3, 5, 7}}
+func TestRevealAggregate_QuorumMetReturnsValues(t *testing.T) {
+	agg := Update{Contributor: "threshold-aggregate", Values: []int64{3, 5, 7}}
 	shares := ShareMap([]KeyShare{{NodeID: "a", Weight: 1}, {NodeID: "b", Weight: 1}, {NodeID: "c", Weight: 1}})
-	out, err := DecryptAggregate(agg, []string{"a", "b"}, shares, 2)
+	out, err := RevealAggregate(agg, []string{"a", "b"}, shares, 2)
 	if err != nil {
 		t.Fatalf("decrypt with quorum failed: %v", err)
 	}
@@ -133,10 +133,10 @@ func TestDecryptAggregate_QuorumMetReturnsValues(t *testing.T) {
 	}
 }
 
-func TestDecryptAggregate_ReturnsIndependentCopy(t *testing.T) {
-	agg := EncryptedUpdate{Contributor: "threshold-aggregate", Values: []int64{1, 2, 3}}
+func TestRevealAggregate_ReturnsIndependentCopy(t *testing.T) {
+	agg := Update{Contributor: "threshold-aggregate", Values: []int64{1, 2, 3}}
 	shares := ShareMap([]KeyShare{{NodeID: "a", Weight: 1}})
-	out, err := DecryptAggregate(agg, []string{"a"}, shares, 1)
+	out, err := RevealAggregate(agg, []string{"a"}, shares, 1)
 	if err != nil {
 		t.Fatalf("decrypt failed: %v", err)
 	}
@@ -146,18 +146,18 @@ func TestDecryptAggregate_ReturnsIndependentCopy(t *testing.T) {
 	}
 }
 
-func TestDecryptAggregate_ZeroThresholdAlwaysFails(t *testing.T) {
-	agg := EncryptedUpdate{Contributor: "threshold-aggregate", Values: []int64{1}}
+func TestRevealAggregate_ZeroThresholdAlwaysFails(t *testing.T) {
+	agg := Update{Contributor: "threshold-aggregate", Values: []int64{1}}
 	shares := ShareMap([]KeyShare{{NodeID: "a", Weight: 100}})
-	if _, err := DecryptAggregate(agg, []string{"a"}, shares, 0); err == nil {
+	if _, err := RevealAggregate(agg, []string{"a"}, shares, 0); err == nil {
 		t.Fatal("expected zero/invalid threshold to fail closed")
 	}
 }
 
 // --- end-to-end: aggregate then decrypt matches a manual plaintext sum -------
 
-func TestAggregateThenDecrypt_EndToEndMatchesPlaintextSum(t *testing.T) {
-	updates := []EncryptedUpdate{
+func TestAggregateThenReveal_EndToEndMatchesPlaintextSum(t *testing.T) {
+	updates := []Update{
 		{Contributor: "node-1", Values: []int64{10, -3, 100}},
 		{Contributor: "node-2", Values: []int64{-5, 7, 50}},
 		{Contributor: "node-3", Values: []int64{1, 1, 1}},
@@ -165,12 +165,12 @@ func TestAggregateThenDecrypt_EndToEndMatchesPlaintextSum(t *testing.T) {
 	// manual plaintext expectation
 	want := []int64{10 - 5 + 1, -3 + 7 + 1, 100 + 50 + 1}
 
-	agg, err := AggregateCiphertexts(updates)
+	agg, err := AggregateUpdates(updates)
 	if err != nil {
 		t.Fatalf("aggregate failed: %v", err)
 	}
 	shares := ShareMap([]KeyShare{{NodeID: "node-1", Weight: 1}, {NodeID: "node-2", Weight: 1}, {NodeID: "node-3", Weight: 1}})
-	out, err := DecryptAggregate(agg, SortedParticipants([]string{"node-1", "node-2", "node-3"}), shares, 3)
+	out, err := RevealAggregate(agg, SortedParticipants([]string{"node-1", "node-2", "node-3"}), shares, 3)
 	if err != nil {
 		t.Fatalf("decrypt failed: %v", err)
 	}

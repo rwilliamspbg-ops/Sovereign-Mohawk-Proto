@@ -9,8 +9,6 @@
  * - System health scoring
  */
 
-import { getAuthManager } from './auth-manager.js';
-
 export interface MetricObservation {
   metric: string;
   value: number;
@@ -29,6 +27,8 @@ export interface SystemHealthReport {
     status: 'healthy' | 'degraded' | 'critical';
   }[];
   observations: MetricObservation[];
+  criticalCount: number;
+  warningCount: number;
   confidenceScore: number;
   dataCompleteness: {
     available: number;
@@ -205,9 +205,6 @@ export function interpretMetric(metricName: string, value: number): MetricObserv
  * Generate a comprehensive system health report
  */
 export async function generateHealthReport(metrics: Record<string, number>): Promise<SystemHealthReport> {
-  const authManager = getAuthManager();
-  const diagnostics = authManager.getDiagnostics();
-
   // Interpret each metric
   const observations: MetricObservation[] = Object.entries(metrics).map(([name, value]) =>
     interpretMetric(name, value)
@@ -232,10 +229,6 @@ export async function generateHealthReport(metrics: Record<string, number>): Pro
 
   const overallScore = observations.length > 0 ? totalScore / observations.length : 100;
 
-  // Determine component status
-  const criticalObservations = observations.filter((o) => o.severity === 'critical');
-  const warningObservations = observations.filter((o) => o.severity === 'warning');
-
   return {
     timestamp: new Date().toISOString(),
     overallScore: Math.round(overallScore),
@@ -245,6 +238,8 @@ export async function generateHealthReport(metrics: Record<string, number>): Pro
       status: obs.severity === 'critical' ? 'critical' : obs.severity === 'warning' ? 'degraded' : 'healthy',
     })),
     observations,
+    criticalCount,
+    warningCount,
     confidenceScore: 0.95, // Would be lower if some metrics were missing
     dataCompleteness: {
       available: observations.length,

@@ -174,7 +174,7 @@ export const identifyAnomalyAction = {
           values.length;
         const stdDev = Math.sqrt(variance);
 
-        series.values.forEach((v: any, idx: number) => {
+        series.values.forEach((v: any, _idx: number) => {
           const value = parseFloat(v[1]);
           const zScore = Math.abs((value - mean) / stdDev);
           if (zScore > (params.threshold || 2)) {
@@ -404,7 +404,7 @@ export const getNetworkTopologyAction = {
       },
     },
   },
-  handler: async (params: any) => {
+  handler: async (_params: any) => {
     try {
       // Get services from metrics
       const response = await axios.get(`${prometheusUrl}/api/v1/query`, {
@@ -520,7 +520,7 @@ export const analyzePerformanceAction = {
           });
           const label = query.split('(')[0];
           results[label] = response.data.data.result;
-        } catch (e) {
+        } catch {
           // Metric not available
         }
       }
@@ -693,7 +693,7 @@ export const getNetworkStatsAction = {
       },
     },
   },
-  handler: async (params: any) => {
+  handler: async (_params: any) => {
     try {
       const upResponse = await axios.get(`${prometheusUrl}/api/v1/query`, {
         params: { query: `count(up == 1) / count(up)` },

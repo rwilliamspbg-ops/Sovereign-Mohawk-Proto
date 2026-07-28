@@ -213,7 +213,7 @@ class TestSecureSSLContext:
         # This would require actual certificate files
         # For testing, we'll verify the configuration path works
         try:
-            ctx = SecureSSLContext.create(
+            SecureSSLContext.create(
                 client_cert="/nonexistent/cert.pem",
                 client_key="/nonexistent/key.pem",
             )

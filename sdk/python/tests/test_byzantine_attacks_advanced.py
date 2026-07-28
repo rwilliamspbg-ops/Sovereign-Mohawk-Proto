@@ -18,12 +18,10 @@ References:
 import json
 import time
 import random
-import math
-import array
 import pytest
-from typing import List, Dict, Any, Tuple, Callable
+from typing import List, Dict, Any, Tuple
 
-from mohawk import MohawkNode, GradientBuffer, AggregationError
+from mohawk import MohawkNode, AggregationError
 
 # ============================================================================
 # BYZANTINE ATTACK GENERATORS
@@ -146,7 +144,6 @@ class ByzantineDetector:
 
         # Compute pairwise distances
         for i in range(n):
-            total_dist = 0
             neighbor_count = n - byzantine_count - 1
 
             if neighbor_count <= 0:
@@ -290,7 +287,7 @@ class TestBasicAttacks:
         try:
             result = node.aggregate(mixed_updates)
             success = result.get("success", False)
-        except AggregationError as e:
+        except AggregationError:
             success = False
 
         elapsed = (time.perf_counter() - start) * 1000
@@ -337,7 +334,7 @@ class TestBasicAttacks:
         try:
             result = node.aggregate(mixed_updates)
             success = result.get("success", False)
-        except AggregationError as e:
+        except AggregationError:
             success = False
 
         elapsed = (time.perf_counter() - start) * 1000
@@ -591,7 +588,7 @@ class TestHighByzantineRatios:
         try:
             result = node.aggregate(mixed_updates)
             success = result.get("success", False)
-        except AggregationError as e:
+        except AggregationError:
             success = False
 
         elapsed = (time.perf_counter() - start) * 1000
@@ -929,7 +926,6 @@ class TestSecurityMetrics:
         num_iterations = 5
 
         success_count = 0
-        detection_count = 0
         avg_time = 0
 
         for _ in range(num_iterations):

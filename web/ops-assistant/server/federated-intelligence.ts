@@ -237,7 +237,7 @@ export class FederatedLearningStateMachine {
     try {
       federatedDriftGauge.set(latest.status.driftScore ?? computeDriftScoreFromContributors(latest.contributors));
       federatedRoundGauge.set({ phase: latest.status.phase }, latest.status.progress ?? 0);
-    } catch (e) {
+    } catch {
       // ignore metric errors
     }
     return latest;

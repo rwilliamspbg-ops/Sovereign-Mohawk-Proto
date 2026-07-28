@@ -11,10 +11,7 @@ import {
   getRoundStatus,
 } from './federated-intelligence.js';
 import {
-  queryPrometheus,
-  queryPrometheusRange,
   queryPrometheusHealth,
-  parseRelativeTime,
   KEY_METRICS,
 } from './prometheus-client.js';
 import http from 'http';
@@ -722,13 +719,13 @@ app.post('/api/fl/anomalies/ack', async (req: Request, res: Response) => {
     try {
       const { anomaliesCounter } = await import('./federated-intelligence.js');
       anomaliesCounter.inc({ category: 'acknowledge', severity: 'info' }, 1);
-    } catch (e) {
+    } catch {
       // ignore metric update errors
     }
 
     // In real system: persist acknowledgment, trigger audit workflow
     res.json({ success: true, message: `Anomaly ${nodeId} acknowledged` });
-  } catch (error) {
+  } catch {
     res.status(500).json({ success: false, error: 'Failed to acknowledge anomaly' });
   }
 });
@@ -751,7 +748,7 @@ app.get('/api/test-metrics', async (req: Request, res: Response) => {
     };
 
     res.json(metrics);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to generate test metrics' });
   }
 });
@@ -766,7 +763,7 @@ app.get('/metrics', async (_req: Request, res: Response) => {
     const metrics = await getMetrics();
     res.setHeader('Content-Type', 'text/plain; version=0.0.4');
     res.send(metrics);
-  } catch (error) {
+  } catch {
     res.status(500).send('# metrics unavailable\n');
   }
 });

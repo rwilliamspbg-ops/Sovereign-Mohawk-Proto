@@ -15,12 +15,9 @@ import json
 import time
 import random
 import threading
-import asyncio
-from typing import List, Dict, Any, Tuple
 import pytest
-from unittest.mock import Mock, patch
 
-from mohawk import MohawkNode, AggregationError
+from mohawk import MohawkNode
 
 # ============================================================================
 # NETWORK SIMULATION TESTS (10)
@@ -53,7 +50,7 @@ class TestNetworkSimulation:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
 
@@ -90,7 +87,7 @@ class TestNetworkSimulation:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
 
@@ -126,7 +123,7 @@ class TestNetworkSimulation:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
 
@@ -158,7 +155,7 @@ class TestNetworkSimulation:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
 
         report = {
@@ -189,7 +186,7 @@ class TestNetworkSimulation:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
 
         report = {
@@ -219,10 +216,9 @@ class TestNetworkSimulation:
 
         start = time.perf_counter()
         try:
-            result = node.aggregate(updates)
-            success = True
-        except:
-            success = False
+            node.aggregate(updates)
+        except Exception:
+            pass
         elapsed = (time.perf_counter() - start) * 1000
 
         report = {
@@ -256,7 +252,7 @@ class TestNetworkSimulation:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
-            except:
+            except Exception:
                 pass
 
         report = {
@@ -293,7 +289,7 @@ class TestFailoverRecovery:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
 
         report = {
@@ -328,7 +324,7 @@ class TestFailoverRecovery:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
-            except:
+            except Exception:
                 pass
 
         report = {
@@ -361,7 +357,7 @@ class TestFailoverRecovery:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     success_count += 1
-            except:
+            except Exception:
                 pass
 
             # Simulate restart delay
@@ -398,7 +394,7 @@ class TestFailoverRecovery:
                 result = node.aggregate(updates)
                 if result.get("success"):
                     successful += 1
-            except:
+            except Exception:
                 pass
 
         report = {
@@ -426,13 +422,13 @@ class TestFailoverRecovery:
         try:
             result1 = node.aggregate(partial_updates)
             success1 = result1.get("success", False)
-        except:
+        except Exception:
             success1 = False
 
         try:
             result2 = node.aggregate(partial_updates)
             success2 = result2.get("success", False)
-        except:
+        except Exception:
             success2 = False
 
         report = {
@@ -457,7 +453,6 @@ class TestPrivacyValidation:
     def test_privacy_budget_tracking(self):
         """Track privacy budget across rounds"""
         epsilon_budget = 1.0
-        delta = 1e-5
 
         rounds = 5
         epsilon_per_round = epsilon_budget / rounds
@@ -584,7 +579,7 @@ class TestConcurrency:
             try:
                 result = node.aggregate(updates)
                 results.append({"agg": agg_id, "success": result.get("success", False)})
-            except Exception as e:
+            except Exception:
                 results.append({"agg": agg_id, "success": False})
 
         threads = [
@@ -632,7 +627,7 @@ class TestResourceExhaustion:
             try:
                 result = node.aggregate(updates)
                 success = result.get("success", False)
-            except:
+            except Exception:
                 success = False
             elapsed = (time.perf_counter() - start) * 1000
 
@@ -672,7 +667,7 @@ class TestResourceExhaustion:
         try:
             result = node.aggregate(updates)
             success = result.get("success", False)
-        except:
+        except Exception:
             success = False
         elapsed = (time.perf_counter() - start) * 1000
 

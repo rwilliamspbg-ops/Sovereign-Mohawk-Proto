@@ -231,7 +231,7 @@ class TestBuildValidation:
     def test_imports_no_errors(self):
         """Test all imports work without errors."""
         try:
-            import mohawk
+            import mohawk as mohawk_module
             from mohawk import (
                 CredentialManager,
                 TLSConfig,
@@ -239,7 +239,14 @@ class TestBuildValidation:
                 AsyncMohawkNode,
             )
 
-            assert True
+            for name, obj in (
+                ("mohawk", mohawk_module),
+                ("CredentialManager", CredentialManager),
+                ("TLSConfig", TLSConfig),
+                ("MohawkNode", MohawkNode),
+                ("AsyncMohawkNode", AsyncMohawkNode),
+            ):
+                assert obj is not None, f"{name} imported as None"
         except ImportError as e:
             pytest.fail(f"Import error: {e}")
 
@@ -267,7 +274,7 @@ class TestPerformanceValidation:
         manager = CredentialBuilder().with_environment().build()
 
         start = time.time()
-        value = await manager.get("PERF_TEST")
+        await manager.get("PERF_TEST")
         duration = time.time() - start
 
         # Should be < 10ms
@@ -280,7 +287,7 @@ class TestPerformanceValidation:
         import time
 
         start = time.time()
-        ctx = SecureSSLContext.create()
+        SecureSSLContext.create()
         duration = time.time() - start
 
         # Should be < 50ms

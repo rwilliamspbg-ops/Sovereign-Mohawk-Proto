@@ -418,7 +418,7 @@ class CredentialManager:
         """Ensure cleanup on deletion."""
         try:
             asyncio.run(self.close())
-        except:
+        except Exception:
             pass
 
 
