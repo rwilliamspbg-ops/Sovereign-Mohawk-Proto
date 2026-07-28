@@ -1,4 +1,4 @@
-# Stage 1: Build the Go binary for FL aggregator
+# Stage 1: Build the real fl-aggregator binary
 FROM golang:1.26.5-alpine AS builder
 
 RUN apk add --no-cache git make
@@ -10,115 +10,118 @@ RUN go mod download
 
 COPY . .
 
-# Build only the simulate binary which we'll use for training
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o simulate ./cmd/simulate/main.go
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o fl-aggregator ./cmd/fl-aggregator/main.go
 
 # Stage 2: Final runtime image
 FROM alpine:3.24
 
-RUN apk add --no-cache ca-certificates tini bash coreutils
+RUN apk add --no-cache ca-certificates tini bash coreutils curl gawk
 
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
 
 WORKDIR /app
 
-# Copy all binaries
 COPY --from=builder --chown=appuser:appgroup /app/fl-aggregator .
-COPY --from=builder --chown=appuser:appgroup /app/simulate .
 
-# Create training script that runs 100 rounds of LLM federated training simulation
 RUN mkdir -p /app/logs && chmod 777 /app/logs
 
+# Load-test script: starts the real fl-aggregator binary (cmd/fl-aggregator)
+# and drives real HTTP requests against its /fl/submit endpoint, measuring
+# actual wall-clock latency/throughput. No simulated/estimated numbers -
+# every figure in the output is derived from a real request that really
+# happened against the real binary in this container.
 RUN cat > /app/llm-training.sh << 'EOF'
 #!/bin/bash
 set -e
 
 ROUNDS=${1:-100}
-NODES=${2:-1000}
-BATCH_SIZE=${3:-10}
+BATCH_SIZE=${2:-10}
 LOG_DIR="/app/logs"
 mkdir -p "$LOG_DIR"
 
-echo "🚀 Starting LLM Federated Training (100 Rounds)"
-echo "================================================"
+export FL_AGGREGATOR_TOTAL_NODES=${FL_AGGREGATOR_TOTAL_NODES:-10000}
+export FL_AGGREGATOR_MALICIOUS_NODES=${FL_AGGREGATOR_MALICIOUS_NODES:-3000}
+
+echo "FL Aggregator Load Test"
+echo "========================"
 echo "Configuration:"
 echo "  Rounds: $ROUNDS"
-echo "  Simulated Nodes: $NODES"
-echo "  Batch Size: $BATCH_SIZE gradients/round"
+echo "  Gradients per round: $BATCH_SIZE"
+echo "  Formal check: $FL_AGGREGATOR_TOTAL_NODES total / $FL_AGGREGATOR_MALICIOUS_NODES malicious nodes"
+echo ""
+echo "This runs the real ./fl-aggregator binary (cmd/fl-aggregator) and sends"
+echo "it real HTTP requests. Every number below is measured, not simulated."
 echo ""
 
-# Initialize metrics
-TOTAL_GRADIENTS=0
-TOTAL_TIME=0
-ROUND_START=$(date +%s)
+./fl-aggregator &
+AGGREGATOR_PID=$!
+trap 'kill $AGGREGATOR_PID 2>/dev/null || true' EXIT
+
+READY=0
+for i in $(seq 1 30); do
+  if curl -sf -o /dev/null -X POST http://localhost:8090/fl/submit -d '{"node_id":"readiness","grads":[]}' 2>/dev/null; then
+    READY=1
+    break
+  fi
+  if ! kill -0 "$AGGREGATOR_PID" 2>/dev/null; then
+    echo "fl-aggregator exited before becoming ready" >&2
+    exit 1
+  fi
+  sleep 0.2
+done
+if [ "$READY" -ne 1 ]; then
+  echo "fl-aggregator did not become ready within 6s" >&2
+  exit 1
+fi
+
+TOTAL_TIME_START_NS=$(date +%s%N)
+SUCCESS_COUNT=0
+FAIL_COUNT=0
+TOTAL_LATENCY_MS=0
 
 for ((round = 1; round <= ROUNDS; round++)); do
-  ROUND_TIME_START=$(date +%s%N)
-  
-  # Simulate gradient computation and aggregation
-  GRADIENT_COUNT=$((BATCH_SIZE + RANDOM % (BATCH_SIZE + 1)))
-  TOTAL_GRADIENTS=$((TOTAL_GRADIENTS + GRADIENT_COUNT))
-  
-  # Simulate network latency (milliseconds)
-  if [ $NODES -le 10000 ]; then
-    LATENCY=$((15 + RANDOM % 5))
-  elif [ $NODES -le 100000 ]; then
-    LATENCY=$((100 + RANDOM % 30))
+  GRADS=$(gawk -v n="$BATCH_SIZE" 'BEGIN{
+    srand();
+    printf "[";
+    for (i = 0; i < n; i++) { printf "%s%.6f", (i > 0 ? "," : ""), (rand() * 2 - 1) }
+    printf "]"
+  }')
+  PAYLOAD="{\"node_id\":\"round-$round\",\"grads\":$GRADS}"
+
+  REQ_START_NS=$(date +%s%N)
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8090/fl/submit \
+    -H "Content-Type: application/json" -d "$PAYLOAD")
+  REQ_END_NS=$(date +%s%N)
+  LATENCY_MS=$(( (REQ_END_NS - REQ_START_NS) / 1000000 ))
+  TOTAL_LATENCY_MS=$((TOTAL_LATENCY_MS + LATENCY_MS))
+
+  if [ "$HTTP_CODE" = "200" ]; then
+    SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
   else
-    LATENCY=$((200 + RANDOM % 50))
+    FAIL_COUNT=$((FAIL_COUNT + 1))
   fi
-  
-  sleep $(echo "scale=3; $LATENCY / 1000" | bc)
-  
-  ROUND_TIME_END=$(date +%s%N)
-  ROUND_TIME_MS=$(echo "scale=2; ($ROUND_TIME_END - $ROUND_TIME_START) / 1000000" | bc)
-  
-  # Calculate throughput (gradients per second)
-  THROUGHPUT=$(echo "scale=2; $GRADIENT_COUNT * 1000 / $ROUND_TIME_MS" | bc)
-  
-  # Log metrics every 10 rounds
+
   if [ $((round % 10)) -eq 0 ] || [ $round -eq 1 ]; then
-    echo "[Round $round/$ROUNDS] Throughput: ${THROUGHPUT} msg/sec | Latency: ${ROUND_TIME_MS}ms | Total Gradients: $TOTAL_GRADIENTS"
+    echo "[Round $round/$ROUNDS] HTTP $HTTP_CODE | Latency: ${LATENCY_MS}ms"
   fi
-  
-  # Log to file
-  echo "$(date '+%Y-%m-%d %H:%M:%S') Round $round: ${THROUGHPUT} msg/sec, ${ROUND_TIME_MS}ms latency, $GRADIENT_COUNT gradients" >> "$LOG_DIR/training.log"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') Round $round: HTTP $HTTP_CODE, ${LATENCY_MS}ms" >> "$LOG_DIR/training.log"
 done
 
-TOTAL_END=$(date +%s)
-TOTAL_TIME=$((TOTAL_END - ROUND_START))
+TOTAL_TIME_END_NS=$(date +%s%N)
+TOTAL_TIME_MS=$(( (TOTAL_TIME_END_NS - TOTAL_TIME_START_NS) / 1000000 ))
+AVG_LATENCY_MS=$((TOTAL_LATENCY_MS / ROUNDS))
+THROUGHPUT=$(gawk -v r="$ROUNDS" -v t="$TOTAL_TIME_MS" 'BEGIN{printf "%.2f", (t > 0 ? r * 1000 / t : 0)}')
 
 echo ""
-echo "================================================"
-echo "✅ LLM Training Complete (100 Rounds)"
-echo "================================================"
-echo "Summary:"
-echo "  Total Rounds: $ROUNDS"
-echo "  Total Gradients Processed: $TOTAL_GRADIENTS"
-echo "  Total Training Time: ${TOTAL_TIME}s (~$(echo "scale=1; $TOTAL_TIME / 60" | bc) minutes)"
-echo "  Average Latency: ~${LATENCY}ms"
-echo ""
-echo "Model Convergence Progress:"
-for i in {1..10}; do
-  PROGRESS=$((round * i / ROUNDS))
-  echo -n "  Epoch $i: [" 
-  for j in {1..20}; do
-    if [ $j -le $((PROGRESS / 5)) ]; then
-      echo -n "="
-    else
-      echo -n "-"
-    fi
-  done
-  LOSS=$(echo "scale=3; 2.5 - (2.0 * $i / 10)" | bc)
-  echo "] Loss: $LOSS"
-done
-
-echo ""
-echo "Network Capacity:"
-echo "  Throughput: ~$((TOTAL_GRADIENTS / TOTAL_TIME)) msg/sec (sustained)"
-echo "  Network Utilization: ~12.7% of 1Gbps link"
-echo "  Estimated Full Network: 10M nodes capable"
+echo "========================"
+echo "Load Test Complete"
+echo "========================"
+echo "Results (measured against the real running binary):"
+echo "  Successful requests: $SUCCESS_COUNT/$ROUNDS"
+echo "  Failed requests: $FAIL_COUNT/$ROUNDS"
+echo "  Total wall-clock time: ${TOTAL_TIME_MS}ms"
+echo "  Average latency: ${AVG_LATENCY_MS}ms"
+echo "  Measured throughput: ${THROUGHPUT} req/sec"
 echo ""
 echo "Log file: $LOG_DIR/training.log"
 EOF
@@ -131,4 +134,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD test -f /app/logs/training.log || exit 1
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/app/llm-training.sh", "100", "10000", "10"]
+CMD ["/app/llm-training.sh", "100", "10"]

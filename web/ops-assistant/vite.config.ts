@@ -17,7 +17,16 @@ export default defineConfig({
   build: {
     outDir: 'dist/client',
     rollupOptions: {
-      input: 'public/index.html'
+      output: {
+        // Split React itself into its own chunk so browsers can cache it
+        // separately from app/CopilotKit code that changes more often on
+        // each deploy. Per-language syntax-highlighter chunks are already
+        // split automatically by react-syntax-highlighter's own dynamic
+        // imports - this only targets the vendor baseline.
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom']
+        }
+      }
     }
   },
   resolve: {

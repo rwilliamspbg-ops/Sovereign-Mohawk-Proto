@@ -20,6 +20,8 @@ import {
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import { AgUiEvent, AgUiEventSchema, A2UiEnvelope, A2UiEnvelopeSchema } from './protocol/types.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Enhanced CopilotKit Operations Assistant Server
@@ -31,6 +33,11 @@ import { AgUiEvent, AgUiEventSchema, A2UiEnvelope, A2UiEnvelopeSchema } from './
  * - Request tracing and audit logging
  * - Diagnostic endpoints for auth debugging
  */
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Compiled to dist/server/index.js; the Vite client build lives at dist/client.
+const clientDistPath = path.join(__dirname, '../client');
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -55,6 +62,9 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Serve the built Vite client (dist/client) as static assets.
+app.use(express.static(clientDistPath));
 
 // Create HTTP server for WebSocket support
 const server = http.createServer(app);
@@ -759,6 +769,17 @@ app.get('/metrics', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).send('# metrics unavailable\n');
   }
+});
+
+// SPA fallback: any unmatched GET that isn't an API/metrics/health route serves
+// the client's index.html so client-side routing works on a hard refresh or
+// direct link. Registered last so it never shadows a real route above.
+app.get('*', (req: Request, res: Response) => {
+  if (req.path.startsWith('/api') || req.path === '/metrics' || req.path === '/health') {
+    res.status(404).json({ error: 'not found' });
+    return;
+  }
+  res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 /**
