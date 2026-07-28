@@ -238,7 +238,7 @@ jobs:
 
       - name: Verify v2 dashboard registration
         run: |
-          curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
+          curl -fsS -u "admin:${GRAFANA_ADMIN_PASSWORD}" 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
           python3 - <<'PY'
           import json
           from pathlib import Path
