@@ -155,18 +155,6 @@ func (c *RPCClient) recordFailure(latencyMs float64) {
 	c.health.PacketLoss = c.health.PacketLoss*0.95 + 0.05
 }
 
-// simulateGRPCForward simulates gRPC call (placeholder for actual implementation)
-func (c *RPCClient) simulateGRPCForward(ctx context.Context, gradient *GradientMessage) error {
-	// Deprecated: Use actual gRPC backend instead
-	return fmt.Errorf("simulation deprecated, use actual gRPC backend")
-}
-
-// simulateGRPCBatch simulates batched gRPC call (placeholder for actual implementation)
-func (c *RPCClient) simulateGRPCBatch(ctx context.Context, gradients []*GradientMessage) (int, error) {
-	// Deprecated: Use actual gRPC backend instead
-	return 0, fmt.Errorf("simulation deprecated, use actual gRPC backend")
-}
-
 // Close gracefully shuts down RPC client and gRPC connection
 func (c *RPCClient) Close() error {
 	log.Printf("[%s rpc-client] shutting down (forwarded %d gradients)",
