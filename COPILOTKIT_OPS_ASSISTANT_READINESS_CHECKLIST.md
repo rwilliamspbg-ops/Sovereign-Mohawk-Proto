@@ -60,9 +60,8 @@
 
 - [ ] Build process works:
   ```bash
-  npm run build    # Should complete without errors
-  npm run lint     # Should show 0 errors
-  npm run type-check # Should show 0 errors
+  npm run build       # Should complete without errors
+  npm run type-check  # Should show 0 errors
   ```
 
 ### Documentation Ready
@@ -128,14 +127,12 @@
 
 ### Tools & Utilities
 - [ ] Testing frameworks configured:
-  - [ ] Jest: `npm list jest` ✅
-  - [ ] Vitest: `npm list vitest` ✅
+  - [ ] Vitest: `npm list vitest` ✅ (run tests with `npm test`)
   - [ ] Testing-library: `npm list @testing-library/react` ✅
 
 - [ ] Static analysis tools configured:
-  - [ ] ESLint: `npm run lint` works
   - [ ] TypeScript: `npm run type-check` works
-  - [ ] Prettier: `npm run format` works
+  - [ ] ESLint / Prettier: not configured in this project yet — no `lint`/`format` scripts exist
 
 - [ ] Performance testing tools available:
   - [ ] Load testing tool (k6/jmeter): ___________
@@ -154,11 +151,7 @@
   # Expected: ✅ No errors
   ```
 
-- [ ] Lint baseline:
-  ```bash
-  npm run lint
-  # Expected: ✅ Zero errors (warnings acceptable)
-  ```
+- [ ] Lint baseline: not applicable — ESLint isn't configured in this project (no `lint` script)
 
 - [ ] Type check baseline:
   ```bash
@@ -199,7 +192,6 @@
 ```
 ✅ npm install
 ✅ npm run build
-✅ npm run lint
 ✅ npm run type-check
 ```
 
@@ -218,7 +210,6 @@
 ✅ Project synced:              git status
 ✅ Dependencies updated:        npm list (spot check)
 ✅ Code compiles:               npm run build
-✅ Linter passes:               npm run lint
 ✅ Types check:                 npm run type-check
 ```
 
