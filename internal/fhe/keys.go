@@ -40,11 +40,16 @@ func HasQuorum(participants []string, shareSet map[string]KeyShare, threshold in
 		return false
 	}
 	total := 0
+	seen := make(map[string]bool, len(participants))
 	for _, p := range participants {
 		node := strings.TrimSpace(p)
-		if node == "" {
+		if node == "" || seen[node] {
+			// Skip blanks and duplicate participant entries: a single
+			// share holder listed more than once must not count its
+			// weight multiple times toward the quorum threshold.
 			continue
 		}
+		seen[node] = true
 		share, ok := shareSet[node]
 		if !ok || share.Weight <= 0 {
 			continue
