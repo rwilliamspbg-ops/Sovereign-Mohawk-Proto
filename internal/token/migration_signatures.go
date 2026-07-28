@@ -73,7 +73,7 @@ func MigrationSigningDigest(symbol string, legacyAccount string, pqcAccount stri
 
 func verifyMigrationSignatureBundle(digest []byte, bundle MigrationSignatureBundle) error {
 	if !bundle.Enabled() {
-		return nil
+		return fmt.Errorf("cryptographic migration signatures were not provided")
 	}
 	if !bundle.Complete() {
 		return fmt.Errorf("cryptographic migration signatures are incomplete")
