@@ -184,7 +184,11 @@ prometheus:
 # Grafana configuration
 grafana:
   enabled: true
-  adminPassword: "changeme"  # CHANGE IN PRODUCTION!
+  # No default password is set on purpose. Provide one at install time, e.g.:
+  #   helm install ... --set grafana.adminPassword=$(openssl rand -hex 16)
+  # or reference a pre-created Secret via grafana.admin.existingSecret once the
+  # Grafana template/subchart is wired up.
+  adminPassword: ""
   persistence:
     enabled: true
     size: 10Gi

@@ -76,6 +76,42 @@ Result:
 - No expected functional breakage from passes 1-3.
 - Primary risk class remains stale links for future non-indexed moves; mitigate via grep-based path checks before each relocation batch.
 
+## Pass 4 (Completed, July 2026)
+
+Root markdown sprawl had grown back to 233 tracked files by this point (only ~30 had
+been addressed by Passes 1-3). This pass took a systematic approach instead of a
+manually curated batch:
+
+1. Defined a canonical keep-at-root list (README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT,
+   SECURITY, CHANGELOG, CONTRIBUTORS, NOTICE, ROADMAP, COMPLIANCE, DEPENDENCIES,
+   PERFORMANCE, NAMING, DASHBOARD) plus files with confirmed CI/script dependencies on a
+   root-relative path (FORMAL_TRACEABILITY_MATRIX.md, TESTING_AND_PERFORMANCE_VALIDATION_COMPLETE.md,
+   VALIDATION_SIGN_OFF.md, BLOG_POST_FORMAL_PROOFS.md - the last three confirmed via
+   `scripts/ci/lint_formal_proof_claims.py`).
+2. Defined a "move to docs/" list for durable reference/technical material that isn't a
+   session status log (WHITE_PAPER.md, ACADEMIC_PAPER.md/.pdf, differential_privacy.md,
+   OPERATIONS_RUNBOOK.md, SUPPLY_CHAIN_SECURITY.md, HARDWARE_COMPATIBILITY.md,
+   QMS_SYSTEM_MANUAL.md, PUBLIC_ARTIFACTS.md, FIPS_PROFILE_SCOPE.md,
+   EDGE_LITE_RESOURCE_PROFILE.md, COMPLIANCE_MAPPING.md, CONFORMITY_ASSESSMENT_AND_CE_PATH.md,
+   POST_MARKET_MONITORING_AND_INCIDENT_REPORTING.md, PROTOCOL_ANALYSIS_THROUGHPUT_LIMITS.md,
+   UNIFIED_AUTH_QUICK_REFERENCE.md, AUTH_LAYER_IMPLEMENTATION_GUIDE.md,
+   AUDITOR_QUICK_REFERENCE.md, CERTIK_AUDIT_SUMMARY.md, RELEASE_NOTES_PQC_OVERHAUL.md).
+3. Grep-checked the remaining 196 files against `.github/workflows/`, `scripts/`,
+   `Makefile`, and `docker-compose*.yml` for path references before moving - none found.
+4. Moved all 196 remaining files to `docs/archive/root-cleanup-2026-07/` via `git mv`
+   (full history preserved), with an inventory index at
+   [archive/root-cleanup-2026-07/README.md](archive/root-cleanup-2026-07/README.md).
+5. Found and fixed real broken links this created: `README.md` and `ROADMAP.md` had
+   live markdown links to `DEPLOYMENT_GUIDE_GENESIS_TO_PRODUCTION.md`,
+   `TECHNICAL_DOCUMENTATION_FILE.md`, and `RELEASE_CHECKLIST_v1.0.0_RC.md` (repointed to
+   the new archive path); `docs/AUDITOR_QUICK_REFERENCE.md` linked
+   `FORMAL_VERIFICATION_COVERAGE.md` (repointed). Remaining filename mentions elsewhere
+   (CHANGELOG.md entries, DoD_Alignment_Addendum.md evidence citations) are prose
+   references to historical artifacts, not live links, and were left as-is.
+
+Result: root tracked markdown count went from 233 to 18 (see the keep list above) plus
+2 pre-existing untracked working files left untouched.
+
 ## Follow-up Backlog
 
 Potential next candidates should be handled in smaller batches with path-rewrite checks:

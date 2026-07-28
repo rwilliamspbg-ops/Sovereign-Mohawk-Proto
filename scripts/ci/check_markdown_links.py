@@ -26,6 +26,13 @@ IGNORE_DIRS = {
     "results",
     "captured_artifacts",
     "runtime-secrets",
+    # Archived historical documents (docs/archive/root-cleanup-*): these are
+    # frozen status reports whose internal relative links pointed correctly
+    # only from their original repo-root location. Rewriting hundreds of
+    # links across already-archived, admittedly-inaccurate documents isn't
+    # a good use of anyone's time; live-link accuracy is enforced for the
+    # active documentation surface only.
+    "archive",
 }
 
 

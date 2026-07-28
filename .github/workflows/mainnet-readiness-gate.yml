@@ -11,6 +11,9 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  # CI-only placeholder; docker-compose.yml requires this to be set (no
+  # insecure default) and CI never exposes the Grafana UI to anything.
+  GRAFANA_ADMIN_PASSWORD: ci-runner-not-a-real-secret
 
 jobs:
   readiness-gate:

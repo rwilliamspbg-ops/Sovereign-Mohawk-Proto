@@ -6,12 +6,16 @@ package federation
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 )
 
 // RPCHandler manages incoming gradient streams from child tier nodes
@@ -125,6 +129,14 @@ func (h *RPCHandler) acceptLoop() {
 		h.listener.(*net.TCPListener).SetDeadline(time.Now().Add(1 * time.Second))
 		conn, err := h.listener.Accept()
 		if err != nil {
+			select {
+			case <-h.done:
+				// Listener was closed as part of shutdown; exit quietly
+				// instead of busy-looping on "use of closed network
+				// connection" until the top-of-loop check catches up.
+				return
+			default:
+			}
 			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
 				continue // Timeout, loop again
 			}
@@ -157,48 +169,146 @@ func (h *RPCHandler) removeConn(c net.Conn) {
 	delete(h.conns, c)
 }
 
-// handleConnection processes incoming gradients from a single child node
+// handleConnection processes incoming messages from a single child node
+// using the binary wire protocol (wire.go): a 1-byte message type followed
+// by a length-prefixed payload for gradient/batch messages.
 func (h *RPCHandler) handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	// TODO: Implement actual gRPC stream handling
-	// For now, simulate receiving gradients
 	remoteAddr := conn.RemoteAddr().String()
 	log.Printf("[%s rpc-handler] accepted connection from %s", h.config.TierID, remoteAddr)
 
-	ticker := time.NewTicker(100 * time.Millisecond)
-	defer ticker.Stop()
-
+	msgType := make([]byte, 1)
 	for {
 		select {
 		case <-h.done:
 			return
-		case <-ticker.C:
-			// Simulate receiving gradient from stream
-			gradient := &GradientMessage{
-				GradientID:       fmt.Sprintf("grad-%d", atomic.AddInt64(&h.gradientsReceived, 1)),
-				SourceNodeID:     remoteAddr,
-				AggregationRound: 1,
-				DimensionCount:   1000,
-				GradientData:     make([]float64, 1000),
-				Timestamp:        time.Now(),
-			}
-			// Calculate norm
-			for i := range gradient.GradientData {
-				gradient.GradientData[i] = float64(i)
-				gradient.Norm += gradient.GradientData[i] * gradient.GradientData[i]
-			}
-			gradient.Norm = float64(int(gradient.Norm) % 100)
+		default:
+		}
 
-			// Add to aggregation channel (non-blocking)
-			select {
-			case h.aggregationChan <- gradient:
-				h.recordGradientReceived(remoteAddr)
-			default:
-				log.Printf("WARN: aggregation channel full, dropping gradient from %s", remoteAddr)
+		_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		if _, err := io.ReadFull(conn, msgType); err != nil {
+			if err != io.EOF {
+				log.Printf("[%s rpc-handler] connection from %s closed: %v", h.config.TierID, remoteAddr, err)
 			}
+			return
+		}
+
+		switch msgType[0] {
+		case msgTypeGradient:
+			if err := h.handleGradientFrame(conn, remoteAddr); err != nil {
+				log.Printf("WARN: [%s rpc-handler] gradient frame from %s: %v", h.config.TierID, remoteAddr, err)
+				return
+			}
+		case msgTypeBatch:
+			if err := h.handleBatchFrame(conn, remoteAddr); err != nil {
+				log.Printf("WARN: [%s rpc-handler] batch frame from %s: %v", h.config.TierID, remoteAddr, err)
+				return
+			}
+		case msgTypeHealthCheck:
+			if err := h.handleHealthCheckFrame(conn); err != nil {
+				log.Printf("WARN: [%s rpc-handler] health check from %s: %v", h.config.TierID, remoteAddr, err)
+				return
+			}
+		default:
+			log.Printf("WARN: [%s rpc-handler] unknown message type %d from %s", h.config.TierID, msgType[0], remoteAddr)
+			return
 		}
 	}
+}
+
+// handleGradientFrame reads, decodes, and buffers a single-gradient frame,
+// then acknowledges it to the sender.
+func (h *RPCHandler) handleGradientFrame(conn net.Conn, remoteAddr string) error {
+	payloadLen, err := readFrameLen(conn)
+	if err != nil {
+		return fmt.Errorf("read frame length: %w", err)
+	}
+
+	gradient, decodeErr := decodeGradient(limitedPayloadReader(conn, payloadLen))
+	if decodeErr != nil {
+		_, _ = conn.Write([]byte{ackErr})
+		return fmt.Errorf("decode gradient: %w", decodeErr)
+	}
+	if gradient.SourceNodeID == "" {
+		gradient.SourceNodeID = remoteAddr
+	}
+
+	if err := h.receiveGradient(gradient); err != nil {
+		_, _ = conn.Write([]byte{ackErr})
+		return fmt.Errorf("receive gradient: %w", err)
+	}
+
+	_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	if _, err := conn.Write([]byte{ackOK}); err != nil {
+		return fmt.Errorf("write ack: %w", err)
+	}
+	return nil
+}
+
+// handleBatchFrame reads and processes a batch-of-gradients frame,
+// acknowledging with the number of gradients actually accepted.
+func (h *RPCHandler) handleBatchFrame(conn net.Conn, remoteAddr string) error {
+	payloadLen, err := readFrameLen(conn)
+	if err != nil {
+		return fmt.Errorf("read frame length: %w", err)
+	}
+	body := limitedPayloadReader(conn, payloadLen)
+
+	count, err := readUint32(body)
+	if err != nil {
+		h.writeBatchAck(conn, ackErr, 0)
+		return fmt.Errorf("read batch count: %w", err)
+	}
+	if count > maxBatchCount {
+		h.writeBatchAck(conn, ackErr, 0)
+		return fmt.Errorf("batch count too large: %d", count)
+	}
+
+	accepted := 0
+	for i := uint32(0); i < count; i++ {
+		gradLen, err := readFrameLen(body)
+		if err != nil {
+			h.writeBatchAck(conn, ackErr, accepted)
+			return fmt.Errorf("read batch gradient %d length: %w", i, err)
+		}
+		gradient, decodeErr := decodeGradient(limitedPayloadReader(body, gradLen))
+		if decodeErr != nil {
+			log.Printf("WARN: [%s rpc-handler] batch gradient %d from %s decode failed: %v",
+				h.config.TierID, i, remoteAddr, decodeErr)
+			continue
+		}
+		if gradient.SourceNodeID == "" {
+			gradient.SourceNodeID = remoteAddr
+		}
+		if err := h.receiveGradient(gradient); err != nil {
+			log.Printf("WARN: [%s rpc-handler] batch gradient %d from %s rejected: %v",
+				h.config.TierID, i, remoteAddr, err)
+			continue
+		}
+		accepted++
+	}
+
+	h.writeBatchAck(conn, ackOK, accepted)
+	return nil
+}
+
+// writeBatchAck sends the 5-byte batch acknowledgement: [status][acceptedCount].
+func (h *RPCHandler) writeBatchAck(conn net.Conn, status byte, accepted int) {
+	resp := make([]byte, 5)
+	resp[0] = status
+	binary.BigEndian.PutUint32(resp[1:], uint32(accepted))
+	_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, _ = conn.Write(resp)
+}
+
+// handleHealthCheckFrame replies to a health-check request from a child node.
+func (h *RPCHandler) handleHealthCheckFrame(conn net.Conn) error {
+	_ = conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	if _, err := conn.Write([]byte{msgTypeHealthReply, 1}); err != nil {
+		return fmt.Errorf("write health reply: %w", err)
+	}
+	return nil
 }
 
 // recordGradientReceived updates child health metrics
@@ -285,15 +395,14 @@ func (h *RPCHandler) flushPendingAggregations(ctx context.Context) {
 			continue
 		}
 
-		// TODO: Apply Byzantine multi-Krum filtering
-		// For now, simple mean aggregation
-		aggregated := h.simpleAggregate(gradients)
+		aggregated, method := h.aggregate(gradients)
 
 		log.Printf(
-			"[%s rpc-handler] aggregated %d gradients from children (round=%s) norm=%.4f",
+			"[%s rpc-handler] aggregated %d gradients from children (round=%s) method=%s norm=%.4f",
 			h.config.TierID,
 			len(gradients),
 			round,
+			method,
 			aggregated.Norm,
 		)
 
@@ -302,7 +411,60 @@ func (h *RPCHandler) flushPendingAggregations(ctx context.Context) {
 	}
 }
 
-// simpleAggregate computes mean of child gradients (placeholder)
+// aggregate combines child gradients using Byzantine-robust Multi-Krum
+// selection when there are enough participants; it falls back to a plain
+// mean when there are too few updates for Multi-Krum's n > 2f+2 requirement
+// (e.g. small test topologies or a tier with very few children).
+func (h *RPCHandler) aggregate(gradients []*GradientMessage) (result *GradientMessage, method string) {
+	aggregated, err := h.multiKrumAggregate(gradients)
+	if err != nil {
+		log.Printf("WARN: [%s rpc-handler] multi-krum unavailable (%v), falling back to mean aggregation",
+			h.config.TierID, err)
+		return h.simpleAggregate(gradients), "mean-fallback"
+	}
+	return aggregated, "multi-krum"
+}
+
+// multiKrumAggregate runs Byzantine-robust Multi-Krum selection over the
+// buffered child gradients (internal.MultiKrumAggregate) and returns the
+// mean of the selected, presumed-honest subset.
+func (h *RPCHandler) multiKrumAggregate(gradients []*GradientMessage) (*GradientMessage, error) {
+	n := len(gradients)
+	updates := make([][]float64, n)
+	for i, g := range gradients {
+		updates[i] = g.GradientData
+	}
+
+	f := int(h.config.ByzantineToleranceFrac * float64(n))
+	for f > 0 && n <= 2*f+2 {
+		f--
+	}
+	if n <= 2*f+2 {
+		return nil, fmt.Errorf("not enough updates (n=%d) for multi-krum at byzantine tolerance %.2f",
+			n, h.config.ByzantineToleranceFrac)
+	}
+
+	mean, selected, _, err := internal.MultiKrumAggregate(updates, f, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &GradientMessage{
+		GradientID:     fmt.Sprintf("agg-%d", atomic.LoadInt64(&h.gradientsAggregated)),
+		Timestamp:      time.Now(),
+		DimensionCount: len(mean),
+		GradientData:   mean,
+	}
+	for _, v := range mean {
+		result.Norm += v * v
+	}
+
+	log.Printf("[%s rpc-handler] multi-krum selected %d/%d children (f=%d)", h.config.TierID, len(selected), n, f)
+	return result, nil
+}
+
+// simpleAggregate computes mean of child gradients (fallback when there
+// aren't enough updates for Multi-Krum's Byzantine-tolerance guarantee).
 func (h *RPCHandler) simpleAggregate(gradients []*GradientMessage) *GradientMessage {
 	if len(gradients) == 0 {
 		return &GradientMessage{}
@@ -361,17 +523,19 @@ func (h *RPCHandler) Stats() map[string]interface{} {
 
 // Close gracefully shuts down RPC handler
 func (h *RPCHandler) Close() error {
-	// First, close the listener to unblock Accept
-	if h.listener != nil {
-		_ = h.listener.Close()
-	}
-
-	// Signal goroutines to stop
+	// Signal goroutines to stop first, so acceptLoop's post-Accept-error
+	// check sees it immediately instead of logging/spinning on "use of
+	// closed network connection" until its next top-of-loop check.
 	select {
 	case <-h.done:
 		// already closed
 	default:
 		close(h.done)
+	}
+
+	// Close the listener to unblock any in-flight Accept
+	if h.listener != nil {
+		_ = h.listener.Close()
 	}
 
 	// Close active connections to unblock any Read/Write

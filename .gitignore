@@ -8,6 +8,36 @@ data/
 __pycache__/
 *.pyc
 
+# Node/JS build output and dependencies (never commit these)
+node_modules/
+dist/
+
+# Dev/test TLS certs and keys - regenerate with scripts/01_generate_certs.sh
+certs/
+
+# Compiled binaries that should be built locally, not committed
+federated-router
+accelerator-detect
+internal.test.exe
+test.bin
+*.exe
+*.zip
+
+# Sample/generated datasets - not source, regenerate via the relevant script
+dataset*.csv
+dataset*.h5ad
+test_dataset.csv
+
+# Ad hoc local command-output dumps
+analysis_output.txt
+final_test_output.txt
+test_output.txt
+test_results.txt
+stress_test_output.log
+
+# Local scratch / browser profile cache
+tmp/
+
 # Generated result outputs should be committed only when intentionally curated evidence.
 # Use `git add -f <path>` for deliberate snapshots.
 results/**

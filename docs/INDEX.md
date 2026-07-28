@@ -13,7 +13,8 @@
 - **[Deployment Guide](DEPLOYMENT.md)** - Docker, Kubernetes, Cloud deployment
 - **[Operations Guide](OPERATIONS.md)** - Monitoring, troubleshooting, runbooks
 - **[Security](SECURITY.md)** - PQC, TPM, Byzantine resilience, compliance
-- **[Archive Index](archive/root-cleanup-2026-04/README.md)** - Historical root cleanup inventory
+- **[Archive Index (April 2026)](archive/root-cleanup-2026-04/README.md)** - Historical root cleanup inventory
+- **[Archive Index (July 2026)](archive/root-cleanup-2026-07/README.md)** - Largest root cleanup batch (196 files)
 
 ---
 
@@ -208,7 +209,7 @@ Only index and quick reference files:
 2. [Theorem Specifications](formal-verification/THEOREM_SPECIFICATIONS.md)
 3. [Byzantine Resilience Architecture](architecture/BYZANTINE_RESILIENCE.md)
 4. [Differential Privacy](architecture/DIFFERENTIAL_PRIVACY.md)
-5. [Academic Paper](../ACADEMIC_PAPER.md)
+5. [Academic Paper](ACADEMIC_PAPER.md)
 
 ---
 
@@ -281,8 +282,8 @@ Only index and quick reference files:
 ## Related Resources
 
 - **GitHub Repository:** https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
-- **Academic Paper:** [ACADEMIC_PAPER.md](../ACADEMIC_PAPER.md)
-- **White Paper:** [WHITE_PAPER.md](../WHITE_PAPER.md)
+- **Academic Paper:** [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md)
+- **White Paper:** [WHITE_PAPER.md](WHITE_PAPER.md)
 - **Roadmap:** [ROADMAP.md](../ROADMAP.md)
 - **Contributing:** [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Security Policy:** [SECURITY.md](security/SECURITY.md)

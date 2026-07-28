@@ -8,6 +8,9 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  # CI-only placeholder; docker-compose.yml requires this to be set (no
+  # insecure default) and CI never exposes the Grafana UI to anything.
+  GRAFANA_ADMIN_PASSWORD: ci-runner-not-a-real-secret
 
 jobs:
   monitoring-smoke:
@@ -235,7 +238,7 @@ jobs:
 
       - name: Verify v2 dashboard registration
         run: |
-          curl -fsS -u admin:admin 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
+          curl -fsS -u "admin:${GRAFANA_ADMIN_PASSWORD}" 'http://localhost:3000/api/search?type=dash-db' > /tmp/grafana_dashboards.json
           python3 - <<'PY'
           import json
           from pathlib import Path
