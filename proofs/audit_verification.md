@@ -15,7 +15,7 @@ Describe how you verified the logic (e.g., manual code review, formal solver, or
 ### 📋 Findings
 - **Status:** [PASSED / FAILED / OBSERVATION]
 - **Details:** Provide a technical breakdown of your findings.
-- **Accuracy Verification:** Did it match the reported 10ms verification time or the Round 45 Audit results?
+- **Accuracy Verification:** Compare against [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](FORMAL_TRACEABILITY_MATRIX.md) for the current, honest scope of each theorem (e.g. Theorem 5's abstract constant-cost verifier model is explicitly *not* a full Groth16 soundness proof -- see [`proofs/cryptography.md`](cryptography.md) and `internal/zksnark_verifier.go`'s doc comment for the exact gap). There is no "Round 45 Audit" or "10ms verification time" baseline in this repo to compare against -- a previous revision of this template referenced both, and neither traced to any real artifact here. If you measure a real verification latency, report the number and how you measured it instead.
 
 ### 💡 Suggestions
 Any improvements to the cryptographic primitives or potential edge cases discovered?

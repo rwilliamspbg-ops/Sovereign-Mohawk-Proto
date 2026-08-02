@@ -100,8 +100,15 @@ info:
 	@bash scripts/docker-compose-info.sh
 
 # Development
+# Previously `docker-compose exec orchestrator go test ./...` -- this can
+# never work: orchestrator's runtime image (cmd/orchestrator/Dockerfile,
+# final stage `FROM alpine:latest`) only ever contains the compiled `./main`
+# binary plus ca-certificates/libgcc, never a Go toolchain. Confirmed live:
+# `go: executable file not found in $PATH` against a running, healthy
+# orchestrator container. Matches what `verify:` below already does
+# correctly (run on host, with the toolchain guard).
 test:
-	@docker-compose exec orchestrator go test ./...
+	@bash -c 'source scripts/ensure_go_toolchain.sh && go test ./...'
 
 build:
 	@docker-compose build
