@@ -94,7 +94,7 @@ func newRouterFromEnv() (*router.Router, error) {
 		policy,
 		quoteVerifier,
 		func(expectedRoot string, proofData []byte, salt [32]byte) (bool, error) {
-			return proofs.VerifyZKProof(expectedRoot, proofData, salt)
+			return proofs.VerifyHashCommitment(expectedRoot, proofData, salt)
 		},
 		ledger,
 	)

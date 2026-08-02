@@ -39,7 +39,7 @@ Full Formalization Review and Test Results
         - test/manifest_test.go: 2 passing tests
         - internal/multikrum_test.go: 2 passing tests
         - internal/straggler_resilience.go: ValidateLiveness implemented
-        - test/zk_verifier_test.go: TestVerifyZKProof
+        - test/zk_verifier_test.go: TestVerifyHashCommitment
         - test/zksnark_verifier_test.go: TestVerifyProof_Valid
         
 [PASS] Matrix Parser Compatibility
@@ -93,7 +93,7 @@ Result: CLEAN
 | Communication | test/manifest_test.go | TestValidateCommunicationComplexity_Violated | PASS |
 | Liveness | internal/straggler_resilience.go | ValidateLiveness | IMPLEMENTED |
 | Liveness | test/straggler_test.go | TestStragglerMonitor_ValidateLiveness_Pass | EXISTS |
-| Crypto | test/zk_verifier_test.go | TestVerifyZKProof | EXISTS |
+| Crypto | test/zk_verifier_test.go | TestVerifyHashCommitment | EXISTS |
 | Crypto | test/zksnark_verifier_test.go | TestVerifyProof_Valid | EXISTS |
 | Convergence | test/convergence_test.go | TestConvergenceMonitor_IsConverging_Below | PASS |
 | Convergence | test/convergence_test.go | TestConvergenceMonitor_IsConverging_Above | PASS |
