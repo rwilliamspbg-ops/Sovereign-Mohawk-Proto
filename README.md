@@ -368,7 +368,7 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
 | **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **Logarithmic path-depth proxy; total bytes model-dependent** |
 | **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
-| **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **zk-SNARK + STARK hybrid policy** |
+| **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **BN254 Groth16 zk-SNARK (fixed genesis identity, not yet circuit-bound to submitted data) + SHA-256 commitment-backed STARK transcript path** |
 | **Operational Readiness Gates** | Platform-dependent | Platform-dependent | **One-click readiness + chaos + digest artifacts** |
 
 ---

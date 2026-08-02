@@ -48,15 +48,23 @@ theorem theorem8_no_pqc_not_safe (auth : MigrationAuth)
   rw [h_no_pqc] at h
   contradiction
 
-/-- Security reduction: PQC unforgeability blocks hijack. -/
+/-- Name kept for traceability-matrix compatibility. NOT a PQC-hardness
+    security reduction: `hijackSafe auth := auth.pqcSigned`, a plain
+    structural projection with no link to `PQCSig`/`Adversary`/`ufCmaWins`,
+    so the conclusion already follows from `h_post` alone. A genuine
+    reduction would need `auth.pqcSigned` derived from an actual
+    `PQCSig.verify` call over adversary-controlled input (not yet modeled;
+    see the equivalent note in Theorem7PQCMigrationContinuity.lean). The
+    `pqcUnforgeable` hypothesis is accepted but unused, and is named
+    `_h_pqc_secure` (rather than silently discarded via `have _ := ...`) so
+    that stays visible at the call site instead of masquerading as used. -/
 theorem theorem8_pqc_prevents_hijack (auth : MigrationAuth)
     (pqc : PQCSig)
     (oracle : SignOracle)
-    (h_pqc_secure : pqcUnforgeable pqc oracle)
+    (_h_pqc_secure : pqcUnforgeable pqc oracle)
     (h_post : postEpochAccepts auth) :
-    hijackSafe auth := by
-  have _ := h_pqc_secure
-  exact theorem8_post_epoch_non_hijack auth h_post
+    hijackSafe auth :=
+  theorem8_post_epoch_non_hijack auth h_post
 
 /-- No successful hijack possible under full UF-CMA game. -/
 theorem theorem8_no_hijack_possible (auth : MigrationAuth)

@@ -178,10 +178,22 @@ def run_validation(
     
     malicious_per_shard = int(shard_size * profile.malicious_ratio)
     honest_per_shard = shard_size - malicious_per_shard
-    
-    # Byzantine resilience check
-    resilience_verified = expected_honest_ratio > (1.0 - result_data["byzantine_threshold"])
-    
+
+    # Structural precondition: Multi-Krum-style distance filtering requires a
+    # strict honest majority *within the shard actually being filtered*
+    # (f < n/2, i.e. 2f < n) -- it has no correctness guarantee once
+    # malicious nodes are the shard's majority. This is the same bound
+    # machine-checked in proofs/LeanFormalization/Theorem1BFT.lean
+    # (`tier_byzantine_fraction_bound`). This is 0.5, not the 0.55
+    # `byzantine_threshold` field reported above: that field documents the
+    # separate, composed 5/9 profile-guard claim from bft_resilience.md /
+    # Theorem1BFT.lean's `theorem1_five_ninths_guard`, which this flat,
+    # non-hierarchical simulation does not itself model or test. Conflating
+    # the two would overclaim what this script demonstrates -- see
+    # bft_resilience.md's own note that the compositional theorem and the
+    # concrete profile check should not be conflated.
+    honest_majority_per_shard = 2 * malicious_per_shard < shard_size
+
     # Parallel execution across shards
     total_rejected = 0
     total_accepted = 0
@@ -225,33 +237,58 @@ def run_validation(
     # Calculate final metrics
     total_gradients = total_rejected + total_accepted
     rejection_rate = total_rejected / total_gradients if total_gradients > 0 else 0.0
-    
+
     total_proofs = total_proof_pass + total_proof_fail
     proof_verification_rate = total_proof_pass / total_proofs if total_proofs > 0 else 0.0
     forgery_detection_rate = total_forgeries / total_proofs if total_proofs > 0 else 0.0
     leakage_detection_rate = total_leakages / total_gradients if total_gradients > 0 else 0.0
-    
+
+    # Empirical resilience check: of the poisoning attempts this run actually
+    # injected (tracked via total_rejected/total_accepted from the simulated
+    # per-node attack loop), did the filter catch a real majority of them?
+    # This is computed from the simulation's own output, not restated from
+    # the configured malicious_ratio -- unlike the removed
+    # `expected_honest_ratio > 1 - byzantine_threshold` check, two runs with
+    # the same attack_profile but different random outcomes can differ here.
+    # When no poisoning was attempted (e.g. the control profile has
+    # gradient_poisoning_rate=0.0), there is nothing to catch, so this half
+    # of the check is vacuously satisfied.
+    RESILIENCE_MIN_CATCH_RATE = 0.5  # majority-caught; matches the honest-majority framing above
+    poisoning_catch_ok = (total_gradients == 0) or (rejection_rate > RESILIENCE_MIN_CATCH_RATE)
+    resilience_verified = honest_majority_per_shard and poisoning_catch_ok
+
     # Privacy analysis
     privacy_budget_respected = profile.privacy_budget > 0 and rejection_rate > 0.5
     differential_privacy_gap = abs(profile.privacy_budget - (total_leakages / 1000.0))
-    
+
     # Attack detection
     data_leakage_detected = total_leakages > 0
     proof_forgery_detected = total_forgeries > 0
     gradient_poisoning_detected = rejection_rate > 0.3
-    
+
     # Generate recommendations
     recommendations = [
-        "[OK] Byzantine resilience enforced via Multi-Krum filter (threshold 55% honest majority)",
+        f"[OK] Per-shard honest majority (2f < n) holds: {honest_majority_per_shard} "
+        f"({malicious_per_shard}/{shard_size} malicious per shard)",
         f"[OK] Proof verification rate: {proof_verification_rate*100:.2f}%",
         f"[OK] Gradient rejection rate: {rejection_rate*100:.2f}% (defense against poisoning)",
         f"[OK] Data leakage detection: {int(total_leakages)} events (RDP epsilon tracking)",
         f"[OK] Differential privacy epsilon: {profile.privacy_budget:.4f} (RDP accounting)",
     ]
-    
-    if not resilience_verified:
-        recommendations.insert(0, "[WARN] WARNING: Byzantine threshold exceeded (>55% malicious)")
-    
+
+    if not honest_majority_per_shard:
+        recommendations.insert(
+            0,
+            "[WARN] WARNING: malicious nodes are the shard majority (2f >= n) -- "
+            "Multi-Krum-style distance filtering has no correctness guarantee here",
+        )
+    elif not poisoning_catch_ok:
+        recommendations.insert(
+            0,
+            f"[WARN] WARNING: filter caught only {rejection_rate*100:.1f}% of attempted "
+            f"poisoning (< {RESILIENCE_MIN_CATCH_RATE*100:.0f}% majority-caught bar)",
+        )
+
     if data_leakage_detected:
         recommendations.append("[WARN] Data leakage events detected - review regional shard isolation")
     
