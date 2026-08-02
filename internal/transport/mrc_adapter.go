@@ -87,7 +87,17 @@ func (m *MRCAdapter) RegisterDestination(destID string) {
 }
 
 // SendChunk implements packet spraying: send across multiple paths concurrently
-// This is the core MRC behavior: redundancy + speed
+// This is the core MRC behavior: redundancy + speed.
+//
+// "Speed" means racing the redundant sends and taking whichever path
+// succeeds first -- previously this waited for ALL selected paths via
+// wg.Wait() before returning, so a single fast path's success was held
+// hostage by the slowest of the (simulated) redundant sends. That's why
+// BenchmarkMRCThroughput measured throughput bounded by roughly the *worst*
+// of 3 simulated per-path latencies (each uniform-random in [10,59]ms) per
+// call, not the best. Every selected path still runs to completion in the
+// background for health-score bookkeeping; it just no longer blocks the
+// caller once one has succeeded.
 func (m *MRCAdapter) SendChunk(ctx context.Context, dest string, chunk GradientChunk) error {
 	m.mu.RLock()
 	relevantPaths, exists := m.pathsByDest[dest]
@@ -104,10 +114,11 @@ func (m *MRCAdapter) SendChunk(ctx context.Context, dest string, chunk GradientC
 		return fmt.Errorf("all paths to %s are unhealthy", dest)
 	}
 
-	// Spray chunks across selected paths (concurrent)
+	// Spray chunks across selected paths (concurrent); race for the first
+	// success rather than waiting for all of them.
+	firstSuccess := make(chan struct{}, 1)
+	allDone := make(chan struct{})
 	var wg sync.WaitGroup
-	successCount := 0
-	mu := sync.Mutex{}
 
 	for _, path := range selectedPaths {
 		wg.Add(1)
@@ -122,21 +133,30 @@ func (m *MRCAdapter) SendChunk(ctx context.Context, dest string, chunk GradientC
 			case <-time.After(p.Latency):
 				// Path succeeded
 				p.recordSuccess()
-				mu.Lock()
-				successCount++
-				mu.Unlock()
+				select {
+				case firstSuccess <- struct{}{}:
+				default:
+					// another path already won the race
+				}
 			}
 		}(path)
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(allDone)
+	}()
 
-	// At least one path must succeed (MRC guarantee)
-	if successCount == 0 {
+	// At least one path must succeed (MRC guarantee); return as soon as the
+	// first one does instead of waiting for the slowest selected path.
+	select {
+	case <-firstSuccess:
+		return nil
+	case <-allDone:
 		return fmt.Errorf("all paths failed to %s", dest)
+	case <-ctx.Done():
+		return ctx.Err()
 	}
-
-	return nil
 }
 
 // selectBestPaths returns top-N paths by health score
