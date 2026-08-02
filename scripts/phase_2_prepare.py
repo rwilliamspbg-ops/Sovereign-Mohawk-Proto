@@ -9,14 +9,14 @@ import json
 from pathlib import Path
 from datetime import datetime
 
+
 def create_compression_config():
     """Create compression configuration for different network scales"""
-    
+
     config = {
         "timestamp": datetime.now().isoformat(),
         "phase": "Phase 2: Gradient Compression",
         "status": "deployment_ready",
-        
         "compression_profiles": {
             "small_network": {
                 "network_size": "10K nodes",
@@ -27,7 +27,6 @@ def create_compression_config():
                 "convergence_impact_pct": 0,
                 "deployment_priority": "LOW",
             },
-            
             "medium_network": {
                 "network_size": "100K nodes",
                 "compression_method": "TOP_K",
@@ -44,7 +43,6 @@ def create_compression_config():
                 "deployment_priority": "HIGH",
                 "rollout_strategy": "canary_10_25_50_100",
             },
-            
             "large_network": {
                 "network_size": "1M nodes",
                 "compression_method": "TOPK_QUANTIZE",
@@ -61,7 +59,6 @@ def create_compression_config():
                 "deployment_priority": "CRITICAL",
                 "rollout_strategy": "canary_10_25_50_100",
             },
-            
             "very_large_network": {
                 "network_size": "10M+ nodes",
                 "compression_method": "TOPK_QUANTIZE",
@@ -79,7 +76,6 @@ def create_compression_config():
                 "rollout_strategy": "staged_federation",
             },
         },
-        
         "integration_points": {
             "orchestrator": {
                 "location": "cmd/orchestrator/aggregator.go",
@@ -87,14 +83,12 @@ def create_compression_config():
                 "implementation": "Apply compression before broadcasting",
                 "decompression": "Apply decompression on receive",
             },
-            
             "node_agent": {
                 "location": "cmd/node-agent/trainer.go",
                 "hook_point": "compute_gradients()",
                 "implementation": "Compress gradient before sending to aggregator",
                 "fallback": "Auto-detect if aggregator doesn't support compression",
             },
-            
             "monitoring": {
                 "metrics_to_track": [
                     "compression_ratio",
@@ -107,7 +101,6 @@ def create_compression_config():
                 "dashboards": ["Grafana compression metrics dashboard"],
             },
         },
-        
         "deployment_phases": {
             "phase_2a": {
                 "name": "Development & Testing",
@@ -124,7 +117,6 @@ def create_compression_config():
                     "15% throughput improvement",
                 ],
             },
-            
             "phase_2b": {
                 "name": "Canary Deployment (10% traffic)",
                 "duration_weeks": 1,
@@ -140,7 +132,6 @@ def create_compression_config():
                     "Zero packet loss",
                 ],
             },
-            
             "phase_2c": {
                 "name": "Gradual Rollout",
                 "duration_weeks": 2,
@@ -151,7 +142,6 @@ def create_compression_config():
                 "monitor_every": "6 hours",
                 "rollback_threshold": "Loss divergence >2% OR throughput drop >10%",
             },
-            
             "phase_2d": {
                 "name": "Stable Operations",
                 "duration_weeks": "ongoing",
@@ -162,7 +152,6 @@ def create_compression_config():
                 ],
             },
         },
-        
         "rollback_plan": {
             "trigger": [
                 "Loss curve divergence >2%",
@@ -174,7 +163,6 @@ def create_compression_config():
             "recovery_time": "5-10 minutes",
             "risk": "Low (feature flag-based)",
         },
-        
         "expected_outcomes": {
             "message_size": {
                 "before": "390KB per gradient",
@@ -204,7 +192,6 @@ def create_compression_config():
                 "very_large_network": "2-5%",
             },
         },
-        
         "feature_flags": {
             "enable_compression": {
                 "default": False,
@@ -227,7 +214,6 @@ def create_compression_config():
                 "tuning_interval": "1 hour",
             },
         },
-        
         "monitoring_dashboard": {
             "title": "Genesis Gradient Compression Metrics",
             "metrics": [
@@ -243,7 +229,6 @@ def create_compression_config():
                 "Auto-tuning sparsity adjustments",
             ],
         },
-        
         "success_metrics": {
             "phase_2_complete_when": [
                 "Compression deployed to 100% of 100K nodes",
@@ -261,12 +246,13 @@ def create_compression_config():
             ],
         },
     }
-    
+
     return config
+
 
 def generate_integration_code():
     """Generate code snippets for integration"""
-    
+
     code_snippets = {
         "orchestrator_integration": """
 // In orchestrator aggregator.go
@@ -335,7 +321,6 @@ func (gc *GradientCompressor) quantize(values []float32, bits int) []byte {
     // Return quantized bytes
 }
 """,
-
         "node_agent_integration": """
 // In node-agent trainer.go
 
@@ -366,7 +351,6 @@ func (n *NodeAgent) AutoDetectCompression() {
     n.CompressionEnabled = caps.SupportsCompression
 }
 """,
-
         "feature_flags": """
 // Feature flag configuration
 
@@ -387,7 +371,6 @@ flags := CompressionFlags{
     // ...
 }
 """,
-
         "monitoring": """
 // Prometheus metrics for compression
 
@@ -428,7 +411,6 @@ var (
     )
 )
 """,
-
         "docker_compose_env": """
 # docker-compose.yml environment variables for Phase 2
 
@@ -461,16 +443,16 @@ services:
       COMPRESSION_METHOD: "NONE"
 """,
     }
-    
+
     return code_snippets
+
 
 def generate_deployment_playbook():
     """Generate step-by-step deployment playbook"""
-    
+
     playbook = {
         "title": "Phase 2 Deployment Playbook: Gradient Compression",
         "created": datetime.now().isoformat(),
-        
         "pre_deployment_checklist": [
             "☐ Read Phase 2 config (this document)",
             "☐ Review compression algorithms in 02_gradient_compression.py",
@@ -479,7 +461,6 @@ def generate_deployment_playbook():
             "☐ Prepare rollback plan",
             "☐ Verify staging cluster (1000 nodes) ready",
         ],
-        
         "week_1_development": {
             "day_1_2": [
                 "1. Implement CompressGradient() in orchestrator",
@@ -498,7 +479,6 @@ def generate_deployment_playbook():
                 "10. Prepare for canary deployment",
             ],
         },
-        
         "week_2_canary_10_percent": {
             "day_1": [
                 "1. Route 10% of 100K nodes to compression (node-agent-1 only)",
@@ -515,14 +495,12 @@ def generate_deployment_playbook():
                 "8. If issues: debug and adjust (sparsity, quantization)",
             ],
         },
-        
         "week_3_gradual_rollout": {
             "day_1": "Roll out to 25% of nodes (node-agent-1 + partial node-agent-2)",
             "day_2": "Roll out to 50% of nodes (node-agent-1 + node-agent-2)",
             "day_3": "Roll out to 75% of nodes (all + partial node-agent-3)",
             "day_4_5": "Roll out to 100% of nodes (all three node-agents)",
         },
-        
         "week_4_stabilization": {
             "ongoing": [
                 "Monitor compression metrics 24/7",
@@ -531,7 +509,6 @@ def generate_deployment_playbook():
                 "Plan Phase 3: Two-level aggregation",
             ],
         },
-        
         "success_criteria": [
             "Compression deployed to 100% of nodes",
             "Throughput improved by 5-20%",
@@ -539,7 +516,6 @@ def generate_deployment_playbook():
             "Zero compression-related errors",
             "Rollback capability verified",
         ],
-        
         "rollback_procedure": {
             "trigger": "Loss divergence >2% OR throughput drop >10%",
             "steps": [
@@ -551,46 +527,47 @@ def generate_deployment_playbook():
             "estimated_time": "5-10 minutes",
         },
     }
-    
+
     return playbook
+
 
 def main():
     """Generate Phase 2 configuration and playbooks"""
-    
-    print("="*70)
+
+    print("=" * 70)
     print("Phase 2: Gradient Compression - Configuration Generation")
-    print("="*70)
+    print("=" * 70)
     print()
-    
+
     # Generate configurations
     config = create_compression_config()
     code = generate_integration_code()
     playbook = generate_deployment_playbook()
-    
+
     # Save configuration
     config_path = Path("phase_2_compression_config.json")
     config_path.write_text(json.dumps(config, indent=2))
     print(f"[OK] Configuration saved to: {config_path}")
     print()
-    
+
     # Save code snippets
     code_path = Path("phase_2_integration_code.json")
     code_path.write_text(json.dumps(code, indent=2))
     print(f"[OK] Integration code snippets saved to: {code_path}")
     print()
-    
+
     # Save playbook
     playbook_path = Path("phase_2_deployment_playbook.json")
     playbook_path.write_text(json.dumps(playbook, indent=2))
     print(f"[OK] Deployment playbook saved to: {playbook_path}")
     print()
-    
+
     # Print summary
-    print("="*70)
+    print("=" * 70)
     print("Phase 2 Configuration Summary")
-    print("="*70)
+    print("=" * 70)
     print()
-    
+
     print("Compression Profiles:")
     for profile_name, profile_data in config["compression_profiles"].items():
         print(f"\n  {profile_name.upper()}:")
@@ -598,11 +575,13 @@ def main():
         print(f"    Method: {profile_data['compression_method']}")
         print(f"    Compression Ratio: {profile_data.get('compression_ratio', 'N/A')}x")
         print(f"    Size Reduction: {profile_data.get('size_reduction_pct', 'N/A')}%")
-        print(f"    Throughput Improvement: {profile_data.get('expected_throughput_improvement_pct', 0)}%")
+        print(
+            f"    Throughput Improvement: {profile_data.get('expected_throughput_improvement_pct', 0)}%"
+        )
         print(f"    Latency Reduction: {profile_data.get('expected_latency_reduction_pct', 0)}%")
         print(f"    Convergence Impact: {profile_data.get('convergence_impact_pct', 0)}%")
         print(f"    Deployment Priority: {profile_data.get('deployment_priority', 'N/A')}")
-    
+
     print()
     print()
     print("Expected Outcomes:")
@@ -614,22 +593,22 @@ def main():
                     print(f"    {sub_metric}: {sub_value}")
             else:
                 print(f"    {metric}: {value}")
-    
+
     print()
     print()
     print("Deployment Timeline:")
     for phase, details in config["deployment_phases"].items():
         print(f"\n  {phase.upper()}: {details['name']}")
         print(f"    Duration: {details.get('duration_weeks', 'ongoing')}")
-        if isinstance(details.get('actions'), list):
-            for action in details['actions'][:2]:  # Show first 2 actions
+        if isinstance(details.get("actions"), list):
+            for action in details["actions"][:2]:  # Show first 2 actions
                 print(f"    - {action}")
-    
+
     print()
     print()
-    print("="*70)
+    print("=" * 70)
     print("Phase 2 Status: CONFIGURATION COMPLETE")
-    print("="*70)
+    print("=" * 70)
     print()
     print("Ready for deployment. Next steps:")
     print("  1. Review phase_2_compression_config.json")
@@ -637,6 +616,7 @@ def main():
     print("  3. Review phase_2_deployment_playbook.json")
     print("  4. Begin Week 1: Development & Testing")
     print()
+
 
 if __name__ == "__main__":
     main()
