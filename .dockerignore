@@ -1,0 +1,52 @@
+# No .dockerignore existed before this file -- every `docker compose build`
+# service using `context: .` (8 of them in docker-compose.yml alone) was
+# sending the ENTIRE repo, including multi-gigabyte, completely irrelevant
+# directories, to the Docker daemon on every build. Observed directly during
+# a live launch: the accelerator-detect build's context transfer alone ran
+# past 8GB and 17 minutes before finishing, almost entirely from
+# proofs/.lake/ (the Lean/Mathlib build cache -- hundreds of thousands of
+# small files). None of the Go/Node Dockerfiles in this repo need any of
+# the directories below.
+
+# Git metadata -- never needed inside a build context
+.git/
+.gitignore
+
+# Lean/Mathlib build cache -- can be 8GB+, irrelevant to every Go/Node build
+proofs/.lake/
+proofs/**/lake-manifest.json
+
+# Generated results, reports, and archives -- irrelevant to builds, and can
+# be large and constantly changing (defeats Docker layer caching for no reason)
+results/
+test-results/
+docs/archive/
+chaos-reports/
+captured_artifacts/
+benchmark_results*
+.benchmarks/
+
+# Local-only / never meant to leave the host
+.env
+runtime-secrets/
+certs/
+tmp/
+
+# Language/tool dependency caches that should be reinstalled inside the
+# image, not copied from the host
+node_modules/
+**/node_modules/
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor/IDE and OS cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Already-built local binaries -- rebuilt inside the image anyway
+dist/
