@@ -11,7 +11,7 @@ The gap between the theoretical promises of Federated Learning and its practical
 
 ### Theorem 1: Byzantine Fault Tolerance
 **Statement:** The system is $(\sum f_t)$-Byzantine resilient if $f_t < n_t/2$ for all tiers $t$.
-* **Mechanism:** Implemented in `hierarchical_krum.go`.
+* **Mechanism:** Implemented in [`internal/multikrum.go`](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/multikrum.go) (previously misattributed to a nonexistent `hierarchical_krum.go`).
 * **Result:** Lean verifies honest-majority composition assumptions and a separate concrete 5/9 profile guard check for the published 10M-node configuration.
 
 ### Theorem 2: Privacy Composition
@@ -29,12 +29,12 @@ The gap between the theoretical promises of Federated Learning and its practical
 * **Scope Note:** Full binomial quorum-tail proofs for arbitrary $(p,q,c)$ settings are tracked as future formalization work.
 
 ### Theorem 5: Cryptographic Verifiability
-**Statement:** zk-SNARKs provide $O(1)$ verification time via 200-byte proofs.
-* **Performance:** Verified in **10ms** using the [wasmhost](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/wasmhost/host.go) module.
+**Statement:** The current Lean theorem set proves an abstract constant-operation verifier cost model is scale-invariant; it is not yet a full formalization of Groth16 succinctness, soundness, or q-SDH-based security (see `proofs/cryptography.md`).
+* **Mechanism:** [`internal/zksnark_verifier.go`](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/zksnark_verifier.go) implements real BN254 Groth16 pairing verification (128-byte proofs, not the 200 bytes and unbenchmarked "10ms" previously claimed here), but its verification key is not derived from any circuit's trusted setup -- it checks one fixed, content-free pairing identity, so it does not yet attest to the correctness of arbitrary submitted gradient/model data. See that file's own doc comment for the full scope note.
 
 ### Theorem 6: Non-IID Convergence
 **Statement:** Current Lean artifacts verify surrogate convergence envelopes and concrete parameter guards; full stochastic expectation-rate proofs remain ongoing work.
-* **Implementation:** [convergence_proof.go](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/convergence_proof.go).
+* **Implementation:** [`internal/convergence.go`](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/internal/convergence.go) (previously misattributed to a nonexistent `convergence_proof.go`).
 
 ## 3. Comparative Analysis
 
@@ -42,7 +42,9 @@ The gap between the theoretical promises of Federated Learning and its practical
 | :--- | :--- | :--- | :--- | :--- |
 | TensorFlow Federated | 10k | No | Partial | No |
 | PySyft | 1k | No | Yes | No |
-| **Sovereign-Mohawk** | **10M** | **Yes** | **Yes** | **Yes** |
+| **Sovereign-Mohawk** | **10M (target)** | **Surrogate-verified** | **Surrogate-verified** | **Model-verified (see Theorem 5 scope note)** |
+
+"Surrogate-verified" / "model-verified" here mean what Theorems 1-6 above actually state: machine-checked abstract models and concrete numeric guards, not full end-to-end formal proofs of the informal claim. A flat "Yes" in this table (as a previous revision stated) overstates what's formalized relative to the theorem sections directly above it.
 
 ## 4. Conclusion
 Sovereign-Mohawk establishes a new standard for high-assurance distributed machine learning, demonstrating that mathematical certainty and 10M-node scale are mutually achievable goals.

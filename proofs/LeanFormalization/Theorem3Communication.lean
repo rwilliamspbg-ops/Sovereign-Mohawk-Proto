@@ -28,9 +28,21 @@ theorem theorem3_large_scale_check :
     Nat.log 10 10_000_000 <= 7 := by
   norm_num
 
-/-- Concrete hierarchical scaling wrapper. -/
-theorem theorem3_hierarchical_scale_check : True := by
-  trivial
+/-- Concrete hierarchical scaling check: at the published 10M-node, branching-10
+    profile, per-dimension communication is at most 8d (previously this
+    declaration concluded `True`, proving nothing about `sovereign_mohawk_comm`
+    despite its name). Real, derived from `theorem3_hierarchical_additivity`
+    and `theorem3_large_scale_check` above. -/
+theorem theorem3_hierarchical_scale_check (d : Nat) :
+    sovereign_mohawk_comm d <= d * 8 := by
+  have h1 := theorem3_hierarchical_additivity d 10_000_000 10 (by norm_num)
+  have h2 := theorem3_large_scale_check
+  calc sovereign_mohawk_comm d
+      = hierarchical_comm_complexity d 10_000_000 10 := rfl
+    _ <= d * (Nat.log 10 10_000_000 + 1) := h1
+    _ <= d * 8 := by
+        have : Nat.log 10 10_000_000 + 1 <= 8 := by omega
+        exact Nat.mul_le_mul_left d this
 
 /-- Improvement factor: Naive FedAvg is d*n, Hierarchical is d*log(n).
     At 10M scale, this is ~1.4M times better. -/
@@ -42,9 +54,18 @@ theorem theorem3_improvement_ratio :
 def information_theoretic_lower_bound (d n : Nat) : Nat :=
   d * (Nat.log 2 n + 1)
 
-/-- Lower-bound matching wrapper. -/
-theorem theorem3_lower_bound_match : True := by
-  trivial
+/-- Lower-bound matching check: the hierarchical scheme's per-dimension
+    communication never exceeds the base-2 information-theoretic reference
+    bound, for any scale n and branching factor b >= 10 (previously this
+    declaration concluded `True`, proving nothing about either quantity
+    despite its name). Real, via `Nat.log_anti_left` (log is antitone in the
+    base: a larger base needs fewer "digits" to represent the same n). -/
+theorem theorem3_lower_bound_match (d n b : Nat) (h_b : 10 <= b) :
+    hierarchical_comm_complexity d n b <= information_theoretic_lower_bound d n := by
+  unfold hierarchical_comm_complexity information_theoretic_lower_bound
+  rw [if_pos (by omega : 1 < b)]
+  have hlog : Nat.log b n <= Nat.log 2 n := Nat.log_anti_left (by norm_num) (by omega)
+  exact Nat.mul_le_mul_left d (by omega)
 
 /-- Naive protocol requires ~40TB for d=1M, n=10M. -/
 theorem theorem3_naive_expensive :
@@ -64,8 +85,15 @@ theorem theorem3_tier_additivity (d : Nat) :
     0 + d + d + d + d = 4 * d := by
   ring
 
-/-- One-message-per-level wrapper. -/
-theorem theorem3_one_message_per_level : True := by
-  trivial
+/-- One-message-per-level check: with per-message payload size 1 (isolating
+    the message-count factor from the dimension factor d), total messages
+    sent equals exactly the number of hierarchy levels, `Nat.log b n + 1`
+    (previously this declaration concluded `True`, proving nothing about
+    message counts despite its name). Real, direct from the definition of
+    `hierarchical_comm_complexity`. -/
+theorem theorem3_one_message_per_level (n b : Nat) (h_b : 1 < b) :
+    hierarchical_comm_complexity 1 n b = Nat.log b n + 1 := by
+  unfold hierarchical_comm_complexity
+  rw [if_pos h_b, Nat.one_mul]
 
 end LeanFormalization
