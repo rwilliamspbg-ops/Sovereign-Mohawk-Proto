@@ -1,4 +1,5 @@
-// @notice: Tests for ZK-SNARK Verification Logic for MOHAWK Runtime.
+// @notice: Tests for SHA-256 hash-commitment verification for MOHAWK Runtime.
+// (VerifyZKProof is a deprecated alias for VerifyHashCommitment; see verifier.go.)
 package proofs
 
 import (
