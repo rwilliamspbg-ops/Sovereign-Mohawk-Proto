@@ -4,6 +4,10 @@ libmohawk.h
 runtime-secrets/
 data/
 
+# Local env file with real secrets (GRAFANA_ADMIN_PASSWORD, etc.) -- copy
+# .env.example to .env per its own instructions, never commit the copy.
+.env
+
 # Python cache artifacts
 __pycache__/
 *.pyc

@@ -3,7 +3,7 @@
     "grafana_health": true
   },
   "failures": [
-    "failed to fetch http://localhost:9102/healthz: <urlopen error [Errno 111] Connection refused>"
+    "failed to fetch http://localhost:9102/healthz: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
   ],
   "ok": false
 }

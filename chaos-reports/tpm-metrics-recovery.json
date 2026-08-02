@@ -1,8 +1,14 @@
 {
   "checks": {
+    "accelerator_ops_min_activity": true,
+    "accelerator_ops_non_negative": true,
+    "accelerator_ops_series_present": true,
     "bridge_transfers_min_activity": true,
     "bridge_transfers_non_negative": true,
     "bridge_transfers_series_present": true,
+    "gradient_compression_min_activity": true,
+    "gradient_compression_non_negative": true,
+    "gradient_compression_series_present": true,
     "grafana_health": true,
     "hybrid_proof_min_activity": true,
     "hybrid_proof_non_negative": true,
