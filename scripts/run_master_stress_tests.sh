@@ -3,7 +3,7 @@
 # Master Test Harness - Runs all stress tests and generates comprehensive report
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR/.."
 
 RESULTS_DIR="test-results/master-report"
 mkdir -p "$RESULTS_DIR"

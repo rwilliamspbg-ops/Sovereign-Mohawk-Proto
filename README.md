@@ -61,7 +61,7 @@ What this gives you immediately:
 
 Next deployment steps:
 
-- Local multi-node stack: `./genesis-launch.sh --all-nodes`
+- Local multi-node stack: `./scripts/genesis-launch.sh --all-nodes`
 - Sandbox validation profile: `make sandbox-up`
 - Kubernetes baseline: `./scripts/helm-install.sh`
 - Kind deployment path: `make deploy-to-kind`
@@ -209,7 +209,7 @@ High-risk readiness controls, Article 8-15 mapping, technical evidence, and depl
 ## Runtime Quick Start (3 Nodes)
 
 ```bash
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 docker compose ps
 ```
 
@@ -527,10 +527,10 @@ Validated startup options:
 1. Regional profile (orchestrator + shard + node-agent-1):
 
 ```bash
-./genesis-launch.sh
+./scripts/genesis-launch.sh
 
 # Start orchestrator + shard + node-agent-1..3
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 
 # Equivalent Make target
 make regional-shard
@@ -554,7 +554,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 Startup checks validated in this repository:
 
-* `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
+* `./scripts/genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
 * `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
 
 Scalable full-stack profile (single `node-agent` service with replicas):

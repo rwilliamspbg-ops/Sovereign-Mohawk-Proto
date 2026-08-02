@@ -115,7 +115,7 @@ jobs:
             docker-compose.yml \
             docker-compose.full.yml \
             docker-compose.sandbox.yml \
-            genesis-launch.sh \
+            scripts/genesis-launch.sh \
             scripts/launch_full_stack_3_nodes.sh \
             scripts/launch_sandbox.sh \
             scripts/docker-compose-wrapper.sh \

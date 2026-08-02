@@ -57,8 +57,9 @@ export MOHAWK_REGIONAL_SHARD="$REGIONAL_SHARD"
 export MOHAWK_METRICS_PROFILE="$METRICS_PROFILE"
 export IPFS_API_ENDPOINT="${IPFS_API_ENDPOINT:-http://localhost:5001}"
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMPOSE_CMD="$ROOT_DIR/scripts/docker-compose-wrapper.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+COMPOSE_CMD="$SCRIPT_DIR/docker-compose-wrapper.sh"
 cd "$ROOT_DIR"
 
 if ! command -v docker >/dev/null 2>&1; then
