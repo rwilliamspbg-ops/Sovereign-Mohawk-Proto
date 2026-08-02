@@ -33,7 +33,7 @@ step_header "2" "Launching the Genesis Testnet"
 echo "Target: Spin up a regional shard with 3 node agents and PQC defaults."
 echo "Config: Transport set to x25519-mlkem768-hybrid."
 wait_for_user
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 echo "NETWORK STATUS: Active. Prometheus/Grafana services started."
 
 step_header "3" "Quantum-Ready Identity Verification"

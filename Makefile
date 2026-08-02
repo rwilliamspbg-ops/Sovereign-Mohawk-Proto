@@ -185,8 +185,8 @@ format:
 
 local-validation-scripts:
 	@echo "Running standalone validation scripts..."
-	@python3 validation_test.py || true
-	@python3 comprehensive_local_tests.py || true
+	@python3 scripts/validation_test.py || true
+	@python3 scripts/comprehensive_local_tests.py || true
 	@echo "✓ Standalone validation scripts completed (informational, non-gating)"
 
 simulate-fl-1k:

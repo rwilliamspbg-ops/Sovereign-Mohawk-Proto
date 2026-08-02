@@ -13,6 +13,9 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+REPORT_PATH = Path(__file__).resolve().parent.parent / "results" / "byzantine_10m_validation_report.json"
 
 
 @dataclass
@@ -409,10 +412,10 @@ def main():
         "validation_results": [asdict(r) for r in results],
     }
     
-    with open("byzantine_10m_validation_report.json", "w") as f:
+    with open(REPORT_PATH, "w") as f:
         json.dump(summary_data, f, indent=2)
-    
-    print("\n[OK] Full report written to: byzantine_10m_validation_report.json")
+
+    print(f"\n[OK] Full report written to: {REPORT_PATH}")
     
     # Overall verdict
     all_verified = all(r.resilience_verified for r in results)

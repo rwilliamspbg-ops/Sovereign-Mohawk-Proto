@@ -63,8 +63,8 @@ make local-validation-scripts
 ```
 
 Use `make local-validation-scripts` to run:
-- `validation_test.py`
-- `comprehensive_local_tests.py`
+- `scripts/validation_test.py`
+- `scripts/comprehensive_local_tests.py`
 
 These are local validation scripts and are intentionally not wired into CI workflows.
 
@@ -145,7 +145,7 @@ REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 Use this when validating swarm-scale behavior before opening a PR:
 
 ```bash
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 ```
 
@@ -164,7 +164,7 @@ Common pitfalls and fixes:
 * Port conflicts (`3000`, `8080`, `9090`, `9093`, `9102`, `9104`):
   * Run `docker compose down -v` and stop local processes already bound to those ports.
 * Stale runtime secrets from previous runs:
-  * Remove old files under `runtime-secrets/` and re-run `./genesis-launch.sh --all-nodes`.
+  * Remove old files under `runtime-secrets/` and re-run `./scripts/genesis-launch.sh --all-nodes`.
 * Low host UDP/socket buffers causing readiness warnings:
   * Run `scripts/validate_host_network_tuning.sh` and then apply via `sudo bash scripts/host_tuning.sh --persist`.
 * Docker Desktop + TPM flow mismatch on non-Linux hosts:

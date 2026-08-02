@@ -112,6 +112,57 @@ manually curated batch:
 Result: root tracked markdown count went from 233 to 18 (see the keep list above) plus
 2 pre-existing untracked working files left untouched.
 
+## Pass 5 (Completed, August 2026)
+
+Unlike Passes 1-4 (deliberately scoped to "documentation-only... does not
+modify executable code" per the Breakage Re-evaluation above), this pass
+also covered executable scripts, one-off JSON dumps, and two stale duplicate
+proof artifacts, at the user's request to clean up everything not
+"necessary" in root, not just markdown sprawl. Root tracked file count
+before this pass: 82.
+
+1. Extended the reference-check methodology to executable scripts: grep'd
+   `.github/`, `scripts/`, `Makefile`, `docker-compose*.yml`,
+   `.pre-commit-config.yaml`, `Dockerfile*` for every candidate filename,
+   then read match context to distinguish real root-relative dependencies
+   from unrelated substring matches (e.g. a script path containing
+   `proofs/FORMAL_TRACEABILITY_MATRIX.md` also matches a grep for
+   `FORMAL_TRACEABILITY_MATRIX.md`) and from GitHub Actions steps under a
+   `working-directory:` override that changes what a bare relative path
+   resolves to.
+2. Found and archived two stale duplicates that had zero live references:
+   a root-level `FORMAL_TRACEABILITY_MATRIX.md` (drifted from the canonical
+   `proofs/` copy) and a root-level `LeanFormalization/` directory
+   containing pre-fix, superseded versions of three theorem files that
+   differ from the real, actively-built `proofs/LeanFormalization/` copies.
+3. Moved 17 executable scripts (`.sh`/`.py`/`.ps1`) and one Go tool
+   (into its own `scripts/byzantine_10m_validation/` package directory, to
+   avoid a `package main` conflict with the existing `scripts/export_proofs.go`)
+   into `scripts/`. Found and fixed three scripts whose
+   `dirname "${BASH_SOURCE[0]}"`-based self-location logic assumed they
+   lived at repo root (now one level deeper) — see
+   [archive/root-cleanup-2026-08/README.md](archive/root-cleanup-2026-08/README.md)
+   for details. Updated the two Python/Go report-writer scripts to write
+   into `results/` explicitly instead of a bare CWD-relative filename.
+4. Moved one regenerable JSON report (`byzantine_10m_validation_report.json`)
+   to `results/`, and 18 one-off session artifacts (commit-message drafts,
+   phase-2 planning JSON, benchmark/log dumps) to
+   `docs/archive/root-cleanup-2026-08/`.
+5. Fixed every reference found in step 1: `Makefile`'s
+   `local-validation-scripts` target (2 lines), `.github/workflows/release-assets.yml`'s
+   testnet tarball file list (1 line, plus preserved the tarball's existing
+   nested-`scripts/` layout for consistency with its other script entries),
+   and five `./genesis-launch.sh` mentions across `README.md` (4),
+   `CONTRIBUTING.md` (2), and `demo_sovereign_mohawk.sh` (1).
+6. Verified via `go build ./...`, `go vet ./scripts/byzantine_10m_validation/...`,
+   `bash -n` on every moved shell script, and `python3 -c "ast.parse(...)"`
+   on every moved Python script — all clean.
+
+Result: root tracked file count went from 82 to 43 (canonical entrypoints,
+confirmed tooling dependencies, and legitimate onboarding/demo scripts —
+see the "Kept at root" list in
+[archive/root-cleanup-2026-08/README.md](archive/root-cleanup-2026-08/README.md)).
+
 ## Follow-up Backlog
 
 Potential next candidates should be handled in smaller batches with path-rewrite checks:
