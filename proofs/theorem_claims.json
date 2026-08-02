@@ -14,6 +14,11 @@
       "id": "theorem2_rdp",
       "status": "surrogate_verified_with_gaussian_axiom",
       "formal_scope": "exact rational and integer additive composition with budget guards",
+      "blocking_gaps": [
+        "RenyiDivergence_limit_KL not proven (sorry): needs L'Hopital/limit machinery",
+        "data_processing_inequality_KL (order=1 case) not proven (sorry): needs the log-sum inequality, a different argument from the order>1 case",
+        "RDP_sequential_composition not proven (sorry): needs the marginal/conditional joint-distribution chain rule for Renyi divergence"
+      ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem2RDP.lean",
         "proofs/Specification/Privacy.lean",
@@ -43,6 +48,9 @@
       "id": "theorem4_liveness",
       "status": "model_verified",
       "formal_scope": "redundancy and Chernoff-style exponential liveness model",
+      "blocking_gaps": [
+        "current model is an integer/rational Chernoff-bound surrogate; full probability-measure and stochastic-process formalization remains roadmap work"
+      ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem4Liveness.lean",
         "proofs/LeanFormalization/Theorem4ChernoffBounds.lean"
@@ -62,6 +70,10 @@
       "id": "theorem5_cryptography",
       "status": "model_verified",
       "formal_scope": "constant-size and constant-cost verifier model",
+      "blocking_gaps": [
+        "abstract constant-operation verifier cost model only; not a full Groth16 succinctness/soundness or q-SDH security formalization",
+        "internal/zksnark_verifier.go's genesisVK is not derived from any circuit's trusted setup, so the runtime verifier cannot yet attest to arbitrary submitted data -- see that file's own doc comment"
+      ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem5Cryptography.lean",
         "proofs/Specification/Cryptography.lean"
@@ -72,6 +84,9 @@
       "id": "theorem6_convergence",
       "status": "surrogate_verified_with_cast_bridge",
       "formal_scope": "integer and rational convergence envelopes with runtime guard alignment",
+      "blocking_gaps": [
+        "stronger non-convex O(1/sqrt(KT)) convergence bounds remain roadmap work"
+      ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem6Convergence.lean",
         "proofs/LeanFormalization/Theorem6ConvergenceReals.lean"

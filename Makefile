@@ -5,6 +5,7 @@
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
 .PHONY: artifact-summary build-python-lib audit verify
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
+.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
@@ -235,6 +236,27 @@ validate-formal-tooling-tests:
 	@python3 tests/scripts/ci/test_formal_validation_report_e2e.py
 	@python3 tests/scripts/ci/test_formal_verification_bundle_e2e.py
 	@python3 tests/scripts/ci/test_tamper_evident_bundle_e2e.py
+
+# Referenced by docs/SUPPLY_CHAIN_SECURITY.md, docs/AUDITOR_QUICK_REFERENCE.md, and
+# README.md as an existing gate; added here because it didn't actually exist -- see
+# proofs/FORMAL_TRACEABILITY_MATRIX.md's Theorem 3 row for how this lint script caught
+# a real class of bug (vacuous `True`-concluding theorems) that a plain `lake build`
+# does not.
+verify-formal-proofs:
+	@cd proofs && lake build LeanFormalization Specification Refinement
+	@python3 scripts/ci/lint_formal_proof_claims.py --repo-root .
+
+refresh-formal-validation:
+	@python3 scripts/ci/generate_formal_validation_report.py --repo-root .
+
+validate-formal:
+	@python3 scripts/ci/generate_formal_validation_report.py --repo-root . --check
+
+validate-formal-container:
+	@bash scripts/ci/run_formal_validation_in_container.sh
+
+package-formal-verification-artifacts:
+	@bash scripts/ci/generate_formal_proof_artifacts.sh
 
 # Shortcuts
 .PHONY: h v s st r c l lo li

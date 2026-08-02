@@ -215,18 +215,21 @@ Only index and quick reference files:
 
 ## Documentation Status
 
-### Complete ✅
-- [x] Phase 1 Documentation (Formal Verification, Foundation)
-- [x] Phase 2 Documentation (Streaming, Transport, Core)
-- [x] Phase 3 Documentation (Federation, Multi-Tier)
-- [x] Phase 4 Documentation (Production Deployment)
-- [x] Architecture guides (8 modules)
-- [x] Deployment guides (6-7 templates)
-- [x] Security documentation (5 documents)
-- [x] Performance benchmarks (continuous)
-- [x] Examples and tutorials (6-8 samples)
-- [x] Formal proofs and specifications
-- [x] API reference (Go, Python, gRPC)
+The "Complete ✅" checklist previously here overstated what exists -- a
+documentation audit found the 8 files under `docs/architecture/` are 5-line
+placeholder stubs ("Scaffold document created to preserve canonical
+documentation links... See docs/INDEX.md"), and most of the specific paths
+this index maps under `guides/`, `api/`, `security/`, `performance/`,
+`formal-verification/`, and `examples/` below do not exist in this repo.
+
+What's actually real and worth trusting:
+- Formal proofs and specifications: real, see [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md) for the honest per-theorem scope.
+- The Genesis Testnet deployment path in the root [README.md](../README.md) (Docker Compose, launch scripts) — actually runnable.
+- `sdk/python/README.md` for the Python SDK API surface.
+
+Treat any other doc under `docs/` not listed above as unverified until you've
+checked it against the actual code -- this index's own file inventory has
+not been re-audited past what's listed above.
 
 ### In Progress 🔄
 - Publishing guides to external wiki
