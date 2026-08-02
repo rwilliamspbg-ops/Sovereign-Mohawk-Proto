@@ -34,7 +34,7 @@ ecosystem.
 Browse our [GitHub Issues](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues)
 for the `Master Auditor` or `priority` labels. We are currently seeking:
 
-* **Theorem 5 Verification:** Stress-test ZK-proofs against Round 45 logs.
+* **Theorem 5 Verification:** close the scope gap documented in [`proofs/cryptography.md`](./proofs/cryptography.md) and `internal/zksnark_verifier.go` -- the current verifier checks a fixed genesis identity, not a real circuit bound to submitted gradient/model data. (There is no "Round 45" log dataset in this repo to test against -- a previous revision of this line referenced one that didn't trace to anything real.)
 * **NPU Optimization:** FFI bindings for **85+ TOPS** hardware.
 
 ### 2. Use Professional Templates
@@ -48,8 +48,8 @@ Your PR must include a completed template to be eligible for points:
 
 1. **Fork** the repository and create a feature branch (`git checkout -b feat/your-contribution`).
 2. **Implement** your changes following the [SGP-001 Privacy Standard](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto#trust--verification).
-3. **Lint & Test**: Run `black`, `ruff`, and `mypy` on any Python changes to ensure they pass the [CI/CD Workflow](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions).
-4. **Submit PR**: Tag your PR with `[AUDIT]` to trigger the verification runner.
+3. **Lint & Test**: Run `black` and `ruff` on any Python changes (`make lint`/`make black` cover `sdk/python/`; run them manually in other Python directories like `scripts/`) to ensure they pass the [CI/CD Workflow](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions).
+4. **Submit PR**: use the [Cryptographic Audit template](./proofs/audit_verification.md) for audit-track PRs (open it as a GitHub issue via the "🛡️ Cryptographic Audit / Theorem Verification" template, which prefixes the title with `[AUDIT]` automatically) -- there is currently no CI workflow that reacts to a `[AUDIT]` tag in a PR title, so tagging alone doesn't trigger anything; the actual formal-proof verification runs automatically on every PR via `.github/workflows/verify-proofs.yml` / `verify-formal-proofs.yml`, or locally via `make verify-formal-proofs`.
 
 ### Local Run and Test Quickstart
 
@@ -62,9 +62,21 @@ make test
 make local-validation-scripts
 ```
 
+If you touched anything under `proofs/`, also run:
+
+```bash
+make verify-formal-proofs
+```
+
+This builds the Lean formalization and runs `scripts/ci/lint_formal_proof_claims.py`,
+which catches vacuous theorems (declarations that conclude `True` without
+proving anything about their namesake) and stale `proofs/theorem_claims.json`
+metadata -- the same class of bug found in a past audit of this repo's
+formal-proof claims.
+
 Use `make local-validation-scripts` to run:
-- `validation_test.py`
-- `comprehensive_local_tests.py`
+- `scripts/validation_test.py`
+- `scripts/comprehensive_local_tests.py`
 
 These are local validation scripts and are intentionally not wired into CI workflows.
 
@@ -145,7 +157,7 @@ REPORT_PATH=results/metrics/fedavg_benchmark_compare.md \
 Use this when validating swarm-scale behavior before opening a PR:
 
 ```bash
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 docker compose -f docker-compose.full.yml up -d --scale node-agent=10
 ```
 
@@ -164,7 +176,7 @@ Common pitfalls and fixes:
 * Port conflicts (`3000`, `8080`, `9090`, `9093`, `9102`, `9104`):
   * Run `docker compose down -v` and stop local processes already bound to those ports.
 * Stale runtime secrets from previous runs:
-  * Remove old files under `runtime-secrets/` and re-run `./genesis-launch.sh --all-nodes`.
+  * Remove old files under `runtime-secrets/` and re-run `./scripts/genesis-launch.sh --all-nodes`.
 * Low host UDP/socket buffers causing readiness warnings:
   * Run `scripts/validate_host_network_tuning.sh` and then apply via `sudo bash scripts/host_tuning.sh --persist`.
 * Docker Desktop + TPM flow mismatch on non-Linux hosts:

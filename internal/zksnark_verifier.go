@@ -25,6 +25,19 @@
 // Verification equation:  e(-A, B) · e(α, β) · e(IC₀, γ) · e(C, δ) = 1
 // Genesis VK uses canonical BN254 generator points (α=G1, β=G2, γ=G2, δ=G2, IC₀=G1).
 // A valid genesis proof satisfying this VK with no public inputs: A=G1, B=G2, C=−G1.
+//
+// Scope (read before citing this as "verifies model weights weren't
+// tampered with" — it does not, yet): genesisVK is not derived from any
+// circuit's trusted setup. It encodes one fixed, content-free pairing
+// identity with no public-input binding (IC has length 1, i.e. zero public
+// inputs), so the only proofs that verify are GenesisProofBytes() and its
+// algebraic variants. There is no circuit here relating a proof to gradient
+// or model-weight content, so this verifier cannot yet attest to "regional
+// nodes haven't tampered with model weights" — it attests only that the
+// caller supplied a proof satisfying this fixed genesis identity. The
+// pairing arithmetic itself (via gnark-crypto) is real and correctly
+// implemented; what's missing is a real statement-specific circuit and
+// trusted setup to make the proof mean something about submitted data.
 package internal
 
 import (

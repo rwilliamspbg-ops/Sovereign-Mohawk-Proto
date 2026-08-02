@@ -373,8 +373,12 @@ func main() {
 	}
 	fmt.Println(string(summaryJSON))
 
-	// Write to file
-	reportPath := "byzantine_10m_validation_report.json"
+	// Write to file. Relative to the current working directory -- this
+	// program is meant to be invoked from the repo root (e.g.
+	// `go run scripts/byzantine_10m_validation/main.go`), matching where
+	// its Python counterpart (scripts/test_byzantine_validation_10m.py)
+	// writes its own report.
+	reportPath := "results/byzantine_10m_validation_report_go.json"
 	if err := os.WriteFile(reportPath, summaryJSON, 0644); err != nil {
 		log.Fatalf("failed to write results: %v", err)
 	}

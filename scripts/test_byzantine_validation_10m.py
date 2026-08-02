@@ -13,6 +13,11 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+REPORT_PATH = (
+    Path(__file__).resolve().parent.parent / "results" / "byzantine_10m_validation_report.json"
+)
 
 
 @dataclass
@@ -49,7 +54,7 @@ class RegionalShard:
         self.total_nodes = total_nodes
         self.honest_nodes = honest_nodes
         self.malicious_nodes = malicious_nodes
-        
+
         self.rejected_gradients = 0
         self.accepted_gradients = 0
         self.forgery_detections = 0
@@ -60,16 +65,16 @@ class RegionalShard:
 
     def process_attacked_gradients(self, profile: AttackProfile, round_num: int) -> ShardMetrics:
         """Simulate Byzantine attack on gradients and proofs."""
-        
+
         for node_idx in range(self.malicious_nodes):
             # Gradient poisoning attack
             if random.random() < profile.gradient_poisoning_rate:
                 # Extreme gradient to trigger leakage
                 gradient_val = 1_000_000 + random.random() * 10_000_000
-                
+
                 # Multi-Krum filter detection
                 detection_pass = self._byzantine_filter(gradient_val)
-                
+
                 if detection_pass:
                     self.rejected_gradients += 1
                 else:
@@ -77,12 +82,12 @@ class RegionalShard:
                     # Check for data leakage via magnitude
                     if gradient_val > 100.0:
                         self.leakage_detections += 1
-            
+
             # Proof forgery attack
             if random.random() < profile.proof_forgery_rate:
                 forged_proof = f"forge_{node_idx}_{time.time_ns()}"
                 proof_valid = self._verify_proof_integrity(forged_proof, profile)
-                
+
                 if not proof_valid:
                     self.forgery_detections += 1
                     self.proof_fail += 1
@@ -90,16 +95,16 @@ class RegionalShard:
                     self.proof_pass += 1
             else:
                 self.proof_pass += 1
-        
+
         # RDP privacy budget tracking
         privacy_used = self.honest_nodes * 0.001 * (1.0 + profile.malicious_ratio)
         self.privacy_budget_used = privacy_used
-        
+
         # Differential privacy epsilon (RDP composition)
         noise_scale = 1.0 + (profile.malicious_ratio * 10.0)
         delta = 1e-6
         dp_epsilon = math.sqrt(2.0 * math.log(1.25 / delta)) / noise_scale
-        
+
         return ShardMetrics(
             shard_id=self.shard_id,
             round_num=round_num,
@@ -162,7 +167,7 @@ def run_validation(
     rounds: int,
 ) -> ValidationResult:
     """Execute Byzantine resilience validation on 10M-node network."""
-    
+
     result_data = {
         "timestamp_utc": datetime.utcnow().isoformat() + "Z",
         "network_scale": network_scale,
@@ -170,18 +175,30 @@ def run_validation(
         "attack_profile": asdict(profile),
         "byzantine_threshold": 0.55,
     }
-    
+
     # Calculate network parameters
     expected_honest_ratio = 1.0 - profile.malicious_ratio
     regional_shards = aggregator_count // 5  # 5 aggregators per shard
     shard_size = network_scale // regional_shards
-    
+
     malicious_per_shard = int(shard_size * profile.malicious_ratio)
     honest_per_shard = shard_size - malicious_per_shard
-    
-    # Byzantine resilience check
-    resilience_verified = expected_honest_ratio > (1.0 - result_data["byzantine_threshold"])
-    
+
+    # Structural precondition: Multi-Krum-style distance filtering requires a
+    # strict honest majority *within the shard actually being filtered*
+    # (f < n/2, i.e. 2f < n) -- it has no correctness guarantee once
+    # malicious nodes are the shard's majority. This is the same bound
+    # machine-checked in proofs/LeanFormalization/Theorem1BFT.lean
+    # (`tier_byzantine_fraction_bound`). This is 0.5, not the 0.55
+    # `byzantine_threshold` field reported above: that field documents the
+    # separate, composed 5/9 profile-guard claim from bft_resilience.md /
+    # Theorem1BFT.lean's `theorem1_five_ninths_guard`, which this flat,
+    # non-hierarchical simulation does not itself model or test. Conflating
+    # the two would overclaim what this script demonstrates -- see
+    # bft_resilience.md's own note that the compositional theorem and the
+    # concrete profile check should not be conflated.
+    honest_majority_per_shard = 2 * malicious_per_shard < shard_size
+
     # Parallel execution across shards
     total_rejected = 0
     total_accepted = 0
@@ -190,13 +207,13 @@ def run_validation(
     total_proof_pass = 0
     total_proof_fail = 0
     shard_metrics = []
-    
+
     for round_num in range(rounds):
         print(f"[Round {round_num+1}/{rounds}] Processing {regional_shards} shards...")
-        
+
         with ThreadPoolExecutor(max_workers=min(16, regional_shards)) as executor:
             futures = {}
-            
+
             for shard_idx in range(regional_shards):
                 shard = RegionalShard(
                     shard_id=f"shard-{round_num}-{shard_idx}",
@@ -204,60 +221,89 @@ def run_validation(
                     honest_nodes=honest_per_shard,
                     malicious_nodes=malicious_per_shard,
                 )
-                
+
                 future = executor.submit(shard.process_attacked_gradients, profile, round_num)
                 futures[future] = shard
-            
+
             for future in as_completed(futures):
                 metrics = future.result()
                 shard_metrics.append(asdict(metrics))
-                
+
                 total_rejected += metrics.rejected_gradients
                 total_accepted += metrics.accepted_gradients
                 total_forgeries += metrics.forgery_detections
                 total_leakages += metrics.leakage_detections
                 total_proof_pass += metrics.proof_pass
                 total_proof_fail += metrics.proof_fail
-        
-        print(f"  Rejected: {total_rejected}, Accepted: {total_accepted}, "
-              f"Forgeries: {total_forgeries}, Leakages: {total_leakages}")
-    
+
+        print(
+            f"  Rejected: {total_rejected}, Accepted: {total_accepted}, "
+            f"Forgeries: {total_forgeries}, Leakages: {total_leakages}"
+        )
+
     # Calculate final metrics
     total_gradients = total_rejected + total_accepted
     rejection_rate = total_rejected / total_gradients if total_gradients > 0 else 0.0
-    
+
     total_proofs = total_proof_pass + total_proof_fail
     proof_verification_rate = total_proof_pass / total_proofs if total_proofs > 0 else 0.0
     forgery_detection_rate = total_forgeries / total_proofs if total_proofs > 0 else 0.0
     leakage_detection_rate = total_leakages / total_gradients if total_gradients > 0 else 0.0
-    
+
+    # Empirical resilience check: of the poisoning attempts this run actually
+    # injected (tracked via total_rejected/total_accepted from the simulated
+    # per-node attack loop), did the filter catch a real majority of them?
+    # This is computed from the simulation's own output, not restated from
+    # the configured malicious_ratio -- unlike the removed
+    # `expected_honest_ratio > 1 - byzantine_threshold` check, two runs with
+    # the same attack_profile but different random outcomes can differ here.
+    # When no poisoning was attempted (e.g. the control profile has
+    # gradient_poisoning_rate=0.0), there is nothing to catch, so this half
+    # of the check is vacuously satisfied.
+    RESILIENCE_MIN_CATCH_RATE = 0.5  # majority-caught; matches the honest-majority framing above
+    poisoning_catch_ok = (total_gradients == 0) or (rejection_rate > RESILIENCE_MIN_CATCH_RATE)
+    resilience_verified = honest_majority_per_shard and poisoning_catch_ok
+
     # Privacy analysis
     privacy_budget_respected = profile.privacy_budget > 0 and rejection_rate > 0.5
     differential_privacy_gap = abs(profile.privacy_budget - (total_leakages / 1000.0))
-    
+
     # Attack detection
     data_leakage_detected = total_leakages > 0
     proof_forgery_detected = total_forgeries > 0
     gradient_poisoning_detected = rejection_rate > 0.3
-    
+
     # Generate recommendations
     recommendations = [
-        "[OK] Byzantine resilience enforced via Multi-Krum filter (threshold 55% honest majority)",
+        f"[OK] Per-shard honest majority (2f < n) holds: {honest_majority_per_shard} "
+        f"({malicious_per_shard}/{shard_size} malicious per shard)",
         f"[OK] Proof verification rate: {proof_verification_rate*100:.2f}%",
         f"[OK] Gradient rejection rate: {rejection_rate*100:.2f}% (defense against poisoning)",
         f"[OK] Data leakage detection: {int(total_leakages)} events (RDP epsilon tracking)",
         f"[OK] Differential privacy epsilon: {profile.privacy_budget:.4f} (RDP accounting)",
     ]
-    
-    if not resilience_verified:
-        recommendations.insert(0, "[WARN] WARNING: Byzantine threshold exceeded (>55% malicious)")
-    
+
+    if not honest_majority_per_shard:
+        recommendations.insert(
+            0,
+            "[WARN] WARNING: malicious nodes are the shard majority (2f >= n) -- "
+            "Multi-Krum-style distance filtering has no correctness guarantee here",
+        )
+    elif not poisoning_catch_ok:
+        recommendations.insert(
+            0,
+            f"[WARN] WARNING: filter caught only {rejection_rate*100:.1f}% of attempted "
+            f"poisoning (< {RESILIENCE_MIN_CATCH_RATE*100:.0f}% majority-caught bar)",
+        )
+
     if data_leakage_detected:
-        recommendations.append("[WARN] Data leakage events detected - review regional shard isolation")
-    
+        recommendations.append(
+            "[WARN] Data leakage events detected - review regional shard isolation"
+        )
+
     if proof_forgery_detected:
         recommendations.append("[WARN] Proof forgeries detected - verify zk-SNARK verifier")
-    
+
     return ValidationResult(
         timestamp_utc=result_data["timestamp_utc"],
         network_scale=network_scale,
@@ -289,7 +335,7 @@ def main():
     print("2000 aggregator nodes, multiple attack profiles")
     print("=" * 80)
     print()
-    
+
     attack_profiles = [
         AttackProfile(
             name="Honest-Majority (Control)",
@@ -332,38 +378,44 @@ def main():
             collaborating_nodes=5000,
         ),
     ]
-    
+
     network_scale = 10_000_000
     aggregator_count = 2000
     rounds_per_profile = 3
-    
+
     results = []
-    
+
     for profile in attack_profiles:
         print(f"\n>>> Running validation for: {profile.name}")
         print(f"    Malicious ratio: {profile.malicious_ratio*100:.1f}%")
         print(f"    Poisoning rate: {profile.gradient_poisoning_rate*100:.1f}%")
         print(f"    Forgery rate: {profile.proof_forgery_rate*100:.1f}%")
         print()
-        
+
         result = run_validation(network_scale, aggregator_count, profile, rounds_per_profile)
         results.append(result)
-        
+
         print(f"\n    [OK] Resilience verified: {result.resilience_verified}")
-        print(f"    [OK] Data leakage detected: {result.data_leakage_detected} "
-              f"({result.leakage_detection_rate*100:.2f}% rate)")
-        print(f"    [OK] Proof forgery detected: {result.proof_forgery_detected} "
-              f"({result.forgery_detection_rate*100:.2f}% rate)")
-        print(f"    [OK] Gradient poisoning detected: {result.gradient_poisoning_detected} "
-              f"({result.rejection_rate*100:.2f}% rejection rate)")
+        print(
+            f"    [OK] Data leakage detected: {result.data_leakage_detected} "
+            f"({result.leakage_detection_rate*100:.2f}% rate)"
+        )
+        print(
+            f"    [OK] Proof forgery detected: {result.proof_forgery_detected} "
+            f"({result.forgery_detection_rate*100:.2f}% rate)"
+        )
+        print(
+            f"    [OK] Gradient poisoning detected: {result.gradient_poisoning_detected} "
+            f"({result.rejection_rate*100:.2f}% rejection rate)"
+        )
         print(f"    [OK] Proof verification rate: {result.proof_verification_rate*100:.2f}%")
         print(f"    [OK] DP epsilon (RDP): {profile.privacy_budget:.4f}")
-    
+
     # Summary report
     print("\n" + "=" * 80)
     print("VALIDATION SUMMARY")
     print("=" * 80)
-    
+
     summary_data = {
         "execution_time": datetime.utcnow().isoformat() + "Z",
         "network_scale": network_scale,
@@ -371,19 +423,19 @@ def main():
         "regional_shards": aggregator_count // 5,
         "validation_results": [asdict(r) for r in results],
     }
-    
-    with open("byzantine_10m_validation_report.json", "w") as f:
+
+    with open(REPORT_PATH, "w") as f:
         json.dump(summary_data, f, indent=2)
-    
-    print("\n[OK] Full report written to: byzantine_10m_validation_report.json")
-    
+
+    print(f"\n[OK] Full report written to: {REPORT_PATH}")
+
     # Overall verdict
     all_verified = all(r.resilience_verified for r in results)
     if all_verified:
         print("\n[PASS] ALL BYZANTINE RESILIENCE CHECKS PASSED")
     else:
         print("\n[FAIL] SOME BYZANTINE RESILIENCE CHECKS FAILED")
-    
+
     # Print recommendations
     print("\n" + "=" * 80)
     print("RECOMMENDATIONS")

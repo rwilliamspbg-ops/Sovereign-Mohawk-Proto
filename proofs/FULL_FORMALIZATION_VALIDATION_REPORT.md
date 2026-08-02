@@ -101,7 +101,7 @@ The current Lean modules, proof artifacts, and runtime references have been **au
 
 | Theorem Name | Proof Status | Tactics Used | Runtime Test |
 |---|---|---|---|
-| theorem5_constant_size | ✓ Proven | rfl | test/zk_verifier_test.go::TestVerifyZKProof |
+| theorem5_constant_size | ✓ Proven | rfl | test/zk_verifier_test.go::TestVerifyHashCommitment |
 | theorem5_constant_ops | ✓ Proven | rfl | (pairing count) |
 | theorem5_constant_cost | ✓ Proven | native_decide | (9ms bound) |
 | theorem5_scale_independence | ✓ Proven | rfl | test/zksnark_verifier_test.go::TestVerifyProof_Valid |
@@ -278,7 +278,7 @@ func (sm *StragglerMonitor) ValidateLiveness(activeNodes int, _ int) error {
 
 | Lean Theorem | Expected Runtime Test | Validation |
 |---|---|---|
-| theorem5_constant_size | test/zk_verifier_test.go::TestVerifyZKProof | ✓ EXISTS |
+| theorem5_constant_size | test/zk_verifier_test.go::TestVerifyHashCommitment | ✓ EXISTS |
 | theorem5_scale_independence | test/zksnark_verifier_test.go::TestVerifyProof_Valid | ✓ EXISTS |
 
 **Status:** ✓ All tests exist and validate O(1) verification

@@ -25,9 +25,8 @@
 [![PQC Migration](https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043)](docs/RELEASE_NOTES_PQC_OVERHAUL.md)
 [![EU AI Act High-Risk Readiness](https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043)](COMPLIANCE.md)
 [![MRC Transport](https://img.shields.io/badge/MRC%20Transport-Multi--Path%20Spraying-FF8C00)](docs/architecture/TRANSPORT_LAYER.md)
-[![Streaming Aggregator](https://img.shields.io/badge/Streaming%20Aggregator-160K%2B%20ops%2Fsec-green)](docs/architecture/STREAMING_AGGREGATOR.md)
-[![Multi-Tier Federation](https://img.shields.io/badge/Federation-Regional→Continental→Global-blueviolet)](docs/architecture/FEDERATION_PROTOCOL.md)
-[![Phase 4 Production](https://img.shields.io/badge/Phase%204-Production%20Deployment-brightgreen)](docs/PHASE_4_PRODUCTION_DEPLOYMENT.md)
+[![Streaming Aggregator](https://img.shields.io/badge/Streaming%20Aggregator-chunk%20reassembly-green)](internal/streaming_aggregator.go)
+[![Multi-Tier Federation](https://img.shields.io/badge/Federation-Regional→Continental→Global-blueviolet)](internal/federation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
 Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
@@ -61,7 +60,7 @@ What this gives you immediately:
 
 Next deployment steps:
 
-- Local multi-node stack: `./genesis-launch.sh --all-nodes`
+- Local multi-node stack: `./scripts/genesis-launch.sh --all-nodes`
 - Sandbox validation profile: `make sandbox-up`
 - Kubernetes baseline: `./scripts/helm-install.sh`
 - Kind deployment path: `make deploy-to-kind`
@@ -122,76 +121,52 @@ See [docs/INDEX.md](docs/INDEX.md) for complete navigation and role-based quick 
 
 ---
 
-## Phase 4: Production Deployment & Scale Validation
+## Multi-Tier Transport & Federation (Internal Packages)
 
-**Status:** ✅ Complete (May 2026)
+**Status:** Core packages implemented and unit/integration tested; the "Phase 4"
+production deployment tooling previously documented here (a dedicated
+`docker-compose.phase4-prod.yml`, `deploy/kubernetes/phase4-prod/`,
+`scripts/phase4/*.sh`, and specific throughput/latency numbers) does not
+exist in this repository and was removed from this section rather than left
+as broken instructions. Use the [Genesis Testnet](#genesis-testnet) section
+above for an actual, runnable multi-node stack.
 
-The MRC transport layer and multi-tier federation are production-ready:
+### What's real
 
-### Key Capabilities
-- **Transport Layer:** 2,525 chunks/sec multi-path spraying with 99.3% success rate
-- **Streaming Aggregator:** 160K+ ops/sec non-blocking hot-path ingestion
-- **Multi-Tier Federation:** Regional→Continental→Global hierarchy with health monitoring
-- **Byzantine Resilience:** Multi-Krum filtering with configurable fault tolerance
-- **Monitoring:** Prometheus metrics, Grafana dashboards, Jaeger tracing enabled
+- **`internal/transport`** — the MRC (multi-path spraying) transport
+  adapter, with `go test ./internal/transport/...` passing.
+- **`internal/streaming_aggregator.go`** — non-blocking chunk
+  reassembly/buffering for streaming gradient ingestion, with `go test -run
+  TestStreamingAggregator ./internal/` passing (chunk reassembly,
+  out-of-order chunks, multi-tensor buffering, stale-buffer eviction,
+  overflow rejection).
+- **`internal/federation`** — Regional→Continental→Global gRPC-based
+  aggregation hierarchy, with `go test ./internal/federation/...` passing,
+  including a simulated 100-node scenario (`TestFederationScenario100Nodes`).
+- **Byzantine filtering:** Multi-Krum, exercised via the Genesis Testnet
+  stack and `internal/multikrum*_test.go`.
+- **Monitoring:** Prometheus + Grafana are real and wired up by
+  `./scripts/genesis-launch.sh` / `docker-compose.full.yml` (see endpoints in
+  the Genesis Testnet section). Jaeger distributed tracing is not currently
+  wired into the default compose stack.
 
-### Production Deployment
+### What was fabricated in the previous version of this section
 
-**Docker Compose (3-node demo):**
-```bash
-docker-compose -f docker-compose.phase4-prod.yml up -d
-docker-compose logs -f continental-aggregator
-```
+- The `docker-compose.phase4-prod.yml`, `deploy/kubernetes/phase4-prod/`, and
+  `scripts/phase4/{health-check,validate-federation,stress-test-federation}.sh`
+  paths did not exist.
+- "2,525 chunks/sec", "99.3% success rate", "160K+ ops/sec", "10K+ grad/sec",
+  and "<300ms observed" were not backed by any benchmark result file in this
+  repo. A real (if informal) local `go test -bench=BenchmarkMRCThroughput
+  ./internal/transport` run on a development machine measured **17-40
+  ops/sec** — nowhere near the previously claimed figure. Treat any specific
+  throughput number as something to re-measure on your own hardware, not a
+  guaranteed target.
+- "All tests passing (9/9 unit + integration)" did not correspond to any
+  actual test count in this repo.
 
-**Kubernetes (100+ nodes):**
-```bash
-kubectl apply -f deploy/kubernetes/phase4-prod/
-kubectl get statefulsets -l tier  # View tier status
-kubectl logs -f statefulset/regional-aggregators-0
-```
-
-**Cloud (AWS/GCP/Azure):**
-Templates and Terraform/CloudFormation available in `deploy/cloud-templates/`
-
-### Validation & Monitoring
-
-```bash
-# Health check all tiers
-./scripts/phase4/health-check.sh
-
-# Validate end-to-end gradient flow
-./scripts/phase4/validate-federation.sh
-
-# Stress test with 100 virtual nodes
-./scripts/phase4/stress-test-federation.sh --nodes=100
-```
-
-**Performance Metrics:**
-| Metric | Target | Status |
-|--------|--------|--------|
-| Transport Throughput | 2,500+ chunks/sec | ✅ 2,525 |
-| Streaming Ingestion | 150K+ ops/sec | ✅ 160K+ |
-| Federation Cross-Tier | 10K+ grad/sec | ✅ Validated |
-| End-to-End Latency | <500ms TTL | ✅ <300ms observed |
-
-### Monitoring Stack
-
-- **Prometheus:** Transport, aggregator, federation metrics (customizable retention: default 15 days)
-- **Grafana:** Pre-built dashboards (health, throughput, latency, Byzantine filtering)
-- **Jaeger:** Distributed tracing for gradient propagation (100-node federation visualized)
-
-### Production Readiness Checklist
-
-- [x] All tests passing (9/9 unit + integration)
-- [x] Performance benchmarked and validated
-- [x] Docker/Kubernetes deployments tested
-- [x] Monitoring fully instrumented
-- [x] Runbooks and troubleshooting guides written
-- [x] Byzantine resilience scenario tested
-- [x] Failover mechanisms validated
-- [x] Operation procedures automated
-
-**Next:** See [docs/PHASE_4_PRODUCTION_DEPLOYMENT.md](docs/PHASE_4_PRODUCTION_DEPLOYMENT.md) for complete deployment guide, tuning parameters, and operational runbooks.
+For real, current performance methodology and how to reproduce numbers
+yourself, see [PERFORMANCE.md](PERFORMANCE.md).
 
 ---
 
@@ -209,7 +184,7 @@ High-risk readiness controls, Article 8-15 mapping, technical evidence, and depl
 ## Runtime Quick Start (3 Nodes)
 
 ```bash
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 docker compose ps
 ```
 
@@ -368,7 +343,7 @@ Traditional federated learning protocols struggle with linear scaling bottleneck
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
 | **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **Logarithmic path-depth proxy; total bytes model-dependent** |
 | **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
-| **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **zk-SNARK + STARK hybrid policy** |
+| **Proof Verification Path** | No native zk proof verification baseline | No native zk proof verification baseline | **BN254 Groth16 zk-SNARK (fixed genesis identity, not yet circuit-bound to submitted data) + SHA-256 commitment-backed STARK transcript path** |
 | **Operational Readiness Gates** | Platform-dependent | Platform-dependent | **One-click readiness + chaos + digest artifacts** |
 
 ---
@@ -527,10 +502,10 @@ Validated startup options:
 1. Regional profile (orchestrator + shard + node-agent-1):
 
 ```bash
-./genesis-launch.sh
+./scripts/genesis-launch.sh
 
 # Start orchestrator + shard + node-agent-1..3
-./genesis-launch.sh --all-nodes
+./scripts/genesis-launch.sh --all-nodes
 
 # Equivalent Make target
 make regional-shard
@@ -554,7 +529,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 Startup checks validated in this repository:
 
-* `./genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
+* `./scripts/genesis-launch.sh` starts `orchestrator`, `shard-us-east`, `node-agent-1`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`.
 * `./scripts/launch_full_stack_3_nodes.sh --no-build` starts `orchestrator`, `shard-us-east`, `node-agent-1..3`, `prometheus`, `grafana`, `ipfs`, `tpm-metrics`, `pyapi-metrics-exporter`.
 
 Scalable full-stack profile (single `node-agent` service with replicas):
