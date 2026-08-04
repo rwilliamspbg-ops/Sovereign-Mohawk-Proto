@@ -2,7 +2,17 @@ import LeanFormalization.Theorem7PQCMigrationContinuity
 
 namespace LeanFormalization
 
-/-- Adversary hijack win condition. -/
+/-- Adversary hijack win condition.
+
+    NOTE ON VACUOUSNESS: unfolding both sides, this is
+    `(auth.legacySigned ∧ auth.pqcSigned) ∧ ¬auth.pqcSigned` — the shape
+    `(A ∧ B) ∧ ¬B`, unsatisfiable for *any* `auth`, independent of `adv` (which
+    is why it's discarded via `have _ := adv` — it plays no role at all) and
+    independent of any security hypothesis. `canHijack auth adv` is
+    identically `False`. So `theorem8_no_hijack_possible` below is true, but
+    not because UF-CMA security prevents a hijack — it's true because the
+    definition of "hijack" as stated can never occur regardless of whether
+    PQC is broken. See that theorem's own comment. -/
 def canHijack (auth : MigrationAuth) (adv : Adversary) : Prop :=
   have _ := adv
   postEpochAccepts auth ∧ ¬ hijackSafe auth
@@ -66,18 +76,42 @@ theorem theorem8_pqc_prevents_hijack (auth : MigrationAuth)
     hijackSafe auth :=
   theorem8_post_epoch_non_hijack auth h_post
 
-/-- No successful hijack possible under full UF-CMA game. -/
+/-- NOT a PQC-hardness security reduction, despite taking `h_secure` as a
+    named (not underscore-prefixed) argument — same disease as
+    `theorem7_pqc_hardness_ensures_continuity`/`theorem8_pqc_prevents_hijack`,
+    just previously undocumented here: `pqc`, `oracle`, and `h_secure` are all
+    accepted and then explicitly discarded via `have _ := ...` in the proof
+    body, never used. The theorem is true regardless — see `canHijack`'s own
+    comment above: `canHijack` is identically `False` by definition, for any
+    `auth`, independent of any adversary or security assumption, so "no
+    hijack possible" holds trivially and doesn't depend on `h_secure` at all.
+-/
 theorem theorem8_no_hijack_possible (auth : MigrationAuth)
     (pqc : PQCSig)
     (oracle : SignOracle)
-    (h_secure : pqcUnforgeable pqc oracle)
+    (_h_secure : pqcUnforgeable pqc oracle)
     (h_post : postEpochAccepts auth) :
     ¬ canHijack auth (Adversary.mk [] 0 0) := by
-  have _ := pqc
-  have _ := h_secure
   intro h
   have hs : hijackSafe auth := theorem8_post_epoch_non_hijack auth h_post
   exact h.2 hs
+
+/-- The real, hardness-dependent counterpart to `theorem8_pqc_prevents_hijack`
+    above: an adversary who hasn't legitimately obtained a PQC signature for
+    `msg` cannot make a *witnessed* `hijackSafe` true for it (`hijackSafe auth
+    := auth.pqcSigned`, so this is `pqc_hardness_blocks_unwitnessed_acceptance`
+    from Theorem7PQCMigrationContinuity.lean read through that definition).
+    `h_secure` is genuinely used here. -/
+theorem pqc_hardness_blocks_unwitnessed_hijack_safety
+    (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
+    (auth : MigrationAuth) (queries : List Nat) (msg sig : Nat)
+    (h_witness : pqcSignedWitnessed pqc auth msg sig)
+    (h_fresh : msg ∉ queries) :
+    ¬ hijackSafe auth := by
+  rw [hijackSafe]
+  exact ne_true_of_eq_false
+    (pqc_hardness_blocks_unwitnessed_acceptance pqc oracle h_secure auth queries msg sig
+      h_witness h_fresh)
 
 /-- Scale guard (native_decide style). -/
 theorem theorem8_scale_non_hijack_guard :

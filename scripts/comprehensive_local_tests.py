@@ -190,9 +190,7 @@ class ValidationTestSuite:
                         self.total_passed += 1
                     self.total_tests += 1
                 else:
-                    print(
-                        f"[FAIL] {check_name} - File not found: {check_config['file']}"
-                    )
+                    print(f"[FAIL] {check_name} - File not found: {check_config['file']}")
                     results[check_name] = False
                     self.total_tests += 1
 

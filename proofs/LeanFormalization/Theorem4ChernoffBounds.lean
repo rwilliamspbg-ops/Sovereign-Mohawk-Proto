@@ -3,21 +3,7 @@ import LeanFormalization.Common
 
 namespace LeanFormalization
 
-open scoped BigOperators
-
-/-- Abstract probability event space for formalization.
-    An event family describes dropout patterns over independent regional replicas.
--/
-structure DropoutEvent where
-  region_id : Nat
-  is_dropped : Bool
-
-/-- Regional independence assumption:
-    dropout events across regions are independent.
-    We model this as a predicate on finite sets of events.
--/
-structure IndependentDropouts (events : Set DropoutEvent) : Prop where
-  distinct_regions : ∀ e1 ∈ events, ∀ e2 ∈ events, e1.region_id ≠ e2.region_id → True
+open scoped BigOperators NNReal ENNReal
 
 /-- Chernoff bound: probability of failure in redundant copies
     For r redundant copies with α-fraction of fast nodes,
@@ -26,6 +12,38 @@ structure IndependentDropouts (events : Set DropoutEvent) : Prop where
 -/
 def chernoff_bound (alpha : ℚ) (r : Nat) : ℚ :=
   if 0 < alpha ∧ alpha < 1 then (1 - alpha) ^ r else 0
+
+/-- `chernoff_bound` is not a bare arithmetic formula asserted by fiat: it
+    genuinely equals a probability in a real measure-theoretic probability
+    space. `PMF.binomial p hp r` is Mathlib's actual probability mass
+    function for the number of "heads" (here: available replicas) in `r`
+    independent `p`-coin flips — a `PMF (Fin (r+1))`, i.e. a function to
+    `ℝ≥0∞` that provably sums to `1` over its support, not a name attached to
+    an unrelated computation. Evaluating it at `0` heads (all `r` replicas
+    unavailable) and citing Mathlib's own `PMF.binomial_apply_zero` — proved
+    there, not here — shows this equals exactly `(1-p)^r`, i.e.
+    `chernoff_bound`. This is the "lift to a proper probability / measure
+    theory setting" the redundancy model previously lacked: previously
+    `IndependentDropouts` gestured at independence with a structure whose
+    only field concluded `True` unconditionally (removed — it was never
+    referenced by any theorem in this file) instead of connecting to any
+    real probability space. -/
+theorem chernoff_bound_eq_binomial_zero_prob (alpha : ℚ) (h_alpha : 0 < alpha ∧ alpha < 1)
+    (r : ℕ) :
+    (chernoff_bound alpha r : ℝ) =
+      (PMF.binomial (alpha : ℝ).toNNReal
+        (Real.toNNReal_le_one.mpr (by exact_mod_cast h_alpha.2.le)) r 0).toReal := by
+  rw [PMF.binomial_apply_zero]
+  unfold chernoff_bound
+  rw [if_pos h_alpha]
+  have hp1 : (alpha : ℝ).toNNReal ≤ 1 := Real.toNNReal_le_one.mpr (by exact_mod_cast h_alpha.2.le)
+  have hp1' : ((alpha : ℝ).toNNReal : ℝ≥0∞) ≤ 1 := by exact_mod_cast hp1
+  have hcoe : ((alpha : ℝ).toNNReal : ℝ) = (alpha : ℝ) :=
+    Real.coe_toNNReal _ (by exact_mod_cast h_alpha.1.le)
+  rw [ENNReal.toReal_pow, ENNReal.toReal_sub_of_le hp1' (by simp)]
+  simp only [ENNReal.toReal_one, ENNReal.coe_toReal, hcoe]
+  push_cast
+  ring
 
 /-- Lemma 1: Chernoff bounds are monotone in r
     If r increases, the failure bound decreases (or stays same).
@@ -116,41 +134,62 @@ theorem theorem4_hierarchical_chernoff_validation :
   norm_num [chernoff_bound]
 
 /-- Formal probability theorem: Union bound for independent regional failures.
-    If each of n regions has failure probability ≤ p_i, and failures are independent,
-    then the probability that at least one region fails is ≤ ∑ p_i.
--/
+    If each of n regions has failure probability ≤ p_i, and failures are
+    independent, then the probability that at least one region fails is ≤ ∑ p_i.
+
+    The previous version of this theorem, despite this docstring, concluded
+    only `∃ sum, sum = ∑ p_i ∧ sum ≥ 0` — a fact about the *existence* of the
+    sum, saying nothing about "at least one region fails" at all; the
+    `h_nonneg`/`_h_bounded` hypotheses did no work. Replaced with the actual
+    union-bound inequality: `1 - ∏(1 - p_i) ≤ ∑ p_i`, where `1 - ∏(1-p_i)` is
+    the probability at least one region fails (complement of "all succeed",
+    which under independence *is* the product of individual success
+    probabilities — see `chernoff_bound_eq_binomial_zero_prob` above for the
+    same identification in the uniform-probability case). Proved by
+    induction on `n`, without needing independence as a separate premise:
+    the inequality holds for the arithmetic quantities regardless. -/
 theorem theorem4_union_bound (n : Nat) (p : Nat → ℚ)
-    (h_nonneg : ∀ i, 0 ≤ p i)
-  (_h_bounded : ∀ i, p i ≤ 1) :
-  ∃ (sum : ℚ), sum = Finset.sum (Finset.range n) (fun i => p i) ∧ sum ≥ 0 := by
-  use Finset.sum (Finset.range n) (fun i => p i)
-  constructor
-  · rfl
-  · exact Finset.sum_nonneg (fun i _ => h_nonneg i)
+    (h_bounds : ∀ i, 0 ≤ p i ∧ p i ≤ 1) :
+    1 - ∏ i ∈ Finset.range n, (1 - p i) ≤ ∑ i ∈ Finset.range n, p i := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+      rw [Finset.prod_range_succ, Finset.sum_range_succ]
+      have hpn := h_bounds n
+      have h1pn : (0 : ℚ) ≤ 1 - p n := by linarith [hpn.2]
+      have hsum_nonneg : (0 : ℚ) ≤ ∑ i ∈ Finset.range n, p i :=
+        Finset.sum_nonneg (fun i _ => (h_bounds i).1)
+      have ih'' : 1 - ∑ i ∈ Finset.range n, p i ≤ ∏ i ∈ Finset.range n, (1 - p i) := by linarith
+      have hstep : (1 - p n) * (1 - ∑ i ∈ Finset.range n, p i)
+          ≤ (1 - p n) * ∏ i ∈ Finset.range n, (1 - p i) :=
+        mul_le_mul_of_nonneg_left ih'' h1pn
+      nlinarith [hstep, hpn.1, hpn.2, hsum_nonneg, mul_nonneg hpn.1 hsum_nonneg]
 
 /-- Theorem 4 full statement with independence assumption.
     Under the model that node-tier failures are independent with uniform
     availability α, the system failure probability after all hierarchical
     aggregation tiers and redundancy is exponentially small in redundancy.
--/
+
+    The previous version wrapped this in `∃ failure_prob, failure_prob =
+    chernoff_bound alpha r ∧ ...` — an unconditional existential satisfiable
+    by picking the obvious witness `chernoff_bound alpha r` itself (the same
+    "provable for any input" pattern already flagged and fixed for
+    `theorem1_hierarchical_bft_tolerance`'s predecessor in Theorem1BFT.lean).
+    Stated directly below instead; same content, no vacuous wrapper. -/
 theorem theorem4_full_independence_model
     (alpha : ℚ) (r : Nat)
     (h_alpha : 0 < alpha ∧ alpha < 1)
     (h_r : r ≥ 1) :
-    ∃ (failure_prob : ℚ),
-      failure_prob = chernoff_bound alpha r ∧
-      (alpha = (9 : ℚ) / 10 ∧ r = 12 → failure_prob ≤ 1 / 10^12) ∧
-      r ≥ 1 ∧
-      failure_prob ≥ 0 := by
-  use chernoff_bound alpha r
-  refine ⟨rfl, fun hr => ?_, h_r, ?_⟩
+    (alpha = (9 : ℚ) / 10 ∧ r = 12 → chernoff_bound alpha r ≤ 1 / 10 ^ 12) ∧
+      0 ≤ chernoff_bound alpha r := by
+  refine ⟨fun hr => ?_, ?_⟩
   · rcases hr with ⟨h_alpha_eq, h_r_eq⟩
     subst alpha
     subst r
-    simpa using chernoff_alpha_09_r12
+    exact chernoff_alpha_09_r12
   · unfold chernoff_bound
-    simp [h_alpha]
-    have : 0 ≤ 1 - alpha := by linarith
+    simp only [h_alpha, if_true, and_self]
+    have : 0 ≤ 1 - alpha := by linarith [h_alpha.2]
     exact pow_nonneg this r
 
 end LeanFormalization

@@ -18,3 +18,38 @@ same honest-majority argument.
 
 These should not be conflated into a general proof that recursive filtering
 preserves correctness when an input tier exceeds $50\%$ malicious participation.
+
+### Correction: the "Inductive Safety" proof sketch above is FALSE
+
+Lemma 2's inductive step — "if tier $t-1$ outputs a resilient model and
+$f_t < n_t/2$, tier $t$ preserves this safety property" — was formalized as a
+deterministic compositional theorem and found to be **false**, with a
+concrete, machine-checked counterexample: `LeanFormalization/Theorem1BFT.lean`,
+`hierarchical_composition_counterexample`. A weighted (by actual subtree
+leaf-count, not just child-count) local honest-majority guard holding at
+*every* level of a 2-child, depth-3 tree still permits 60% of leaves to be
+Byzantine overall. The gap: a "safe" tier is only guaranteed *better than
+half* honest internally, and crediting it with its *full* leaf-weight (the
+only option available to a parent that can't see past an aggregated output)
+lets an adversary concentrate near-50% corruption inside a nominally-safe
+branch while a separate wholly-Byzantine branch adds more uncredited weight
+than the local majority check accounts for. Reworking the algebra for any
+fixed per-level threshold (not just $1/2$) reproduces the same gap — this is
+structural, not a threshold-tuning problem.
+
+What this means for the claim above: "the global model is
+$(\sum_t f_t)$-Byzantine resilient" given only "$f_t < n_t/2$ for all $t$" is
+not established, and the natural deterministic argument for it doesn't work.
+A real version of this claim needs a *probabilistic* argument — consistent
+with this system's actual architecture (randomly-sampled committees, not a
+fixed adversarial partition): if committee membership is drawn via random
+sampling from a population with a bounded *global* Byzantine fraction, the
+adversary can't choose which tier to concentrate corruption in, and a
+concentration bound (hypergeometric/binomial tail) shows any single
+committee exceeding its local threshold is exponentially unlikely. That is a
+different, measure-theoretic formalization task, not attempted here — see
+`Theorem1BFT.lean`'s own comment on this section for the full argument.
+
+The concrete 5/9 profile check (`theorem1_five_ninths_guard`,
+`theorem1_global_bound_checked`) is unaffected — it's a real, correct fact
+about a *given* tier's Byzantine count and was never claiming to compose.

@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "23bcf29b92e4764f492c4b75cdca4c972ae1203e794ed8667ef2d04bba2a79f3",
+  "input_merkle_root": "6dbfa4d44a962f9e4b2d1271c91a9b333507bb780e12a874ee49b148708029db",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "205039d0c9148bb970c7fd26a4bb2c3491765b1580a7edd586fccb1c85dbe702"
+      "sha256": "963fff54850ce711c31a84aa3d3ba6b70b2d7a319a3bd08d2260268a3e719415"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "ba24f55f1af3bc3808010014fc6793a6e92e50e2caaf7a6a5f2e4080f945a8c6"
+      "sha256": "29597b6635a71571727553fcd7a431e2bd78a1f55b6a581f6727cdd9f3c92ef6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
@@ -36,7 +36,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "65f80bb78f82a99c026d7d499cdadaac415b1da81ff36fbcd568b06d66cfd051"
+      "sha256": "51519b6ec091e4b4f478226f5d01c89b346118e248b3b1e420018349cff8dc48"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
@@ -48,15 +48,15 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
-      "sha256": "a6bcff3a7f105e9434d507ca0183e26e1c472f0c1a47249f0ad21b56f618a172"
+      "sha256": "86e5f7eb00a277dfce361e3910b8e30c9e7fb4cc47fecbb7cd6ecdac7636c9e6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
-      "sha256": "14518fc27ca7483fe69be722b500deeffa36d2e34f18d9d4b75a68278e81eb41"
+      "sha256": "e45b8ed289d0e9fe65200d924f2927d2b68bdd5fb55b00741a46e7d922fe19b5"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "737b44a9acb0e528353c6a64af8b58b5fab5f65e0ab61964a6aeda534e9e9fa3"
+      "sha256": "c738450d99c7ab9f737a6fb153a19b0419bda083aeebcd361493f086bb2bde1d"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
@@ -64,15 +64,15 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
-      "sha256": "964c9c927eff7fe71625b2322f315b9f27dc2396633b8729075b14b24089fabf"
+      "sha256": "a9f4f0f02035b674761870ad717aa41d90558778600014ae6a41fc693884a33d"
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "44fe3994111c83c0f7939314dbb7a7a6ea4e80ec14d8b64a96dc680ff50782db"
+      "sha256": "4d10d5d95e87676080f0cc8518f9bc7e2e5b4de6e1857900d0946d4a65154e93"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "babaf6a870c97d078220442182ba504433ce4aa7051dedf4daa6df4119802ca5"
+      "sha256": "86412127a9107c07eb15d6e430e67048c575fd39db714342040753986f74c8ae"
     },
     {
       "path": "proofs/lakefile.lean",
@@ -91,8 +91,16 @@
     {
       "file": "proofs/LeanFormalization/Theorem1BFT.lean",
       "module": "LeanFormalization.Theorem1BFT",
-      "symbol_count": 10,
+      "symbol_count": 18,
       "symbols": [
+        "HTree",
+        "hierarchical_composition_counterexample",
+        "hierarchical_counterexample_A",
+        "hierarchical_counterexample_A_safe",
+        "hierarchical_counterexample_B",
+        "hierarchical_counterexample_B_not_safe",
+        "hierarchical_counterexample_Root",
+        "hierarchical_counterexample_Root_safe",
         "theorem1_five_ninths_guard",
         "theorem1_five_ninths_of_half_bound",
         "theorem1_global_bound_checked",
@@ -117,9 +125,10 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 25,
+      "symbol_count": 29,
       "symbols": [
         "RDP_alpha_constraint",
+        "RDP_indicator_divergence_disjoint_eq_zero",
         "RDP_sequential_composition",
         "RenyiDivergence_limit_KL",
         "RenyiDivergence_nonneg",
@@ -130,7 +139,10 @@
         "data_processing_inequality_KL",
         "gaussianRDPBound",
         "isAdjacent",
+        "pushforward_pos",
+        "pushforward_sum",
         "satisfiesRDP",
+        "stated",
         "sum_rpow_div_ge",
         "theorem2_budget_guard",
         "theorem2_budget_step",
@@ -181,10 +193,11 @@
     {
       "file": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
       "module": "LeanFormalization.Theorem4ChernoffBounds",
-      "symbol_count": 10,
+      "symbol_count": 11,
       "symbols": [
         "chernoff_alpha_09_r12",
         "chernoff_bound",
+        "chernoff_bound_eq_binomial_zero_prob",
         "chernoff_hierarchical_composition",
         "chernoff_monotone",
         "chernoff_redundancy_effectiveness",
@@ -212,18 +225,18 @@
       "module": "LeanFormalization.Theorem5Cryptography",
       "symbol_count": 15,
       "symbols": [
+        "Relation",
         "proofSize",
-        "statementSoundness",
+        "prove",
         "theorem5_constant_cost",
         "theorem5_constant_ops",
         "theorem5_constant_size",
         "theorem5_cost_guard",
         "theorem5_ops_guard",
         "theorem5_proof_size_independence",
-        "theorem5_proof_soundness",
-        "theorem5_qsdh_security",
         "theorem5_verifier_completeness",
-        "verifierCompleteness",
+        "theorem5_verifier_soundness",
+        "theorem5_verifyops_constant",
         "verify",
         "verifyCostMicros",
         "verifyOps"
@@ -247,35 +260,36 @@
     {
       "file": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
       "module": "LeanFormalization.Theorem6ConvergenceReals",
-      "symbol_count": 18,
+      "symbol_count": 15,
       "symbols": [
-        "convergence_dimension_independent",
         "convergence_envelope",
         "convergence_envelope_concrete_100_1000",
         "convergence_envelope_decompose",
         "convergence_envelope_momentum",
         "convergence_heterogeneity_effect",
         "convergence_large_scale_envelope",
-        "convergence_preserves_hierarchical_communication",
         "convergence_rounds_help_numeric",
         "convergence_rounds_help_strong",
         "convergence_with_strong_convexity",
-        "smoothness_constant",
+        "previously",
         "strong_convexity_factor",
         "theorem6_exact_convergence_regime",
         "theorem6_hierarchical_convergence_holds",
         "theorem6_hierarchical_convergence_rate",
-        "theorem6_non_convex_lower_bound",
         "theorem6_variance_reduction_convergence"
       ]
     },
     {
       "file": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
       "module": "LeanFormalization.Theorem7PQCMigrationContinuity",
-      "symbol_count": 12,
+      "symbol_count": 16,
       "symbols": [
         "goPostEpochAccept",
         "goVerifyMigrationSignatureBundle",
+        "pqcSignedWitnessed",
+        "pqc_hardness_blocks_unwitnessed_acceptance",
+        "pqc_hardness_blocks_unwitnessed_post_epoch_accept",
+        "pqc_unforgeable_no_valid_sig_for_unqueried",
         "theorem7_dual_signature_continuity",
         "theorem7_legacy_compromise_insufficient",
         "theorem7_post_epoch_pqc_signed_regardless_of_legacy_compromise",
@@ -291,11 +305,12 @@
     {
       "file": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
       "module": "LeanFormalization.Theorem8DualSignatureNonHijack",
-      "symbol_count": 10,
+      "symbol_count": 11,
       "symbols": [
         "canHijack",
         "goSettleTaskPayoutSafe",
         "ledger_invariant_post_epoch",
+        "pqc_hardness_blocks_unwitnessed_hijack_safety",
         "theorem8_no_hijack_possible",
         "theorem8_no_pqc_not_safe",
         "theorem8_post_epoch_non_hijack",
@@ -310,7 +325,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 133
+    "theorem_symbol_count": 148
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
@@ -321,9 +336,10 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 30,
+    "runtime_reference_count": 31,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_test.go::TestMultiKrumSelect",
       "internal/token/migration_signatures.go::verifyMigrationSignatureBundle",
       "sdk/python/examples/flower_integrated/quickstart_pytorch.py::main",
@@ -351,7 +367,7 @@
       "test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof",
       "test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic",
       "test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath",
-      "test/zk_verifier_test.go::TestVerifyZKProof",
+      "test/zk_verifier_test.go::TestVerifyHashCommitment",
       "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
     ]
   }

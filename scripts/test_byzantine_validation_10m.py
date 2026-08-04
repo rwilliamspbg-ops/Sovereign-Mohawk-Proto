@@ -16,9 +16,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 REPORT_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "results"
-    / "byzantine_10m_validation_report.json"
+    Path(__file__).resolve().parent.parent / "results" / "byzantine_10m_validation_report.json"
 )
 
 
@@ -51,9 +49,7 @@ class ShardMetrics:
 
 
 class RegionalShard:
-    def __init__(
-        self, shard_id: str, total_nodes: int, honest_nodes: int, malicious_nodes: int
-    ):
+    def __init__(self, shard_id: str, total_nodes: int, honest_nodes: int, malicious_nodes: int):
         self.shard_id = shard_id
         self.total_nodes = total_nodes
         self.honest_nodes = honest_nodes
@@ -67,9 +63,7 @@ class RegionalShard:
         self.proof_fail = 0
         self.privacy_budget_used = 0.0
 
-    def process_attacked_gradients(
-        self, profile: AttackProfile, round_num: int
-    ) -> ShardMetrics:
+    def process_attacked_gradients(self, profile: AttackProfile, round_num: int) -> ShardMetrics:
         """Simulate Byzantine attack on gradients and proofs."""
 
         for node_idx in range(self.malicious_nodes):
@@ -228,9 +222,7 @@ def run_validation(
                     malicious_nodes=malicious_per_shard,
                 )
 
-                future = executor.submit(
-                    shard.process_attacked_gradients, profile, round_num
-                )
+                future = executor.submit(shard.process_attacked_gradients, profile, round_num)
                 futures[future] = shard
 
             for future in as_completed(futures):
@@ -254,13 +246,9 @@ def run_validation(
     rejection_rate = total_rejected / total_gradients if total_gradients > 0 else 0.0
 
     total_proofs = total_proof_pass + total_proof_fail
-    proof_verification_rate = (
-        total_proof_pass / total_proofs if total_proofs > 0 else 0.0
-    )
+    proof_verification_rate = total_proof_pass / total_proofs if total_proofs > 0 else 0.0
     forgery_detection_rate = total_forgeries / total_proofs if total_proofs > 0 else 0.0
-    leakage_detection_rate = (
-        total_leakages / total_gradients if total_gradients > 0 else 0.0
-    )
+    leakage_detection_rate = total_leakages / total_gradients if total_gradients > 0 else 0.0
 
     # Empirical resilience check: of the poisoning attempts this run actually
     # injected (tracked via total_rejected/total_accepted from the simulated
@@ -272,12 +260,8 @@ def run_validation(
     # When no poisoning was attempted (e.g. the control profile has
     # gradient_poisoning_rate=0.0), there is nothing to catch, so this half
     # of the check is vacuously satisfied.
-    RESILIENCE_MIN_CATCH_RATE = (
-        0.5  # majority-caught; matches the honest-majority framing above
-    )
-    poisoning_catch_ok = (total_gradients == 0) or (
-        rejection_rate > RESILIENCE_MIN_CATCH_RATE
-    )
+    RESILIENCE_MIN_CATCH_RATE = 0.5  # majority-caught; matches the honest-majority framing above
+    poisoning_catch_ok = (total_gradients == 0) or (rejection_rate > RESILIENCE_MIN_CATCH_RATE)
     resilience_verified = honest_majority_per_shard and poisoning_catch_ok
 
     # Privacy analysis
@@ -318,9 +302,7 @@ def run_validation(
         )
 
     if proof_forgery_detected:
-        recommendations.append(
-            "[WARN] Proof forgeries detected - verify zk-SNARK verifier"
-        )
+        recommendations.append("[WARN] Proof forgeries detected - verify zk-SNARK verifier")
 
     return ValidationResult(
         timestamp_utc=result_data["timestamp_utc"],
@@ -410,9 +392,7 @@ def main():
         print(f"    Forgery rate: {profile.proof_forgery_rate*100:.1f}%")
         print()
 
-        result = run_validation(
-            network_scale, aggregator_count, profile, rounds_per_profile
-        )
+        result = run_validation(network_scale, aggregator_count, profile, rounds_per_profile)
         results.append(result)
 
         print(f"\n    [OK] Resilience verified: {result.resilience_verified}")
@@ -428,9 +408,7 @@ def main():
             f"    [OK] Gradient poisoning detected: {result.gradient_poisoning_detected} "
             f"({result.rejection_rate*100:.2f}% rejection rate)"
         )
-        print(
-            f"    [OK] Proof verification rate: {result.proof_verification_rate*100:.2f}%"
-        )
+        print(f"    [OK] Proof verification rate: {result.proof_verification_rate*100:.2f}%")
         print(f"    [OK] DP epsilon (RDP): {profile.privacy_budget:.4f}")
 
     # Summary report

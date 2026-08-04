@@ -216,7 +216,7 @@ services:
       - mohawk-net
 
   tpm-metrics:
-    image: golang:1.26-alpine
+    image: golang:1.26.5-alpine
     container_name: tpm-metrics
     working_dir: /workspace
     command: ["go", "run", "./cmd/tpm-metrics"]
@@ -239,7 +239,7 @@ services:
       - mohawk-net
 
   pyapi-metrics-exporter:
-    image: golang:1.26-alpine
+    image: golang:1.26.5-alpine
     container_name: pyapi-metrics-exporter
     working_dir: /workspace
     command: ["go", "run", "./cmd/pyapi-metrics-exporter"]
@@ -264,7 +264,7 @@ services:
       - mohawk-net
 
   federated-router:
-    image: golang:1.26-alpine
+    image: golang:1.26.5-alpine
     container_name: federated-router
     working_dir: /workspace
     command: ["go", "run", "./cmd/federated-router"]
