@@ -38,6 +38,17 @@
 // pairing arithmetic itself (via gnark-crypto) is real and correctly
 // implemented; what's missing is a real statement-specific circuit and
 // trusted setup to make the proof mean something about submitted data.
+//
+// A real circuit-and-trusted-setup verifier now exists alongside this one:
+// see zksnark_circuit_verifier.go's DataCommitmentCircuit,
+// ProveDataCommitment, and VerifyDataCommitmentProof — its verification
+// key comes from an actual groth16.Setup over a compiled R1CS circuit, and
+// a valid proof genuinely binds to a specific data commitment (not a fixed
+// identity). It is additive, not a replacement: GenesisProofBytes/
+// VerifyProof here remain unchanged for existing callers (pyapi CGo
+// exports, internal/hybrid, internal/batch/aggregator), and the new path
+// is not yet wired into any of those production call sites — see that
+// file's own doc comment for exact scope.
 package internal
 
 import (
