@@ -457,12 +457,137 @@ theorem probabilistic_hierarchical_bound_small_scale_example :
     Markov's inequality is a real but weak tool; its bound only becomes
     informative when the population is small, the margin between the mean
     (`c·p`) and the threshold `k` is large, or few committees are unioned
-    over. None of those hold at Sovereign-Mohawk's actual scale. Closing
-    this gap for real needs the sharper exponential Chernoff/Hoeffding tail
-    bound `bft_resilience.md` names as the mathematically correct fix —
-    scoped out of this pass for the reasons in this section's header
-    comment, not silently assumed solved. -/
+    over. None of those hold at Sovereign-Mohawk's actual scale.
+
+    This gap is now closed for real — see `chernoff_hierarchical_bound`
+    and its deployment-scale corollary below, which use the sharper
+    exponential Chernoff tail bound `bft_resilience.md` originally named as
+    the mathematically correct fix (deliberately scoped out at the time
+    this theorem was first written, not silently assumed solved). -/
 theorem probabilistic_bound_too_loose_at_deployment_scale :
     (200 : ℚ) * ((50000 : ℚ) * (1/10 : ℚ) / 25000) = 40 := by norm_num
+
+/-! ## Closing the deployment-scale gap: a real exponential (Chernoff) bound
+
+`binomial_markov` above is a real but polynomial-decay bound: `P(X≥k) ≤ np/k`,
+too weak once unioned over 200 committees. The classical fix is the Chernoff
+method — bound `P(X≥k)` via Markov's inequality applied to `zˣ` (or
+equivalently `e^{tX}`) instead of `X` itself, for some base `z > 1`, then
+optimize `z`. This gives *exponential*, not polynomial, decay in `k`.
+
+Formalized here **without** Mathlib's general sub-Gaussian/MGF machinery
+(`Mathlib.Probability.Moments.*`), which needs a real measure space, kernels,
+and integrability side-conditions — a big jump from this file's existing
+elementary `ℚ`-arithmetic style. Instead, this reuses the exact proof
+technique already used for `binomial_mean`/`binomial_markov` (weighted
+`Finset.sum` extension + the binomial theorem `add_pow`), just with `zⁱ`
+weighting instead of `i` weighting — genuinely equivalent to the standard
+`e^{tX}`-based Chernoff method (`z = e^t`), but staying entirely in `ℚ`, no
+transcendental functions needed. -/
+
+/-- Chernoff-style exponential-moment bound on the binomial tail, using an
+    arbitrary rational base `z ≥ 1` in place of `e^t`. -/
+def chernoffBoundZ (n k : ℕ) (p z : ℚ) : ℚ := (1 - p + p * z) ^ n / z ^ k
+
+/-- `P(X≥k) ≤ (1-p+pz)ⁿ / zᵏ` for any base `z ≥ 1`. Proved by the same
+    weighted-extension argument as `binomial_markov` (`zᵏ ≤ zⁱ` for `i ≥ k`
+    replacing `k ≤ i`), then the binomial theorem collapses the extended
+    sum to `(pz + (1-p))ⁿ` exactly as it does in `binomial_mean`. -/
+theorem binomialTail_le_chernoffBoundZ (n k : ℕ) (p z : ℚ) (hz : 1 ≤ z)
+    (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    binomialTail n k p ≤ chernoffBoundZ n k p z := by
+  have hzpos : (0 : ℚ) < z := by linarith
+  have hzkpos : (0 : ℚ) < z ^ k := by positivity
+  rw [chernoffBoundZ, le_div_iff₀ hzkpos]
+  have hkbound : z ^ k * binomialTail n k p
+      ≤ ∑ i ∈ Finset.Icc k n, z ^ i * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i)) := by
+    unfold binomialTail
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro i hi
+    simp only [Finset.mem_Icc] at hi
+    have hik : z ^ k ≤ z ^ i := pow_le_pow_right₀ hz hi.1
+    have hterm_nonneg : (0 : ℚ) ≤ (n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i) := by
+      have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+      have h2 : (0 : ℚ) ≤ (1 - p) ^ (n - i) := pow_nonneg (by linarith) _
+      positivity
+    nlinarith [mul_le_mul_of_nonneg_right hik hterm_nonneg]
+  have hsub : Finset.Icc k n ⊆ Finset.range (n + 1) := by
+    intro i hi
+    simp only [Finset.mem_Icc] at hi
+    simp only [Finset.mem_range]; omega
+  have hextend : (∑ i ∈ Finset.Icc k n, z ^ i * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i)))
+      ≤ ∑ i ∈ Finset.range (n + 1), z ^ i * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i)) := by
+    apply Finset.sum_le_sum_of_subset_of_nonneg hsub
+    intro i _ _
+    have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+    have h2 : (0 : ℚ) ≤ (1 - p) ^ (n - i) := pow_nonneg (by linarith) _
+    have h3 : (0 : ℚ) ≤ z ^ i := pow_nonneg (by linarith) _
+    positivity
+  have hbin : ∑ i ∈ Finset.range (n + 1), z ^ i * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i))
+      = (1 - p + p * z) ^ n := by
+    have hb := add_pow (p * z) (1 - p) n
+    calc ∑ i ∈ Finset.range (n + 1), z ^ i * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i))
+        = ∑ i ∈ Finset.range (n + 1), (p * z) ^ i * (1 - p) ^ (n - i) * (n.choose i : ℚ) := by
+          apply Finset.sum_congr rfl
+          intro i _
+          ring
+      _ = (p * z + (1 - p)) ^ n := hb.symm
+      _ = (1 - p + p * z) ^ n := by ring
+  rw [hbin] at hextend
+  linarith [hkbound, hextend]
+
+/-- Same union-bound composition as `probabilistic_hierarchical_bound`, but
+    using the Chernoff bound instead of Markov's — the only change is which
+    per-committee bound gets unioned across `T` committees. -/
+theorem chernoff_hierarchical_bound
+    (T c k : ℕ) (p z : ℚ) (hz : 1 ≤ z) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    1 - (1 - binomialTail c k p) ^ T ≤ (T : ℚ) * chernoffBoundZ c k p z := by
+  have hnn : 0 ≤ binomialTail c k p := by
+    unfold binomialTail
+    apply Finset.sum_nonneg
+    intro i _
+    have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+    have h2 : (0 : ℚ) ≤ (1 - p) ^ (c - i) := pow_nonneg (by linarith) _
+    positivity
+  have hle1 : binomialTail c k p ≤ 1 := binomialTail_le_one c k p hp0 hp1
+  have hub := theorem4_union_bound T (fun _ => binomialTail c k p) (fun _ => ⟨hnn, hle1⟩)
+  simp only [Finset.prod_const, Finset.sum_const, Finset.card_range, nsmul_eq_mul] at hub
+  have hchernoff : binomialTail c k p ≤ chernoffBoundZ c k p z :=
+    binomialTail_le_chernoffBoundZ c k p z hz hp0 hp1
+  calc 1 - (1 - binomialTail c k p) ^ T ≤ (T : ℚ) * binomialTail c k p := hub
+    _ ≤ (T : ℚ) * chernoffBoundZ c k p z := mul_le_mul_of_nonneg_left hchernoff (by positivity)
+
+/-- The Chernoff bound at base `z = 2` is astronomically small at Sovereign-
+    Mohawk's committee scale (`c = 50,000`, `k = 25,000` majority threshold,
+    `p = 0.1` global Byzantine rate) — `norm_num` alone can't decide an
+    inequality between two ~5000-digit rationals in reasonable time, hence
+    `native_decide`: it compiles the (fully decidable, since `ℚ`'s `≤` is
+    decidable) proposition to native code and evaluates it directly, the
+    same technique already used elsewhere in this file
+    (`theorem1_tier_majority_checked` and siblings use plain `norm_num`
+    successfully at smaller scale; `theorem2_example_profile`/
+    `theorem5_ops_guard` in sibling files already use `native_decide` for
+    exactly this "too large for `norm_num`" reason). -/
+theorem chernoffBoundZ_deployment_scale_tiny :
+    chernoffBoundZ 50000 25000 (1/10 : ℚ) 2 ≤ 1 / 10 ^ 1000 := by
+  unfold chernoffBoundZ
+  norm_num
+  native_decide
+
+/-- **The deployment-scale gap is closed.** Contrast with
+    `probabilistic_bound_too_loose_at_deployment_scale` above: the Markov
+    bound at these exact parameters was `40` (vacuous, exceeds `1`); this
+    Chernoff bound is at most `200/10^1000` — not just below `1`, but
+    smaller than any probability that could ever matter operationally. -/
+theorem chernoff_hierarchical_bound_deployment_scale :
+    1 - (1 - binomialTail 50000 25000 (1/10 : ℚ)) ^ 200 ≤ (200 : ℚ) / 10 ^ 1000 := by
+  have h := chernoff_hierarchical_bound 200 50000 25000 (1/10 : ℚ) 2
+    (by norm_num) (by norm_num) (by norm_num)
+  have hbound := chernoffBoundZ_deployment_scale_tiny
+  calc 1 - (1 - binomialTail 50000 25000 (1/10 : ℚ)) ^ 200
+      ≤ (200 : ℚ) * chernoffBoundZ 50000 25000 (1/10 : ℚ) 2 := h
+    _ ≤ (200 : ℚ) * (1 / 10 ^ 1000) := by nlinarith [hbound]
+    _ = (200 : ℚ) / 10 ^ 1000 := by ring
 
 end LeanFormalization
