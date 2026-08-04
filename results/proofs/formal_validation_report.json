@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "2661551a4b67f1ecd1d989eeec581147c3015868c6dd4d148a4b1460c36bb446",
+  "input_merkle_root": "79467bf3055520ab72e70a72ec20269127eb5d3cfafc40339efa8cf54259749b",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "c5dc3df864e708ed4916369fc8e1f56bda7e74cb9804f1db030188eae79c4691"
+      "sha256": "9fea2844de6544502c969087f20b014c9608c7ae963b416f5413077c4cc6216f"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -336,7 +336,7 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 32,
+    "runtime_reference_count": 33,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
@@ -360,6 +360,7 @@
       "test/phase3b_theorems_test.go::TestConvergenceEnvelope_RoundsHelp",
       "test/phase3b_theorems_test.go::TestConvergenceStrongConvexity",
       "test/phase3b_theorems_test.go::TestConvergenceVarianceReduction",
+      "test/rdp_accountant_lean_correspondence_test.go::TestRDPAccountantLeanCorrespondence",
       "test/rdp_accountant_test.go::TestRDPAccountant_CheckBudget_Exceeded",
       "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Fail",
