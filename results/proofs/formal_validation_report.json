@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "23bcf29b92e4764f492c4b75cdca4c972ae1203e794ed8667ef2d04bba2a79f3",
+  "input_merkle_root": "f7ae00d161785fb84f6dd297082316fef05645c1ce2e857a5487f6d20394299e",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "205039d0c9148bb970c7fd26a4bb2c3491765b1580a7edd586fccb1c85dbe702"
+      "sha256": "9424734516a962c49c739834e4a218eb1988fe61ff4e4294f497cfeb8b3298ac"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "ba24f55f1af3bc3808010014fc6793a6e92e50e2caaf7a6a5f2e4080f945a8c6"
+      "sha256": "f7fe1a739823f6a2ac41465a6e967a4ec1b85b846d70e75b87e9d06f4788bbc0"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
@@ -52,7 +52,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
-      "sha256": "14518fc27ca7483fe69be722b500deeffa36d2e34f18d9d4b75a68278e81eb41"
+      "sha256": "e45b8ed289d0e9fe65200d924f2927d2b68bdd5fb55b00741a46e7d922fe19b5"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
@@ -68,11 +68,11 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "44fe3994111c83c0f7939314dbb7a7a6ea4e80ec14d8b64a96dc680ff50782db"
+      "sha256": "4d10d5d95e87676080f0cc8518f9bc7e2e5b4de6e1857900d0946d4a65154e93"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "babaf6a870c97d078220442182ba504433ce4aa7051dedf4daa6df4119802ca5"
+      "sha256": "86412127a9107c07eb15d6e430e67048c575fd39db714342040753986f74c8ae"
     },
     {
       "path": "proofs/lakefile.lean",
@@ -272,10 +272,14 @@
     {
       "file": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
       "module": "LeanFormalization.Theorem7PQCMigrationContinuity",
-      "symbol_count": 12,
+      "symbol_count": 16,
       "symbols": [
         "goPostEpochAccept",
         "goVerifyMigrationSignatureBundle",
+        "pqcSignedWitnessed",
+        "pqc_hardness_blocks_unwitnessed_acceptance",
+        "pqc_hardness_blocks_unwitnessed_post_epoch_accept",
+        "pqc_unforgeable_no_valid_sig_for_unqueried",
         "theorem7_dual_signature_continuity",
         "theorem7_legacy_compromise_insufficient",
         "theorem7_post_epoch_pqc_signed_regardless_of_legacy_compromise",
@@ -291,11 +295,12 @@
     {
       "file": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
       "module": "LeanFormalization.Theorem8DualSignatureNonHijack",
-      "symbol_count": 10,
+      "symbol_count": 11,
       "symbols": [
         "canHijack",
         "goSettleTaskPayoutSafe",
         "ledger_invariant_post_epoch",
+        "pqc_hardness_blocks_unwitnessed_hijack_safety",
         "theorem8_no_hijack_possible",
         "theorem8_no_pqc_not_safe",
         "theorem8_post_epoch_non_hijack",
@@ -310,7 +315,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 133
+    "theorem_symbol_count": 138
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
@@ -351,7 +356,7 @@
       "test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof",
       "test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic",
       "test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath",
-      "test/zk_verifier_test.go::TestVerifyZKProof",
+      "test/zk_verifier_test.go::TestVerifyHashCommitment",
       "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
     ]
   }
