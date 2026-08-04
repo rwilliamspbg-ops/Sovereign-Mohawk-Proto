@@ -21,6 +21,8 @@ IMAGE_RE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 IGNORE_DIRS = {
     ".git",
     ".github",
+    ".claude",
+    ".lake",
     "node_modules",
     "test-results",
     "results",

@@ -14,7 +14,9 @@ BRANCH="${BRANCH:-main}"
 # from the contexts below. The entire bridge feature (including the
 # bridge-compression-benchmark.yml workflow that produced this check) was
 # deleted in d7deb9682 ("Remove bridge surfaces and refresh validation
-# artifacts"), so no job by this name can ever report back to GitHub.
+# artifacts"), so no job by this name can ever report back to GitHub. The
+# other entries in this list have all been verified against real, current
+# workflow/job names as of 2026-08-04.
 
 PAYLOAD=$(cat <<'JSON'
 {
@@ -30,9 +32,9 @@ PAYLOAD=$(cat <<'JSON'
       "Monitoring Smoke Gate / monitoring-smoke",
       "Release Performance Evidence / release-performance-evidence",
       "FedAvg Benchmark Compare / fedavg-benchmark-compare",
-      "Proof-Driven Design Verification / proof-audit",
+      "Proof-Driven Design Verification / verify-links",
       "Proof-Driven Design Verification / verify-lean-formalization",
-      "Capability Sync / sync-check"
+      "Capability Sync Check / validate-sync"
     ]
   },
   "enforce_admins": true,

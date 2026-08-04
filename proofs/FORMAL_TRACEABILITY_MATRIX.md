@@ -92,20 +92,45 @@ This matrix is designed for automated extraction:
 - Regenerate artifacts: `make refresh-formal-validation`
 - Validate report and bundle integrity: `make validate-formal`
 
+## CI Enforcement (Phase 4)
+
+This matrix and its underlying `lake build`/lint checks are only as trustworthy
+as the CI gate that runs them on every change. As of 2026-08-04, that gate is
+real: the **required** `full-validation-fast` status check
+(`.github/workflows/full-validation-pr-gate.yml`) compiles the whole Lean
+theorem suite (`lake build LeanFormalization Specification Refinement`) and
+runs `scripts/ci/lint_formal_proof_claims.py` (the vacuous/misleading-theorem
+lint) before a PR can merge to `main`, in addition to the
+`validate_formal_traceability.sh` cross-reference check it already ran.
+
+This closes a real, previously undocumented gap: before this, the only Lean-
+aware *required* check validated that this matrix's cited theorem/test symbol
+names existed somewhere in the tree — not that the underlying Lean code
+compiled, or that it was free of vacuous/misleading theorems. A PR could have
+introduced a new `sorry`, a new vacuous theorem, or a Lean file that didn't
+even compile, and merged to `main` cleanly; the actual build+lint checks only
+ran in the non-required `verify-lean-formalization` (`verify-proofs.yml`) and
+`verify-lean-formalizations` (`verify-formal-proofs.yml`) workflows.
+`docs/SUPPLY_CHAIN_SECURITY.md` had previously (incorrectly) documented
+`verify-formal-proofs.yml` itself as "enforced as a separate, required CI
+gate" — it wasn't; that claim has been corrected alongside this fix.
+
+`scripts/apply_branch_protection.sh` — an admin-only helper for setting the
+full desired branch-protection state, never itself run automatically — also
+had a stale required-context entry, `Proof-Driven Design Verification /
+proof-audit`, referencing a job that was never actually created under that
+name (fixed to `verify-links`, the real job in that workflow); two further
+stale entries unrelated to formal verification (`chaos-matrix` →
+`chaos-gate`, and a "Capability Sync" workflow/job name mismatch) were found
+and fixed in the same pass, and one (`Bridge Compression Benchmark`) remains
+open, flagged separately.
+
 ## Latest Validation Run
 
 - Date (UTC): 2026-08-04
-- Branch: `fix/orphaned-rdp-scaffolding` (merged with `main`, which had
-  already merged `feat/phase3-bft-probabilistic-composition`,
-  `fix/rdp-sequential-composition`, `feat/ledger-go-refinement`,
-  `feat/transport-go-refinement`, `feat/rdpaccountant-go-refinement`,
-  `feat/multikrum-go-refinement`, `fix/theorem5-6-crypto-convergence`,
-  `fix/theorem4-liveness-measure-theory`, `fix/theorem7-8-pqc-hardness`,
-  `fix/theorem2-rdp-sorries`, `fix/theorem1-bft-compositional`, and
-  `feat/formal-verification-phase0` — removes two Lean files that were
-  compiled into the main build but never referenced anywhere in this matrix
-  or `theorem_claims.json`, the same "compiled but unclaimed" pattern
-  `Refinement/Transport.lean` turned out to hide before it was fixed)
+- Branch: `feat/phase4-gate-real-lean-verification` (off `main`, which had
+  already merged all prior Phase 0-3 work; first Phase 4 (Governance/Audit)
+  deliverable — see "CI Enforcement (Phase 4)" above for the substance)
 - Commands executed:
   - `cd proofs && lake build LeanFormalization Specification Refinement` — 8340 jobs
   - `python3 scripts/ci/lint_formal_proof_claims.py --repo-root .`
@@ -115,40 +140,27 @@ This matrix is designed for automated extraction:
   - `python3 scripts/ci/check_markdown_links.py`
   - `python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/ --json`
 - Results:
-  - This run reconciles two independent pieces of work now both on `main`:
-    Phase 3's BFT probabilistic-composition additions to row 1 (`binomial_mean`,
-    `binomial_markov`, `probabilistic_hierarchical_bound`), and this branch's
-    own removal of two orphaned Lean files, `Theorem2RDP_Enhanced.lean` and
-    `Theorem2AdvancedRDP.lean` (deliberately not written as
-    `LeanFormalization/Theorem2....lean` paths here — that exact pattern is
-    what this script's own module-detection regex, see below, scans for, and
-    these files are gone, not a live claim). The first's
-    `RDPEnhanced.composeEpsRat`/`convertToEpsDelta` were byte-for-byte
-    duplicates of definitions already real and claimed in `Theorem2RDP.lean`,
-    just under a different namespace — dead code, no unique content lost.
-    The second's `Advanced.subsampling_eps_le`/
-    `subsampling_amplification_factor_rational` were real, non-vacuous, but
-    misleadingly named: "subsampling amplification" is a specific,
-    well-known, nontrivial differential-privacy result, but what was
-    actually proven — `eps*p ≤ eps` and `p*k ≤ k` for `p≤1` — is unconnected
-    pure arithmetic, the same "name/docstring overclaims what the statement
-    establishes" pattern already found and fixed elsewhere this session,
-    e.g. `Theorem5Cryptography.lean`'s renamed `theorem5_verifyops_constant`.
-    Removed both files' import lines from `LeanFormalization.lean` rather
-    than leaving orphaned imports.
-  - Lean build: pass, 8340 jobs (down from 8342, matching the two removed
-    files); **zero `sorry`s remain in `proofs/LeanFormalization`**
-    (unaffected by either piece of work this run reconciles)
-  - Vacuous/misleading-theorem lint: pass (`22` Lean files checked, down
-    from `24` — reflects only the two removed files; Phase 3 added
-    theorems to an existing file, not new files)
+  - Lean build: pass, 8340 jobs; **zero `sorry`s remain in
+    `proofs/LeanFormalization`** (unaffected — this run's changes are CI
+    workflow YAML, a helper script, and documentation, not Lean content)
+  - Vacuous/misleading-theorem lint: pass (`22` Lean files checked)
   - Traceability validation: pass (`10` modules, `84` theorem symbols, `34`
-    runtime test refs) — the theorem-symbol count reflects Phase 3's `+3`
-    (`binomial_mean`, `binomial_markov`, `probabilistic_hierarchical_bound`
-    added to row 1); removing the two orphaned files doesn't change this
-    count, since neither was ever referenced by this matrix
-  - Refinement drift check (`scripts/check_refinement.py`): pass (unaffected
-    by either piece of work — none of the touched files were ever part of
-    its manifest)
+    runtime test refs) — all unaffected by this run's changes
+  - Refinement drift check (`scripts/check_refinement.py`): pass (unaffected)
   - Formal validation report consistency: pass after regeneration
-  - Markdown link check: pass (167 files)
+  - Markdown link check: pass, but the count changed for a reason worth
+    recording: **`scripts/ci/check_markdown_links.py` had a real
+    non-determinism bug**, fixed in this run — its `IGNORE_DIRS` list didn't
+    exclude `.claude` or `.lake`, both local, untracked, non-project
+    directories (`.claude/worktrees/` can contain full duplicate repo
+    checkouts from worktree-isolated agent runs; `proofs/.lake/packages`
+    contains Mathlib's own vendored markdown docs). Depending on local
+    session/build state, this made the "files checked" count swing wildly
+    (423 was observed mid-session, once `.claude/worktrees` and a populated
+    `.lake` were both present) — this session's earlier, seemingly-stable
+    "167 files" readings were themselves already mildly inflated by a
+    partially-populated `.lake`. With both directories now excluded
+    (matching the existing `node_modules`/`.git`/`.github` exclusions for
+    the same "vendored or tool-owned, not project content" reason), the
+    check is deterministic and reflects only this repository's own tracked
+    documentation: **129 files**.

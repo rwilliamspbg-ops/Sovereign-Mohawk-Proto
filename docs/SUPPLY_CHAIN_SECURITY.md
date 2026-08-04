@@ -90,12 +90,20 @@ this has been fixed.)
 - ✅ Go vulnerability scan (`govulncheck ./...`)
 
 #### Not re-checked at tag time:
-- **Lean theorem proofs** — enforced as a separate, required CI gate
-  (`.github/workflows/verify-formal-proofs.yml`) on every change that
-  touches proof files, before merge to `main`. This job has no
-  Lean/Mathlib toolchain installed and does not re-run the proof suite;
-  rebuilding it (8000+ jobs) on every tagged release would add hours to
-  the release pipeline without checking anything new. See
+- **Lean theorem proofs** — enforced as part of the `full-validation-fast`
+  required status check (`.github/workflows/full-validation-pr-gate.yml`),
+  which compiles the whole Lean theorem suite (`lake build`) and runs the
+  vacuous/misleading-theorem lint on every PR before merge to `main`. (Two
+  earlier, more detailed Lean workflows,
+  `.github/workflows/verify-formal-proofs.yml` and
+  `.github/workflows/verify-proofs.yml`, run the same checks plus
+  additional artifact/bundle generation, but neither is itself a required
+  status check — this line previously claimed `verify-formal-proofs.yml`
+  was, which was inaccurate; nothing there was actually gating merges
+  until `full-validation-fast` picked up the build+lint steps.) This job
+  has no need to run again on every tagged release — rebuilding the full
+  suite (8000+ jobs) would add hours to the release pipeline without
+  checking anything not already checked pre-merge. See
   [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
   for the honest per-theorem scope of what's actually proven.
 - **"Zero-knowledge proof validation"** — there is no ZK-SNARK verifier in
@@ -238,7 +246,8 @@ in-toto-verify --layout layout.json --link-dir . --step material
 - [ ] SLSA provenance v1.0 present in release
 - [ ] In-toto layout and link metadata present
 - [ ] Go and Python test suites passed (gates attestation publish; formal
-      proofs are gated separately, pre-merge, by `verify-formal-proofs.yml`)
+      proofs are gated separately, pre-merge, by the required
+      `full-validation-fast` status check)
 - [ ] No security vulnerabilities in govulncheck scan
 - [ ] Image digests match manifest references
 
