@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "a6ad9f669c9e2bf5909927e0f6be94f5942d8deb678cf77e81ee742ce6d61720",
+  "input_merkle_root": "13f4da9036c8ddef611d285195b645caa800a29f51b7d3d51629f2c18d10f378",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "a82eddcef1dce71ad1df7914ec00dad9bab6469c484cedc28ca2fe098a6c6a10"
+      "sha256": "833e4bdf46e60e025a076db80c0593884589ce40bb3736ef3969fb21a5a4eabe"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
-      "sha256": "a6bcff3a7f105e9434d507ca0183e26e1c472f0c1a47249f0ad21b56f618a172"
+      "sha256": "86e5f7eb00a277dfce361e3910b8e30c9e7fb4cc47fecbb7cd6ecdac7636c9e6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
@@ -193,10 +193,11 @@
     {
       "file": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
       "module": "LeanFormalization.Theorem4ChernoffBounds",
-      "symbol_count": 10,
+      "symbol_count": 11,
       "symbols": [
         "chernoff_alpha_09_r12",
         "chernoff_bound",
+        "chernoff_bound_eq_binomial_zero_prob",
         "chernoff_hierarchical_composition",
         "chernoff_monotone",
         "chernoff_redundancy_effectiveness",
@@ -324,7 +325,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 147
+    "theorem_symbol_count": 148
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
