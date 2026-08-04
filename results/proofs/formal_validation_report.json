@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "31ef7598963041a00cf62f1a5d242161b57e265a79b59891a0b1735ea8a06838",
+  "input_merkle_root": "916900955e866f64c5ecccc32846e4c4378eb352c5bd710fbe7cd2f52cf81db0",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "87ea453b8e6e560863142cc7a7921d5a0b782cefb3284a8e62057a879f893496"
+      "sha256": "bc161096499568f245009b220a007e74ef2353dfa5b533c8121bd6c12059edd6"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -60,11 +60,11 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "4d10d5d95e87676080f0cc8518f9bc7e2e5b4de6e1857900d0946d4a65154e93"
+      "sha256": "f2c50cfcc3b4db8b1ff43aac71e082cc6eb99ac7920638e2dc61c581098b4873"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "86412127a9107c07eb15d6e430e67048c575fd39db714342040753986f74c8ae"
+      "sha256": "a9a7fd966a3159f8852e85c275e61c9af79879ef176d2cfcb5280d40c4d910a1"
     },
     {
       "path": "proofs/lakefile.lean",
@@ -288,10 +288,11 @@
     {
       "file": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
       "module": "LeanFormalization.Theorem8DualSignatureNonHijack",
-      "symbol_count": 11,
+      "symbol_count": 12,
       "symbols": [
         "canHijack",
         "goSettleTaskPayoutSafe",
+        "ledger_cutoverToPost_requires_pqc_query",
         "ledger_invariant_post_epoch",
         "pqc_hardness_blocks_unwitnessed_hijack_safety",
         "theorem8_no_hijack_possible",
@@ -308,7 +309,7 @@
   "summary": {
     "input_file_count": 17,
     "module_count": 10,
-    "theorem_symbol_count": 153
+    "theorem_symbol_count": 154
   },
   "toolchain_lock": {
     "go_version": "1.26.5",

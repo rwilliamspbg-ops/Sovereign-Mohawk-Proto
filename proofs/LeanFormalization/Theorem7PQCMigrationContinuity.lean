@@ -69,12 +69,14 @@ accepted and discarded — to show a witnessed bit can't be forged for a message
 the adversary never legitimately queried.
 
 Scope, stated plainly: this shows the reduction is *sound when the acceptance
-bit is witnessed*. It does not yet prove that the real Go migration ledger
-maintains a witnessed invariant end-to-end (`LedgerTransition` below and the
-`goVerifyMigrationSignatureBundle`/`goPostEpochAccept` refinement shims still
-treat `pqcSigned` as a free `Bool`, exactly as before) — that's the remaining
-gap toward Workstream 4. What's here is genuine, checked cryptographic
-content that didn't exist before, not the full end-to-end claim.
+bit is witnessed*. `LedgerTransition` in `Theorem8DualSignatureNonHijack.lean`
+now requires exactly that witness on its `cutoverToPost` step (see
+`ledger_cutoverToPost_requires_pqc_query` there), so a forged/unwitnessed
+cutover can no longer be constructed. The `goVerifyMigrationSignatureBundle`/
+`goPostEpochAccept` refinement shims below remain abstract Go-correspondence
+predicates (Lean cannot invoke Go's `PQCSig.verify` directly) — that
+Lean-model-to-Go-function correspondence, not the witnessing itself, is what's
+left toward a full end-to-end claim.
 -/
 
 /-- The core UF-CMA guarantee, used for real: if `pqc` is UF-CMA-secure

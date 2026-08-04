@@ -17,15 +17,27 @@ def canHijack (auth : MigrationAuth) (adv : Adversary) : Prop :=
   have _ := adv
   postEpochAccepts auth ∧ ¬ hijackSafe auth
 
-/-- Ledger transition rules preserving dual-signature invariants. -/
+/-- Ledger transition rules preserving dual-signature invariants.
+
+    `cutoverToPost` previously gated on the free `Bool` `s.auth.pqcSigned = true`
+    (`h_pqc`, never even used by `ledger_invariant_post_epoch`'s proof below —
+    the invariant held structurally regardless). It now requires
+    `pqcSignedWitnessed pqc s.auth msg sig`: the acceptance bit must actually be
+    derived from a `PQCSig.verify` call over a chosen scheme/message/signature,
+    not asserted by fiat. Combined with `h_auth : postEpochAccepts s.auth` (whose
+    second component already forces `s.auth.pqcSigned = true`), the old `h_pqc`
+    hypothesis becomes derivable rather than assumed, so it is dropped. This is
+    what closes the "not yet threaded into `LedgerTransition`" gap noted in the
+    traceability matrix (rows 8-9): see `ledger_cutoverToPost_requires_pqc_query`
+    below for the resulting hardness-dependent consequence. -/
 inductive LedgerTransition : LedgerState → LedgerState → Prop where
   | preToCutover (s : LedgerState)
       (h_auth : postEpochAccepts s.auth)
       (h_phase : s.phase = MigrationPhase.preEpoch) :
       LedgerTransition s { s with phase := MigrationPhase.cutover }
-  | cutoverToPost (s : LedgerState)
+  | cutoverToPost (s : LedgerState) (pqc : PQCSig) (msg sig : Nat)
       (h_auth : postEpochAccepts s.auth)
-      (h_pqc : s.auth.pqcSigned = true)
+      (h_witness : pqcSignedWitnessed pqc s.auth msg sig)
       (h_phase : s.phase = MigrationPhase.cutover) :
       LedgerTransition s { s with phase := MigrationPhase.postEpoch }
   | compromiseLegacy (s : LedgerState) :
@@ -39,10 +51,32 @@ theorem ledger_invariant_post_epoch (s t : LedgerState)
   cases h_trans with
   | preToCutover h_auth _ =>
       simpa using h_auth
-  | cutoverToPost h_auth _ _ =>
+  | cutoverToPost pqc msg sig h_auth h_witness _ =>
       simpa using h_auth
   | compromiseLegacy =>
       simpa [postEpochAccepts] using h_start_accept
+
+/-- Real, hardness-dependent closure of the "wired into `LedgerTransition`" gap:
+    the `cutoverToPost` constructor's own hypotheses (`h_auth`, `h_witness`) are
+    jointly unsatisfiable for a message the adversary never legitimately queried,
+    given PQC is UF-CMA-secure. In other words, under `pqcUnforgeable`, no
+    `cutoverToPost` step can be built for a forged message — unlike
+    `theorem8_pqc_prevents_hijack` (structural, `h_secure` unused), this theorem
+    genuinely depends on `h_secure`: replacing UF-CMA security with a forgeable
+    scheme breaks the argument, since `h_witness` alone (without hardness) is
+    satisfiable for any `msg`/`sig` pair by construction of `pqc.verify`. -/
+theorem ledger_cutoverToPost_requires_pqc_query
+    (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
+    (s : LedgerState) (msg sig : Nat) (queries : List Nat)
+    (h_auth : postEpochAccepts s.auth)
+    (h_witness : pqcSignedWitnessed pqc s.auth msg sig)
+    (h_fresh : msg ∉ queries) :
+    False := by
+  have h_false := pqc_hardness_blocks_unwitnessed_acceptance pqc oracle h_secure s.auth
+    queries msg sig h_witness h_fresh
+  have h_true : s.auth.pqcSigned = true := h_auth.2
+  rw [h_true] at h_false
+  exact absurd h_false (by decide)
 
 /-- Theorem 8 (Non-Hijack): dual-signature policy prevents hijack under UF-CMA. -/
 theorem theorem8_post_epoch_non_hijack (auth : MigrationAuth)
