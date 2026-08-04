@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "172c6543c233c3eed9e48d476729c70b7bbdf893193a27c8be0427e86f7a72a1",
+  "input_merkle_root": "9b5ddf4b6e9b19aa8cc5df2523823ffd2ef16eef21c65f03f2173ef311122a61",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,27 +20,19 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "1d6c306bc0d0603272b6afed22cb757740c4a0f370cab6f64f455e75ad698a3a"
+      "sha256": "3e8ddea6ba04d53e60f584ff35d832054ac543e30ec107d1f46a98cce589fb06"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "ea61b05d971d3d0f1fa3d332fdf8131f2b86c04f1a6539f8b68fd9c94ac38c0b"
+      "sha256": "a82a55d8c59b5b84222a583cc2f4e7ec60f1aabf8625ee4f087961142d6e3897"
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
       "sha256": "d0ecec792c30ca57152ff254d1dadb2cffad1869acf3ec193e8db3ba7d44e1b1"
     },
     {
-      "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
-      "sha256": "18308694006ca1d578e7af601c191a484a002c4aefd2a22febaabd23185452c4"
-    },
-    {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
       "sha256": "5177abc3b1fa63da16a5dc76f448fa320fb212d532ae48981ce1410758b9355b"
-    },
-    {
-      "path": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
-      "sha256": "6194b30af9f491c02b91516414a63c026e0b751bb9aebef8f2309dc4af2812fe"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
@@ -121,15 +113,6 @@
       ]
     },
     {
-      "file": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
-      "module": "LeanFormalization.Theorem2AdvancedRDP",
-      "symbol_count": 2,
-      "symbols": [
-        "subsampling_amplification_factor_rational",
-        "subsampling_eps_le"
-      ]
-    },
-    {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
       "symbol_count": 28,
@@ -162,17 +145,6 @@
         "theorem2_rat_example_profile",
         "theorem2_rat_monotone_append",
         "theorem2_rat_single_step"
-      ]
-    },
-    {
-      "file": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
-      "module": "LeanFormalization.Theorem2RDP_Enhanced",
-      "symbol_count": 4,
-      "symbols": [
-        "composeEpsRat",
-        "convertToEpsDelta",
-        "fourTierBudgetExample",
-        "theorem2_four_tier_total"
       ]
     },
     {
@@ -329,9 +301,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 19,
-    "module_count": 12,
-    "theorem_symbol_count": 154
+    "input_file_count": 17,
+    "module_count": 10,
+    "theorem_symbol_count": 148
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
