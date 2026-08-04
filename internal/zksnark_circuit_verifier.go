@@ -33,14 +33,20 @@
 //
 // Scope, stated plainly (read before citing this as production-ready):
 //  1. The (proving key, verifying key) pair below comes from a single
-//     in-process groth16.Setup call. This is a REAL trusted setup over a
-//     REAL compiled circuit — not a fixed identity — but it is not a
-//     multi-party ceremony: the toxic waste is momentarily held by
-//     whichever process runs init() and is discarded, not distributed
-//     across independent participants the way a production Groth16
-//     deployment (e.g. a Powers-of-Tau + circuit-specific MPC) would
-//     require. Treat dataCommitmentVK as a development/demo key, not a
-//     production-security guarantee.
+//     in-process groth16.Setup call, run lazily (via sync.Once) on first
+//     use rather than at package init — package `internal` is imported by
+//     nearly everything in this repo, and forcing every such binary to pay
+//     a circuit-compile-plus-Setup cost merely for importing the package,
+//     whether or not it ever calls into this file, is wasteful and was
+//     measured to add a real, avoidable performance cost to unrelated
+//     benchmarks. This is a REAL trusted setup over a REAL compiled
+//     circuit — not a fixed identity — but it is not a multi-party
+//     ceremony: the toxic waste is momentarily held by whichever
+//     goroutine runs the setup and is discarded, not distributed across
+//     independent participants the way a production Groth16 deployment
+//     (e.g. a Powers-of-Tau + circuit-specific MPC) would require. Treat
+//     dataCommitmentVK as a development/demo key, not a production-
+//     security guarantee.
 //  2. This circuit is not yet wired into any production call path.
 //     internal/pyapi/api.go's CGo exports, internal/hybrid/verifier.go,
 //     and internal/batch/aggregator.go all still call the pre-existing
@@ -56,6 +62,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
+	"sync"
 
 	"github.com/consensys/gnark-crypto/ecc"
 	gnarkmimc "github.com/consensys/gnark-crypto/hash"
@@ -85,23 +92,34 @@ func (c *DataCommitmentCircuit) Define(api frontend.API) error {
 }
 
 var (
-	dataCommitmentCCS constraint.ConstraintSystem
-	dataCommitmentPK  groth16.ProvingKey
-	dataCommitmentVK  groth16.VerifyingKey
+	dataCommitmentOnce sync.Once
+	dataCommitmentCCS  constraint.ConstraintSystem
+	dataCommitmentPK   groth16.ProvingKey
+	dataCommitmentVK   groth16.VerifyingKey
+	dataCommitmentErr  error
 )
 
-func init() {
-	ccs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &DataCommitmentCircuit{})
-	if err != nil {
-		panic(fmt.Errorf("compile DataCommitmentCircuit: %w", err))
-	}
-	pk, vk, err := groth16.Setup(ccs)
-	if err != nil {
-		panic(fmt.Errorf("groth16 setup for DataCommitmentCircuit: %w", err))
-	}
-	dataCommitmentCCS = ccs
-	dataCommitmentPK = pk
-	dataCommitmentVK = vk
+// ensureDataCommitmentSetup compiles DataCommitmentCircuit and runs its
+// Groth16 trusted setup exactly once, on first use, rather than at package
+// init — see the file doc comment's scope note for why eager init() was
+// rejected.
+func ensureDataCommitmentSetup() error {
+	dataCommitmentOnce.Do(func() {
+		ccs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &DataCommitmentCircuit{})
+		if err != nil {
+			dataCommitmentErr = fmt.Errorf("compile DataCommitmentCircuit: %w", err)
+			return
+		}
+		pk, vk, err := groth16.Setup(ccs)
+		if err != nil {
+			dataCommitmentErr = fmt.Errorf("groth16 setup for DataCommitmentCircuit: %w", err)
+			return
+		}
+		dataCommitmentCCS = ccs
+		dataCommitmentPK = pk
+		dataCommitmentVK = vk
+	})
+	return dataCommitmentErr
 }
 
 // DataCommitmentDigest computes a MiMC(BN254) digest of data as a
@@ -119,6 +137,10 @@ func DataCommitmentDigest(data []byte) *big.Int {
 // (typically DataCommitmentDigest(data)). Returns the serialized proof and
 // the public commitment the proof verifies against.
 func ProveDataCommitment(preimage *big.Int) (proofBytes []byte, commitment *big.Int, err error) {
+	if err := ensureDataCommitmentSetup(); err != nil {
+		return nil, nil, err
+	}
+
 	h := gnarkmimc.MIMC_BN254.New()
 	h.Write(preimage.Bytes())
 	commitment = new(big.Int).SetBytes(h.Sum(nil))
@@ -148,6 +170,10 @@ func ProveDataCommitment(preimage *big.Int) (proofBytes []byte, commitment *big.
 // real, compiled circuit and a real trusted setup — not a fixed,
 // content-free identity.
 func VerifyDataCommitmentProof(proofBytes []byte, commitment *big.Int) (bool, error) {
+	if err := ensureDataCommitmentSetup(); err != nil {
+		return false, err
+	}
+
 	proof := groth16.NewProof(ecc.BN254)
 	if _, err := proof.ReadFrom(bytes.NewReader(proofBytes)); err != nil {
 		return false, fmt.Errorf("deserialize proof: %w", err)
