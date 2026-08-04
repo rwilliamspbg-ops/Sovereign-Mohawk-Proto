@@ -214,19 +214,83 @@ theorem RenyiDivergence_nonneg {α : Type*} [Fintype α] (p q : α → ℝ) (ord
   have hcoef : 0 ≤ 1 / (order - 1) := le_of_lt (div_pos one_pos hpos)
   exact mul_nonneg hcoef hlog
 
-/-- Rényi divergence approaches KL divergence as α → 1.
+/-- Rényi divergence approaches KL divergence as α → 1⁺.
     This is a fundamental limit relationship showing that KL is a special case of RDP.
 
-    PHASE 3f note: This theorem's full proof requires metric limit tactics and L'Hôpital's rule
-    from Mathlib.Analysis. The mathematical statement is established in literature
-    (Van Erven & Harremoës 2014). Stated below as the real limit claim and `sorry`'d;
-    computational verification is deferred to Phase 4.
+    Note on the limit target: `RenyiDivergence p q order`'s `order > 1` branch is
+    `(1/(order-1)) * log(∑ q^order / p^(order-1))`. Substituting `order = 1 + β` and
+    differentiating in `β` at `β = 0` gives the limit `∑ q(x) * log(q(x)/p(x))` — i.e.
+    the limit is `KL(q‖p)`, not `KL(p‖q)`. A previous, still-`sorry`'d version of this
+    theorem stated the limit as `∑ p * log(p/q)` (`KL(p‖q)`), which is generally FALSE
+    (KL divergence is asymmetric) for this file's `RenyiDivergence` convention — see the
+    hand derivation in the traceability matrix's Theorem 2 row.
+
+    Only `∑q=1` is required, not `∑p=1`: `p` appears solely as a ratio scale factor
+    `q(x)/p(x)` inside the exponent, never summed on its own, so nothing below depends
+    on `p` being normalized. `∑q=1` is load-bearing (`F(1) = ∑q` must equal `1` for the
+    log-derivative computation below to be well-founded at the base point) — same
+    reason `RenyiDivergence_nonneg` above needs `∑q=1`.
+
+    PROVEN via `hasDerivAt_iff_tendsto_slope`: writing `F order := ∑ q(x)*(q(x)/p(x))^(order-1)`,
+    `RenyiDivergence p q order = log(F order)/(order-1)` for `order > 1`, which is exactly
+    `slope (log ∘ F) 1 order` once `log(F 1) = log(∑q) = log 1 = 0`. So the claimed limit is
+    the derivative of `log ∘ F` at `1`, computed via `HasDerivAt.log` composed with the
+    per-term derivative of `order ↦ (q x/p x)^(order-1)` at `order = 1`
+    (`HasDerivAt.const_rpow`, since the base `q x/p x` is fixed and only the exponent varies).
 -/
 theorem RenyiDivergence_limit_KL {α : Type*} [Fintype α] (p q : α → ℝ)
-    (_h_p_pos : ∀ x, 0 < p x) (_h_q_pos : ∀ x, 0 < q x) :
+    (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x)
+    (h_q_sum : ∑ x, q x = 1) :
     Filter.Tendsto (fun order => RenyiDivergence p q order)
-      (nhdsWithin 1 (Set.Ioi 1)) (nhds (∑ x, p x * Real.log (p x / q x))) := by
-  sorry
+      (nhdsWithin 1 (Set.Ioi 1)) (nhds (∑ x, q x * Real.log (q x / p x))) := by
+  have hterm : ∀ x ∈ (Finset.univ : Finset α),
+      HasDerivAt (fun order : ℝ => q x * (q x / p x) ^ (order - 1))
+        (q x * Real.log (q x / p x)) 1 := by
+    intro x _
+    have hr : (0 : ℝ) < q x / p x := div_pos (h_q_pos x) (h_p_pos x)
+    have hbase : HasDerivAt (fun order : ℝ => order - 1) 1 1 :=
+      (hasDerivAt_id (1 : ℝ)).sub_const 1
+    have hpow : HasDerivAt (fun order : ℝ => (q x / p x) ^ (order - 1))
+        (Real.log (q x / p x) * 1 * (q x / p x) ^ ((1 : ℝ) - 1)) 1 :=
+      hbase.const_rpow hr
+    simp only [sub_self, Real.rpow_zero, mul_one] at hpow
+    exact hpow.const_mul (q x)
+  have hderiv : HasDerivAt (fun order : ℝ => ∑ x, q x * (q x / p x) ^ (order - 1))
+      (∑ x, q x * Real.log (q x / p x)) 1 := HasDerivAt.fun_sum hterm
+  have hF1 : (∑ x, q x * (q x / p x) ^ ((1 : ℝ) - 1)) = 1 := by
+    simp only [sub_self, Real.rpow_zero, mul_one]
+    exact h_q_sum
+  have hlog : HasDerivAt (fun order : ℝ => Real.log (∑ x, q x * (q x / p x) ^ (order - 1)))
+      ((∑ x, q x * Real.log (q x / p x)) / (∑ x, q x * (q x / p x) ^ ((1 : ℝ) - 1))) 1 :=
+    hderiv.log (by rw [hF1]; norm_num)
+  rw [hF1, div_one] at hlog
+  have htendsto := hasDerivAt_iff_tendsto_slope.mp hlog
+  have hsub : Set.Ioi (1 : ℝ) ⊆ ({(1 : ℝ)} : Set ℝ)ᶜ := fun y hy => hy.ne'
+  have hmono := htendsto.mono_left (nhdsWithin_mono (1 : ℝ) hsub)
+  have heq : ∀ order ∈ Set.Ioi (1 : ℝ),
+      slope (fun order : ℝ => Real.log (∑ x, q x * (q x / p x) ^ (order - 1))) 1 order
+        = RenyiDivergence p q order := by
+    intro order horder
+    have horder' : (1 : ℝ) < order := horder
+    have h1 : order ≠ 1 := horder'.ne'
+    unfold RenyiDivergence
+    rw [if_neg h1, if_pos horder']
+    have hlogF1 : Real.log (∑ x, q x * (q x / p x) ^ ((1 : ℝ) - 1)) = 0 := by
+      rw [hF1]; exact Real.log_one
+    have hsum_eq : (∑ x, q x * (q x / p x) ^ (order - 1))
+        = ∑ x, (q x) ^ order / (p x) ^ (order - 1) := by
+      apply Finset.sum_congr rfl
+      intro x _
+      have hqx : (0 : ℝ) < q x := h_q_pos x
+      rw [Real.div_rpow (h_q_pos x).le (h_p_pos x).le,
+          show (q x) ^ order = (q x) ^ (1 : ℝ) * (q x) ^ (order - 1) by
+            rw [← Real.rpow_add hqx]; congr 1; ring,
+          Real.rpow_one]
+      ring
+    rw [slope_def_field, hlogF1, sub_zero, hsum_eq]
+    ring
+  refine Filter.Tendsto.congr' ?_ hmono
+  filter_upwards [self_mem_nhdsWithin] with order horder using heq order horder
 
 /-- Pushforward of a discrete "distribution" `p : α → ℝ` along `f : α → β`: the
     mass assigned to `b` is the total mass of `f`'s fiber over `b`. Needed to
@@ -341,22 +405,70 @@ theorem data_processing_inequality {α β : Type*} [Fintype α] [Fintype β] [De
           Finset.sum_le_sum (fun b _ => hstep b)
       _ = ∑ a, (q a) ^ order / (p a) ^ (order - 1) := Finset.sum_fiberwise Finset.univ f _
 
-/-- KL divergence restricted version of data processing inequality.
-    For the order = 1 case, this is the Kraft inequality.
+/-- Pushforward preserves total mass: summing the fiber masses over all of `β`
+    recovers the original total (`Finset.sum_fiberwise` — fibers outside the range
+    of `f` are empty and contribute `0`, so this holds for any `f`, not just
+    surjections). -/
+theorem pushforward_sum {α β : Type*} [Fintype α] [Fintype β] [DecidableEq β]
+    (f : α → β) (p : α → ℝ) :
+    ∑ b, pushforward f p b = ∑ a, p a := by
+  unfold pushforward
+  exact Finset.sum_fiberwise Finset.univ f p
 
-    NOT closed: order = 1 uses `RenyiDivergence`'s `∑ p*log(p/q)` branch, a
-    genuinely different formula from the `x^order` branch `data_processing_inequality`
-    proves above — it needs the log-sum inequality (Gibbs'/KL-divergence data
-    processing), not the power-mean argument used above. Attempted `exact?`/
-    `apply?` search found no ready-made Mathlib lemma for the discrete
-    log-sum inequality in the time available; left `sorry`'d rather than
-    force an incorrect proof.
+/-- Pushforward of an everywhere-positive mass function along a *surjection* is
+    everywhere positive (every fiber is nonempty, so every fiber sum of positive
+    terms is positive). Surjectivity is genuinely needed here, not just convenient:
+    if `f` misses some `b : β`, `pushforward f p b` is an empty sum, i.e. `0`. -/
+theorem pushforward_pos {α β : Type*} [Fintype α] [DecidableEq β]
+    (f : α → β) (p : α → ℝ) (h_pos : ∀ x, 0 < p x) (hf : Function.Surjective f) (b : β) :
+    0 < pushforward f p b := by
+  unfold pushforward
+  obtain ⟨a, ha⟩ := hf b
+  exact Finset.sum_pos' (fun a _ => (h_pos a).le) ⟨a, by simp [ha], h_pos a⟩
+
+/-- KL divergence restricted version of data processing inequality, for `f` a
+    *surjection* (see `pushforward_pos` for why: `RenyiDivergence_limit_KL`, used
+    below, needs the pushed-forward masses to be positive everywhere on `β`, which
+    needs every fiber nonempty). For the order = 1 case, this is the Kraft/Gibbs
+    inequality.
+
+    PROVEN — not via a fresh log-sum-inequality argument, but by taking the
+    `order → 1⁺` limit of the *already-proven* `data_processing_inequality`
+    (order > 1 case) on both sides, using `RenyiDivergence_limit_KL` (proven
+    above) to identify each side's limit, then `le_of_tendsto_of_tendsto`. Note the
+    swapped argument order in both `RenyiDivergence_limit_KL` calls below
+    (`q p` and `pushforward f q, pushforward f p`, not `p q`): as documented on
+    `RenyiDivergence_limit_KL`, `RenyiDivergence A B order → ∑ B*log(B/A)` as
+    `order → 1⁺`, so recovering `RenyiDivergence p q 1 = ∑ p*log(p/q)` as a limit
+    needs `A := q, B := p`. Only `∑p=1` is needed (not `∑q=1`) — same asymmetric-role
+    reason `RenyiDivergence_limit_KL` only needs one of its two sum hypotheses; the
+    argument-swap here happens to land the load-bearing sum on `p`.
 -/
 theorem data_processing_inequality_KL {α β : Type*} [Fintype α] [Fintype β] [DecidableEq β]
-    (f : α → β) (p q : α → ℝ)
-    (_h_p_pos : ∀ x, 0 < p x) (_h_q_pos : ∀ x, 0 < q x) :
+    [Nonempty α] (f : α → β) (hf : Function.Surjective f) (p q : α → ℝ)
+    (h_p_pos : ∀ x, 0 < p x) (h_q_pos : ∀ x, 0 < q x)
+    (h_p_sum : ∑ x, p x = 1) :
     RenyiDivergence (pushforward f p) (pushforward f q) 1 ≤ RenyiDivergence p q 1 := by
-  sorry
+  have hpfp_pos : ∀ b, 0 < pushforward f p b := pushforward_pos f p h_p_pos hf
+  have hpfq_pos : ∀ b, 0 < pushforward f q b := pushforward_pos f q h_q_pos hf
+  have hpfp_sum : ∑ b, pushforward f p b = 1 := by rw [pushforward_sum]; exact h_p_sum
+  have hL : Filter.Tendsto (fun order => RenyiDivergence q p order)
+      (nhdsWithin 1 (Set.Ioi 1)) (nhds (RenyiDivergence p q 1)) := by
+    have hval : RenyiDivergence p q 1 = ∑ x, p x * Real.log (p x / q x) := by
+      unfold RenyiDivergence; rw [if_pos rfl]
+    rw [hval]
+    exact RenyiDivergence_limit_KL q p h_q_pos h_p_pos h_p_sum
+  have hR : Filter.Tendsto (fun order => RenyiDivergence (pushforward f q) (pushforward f p) order)
+      (nhdsWithin 1 (Set.Ioi 1)) (nhds (RenyiDivergence (pushforward f p) (pushforward f q) 1)) := by
+    have hval : RenyiDivergence (pushforward f p) (pushforward f q) 1
+        = ∑ b, pushforward f p b * Real.log (pushforward f p b / pushforward f q b) := by
+      unfold RenyiDivergence; rw [if_pos rfl]
+    rw [hval]
+    exact RenyiDivergence_limit_KL (pushforward f q) (pushforward f p) hpfq_pos hpfp_pos hpfp_sum
+  have hineq : ∀ order ∈ Set.Ioi (1 : ℝ),
+      RenyiDivergence (pushforward f q) (pushforward f p) order ≤ RenyiDivergence q p order :=
+    fun order horder => data_processing_inequality f q p order horder h_q_pos h_p_pos
+  exact le_of_tendsto_of_tendsto hR hL (Filter.eventually_of_mem self_mem_nhdsWithin hineq)
 
 /-- The RDP parameter α is always strictly greater than 1 for meaningful bounds.
     This ensures the divergence formula has a well-defined denominator (α - 1).
@@ -365,23 +477,72 @@ theorem data_processing_inequality_KL {α β : Type*} [Fintype α] [Fintype β] 
 theorem RDP_alpha_constraint (alpha : ℝ) (h : 1 < alpha) : 0 < alpha - 1 := by
   linarith
 
+/-- Evidence for why `RDP_sequential_composition` below is **not just unproven but
+    unsalvageable as stated** — do not "close" its `sorry` by proving it as-is; see
+    that theorem's doc comment. For any *deterministic* `M : α → α` and any `x ≠ y`,
+    the "distributions" `fun a => if M a = x then 1/card else 0` and the same for `y`
+    have disjoint support (`M` is a function, so no `a` satisfies both `M a = x` and
+    `M a = y`). Every term of `RenyiDivergence`'s sum then has either a zero numerator
+    or a zero-to-a-positive-power denominator, and Lean/Mathlib's junk-value
+    conventions (`Real.log 0 = 0`, `x / 0 = 0`) collapse the whole expression to
+    exactly `0` — for *any* `M`, independent of its actual structure. Machine-checked
+    below (this is a real, closed theorem; only the one after it is left `sorry`'d). -/
+theorem RDP_indicator_divergence_disjoint_eq_zero {α : Type*} [Fintype α] [DecidableEq α]
+    (M : α → α) (order : ℝ) (h_order : 1 < order) (x y : α) (hxy : x ≠ y) :
+    RenyiDivergence (fun a => if M a = x then 1 / (Fintype.card α : ℝ) else 0)
+                     (fun a => if M a = y then 1 / (Fintype.card α : ℝ) else 0)
+                     order = 0 := by
+  unfold RenyiDivergence
+  rw [if_neg h_order.ne', if_pos h_order]
+  have hsum : (∑ a, ((fun a => if M a = y then 1 / (Fintype.card α : ℝ) else 0) a) ^ order /
+      ((fun a => if M a = x then 1 / (Fintype.card α : ℝ) else 0) a) ^ (order - 1)) = 0 := by
+    apply Finset.sum_eq_zero
+    intro a _
+    simp only []
+    by_cases hax : M a = x
+    · have hay : ¬ (M a = y) := fun h => hxy (hax ▸ h ▸ rfl)
+      rw [if_pos hax, if_neg hay]
+      rw [Real.zero_rpow (by linarith : order ≠ 0)]
+      simp
+    · rw [if_neg hax]
+      rw [Real.zero_rpow (by linarith : order - 1 ≠ 0)]
+      simp
+  rw [hsum, Real.log_zero, mul_zero]
+
 /-- Composition of independent mechanisms: if M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP,
     then their sequential composition has (α, ε1 + ε2)-RDP.
 
     This is the fundamental theorem enabling privacy budgeting in the Sovereign Mohawk system.
 
-    NOT closed. The removed `Theorem2RDP_ChainRule.lean` (deleted this pass)
-    claimed to establish this via a chain-rule decomposition, but it does not
-    compile standalone: `lake env lean` on it errors on an unknown lemma name
-    (`Finset.sum_mul_eq_mul_sum_of_comm`), unresolved `let`-bound identifiers,
-    and a missing `DecidableEq` instance — it was never actually verified
-    (unsurprising: it was not imported by LeanFormalization.lean, so no build
-    ever checked it) and there was nothing usable to build on. A real proof
-    needs the marginal/conditional joint-distribution chain rule for Rényi
-    divergence (`D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]`)
-    applied to the joint distribution over (M1's output, M2's output) —
-    substantially more setup than `data_processing_inequality` above needed,
-    and not attempted here. Left `sorry`'d.
+    NOT CLOSED, AND SHOULD NOT BE CLOSED AS STATED — this is stronger than "still
+    open": the statement below is a **mis-formalization that would be vacuously
+    true**, and proving it would add exactly the kind of "type-checks but proves
+    nothing" theorem this file's other fixes have been removing elsewhere.
+
+    Why: `M1`, `M2 : α → α` are *deterministic* functions, and `_h_M1`/`_h_M2` compare
+    Rényi divergence between indicator functions of *different output-value fibers of
+    the same M1* (`M a = x` vs `M a = y`), not between a randomized mechanism's outputs
+    on two *adjacent databases* — which is what real RDP composition is about. Per
+    `RDP_indicator_divergence_disjoint_eq_zero` above, for x ≠ y this divergence is
+    always exactly 0 regardless of M1's structure; for x = y it reduces to
+    `log(|M1⁻¹ x| / card α)`, which is always ≤ 0 since a fiber can be at most the
+    whole space. So the tightest `eps1` ever forced by `_h_M1` is `0` — **for any M1
+    whatsoever** — and the same holds for `_h_M2` and for the conclusion's own
+    `M2 ∘ M1` divergence. The theorem reduces to "something always ≤ 0 is ≤ (something
+    always ≥ 0)", true for any `M1`, `M2`, completely independent of whether they
+    correspond to any actual ε1/ε2-RDP mechanism. Closing this `sorry` would not
+    verify RDP composition; it would prove a tautology dressed up as one.
+
+    A real proof needs actual randomized mechanisms (not deterministic α → α
+    functions), varying the *input* over adjacent databases (not varying an output
+    label x/y of one fixed function), and the marginal/conditional joint-distribution
+    chain rule for Rényi divergence
+    (`D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]`) applied to the
+    joint distribution over (M1's output, M2's output) — substantially more setup
+    than `data_processing_inequality` above needed, and a full restatement of this
+    theorem's signature, not a patch to the one below. (The previously-removed
+    `Theorem2RDP_ChainRule.lean` attempted this chain-rule route but did not compile
+    standalone and was deleted; there is nothing usable to build on there either.)
 -/
 theorem RDP_sequential_composition {α : Type*} [Fintype α] [DecidableEq α]
     (M1 M2 : α → α) (eps1 eps2 alpha : ℝ)

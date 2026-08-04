@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "f7ae00d161785fb84f6dd297082316fef05645c1ce2e857a5487f6d20394299e",
+  "input_merkle_root": "c08aec3dda0faf9b2246da9829aa44b6545acdedf5f19feebef2d34679b98833",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "9424734516a962c49c739834e4a218eb1988fe61ff4e4294f497cfeb8b3298ac"
+      "sha256": "39ee2e12b8e2a29eb9d47e651a5e4b9ddc70748eec8c1c22813a2f0d4dc4e397"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -36,7 +36,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "65f80bb78f82a99c026d7d499cdadaac415b1da81ff36fbcd568b06d66cfd051"
+      "sha256": "51519b6ec091e4b4f478226f5d01c89b346118e248b3b1e420018349cff8dc48"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
@@ -117,9 +117,10 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 25,
+      "symbol_count": 29,
       "symbols": [
         "RDP_alpha_constraint",
+        "RDP_indicator_divergence_disjoint_eq_zero",
         "RDP_sequential_composition",
         "RenyiDivergence_limit_KL",
         "RenyiDivergence_nonneg",
@@ -130,7 +131,10 @@
         "data_processing_inequality_KL",
         "gaussianRDPBound",
         "isAdjacent",
+        "pushforward_pos",
+        "pushforward_sum",
         "satisfiesRDP",
+        "stated",
         "sum_rpow_div_ge",
         "theorem2_budget_guard",
         "theorem2_budget_step",
@@ -315,7 +319,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 138
+    "theorem_symbol_count": 142
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
