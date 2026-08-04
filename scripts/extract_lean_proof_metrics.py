@@ -37,7 +37,9 @@ TACTICS = [
 ]
 
 _DECL_MODIFIER = r"(?:(?:noncomputable|private|protected|scoped|local)\s+)*"
-DECL_RE = re.compile(rf"^(?P<indent>\s*){_DECL_MODIFIER}(?:theorem|lemma)\s+(?P<name>[A-Za-z0-9_']+)\b")
+DECL_RE = re.compile(
+    rf"^(?P<indent>\s*){_DECL_MODIFIER}(?:theorem|lemma)\s+(?P<name>[A-Za-z0-9_']+)\b"
+)
 TOP_LEVEL_RE = re.compile(
     rf"^\s*{_DECL_MODIFIER}(?:theorem|lemma|def|structure|class|inductive|abbrev|opaque)\s+[A-Za-z0-9_']+\b"
 )
