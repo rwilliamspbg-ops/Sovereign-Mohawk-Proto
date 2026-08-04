@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "916900955e866f64c5ecccc32846e4c4378eb352c5bd710fbe7cd2f52cf81db0",
+  "input_merkle_root": "65b3b005c4dc187473a9de1fd8b982330525caaa0247f5d5381cc8a08ac73f7c",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -16,11 +16,11 @@
     },
     {
       "path": "go.mod",
-      "sha256": "93f01d129875eaabbc5659512ccccb4048ac2f7fcc2ca6904ee170c0496a9940"
+      "sha256": "e3964e7d58a99004d3aad4241647f5820ba5efaf765da72e30d30db466db875f"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "bc161096499568f245009b220a007e74ef2353dfa5b533c8121bd6c12059edd6"
+      "sha256": "104d9f6fe2cb11e37eecc763ea8683f9de3931e182cdd2d5d42a64fec409f3ce"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -76,7 +76,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "53c052ab789c2c440024866ea79b49ca6c9f46155a7152149ad8522d6d704de5"
+      "sha256": "6e1ef55a52aec014d584188e5eb0d3fae24da7c9c5604fe6ce0ca78bf711fef5"
     }
   ],
   "lean_modules": [
@@ -320,7 +320,7 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 34,
+    "runtime_reference_count": 38,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
@@ -355,6 +355,10 @@
       "test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic",
       "test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath",
       "test/zk_verifier_test.go::TestVerifyHashCommitment",
+      "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_DifferentDataDifferentCommitment",
+      "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_TamperedProofRejected",
+      "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_Valid",
+      "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_WrongCommitmentRejected",
       "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
     ]
   }
