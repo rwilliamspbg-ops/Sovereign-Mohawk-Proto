@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "c1067f93d0e04d5fa8772793d5e4b1a8cffa4e7444da3b767327b07edc22b65f",
+  "input_merkle_root": "e1bc33354d036086313e29280d080f1c2d18e5c97ba927d7f24d513e12b752b5",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "786433d25cd1dbbd985af4d910b095c4c2d4e0c178236fc7f65c4fb738a78fbe"
+      "sha256": "d3782149c3875abd01afb42d53c0526e6bc85bc3d97f141a18573834e6c542ab"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -336,7 +336,7 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 33,
+    "runtime_reference_count": 34,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
@@ -366,6 +366,7 @@
       "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Fail",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Pass",
+      "test/transport_byte_size_test.go::TestTransportByteSizeConvention",
       "test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof",
       "test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic",
       "test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath",
