@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "07b55a89f874e53aad95428bee1d823c54482a59bc58eb2d51e0fe1bdb23f857",
+  "input_merkle_root": "172c6543c233c3eed9e48d476729c70b7bbdf893193a27c8be0427e86f7a72a1",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "587e4150570cb6e2f012b3759a10052797ddee9bad9bfe2297902525760fde4f"
+      "sha256": "1d6c306bc0d0603272b6afed22cb757740c4a0f370cab6f64f455e75ad698a3a"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "29597b6635a71571727553fcd7a431e2bd78a1f55b6a581f6727cdd9f3c92ef6"
+      "sha256": "d0ecec792c30ca57152ff254d1dadb2cffad1869acf3ec193e8db3ba7d44e1b1"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
@@ -91,9 +91,13 @@
     {
       "file": "proofs/LeanFormalization/Theorem1BFT.lean",
       "module": "LeanFormalization.Theorem1BFT",
-      "symbol_count": 18,
+      "symbol_count": 25,
       "symbols": [
         "HTree",
+        "binomialTail",
+        "binomialTail_le_one",
+        "binomial_markov",
+        "binomial_mean",
         "hierarchical_composition_counterexample",
         "hierarchical_counterexample_A",
         "hierarchical_counterexample_A_safe",
@@ -101,6 +105,9 @@
         "hierarchical_counterexample_B_not_safe",
         "hierarchical_counterexample_Root",
         "hierarchical_counterexample_Root_safe",
+        "probabilistic_bound_too_loose_at_deployment_scale",
+        "probabilistic_hierarchical_bound",
+        "probabilistic_hierarchical_bound_small_scale_example",
         "theorem1_five_ninths_guard",
         "theorem1_five_ninths_of_half_bound",
         "theorem1_global_bound_checked",
@@ -324,7 +331,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 147
+    "theorem_symbol_count": 154
   },
   "toolchain_lock": {
     "go_version": "1.26.5",

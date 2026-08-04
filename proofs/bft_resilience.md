@@ -53,3 +53,28 @@ different, measure-theoretic formalization task, not attempted here — see
 The concrete 5/9 profile check (`theorem1_five_ninths_guard`,
 `theorem1_global_bound_checked`) is unaffected — it's a real, correct fact
 about a *given* tier's Byzantine count and was never claiming to compose.
+
+### Phase 3 update: the probabilistic repair was attempted — real, but not yet useful at deployment scale
+
+The probabilistic argument this section calls for was subsequently
+formalized for real in `Theorem1BFT.lean`: `binomial_mean` (the mean of a
+Binomial(n,p) count, proved from scratch — not available in Mathlib),
+`binomial_markov` (a per-committee Markov's-inequality tail bound under
+i.i.d. random sampling), and `probabilistic_hierarchical_bound` (unioning
+that bound across `T` committees via the already-proven `theorem4_union_bound`).
+
+This is a deliberately scoped-down version of the fix: Markov's inequality
+is real and provable without the general measure-theoretic machinery a full
+Chernoff/Hoeffding exponential tail bound would need, but it is also
+*weak* — polynomial decay, not exponential. `probabilistic_bound_too_loose_at_deployment_scale`
+checks, honestly, that this weaker bound is **not useful at this system's
+own published scale**: at `T=200` committees of `c=50,000` (10M nodes total),
+10% global Byzantine rate, majority threshold, the bound evaluates to `40`
+— far past `1`, i.e. vacuous. `probabilistic_hierarchical_bound_small_scale_example`
+confirms the underlying theorem gives a genuinely useful (`≤6%`) bound at a
+smaller illustrative scale, so this isn't vacuous in general — the gap is
+specifically that Markov's inequality is too weak for the union bound to
+survive being taken over 200 committees at this system's node count.
+
+Closing this for real needs the sharper exponential concentration bound
+this section already named as the target, and remains open work.
