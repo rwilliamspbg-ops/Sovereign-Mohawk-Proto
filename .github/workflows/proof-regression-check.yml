@@ -123,7 +123,18 @@ jobs:
           base_map = {item['name']: item for item in base.get('theorems', [])}
           head_map = {item['name']: item for item in head.get('theorems', [])}
 
+          # `tactic_count` is a keyword-occurrence count over the proof body (see
+          # scripts/extract_lean_proof_metrics.py's TACTICS list); it does not
+          # include `sorry`, so a `sorry`'d theorem's baseline is exactly 0. A
+          # theorem going from `sorry` (0 tactics: no real proof existed) to an
+          # actual proof is the intended outcome of closing a sorry, not a
+          # regression -- the old `... if base_tactics else 1` fallback treated
+          # "no baseline" as "must stay under 1 tactic forever", which flags
+          # every single closed sorry as a regression by construction. Skip
+          # theorems with no real baseline proof instead of comparing against
+          # a floor that was never a real complexity measurement.
           regressions = []
+          newly_proven = []
           for name, head_item in head_map.items():
             base_item = base_map.get(name)
             if base_item is None:
@@ -132,8 +143,12 @@ jobs:
             head_depth = head_item.get('proof_depth', 0)
             base_tactics = base_item.get('tactic_count', 0)
             head_tactics = head_item.get('tactic_count', 0)
-            depth_limit = base_depth * 1.20 if base_depth else 1
-            tactic_limit = base_tactics * 1.50 if base_tactics else 1
+            if base_tactics == 0:
+              if head_tactics > 0:
+                newly_proven.append({'name': name, 'head_tactics': head_tactics})
+              continue
+            depth_limit = base_depth * 1.20
+            tactic_limit = base_tactics * 1.50
             if head_depth > depth_limit or head_tactics > tactic_limit:
               regressions.append(
                 {
@@ -148,6 +163,7 @@ jobs:
           report = {
             'regression_count': len(regressions),
             'regressions': regressions,
+            'newly_proven': newly_proven,
             'base_summary': base.get('summary', {}),
             'head_summary': head.get('summary', {}),
           }
