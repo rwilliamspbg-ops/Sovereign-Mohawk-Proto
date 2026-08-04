@@ -9,6 +9,12 @@ BRANCH="${BRANCH:-main}"
 # Example:
 #   export GITHUB_TOKEN=ghp_xxx
 #   bash scripts/apply_branch_protection.sh
+#
+# Note: "Bridge Compression Benchmark / bridge-regression-compare" was removed
+# from the contexts below. The entire bridge feature (including the
+# bridge-compression-benchmark.yml workflow that produced this check) was
+# deleted in d7deb9682 ("Remove bridge surfaces and refresh validation
+# artifacts"), so no job by this name can ever report back to GitHub.
 
 PAYLOAD=$(cat <<'JSON'
 {
@@ -19,11 +25,10 @@ PAYLOAD=$(cat <<'JSON'
       "Go Test / go-test",
       "Integrity Guard - Linter / lint",
       "Mainnet Readiness Gate / readiness-gate",
-      "Mainnet Chaos Gate / chaos-matrix",
+      "Mainnet Chaos Gate / chaos-gate",
       "Performance Gate / performance-gate",
       "Monitoring Smoke Gate / monitoring-smoke",
       "Release Performance Evidence / release-performance-evidence",
-      "Bridge Compression Benchmark / bridge-regression-compare",
       "FedAvg Benchmark Compare / fedavg-benchmark-compare",
       "Proof-Driven Design Verification / proof-audit",
       "Proof-Driven Design Verification / verify-lean-formalization",
