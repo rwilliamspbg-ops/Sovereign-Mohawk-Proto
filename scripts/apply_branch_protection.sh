@@ -14,14 +14,9 @@ BRANCH="${BRANCH:-main}"
 # from the contexts below. The entire bridge feature (including the
 # bridge-compression-benchmark.yml workflow that produced this check) was
 # deleted in d7deb9682 ("Remove bridge surfaces and refresh validation
-# artifacts"), so no job by this name can ever report back to GitHub.
-
-# NOTE: "Bridge Compression Benchmark / bridge-regression-compare" below is
-# known-stale as of 2026-08-04 -- no workflow with that name or job id
-# currently exists under .github/workflows/. Left in place pending
-# investigation into whether it should be restored or removed (see the
-# repo's task tracker / recent PR history); the other entries in this list
-# have been verified against real, current workflow/job names.
+# artifacts"), so no job by this name can ever report back to GitHub. The
+# other entries in this list have all been verified against real, current
+# workflow/job names as of 2026-08-04.
 
 PAYLOAD=$(cat <<'JSON'
 {
