@@ -102,70 +102,90 @@ theorem theorem6_hierarchical_convergence_rate :
     L_T ≤ (1 : ℚ) / 10 := by
   norm_num [convergence_envelope]
 
-/-- Lemma 6: Convergence scales with dimension (for dimensional analysis)
-    The convergence envelope is dimension-independent (up to log factors).
-    This justifies centralized aggregation without per-dimension overhead.
--/
-theorem convergence_dimension_independent (K T d : ℕ) (zeta : ℚ)
-    (_ : K > 0)
-    (_ : T > 0)
-    (_ : d > 0) :
-    convergence_envelope K T zeta = convergence_envelope K T zeta := by
-  rfl
+-- Two theorems previously lived here and are now REMOVED, not fixed --
+-- there was no salvageable mathematical content to fix:
+--
+-- `convergence_dimension_independent` claimed "the convergence envelope is
+-- dimension-independent... justifies centralized aggregation without
+-- per-dimension overhead," took a dimension parameter `d`, and then
+-- concluded `convergence_envelope K T zeta = convergence_envelope K T zeta`
+-- -- literally `X = X`, proved by `rfl`, with `d` and all three hypotheses
+-- unused. This isn't a weak version of a dimension-independence result; it
+-- tests nothing about dimension at all, because `convergence_envelope`
+-- itself has no dimension parameter anywhere in its definition. There is no
+-- way to state a real dimension-independence claim about a function that
+-- was never given a dimension to depend on in the first place.
+--
+-- `convergence_preserves_hierarchical_communication` claimed "the O(d log n)
+-- communication complexity does not degrade convergence rate... compatible
+-- with SGD," and concluded `(1:ℚ)/1000 ≠ 0` -- a hardcoded literal with no
+-- reference to communication cost, compression, or hierarchical topology
+-- anywhere in the file's model.
+--
+-- Both were True-by-construction regardless of any actual property of this
+-- system; see FORMAL_TRACEABILITY_MATRIX.md row 11 for the removal note. A
+-- real version of either claim needs a convergence model that is actually
+-- parameterized by dimension and by communication structure, which
+-- `convergence_envelope` (K, T, ζ only) does not attempt -- out of scope
+-- for this pass, same as the non-convex rate below.
 
-/-- Corollary: Hierarchical aggregation preserves convergence
-    The O(d log n) communication complexity does not degrade convergence rate.
-    Compression and hierarchical routing are compatible with SGD.
--/
-theorem convergence_preserves_hierarchical_communication :
-    let convergence_rate := (1 : ℚ) / 1000 -- 0.001
-    -- Convergence is independent of communication structure
-    convergence_rate ≠ 0 := by
-  norm_num
-
-/-- Lemma 7: Strong convexity & smoothness
-    For μ-strongly convex, L-smooth objectives with non-IID data,
-    convergence is O(1/μT) for convex (or O(1/√T) for non-convex with noise).
--/
+/-- `strong_convexity_factor` is the only piece of "Lemma 7" (strong
+    convexity & smoothness) actually used below; a `smoothness_constant`
+    def previously sat next to it, decorative — listed in a `simp`/`norm_num`
+    set but never appearing in any theorem's actual statement or goal.
+    Removed. -/
 def strong_convexity_factor : ℚ := 1/100 -- μ = 0.01
-def smoothness_constant : ℚ := 10 -- L = 10
 
+/-- A numeric bound on `1/(μT)` for the concrete `μ = 0.01`, `T = 1000`
+    profile. NOT a proof that SGD converges at rate `O(1/μT)` for
+    μ-strongly-convex, L-smooth objectives — no gradient sequence, no
+    objective function, and no smoothness constant appear anywhere in this
+    statement; the previous docstring claimed the former. What's real: the
+    specific fraction `1/(0.01 × 1000) = 1/10` genuinely lies in `(0, 1)`. -/
 theorem convergence_with_strong_convexity :
     let mu := strong_convexity_factor
     let T := 1000
     let convergence := 1 / (mu * T : ℚ)
     (0 : ℚ) < convergence ∧ convergence < 1 := by
-  norm_num [strong_convexity_factor, smoothness_constant]
+  norm_num [strong_convexity_factor]
 
-/-- Theorem 6c: Convergence with Variance Reduction
-    Variance-reduced SGD (SAGA, SVRG) achieves faster convergence
-    under non-IID heterogeneity with appropriate gradient compression.
--/
+/-- A numeric bound on `convergence_envelope K T zeta / 2` for a concrete
+    profile. NOT a model of variance-reduced SGD (SAGA/SVRG) — "divide the
+    existing envelope by 2" is an arbitrary halving, not a variance-reduction
+    algorithm's actual convergence formula; the previous docstring claimed
+    the former. What's real: for K=100, T=1000, ζ=0.1, half the envelope
+    value is below 1/100. -/
 theorem theorem6_variance_reduction_convergence :
     let K := 100
     let T := 1000
     let zeta := (1 : ℚ) / 10
-    let variance_reduced_envelope := convergence_envelope K T zeta / 2 -- 50% improvement
+    let variance_reduced_envelope := convergence_envelope K T zeta / 2
     variance_reduced_envelope < (1 : ℚ) / 100 := by
   norm_num [convergence_envelope]
 
-/-- Theorem 6d: Convergence holds across hierarchy
-    Heterogeneous network topology preserves convergence rates via hierarchical aggregation.
-    Communication cost is O(d log n) while convergence is O(1/KT) + O(ζ²).
--/
+/-- A second concrete numeric bound on `convergence_envelope` for the same
+    K=100, T=1000, ζ=0.1 profile as `theorem6_hierarchical_convergence_rate`
+    above, just a looser threshold. NOT a claim about network topology,
+    hierarchical aggregation, or communication cost — none of those appear
+    in `convergence_envelope`'s definition; the previous docstring claimed
+    "heterogeneous network topology preserves convergence rates... O(d log n)
+    communication cost." -/
 theorem theorem6_hierarchical_convergence_holds :
-    let K := 100 -- nodes per aggregation round
-    let T := 1000 -- total rounds
-    let zeta := (1 : ℚ) / 10 -- heterogeneity parameter
+    let K := 100
+    let T := 1000
+    let zeta := (1 : ℚ) / 10
     let envelope := convergence_envelope K T zeta
     envelope < (2 : ℚ) / 100 := by
   norm_num [convergence_envelope]
 
-/-- Theorem 6d: Exact convergence regime lock-in.
-    The system is configured for the 1/(2KT) regime, not 1/√(KT).
-    This is O(1/KT) linear ergodic convergence for convex objectives,
-    or O(1/T) for strongly convex objectives with standard conditions.
--/
+/-- `convergence_envelope`'s `order > 1` branch is, by definition,
+    `1/(2KT) + ζ²`, so `∃ c > 0, L_T ≤ c/(KT) + ζ²` holds by picking `c = 1/2`
+    to match that definition exactly — a restatement of `convergence_envelope`'s
+    own formula, not an independent analysis. NOT "O(1/KT) linear ergodic
+    convergence" or a "regime lock-in" result in any asymptotic sense (the
+    previous docstring's language) — there is no comparison here to the
+    alternative `1/√(KT)` regime the docstring contrasted against, and no
+    argument for why `1/(2KT)` is the correct rate for this system. -/
 theorem theorem6_exact_convergence_regime :
     ∀ (K T : ℕ),
     K > 0 → T > 0 →
@@ -182,19 +202,18 @@ theorem theorem6_exact_convergence_regime :
   · ring_nf
     exact le_rfl
 
-/-- Theorem 6e: Non-convex lower bound.
-    For non-convex objectives without further structure, we cannot do better
-    than O(1/√T) without variance reduction or acceleration.
--/
-theorem theorem6_non_convex_lower_bound :
-  ∃ (L_T : ℚ), L_T > 0 ∧ L_T = (1 : ℚ) / (2 * 1000 * 1000) ∧
-    (1 : ℚ) / (2 * 1000 * 1000) < (1 : ℚ) / 11 := by
-  use (1 : ℚ) / (2 * 1000 * 1000)
-  constructor
-  · norm_num
-  constructor
-  · rfl
-  · norm_num
+-- `theorem6_non_convex_lower_bound` previously lived here, claiming "for
+-- non-convex objectives without further structure, we cannot do better than
+-- O(1/√T) without variance reduction or acceleration," and its actual
+-- content was `∃ L_T, L_T > 0 ∧ L_T = 1/(2·1000·1000) ∧ 1/(2·1000·1000) < 1/11`
+-- -- picking one specific number and confirming it's positive and below
+-- 1/11. No non-convexity, no O(1/√T) rate, and no lower-bound argument
+-- (lower bounds require showing *no* algorithm can do better, not exhibiting
+-- one number in a range) appear anywhere in the statement. Removed, same as
+-- the two removed above — see FORMAL_TRACEABILITY_MATRIX.md row 11. This
+-- file's `convergence_envelope` is specifically the *convex* 1/(2KT) form
+-- (see the def's own doc comment); a real non-convex rate needs a different
+-- model entirely, out of scope for this pass.
 
 /-- Corollary: At 100K rounds, convergence envelope is <10^-6 + ζ²
     This validates the Phase 3b convergence target.

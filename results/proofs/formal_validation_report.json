@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "4c36dcd886752f5b6c7f1d2cdd6c1983599bf6e829c1adc84589f962db995661",
+  "input_merkle_root": "13f4da9036c8ddef611d285195b645caa800a29f51b7d3d51629f2c18d10f378",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "838fc1a3002952a3636a245113453618bc4b9c3489ace6451f25d455c18ec0cd"
+      "sha256": "833e4bdf46e60e025a076db80c0593884589ce40bb3736ef3969fb21a5a4eabe"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -56,7 +56,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "737b44a9acb0e528353c6a64af8b58b5fab5f65e0ab61964a6aeda534e9e9fa3"
+      "sha256": "c738450d99c7ab9f737a6fb153a19b0419bda083aeebcd361493f086bb2bde1d"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
@@ -64,7 +64,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
-      "sha256": "964c9c927eff7fe71625b2322f315b9f27dc2396633b8729075b14b24089fabf"
+      "sha256": "a9f4f0f02035b674761870ad717aa41d90558778600014ae6a41fc693884a33d"
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
@@ -225,18 +225,18 @@
       "module": "LeanFormalization.Theorem5Cryptography",
       "symbol_count": 15,
       "symbols": [
+        "Relation",
         "proofSize",
-        "statementSoundness",
+        "prove",
         "theorem5_constant_cost",
         "theorem5_constant_ops",
         "theorem5_constant_size",
         "theorem5_cost_guard",
         "theorem5_ops_guard",
         "theorem5_proof_size_independence",
-        "theorem5_proof_soundness",
-        "theorem5_qsdh_security",
         "theorem5_verifier_completeness",
-        "verifierCompleteness",
+        "theorem5_verifier_soundness",
+        "theorem5_verifyops_constant",
         "verify",
         "verifyCostMicros",
         "verifyOps"
@@ -260,25 +260,22 @@
     {
       "file": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
       "module": "LeanFormalization.Theorem6ConvergenceReals",
-      "symbol_count": 18,
+      "symbol_count": 15,
       "symbols": [
-        "convergence_dimension_independent",
         "convergence_envelope",
         "convergence_envelope_concrete_100_1000",
         "convergence_envelope_decompose",
         "convergence_envelope_momentum",
         "convergence_heterogeneity_effect",
         "convergence_large_scale_envelope",
-        "convergence_preserves_hierarchical_communication",
         "convergence_rounds_help_numeric",
         "convergence_rounds_help_strong",
         "convergence_with_strong_convexity",
-        "smoothness_constant",
+        "previously",
         "strong_convexity_factor",
         "theorem6_exact_convergence_regime",
         "theorem6_hierarchical_convergence_holds",
         "theorem6_hierarchical_convergence_rate",
-        "theorem6_non_convex_lower_bound",
         "theorem6_variance_reduction_convergence"
       ]
     },
@@ -328,7 +325,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 151
+    "theorem_symbol_count": 148
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
