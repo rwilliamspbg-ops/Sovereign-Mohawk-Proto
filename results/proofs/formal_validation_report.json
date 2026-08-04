@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "13f4da9036c8ddef611d285195b645caa800a29f51b7d3d51629f2c18d10f378",
+  "input_merkle_root": "6dbfa4d44a962f9e4b2d1271c91a9b333507bb780e12a874ee49b148708029db",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "833e4bdf46e60e025a076db80c0593884589ce40bb3736ef3969fb21a5a4eabe"
+      "sha256": "963fff54850ce711c31a84aa3d3ba6b70b2d7a319a3bd08d2260268a3e719415"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -336,9 +336,10 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 30,
+    "runtime_reference_count": 31,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_test.go::TestMultiKrumSelect",
       "internal/token/migration_signatures.go::verifyMigrationSignatureBundle",
       "sdk/python/examples/flower_integrated/quickstart_pytorch.py::main",

@@ -34,9 +34,8 @@ REQUIRED_LEAN_FILES = {
         "theorem communication_bound",
     ],
     "Refinement/MultiKrum.lean": [
-        "def krumSpec",
-        "def krumImpl",
-        "theorem krum_impl_refines_spec",
+        "theorem go_neighbors_valid",
+        "theorem go_neighbors_no_clamp",
     ],
     "Refinement/RDPAccountant.lean": [
         "def accountantSpec",
