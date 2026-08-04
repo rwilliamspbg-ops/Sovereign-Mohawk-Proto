@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "6dbfa4d44a962f9e4b2d1271c91a9b333507bb780e12a874ee49b148708029db",
+  "input_merkle_root": "365b15ea23b80e97017143636a58a624ce63f21cbd9e17d6a82ebee7b2d16c10",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "963fff54850ce711c31a84aa3d3ba6b70b2d7a319a3bd08d2260268a3e719415"
+      "sha256": "7cf38d0a66e9f210bb0bff53fb985f3e0f87d99452181e67fcdf4e47153f6da8"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -336,11 +336,12 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 31,
+    "runtime_reference_count": 32,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_test.go::TestMultiKrumSelect",
+      "internal/token/ledger_lean_correspondence_test.go::TestLedgerLeanCorrespondence",
       "internal/token/migration_signatures.go::verifyMigrationSignatureBundle",
       "sdk/python/examples/flower_integrated/quickstart_pytorch.py::main",
       "sdk/python/tests/test_flower_client.py::test_fit_submits_update_and_builds_proof_manifest",
