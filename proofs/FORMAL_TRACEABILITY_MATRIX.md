@@ -38,6 +38,33 @@ Authoritative cross-reference between theorem claims, human-readable proofs, mac
 - `ufCmaWins`, `pqcUnforgeable`, `MigrationAuth`, `MigrationPhase`, `LedgerState`, `postEpochAccepts`, `hijackSafe`: centralized in `LeanFormalization/Common.lean`
 - `LedgerTransition`: theorem-specific transition relation in `LeanFormalization/Theorem8DualSignatureNonHijack.lean`
 
+## Quarantined Modules
+
+Two files previously lived under `proofs/LeanFormalization/` — not imported
+by `LeanFormalization.lean`, never listed in this matrix, never referenced
+by a public claim — but were still compiled by `lake build LeanFormalization`
+(Lake's default `lean_lib` glob covers every `.lean` file under the
+directory regardless of the import graph), so they sat in the checked build
+tree looking like verified artifacts despite never being part of the actual
+claim surface. Moved to `proofs/quarantined/` (outside every `lean_lib`
+target in `proofs/lakefile.lean`, so no longer built at all) during a
+Phase 0 claim-hygiene pass:
+
+- **`Theorem2RDP_GaussianRDP.lean`** — `gaussian_RDP_bound` compares
+  `RenyiDivergence` between two identical constant functions, not real
+  Gaussian likelihoods (`GaussianMechanism` is literally the identity
+  function per its own comment), so it establishes nothing about actual
+  Gaussian mechanisms regardless of whether it type-checks.
+- **`Theorem2RDP_MomentAccountant.lean`** — `moment_rdp_equivalence`
+  concludes bare `True` (proved `by trivial`), the same vacuous-conclusion
+  pattern this matrix's Theorem 3 row documents `lint_formal_proof_claims.py`
+  catching elsewhere.
+
+Both are relevant to closing Theorem 2's open `sorry`s (row 2 above) as
+future work, but should be treated as a discarded first draft, not a
+starting point — see `proofs/quarantined/README.md` for the full rationale
+per file.
+
 ## Parser Compatibility
 
 This matrix is designed for automated extraction:
