@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "1b1a93e3918921bf480df54f21bb4e1bedd323b3fbd707ce8e3fa25cf8d16519",
+  "input_merkle_root": "09a3b8467164ac11f9d23d479bcf0fb19f13a8150138a86cd6f638f70f5d683a",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "fe48811610abe25da06019555d9c983474f3f23b7b2f505f2f4d1c2c1ae27d71"
+      "sha256": "3ebb6b53a3adbbd637eadde60957260bdcc77ccf823dd9c59450b7137b371653"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -76,7 +76,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "a3e7a75903c3e22f51ae190e1214b9dd5b30c24c174f21ae750ea26e4a76f21a"
+      "sha256": "6b59fc9ffaa36f8c843eea0d0a82a413b38874ab1ca78610cf62916eef3cd6d0"
     }
   ],
   "lean_modules": [
