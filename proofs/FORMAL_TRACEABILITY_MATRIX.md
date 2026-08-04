@@ -93,8 +93,9 @@ This matrix is designed for automated extraction:
 ## Latest Validation Run
 
 - Date (UTC): 2026-08-04
-- Branch: `feat/rdpaccountant-go-refinement` (off `main`, which had already
-  merged `feat/multikrum-go-refinement`, `fix/theorem5-6-crypto-convergence`,
+- Branch: `feat/rdpaccountant-go-refinement` (merged with `main`, which had
+  already merged `feat/multikrum-go-refinement`,
+  `fix/theorem5-6-crypto-convergence`,
   `fix/theorem4-liveness-measure-theory`, `fix/theorem7-8-pqc-hardness`,
   `fix/theorem2-rdp-sorries`, `fix/theorem1-bft-compositional`, and
   `feat/formal-verification-phase0`)
