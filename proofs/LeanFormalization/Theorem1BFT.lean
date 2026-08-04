@@ -26,6 +26,7 @@
 
 import Mathlib
 import LeanFormalization.Common
+import LeanFormalization.Theorem4ChernoffBounds
 
 namespace LeanFormalization
 
@@ -249,5 +250,219 @@ theorem hierarchical_composition_counterexample :
   unfold hierarchical_counterexample_Root hierarchical_counterexample_A
     hierarchical_counterexample_B
   decide
+
+/-! ## Probabilistic hierarchical composition (Phase 3)
+
+`hierarchical_composition_counterexample` disproved the *deterministic*
+compositional claim: crediting a "safe" (passed-its-local-majority-check)
+committee its full leaf-weight lets an adversary hide near-50% corruption
+inside it. The comment on that theorem, and `bft_resilience.md`'s
+"Correction" section, both prescribe the real fix: under *random* committee
+sampling (this system's actual architecture — not a fixed adversarial
+partition), the adversary can't choose which committee to concentrate
+corruption in, so each committee's *actual* Byzantine count concentrates
+near the population's global rate, and — critically — that lets you sum
+*actual bounded counts* directly instead of laundering full credit through
+a binary safe/unsafe gate, sidestepping the exact mechanism that broke the
+deterministic version.
+
+This section formalizes that argument using Markov's inequality (a real,
+provable, but *weak* — polynomial, not exponential — concentration bound),
+not the full Chernoff/Hoeffding tail bound `bft_resilience.md` names as the
+mathematically ideal fix. That's a genuine, documented scope choice, not
+an oversight: a from-scratch exponential concentration bound needs Mathlib's
+general sub-Gaussian/MGF machinery (`Mathlib.Probability.Moments.*`), which
+brings real measurability/integrability setup this pass does not attempt.
+What's below is real and non-vacuous — it gives an honestly-weaker
+probabilistic guarantee, with its own genuine numeric limitation documented
+at `probabilistic_bound_too_loose_at_deployment_scale` below, not silently
+glossed over.
+
+Committee sampling is modeled the same way `chernoff_bound_eq_binomial_zero_prob`
+in `Theorem4ChernoffBounds.lean` already models redundant-copy availability:
+i.i.d. Bernoulli trials via the binomial family, the standard idealization
+for "sample from a large population" used in real committee-BFT protocols
+(e.g. Algorand's sortition analysis) — not exact hypergeometric
+sampling-without-replacement, which Mathlib has no concentration-bound
+support for at all.
+-/
+
+/-- `∑_{i=0}^n i·C(n,i)·pⁱ·(1-p)ⁿ⁻ⁱ = np`: the mean of a Binomial(n,p) count,
+    proved directly from the absorption identity `Nat.add_one_mul_choose_eq`
+    (reindexing `i·C(n,i)` to `n·C(n-1,i-1)`) and the binomial theorem
+    (`add_pow`) collapsing the reindexed sum to `(p+(1-p))^(n-1) = 1`. Not in
+    Mathlib — `Probability.Distributions.Binomial`'s own version of this fact
+    is a `proof_wanted` stub there, not a proved theorem. -/
+theorem binomial_mean (n : ℕ) (p : ℚ) :
+    ∑ i ∈ Finset.range (n + 1), (i : ℚ) * (n.choose i) * p ^ i * (1 - p) ^ (n - i) = n * p := by
+  match n with
+  | 0 => simp
+  | m + 1 =>
+    rw [Finset.sum_range_succ']
+    simp only [Nat.cast_zero, zero_mul, add_zero]
+    have hterm : ∀ j ∈ Finset.range (m + 1),
+        ((j + 1 : ℕ) : ℚ) * ((m + 1).choose (j + 1)) * p ^ (j + 1) * (1 - p) ^ (m + 1 - (j + 1))
+          = ((m : ℚ) + 1) * p * ((m.choose j : ℚ) * p ^ j * (1 - p) ^ (m - j)) := by
+      intro j hj
+      have hjm : j ≤ m := by simp only [Finset.mem_range] at hj; omega
+      have habs : ((m + 1).choose (j + 1) : ℚ) * (((j : ℕ) + 1 : ℕ) : ℚ)
+          = ((m : ℚ) + 1) * (m.choose j : ℚ) := by
+        have := Nat.add_one_mul_choose_eq m j
+        have hc : ((m + 1) * m.choose j : ℚ) = ((m + 1).choose (j + 1) * (j + 1) : ℚ) := by
+          exact_mod_cast this
+        push_cast at hc ⊢
+        linarith
+      have hexp : m + 1 - (j + 1) = m - j := by omega
+      rw [hexp]
+      push_cast
+      have heq : ((j : ℚ) + 1) * ((m + 1).choose (j + 1) : ℚ) * p ^ (j + 1) * (1 - p) ^ (m - j)
+          = (((m + 1).choose (j + 1) : ℚ) * (((j : ℕ) + 1 : ℕ) : ℚ)) * p ^ (j + 1) * (1 - p) ^ (m - j) := by
+        push_cast; ring
+      rw [heq, habs]
+      ring
+    rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
+    have hbin : ∑ j ∈ Finset.range (m + 1), (m.choose j : ℚ) * p ^ j * (1 - p) ^ (m - j) = 1 := by
+      have hb := add_pow p (1 - p) m
+      calc ∑ j ∈ Finset.range (m + 1), (m.choose j : ℚ) * p ^ j * (1 - p) ^ (m - j)
+          = ∑ j ∈ Finset.range (m + 1), p ^ j * (1 - p) ^ (m - j) * (m.choose j : ℚ) := by
+            apply Finset.sum_congr rfl; intro j _; ring
+        _ = (p + (1 - p)) ^ m := hb.symm
+        _ = 1 := by simp
+    rw [hbin]
+    push_cast
+    ring
+
+/-- Exact tail probability that a Binomial(n,p) count is at least `k`. -/
+def binomialTail (n k : ℕ) (p : ℚ) : ℚ :=
+  ∑ i ∈ Finset.Icc k n, (n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i)
+
+/-- The tail is a sub-sum of the full binomial expansion (which sums to `1`
+    via the binomial theorem), so it never exceeds `1` — needed to feed
+    `binomialTail` into `theorem4_union_bound`'s `p i ≤ 1` hypothesis below. -/
+theorem binomialTail_le_one (n k : ℕ) (p : ℚ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    binomialTail n k p ≤ 1 := by
+  have hsub : Finset.Icc k n ⊆ Finset.range (n + 1) := by
+    intro i hi
+    simp only [Finset.mem_Icc] at hi
+    simp only [Finset.mem_range]; omega
+  have hextend : binomialTail n k p
+      ≤ ∑ i ∈ Finset.range (n + 1), (n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i) := by
+    unfold binomialTail
+    apply Finset.sum_le_sum_of_subset_of_nonneg hsub
+    intro i _ _
+    have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+    have h2 : (0 : ℚ) ≤ (1 - p) ^ (n - i) := pow_nonneg (by linarith) _
+    positivity
+  have hbin : ∑ j ∈ Finset.range (n + 1), (n.choose j : ℚ) * p ^ j * (1 - p) ^ (n - j) = 1 := by
+    have hb := add_pow p (1 - p) n
+    calc ∑ j ∈ Finset.range (n + 1), (n.choose j : ℚ) * p ^ j * (1 - p) ^ (n - j)
+        = ∑ j ∈ Finset.range (n + 1), p ^ j * (1 - p) ^ (n - j) * (n.choose j : ℚ) := by
+          apply Finset.sum_congr rfl; intro j _; ring
+      _ = (p + (1 - p)) ^ n := hb.symm
+      _ = 1 := by simp
+  rw [hbin] at hextend
+  exact hextend
+
+/-- Markov's inequality for the binomial tail: `P(X ≥ k) ≤ n·p / k`. Proved
+    from `binomial_mean`: `k·P(X≥k) ≤ ∑_{i≥k} i·P(i) ≤ ∑_{i=0}^n i·P(i) = n·p`
+    (the middle step extends the tail sum to the full range, only adding
+    nonnegative terms). -/
+theorem binomial_markov (n k : ℕ) (p : ℚ) (hk : 0 < k) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    binomialTail n k p ≤ (n : ℚ) * p / k := by
+  have hsub : Finset.Icc k n ⊆ Finset.range (n + 1) := by
+    intro i hi
+    simp only [Finset.mem_Icc] at hi
+    simp only [Finset.mem_range]; omega
+  have hkbound : (k : ℚ) * binomialTail n k p
+      ≤ ∑ i ∈ Finset.Icc k n, (i : ℚ) * (n.choose i) * p ^ i * (1 - p) ^ (n - i) := by
+    unfold binomialTail
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intro i hi
+    simp only [Finset.mem_Icc] at hi
+    have hik : (k : ℚ) ≤ (i : ℚ) := by exact_mod_cast hi.1
+    have hterm_nonneg : (0 : ℚ) ≤ (n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i) := by
+      have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+      have h2 : (0 : ℚ) ≤ (1 - p) ^ (n - i) := pow_nonneg (by linarith) _
+      positivity
+    calc (k : ℚ) * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i))
+        ≤ (i : ℚ) * ((n.choose i : ℚ) * p ^ i * (1 - p) ^ (n - i)) :=
+          mul_le_mul_of_nonneg_right hik hterm_nonneg
+      _ = (i : ℚ) * (n.choose i) * p ^ i * (1 - p) ^ (n - i) := by ring
+  have hextend : (∑ i ∈ Finset.Icc k n, (i : ℚ) * (n.choose i) * p ^ i * (1 - p) ^ (n - i))
+      ≤ ∑ i ∈ Finset.range (n + 1), (i : ℚ) * (n.choose i) * p ^ i * (1 - p) ^ (n - i) := by
+    apply Finset.sum_le_sum_of_subset_of_nonneg hsub
+    intro i hi _
+    simp only [Finset.mem_range] at hi
+    have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+    have h2 : (0 : ℚ) ≤ (1 - p) ^ (n - i) := pow_nonneg (by linarith) _
+    positivity
+  rw [binomial_mean] at hextend
+  have hfinal : (k : ℚ) * binomialTail n k p ≤ (n : ℚ) * p := le_trans hkbound hextend
+  have hkpos : (0 : ℚ) < k := by exact_mod_cast hk
+  rw [le_div_iff₀ hkpos]
+  linarith [hfinal]
+
+/-- Probabilistic hierarchical composition: `T` committees, each of size `c`,
+    each independently i.i.d.-sampled with per-member Byzantine probability
+    `p` (the population's global Byzantine rate). Bounds the arithmetic
+    quantity `theorem4_union_bound` (imported from `Theorem4ChernoffBounds.lean`,
+    reused rather than re-proved) already identifies, by that file's own
+    established convention, as "probability at least one committee's tail
+    event occurs" by `T·c·p/k`. `binomial_markov` supplies each committee's
+    individual bound; `theorem4_union_bound` unions them across the `T`
+    committees.
+
+    Unlike `hierarchical_composition_counterexample`'s gate-based `safe`
+    predicate (crediting a committee its full weight for merely passing a
+    threshold check — the mechanism that broke composition), the intended
+    reading here is direct: when the unioned "some committee's Byzantine
+    count reaches `k`" event does *not* occur, every committee's *actual*
+    Byzantine count is below `k`, and summing `T` such bounded actual counts
+    directly gives a real total-count bound of `T·k` — no gate, no
+    full-credit laundering. -/
+theorem probabilistic_hierarchical_bound
+    (T c k : ℕ) (p : ℚ) (hk : 0 < k) (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    1 - (1 - binomialTail c k p) ^ T ≤ (T : ℚ) * ((c : ℚ) * p / k) := by
+  have hmarkov : binomialTail c k p ≤ (c : ℚ) * p / k := binomial_markov c k p hk hp0 hp1
+  have hnn : 0 ≤ binomialTail c k p := by
+    unfold binomialTail
+    apply Finset.sum_nonneg
+    intro i _
+    have h1 : (0 : ℚ) ≤ p ^ i := pow_nonneg hp0 i
+    have h2 : (0 : ℚ) ≤ (1 - p) ^ (c - i) := pow_nonneg (by linarith) _
+    positivity
+  have hle1 : binomialTail c k p ≤ 1 := binomialTail_le_one c k p hp0 hp1
+  have hub := theorem4_union_bound T (fun _ => binomialTail c k p) (fun _ => ⟨hnn, hle1⟩)
+  simp only [Finset.prod_const, Finset.sum_const, Finset.card_range, nsmul_eq_mul] at hub
+  calc 1 - (1 - binomialTail c k p) ^ T ≤ (T : ℚ) * binomialTail c k p := hub
+    _ ≤ (T : ℚ) * ((c : ℚ) * p / k) := mul_le_mul_of_nonneg_left hmarkov (by positivity)
+
+/-- Illustrative concrete instantiation: 3 committees, each of size 100, 1%
+    global Byzantine rate, majority (50%) safety threshold. The union-bound
+    failure probability is at most 6%, a genuinely small, useful number —
+    demonstrating the theorem above is not vacuous. -/
+theorem probabilistic_hierarchical_bound_small_scale_example :
+    1 - (1 - binomialTail 100 50 (1/100 : ℚ)) ^ 3
+      ≤ (3 : ℚ) * ((100 : ℚ) * (1/100 : ℚ) / 50) := by
+  have h := probabilistic_hierarchical_bound 3 100 50 (1/100 : ℚ) (by norm_num) (by norm_num) (by norm_num)
+  linarith [h]
+
+/-- **Honest limitation, checked, not glossed over**: at this system's own
+    published deployment scale — `T = 200` committees of `c = 50,000` each
+    (`200 * 50,000 = 10,000,000`, matching `theorem1_global_bound_checked`'s
+    10M-node target), majority threshold `k = 25,000`, and a 10% global
+    Byzantine rate — the Markov-based union bound above is **useless**: it
+    evaluates to `40`, far exceeding `1` (a vacuous probability bound).
+    Markov's inequality is a real but weak tool; its bound only becomes
+    informative when the population is small, the margin between the mean
+    (`c·p`) and the threshold `k` is large, or few committees are unioned
+    over. None of those hold at Sovereign-Mohawk's actual scale. Closing
+    this gap for real needs the sharper exponential Chernoff/Hoeffding tail
+    bound `bft_resilience.md` names as the mathematically correct fix —
+    scoped out of this pass for the reasons in this section's header
+    comment, not silently assumed solved. -/
+theorem probabilistic_bound_too_loose_at_deployment_scale :
+    (200 : ℚ) * ((50000 : ℚ) * (1/10 : ℚ) / 25000) = 40 := by norm_num
 
 end LeanFormalization
