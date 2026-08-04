@@ -101,6 +101,16 @@ jobs:
           # branch-protection rules on main are not violated.
           badges_branch="badges"
           git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
+
+          # The previous step wrote $badge_file into the working tree on the
+          # currently checked-out branch (e.g. main), leaving it locally
+          # modified. It gets fully regenerated below (from /tmp/badge.json)
+          # after switching to ${badges_branch}, so that local diff is
+          # disposable -- but left in place it makes `git checkout` refuse to
+          # switch branches ("local changes ... would be overwritten by
+          # checkout"). Clear it first, whether tracked or untracked.
+          git checkout -- "$badge_file" 2>/dev/null || rm -f "$badge_file"
+
           if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
             git checkout -B "${badges_branch}" "origin/${badges_branch}"
           else
