@@ -1,5 +1,7 @@
 # Sovereign Mohawk Proto
 
+![Sovereign Mohawk Proto](assets/img/social-preview.png)
+
 ## MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge
 
 [![Latest Tag](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&label=Latest%20Tag)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
@@ -355,10 +357,6 @@ Watch the short walkthrough showing MOHAWK orchestration + PySyft-style FL flow:
 
 * Demo feed: [@RyanWill98382 on X](https://twitter.com/RyanWill98382)
 * Search shortcut: [PySyft + Sovereign Mohawk demo posts](https://twitter.com/search?q=from%3ARyanWill98382%20PySyft%20Sovereign%20Mohawk&src=typed_query)
-
-Preview graphic:
-
-![PySyft integration demo preview](assets/img/impact-diagram.png)
 
 ---
 
