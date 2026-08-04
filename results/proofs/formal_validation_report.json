@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "df0b5eb881bd4e1a421b89e23e955aae5ce54315a57fbede680f35f79d58848c",
+  "input_merkle_root": "d240702ec0c68f63efa713c1f83f5eab93953a7e0b6925dc02181567478dd42a",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "323f79dd63d9e906c399dfd5b966270b1abe71377500dd2d6848ae90501e3bea"
+      "sha256": "6290910936c06fc8063bc17e013481f9558fa8601f141b699bcfe7f0d86b730e"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -68,11 +68,11 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "44fe3994111c83c0f7939314dbb7a7a6ea4e80ec14d8b64a96dc680ff50782db"
+      "sha256": "4d10d5d95e87676080f0cc8518f9bc7e2e5b4de6e1857900d0946d4a65154e93"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "babaf6a870c97d078220442182ba504433ce4aa7051dedf4daa6df4119802ca5"
+      "sha256": "86412127a9107c07eb15d6e430e67048c575fd39db714342040753986f74c8ae"
     },
     {
       "path": "proofs/lakefile.lean",
@@ -284,10 +284,14 @@
     {
       "file": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
       "module": "LeanFormalization.Theorem7PQCMigrationContinuity",
-      "symbol_count": 12,
+      "symbol_count": 16,
       "symbols": [
         "goPostEpochAccept",
         "goVerifyMigrationSignatureBundle",
+        "pqcSignedWitnessed",
+        "pqc_hardness_blocks_unwitnessed_acceptance",
+        "pqc_hardness_blocks_unwitnessed_post_epoch_accept",
+        "pqc_unforgeable_no_valid_sig_for_unqueried",
         "theorem7_dual_signature_continuity",
         "theorem7_legacy_compromise_insufficient",
         "theorem7_post_epoch_pqc_signed_regardless_of_legacy_compromise",
@@ -303,11 +307,12 @@
     {
       "file": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
       "module": "LeanFormalization.Theorem8DualSignatureNonHijack",
-      "symbol_count": 10,
+      "symbol_count": 11,
       "symbols": [
         "canHijack",
         "goSettleTaskPayoutSafe",
         "ledger_invariant_post_epoch",
+        "pqc_hardness_blocks_unwitnessed_hijack_safety",
         "theorem8_no_hijack_possible",
         "theorem8_no_pqc_not_safe",
         "theorem8_post_epoch_non_hijack",
@@ -322,7 +327,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 145
+    "theorem_symbol_count": 150
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
