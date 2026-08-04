@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "5ef6211c826fa18a81874e9d586c7a80822e6846f6a5aa9998f5c86283e0ccde",
+  "input_merkle_root": "4c36dcd886752f5b6c7f1d2cdd6c1983599bf6e829c1adc84589f962db995661",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "baf969bcc76c48e9e8057e12bf7373e0736797ff15554c30c6b818c931bbe2ed"
+      "sha256": "838fc1a3002952a3636a245113453618bc4b9c3489ace6451f25d455c18ec0cd"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "f7fe1a739823f6a2ac41465a6e967a4ec1b85b846d70e75b87e9d06f4788bbc0"
+      "sha256": "29597b6635a71571727553fcd7a431e2bd78a1f55b6a581f6727cdd9f3c92ef6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
@@ -91,8 +91,16 @@
     {
       "file": "proofs/LeanFormalization/Theorem1BFT.lean",
       "module": "LeanFormalization.Theorem1BFT",
-      "symbol_count": 10,
+      "symbol_count": 18,
       "symbols": [
+        "HTree",
+        "hierarchical_composition_counterexample",
+        "hierarchical_counterexample_A",
+        "hierarchical_counterexample_A_safe",
+        "hierarchical_counterexample_B",
+        "hierarchical_counterexample_B_not_safe",
+        "hierarchical_counterexample_Root",
+        "hierarchical_counterexample_Root_safe",
         "theorem1_five_ninths_guard",
         "theorem1_five_ninths_of_half_bound",
         "theorem1_global_bound_checked",
@@ -320,7 +328,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 143
+    "theorem_symbol_count": 151
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
