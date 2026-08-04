@@ -80,12 +80,13 @@ Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs
 
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
-- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 11 claims, each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._
+- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 15 claims, each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._
 - Machine-checkable formal validation report: [results/proofs/formal_validation_report.json](results/proofs/formal_validation_report.json)
 - Verification bundle manifest + archive: [results/proofs/formal-verification-bundle/bundle_manifest.json](results/proofs/formal-verification-bundle/bundle_manifest.json), [results/proofs/formal-verification-bundle.tar.gz](results/proofs/formal-verification-bundle.tar.gz)
 - Independent verifier guide: [docs/FORMAL_VERIFICATION_GUIDE.md](docs/FORMAL_VERIFICATION_GUIDE.md)
-- CI formal proof gates: [.github/workflows/verify-proofs.yml](.github/workflows/verify-proofs.yml) (`verify-lean-formalization`), [.github/workflows/verify-formal-proofs.yml](.github/workflows/verify-formal-proofs.yml)
-- Mathlib disk-space safeguard in CI: both workflows run pre-build runner cleanup before Lean/Lake build steps
+- **Required** CI formal proof gate (blocks merge to `main`): [.github/workflows/full-validation-pr-gate.yml](.github/workflows/full-validation-pr-gate.yml) (`full-validation-fast`, which builds the full Lean suite and runs the vacuous-theorem lint)
+- Additional, non-required Lean workflows (same checks plus artifact/bundle generation, run for visibility but do not block merge): [.github/workflows/verify-proofs.yml](.github/workflows/verify-proofs.yml) (`verify-lean-formalization`), [.github/workflows/verify-formal-proofs.yml](.github/workflows/verify-formal-proofs.yml)
+- Mathlib disk-space safeguard in CI: all three jobs above run pre-build runner cleanup before Lean/Lake build steps
 - Latest local verification log (build + placeholder scan): [proofs/manual_verify.log](proofs/manual_verify.log)
 
 

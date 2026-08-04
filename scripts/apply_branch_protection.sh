@@ -10,6 +10,13 @@ BRANCH="${BRANCH:-main}"
 #   export GITHUB_TOKEN=ghp_xxx
 #   bash scripts/apply_branch_protection.sh
 
+# NOTE: "Bridge Compression Benchmark / bridge-regression-compare" below is
+# known-stale as of 2026-08-04 -- no workflow with that name or job id
+# currently exists under .github/workflows/. Left in place pending
+# investigation into whether it should be restored or removed (see the
+# repo's task tracker / recent PR history); the other entries in this list
+# have been verified against real, current workflow/job names.
+
 PAYLOAD=$(cat <<'JSON'
 {
   "required_status_checks": {
@@ -19,15 +26,15 @@ PAYLOAD=$(cat <<'JSON'
       "Go Test / go-test",
       "Integrity Guard - Linter / lint",
       "Mainnet Readiness Gate / readiness-gate",
-      "Mainnet Chaos Gate / chaos-matrix",
+      "Mainnet Chaos Gate / chaos-gate",
       "Performance Gate / performance-gate",
       "Monitoring Smoke Gate / monitoring-smoke",
       "Release Performance Evidence / release-performance-evidence",
       "Bridge Compression Benchmark / bridge-regression-compare",
       "FedAvg Benchmark Compare / fedavg-benchmark-compare",
-      "Proof-Driven Design Verification / proof-audit",
+      "Proof-Driven Design Verification / verify-links",
       "Proof-Driven Design Verification / verify-lean-formalization",
-      "Capability Sync / sync-check"
+      "Capability Sync Check / validate-sync"
     ]
   },
   "enforce_admins": true,
