@@ -15,9 +15,9 @@
       "status": "surrogate_verified_with_gaussian_axiom",
       "formal_scope": "exact rational and integer additive composition with budget guards",
       "blocking_gaps": [
-        "RenyiDivergence_limit_KL not proven (sorry): needs L'Hopital/limit machinery",
-        "data_processing_inequality_KL (order=1 case) not proven (sorry): needs the log-sum inequality, a different argument from the order>1 case",
-        "RDP_sequential_composition not proven (sorry): needs the marginal/conditional joint-distribution chain rule for Renyi divergence"
+        "composeEps/composeEpsRat are an integer/rational additive-ledger surrogate, not a full measure-theoretic RDP accountant",
+        "gaussianRDPBound asserts the Gaussian mechanism's (alpha, alpha/(2*sigma^2))-RDP bound as an existence witness, not derived from the Gaussian density's Renyi divergence from first principles",
+        "RDP_sequential_composition covers independent-mechanism composition only; adaptive composition (a second mechanism depending on the first mechanism's realized output) needs the conditional/joint chain rule and is not covered"
       ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem2RDP.lean",

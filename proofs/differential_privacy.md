@@ -1,14 +1,30 @@
 # Theorem 2: Rényi Differential Privacy (RDP) Composition
 
 ### Formal Statement
-The current Lean module machine-checks an integer surrogate for additive privacy-budget composition:
+The Lean module machine-checks two distinct things:
 
-- `composeEps` sums a list of tier budgets represented as `Nat`,
+**1. An integer/rational surrogate for additive privacy-budget bookkeeping:**
+- `composeEps`/`composeEpsRat` sum a list of tier budgets,
 - composition over concatenation is additive,
 - appending extra steps is monotone, and
-- selected concrete profiles remain under configured integer guards.
+- selected concrete profiles remain under configured guards.
 
-This is a useful bookkeeping model, but it is not yet a formalization of RDP as a property of mechanisms or probability distributions.
+**2. A real RDP composition theorem for independent mechanisms**, stated and
+proved over actual probability distributions (`RenyiDivergence`, a real
+Rényi-divergence formula, not the integer surrogate): `RDP_sequential_composition`
+shows that if two mechanisms' output distributions (on the inputs under
+comparison) are `(α, ε1)`- and `(α, ε2)`-RDP respectively, their independent
+joint output is `(α, ε1+ε2)`-RDP. This follows from `RenyiDivergence_product_add`,
+which proves Rényi divergence tensorizes exactly over independent product
+distributions. Scope: this covers *independent* composition (two mechanisms run
+independently on the same inputs, combined as a pair) — it does not cover
+*adaptive* composition, where a second mechanism's behavior additionally depends
+on the first mechanism's realized output; that needs the conditional/joint
+Rényi chain rule and is not formalized here.
+
+Item 1 is a useful bookkeeping model but not a formalization of RDP as a
+property of mechanisms; item 2 is. Both machine-checked; neither result implies
+the other.
 
 ### Proof of Conversion to $(\epsilon, \delta)$-DP
 The standard analytical conversion discussed for future formalization is:
