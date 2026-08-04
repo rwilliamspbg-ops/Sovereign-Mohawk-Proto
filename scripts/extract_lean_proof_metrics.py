@@ -36,11 +36,32 @@ TACTICS = [
     "use",
 ]
 
-DECL_RE = re.compile(r"^(?P<indent>\s*)(?:theorem|lemma)\s+(?P<name>[A-Za-z0-9_']+)\b")
+_DECL_MODIFIER = r"(?:(?:noncomputable|private|protected|scoped|local)\s+)*"
+DECL_RE = re.compile(rf"^(?P<indent>\s*){_DECL_MODIFIER}(?:theorem|lemma)\s+(?P<name>[A-Za-z0-9_']+)\b")
 TOP_LEVEL_RE = re.compile(
-    r"^\s*(?:theorem|lemma|def|structure|class|inductive|abbrev|opaque)\s+[A-Za-z0-9_']+\b"
+    rf"^\s*{_DECL_MODIFIER}(?:theorem|lemma|def|structure|class|inductive|abbrev|opaque)\s+[A-Za-z0-9_']+\b"
 )
 IMPORT_RE = re.compile(r"^\s*import\s+(.+)$")
+BLOCK_COMMENT_RE = re.compile(r"/-.*?-/", re.DOTALL)
+
+
+def strip_block_comments(text: str) -> str:
+    """Blank out `/- ... -/` (including `/-- ... -/` doc comments), preserving
+    line count and any code sharing a line with a comment boundary. Doc-comment
+    prose routinely uses English words that collide with Lean tactic names
+    (e.g. "have", "exact", "cases") — without this, a theorem's block (which
+    scans forward to the *next* top-level declaration, per `theorem_blocks`
+    below) picks up the following declaration's leading docstring, and prose
+    like "...must have a well-defined denominator" gets miscounted as a
+    `have` tactic against the *preceding* theorem. Non-newline characters
+    inside a matched comment are replaced with spaces (not deleted) so this
+    can never split a line that has code before or after the comment span.
+    """
+
+    def _blank(match: re.Match[str]) -> str:
+        return "".join(ch if ch == "\n" else " " for ch in match.group(0))
+
+    return BLOCK_COMMENT_RE.sub(_blank, text)
 
 
 def strip_inline_comment(line: str) -> str:
@@ -144,7 +165,7 @@ def compute_metrics(repo_root: Path) -> dict:
     total_tactics = 0
 
     for file_path in files:
-        lines = file_path.read_text(encoding="utf-8").splitlines()
+        lines = strip_block_comments(file_path.read_text(encoding="utf-8")).splitlines()
         imports = parse_imports(lines)
         blocks = theorem_blocks(lines)
         file_theorems: list[str] = []
