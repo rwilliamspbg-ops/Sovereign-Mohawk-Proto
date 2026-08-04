@@ -550,10 +550,17 @@ theorem RenyiDivergence_product_add {α β : Type*} [Fintype α] [Fintype β]
     given the input (`M1`, `M2` each run once, combined as a pair) — the case this
     file's docstring already called out as the target ("composition of independent
     mechanisms"). *Adaptive* composition, where `M2` additionally depends on `M1`'s
-    realized output, needs the conditional/joint chain rule
-    (`D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]`), which is
-    substantially more setup (conditional distributions, an expectation over `x`)
-    and remains out of scope here — not attempted, and not claimed. -/
+    realized output, is now covered separately by `RDP_adaptive_composition` below.
+
+    Correction to a previously-stated target formula: an earlier version of this
+    docstring (and the traceability matrix) cited the *expectation-based* chain rule
+    `D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]` as the adaptive-
+    composition target. That identity is a KL-divergence (α→1) fact, not a general
+    Rényi-divergence one — working the algebra out for `RenyiDivergence` at general
+    `order > 1` does not collapse to an expectation over `x`; see
+    `RDP_adaptive_composition`'s docstring for the exact (different, and correct)
+    quantity that does hold. This file's own `RenyiDivergence_limit_KL` above is the
+    reason the two coincide only in the `α → 1⁺` limit. -/
 theorem RDP_sequential_composition {α β : Type*} [Fintype α] [Fintype β]
     [Nonempty α] [Nonempty β]
     (p1 q1 : α → ℝ) (p2 q2 : β → ℝ) (eps1 eps2 order : ℝ)
@@ -566,5 +573,131 @@ theorem RDP_sequential_composition {α β : Type*} [Fintype α] [Fintype β]
                      (fun xy => q1 xy.1 * q2 xy.2) order ≤ eps1 + eps2 := by
   rw [RenyiDivergence_product_add p1 q1 p2 q2 order h_order hp1 hq1 hp2 hq2]
   linarith
+
+/-! ## Adaptive composition
+
+Closes the "adaptive composition ... remains out of scope" gap this file's
+docstring and the traceability matrix previously documented. -/
+
+/-- From an RDP bound `D_α(p‖q) ≤ eps`, the underlying (unnormalized) divergence
+    sum is bounded by `exp(eps*(order-1))` — the inverse of the `log`/coefficient
+    step inside `RenyiDivergence`'s `order > 1` branch. Used below to turn the
+    log-space bound `h_M2 x` into a linear-space bound so it can be summed
+    pointwise across the first mechanism's possible realized outputs. -/
+theorem RenyiDivergence_sum_le_of_bound {α : Type*} [Fintype α] [Nonempty α]
+    (p q : α → ℝ) (order eps : ℝ) (h_order : 1 < order)
+    (hp : ∀ x, 0 < p x) (hq : ∀ x, 0 < q x)
+    (h : RenyiDivergence p q order ≤ eps) :
+    ∑ x, (q x) ^ order / (p x) ^ (order - 1) ≤ Real.exp (eps * (order - 1)) := by
+  unfold RenyiDivergence at h
+  rw [if_neg h_order.ne', if_pos h_order] at h
+  have hSpos : 0 < ∑ x, (q x) ^ order / (p x) ^ (order - 1) :=
+    Finset.sum_pos (fun x _ => div_pos (Real.rpow_pos_of_pos (hq x) _) (Real.rpow_pos_of_pos (hp x) _))
+      Finset.univ_nonempty
+  have hcoef : 0 < order - 1 := by linarith
+  have hlog : Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1)) ≤ eps * (order - 1) := by
+    have heq : (order - 1) * (1 / (order - 1) * Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1)))
+        = Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1)) := by
+      rw [← mul_assoc, mul_one_div, div_self hcoef.ne', one_mul]
+    calc Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1))
+        = (order - 1) * (1 / (order - 1) * Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1))) := heq.symm
+      _ ≤ (order - 1) * eps := mul_le_mul_of_nonneg_left h hcoef.le
+      _ = eps * (order - 1) := mul_comm _ _
+  calc ∑ x, (q x) ^ order / (p x) ^ (order - 1)
+      = Real.exp (Real.log (∑ x, (q x) ^ order / (p x) ^ (order - 1))) := (Real.exp_log hSpos).symm
+    _ ≤ Real.exp (eps * (order - 1)) := Real.exp_le_exp.mpr hlog
+
+/-- Adaptive composition: if `M1` is `(α,eps1)`-RDP-bounded and `M2`'s conditional
+    output distributions — `p2 x`/`q2 x`, indexed by `M1`'s realized output `x` —
+    are UNIFORMLY `(α,eps2)`-RDP-bounded (the hypothesis holds for every possible
+    `x`, not just whichever one occurs), then the joint (adaptive) output is
+    `(α, eps1+eps2)`-RDP. Unlike `RDP_sequential_composition` above, `p2`/`q2` here
+    genuinely depend on `x` — setting `p2 x := p2'`/`q2 x := q2'` constant for all
+    `x` recovers exactly `RDP_sequential_composition`'s statement, confirming this
+    is a strict generalization, not a relabeling of the independent case.
+
+    Matches the standard literature result for RDP under a uniform/worst-case
+    bound over the first mechanism's realized outputs (Mironov, "Rényi
+    Differential Privacy," 2017, Prop. 1) — see `RDP_sequential_composition`'s
+    docstring above for why the *expectation-based* chain rule some earlier
+    documentation cited is not the right target at general Rényi order.
+
+    Proof: factor each joint term exactly as `RenyiDivergence_product_add` does
+    (`Real.mul_rpow`), split the double sum over `α × β` into an outer sum over
+    `x` of inner sums over `y` (`Fintype.sum_prod_type`/`Finset.mul_sum`), bound
+    each inner sum by `exp(eps2*(order-1))` via `RenyiDivergence_sum_le_of_bound`
+    applied to `h_M2 x` (this is where the *uniform* hypothesis is used — the
+    bound must hold for the actually-realized `x`, and uniformity is what lets it
+    be applied without knowing which `x` that is), sum the resulting pointwise
+    bound, then apply the same log/coefficient argument as
+    `RenyiDivergence_sum_le_of_bound` in reverse to conclude. -/
+theorem RDP_adaptive_composition {α β : Type*} [Fintype α] [Fintype β]
+    [Nonempty α] [Nonempty β]
+    (p1 q1 : α → ℝ) (p2 q2 : α → β → ℝ) (eps1 eps2 order : ℝ)
+    (h_order : 1 < order)
+    (hp1 : ∀ x, 0 < p1 x) (hq1 : ∀ x, 0 < q1 x)
+    (hp2 : ∀ x y, 0 < p2 x y) (hq2 : ∀ x y, 0 < q2 x y)
+    (h_M1 : RenyiDivergence p1 q1 order ≤ eps1)
+    (h_M2 : ∀ x, RenyiDivergence (p2 x) (q2 x) order ≤ eps2) :
+    RenyiDivergence (fun (xy : α × β) => p1 xy.1 * p2 xy.1 xy.2)
+                     (fun xy => q1 xy.1 * q2 xy.1 xy.2) order ≤ eps1 + eps2 := by
+  unfold RenyiDivergence
+  rw [if_neg h_order.ne', if_pos h_order]
+  have hfactor : ∀ (xy : α × β),
+      (q1 xy.1 * q2 xy.1 xy.2) ^ order / (p1 xy.1 * p2 xy.1 xy.2) ^ (order - 1)
+        = ((q1 xy.1) ^ order / (p1 xy.1) ^ (order - 1)) * ((q2 xy.1 xy.2) ^ order / (p2 xy.1 xy.2) ^ (order - 1)) := by
+    intro xy
+    rw [Real.mul_rpow (hq1 xy.1).le (hq2 xy.1 xy.2).le, Real.mul_rpow (hp1 xy.1).le (hp2 xy.1 xy.2).le]
+    field_simp
+  have hsum_eq : (∑ xy : α × β, (q1 xy.1 * q2 xy.1 xy.2) ^ order / (p1 xy.1 * p2 xy.1 xy.2) ^ (order - 1))
+      = ∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)) := by
+    simp_rw [hfactor]
+    rw [Fintype.sum_prod_type]
+    apply Finset.sum_congr rfl
+    intro x _
+    rw [Finset.mul_sum]
+  rw [hsum_eq]
+  set B := Real.exp (eps2 * (order - 1)) with hB
+  have hInner : ∀ x, ∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1) ≤ B :=
+    fun x => RenyiDivergence_sum_le_of_bound (p2 x) (q2 x) order eps2 h_order
+      (hp2 x) (hq2 x) (h_M2 x)
+  have hcoef_nonneg : ∀ x, (0:ℝ) ≤ (q1 x) ^ order / (p1 x) ^ (order - 1) :=
+    fun x => div_nonneg (Real.rpow_nonneg (hq1 x).le _) (Real.rpow_nonneg (hp1 x).le _)
+  have hM1sum : ∑ x, (q1 x) ^ order / (p1 x) ^ (order - 1) ≤ Real.exp (eps1 * (order - 1)) :=
+    RenyiDivergence_sum_le_of_bound p1 q1 order eps1 h_order hp1 hq1 h_M1
+  have hSumBound :
+      (∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)))
+        ≤ Real.exp ((eps1 + eps2) * (order - 1)) := by
+    calc (∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)))
+        ≤ ∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * B :=
+          Finset.sum_le_sum (fun x _ => mul_le_mul_of_nonneg_left (hInner x) (hcoef_nonneg x))
+      _ = (∑ x, (q1 x) ^ order / (p1 x) ^ (order - 1)) * B := by rw [← Finset.sum_mul]
+      _ ≤ Real.exp (eps1 * (order - 1)) * B :=
+          mul_le_mul_of_nonneg_right hM1sum (Real.exp_pos _).le
+      _ = Real.exp ((eps1 + eps2) * (order - 1)) := by
+          rw [hB, ← Real.exp_add]; ring_nf
+  have hSpos :
+      0 < ∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)) := by
+    apply Finset.sum_pos
+    · intro x _
+      apply mul_pos
+      · exact div_pos (Real.rpow_pos_of_pos (hq1 x) _) (Real.rpow_pos_of_pos (hp1 x) _)
+      · exact Finset.sum_pos
+          (fun y _ => div_pos (Real.rpow_pos_of_pos (hq2 x y) _) (Real.rpow_pos_of_pos (hp2 x y) _))
+          Finset.univ_nonempty
+    · exact Finset.univ_nonempty
+  have hlog :
+      Real.log (∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)))
+        ≤ (eps1 + eps2) * (order - 1) := by
+    calc Real.log (∑ x, ((q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 x y) ^ order / (p2 x y) ^ (order - 1)))
+        ≤ Real.log (Real.exp ((eps1 + eps2) * (order - 1))) := Real.log_le_log hSpos hSumBound
+      _ = (eps1 + eps2) * (order - 1) := Real.log_exp _
+  have hcoef : 0 < order - 1 := by linarith
+  have hfinal := mul_le_mul_of_nonneg_left hlog (le_of_lt (div_pos one_pos hcoef))
+  rw [mul_comm (1 / (order - 1)) ((eps1 + eps2) * (order - 1))] at hfinal
+  have hcancel : (eps1 + eps2) * (order - 1) * (1 / (order - 1)) = eps1 + eps2 := by
+    field_simp
+  rw [hcancel] at hfinal
+  exact hfinal
 
 end LeanFormalization
