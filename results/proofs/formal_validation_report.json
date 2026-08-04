@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "23bcf29b92e4764f492c4b75cdca4c972ae1203e794ed8667ef2d04bba2a79f3",
+  "input_merkle_root": "337536f3987ffb885e425e0276375177ce04bf694ad3cc811a380bdc16ae89e9",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "205039d0c9148bb970c7fd26a4bb2c3491765b1580a7edd586fccb1c85dbe702"
+      "sha256": "5781d0d7f83a7eb882f47e279b46bf85baa20b51bf8829d11ef22898d9129d73"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "ba24f55f1af3bc3808010014fc6793a6e92e50e2caaf7a6a5f2e4080f945a8c6"
+      "sha256": "f7fe1a739823f6a2ac41465a6e967a4ec1b85b846d70e75b87e9d06f4788bbc0"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2AdvancedRDP.lean",
@@ -36,7 +36,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "65f80bb78f82a99c026d7d499cdadaac415b1da81ff36fbcd568b06d66cfd051"
+      "sha256": "51519b6ec091e4b4f478226f5d01c89b346118e248b3b1e420018349cff8dc48"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
@@ -52,7 +52,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
-      "sha256": "14518fc27ca7483fe69be722b500deeffa36d2e34f18d9d4b75a68278e81eb41"
+      "sha256": "e45b8ed289d0e9fe65200d924f2927d2b68bdd5fb55b00741a46e7d922fe19b5"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
@@ -117,9 +117,10 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 25,
+      "symbol_count": 29,
       "symbols": [
         "RDP_alpha_constraint",
+        "RDP_indicator_divergence_disjoint_eq_zero",
         "RDP_sequential_composition",
         "RenyiDivergence_limit_KL",
         "RenyiDivergence_nonneg",
@@ -130,7 +131,10 @@
         "data_processing_inequality_KL",
         "gaussianRDPBound",
         "isAdjacent",
+        "pushforward_pos",
+        "pushforward_sum",
         "satisfiesRDP",
+        "stated",
         "sum_rpow_div_ge",
         "theorem2_budget_guard",
         "theorem2_budget_step",
@@ -310,7 +314,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 133
+    "theorem_symbol_count": 137
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
@@ -351,7 +355,7 @@
       "test/utility_coin_settlement_test.go::TestUtilityCoinTaskSettlementRequiresValidProof",
       "test/utility_coin_test.go::TestUtilityCoinDualSignatureMigrationCryptographic",
       "test/utility_coin_test.go::TestUtilityCoinMigrationEpochEnforcesCryptographicPath",
-      "test/zk_verifier_test.go::TestVerifyZKProof",
+      "test/zk_verifier_test.go::TestVerifyHashCommitment",
       "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
     ]
   }
