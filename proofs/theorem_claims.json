@@ -17,7 +17,7 @@
       "blocking_gaps": [
         "composeEps/composeEpsRat are an integer/rational additive-ledger surrogate, not a full measure-theoretic RDP accountant",
         "gaussianRDPBound asserts the Gaussian mechanism's (alpha, alpha/(2*sigma^2))-RDP bound as an existence witness, not derived from the Gaussian density's Renyi divergence from first principles",
-        "RDP_sequential_composition covers independent-mechanism composition only; adaptive composition (a second mechanism depending on the first mechanism's realized output) needs the conditional/joint chain rule and is not covered"
+        "RDP_sequential_composition covers independent-mechanism composition only; adaptive composition is now separately covered by RDP_adaptive_composition -- NOT via the expectation-based chain rule formula this gap previously cited (that formula is a KL-divergence-specific identity, not valid for Renyi divergence at general order; a Mathlib feasibility scout confirmed no Renyi/KL/f-divergence content exists anywhere in Mathlib to build the expectation-based route on regardless). RDP_adaptive_composition instead proves the standard literature result (Mironov 2017 Prop 1): a uniform/worst-case bound over the first mechanism's realized outputs, which strictly generalizes RDP_sequential_composition (setting the second mechanism's conditional distribution constant across the first mechanism's output recovers it exactly)"
       ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem2RDP.lean",

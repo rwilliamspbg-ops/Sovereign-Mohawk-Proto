@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "65b3b005c4dc187473a9de1fd8b982330525caaa0247f5d5381cc8a08ac73f7c",
+  "input_merkle_root": "1b1a93e3918921bf480df54f21bb4e1bedd323b3fbd707ce8e3fa25cf8d16519",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "104d9f6fe2cb11e37eecc763ea8683f9de3931e182cdd2d5d42a64fec409f3ce"
+      "sha256": "fe48811610abe25da06019555d9c983474f3f23b7b2f505f2f4d1c2c1ae27d71"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -32,7 +32,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "5177abc3b1fa63da16a5dc76f448fa320fb212d532ae48981ce1410758b9355b"
+      "sha256": "a8e3ccf934e03e5510417d6b0980a3edc43b7199c980375714b200471c2a0946"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
@@ -76,7 +76,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "6e1ef55a52aec014d584188e5eb0d3fae24da7c9c5604fe6ce0ca78bf711fef5"
+      "sha256": "a3e7a75903c3e22f51ae190e1214b9dd5b30c24c174f21ae750ea26e4a76f21a"
     }
   ],
   "lean_modules": [
@@ -120,14 +120,16 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 28,
+      "symbol_count": 30,
       "symbols": [
+        "RDP_adaptive_composition",
         "RDP_alpha_constraint",
         "RDP_indicator_divergence_disjoint_eq_zero",
         "RDP_sequential_composition",
         "RenyiDivergence_limit_KL",
         "RenyiDivergence_nonneg",
         "RenyiDivergence_product_add",
+        "RenyiDivergence_sum_le_of_bound",
         "composeEps",
         "composeEpsRat",
         "convertToEpsDelta",
@@ -309,7 +311,7 @@
   "summary": {
     "input_file_count": 17,
     "module_count": 10,
-    "theorem_symbol_count": 154
+    "theorem_symbol_count": 156
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
