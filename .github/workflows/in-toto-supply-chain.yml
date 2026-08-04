@@ -160,35 +160,43 @@ jobs:
         id: record
         run: |
           mkdir -p /tmp/in-toto
-          
-          # Run formal proof verification
+
+          # Formal-proof verification is enforced as a dedicated, required
+          # CI gate (.github/workflows/verify-formal-proofs.yml) on every
+          # change touching proof files, before merge to main. It is not
+          # re-run here: this job has no Lean/Mathlib toolchain installed,
+          # and rebuilding the full proof suite (8000+ jobs) on every tagged
+          # release would add hours to the release pipeline without
+          # checking anything that wasn't already gated pre-merge.
           echo "=== Formal Proof Verification ===" >> /tmp/in-toto/verification.txt
-          make verify-formal-proofs >> /tmp/in-toto/verification.txt 2>&1 || true
-          
-          # Run Go tests
+          echo "Enforced pre-merge by .github/workflows/verify-formal-proofs.yml (not re-run here)" >> /tmp/in-toto/verification.txt
+
+          # Run Go tests. No "|| true": a failure here fails this job,
+          # which blocks generate-link-metadata and publish-in-toto-attestations
+          # via the needs: chain, so this is a real gate on the release.
           echo "=== Go Test Suite ===" >> /tmp/in-toto/verification.txt
-          ./scripts/go_with_toolchain.sh go test ./... -v >> /tmp/in-toto/verification.txt 2>&1 || true
-          
+          ./scripts/go_with_toolchain.sh go test ./... -v >> /tmp/in-toto/verification.txt 2>&1
+
           # Run Python tests
           echo "=== Python Test Suite ===" >> /tmp/in-toto/verification.txt
-          cd sdk/python && python -m pytest tests/ -v >> /tmp/in-toto/verification.txt 2>&1 || true
-          cd ../..
-          
+          (cd sdk/python && python -m pytest tests/ -v) >> /tmp/in-toto/verification.txt 2>&1
+
           # Security scanning
           echo "=== Security Scanning ===" >> /tmp/in-toto/verification.txt
           ./scripts/go_with_toolchain.sh go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
-          govulncheck ./... >> /tmp/in-toto/verification.txt 2>&1 || true
-          
+          govulncheck ./... >> /tmp/in-toto/verification.txt 2>&1
+
           # Verify checksums
           echo "=== Artifact Integrity ===" >> /tmp/in-toto/verification.txt
           echo "Build artifacts verified" >> /tmp/in-toto/verification.txt
-          
+
           RESULTS=$(cat /tmp/in-toto/verification.txt | base64 -w0)
           echo "results=${RESULTS}" >> $GITHUB_OUTPUT
-          
+
           cat /tmp/in-toto/verification.txt
 
       - name: Upload verification results
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: in-toto-verification

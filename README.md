@@ -114,7 +114,7 @@ Quick Links:
 - **[Performance](docs/performance/)** - Benchmarks, tuning, profiling
 - **[Archive](docs/archive/root-cleanup-2026-04/README.md)** - Historical root cleanup index and superseded docs
 - **[Examples](docs/examples/)** - PyTorch, TensorFlow, Flower integration
-- **[Phase 4](docs/PHASE_4_PRODUCTION_DEPLOYMENT.md)** - Production deployment guide
+- **[Phase 4](docs/PHASE_4_PRODUCTION_DEPLOYMENT.md)** - What's real vs. fabricated in the old "production deployment" doc
 
 
 See [docs/INDEX.md](docs/INDEX.md) for complete navigation and role-based quick links.
