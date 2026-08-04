@@ -1,3 +1,12 @@
+/-!
+QUARANTINED — not part of any Lake build target, not checked by CI, not
+referenced by proofs/FORMAL_TRACEABILITY_MATRIX.md or any public claim.
+See proofs/quarantined/README.md for why: in short, `moment_rdp_equivalence`
+below concludes bare `True` (the two quantities it defines are never
+actually compared) despite a doc comment claiming it proves equivalence
+between two privacy-accounting methods.
+-/
+
 import Mathlib
 import LeanFormalization.Theorem2RDP
 

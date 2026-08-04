@@ -80,7 +80,7 @@ Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs
 
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
-- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here for a full audit trail of all 6 formally verified properties_
+- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 11 claims, each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._
 - Machine-checkable formal validation report: [results/proofs/formal_validation_report.json](results/proofs/formal_validation_report.json)
 - Verification bundle manifest + archive: [results/proofs/formal-verification-bundle/bundle_manifest.json](results/proofs/formal-verification-bundle/bundle_manifest.json), [results/proofs/formal-verification-bundle.tar.gz](results/proofs/formal-verification-bundle.tar.gz)
 - Independent verifier guide: [docs/FORMAL_VERIFICATION_GUIDE.md](docs/FORMAL_VERIFICATION_GUIDE.md)
