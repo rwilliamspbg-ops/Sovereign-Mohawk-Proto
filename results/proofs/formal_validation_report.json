@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "e1bc33354d036086313e29280d080f1c2d18e5c97ba927d7f24d513e12b752b5",
+  "input_merkle_root": "07b55a89f874e53aad95428bee1d823c54482a59bc58eb2d51e0fe1bdb23f857",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "d3782149c3875abd01afb42d53c0526e6bc85bc3d97f141a18573834e6c542ab"
+      "sha256": "587e4150570cb6e2f012b3759a10052797ddee9bad9bfe2297902525760fde4f"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -36,7 +36,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "51519b6ec091e4b4f478226f5d01c89b346118e248b3b1e420018349cff8dc48"
+      "sha256": "5177abc3b1fa63da16a5dc76f448fa320fb212d532ae48981ce1410758b9355b"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP_Enhanced.lean",
@@ -84,7 +84,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "ea1437d03a6702978ef592da2bf4fdaacb40688666f04d88bec661970a8a09f5"
+      "sha256": "53c052ab789c2c440024866ea79b49ca6c9f46155a7152149ad8522d6d704de5"
     }
   ],
   "lean_modules": [
@@ -125,23 +125,22 @@
     {
       "file": "proofs/LeanFormalization/Theorem2RDP.lean",
       "module": "LeanFormalization.Theorem2RDP",
-      "symbol_count": 29,
+      "symbol_count": 28,
       "symbols": [
         "RDP_alpha_constraint",
         "RDP_indicator_divergence_disjoint_eq_zero",
         "RDP_sequential_composition",
         "RenyiDivergence_limit_KL",
         "RenyiDivergence_nonneg",
+        "RenyiDivergence_product_add",
         "composeEps",
         "composeEpsRat",
         "convertToEpsDelta",
         "data_processing_inequality",
         "data_processing_inequality_KL",
         "gaussianRDPBound",
-        "isAdjacent",
         "pushforward_pos",
         "pushforward_sum",
-        "satisfiesRDP",
         "stated",
         "sum_rpow_div_ge",
         "theorem2_budget_guard",
@@ -325,7 +324,7 @@
   "summary": {
     "input_file_count": 19,
     "module_count": 12,
-    "theorem_symbol_count": 148
+    "theorem_symbol_count": 147
   },
   "toolchain_lock": {
     "go_version": "1.26.5",

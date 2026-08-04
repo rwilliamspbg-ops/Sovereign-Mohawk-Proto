@@ -17,30 +17,6 @@ namespace LeanFormalization
   reporting for privacy-budget growth.
 -/
 
-/-- A randomized mechanism M : D → X with privacy parameter (α, ε) describes
-    what happens when the adversary has unbounded computational power but finite
-    divergence advantage bounded by ε on adjacent database pairs.
--/
-structure DPMechanism (D X : Type*) where
-  apply : D → X
-  alpha : ℚ
-  eps : ℚ
-  rdpBound : D → D → ℚ
-
-/-- Two databases are adjacent if they differ in exactly one record. -/
-def isAdjacent {D : Type*} (_d1 _d2 : D) : Prop :=
-  ∃ (_ : Unit), True
-
-/-- Rényi divergence order α, bound ε for mechanisms.
-    The abstract notion: M satisfies (α, ε)-RDP if the maximum ratio
-    of likelihoods over adjacent databases pairs is exp(ε).
--/
-def satisfiesRDP {D X : Type*} (M : DPMechanism D X) : Prop :=
-  M.alpha > 1 ∧
-  M.eps ≥ 0 ∧
-  ∀ (d1 d2 : D), isAdjacent d1 d2 →
-    0 ≤ M.rdpBound d1 d2 ∧ M.rdpBound d1 d2 ≤ M.eps
-
 /-- Integer epsilon composition model for deterministic machine checks. -/
 def composeEps : List Nat -> Nat
   | [] => 0
@@ -477,16 +453,19 @@ theorem data_processing_inequality_KL {α β : Type*} [Fintype α] [Fintype β] 
 theorem RDP_alpha_constraint (alpha : ℝ) (h : 1 < alpha) : 0 < alpha - 1 := by
   linarith
 
-/-- Evidence for why `RDP_sequential_composition` below is **not just unproven but
-    unsalvageable as stated** — do not "close" its `sorry` by proving it as-is; see
-    that theorem's doc comment. For any *deterministic* `M : α → α` and any `x ≠ y`,
+/-- Evidence for why the *previous* formalization of `RDP_sequential_composition`
+    (now replaced below, not merely patched) was **not just unproven but
+    unsalvageable as stated**. For any *deterministic* `M : α → α` and any `x ≠ y`,
     the "distributions" `fun a => if M a = x then 1/card else 0` and the same for `y`
     have disjoint support (`M` is a function, so no `a` satisfies both `M a = x` and
     `M a = y`). Every term of `RenyiDivergence`'s sum then has either a zero numerator
     or a zero-to-a-positive-power denominator, and Lean/Mathlib's junk-value
     conventions (`Real.log 0 = 0`, `x / 0 = 0`) collapse the whole expression to
-    exactly `0` — for *any* `M`, independent of its actual structure. Machine-checked
-    below (this is a real, closed theorem; only the one after it is left `sorry`'d). -/
+    exactly `0` — for *any* `M`, independent of its actual structure. This is a
+    real, closed theorem in its own right, kept as machine-checked evidence for
+    why comparing indicator functions of one deterministic function's own output
+    fibers (rather than a randomized mechanism's outputs on adjacent inputs) can
+    never state genuine RDP composition. -/
 theorem RDP_indicator_divergence_disjoint_eq_zero {α : Type*} [Fintype α] [DecidableEq α]
     (M : α → α) (order : ℝ) (h_order : 1 < order) (x y : α) (hxy : x ≠ y) :
     RenyiDivergence (fun a => if M a = x then 1 / (Fintype.card α : ℝ) else 0)
@@ -509,53 +488,83 @@ theorem RDP_indicator_divergence_disjoint_eq_zero {α : Type*} [Fintype α] [Dec
       simp
   rw [hsum, Real.log_zero, mul_zero]
 
-/-- Composition of independent mechanisms: if M1 has (α, ε1)-RDP and M2 has (α, ε2)-RDP,
-    then their sequential composition has (α, ε1 + ε2)-RDP.
+/-- Rényi divergence tensorizes exactly over independent product distributions:
+    `D_α(p1×p2 ‖ q1×q2) = D_α(p1‖q1) + D_α(p2‖q2)`. This is the real mathematical
+    fact behind "composing independent (α,ε)-RDP mechanisms adds their epsilons" —
+    the joint output `(x,y)` of two mechanisms run independently on the same
+    (pair of adjacent) inputs has product-distributed likelihood
+    `p1(x)*p2(y)` vs `q1(x)*q2(y)`, and the log of a product of positive sums
+    splits additively. Proved directly (`Real.mul_rpow` to factor each term,
+    `Fintype.sum_prod_type`/`Finset.sum_mul_sum` to factor the double sum,
+    `Real.log_mul` to split the log), not asserted. -/
+theorem RenyiDivergence_product_add {α β : Type*} [Fintype α] [Fintype β]
+    [Nonempty α] [Nonempty β]
+    (p1 q1 : α → ℝ) (p2 q2 : β → ℝ) (order : ℝ) (h_order : 1 < order)
+    (hp1 : ∀ x, 0 < p1 x) (hq1 : ∀ x, 0 < q1 x)
+    (hp2 : ∀ y, 0 < p2 y) (hq2 : ∀ y, 0 < q2 y) :
+    RenyiDivergence (fun (xy : α × β) => p1 xy.1 * p2 xy.2) (fun xy => q1 xy.1 * q2 xy.2) order
+      = RenyiDivergence p1 q1 order + RenyiDivergence p2 q2 order := by
+  unfold RenyiDivergence
+  rw [if_neg h_order.ne', if_pos h_order, if_neg h_order.ne', if_pos h_order,
+      if_neg h_order.ne', if_pos h_order]
+  have hfactor : ∀ (xy : α × β),
+      (q1 xy.1 * q2 xy.2) ^ order / (p1 xy.1 * p2 xy.2) ^ (order - 1)
+        = ((q1 xy.1) ^ order / (p1 xy.1) ^ (order - 1)) * ((q2 xy.2) ^ order / (p2 xy.2) ^ (order - 1)) := by
+    intro xy
+    rw [Real.mul_rpow (hq1 xy.1).le (hq2 xy.2).le, Real.mul_rpow (hp1 xy.1).le (hp2 xy.2).le]
+    field_simp
+  have hsum : (∑ xy : α × β, (q1 xy.1 * q2 xy.2) ^ order / (p1 xy.1 * p2 xy.2) ^ (order - 1))
+      = (∑ x, (q1 x) ^ order / (p1 x) ^ (order - 1)) * (∑ y, (q2 y) ^ order / (p2 y) ^ (order - 1)) := by
+    simp_rw [hfactor]
+    rw [Fintype.sum_prod_type, Finset.sum_mul_sum]
+  rw [hsum]
+  have hA_pos : 0 < ∑ x, (q1 x) ^ order / (p1 x) ^ (order - 1) :=
+    Finset.sum_pos (fun x _ => div_pos (Real.rpow_pos_of_pos (hq1 x) _) (Real.rpow_pos_of_pos (hp1 x) _))
+      Finset.univ_nonempty
+  have hB_pos : 0 < ∑ y, (q2 y) ^ order / (p2 y) ^ (order - 1) :=
+    Finset.sum_pos (fun y _ => div_pos (Real.rpow_pos_of_pos (hq2 y) _) (Real.rpow_pos_of_pos (hp2 y) _))
+      Finset.univ_nonempty
+  rw [Real.log_mul hA_pos.ne' hB_pos.ne']
+  ring
 
-    This is the fundamental theorem enabling privacy budgeting in the Sovereign Mohawk system.
+/-- Composition of independent mechanisms: if M1's output distributions on the
+    inputs under comparison are (α, ε1)-RDP-bounded, and M2's output distributions
+    on the same inputs are independently (α, ε2)-RDP-bounded, then the joint
+    (product) output distribution is (α, ε1 + ε2)-RDP.
 
-    NOT CLOSED, AND SHOULD NOT BE CLOSED AS STATED — this is stronger than "still
-    open": the statement below is a **mis-formalization that would be vacuously
-    true**, and proving it would add exactly the kind of "type-checks but proves
-    nothing" theorem this file's other fixes have been removing elsewhere.
+    This is the fundamental theorem enabling privacy budgeting in the Sovereign
+    Mohawk system, and REPLACES (not patches) the file's previous formalization,
+    which was mis-stated and vacuously true regardless of M1/M2's structure — see
+    `RDP_indicator_divergence_disjoint_eq_zero` above for the machine-checked
+    argument why. That version compared indicator functions of one *deterministic*
+    function's own output-value fibers; real RDP composition is about *randomized
+    mechanisms'* output distributions on *adjacent inputs*. `p1`/`q1` and `p2`/`q2`
+    below are exactly that: genuine (positive-valued) output distributions — `M1`'s
+    on two inputs under comparison, `M2`'s on the same two inputs — and `eps1`/`eps2`
+    bound their individual Rényi divergences directly, not through any indicator-
+    function proxy. `RenyiDivergence_product_add` supplies the real mathematical
+    content (tensorization under independence); this theorem is that equality
+    combined with the two individual bounds via `linarith`.
 
-    Why: `M1`, `M2 : α → α` are *deterministic* functions, and `_h_M1`/`_h_M2` compare
-    Rényi divergence between indicator functions of *different output-value fibers of
-    the same M1* (`M a = x` vs `M a = y`), not between a randomized mechanism's outputs
-    on two *adjacent databases* — which is what real RDP composition is about. Per
-    `RDP_indicator_divergence_disjoint_eq_zero` above, for x ≠ y this divergence is
-    always exactly 0 regardless of M1's structure; for x = y it reduces to
-    `log(|M1⁻¹ x| / card α)`, which is always ≤ 0 since a fiber can be at most the
-    whole space. So the tightest `eps1` ever forced by `_h_M1` is `0` — **for any M1
-    whatsoever** — and the same holds for `_h_M2` and for the conclusion's own
-    `M2 ∘ M1` divergence. The theorem reduces to "something always ≤ 0 is ≤ (something
-    always ≥ 0)", true for any `M1`, `M2`, completely independent of whether they
-    correspond to any actual ε1/ε2-RDP mechanism. Closing this `sorry` would not
-    verify RDP composition; it would prove a tautology dressed up as one.
-
-    A real proof needs actual randomized mechanisms (not deterministic α → α
-    functions), varying the *input* over adjacent databases (not varying an output
-    label x/y of one fixed function), and the marginal/conditional joint-distribution
-    chain rule for Rényi divergence
-    (`D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]`) applied to the
-    joint distribution over (M1's output, M2's output) — substantially more setup
-    than `data_processing_inequality` above needed, and a full restatement of this
-    theorem's signature, not a patch to the one below. (The previously-removed
-    `Theorem2RDP_ChainRule.lean` attempted this chain-rule route but did not compile
-    standalone and was deleted; there is nothing usable to build on there either.)
--/
-theorem RDP_sequential_composition {α : Type*} [Fintype α] [DecidableEq α]
-    (M1 M2 : α → α) (eps1 eps2 alpha : ℝ)
-    (_h_alpha : 1 < alpha)
-    (_h_M1 : ∀ x y, RenyiDivergence (fun a => if M1 a = x then 1 / (Fintype.card α : ℝ) else 0)
-                                   (fun a => if M1 a = y then 1 / (Fintype.card α : ℝ) else 0)
-                                   alpha ≤ eps1)
-    (_h_M2 : ∀ x y, RenyiDivergence (fun a => if M2 a = x then 1 / (Fintype.card α : ℝ) else 0)
-                                   (fun a => if M2 a = y then 1 / (Fintype.card α : ℝ) else 0)
-                                   alpha ≤ eps2) :
-    ∀ x y, RenyiDivergence (fun a => if M2 (M1 a) = x then 1 / (Fintype.card α : ℝ) else 0)
-                           (fun a => if M2 (M1 a) = y then 1 / (Fintype.card α : ℝ) else 0)
-                           alpha ≤ eps1 + eps2 := by
-  sorry
+    Scope: this covers composition of mechanisms whose outputs are *independent*
+    given the input (`M1`, `M2` each run once, combined as a pair) — the case this
+    file's docstring already called out as the target ("composition of independent
+    mechanisms"). *Adaptive* composition, where `M2` additionally depends on `M1`'s
+    realized output, needs the conditional/joint chain rule
+    (`D_α(p(x,y)‖q(x,y)) = D_α(p(x)‖q(x)) + 𝔼_x[D_α(p(y|x)‖q(y|x))]`), which is
+    substantially more setup (conditional distributions, an expectation over `x`)
+    and remains out of scope here — not attempted, and not claimed. -/
+theorem RDP_sequential_composition {α β : Type*} [Fintype α] [Fintype β]
+    [Nonempty α] [Nonempty β]
+    (p1 q1 : α → ℝ) (p2 q2 : β → ℝ) (eps1 eps2 order : ℝ)
+    (h_order : 1 < order)
+    (hp1 : ∀ x, 0 < p1 x) (hq1 : ∀ x, 0 < q1 x)
+    (hp2 : ∀ y, 0 < p2 y) (hq2 : ∀ y, 0 < q2 y)
+    (h_M1 : RenyiDivergence p1 q1 order ≤ eps1)
+    (h_M2 : RenyiDivergence p2 q2 order ≤ eps2) :
+    RenyiDivergence (fun (xy : α × β) => p1 xy.1 * p2 xy.2)
+                     (fun xy => q1 xy.1 * q2 xy.2) order ≤ eps1 + eps2 := by
+  rw [RenyiDivergence_product_add p1 q1 p2 q2 order h_order hp1 hq1 hp2 hq2]
+  linarith
 
 end LeanFormalization
