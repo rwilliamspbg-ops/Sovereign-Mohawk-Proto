@@ -14,6 +14,15 @@
 -- (`∃ f_global, f_global ≥ 555/1000`, provable for any input by picking that
 -- witness) — that proved nothing about the actual system and has been
 -- replaced below with guard-dependent theorems.
+--
+-- The compositional question was subsequently attempted for real (see the
+-- "Hierarchical composition" section near the end of this file) and found
+-- FALSE: a machine-checked counterexample (`hierarchical_composition_counterexample`)
+-- shows a weighted local honest-majority guard holding at every tier does
+-- not bound the true global Byzantine leaf fraction below 1/2, for any
+-- choice of per-level threshold. See bft_resilience.md's "Correction"
+-- section and that theorem's own doc comment for the full argument and
+-- what a true (necessarily probabilistic) version would need.
 
 import Mathlib
 import LeanFormalization.Common
@@ -97,5 +106,148 @@ theorem theorem1_mohawk_validation :
     2 * f < c ∧ (f : ℚ) / c < (1 : ℚ) / 2 := by
   refine ⟨by norm_num, ?_⟩
   exact tier_byzantine_fraction_bound 50_000 24_999 (by norm_num) (by norm_num)
+
+/-! ## Hierarchical composition: attempted, found FALSE, counterexample below
+
+This section is real Phase 1 work on the file's own stated future direction —
+"a proof that recursive hierarchical composition of per-tier honest-majority
+filtering converges to 55.5% [or any fixed fraction] globally" (see the file
+header). The natural deterministic version of that claim is **not true**, and
+this is proven below with a concrete, machine-checked counterexample — not
+left unresolved, and not forced through with a broken proof.
+
+### The model
+
+`HTree` is a hierarchical aggregation tree: a `leaf` is a single node
+(Byzantine or honest); a `node` aggregates a list of children (one tier
+observing the next tier down, or a tier observing raw nodes). `safe t` is the
+natural formalization of "every tier's local honest-majority guard holds,
+recursively, weighted by actual subtree size (not just child count, which
+would let an adversary hide corruption behind a numerically-small but
+leaf-heavy branch)": a leaf is safe iff honest; a node is safe iff the total
+leaf-weight of its *safe* children exceeds half its total leaf-weight.
+
+### The claim, and why it's false
+
+The natural theorem to want is: `t.safe → 2 * t.byzantineLeaves < t.totalLeaves`
+— i.e. "every tier's local majority guard holding implies the true, global
+fraction of Byzantine leaf nodes is below half." `hierarchical_composition_counterexample`
+below is a 2-child, 3-level-deep instance where `Root.safe` holds but
+`Root.byzantineLeaves = 3` out of `Root.totalLeaves = 5` (60% Byzantine) —
+a direct, machine-checked disproof.
+
+Why, mathematically: a "safe" child is only guaranteed *better than half*
+honest internally — it can still harbor close to half its own leaves as
+Byzantine. Crediting a safe child with its *full* leaf-weight (the only
+option available to a parent that can't see past a child's aggregated
+output) lets an adversary concentrate near-50%-Byzantine corruption inside
+nominally-"safe" branches while *also* running a separate, wholly-Byzantine
+"unsafe" branch — and the local majority check only bounds the *unsafe*
+branch's weight relative to the *safe* branch's weight, not relative to how
+much of the safe branch's own credited weight was actually honest. Redoing
+the induction algebraically for *any* fixed per-level threshold θ (not just
+1/2) shows the same gap reappears at every level — this isn't a threshold
+tuning problem, it's structural: gate-based (trust-or-don't, no partial
+credit) hierarchical aggregation cannot deterministically bound worst-case
+global corruption via local majority guards alone, regardless of depth.
+
+### What a true version would need
+
+This matches why real hierarchical BFT / committee-based systems (this
+repo's own architecture docs describe randomly-sampled committees, not a
+fixed adversarial partition) rely on *probabilistic* arguments: if committee
+membership is drawn via random sampling (or VRF/random-beacon selection) from
+a population with a bounded *global* Byzantine fraction, the adversary cannot
+choose which tier to concentrate corruption in, and a concentration bound
+(hypergeometric/binomial tail) shows any single committee exceeding its local
+threshold is exponentially unlikely — a genuinely different, measure-theoretic
+formalization task from the deterministic worst-case claim disproven here,
+and out of scope for this pass. The concrete 5/9 profile check above
+(`theorem1_five_ninths_guard`, `theorem1_global_bound_checked`) remains a
+real, correct fact about a *given* tier's Byzantine count — this section
+does not change that; it closes out whether a general deterministic
+hierarchical composition theorem exists (it doesn't), rather than leaving
+that question implicit and unexamined.
+-/
+
+/-- A hierarchical aggregation tree: `leaf` is one node, tagged Byzantine or
+    honest; `node` aggregates a list of children. -/
+inductive HTree where
+  | leaf (byzantine : Bool)
+  | node (children : List HTree)
+
+mutual
+/-- Total leaf count in the subtree. -/
+def HTree.totalLeaves : HTree → Nat
+  | .leaf _ => 1
+  | .node cs => HTree.totalLeavesList cs
+
+def HTree.totalLeavesList : List HTree → Nat
+  | [] => 0
+  | c :: cs => c.totalLeaves + HTree.totalLeavesList cs
+end
+
+mutual
+/-- True (ground-truth) count of Byzantine leaves in the subtree. -/
+def HTree.byzantineLeaves : HTree → Nat
+  | .leaf b => if b then 1 else 0
+  | .node cs => HTree.byzantineLeavesList cs
+
+def HTree.byzantineLeavesList : List HTree → Nat
+  | [] => 0
+  | c :: cs => c.byzantineLeaves + HTree.byzantineLeavesList cs
+end
+
+mutual
+/-- Leaf-weight this subtree would be credited with by a parent applying the
+    weighted local-majority rule: a leaf is credited 1 iff honest; a node is
+    credited the sum, over its children, of each child's *full* leaf count
+    if that child is itself locally safe (weighted majority holds), else 0. -/
+def HTree.safeLeafWeight : HTree → Nat
+  | .leaf b => if b then 0 else 1
+  | .node cs => HTree.safeLeafWeightList cs
+
+def HTree.safeLeafWeightList : List HTree → Nat
+  | [] => 0
+  | c :: cs =>
+      (if 2 * c.safeLeafWeight > c.totalLeaves then c.totalLeaves else 0)
+      + HTree.safeLeafWeightList cs
+end
+
+/-- A subtree is "safe" iff its safe-credited leaf-weight is a strict
+    majority of its total leaf-weight — the recursive, weighted local
+    honest-majority guard. -/
+def HTree.safe (t : HTree) : Prop := 2 * t.safeLeafWeight > t.totalLeaves
+
+/-- Counterexample witnesses. `A`: 3 leaves, 1 Byzantine (locally safe:
+    2/3 honest). `B`: 2 leaves, both Byzantine (locally unsafe). `Root`:
+    parent of `A` and `B`. -/
+def hierarchical_counterexample_A : HTree := .node [.leaf false, .leaf false, .leaf true]
+def hierarchical_counterexample_B : HTree := .node [.leaf true, .leaf true]
+def hierarchical_counterexample_Root : HTree :=
+  .node [hierarchical_counterexample_A, hierarchical_counterexample_B]
+
+theorem hierarchical_counterexample_A_safe : hierarchical_counterexample_A.safe := by
+  unfold HTree.safe; decide
+
+theorem hierarchical_counterexample_B_not_safe : ¬ hierarchical_counterexample_B.safe := by
+  unfold HTree.safe; decide
+
+/-- `Root`'s weighted local-majority guard holds (its safe child `A`'s
+    leaf-weight of 3 exceeds unsafe child `B`'s leaf-weight of 2). -/
+theorem hierarchical_counterexample_Root_safe : hierarchical_counterexample_Root.safe := by
+  unfold HTree.safe; decide
+
+/-- THE COUNTEREXAMPLE: despite `Root.safe` holding, `Root` is 60% Byzantine
+    (3 of 5 leaves) — the natural deterministic hierarchical composition
+    theorem (`t.safe → 2 * t.byzantineLeaves < t.totalLeaves`) is false. -/
+theorem hierarchical_composition_counterexample :
+    hierarchical_counterexample_Root.safe ∧
+    ¬ (2 * hierarchical_counterexample_Root.byzantineLeaves
+        < hierarchical_counterexample_Root.totalLeaves) := by
+  refine ⟨hierarchical_counterexample_Root_safe, ?_⟩
+  unfold hierarchical_counterexample_Root hierarchical_counterexample_A
+    hierarchical_counterexample_B
+  decide
 
 end LeanFormalization
