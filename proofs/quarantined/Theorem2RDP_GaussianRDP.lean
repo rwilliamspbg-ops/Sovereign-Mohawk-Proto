@@ -1,3 +1,12 @@
+/-!
+QUARANTINED — not part of any Lake build target, not checked by CI, not
+referenced by proofs/FORMAL_TRACEABILITY_MATRIX.md or any public claim.
+See proofs/quarantined/README.md for why: in short, `gaussian_RDP_bound`
+below compares `RenyiDivergence` between two identical constant functions,
+not real Gaussian likelihoods, so it proves nothing about actual Gaussian
+mechanisms despite its name and doc comment.
+-/
+
 import Mathlib
 import LeanFormalization.Theorem2RDP
 
