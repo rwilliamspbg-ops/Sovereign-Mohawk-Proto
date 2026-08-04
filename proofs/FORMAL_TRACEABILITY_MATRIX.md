@@ -95,46 +95,50 @@ This matrix is designed for automated extraction:
 ## Latest Validation Run
 
 - Date (UTC): 2026-08-04
-- Branch: `fix/rdp-sequential-composition` (off `main`, which had already
+- Branch: `fix/orphaned-rdp-scaffolding` (off `main`, which had already
   merged `feat/ledger-go-refinement`, `feat/transport-go-refinement`,
   `feat/rdpaccountant-go-refinement`, `feat/multikrum-go-refinement`,
   `fix/theorem5-6-crypto-convergence`, `fix/theorem4-liveness-measure-theory`,
   `fix/theorem7-8-pqc-hardness`, `fix/theorem2-rdp-sorries`,
-  `fix/theorem1-bft-compositional`, and `feat/formal-verification-phase0` —
-  completing both the Phase 2 sweep of all four `Refinement/*.lean` modules
-  and, with this run, closing the last open `sorry` in the whole
-  `proofs/LeanFormalization` tree)
+  `fix/theorem1-bft-compositional`, and `feat/formal-verification-phase0`;
+  `fix/rdp-sequential-composition` and `feat/phase3-bft-probabilistic-composition`
+  were open as separate not-yet-merged PRs at the time of this run — removes
+  two Lean files that were compiled into the main build but never referenced
+  anywhere in this matrix or `theorem_claims.json`, the same "compiled but
+  unclaimed" pattern `Refinement/Transport.lean` turned out to hide before
+  it was fixed)
 - Commands executed:
-  - `cd proofs && lake build LeanFormalization Specification Refinement` — 8342 jobs
+  - `cd proofs && lake build LeanFormalization Specification Refinement` — 8340 jobs
   - `python3 scripts/ci/lint_formal_proof_claims.py --repo-root .`
   - `bash scripts/ci/validate_formal_traceability.sh`
   - `python3 scripts/ci/generate_formal_validation_report.py --repo-root .`
   - `python3 scripts/ci/generate_formal_validation_report.py --repo-root . --check`
   - `python3 scripts/ci/check_markdown_links.py`
   - `python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/ --json`
-  - `go test ./internal/ -run TestMultiKrumLeanCorrespondence -v`
-  - `go test ./test/ -run TestRDPAccountantLeanCorrespondence -v`
-  - `go test ./test/ -run TestTransportByteSizeConvention -v`
-  - `go test ./internal/token/ -run TestLedgerLeanCorrespondence -v`
 - Results:
-  - Lean build: pass, **zero `sorry`s remain in `proofs/LeanFormalization`** —
-    `RDP_sequential_composition` (`Theorem2RDP.lean`), the last one, is now
-    closed via a real restatement (see row 2 note); previously this line
-    read "only 1 `sorry` remains"
-  - Vacuous/misleading-theorem lint: pass (24 Lean files checked)
-  - Traceability validation: pass (`10` modules, `81` theorem symbols, `34`
-    runtime test refs) — the module/symbol counts are scoped to the
-    `LeanFormalization/Theorem[0-9]+\.lean` pattern documented under "Parser
-    Compatibility" above (the `+2` vs. the prior run is `RenyiDivergence_product_add`
-    and `RDP_sequential_composition` added to row 2's theorem list) and do not
-    include `Refinement/MultiKrum.lean`'s, `Refinement/RDPAccountant.lean`'s,
-    `Refinement/Transport.lean`'s, or `Refinement/Ledger.lean`'s theorems; the
-    runtime-test-ref count is unchanged (no new runtime test added this run —
-    `RDP_sequential_composition` is a pure Lean-side restatement)
-  - Refinement drift check (`scripts/check_refinement.py`): pass
+  - Removed two Lean files, `Theorem2RDP_Enhanced.lean` and `Theorem2AdvancedRDP.lean`
+    (deliberately not written as `LeanFormalization/Theorem2....lean` paths here — that
+    exact pattern is what this script's own module-detection regex, see below, scans
+    for, and these files are gone, not a live claim). The first's `RDPEnhanced.composeEpsRat`/
+    `convertToEpsDelta` were byte-for-byte duplicates of definitions already real and
+    claimed in `Theorem2RDP.lean`, just under a different namespace — dead code, no
+    unique content lost. The second's `Advanced.subsampling_eps_le`/
+    `subsampling_amplification_factor_rational` were real, non-vacuous, but misleadingly
+    named: "subsampling amplification" is a specific, well-known, nontrivial
+    differential-privacy result, but what was actually proven — `eps*p ≤ eps` and
+    `p*k ≤ k` for `p≤1` — is unconnected pure arithmetic, the same "name/docstring
+    overclaims what the statement establishes" pattern already found and fixed
+    elsewhere this session, e.g. `Theorem5Cryptography.lean`'s renamed
+    `theorem5_verifyops_constant`. Removed both files' import lines from
+    `LeanFormalization.lean` rather than leaving orphaned imports.
+  - Lean build: pass, 8340 jobs (down from 8342, matching the two removed files);
+    **zero `sorry`s remain in `proofs/LeanFormalization`** (unaffected — neither
+    removed file had one)
+  - Vacuous/misleading-theorem lint: pass (`22` Lean files checked, down from `24`)
+  - Traceability validation: pass (`10` modules, `81` theorem symbols, `34` runtime
+    test refs) — unaffected; neither removed file was ever referenced by this
+    matrix, so nothing here changes as a result of their removal
+  - Refinement drift check (`scripts/check_refinement.py`): pass (unaffected —
+    these files were never part of its manifest either)
   - Formal validation report consistency: pass after regeneration
   - Markdown link check: pass (167 files)
-  - Go Lean-correspondence tests: pass (`internal/multikrum_lean_correspondence_test.go`,
-    4/4 vectors; `test/rdp_accountant_lean_correspondence_test.go`, 4/4 vectors;
-    `test/transport_byte_size_test.go`, formula-level check across 4 dimensions;
-    `internal/token/ledger_lean_correspondence_test.go`, 2/2 cases)

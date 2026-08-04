@@ -1,7 +1,5 @@
 import LeanFormalization.Theorem1BFT
 import LeanFormalization.Theorem2RDP
-import LeanFormalization.Theorem2RDP_Enhanced
-import LeanFormalization.Theorem2AdvancedRDP
 import LeanFormalization.Theorem3Communication
 import LeanFormalization.Theorem4Liveness
 import LeanFormalization.Theorem5Cryptography
