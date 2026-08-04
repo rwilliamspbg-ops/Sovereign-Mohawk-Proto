@@ -1,13 +1,13 @@
 # Sovereign-Mohawk Documentation Index
 
 **Last Updated:** May 9, 2026  
-**Status:** Complete with Phase 4 Production Deployment
+**Status:** See [Documentation Status](#documentation-status) below for what's real vs. placeholder.
 
 ---
 
 ## Quick Navigation
 
-- **[Getting Started](GETTING_STARTED.md)** - Installation, quickstart, first steps
+- **[Getting Started](guides/GETTING_STARTED.md)** - Installation, quickstart, first steps (placeholder stub — see [Documentation Status](#documentation-status))
 - **[Architecture Guide](ARCHITECTURE.md)** - System design, component overview
 - **[API Reference](API_REFERENCE.md)** - Go packages, gRPC services, Python SDK
 - **[Deployment Guide](DEPLOYMENT.md)** - Docker, Kubernetes, Cloud deployment
@@ -36,18 +36,26 @@
 - [Routing & Topology](architecture/ROUTING_TOPOLOGY.md) - DAG consistency, failover
 
 ### Phase 4: Production Deployment
-- **[Production Deployment](PHASE_4_PRODUCTION_DEPLOYMENT.md)** - Docker, K8s, Cloud, operations
+- **[Production Deployment](PHASE_4_PRODUCTION_DEPLOYMENT.md)** - What's real vs. fabricated in the old deployment guide
 - [Performance Benchmarks](BENCHMARKS_AND_REPRODUCIBILITY.md) - Throughput, latency, tuning
-- [Post-Deployment Validation](guides/POST_DEPLOYMENT_VALIDATION.md) - Smoke tests, runbooks
+- [Post-Deployment Validation](guides/POST_DEPLOYMENT_VALIDATION.md) - Smoke tests, runbooks (placeholder stub)
 
 ---
 
 ## Core Documentation
 
+The trees below list only files that actually exist in this repo. Unless
+marked `(real)`, every listed file is a 5-line placeholder scaffold ("Scaffold
+document created to preserve canonical documentation links... See
+docs/INDEX.md") — see [Documentation Status](#documentation-status). A
+"Not created" line per section names what earlier versions of this index
+claimed existed but doesn't.
+
 ### Architecture & Design
 ```
 docs/architecture/
-├── BYZANTINE_RESILIENCE.md         - Multi-Krum, Byzantine tolerance
+├── README.md                        - (real) directory overview
+├── BYZANTINE_RESILIENCE.md          - Multi-Krum, Byzantine tolerance
 ├── DIFFERENTIAL_PRIVACY.md          - RDP, epsilon accounting
 ├── STREAMING_AGGREGATOR.md          - Hot-path ingestion, reassembly
 ├── TRANSPORT_LAYER.md               - MRC packet spraying
@@ -60,73 +68,74 @@ docs/architecture/
 ### Deployment & Operations
 ```
 docs/guides/
+├── README.md                        - (real) directory overview
 ├── GETTING_STARTED.md               - Installation, quickstart
 ├── DEPLOYMENT.md                    - Docker, K8s, Cloud templates
-├── DOCKER_DEPLOYMENT.md             - Docker Compose, image building
-├── KUBERNETES_DEPLOYMENT.md         - EKS, GKE, AKS setup
-├── CLOUD_DEPLOYMENT.md              - AWS, GCP, Azure templates
 ├── OPERATIONS.md                    - Monitoring, troubleshooting
 ├── MONITORING_OBSERVABILITY.md      - Prometheus, Grafana, Jaeger
 ├── TROUBLESHOOTING.md               - Common issues, solutions
 ├── POST_DEPLOYMENT_VALIDATION.md    - Smoke tests, validation matrix
 ├── SCALING_OPERATIONS.md            - Tier scaling, auto-scaling
-└── FAILOVER_RECOVERY.md             - Disaster recovery runbooks
+└── DEVELOPMENT.md                   - Development environment setup
 ```
+Not created: `DOCKER_DEPLOYMENT.md`, `KUBERNETES_DEPLOYMENT.md`,
+`CLOUD_DEPLOYMENT.md`, `FAILOVER_RECOVERY.md`.
 
 ### API & Integration
 ```
 docs/api/
+├── README.md                        - (real) directory overview
 ├── API_REFERENCE.md                 - Go packages, types, methods
-├── PYTHON_SDK_GUIDE.md              - Python SDK examples
-├── GRPC_SERVICES.md                 - Service definitions, endpoints
-├── WEBHOOK_INTEGRATION.md           - Event webhooks, callbacks
-├── REST_API.md                      - HTTP endpoints
-└── EXAMPLES.md                      - Code samples, patterns
+└── PYTHON_SDK_GUIDE.md              - Python SDK examples
 ```
+Not created: `GRPC_SERVICES.md`, `WEBHOOK_INTEGRATION.md`, `REST_API.md`,
+`EXAMPLES.md`.
 
 ### Security & Compliance
 ```
 docs/security/
+├── README.md                        - (real) directory overview
 ├── SECURITY.md                      - PQC, TPM, XMSS
 ├── COMPLIANCE.md                    - EU AI Act, regulatory alignment
 ├── THREAT_MODEL.md                  - Attack scenarios, mitigations
 ├── INCIDENT_RESPONSE.md             - Response procedures
-├── SUPPLY_CHAIN_SECURITY.md         - Artifact verification
-└── VULNERABILITY_DISCLOSURE.md      - Responsible disclosure
+└── SUPPLY_CHAIN_SECURITY.md         - Artifact verification
 ```
+Not created: `VULNERABILITY_DISCLOSURE.md`.
 
 ### Performance & Benchmarking
 ```
 docs/performance/
-├── BENCHMARKS_AND_REPRODUCIBILITY.md - Full benchmark suite
-├── PERFORMANCE_TUNING.md            - Parameter optimization
-├── LOAD_TESTING.md                  - Stress test scenarios
-├── PROFILING_GUIDE.md               - CPU, memory profiling
-├── RESOURCE_REQUIREMENTS.md         - Hardware recommendations
-└── PERFORMANCE_REGRESSION.md        - CI gates, thresholds
+├── README.md                        - (real) directory overview
+└── PERFORMANCE_TUNING.md            - Parameter optimization
 ```
+Not created: `LOAD_TESTING.md`, `PROFILING_GUIDE.md`,
+`RESOURCE_REQUIREMENTS.md`, `PERFORMANCE_REGRESSION.md`. The real benchmark
+entrypoint is [BENCHMARKS_AND_REPRODUCIBILITY.md](BENCHMARKS_AND_REPRODUCIBILITY.md)
+at the docs root, not under `performance/`.
 
 ### Formal Verification & Proofs
 ```
 docs/formal-verification/
+├── README.md                        - (real) directory overview
 ├── FORMAL_VERIFICATION_GUIDE.md     - Lean setup, verification
-├── THEOREM_SPECIFICATIONS.md        - 6 theorem claims
-├── PROOF_TRACEABILITY_MATRIX.md     - Claim → Proof → Runtime Evidence
-├── PROOF_CHECKLIST.md               - Lean verification checklist
-└── EXTENDING_PROOFS.md              - Adding new theorems
+└── THEOREM_SPECIFICATIONS.md        - 6 theorem claims
 ```
+Not created: `PROOF_TRACEABILITY_MATRIX.md` (see the real
+[proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
+instead), `PROOF_CHECKLIST.md`, `EXTENDING_PROOFS.md`.
 
 ### Examples & Tutorials
 ```
 docs/examples/
-├── QUICKSTART_PYTORCH.md            - PyTorch federated learning
-├── QUICKSTART_TENSORFLOW.md         - TensorFlow federated learning
-├── FLOWER_INTEGRATION.md            - Flower framework integration
-├── CUSTOM_AGGREGATION.md            - Custom aggregation functions
-├── BYZANTINE_ATTACK_SIMULATION.md   - Intentional Byzantine nodes
-├── MONITORING_SETUP.md              - Full monitoring stack
-└── MULTI_CLOUD_DEPLOYMENT.md        - Cross-cloud federation
+├── README.md                        - (real) directory overview
+└── CUSTOM_AGGREGATION.md            - Custom aggregation functions
 ```
+Not created: `QUICKSTART_PYTORCH.md`, `QUICKSTART_TENSORFLOW.md`,
+`FLOWER_INTEGRATION.md` (there is a real, differently-named
+[docs/flower-integration.md](flower-integration.md) at the docs root),
+`BYZANTINE_ATTACK_SIMULATION.md`, `MONITORING_SETUP.md`,
+`MULTI_CLOUD_DEPLOYMENT.md`.
 
 ---
 
@@ -215,12 +224,20 @@ Only index and quick reference files:
 
 ## Documentation Status
 
-The "Complete ✅" checklist previously here overstated what exists -- a
-documentation audit found the 8 files under `docs/architecture/` are 5-line
-placeholder stubs ("Scaffold document created to preserve canonical
-documentation links... See docs/INDEX.md"), and most of the specific paths
-this index maps under `guides/`, `api/`, `security/`, `performance/`,
-`formal-verification/`, and `examples/` below do not exist in this repo.
+The "Complete ✅" checklist previously here overstated what exists. A
+documentation audit found two separate problems, both now corrected in this
+file:
+
+1. Most files this index links to under `docs/architecture/`, `guides/`,
+   `api/`, `security/`, `performance/`, `formal-verification/`, and
+   `examples/` do exist, but are 5-line placeholder scaffolds ("Scaffold
+   document created to preserve canonical documentation links... See
+   docs/INDEX.md") rather than real content -- each is marked in the trees
+   above unless tagged `(real)`.
+2. A meaningful minority of the files this index previously listed in those
+   same trees don't exist at all -- those have been removed from the trees
+   above and called out under a "Not created" line per section instead of
+   being silently dropped.
 
 What's actually real and worth trusting:
 - Formal proofs and specifications: real, see [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md) for the honest per-theorem scope.
@@ -247,14 +264,18 @@ not been re-audited past what's listed above.
 
 ### Adding New Documentation
 1. Place file in appropriate `docs/subdirectory/`
-2. Use template from `docs/CONTRIBUTING_DOCS.md`
-3. Cross-reference from relevant index page
-4. Submit PR with documentation changes
+2. Cross-reference from relevant index page
+3. Submit PR with documentation changes
+
+(There is no `docs/CONTRIBUTING_DOCS.md` template — an earlier version of
+this index referenced one that was never created.)
 
 ### Updating Existing Documentation
 1. Make changes in appropriate file
 2. Verify all cross-references still valid
-3. Run link checker: `make validate-docs-links`
+3. Run the link checker: `python3 scripts/ci/check_markdown_links.py`
+   (also runs as CI in `.github/workflows/markdown-link-check.yml` on every
+   PR)
 4. Submit PR with documentation changes
 
 ### Documentation Standards

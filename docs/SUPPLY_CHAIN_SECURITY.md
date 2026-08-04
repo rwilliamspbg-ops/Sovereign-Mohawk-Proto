@@ -73,18 +73,35 @@ Binaries → Verification Step
 Test Results → Release Publishing
 ```
 
-### 4. Expanded Formal Verification Coverage
+### 4. What Actually Gates the Attestation
 
-Build attestations now include execution of our formal proof verification suite:
+The `verification-step` job in `in-toto-supply-chain.yml` runs the Go test
+suite, the Python SDK test suite, and `govulncheck`, and **must pass** for
+the release to proceed — `generate-link-metadata` and
+`publish-in-toto-attestations` both depend on this job via `needs:`, so a
+real failure here blocks publication. (Previously each of these commands
+was piped through `|| true`, which meant the job always reported success
+regardless of whether tests or the vulnerability scan actually passed —
+this has been fixed.)
 
-#### Included Verifications:
-- ✅ Lean theorem proofs (Theorems 1-6)
-- ✅ Go cryptographic implementations
-- ✅ Python SDK security properties
-- ✅ BFT consensus protocol correctness
-- ✅ Zero-knowledge proof validation
+#### Actually checked before an attestation is published:
+- ✅ Go test suite (`go test ./...`)
+- ✅ Python SDK test suite (`pytest sdk/python/tests/`)
+- ✅ Go vulnerability scan (`govulncheck ./...`)
 
-Each build must pass all formal verification checks before attestations are published.
+#### Not re-checked at tag time:
+- **Lean theorem proofs** — enforced as a separate, required CI gate
+  (`.github/workflows/verify-formal-proofs.yml`) on every change that
+  touches proof files, before merge to `main`. This job has no
+  Lean/Mathlib toolchain installed and does not re-run the proof suite;
+  rebuilding it (8000+ jobs) on every tagged release would add hours to
+  the release pipeline without checking anything new. See
+  [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
+  for the honest per-theorem scope of what's actually proven.
+- **"Zero-knowledge proof validation"** — there is no ZK-SNARK verifier in
+  this repo; `internal/proofs/verifier.go` does real signature/hash
+  verification, not zero-knowledge proof verification. See
+  [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md).
 
 ## Verification Instructions
 
@@ -220,7 +237,8 @@ in-toto-verify --layout layout.json --link-dir . --step material
 - [ ] SHA256SUMS file signed and verified
 - [ ] SLSA provenance v1.0 present in release
 - [ ] In-toto layout and link metadata present
-- [ ] All test suites passed (Go, Python, formal proofs)
+- [ ] Go and Python test suites passed (gates attestation publish; formal
+      proofs are gated separately, pre-merge, by `verify-formal-proofs.yml`)
 - [ ] No security vulnerabilities in govulncheck scan
 - [ ] Image digests match manifest references
 
