@@ -73,36 +73,58 @@ jobs:
               "color": color,
           }
 
+          content = json.dumps(payload, indent=2) + "\n"
+
           out = Path("results/metrics/latest_release_performance_badge.json")
           out.parent.mkdir(parents=True, exist_ok=True)
-          out.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          out.write_text(content, encoding="utf-8")
+
+          # Also persist to /tmp so the file survives a branch switch.
+          Path("/tmp/badge.json").write_text(content, encoding="utf-8")
+
           print(f"badge message: {message}")
           PY
-
-      - name: Ensure README badge points to dynamic endpoint
-        run: |
-          set -euo pipefail
-          perl -0pi -e 's|\[!\[Latest Release Performance Gate:[^\]]*\]\([^\)]*\)\]\([^\)]*\)|[![Latest Release Performance Gate](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/main/results/metrics/latest_release_performance_badge.json)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/release-performance-evidence.yml)|g' README.md
 
       - name: Commit badge update if changed
         run: |
           set -euo pipefail
-          if git diff --quiet -- results/metrics/latest_release_performance_badge.json README.md; then
+          badge_file="results/metrics/latest_release_performance_badge.json"
+          if ! git ls-files --error-unmatch "$badge_file" 2>/dev/null && [ ! -f "$badge_file" ]; then
+            echo "No badge file to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Push badge artifact to a dedicated unprotected branch so that
+          # branch-protection rules on main are not violated.
+          badges_branch="badges"
+          git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
+          if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
+            git checkout -B "${badges_branch}" "origin/${badges_branch}"
+          else
+            git checkout --orphan "${badges_branch}"
+            git reset --hard
+          fi
+
+          # Re-generate the badge file in the new branch context.
+          mkdir -p results/metrics
+          cp /tmp/badge.json results/metrics/latest_release_performance_badge.json 2>/dev/null || true
+
+          # Stage badge file (force because results/** may be gitignored).
+          git add -f results/metrics/latest_release_performance_badge.json
+
+          if git diff --cached --quiet; then
             echo "No badge update needed."
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # results/** is gitignored; force-add only this curated badge artifact.
-          git add -f results/metrics/latest_release_performance_badge.json
-          git add README.md
+
           git commit -m "docs: refresh release performance gate badge"
 
-          target_branch="${GITHUB_REF_NAME:-main}"
           for attempt in 1 2 3; do
-            echo "Attempt ${attempt}: rebase and push to ${target_branch}"
-            git pull --rebase origin "${target_branch}"
-            if git push origin "HEAD:${target_branch}"; then
+            echo "Attempt ${attempt}: pushing to ${badges_branch}"
+            if git push origin "HEAD:${badges_branch}"; then
               echo "Push succeeded on attempt ${attempt}."
               exit 0
             fi
