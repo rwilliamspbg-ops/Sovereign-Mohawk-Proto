@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "68c085bd673586be9b6a82ed27426557e579b8848ba25573ddf8a1c9b71eb565",
+  "input_merkle_root": "31ef7598963041a00cf62f1a5d242161b57e265a79b59891a0b1735ea8a06838",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "7b00b1bcfb115bd186f4437c4058307aec345440c402e11e61608c5922023139"
+      "sha256": "87ea453b8e6e560863142cc7a7921d5a0b782cefb3284a8e62057a879f893496"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -28,7 +28,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "d0ecec792c30ca57152ff254d1dadb2cffad1869acf3ec193e8db3ba7d44e1b1"
+      "sha256": "b1832d15100b99d748c0c445c54be5141668aad8d397fa3124b0248bbdf2da7f"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
@@ -83,13 +83,18 @@
     {
       "file": "proofs/LeanFormalization/Theorem1BFT.lean",
       "module": "LeanFormalization.Theorem1BFT",
-      "symbol_count": 25,
+      "symbol_count": 30,
       "symbols": [
         "HTree",
         "binomialTail",
+        "binomialTail_le_chernoffBoundZ",
         "binomialTail_le_one",
         "binomial_markov",
         "binomial_mean",
+        "chernoffBoundZ",
+        "chernoffBoundZ_deployment_scale_tiny",
+        "chernoff_hierarchical_bound",
+        "chernoff_hierarchical_bound_deployment_scale",
         "hierarchical_composition_counterexample",
         "hierarchical_counterexample_A",
         "hierarchical_counterexample_A_safe",
@@ -303,7 +308,7 @@
   "summary": {
     "input_file_count": 17,
     "module_count": 10,
-    "theorem_symbol_count": 148
+    "theorem_symbol_count": 153
   },
   "toolchain_lock": {
     "go_version": "1.26.5",
