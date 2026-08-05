@@ -122,6 +122,12 @@ jobs:
           mkdir -p results/metrics
           cp /tmp/badge.json results/metrics/latest_release_performance_badge.json 2>/dev/null || true
 
+          # Exit gracefully if no badge file was produced (e.g. no timestamps available).
+          if [ ! -f results/metrics/latest_release_performance_badge.json ]; then
+            echo "No badge file to commit."
+            exit 0
+          fi
+
           # Stage badge file (force because results/** may be gitignored).
           git add -f results/metrics/latest_release_performance_badge.json
 
