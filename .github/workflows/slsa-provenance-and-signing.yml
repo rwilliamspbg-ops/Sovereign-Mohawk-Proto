@@ -46,6 +46,7 @@ jobs:
           FULL_VERSION="${{ github.ref }}"
           TAG_VERSION="${FULL_VERSION#refs/tags/}"
           echo "tag=${TAG_VERSION}" >> $GITHUB_OUTPUT
+          echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
           echo "Building for release: ${TAG_VERSION}"
 
       - name: Set up QEMU
@@ -72,8 +73,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}
+            ${{ steps.version.outputs.image }}:latest
+            ${{ steps.version.outputs.image }}:${{ steps.version.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: true
@@ -85,7 +86,7 @@ jobs:
           DIGEST="${{ steps.image.outputs.digest }}"
           echo "Image digest: ${DIGEST}"
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
-          echo "url=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${DIGEST}" >> $GITHUB_OUTPUT
+          echo "url=$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')@${DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Export image attestation for signing
         run: |
@@ -119,7 +120,7 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
           
-          IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-images-with-provenance.outputs.image-digest }}"
+          IMAGE_URL="$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')@${{ needs.build-images-with-provenance.outputs.image-digest }}"
           echo "Signing image: ${IMAGE_URL}"
           
           cosign sign --yes "${IMAGE_URL}"
@@ -129,7 +130,7 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: 1
         run: |
-          IMAGE_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-images-with-provenance.outputs.image-digest }}"
+          IMAGE_URL="$(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')@${{ needs.build-images-with-provenance.outputs.image-digest }}"
           echo "Verifying signature for: ${IMAGE_URL}"
           cosign verify --certificate-identity-regexp '.*' --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' "${IMAGE_URL}" || echo "Note: Verification may fail if attestation not yet available; will succeed in registry"
 
@@ -422,7 +423,7 @@ jobs:
           ```bash
           cosign verify --certificate-identity-regexp '.*' \
             --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-            ghcr.io/rwilliamspbg-ops/Sovereign-Mohawk-Proto:${{ steps.version.outputs.tag }}
+            ghcr.io/rwilliamspbg-ops/sovereign-mohawk-proto:${{ steps.version.outputs.tag }}
           ```
           
           **Verify binary signatures:**
@@ -463,5 +464,5 @@ jobs:
       - name: Log release publication
         run: |
           echo "✅ Release ${{ steps.version.outputs.tag }} published with full supply chain attestations"
-          echo "Container image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.tag }}"
+          echo "Container image: $(echo '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]'):${{ steps.version.outputs.tag }}"
           echo "Image digest: ${{ needs.build-images-with-provenance.outputs.image-digest }}"
