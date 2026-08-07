@@ -18,9 +18,11 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"math/big"
 	"sync"
+	"sync/atomic"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
 )
@@ -34,6 +36,13 @@ type RDPAccountant struct {
 	MaxBudget    *big.Rat // Target (ε, δ)-DP limit (e.g., 2.0)
 	TargetDelta  float64  // Fixed delta (e.g., 10⁻⁵)
 	ShardEpsilon map[string]*big.Rat
+
+	// TraceSink, when non-nil, receives one JSONL TraceEvent line per
+	// RecordStepRat/RecordShardStepRat/CheckBudget call -- see
+	// proofs/TraceValidator/RDPAccountant.lean. Nil by default: strictly
+	// opt-in, zero behavior change and zero overhead when untraced.
+	TraceSink io.Writer
+	traceSeq  atomic.Int64
 }
 
 // NewRDPAccountant initializes the accountant with research-backed defaults.
@@ -67,6 +76,14 @@ func (a *RDPAccountant) RecordStepRat(epsilon *big.Rat) {
 		return
 	}
 	a.TotalEpsilon.Add(a.TotalEpsilon, epsilon)
+	if a.TraceSink != nil {
+		a.writeTrace(TraceEvent{
+			Event:             "record_step",
+			Seq:               a.traceSeq.Add(1),
+			Epsilon:           epsilon.RatString(),
+			CumulativeEpsilon: a.TotalEpsilon.RatString(),
+		})
+	}
 }
 
 // RecordShardStep tracks epsilon usage in a shard-level sub-ledger while
@@ -90,6 +107,15 @@ func (a *RDPAccountant) RecordShardStepRat(shardID string, epsilon *big.Rat) {
 	}
 	a.ShardEpsilon[shardID].Add(a.ShardEpsilon[shardID], epsilon)
 	a.TotalEpsilon.Add(a.TotalEpsilon, epsilon)
+	if a.TraceSink != nil {
+		a.writeTrace(TraceEvent{
+			Event:             "record_shard_step",
+			Seq:               a.traceSeq.Add(1),
+			ShardID:           shardID,
+			Epsilon:           epsilon.RatString(),
+			CumulativeEpsilon: a.TotalEpsilon.RatString(),
+		})
+	}
 }
 
 // GetShardEpsilonRat returns the shard-level cumulative epsilon.
@@ -173,7 +199,19 @@ func (a *RDPAccountant) CheckBudget() error {
 	if currentFloat, ok := current.Float64(); ok {
 		metrics.ObserveFormalRDPComposition("accountant", currentFloat)
 	}
-	if current.Cmp(a.MaxBudget) > 0 {
+	exceeded := current.Cmp(a.MaxBudget) > 0
+	if a.TraceSink != nil {
+		ok := !exceeded
+		a.writeTrace(TraceEvent{
+			Event:             "check_budget",
+			Seq:               a.traceSeq.Add(1),
+			CumulativeEpsilon: a.TotalEpsilon.RatString(),
+			MaxBudget:         a.MaxBudget.RatString(),
+			ConversionTerm:    ratFromFloat64(conversion).RatString(),
+			BudgetOK:          &ok,
+		})
+	}
+	if exceeded {
 		return fmt.Errorf(
 			"privacy budget exhausted: current ε=%s exceeds limit ε=%s",
 			current.RatString(),
