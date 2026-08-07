@@ -1,0 +1,103 @@
+name: Hierarchical BFT Trace Verification
+
+# Trace-based runtime verification, Technique A only (structural/bookkeeping
+# exact replay -- see proofs/TraceValidator/HierarchicalBFT.lean's own doc
+# comment for the full scope statement): generates a real, dynamic
+# multi-tier, multi-round hierarchical Multi-Krum execution trace
+# (internal/hbft.Simulator) and replays it by independently re-running
+# Multi-Krum selection and folding committee outcomes into weighted-safety
+# bookkeeping using proofs/LeanFormalization/Theorem1BFT.lean's HTree.safe
+# rule. This does NOT verify the Chernoff tail bound (row 1's probabilistic
+# claim) -- see hbft-statistical-sanity.yml (added in a later PR) for that
+# separate, explicitly non-machine-checked complement.
+#
+# Deliberately NOT wired into full-validation-fast and not a required
+# status check: this is new infrastructure that should run non-required
+# for a while and earn trust first, the same way rdp-trace-verification.yml
+# and, before it, verify-lean-formalization itself started non-required.
+# Promoting this to required later is a separate decision for the repo
+# owner.
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'internal/hbft/**'
+      - 'test/hbft_trace_test.go'
+      - 'proofs/TraceValidator/HierarchicalBFT.lean'
+      - 'proofs/LeanFormalization/Theorem1BFT.lean'
+      - 'proofs/Specification/System.lean'
+      - 'proofs/Refinement/MultiKrum.lean'
+      - 'proofs/lakefile.lean'
+      - '.github/workflows/hbft-trace-verification.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'internal/hbft/**'
+      - 'test/hbft_trace_test.go'
+      - 'proofs/TraceValidator/HierarchicalBFT.lean'
+      - 'proofs/LeanFormalization/Theorem1BFT.lean'
+      - 'proofs/Specification/System.lean'
+      - 'proofs/Refinement/MultiKrum.lean'
+      - 'proofs/lakefile.lean'
+      - '.github/workflows/hbft-trace-verification.yml'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.26.5+auto
+  MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
+
+jobs:
+  hbft-trace-verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Generate hierarchical BFT execution trace
+        run: go test ./test -run '^TestHBFTTrace$' -v
+
+      # Builds LeanFormalization/Specification/Refinement's .olean files
+      # and warms the Mathlib cache. remove-tools-dir: 'true' is safe here
+      # -- the Go work above is already done, nothing later in this job
+      # needs actions/setup-go's tool cache. See
+      # .github/actions/lean-build-and-lint/action.yml for what this does.
+      # (TraceValidator/HierarchicalBFT.lean itself only imports
+      # Specification.System, which has zero Mathlib dependency -- this
+      # step builds more than strictly required for just that file, but
+      # stays consistent with rdp-trace-verification.yml's approach and
+      # keeps the vacuous-theorem lint running here too.)
+      - name: Build Lean formal theorem suite
+        uses: ./.github/actions/lean-build-and-lint
+        with:
+          remove-tools-dir: 'true'
+
+      - name: Run Lean trace validator
+        working-directory: proofs
+        # set -o pipefail is required here: without it, a failing
+        # validator (nonzero exit) would still report success because the
+        # pipeline's exit code would be `tee`'s (always 0), not the
+        # validator's -- silently defeating the entire point of this job.
+        # (Caught as a real bug once already during the RDP trace-
+        # verification effort -- do not reintroduce it.)
+        run: |
+          set -o pipefail
+          mkdir -p ../test-results/hbft-trace
+          lake env lean --run TraceValidator/HierarchicalBFT.lean \
+            ../test-results/hbft-trace/trace.jsonl \
+            | tee ../test-results/hbft-trace/validator_output.txt
+
+      - name: Upload trace + validator output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: hbft-trace-verification
+          path: test-results/hbft-trace/
