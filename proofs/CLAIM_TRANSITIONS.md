@@ -193,3 +193,5 @@ than presented as derived. See the matrix row's own Notes for the full
 reasoning, including why the non-NaN restriction is load-bearing (an
 unconditional reflexivity axiom would be observably false: `NaN <= NaN`
 evaluates to `false`).
+
+- **PR:** #162
