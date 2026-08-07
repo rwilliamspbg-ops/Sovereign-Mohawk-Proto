@@ -125,6 +125,20 @@ stale entries unrelated to formal verification (`chaos-matrix` →
 and fixed in the same pass, and one (`Bridge Compression Benchmark`) remains
 open, flagged separately.
 
+### Claim-transition audit log
+
+As of 2026-08-07, `full-validation-fast` also runs
+`scripts/ci/check_claim_transitions.py`, which fails a PR that changes any
+row's `Status` cell in this matrix (main table or the Workstream 4 table)
+without a matching new entry in
+[`CLAIM_TRANSITIONS.md`](CLAIM_TRANSITIONS.md). This is the machine-checked
+half of the Phase 4 audit/sign-off process this matrix's own history section
+above had flagged as unbuilt: it doesn't judge whether a transition is a
+real closure or a demotion versus an inflation, but it does make it
+impossible to change a claim's stated strength silently — every Status
+change now requires a human-written, PR-linked explanation, checked into the
+same tree the claim itself lives in.
+
 ## Latest Validation Run
 
 - Date (UTC): 2026-08-04
