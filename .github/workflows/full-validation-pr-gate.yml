@@ -19,6 +19,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
+      # The checkout above is shallow (default fetch-depth), so
+      # origin/main doesn't exist locally yet -- fetch just its tip so the
+      # claim-transition check below has something to diff against.
+      - name: Fetch main for claim-transition diff
+        run: git fetch --no-tags --depth=1 origin main
+
+      # Fails the PR if it silently changes a FORMAL_TRACEABILITY_MATRIX.md
+      # Status value without a matching new proofs/CLAIM_TRANSITIONS.md
+      # entry explaining the transition. See that file for the process.
+      - name: Check formal claim Status transitions are logged
+        run: python3 scripts/ci/check_claim_transitions.py
+
       - name: Setup Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
