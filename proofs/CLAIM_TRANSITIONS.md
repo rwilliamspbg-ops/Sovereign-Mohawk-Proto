@@ -86,5 +86,5 @@ check -- unchanged, still `formalized_not_closed`, per `rdpToApproxDP`/
 `rdp_budget_conversion_shift`. See the matrix row's own Notes for the full
 reasoning.
 
-- **PR:** rdp-trace-verification (PR 3 of 3 for trace-based runtime
-  verification; PR 1: #152, PR 2: #153)
+- **PR:** #154 (PR 3 of 3 for trace-based runtime verification; PR 1:
+  #152, PR 2: #153)
