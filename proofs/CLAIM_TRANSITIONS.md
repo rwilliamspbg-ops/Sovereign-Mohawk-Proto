@@ -86,5 +86,33 @@ check -- unchanged, still `formalized_not_closed`, per `rdpToApproxDP`/
 `rdp_budget_conversion_shift`. See the matrix row's own Notes for the full
 reasoning.
 
+### 2026-08-07 -- Row 1 (hierarchical BFT): added structural trace validation
+
+`fully_formalized (single-tier); compositional claim disproven
+deterministically; probabilistic repair proved AND genuinely useful at
+deployment scale (Phase 3, Chernoff bound)` ->
+`fully_formalized (single-tier); compositional claim disproven
+deterministically; probabilistic repair proved AND genuinely useful at
+deployment scale (Phase 3, Chernoff bound);
+hierarchical_bookkeeping_and_selection_replay_validated_via_trace
+(structural only; does not confirm the Chernoff tail bound, see Notes)`
+
+Additive, not a closure, and explicitly NOT the same tier of guarantee as
+row 13's RDP trace validation: `proofs/TraceValidator/HierarchicalBFT.lean`
+replays a real, dynamic multi-tier, multi-round hierarchical Multi-Krum
+execution trace, independently re-running selection (new validator-scoped
+code, not a change to `multiKrumSelectImpl` -- row 12's "m=1 only" gap
+stays open) and checking committee/tier bookkeeping against the same
+credited-weight rule `HTree.safe` already states. This says nothing about
+global resilience (`hierarchical_composition_counterexample` already
+closed that negatively and permanently) and nothing about the Chernoff
+tail bound itself (a probability-distribution claim; a separate,
+explicitly non-machine-checked statistical sanity-check is tracked for a
+later pass, not to be confused with this structural guarantee). See the
+matrix row's own Notes for the full reasoning.
+
+- **PR:** #158 (PR 4 of 6 for trace-based runtime verification of row 1;
+  PR 1: #155, PR 2: #156, PR 3: #157)
+
 - **PR:** #154 (PR 3 of 3 for trace-based runtime verification; PR 1:
   #152, PR 2: #153)
