@@ -16,7 +16,9 @@ package hbft
 
 import (
 	"fmt"
+	"io"
 	"math/rand/v2"
+	"sync/atomic"
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
@@ -84,6 +86,13 @@ type Simulator struct {
 	nodes     map[NodeID]*NodeState
 	tierPools [][]NodeID // per-tier node pool, resampled into committees each round
 	round     int
+
+	// TraceSink, when non-nil, receives one JSONL TraceEvent line per
+	// round_start/committee_formed/committee_selection/tier_aggregate/
+	// round_summary -- see trace.go. Nil by default: strictly opt-in,
+	// zero behavior change and zero overhead when untraced.
+	TraceSink io.Writer
+	traceSeq  atomic.Int64
 }
 
 // NewSimulator builds a Simulator and plants each tier's node population
@@ -145,6 +154,14 @@ func (s *Simulator) RunRound() (RoundResult, error) {
 	rng := rand.New(rand.NewPCG(s.cfg.Seed, uint64(s.round)))
 
 	result := RoundResult{Round: s.round, Seed: s.cfg.Seed}
+	if s.TraceSink != nil {
+		s.writeTrace(TraceEvent{
+			Event: "round_start",
+			Seq:   s.traceSeq.Add(1),
+			Round: s.round,
+			Seed:  s.cfg.Seed,
+		})
+	}
 	allSafe := true
 
 	for t := 0; t < s.cfg.Topology.Tiers; t++ {
@@ -170,15 +187,37 @@ func (s *Simulator) RunRound() (RoundResult, error) {
 		if 2*tierResult.SafeLeafWeight <= tierResult.TotalLeaves {
 			allSafe = false
 		}
+		if s.TraceSink != nil {
+			s.writeTrace(TraceEvent{
+				Event:           "tier_aggregate",
+				Seq:             s.traceSeq.Add(1),
+				Round:           s.round,
+				TierID:          t,
+				TotalLeaves:     tierResult.TotalLeaves,
+				ByzantineLeaves: tierResult.ByzantineLeaves,
+				SafeLeafWeight:  tierResult.SafeLeafWeight,
+			})
+		}
 		result.Tiers = append(result.Tiers, tierResult)
 	}
 	result.RootSafe = allSafe
+	if s.TraceSink != nil {
+		rootSafe := allSafe
+		s.writeTrace(TraceEvent{
+			Event:    "round_summary",
+			Seq:      s.traceSeq.Add(1),
+			Round:    s.round,
+			RootSafe: &rootSafe,
+		})
+	}
 
 	s.round++
 	return result, nil
 }
 
 func (s *Simulator) runCommittee(rng *rand.Rand, tierID, committeeIdx int, members []NodeID) (CommitteeResult, error) {
+	committeeID := fmt.Sprintf("t%d-c%d", tierID, committeeIdx)
+
 	labels := make([]bool, len(members))
 	var honestIdx, byzIdx []int
 	for i, id := range members {
@@ -188,6 +227,22 @@ func (s *Simulator) runCommittee(rng *rand.Rand, tierID, committeeIdx int, membe
 		} else {
 			honestIdx = append(honestIdx, i)
 		}
+	}
+
+	if s.TraceSink != nil {
+		memberIDs := make([]uint64, len(members))
+		for i, id := range members {
+			memberIDs[i] = uint64(id)
+		}
+		s.writeTrace(TraceEvent{
+			Event:        "committee_formed",
+			Seq:          s.traceSeq.Add(1),
+			Round:        s.round,
+			CommitteeID:  committeeID,
+			TierID:       tierID,
+			Members:      memberIDs,
+			MemberLabels: append([]bool(nil), labels...),
+		})
 	}
 
 	gradients := make([][]float64, len(members))
@@ -216,9 +271,24 @@ func (s *Simulator) runCommittee(rng *rand.Rand, tierID, committeeIdx int, membe
 	byzCount := countTrue(labels)
 	locallySafe := 2*(len(members)-byzCount) > len(members)
 
+	if s.TraceSink != nil {
+		safe := locallySafe
+		s.writeTrace(TraceEvent{
+			Event:       "committee_selection",
+			Seq:         s.traceSeq.Add(1),
+			Round:       s.round,
+			CommitteeID: committeeID,
+			TierID:      tierID,
+			ByzantineF:  f,
+			Gradients:   gradients,
+			SelectedIdx: append([]int(nil), selected...),
+			LocallySafe: &safe,
+		})
+	}
+
 	return CommitteeResult{
 		Committee: Committee{
-			ID:      fmt.Sprintf("t%d-c%d", tierID, committeeIdx),
+			ID:      committeeID,
 			TierID:  tierID,
 			Members: append([]NodeID(nil), members...),
 		},
