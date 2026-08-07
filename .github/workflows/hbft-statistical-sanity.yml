@@ -1,0 +1,75 @@
+name: Hierarchical BFT Statistical Sanity Check
+
+# Technique B: an EMPIRICAL regression tripwire, NOT machine-checked
+# verification -- see proofs/TraceValidator/HierarchicalBFTBoundEval.lean's
+# doc comment for the full scope statement. Runs many independent trials
+# (internal/hbft.RunStatCheck, test/hbft_statistical_sanity_test.go) of a
+# minimal generator matching proofs/LeanFormalization/Theorem1BFT.lean's
+# chernoff_hierarchical_bound literal statement exactly, then has Lean
+# evaluate that already-proven bound at the same toy-scale parameters and
+# compare it against the empirical failure rate.
+#
+# Deliberately NOT run on every pull_request (unlike
+# hbft-trace-verification.yml / rdp-trace-verification.yml): this job's
+# whole value is in its trial count, and running a statistical trial batch
+# on every PR either wastes CI time (large N) or weakens the check's
+# statistical power (small N) for no real benefit -- matches
+# swarm-runtime-matrix.yml's schedule-plus-manual-dispatch pattern for the
+# same reason. Also not wired into full-validation-fast and not a required
+# status check, for the same "earn trust first" reasoning as this
+# repository's other trace/statistical verification workflows.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.26.5+auto
+  MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
+
+jobs:
+  hbft-statistical-sanity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Run empirical trial batch
+        run: go test ./test -run '^TestHBFTStatisticalSanityCheck$' -v
+
+      # See .github/actions/lean-build-and-lint/action.yml. remove-tools-dir:
+      # 'true' is safe here -- the Go work above is already done.
+      - name: Build Lean formal theorem suite
+        uses: ./.github/actions/lean-build-and-lint
+        with:
+          remove-tools-dir: 'true'
+
+      - name: Compare empirical rate against the proven Chernoff bound
+        working-directory: proofs
+        # set -o pipefail: without it a failing comparison (nonzero exit)
+        # would still report job success because the pipeline's exit code
+        # would be `tee`'s (always 0) -- the exact bug already caught once
+        # during the RDP trace-verification effort. Not reintroduced here.
+        run: |
+          set -o pipefail
+          FAILURES=$(python3 -c "import json; print(json.load(open('../test-results/hbft-statcheck/result.json'))['Failures'])")
+          TRIALS=$(python3 -c "import json; print(json.load(open('../test-results/hbft-statcheck/result.json'))['Trials'])")
+          echo "Comparing empirical failures=$FAILURES trials=$TRIALS against the proven bound"
+          lake env lean --run TraceValidator/HierarchicalBFTBoundEval.lean "$FAILURES" "$TRIALS" \
+            | tee ../test-results/hbft-statcheck/bound_comparison.txt
+
+      - name: Upload trial results + bound comparison
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: hbft-statistical-sanity
+          path: test-results/hbft-statcheck/

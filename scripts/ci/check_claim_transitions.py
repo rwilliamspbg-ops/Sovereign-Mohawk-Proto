@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 MATRIX_PATH = "proofs/FORMAL_TRACEABILITY_MATRIX.md"
@@ -40,7 +41,18 @@ SEP_RE = re.compile(r"^\|[\s:|-]+\|\s*$")
 # real entries use "###" nested under "## Log" and put the old -> new
 # status text in the body (see the two log entries below), not the
 # heading -- only the row id is actually consumed by callers.
-TRANSITION_HEADING_RE = re.compile(r"^#{1,6}\s+\d{4}-\d{2}-\d{2}.*?\bRow\s+(\S+)", re.MULTILINE)
+#
+# Group 1 captures the WHOLE heading line (through end of line via `.*$`),
+# not just the prefix up to "Row <id>" -- deliberate, and previously a
+# real bug: two same-day headings for the same row (e.g. two 2026-08-07
+# entries both for "Row 1") share an identical PREFIX up through "Row 1",
+# so using only that prefix as a dedup key collapsed two genuinely
+# distinct headings into one set entry, even though re.finditer correctly
+# found both as separate matches. The full line (which differs after the
+# row id -- different short descriptions) is what's actually unique.
+TRANSITION_HEADING_RE = re.compile(
+    r"^(#{1,6}\s+\d{4}-\d{2}-\d{2}.*?\bRow\s+(\S+).*)$", re.MULTILINE
+)
 
 
 def parse_tables(text: str) -> dict[str, str]:
@@ -85,14 +97,52 @@ def git_show(ref: str, path: str) -> str | None:
     return proc.stdout if proc.returncode == 0 else None
 
 
-def transition_log_row_ids(text: str) -> set[str]:
-    return {m.group(1) for m in TRANSITION_HEADING_RE.finditer(text)}
+def transition_log_headings(text: str) -> set[tuple[str, str]]:
+    """Return {(full_heading_match_text, row_id)} for every entry heading.
+
+    Keying on the full matched text (not just the row id) is deliberate: a
+    row can legitimately transition more than once over the project's
+    life (e.g. row 1 gained a Technique-A entry, then later a separate
+    Technique-B entry). Row id alone, deduplicated via a plain set, cannot
+    tell "this row already had some entry" apart from "this row's Status
+    changed AGAIN and needs a NEW entry" -- confirmed as a real bug: once
+    a row had any logged entry, this used to silently accept future
+    Status changes on that same row with no new entry required at all.
+    Each entry's own heading line (which always includes a date, and
+    differs after the row id in its short description) is unique in
+    practice, so a genuinely new transition's heading will not collide
+    with an old one even when the row id repeats.
+    """
+    return {(m.group(1), m.group(2)) for m in TRANSITION_HEADING_RE.finditer(text)}
 
 
-def new_transition_log_entries(base_ref: str) -> set[str]:
-    base_text = git_show(base_ref, str(TRANSITIONS_PATH)) or ""
+def new_transition_log_row_ids(base_ref: str) -> set[str]:
+    # .as_posix(), not str(): on Windows, str(Path(...)) yields
+    # backslash-separated paths ("proofs\CLAIM_TRANSITIONS.md"), which
+    # `git show <ref>:<path>` silently fails to resolve (git's ref:path
+    # syntax always wants forward slashes) -- confirmed as a real bug:
+    # git_show returned None on every call on Windows, and the `or ""`
+    # fallback below masked it as "no prior entries," making every
+    # heading in the working tree look "new" regardless of whether it
+    # already existed at base_ref. Invisible in a single-entry file
+    # (removing the only entry still correctly showed nothing new either
+    # way) but silently wrong the moment a row gained a second, later
+    # transition -- exactly the case that surfaced this.
+    base_text = git_show(base_ref, TRANSITIONS_PATH.as_posix())
+    if base_text is None:
+        print(
+            f"warning: could not read {TRANSITIONS_PATH} at {base_ref} -- "
+            "treating it as having no prior entries. Expected only if this "
+            "file predates base_ref; if base_ref is known-good and recent, "
+            "this likely means a real read failure, not an absent file.",
+            file=sys.stderr,
+        )
+        base_text = ""
     head_text = TRANSITIONS_PATH.read_text(encoding="utf-8") if TRANSITIONS_PATH.exists() else ""
-    return transition_log_row_ids(head_text) - transition_log_row_ids(base_text)
+    base_headings = transition_log_headings(base_text)
+    head_headings = transition_log_headings(head_text)
+    new_headings = head_headings - base_headings
+    return {row_id for _, row_id in new_headings}
 
 
 def main() -> int:
@@ -127,7 +177,7 @@ def main() -> int:
         print("No claim Status transitions in this diff.")
         return 0
 
-    logged_row_ids = new_transition_log_entries(args.base_ref)
+    logged_row_ids = new_transition_log_row_ids(args.base_ref)
 
     missing = [
         (key.split(":", 1)[1], old, new)
