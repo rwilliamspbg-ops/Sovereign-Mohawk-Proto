@@ -48,30 +48,8 @@ jobs:
           fetch-depth: 0
 
       - name: Scan for unsafe placeholders
-        working-directory: ./proofs
         run: |
-          echo "Scanning for placeholders (sorry/axiom/admit)..."
-          FOUND_UNSAFE=""
-          FOUND_SORRY=""
-
-          for file in LeanFormalization/*.lean Specification/*.lean Refinement/*.lean; do
-            if grep -q 'axiom\|admit' "$file"; then
-              FOUND_UNSAFE="$FOUND_UNSAFE $file"
-            fi
-            if grep -q '\bsorry\b' "$file"; then
-              FOUND_SORRY="$FOUND_SORRY $file"
-            fi
-          done
-
-          if [ -n "$FOUND_UNSAFE" ]; then
-            echo "❌ Unsafe formal proof placeholders found (axiom/admit):$FOUND_UNSAFE"
-            exit 1
-          fi
-
-          if [ -n "$FOUND_SORRY" ]; then
-            echo "⚠ Phase 3e: $(($(grep -RIn '\bsorry\b' LeanFormalization Specification Refinement *.lean 2>/dev/null | wc -l))) honest in-progress proofs (sorry) detected"
-          fi
-          echo "✓ Placeholder scan passed (unsafe axiom/admit rejected, honest sorry allowed for Phase 3e)"
+          python3 scripts/ci/check_no_unsafe_placeholders.py
 
       # See .github/actions/lean-build-and-lint/action.yml for what this
       # does. remove-tools-dir: 'true' matches this job's prior behavior --
