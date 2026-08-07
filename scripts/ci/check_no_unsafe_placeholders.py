@@ -154,7 +154,9 @@ def main() -> int:
             print(f"  - {v}")
         return 1
 
-    print(f"Placeholder scan passed: no `admit`, no un-allowlisted `axiom` ({len(ALLOWED_AXIOMS)} allowlisted).")
+    print(
+        f"Placeholder scan passed: no `admit`, no un-allowlisted `axiom` ({len(ALLOWED_AXIOMS)} allowlisted)."
+    )
     return 0
 
 
