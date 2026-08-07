@@ -26,19 +26,18 @@ things a live, dynamic trace can establish that
 
 ## Scope: what this file does NOT do
 
-**Does not close row 12's "m = 1 only" gap.** `multiKrumSelectImpl`
-(`Specification/System.lean`) only ever returns a single selected
-gradient, not Go's general `m`-selection list -- a real, permanent,
-already-documented limitation (`proofs/Refinement/MultiKrum.lean`'s own
-doc comment). This file's `selectManyLowestScoring` below is deliberately
-**new, validator-scoped code**, not a change to `multiKrumSelectImpl`
-itself: it reuses `Specification.neighborScore` (the same per-node scoring
-function) but generalizes the "pick the winner" step from a single
-`argmin?` to "take the `m` lowest-scoring indices," matching Go's actual
-`MultiKrumSelect(updates, f, m)` behavior. This does not change what
-`multiKrumSelectImpl` formally claims, does not touch row 12's Status, and
-is not itself a proven theorem -- it is executable cross-check code, the
-same category as this file's `CommitteeOutcome`/`TierAccumulator` types.
+**Selection replay now uses the official, row-12-closing spec function.**
+This file previously carried its own validator-scoped
+`selectManyLowestScoring` (a generalization of `argmin?`'s single-winner
+selection to `m` winners), built here because `multiKrumSelectImpl`
+(`Specification/System.lean`) only ever returned a single gradient --
+row 12's then-open "`m = 1` only" gap. That gap is now closed:
+`Specification.multiKrumSelectManyImpl` is the official general-`m` spec
+function (promoted from this file's original code), and
+`proofs/Refinement/MultiKrum.lean`'s `multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl`
+proves it agrees with `multiKrumSelectImpl` exactly at `m = 1`. This file
+now calls that official function directly instead of maintaining a
+duplicate implementation.
 
 **Does not say anything about global resilience.** `CommitteeOutcome`/
 `TierAccumulator` reuse `HTree.safe`'s exact weighted-credit rule (same
@@ -63,30 +62,6 @@ Usage: `hbft_trace_validator <path-to-trace.jsonl>`
 open Lean Specification
 
 namespace TraceValidator
-
-/-! ## General-m selection (validator-scoped, see module doc above) -/
-
-def insertSortedByScore (x : Nat × Float) : List (Nat × Float) → List (Nat × Float)
-  | [] => [x]
-  | y :: ys =>
-      if x.2 <= y.2 then
-        x :: y :: ys
-      else
-        y :: insertSortedByScore x ys
-
-def sortAscByScore : List (Nat × Float) → List (Nat × Float)
-  | [] => []
-  | x :: xs => insertSortedByScore x (sortAscByScore xs)
-
-/-- The `m` lowest-scoring candidate indices by `Specification.neighborScore`
-(unmodified), ranked ascending with lower-index-wins tie-breaking -- the
-same ranking convention `internal/multikrum.go`'s `MultiKrumSelect` uses
-(`ranked[i].idx < ranked[j].idx` on equal scores) and
-`Specification.argmin?` already uses for the `m = 1` case. -/
-def selectManyLowestScoring (gradients : List (List Float)) (m k : Nat) : List Nat :=
-  let neighbors := Nat.min k (gradients.length - 1)
-  let scored := (List.range gradients.length).map (fun i => (i, neighborScore gradients i neighbors))
-  (sortAscByScore scored).take m |>.map Prod.fst
 
 /-! ## Structural bookkeeping (reuses HTree.safe's rule, see module doc) -/
 
@@ -219,10 +194,14 @@ def step (state : ValidatorState) (j : Json) : IO ValidatorState := do
       if gradients.length ≤ 2 * byzF + 2 then
         fail state s!"committee {cid}: gradients length {gradients.length} violates MultiKrumSelect's n > 2f+2 precondition at f={byzF}"
       let neighbors := gradients.length - byzF - 2
-      let mySelected := selectManyLowestScoring gradients neighbors neighbors
+      -- Ground-truth labels/id are irrelevant to selection (Go's MultiKrumSelect
+      -- is label-blind, matching multiKrumSelectManyImpl's own signature, which
+      -- ignores Node.id/Node.isByzantine entirely); placeholders here.
+      let nodes : List Node := gradients.map (fun g => ⟨0, g, false⟩)
+      let mySelected := multiKrumSelectManyImpl nodes neighbors neighbors
       if mySelected ≠ goSelected then
         fail state
-          s!"committee {cid}: selection mismatch -- replayed selectManyLowestScoring = {mySelected}, trace recorded selected_idx = {goSelected}"
+          s!"committee {cid}: selection mismatch -- replayed multiKrumSelectManyImpl = {mySelected}, trace recorded selected_idx = {goSelected}"
       let outcome : CommitteeOutcome :=
         { committeeId := cid, tierId := tierId, memberLabels := labels, selectedIdx := goSelected }
       if outcome.locallySafe ≠ locallySafeGo then

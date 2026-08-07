@@ -113,6 +113,45 @@ def multiKrumSelectImpl (nodes : List Node) (k : Nat) : Option FloatArray :=
     | some idx => getAt? gradients idx
 
 
+/-- Row 12 gap 1 closure: a precondition-safe sibling of `multiKrumSelectImpl`
+whose accepted-input set matches Go's `MultiKrumSelect` safety envelope
+exactly (`n > 2f + 2`), rather than accepting any raw `k` the way
+`multiKrumSelectImpl` does. See `Refinement/MultiKrum.lean` for the
+correspondence theorems. `multiKrumSelectImpl` itself is intentionally left
+unchanged -- this is an additive wrapper, not a signature change, so the
+existing four pinned Go correspondence vectors
+(`internal/multikrum_lean_correspondence_test.go`) keep working unmodified. -/
+def multiKrumSelectSafe (nodes : List Node) (f : Nat) : Option FloatArray :=
+  let n := nodes.length
+  if n > 2 * f + 2 then multiKrumSelectImpl nodes (n - f - 2) else none
+
+
+/-- Row 12 gap 2 closure: general-`m` Multi-Krum selection (`m` lowest-scoring
+candidate indices, ranked ascending with lower-index-wins tie-breaking, the
+same convention `argmin?`/Go's `MultiKrumSelect` already use for `m = 1`).
+Promoted from `TraceValidator/HierarchicalBFT.lean`'s validator-scoped
+`selectManyLowestScoring` (built independently there for the HBFT trace
+effort, before this row's gap was closed) -- reuses `neighborScore`
+unmodified, generalizing only the "pick the winner(s)" step. Returns indices
+(matching Go's `selected []int`) rather than `multiKrumSelectImpl`'s single
+`FloatArray`, since there can be more than one winner. See
+`Refinement/MultiKrum.lean`'s `multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl`
+for the proven `m = 1` correspondence with `multiKrumSelectImpl`. -/
+def insertSortedByScore (x : Nat × Float) : List (Nat × Float) → List (Nat × Float)
+  | [] => [x]
+  | y :: ys => if x.2 <= y.2 then x :: y :: ys else y :: insertSortedByScore x ys
+
+def sortAscByScore : List (Nat × Float) → List (Nat × Float)
+  | [] => []
+  | x :: xs => insertSortedByScore x (sortAscByScore xs)
+
+def multiKrumSelectManyImpl (nodes : List Node) (m k : Nat) : List Nat :=
+  let gradients := nodes.map Node.gradient
+  let neighbors := Nat.min k (gradients.length - 1)
+  let scored := (List.range gradients.length).map (fun i => (i, neighborScore gradients i neighbors))
+  (sortAscByScore scored).take m |>.map Prod.fst
+
+
 def totalBytes (messages : List Message) : Nat :=
   messages.foldl (fun acc m => acc + m.size) 0
 

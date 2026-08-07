@@ -150,3 +150,46 @@ guarantee the previous transition added.
 
 - **PR:** #154 (PR 3 of 3 for trace-based runtime verification; PR 1:
   #152, PR 2: #153)
+
+### 2026-08-07 -- Row 12 (MultiKrum refinement): closed both documented gaps
+
+`empirically_verified_scoped (m=1 only; precondition gap documented, not
+closed)` -> `empirically_verified_general_m; precondition_envelope_closed`
+
+Both gaps this row had left open since it was written are now closed,
+additively -- `multiKrumSelectImpl` itself is unchanged, so the four
+original pinned `m=1` Go correspondence vectors and `go_neighbors_valid`/
+`go_neighbors_no_clamp` still hold exactly as before. Two new sibling
+functions in `Specification/System.lean` close the gaps instead of
+touching the existing tested function. **Precondition gap**:
+`multiKrumSelectSafe` gates selection behind Go's exact `n > 2f+2` check;
+`multiKrumSelectSafe_eq_impl`/`multiKrumSelectSafe_none_outside_envelope`
+prove its accepted-input set now equals Go's safety envelope exactly (both
+inclusion directions, not just the one `go_neighbors_valid` already
+covered). **`m=1`-only gap**: `multiKrumSelectManyImpl` implements
+general-`m` selection (promoted from `proofs/TraceValidator/
+HierarchicalBFT.lean`'s validator-scoped `selectManyLowestScoring`, which
+now calls this official function instead of duplicating it -- verified to
+produce identical results on a fresh real trace before and after). Two new
+pinned Go correspondence vectors (`m=2`, `m=3`) extend the empirical
+Go-side evidence. Critically, `multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl`
+is a **real, machine-checked Lean theorem** proving the new function
+agrees with `multiKrumSelectImpl` exactly at `m=1` -- not an `#eval`-pinned
+vector, since both sides are Lean functions here (unlike the Go-facing
+correspondence, which remains necessarily empirical). This needed a
+genuine two-algorithm-correctness proof (`argminAux_spec` for the existing
+`argmin?`'s loop-invariant correctness, `minFoldPair_spec` for the new
+sort-based selection's structural correctness, unified via a shared
+`IsMinIdx` characterization and its uniqueness lemma) and surfaced a real
+finding along the way: Lean's `Float` type carries zero order axioms at
+all (`floatSpec` is opaque with no asserted reflexivity, antisymmetry,
+transitivity, or totality), and neither does Mathlib define any order
+instance for it -- both confirmed by direct inspection, not assumed. The
+proof therefore introduces this repository's **first proof-relevant axioms
+beyond Mathlib's own foundations**: eight axioms in `Refinement/
+MultiKrum.lean` stating real, restricted (non-NaN-scoped) facts about IEEE
+754 double comparison, explicitly documented as a trust boundary rather
+than presented as derived. See the matrix row's own Notes for the full
+reasoning, including why the non-NaN restriction is load-bearing (an
+unconditional reflexivity axiom would be observably false: `NaN <= NaN`
+evaluates to `false`).
