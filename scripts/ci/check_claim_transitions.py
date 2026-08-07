@@ -29,9 +29,18 @@ TRANSITIONS_PATH = Path("proofs/CLAIM_TRANSITIONS.md")
 
 ROW_RE = re.compile(r"^\|(.+)\|\s*$")
 SEP_RE = re.compile(r"^\|[\s:|-]+\|\s*$")
-TRANSITION_HEADING_RE = re.compile(
-    r"^##\s+.*--\s*Row\s+(\S+).*:\s*(.+?)\s*->\s*(.+?)\s*$", re.MULTILINE
-)
+# Matches a markdown heading of any level starting with a real YYYY-MM-DD
+# date, followed somewhere on the same line by "Row <id>". Requiring a real
+# date (not just "##") is deliberate: proofs/CLAIM_TRANSITIONS.md's own
+# "Entry format" section shows the template heading
+# "## <date> -- Row <id> ..." inside a code fence, with the literal text
+# "<date>" -- a naive "^##\s+...Row" pattern matches that template line
+# itself as a false positive. A real ISO date can never collide with it.
+# Heading level and any "-> " status text are intentionally not required:
+# real entries use "###" nested under "## Log" and put the old -> new
+# status text in the body (see the two log entries below), not the
+# heading -- only the row id is actually consumed by callers.
+TRANSITION_HEADING_RE = re.compile(r"^#{1,6}\s+\d{4}-\d{2}-\d{2}.*?\bRow\s+(\S+)", re.MULTILINE)
 
 
 def parse_tables(text: str) -> dict[str, str]:
@@ -134,9 +143,10 @@ def main() -> int:
             print(f"  - Row {row_id}: {old!r} -> {new!r}")
         print(
             "\nAdd a heading of the form "
-            "'## <date> -- Row <id> (<claim short name>): <old status> "
-            f"-> <new status>' to {TRANSITIONS_PATH}, with a short "
-            "rationale underneath, before merging."
+            "'### <YYYY-MM-DD> -- Row <id> (<claim short name>): "
+            f"<short description>' to {TRANSITIONS_PATH} (see its own "
+            "'Entry format' section), with the old -> new status and a "
+            "short rationale in the body below it, before merging."
         )
         return 1
 
