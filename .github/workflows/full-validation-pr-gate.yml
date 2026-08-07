@@ -38,71 +38,17 @@ jobs:
       # in the tree) but never actually compiled the Lean proofs or ran the
       # vacuous/misleading-theorem lint -- a PR could introduce a new sorry,
       # a new vacuous theorem, or a Lean file that doesn't even compile, and
-      # merge to main cleanly. The "Build Lean formal theorem suite" and
-      # "Lint formal proof claims" steps below close that gap by running
-      # the same real checks verify-lean-formalization already runs,
-      # directly in the required job instead of a non-required sibling
-      # (the cache/toolchain steps around them are plumbing copied from
-      # that job to make the build/lint steps possible here).
-      - name: Free up disk space (critical for Mathlib)
-        # Deliberately does NOT remove $AGENT_TOOLSDIRECTORY, unlike the
-        # otherwise-identical step in verify-proofs.yml: this job (unlike
-        # that one) already ran actions/setup-go and actions/setup-python
-        # above and also builds/tests Go code later in the same job, so
-        # clearing the tool cache here risks breaking those later steps.
-        run: |
-          df -h
-          echo "Cleaning up runner..."
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          sudo rm -rf /usr/lib/jvm /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell
-          sudo docker image prune -a -f || true
-          sudo docker builder prune -a -f || true
-          df -h
-
-      - name: Restore Lean/Lake cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            proofs/.lake/packages
-            proofs/.lake/build
-          key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
-          restore-keys: |
-            lean-lake-${{ runner.os }}-
-
-      - name: Install elan
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
-      - name: Fetch prebuilt Mathlib cache
-        working-directory: proofs
-        run: |
-          lake update
-          lake exe cache get
-
-      - name: Build Lean formal theorem suite
-        working-directory: proofs
-        run: |
-          lake build LeanFormalization
-          lake build Specification
-          lake build Refinement
-          echo "All formal theorems compiled successfully."
-
-      - name: Lint formal proof claims (vacuous/misleading theorem scan)
-        run: python3 scripts/ci/lint_formal_proof_claims.py --repo-root .
-
-      - name: Cleanup transient Mathlib cache
-        if: always()
-        run: rm -rf "$MATHLIB_CACHE_DIR" || true
-
-      - name: Save Lean/Lake cache
-        if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            proofs/.lake/packages
-            proofs/.lake/build
-          key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
+      # merge to main cleanly. The composite action below closes that gap by
+      # running the same real checks verify-lean-formalization already runs,
+      # directly in the required job instead of a non-required sibling.
+      #
+      # remove-tools-dir is deliberately left at its 'false' default here,
+      # unlike the other two callers of this action: this job already ran
+      # actions/setup-go and actions/setup-python above and also
+      # builds/tests Go code later in the same job, so clearing the tool
+      # cache here risks breaking those later steps.
+      - name: Build and lint Lean formal proofs
+        uses: ./.github/actions/lean-build-and-lint
 
       - name: Validate formal report consistency and bundle integrity
         run: |

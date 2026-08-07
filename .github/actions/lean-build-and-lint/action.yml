@@ -1,0 +1,85 @@
+name: 'Build and lint Lean formal proofs'
+description: >
+  Installs elan, restores/saves the Lean/Lake build cache, builds the
+  LeanFormalization/Specification/Refinement lean_lib targets, and runs the
+  vacuous/misleading-theorem lint (scripts/ci/lint_formal_proof_claims.py).
+  Shared by every workflow that runs the real Lean verification gate
+  (full-validation-pr-gate.yml, verify-proofs.yml, verify-formal-proofs.yml)
+  so this logic lives in one place instead of three near-identical copies
+  that had to be kept in sync by hand.
+inputs:
+  remove-tools-dir:
+    description: >
+      Also remove $AGENT_TOOLSDIRECTORY during disk cleanup. Leave at the
+      default in jobs that already ran actions/setup-go or
+      actions/setup-python earlier in the same job and do more with Go or
+      Python afterward -- clearing the tool cache there risks breaking those
+      later steps.
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Free up disk space (critical for Mathlib)
+      shell: bash
+      run: |
+        df -h
+        echo "Cleaning up runner..."
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+        sudo rm -rf /usr/lib/jvm /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell
+        sudo docker image prune -a -f || true
+        sudo docker builder prune -a -f || true
+        if [ "${{ inputs.remove-tools-dir }}" = "true" ]; then
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+        fi
+        df -h
+
+    - name: Restore Lean/Lake cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      with:
+        path: |
+          proofs/.lake/packages
+          proofs/.lake/build
+        key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
+        restore-keys: |
+          lean-lake-${{ runner.os }}-
+
+    - name: Install elan
+      shell: bash
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+        echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+    - name: Fetch prebuilt Mathlib cache
+      shell: bash
+      working-directory: proofs
+      run: |
+        lake update
+        lake exe cache get
+
+    - name: Build Lean formal theorem suite
+      shell: bash
+      working-directory: proofs
+      run: |
+        lake build LeanFormalization
+        lake build Specification
+        lake build Refinement
+        echo "All formal theorems compiled successfully."
+
+    - name: Lint formal proof claims (vacuous/misleading theorem scan)
+      shell: bash
+      run: python3 scripts/ci/lint_formal_proof_claims.py --repo-root .
+
+    - name: Cleanup transient Mathlib cache
+      if: always()
+      shell: bash
+      run: rm -rf "$MATHLIB_CACHE_DIR" || true
+
+    - name: Save Lean/Lake cache
+      if: always()
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+      with:
+        path: |
+          proofs/.lake/packages
+          proofs/.lake/build
+        key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
