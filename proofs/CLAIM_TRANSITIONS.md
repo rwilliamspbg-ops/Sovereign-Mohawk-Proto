@@ -114,5 +114,35 @@ matrix row's own Notes for the full reasoning.
 - **PR:** #158 (PR 4 of 6 for trace-based runtime verification of row 1;
   PR 1: #155, PR 2: #156, PR 3: #157)
 
+### 2026-08-07 -- Row 1 (hierarchical BFT): added statistical sanity-check (Technique B)
+
+`fully_formalized (single-tier); compositional claim disproven
+deterministically; probabilistic repair proved AND genuinely useful at
+deployment scale (Phase 3, Chernoff bound);
+hierarchical_bookkeeping_and_selection_replay_validated_via_trace
+(structural only; does not confirm the Chernoff tail bound, see Notes)` ->
+same, plus `chernoff_bound_statistical_sanity_check_added (empirical
+regression tripwire at CI-feasible scale, NOT machine-checked
+verification of the deployment-scale bound, see Notes)`
+
+Additive, and explicitly a different, weaker kind of check than every
+other transition in this log: this does not machine-check anything new.
+`proofs/TraceValidator/HierarchicalBFTBoundEval.lean` evaluates the
+already-proven `chernoff_hierarchical_bound` (no new theorems) at
+CI-feasible toy-scale parameters and compares it against an empirical
+failure rate from 5,000 independent trials of a minimal generator
+matching the theorem's literal statement (raw per-committee Byzantine
+counts, deliberately not the weighted-credit `HTree.safe` mechanism the
+prior transition's trace validator checks). A representative run: 776/5000
+empirical vs. a proven bound of ~0.733 -- consistent with a wide margin.
+This is a regression tripwire, not a proof; the underlying bound was
+already machine-checked before this PR and remains so regardless of any
+run's empirical outcome. See the matrix row's own Notes for the full
+reasoning and why this must not be confused with the structural
+guarantee the previous transition added.
+
+- **PR:** #159 (PR 5 of 6 for trace-based runtime verification of row 1;
+  PR 1: #155, PR 2: #156, PR 3: #157, PR 4: #158)
+
 - **PR:** #154 (PR 3 of 3 for trace-based runtime verification; PR 1:
   #152, PR 2: #153)
