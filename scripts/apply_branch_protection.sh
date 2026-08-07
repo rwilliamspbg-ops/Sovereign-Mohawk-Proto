@@ -10,47 +10,55 @@ BRANCH="${BRANCH:-main}"
 #   export GITHUB_TOKEN=ghp_xxx
 #   bash scripts/apply_branch_protection.sh
 #
-# Note: "Bridge Compression Benchmark / bridge-regression-compare" was removed
-# from the contexts below. The entire bridge feature (including the
-# bridge-compression-benchmark.yml workflow that produced this check) was
-# deleted in d7deb9682 ("Remove bridge surfaces and refresh validation
-# artifacts"), so no job by this name can ever report back to GitHub. The
-# other entries in this list have all been verified against real, current
-# workflow/job names as of 2026-08-04.
+# Note: this payload is kept in sync with the LIVE required_status_checks on
+# `main` (verified via `gh api repos/${OWNER}/${REPO}/branches/main/protection`
+# as of 2026-08-07), not with workflow/job names by inspection alone -- a
+# prior version of this script (last touched 2026-08-04, PR #139) drifted
+# from live state: it required the legacy, non-required
+# "Proof-Driven Design Verification / verify-lean-formalization" job instead
+# of `full-validation-fast` (the job PR #139 itself made the real Lean
+# build+lint gate), and it omitted several checks that were live-required at
+# the time (go-test, both CodeQL analyzers, pin-check, artifact-sync-check,
+# govulncheck, trivy-fs, go-vulncheck, dependency-review). Running that
+# version would have silently downgraded branch protection. The contexts
+# below use the same short job-id form GitHub's protection API itself
+# reports (not "Workflow Name / job-id"), matching how they actually appear
+# in `required_status_checks.contexts` live. `enforce_admins` and
+# `required_pull_request_reviews` are also brought in line with live state
+# (no admin enforcement, no required-review count currently configured) --
+# review those two independently before changing them here, since they are
+# repo review-policy decisions, not CI-verification gates like the rest of
+# this script.
 
 PAYLOAD=$(cat <<'JSON'
 {
   "required_status_checks": {
     "strict": true,
     "contexts": [
-      "Build and Test / build-and-test",
-      "Go Test / go-test",
-      "Integrity Guard - Linter / lint",
-      "Mainnet Readiness Gate / readiness-gate",
-      "Mainnet Chaos Gate / chaos-gate",
-      "Performance Gate / performance-gate",
-      "Monitoring Smoke Gate / monitoring-smoke",
-      "Release Performance Evidence / release-performance-evidence",
-      "FedAvg Benchmark Compare / fedavg-benchmark-compare",
-      "Proof-Driven Design Verification / verify-links",
-      "Proof-Driven Design Verification / verify-lean-formalization",
-      "Capability Sync Check / validate-sync"
+      "build-and-test",
+      "go-test",
+      "lint",
+      "markdown-link-check",
+      "Analyze (CodeQL) (go)",
+      "Analyze (CodeQL) (python)",
+      "full-validation-fast",
+      "pin-check",
+      "artifact-sync-check",
+      "validate-sync",
+      "govulncheck",
+      "trivy-fs",
+      "go-vulncheck",
+      "dependency-review"
     ]
   },
-  "enforce_admins": true,
-  "required_pull_request_reviews": {
-    "dismiss_stale_reviews": true,
-    "require_code_owner_reviews": false,
-    "required_approving_review_count": 1,
-    "require_last_push_approval": false
-  },
+  "enforce_admins": false,
   "restrictions": null,
   "allow_force_pushes": false,
   "allow_deletions": false,
   "block_creations": false,
-  "required_conversation_resolution": true,
+  "required_conversation_resolution": false,
   "lock_branch": false,
-  "allow_fork_syncing": true
+  "allow_fork_syncing": false
 }
 JSON
 )
