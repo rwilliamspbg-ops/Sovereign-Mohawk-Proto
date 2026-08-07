@@ -142,7 +142,11 @@ reasoning and why this must not be confused with the structural
 guarantee the previous transition added.
 
 - **PR:** #159 (PR 5 of 6 for trace-based runtime verification of row 1;
-  PR 1: #155, PR 2: #156, PR 3: #157, PR 4: #158)
+  PR 1: #155, PR 2: #156, PR 3: #157, PR 4: #158) -- #159 was stacked on
+  #158's branch and merged into that branch after #158 itself had already
+  merged into `main`, so its content never actually reached `main`; #160
+  re-targets the same commit directly at `main` and is the PR that
+  actually landed this transition.
 
 - **PR:** #154 (PR 3 of 3 for trace-based runtime verification; PR 1:
   #152, PR 2: #153)
