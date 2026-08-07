@@ -43,45 +43,9 @@ jobs:
       MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
     
     steps:
-      - name: Free disk space (critical for Mathlib)
-        run: |
-          df -h
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
-          sudo rm -rf /usr/lib/jvm /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell
-          sudo docker image prune -a -f || true
-          sudo docker builder prune -a -f || true
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
-          df -h
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-
-      - name: Install Lean 4 (Elan)
-        run: |
-          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-
-      - name: Verify Lean version
-        run: |
-          lean --version
-          lake --version
-
-      - name: Restore Lean/Lake cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            proofs/.lake/packages
-            proofs/.lake/build
-          key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
-          restore-keys: |
-            lean-lake-${{ runner.os }}-
-
-      - name: Update Lake dependencies and fetch Mathlib cache
-        working-directory: ./proofs
-        run: |
-          lake update
-          lake exe cache get
 
       - name: Scan for unsafe placeholders
         working-directory: ./proofs
@@ -98,27 +62,29 @@ jobs:
               FOUND_SORRY="$FOUND_SORRY $file"
             fi
           done
-          
+
           if [ -n "$FOUND_UNSAFE" ]; then
             echo "❌ Unsafe formal proof placeholders found (axiom/admit):$FOUND_UNSAFE"
             exit 1
           fi
-          
+
           if [ -n "$FOUND_SORRY" ]; then
             echo "⚠ Phase 3e: $(($(grep -RIn '\bsorry\b' LeanFormalization Specification Refinement *.lean 2>/dev/null | wc -l))) honest in-progress proofs (sorry) detected"
           fi
           echo "✓ Placeholder scan passed (unsafe axiom/admit rejected, honest sorry allowed for Phase 3e)"
 
-      - name: Build Lean formalizations
-        working-directory: ./proofs
-        run: |
-          lake build LeanFormalization
-          lake build Specification
-          lake build Refinement
-          echo "✅ All formal theorems compiled successfully."
-
-      - name: Lint formal proof claims (vacuous/misleading theorem scan)
-        run: python3 scripts/ci/lint_formal_proof_claims.py --repo-root .
+      # See .github/actions/lean-build-and-lint/action.yml for what this
+      # does. remove-tools-dir: 'true' matches this job's prior behavior --
+      # this job never runs actions/setup-go or actions/setup-python, so
+      # clearing $AGENT_TOOLSDIRECTORY here is safe. The standalone
+      # "Verify Lean version" step (lean --version / lake --version) that
+      # used to sit between elan install and cache restore was dropped: it
+      # was diagnostic output only, asserted nothing, and duplicated across
+      # all three callers of this action.
+      - name: Build and lint Lean formal proofs
+        uses: ./.github/actions/lean-build-and-lint
+        with:
+          remove-tools-dir: 'true'
 
       - name: Check spec-to-implementation refinement alignment
         run: |
@@ -153,20 +119,6 @@ jobs:
       - name: Run formal validation tooling tests
         run: |
           make validate-formal-tooling-tests
-
-      - name: Save Lean/Lake cache
-        if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: |
-            proofs/.lake/packages
-            proofs/.lake/build
-          key: lean-lake-${{ runner.os }}-${{ hashFiles('proofs/lean-toolchain', 'proofs/lakefile.lean', 'proofs/lake-manifest.json') }}
-
-      - name: Cleanup transient Mathlib cache
-        if: always()
-        run: |
-          rm -rf "$MATHLIB_CACHE_DIR" || true
 
       - name: Generate proof verification report
         if: always()
