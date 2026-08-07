@@ -31,11 +31,19 @@ def action_repo_slug(action: str) -> str | None:
 
 
 def validate_uses(value: str) -> str | None:
+    # Local composite/reusable actions (`./path/to/action`) are resolved
+    # from the same commit as the workflow itself, so there is no separate
+    # ref to pin -- and no `@` suffix at all is the normal, expected form
+    # (unlike third-party `owner/repo@ref` actions). Docker actions can
+    # likewise reference a tag with no `@digest`. Both must be exempted
+    # from the "missing @ref" check itself, not just from the SHA-format
+    # check that runs after it.
+    action = value.split("@", 1)[0]
+    if is_local_action(action) or is_docker_action(value):
+        return None
     if "@" not in value:
         return f"missing @ref: {value}"
-    action, ref = value.rsplit("@", 1)
-    if is_local_action(action) or is_docker_action(action):
-        return None
+    _, ref = value.rsplit("@", 1)
     if not SHA_RE.fullmatch(ref):
         return f"not pinned to 40-char SHA: {value}"
     return None
@@ -83,10 +91,11 @@ def main() -> int:
                 violations.append(f"{workflow}:{i}: {issue}")
                 continue
 
-            action, ref = value.rsplit("@", 1)
-            if is_local_action(action) or is_docker_action(action):
+            action = value.split("@", 1)[0]
+            if is_local_action(action) or is_docker_action(value):
                 continue
 
+            _, ref = value.rsplit("@", 1)
             repo_slug = action_repo_slug(action)
             if repo_slug is None:
                 violations.append(f"{workflow}:{i}: unable to parse action repo: {value}")
