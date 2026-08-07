@@ -1,0 +1,95 @@
+name: RDP Accountant Trace Verification
+
+# Trace-based runtime verification (see proofs/TraceValidator/RDPAccountant.lean
+# and internal/rdp_trace.go): generates a real, dynamic multi-shard execution
+# trace of internal.RDPAccountant and replays it through the already-proven
+# Specification.composeRDP / Refinement.accountantImpl ledger model, closing
+# the gap between the four fixed test vectors in FORMAL_TRACEABILITY_MATRIX.md
+# row 13 and a live call sequence.
+#
+# Deliberately NOT wired into full-validation-fast and not a required status
+# check: this is new, first-of-its-kind infrastructure (first lean_exe-style
+# Lean/IO/JSON usage in this repo, run here via interpreted `lake env lean
+# --run` rather than a compiled lean_exe -- see proofs/lakefile.lean for why).
+# It should run non-required for a while and earn trust first, the same way
+# verify-lean-formalization itself started non-required before Phase 4
+# promoted the parts of it that mattered. Promoting this to required later is
+# a separate decision for the repo owner.
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'internal/rdp_accountant.go'
+      - 'internal/rdp_trace.go'
+      - 'test/rdp_accountant_trace_test.go'
+      - 'proofs/TraceValidator/**'
+      - 'proofs/Refinement/RDPAccountant.lean'
+      - 'proofs/Specification/Privacy.lean'
+      - 'proofs/lakefile.lean'
+      - '.github/workflows/rdp-trace-verification.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'internal/rdp_accountant.go'
+      - 'internal/rdp_trace.go'
+      - 'test/rdp_accountant_trace_test.go'
+      - 'proofs/TraceValidator/**'
+      - 'proofs/Refinement/RDPAccountant.lean'
+      - 'proofs/Specification/Privacy.lean'
+      - 'proofs/lakefile.lean'
+      - '.github/workflows/rdp-trace-verification.yml'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.26.5+auto
+  MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
+
+jobs:
+  rdp-trace-verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Generate RDP accountant execution trace
+        run: go test ./test -run '^TestRDPAccountantTrace$' -v
+
+      # Builds LeanFormalization/Specification/Refinement's .olean files
+      # (Refinement.RDPAccountant, which the validator imports, is among
+      # them) and warms the Mathlib cache. remove-tools-dir: 'true' is safe
+      # here -- the Go work above is already done, nothing later in this
+      # job needs actions/setup-go's tool cache. See
+      # .github/actions/lean-build-and-lint/action.yml for what this does.
+      - name: Build Lean formal theorem suite
+        uses: ./.github/actions/lean-build-and-lint
+        with:
+          remove-tools-dir: 'true'
+
+      - name: Run Lean trace validator
+        working-directory: proofs
+        # set -o pipefail is required here: without it, a failing
+        # validator (nonzero exit) would still report success because the
+        # pipeline's exit code would be `tee`'s (always 0), not the
+        # validator's -- silently defeating the entire point of this job.
+        run: |
+          set -o pipefail
+          mkdir -p ../test-results/rdp-trace
+          lake env lean --run TraceValidator/RDPAccountant.lean \
+            ../test-results/rdp-trace/trace.jsonl \
+            | tee ../test-results/rdp-trace/validator_output.txt
+
+      - name: Upload trace + validator output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: rdp-trace-verification
+          path: test-results/rdp-trace/
