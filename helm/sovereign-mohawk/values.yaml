@@ -23,8 +23,13 @@ orchestrator:
   replicaCount: 3
   
   image:
-    repository: ghcr.io/rwilliamspbg-ops/orchestrator
-    tag: "2.0.1-alpha"
+    # Matches .github/workflows/publish-docker-images-ci.yml's actual tag
+    # scheme (ghcr.io/<owner>/sovereign-mohawk-<image>:<main|sha-*|tag>) --
+    # was previously "ghcr.io/rwilliamspbg-ops/orchestrator:2.0.1-alpha",
+    # a repository name and tag that CI never actually publishes, found
+    # in results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md.
+    repository: ghcr.io/rwilliamspbg-ops/sovereign-mohawk-orchestrator
+    tag: "main"
     pullPolicy: IfNotPresent
   
   # Service configuration
@@ -132,8 +137,10 @@ nodeAgent:
   replicaCount: 3
   
   image:
-    repository: ghcr.io/rwilliamspbg-ops/node-agent
-    tag: "2.0.1-alpha"
+    # See the matching comment on orchestrator.image above -- same fix,
+    # same reason.
+    repository: ghcr.io/rwilliamspbg-ops/sovereign-mohawk-node-agent
+    tag: "main"
     pullPolicy: IfNotPresent
   
   # Resource limits for node agents

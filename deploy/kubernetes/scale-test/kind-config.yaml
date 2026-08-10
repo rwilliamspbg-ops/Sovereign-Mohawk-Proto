@@ -1,0 +1,27 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+# Raises the single-node pod-CIDR mask from kind's default /24 (254
+# addresses) to /20 (4094 addresses) -- the default is the first real
+# ceiling this test hit, well before memory/CPU. See the evidence doc's
+# "Root cause of the 700-replica failure" section for the second, deeper
+# ceiling found past this one.
+networking:
+  podSubnet: "10.244.0.0/16"
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            max-pods: "2000"
+      - |
+        kind: ClusterConfiguration
+        controllerManager:
+          extraArgs:
+            node-cidr-mask-size: "20"
+    extraMounts:
+      # Replace with an absolute path to the directory generate-cert-pool.sh
+      # will write into (OUT_DIR). Must exist before `kind create cluster`.
+      - hostPath: /REPLACE/WITH/ABSOLUTE/PATH/TO/cert-pool-output/node-agent-certs
+        containerPath: /mnt/scale-test-certs
