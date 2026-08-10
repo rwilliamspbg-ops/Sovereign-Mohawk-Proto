@@ -143,7 +143,7 @@ Exit criteria:
 ## Demo Command Path (Target)
 ```bash
 # 1) bootstrap stack
-make full-stack-3-nodes
+./scripts/launch_full_stack_3_nodes.sh --no-build
 
 # 2) run synthesize.bio demo scenario
 bash scripts/run_synthesizebio_demo.sh
@@ -153,7 +153,7 @@ bash scripts/demo_synthesizebio_collect_metrics.sh
 make go-live-gate-advisory
 
 # 4) teardown
-make full-stack-3-nodes-down
+./scripts/launch_full_stack_3_nodes.sh --down
 ```
 
 ## Risks and Mitigations
