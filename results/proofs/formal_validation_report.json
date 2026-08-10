@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "09a3b8467164ac11f9d23d479bcf0fb19f13a8150138a86cd6f638f70f5d683a",
+  "input_merkle_root": "cb03bbd681950fd13da0e6eaf082db63b0d97164c7bfea66924a78eb75a2e00e",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -16,11 +16,11 @@
     },
     {
       "path": "go.mod",
-      "sha256": "e3964e7d58a99004d3aad4241647f5820ba5efaf765da72e30d30db466db875f"
+      "sha256": "54ed2b97893983808db612a0f04c3ccef8ffc9378d61830994337d4cafdff164"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "3ebb6b53a3adbbd637eadde60957260bdcc77ccf823dd9c59450b7137b371653"
+      "sha256": "fec97b5b258ae7d8ae8ce4bd2af49c29fead156963d00e906bb6571c376edd54"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -68,7 +68,7 @@
     },
     {
       "path": "proofs/lakefile.lean",
-      "sha256": "97ac6cee72ef402a6d4bb89edb715479469c298dbe26855bb12cfada30c8926b"
+      "sha256": "978fd5491833c03de95bc7cb3ea5a2d65c0344d0605ccecd56305c663be347bc"
     },
     {
       "path": "proofs/lean-toolchain",
@@ -322,10 +322,13 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 38,
+    "runtime_reference_count": 44,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/hbft/simulator_test.go::TestSimulator_RunRound_CallsRealMultiKrumSelect",
+      "internal/hbft/statcheck_test.go::TestRunStatCheck_EmpiricalRateRoughlyMatchesTheory",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
+      "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence_GeneralM",
       "internal/multikrum_test.go::TestMultiKrumSelect",
       "internal/token/ledger_lean_correspondence_test.go::TestLedgerLeanCorrespondence",
       "internal/token/migration_signatures.go::verifyMigrationSignatureBundle",
@@ -335,6 +338,8 @@
       "sdk/python/tests/test_flower_strategy.py::test_strategy_forwarder_aggregates_updates",
       "test/convergence_test.go::TestConvergenceMonitor_IsConverging_Above",
       "test/convergence_test.go::TestConvergenceMonitor_IsConverging_Below",
+      "test/hbft_statistical_sanity_test.go::TestHBFTStatisticalSanityCheck",
+      "test/hbft_trace_test.go::TestHBFTTrace",
       "test/manifest_test.go::TestValidateCommunicationComplexity_Valid",
       "test/manifest_test.go::TestValidateCommunicationComplexity_Violated",
       "test/phase3b_theorems_test.go::TestChernoffBound_Basic",
@@ -350,6 +355,7 @@
       "test/rdp_accountant_lean_correspondence_test.go::TestRDPAccountantLeanCorrespondence",
       "test/rdp_accountant_test.go::TestRDPAccountant_CheckBudget_Exceeded",
       "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
+      "test/rdp_accountant_trace_test.go::TestRDPAccountantTrace",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Fail",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Pass",
       "test/transport_byte_size_test.go::TestTransportByteSizeConvention",
