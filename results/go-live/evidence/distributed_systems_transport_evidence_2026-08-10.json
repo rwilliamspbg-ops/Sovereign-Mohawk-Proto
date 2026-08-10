@@ -1,0 +1,19 @@
+{
+  "generated_at_utc": "2026-08-10T16:25:00Z",
+  "environment": {
+    "os": "Ubuntu 24.04.4 LTS",
+    "docker": "29.3.0-1",
+    "go": "go1.26.5",
+    "tpm_devices": []
+  },
+  "tests": {
+    "local_echo": {"accepted":true},
+    "relay_flow": {"relay_addr":"/ip4/10.0.1.192/tcp/37681/p2p/12D3KooWCjf13EN9GovvHZ1aMR5Bm5Bu3LMDrg1y7cEy9q1ZLiNK","accepted":true,"receiver_addrs":["/ip4/10.0.1.192/tcp/39499","/ip4/10.0.1.192/udp/59176/quic-v1","/ip4/127.0.0.1/tcp/39499","/ip4/127.0.0.1/udp/59176/quic-v1","/ip4/172.17.0.1/tcp/39499","/ip4/172.17.0.1/udp/59176/quic-v1"],"sender_addrs":["/ip4/10.0.1.192/tcp/35597","/ip4/10.0.1.192/udp/37142/quic-v1","/ip4/127.0.0.1/tcp/35597","/ip4/127.0.0.1/udp/37142/quic-v1","/ip4/172.17.0.1/tcp/35597","/ip4/172.17.0.1/udp/37142/quic-v1"],"relay_host_addrs":["/ip4/10.0.1.192/tcp/37681","/ip4/10.0.1.192/udp/53043/quic-v1","/ip4/127.0.0.1/tcp/37681","/ip4/127.0.0.1/udp/53043/quic-v1","/ip4/172.17.0.1/tcp/37681","/ip4/172.17.0.1/udp/53043/quic-v1"]},
+    "listener": {"addresses": ["/ip4/10.0.1.192/tcp/43545", "/ip4/10.0.1.192/udp/46395/quic-v1", "/ip4/127.0.0.1/tcp/43545", "/ip4/127.0.0.1/udp/46395/quic-v1", "/ip4/172.17.0.1/tcp/43545", "/ip4/172.17.0.1/udp/46395/quic-v1"], "mode": "listen", "peer_id": "12D3KooWEkwCFAQwuv3uvdi3Tuhww8nCBZd5cGUszMevdkYUt2DS"},
+    "dialer": {"accepted": true, "mode": "dial", "peer_addr": "/ip4/10.0.1.192/tcp/43545", "peer_id": "12D3KooWEkwCFAQwuv3uvdi3Tuhww8nCBZd5cGUszMevdkYUt2DS", "reason": ""}
+  },
+  "notes": {
+    "scope": "This session exercised the repository's real libp2p transport stack with relay and hole-punching settings enabled. It does not claim WAN or multi-site reachability; it is a single-host transport-path probe only.",
+    "tpm": "No /dev/tpm* device was present in this Codespace, so TPM attestation was scoped out of this round."
+  }
+}
