@@ -238,8 +238,8 @@ Latest TPM production closure evidence (2026-04-11):
 Generated artifacts are managed with retention + canonical-summary automation. Policy details are in [docs/ARTIFACT_GOVERNANCE.md](docs/ARTIFACT_GOVERNANCE.md).
 
 ```bash
-make artifact-retention-dryrun
-make artifact-retention-apply
+scripts/manage_artifacts.sh --keep 3 --archive
+scripts/manage_artifacts.sh --keep 3 --archive --apply
 make artifact-summary
 ```
 
@@ -266,7 +266,7 @@ INPUT_CSV=/path/to/export.csv ./scripts/run_synthesizebio_demo.sh
 For a Docker-native end-to-end run that starts the stack, trains, validates, and copies artifacts into the repo, use:
 
 ```bash
-DATASET=https://app.synthesize.bio/datasets/<dataset-id> make demo-synthesizebio-docker VALIDATION_PROFILE=fast
+DATASET=https://app.synthesize.bio/datasets/<dataset-id> VALIDATION_PROFILE=fast ./scripts/run_synthesizebio_demo_in_docker.sh
 ```
 
 ## Security Defaults (Current)
@@ -505,18 +505,12 @@ Validated startup options:
 
 # Start orchestrator + shard + node-agent-1..3
 ./scripts/genesis-launch.sh --all-nodes
-
-# Equivalent Make target
-make regional-shard
 ```
 
 1. Full local stack (orchestrator + 3 node agents):
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --no-build
-
-# Equivalent Make target
-make full-stack-3-nodes
 ```
 
 Native PowerShell (Windows):
@@ -659,9 +653,6 @@ Stop the stack:
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --down
-
-# Equivalent Make target
-make full-stack-3-nodes-down
 ```
 
 PowerShell stop:
@@ -672,11 +663,20 @@ PowerShell stop:
 
 Windows GUI launcher:
 
-```bash
-make testnet-gui-windows
-```
+`make testnet-gui-windows` is not a real Makefile target as of this
+writing. `cmd/testnet-gui` (with a real `main_windows.go` build-tagged
+entry point) does exist in this repo and is functionally real — it opens
+a native Windows desktop window for the testnet stack, reuses
+`scripts/launch_full_stack_3_nodes.ps1`/`.sh` and `genesis-launch.sh` for
+start/stop, and exposes quick links to Grafana, Prometheus, and the
+orchestrator control plane (all confirmed directly in
+`cmd/testnet-gui/main.go`/`main_windows.go`) — but there is no verified
+build or packaging script here that produces `dist/windows/testnet-gui.exe`
+from it. Build it directly if you want to try it:
 
-That target builds `dist/windows/testnet-gui.exe`, which opens a native Windows desktop window for the testnet stack and reuses the checked-in Windows launcher script for start/stop actions. It also exposes quick links to Grafana, Prometheus, and the orchestrator control plane.
+```bash
+GOOS=windows GOARCH=amd64 go build -o dist/windows/testnet-gui.exe ./cmd/testnet-gui
+```
 
 Grafana dashboard shortlist:
 
@@ -783,19 +783,23 @@ go test ./test -run 'TestSwarmIntegration500To1000Nodes|TestByzantineEdgeCasesOv
 
 ### Python SDK Tests
 
+`test-python-sdk`, `demo-python-sdk`, and `python-all` are not real Makefile
+targets as of this writing. The real invocation, matching what CI's
+`build-test.yml` actually runs:
+
 ```bash
-make test-python-sdk
-make demo-python-sdk
-make python-all
+cd sdk/python
+python3 -m pip install -e .[dev]
+pytest -q --junitxml=../../test-results/python-sdk-junit.xml
 ```
 
 ### Production Readiness Check
 
-Run the full production readiness gate (lint + tests + audit + strict auth/role smoke on host and container):
-
-```bash
-make production-readiness
-```
+`make production-readiness` is not a real Makefile target as of this
+writing — there is no single command in this repo that runs lint + tests +
+audit + strict auth/role smoke together. The closest real, individually verified pieces: `make verify`
+(tests + audit), `make lint` / `make black` (Python lint/format checks),
+and the go-live gate validators below.
 
 ### Formal Go-Live Gate
 
@@ -941,7 +945,7 @@ Comparison artifact:
 FedAvg scaling controls and validation artifacts:
 
 * Semi-async, hierarchical, and weighted-trim aggregation controls are available through the aggregation API and test harness.
-* `make fedavg-scale-gate` validates throughput floors and pre/post counter deltas for the current runtime report.
+* `python3 scripts/validate_fedavg_scale_gates.py` validates throughput floors and pre/post counter deltas for the current runtime report (`make fedavg-scale-gate` is not a real Makefile target as of this writing — this is the real script it should have named).
 * `captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md` captures the 10k-node runtime smoke evaluation and improvement notes.
 
 CI baseline pinning behavior:
@@ -968,11 +972,10 @@ Published CI artifacts include:
 
 ### CPU vs GPU vs NPU Side-by-Side Benchmark
 
-Run the hardware-policy benchmark report (used by CI and release assets):
-
-```bash
-make benchmark-gpu
-```
+`make benchmark-gpu` is not a real Makefile target as of this writing, and
+no equivalent script was found in this repo. Treat this section's
+downstream artifact claims as unverified until a real generation path is
+added.
 
 Artifacts:
 
@@ -1029,7 +1032,7 @@ All production-grade safety requirements are verified on every push:
 
 * **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config. The PR build/test workflow keeps benchmark-heavy Python SDK suites in the dedicated performance gate.
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
-* **Local Toolchain Consistency:** Run `make go-env` before local Go lint/test commands to confirm `go` and `compile` resolve to the same toolchain root.
+* **Local Toolchain Consistency:** `source scripts/ensure_go_toolchain.sh` before local Go lint/test commands to confirm `go` and `compile` resolve to the same toolchain root (every real Go-related Makefile target already sources this internally).
 * **Performance Gate:** Benchmark regression checks for proof verification, aggregation, and gradient compression.
 * **Swarm Runtime Matrix:** 500/1000/1500-node safe+edge Byzantine runtime profiles with router-on preflight evidence and published artifacts.
 * **FedAvg Benchmark Compare:** Go runtime FedAvg benchmark matrix diff against base branch with markdown artifact upload.
