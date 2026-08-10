@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "cb03bbd681950fd13da0e6eaf082db63b0d97164c7bfea66924a78eb75a2e00e",
+  "input_merkle_root": "e41048e1db00df2e0489d888e49ae0ebb860cb317871ac3339d9b1716e98fefd",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "fec97b5b258ae7d8ae8ce4bd2af49c29fead156963d00e906bb6571c376edd54"
+      "sha256": "33e72e44c9a629b785bf4c180c0f731f50ffcae255fdea37a5a1f0fc584a8293"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -322,13 +322,16 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 44,
+    "runtime_reference_count": 50,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/hbft/simulator_test.go::TestSimulator_RunRound_CallsRealMultiKrumSelect",
       "internal/hbft/statcheck_test.go::TestRunStatCheck_EmpiricalRateRoughlyMatchesTheory",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence_GeneralM",
+      "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_AboveEnvelopeSatisfiesPostconditions",
+      "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_BelowEnvelopeAlwaysErrors",
+      "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_Deterministic",
       "internal/multikrum_test.go::TestMultiKrumSelect",
       "internal/token/ledger_lean_correspondence_test.go::TestLedgerLeanCorrespondence",
       "internal/token/migration_signatures.go::verifyMigrationSignatureBundle",
@@ -353,6 +356,9 @@
       "test/phase3b_theorems_test.go::TestConvergenceStrongConvexity",
       "test/phase3b_theorems_test.go::TestConvergenceVarianceReduction",
       "test/rdp_accountant_lean_correspondence_test.go::TestRDPAccountantLeanCorrespondence",
+      "test/rdp_accountant_property_test.go::TestRDPAccountant_Property_CheckBudgetMatchesConversionShift",
+      "test/rdp_accountant_property_test.go::TestRDPAccountant_Property_MonotoneAppend",
+      "test/rdp_accountant_property_test.go::TestRDPAccountant_Property_ShardGroupingInvariant",
       "test/rdp_accountant_test.go::TestRDPAccountant_CheckBudget_Exceeded",
       "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
       "test/rdp_accountant_trace_test.go::TestRDPAccountantTrace",
