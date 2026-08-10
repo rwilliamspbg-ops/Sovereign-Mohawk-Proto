@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipfs
+  namespace: scale-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipfs
+  template:
+    metadata:
+      labels:
+        app: ipfs
+    spec:
+      containers:
+        - name: ipfs
+          image: ipfs/kubo:v0.28.0
+          ports:
+            - containerPort: 5001
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          readinessProbe:
+            exec:
+              command: ["ipfs", "id"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipfs
+  namespace: scale-test
+spec:
+  selector:
+    app: ipfs
+  ports:
+    - name: api
+      port: 5001
+      targetPort: 5001

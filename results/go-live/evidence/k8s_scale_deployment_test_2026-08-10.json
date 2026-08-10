@@ -1,0 +1,38 @@
+{
+  "generated_utc": "2026-08-10",
+  "environment": {
+    "cluster": "kind (single node)",
+    "host_cpus": 16,
+    "docker_desktop_memory_gib": 13.46
+  },
+  "scale_results": [
+    {"replicas": 3, "status": "stable", "memory_pct": 5},
+    {"replicas": 200, "status": "stable", "memory_pct": 29.6},
+    {"replicas": 500, "status": "stable", "memory_pct": 66.8, "note": "confirmed across two independent runs, range 65.7-68.9%"},
+    {"replicas": 700, "status": "unstable", "memory_pct_at_failure": 84, "root_cause": "etcd write-latency under Docker Desktop virtualized disk I/O, not memory/CPU/disk-space exhaustion"}
+  ],
+  "per_pod_memory_mb_observed": 8.6,
+  "security_tests": [
+    {"id": 1, "test": "no client certificate", "result": "rejected_at_tls_handshake"},
+    {"id": 2, "test": "valid CA-signed pool certificate", "result": "tls_handshake_succeeds"},
+    {"id": 3, "test": "untrusted self-signed certificate", "result": "rejected_at_tls_handshake"},
+    {"id": 4, "test": "valid cert, wrong bearer token, mutating endpoint", "result": "401_unauthorized"},
+    {"id": 5, "test": "valid cert, real admin token, mutating endpoint", "result": "auth_passed_reached_business_logic"}
+  ],
+  "orchestrator_tpm_verifications_success": 5544,
+  "orchestrator_tpm_verifications_failure": 0,
+  "performance_sample": {
+    "nodes_sampled": 20,
+    "nodes_total": 500,
+    "gradient_submissions_observed": 421,
+    "mean_gradient_submit_latency_ms": 31,
+    "proof_verification_failure_rate": 1.0,
+    "proof_verification_failure_note": "expected: fail-closed WASM verifier stub in cmd/node-agent/Dockerfile always returns 0 (reject) by design"
+  },
+  "real_bug_found": {
+    "file": "helm/sovereign-mohawk/values.yaml",
+    "description": "node-agent/orchestrator image repository and tag did not match what .github/workflows/publish-docker-images-ci.yml actually publishes",
+    "status": "fixed in this same change"
+  },
+  "scope_disclaimer": "Evidence at real, laptop-achievable scale only. Does not extrapolate to 10K/100K/1M/10M node claims. Flat single-tier topology only, no hierarchical aggregation tested."
+}

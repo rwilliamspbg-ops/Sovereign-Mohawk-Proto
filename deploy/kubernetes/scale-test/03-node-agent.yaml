@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-agent
+  namespace: scale-test
+spec:
+  clusterIP: None
+  selector:
+    app: node-agent
+  ports:
+    - name: metrics
+      port: 9100
+      targetPort: 9100
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: node-agent
+  namespace: scale-test
+spec:
+  serviceName: node-agent
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: node-agent
+  template:
+    metadata:
+      labels:
+        app: node-agent
+    spec:
+      containers:
+        - name: node-agent
+          image: local/node-agent:scale-test
+          imagePullPolicy: Never
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              set -e
+              idx="${HOSTNAME##*-}"
+              cert="/run/secrets/node-agent-certs/mohawk_tpm_client_${idx}_cert.pem"
+              key="/run/secrets/node-agent-certs/mohawk_tpm_client_${idx}_key.pem"
+              if [ ! -s "$cert" ] || [ ! -s "$key" ]; then
+                echo "error: missing node-agent mTLS cert/key (cert=$cert key=$key)" >&2
+                exit 1
+              fi
+              export MOHAWK_TPM_CERT_FILE="$cert"
+              export MOHAWK_TPM_KEY_FILE="$key"
+              export NODE_ID="$HOSTNAME"
+              exec ./node-agent-bin
+          env:
+            - name: ORCHESTRATOR_URL
+              value: "https://orchestrator:8080"
+            - name: ORCHESTRATOR_SERVER_NAME
+              value: "orchestrator"
+            - name: IPFS_API_ENDPOINT
+              value: "http://ipfs:5001"
+            - name: MOHAWK_LIBP2P_PORT
+              value: "4001"
+            - name: MOHAWK_TRANSPORT_KEX_MODE
+              value: "x25519-mlkem768-hybrid"
+            - name: MOHAWK_TPM_IDENTITY_SIG_MODE
+              value: "xmss"
+            - name: MOHAWK_TPM_CA_CERT_FILE
+              value: "/run/secrets/mohawk_tpm_ca_cert.pem"
+            - name: MOHAWK_API_AUTH_MODE
+              value: "file-only"
+            - name: MOHAWK_API_TOKEN_FILE
+              value: "/run/secrets/mohawk_api_token"
+            - name: MOHAWK_API_ENFORCE_ROLES
+              value: "true"
+            - name: MOHAWK_API_BRIDGE_ALLOWED_ROLES
+              value: "bridge,admin"
+            - name: MOHAWK_API_HYBRID_ALLOWED_ROLES
+              value: "verifier,admin"
+            - name: MOHAWK_UTILITY_RATE_LIMIT_PER_MIN
+              value: "240"
+            - name: MOHAWK_UTILITY_ENFORCE_ROLES
+              value: "true"
+            - name: MOHAWK_UTILITY_MINT_ALLOWED_ROLES
+              value: "minter,admin"
+            - name: MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES
+              value: "user,operator,admin"
+            - name: MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES
+              value: "operator,admin"
+            - name: MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES
+              value: "admin"
+            - name: MOHAWK_PRECISION
+              value: "fp32"
+          # Sized to the ~8.6MB RSS observed in the 2026-08-10 evidence run --
+          # far below the production internal.aggregator.go defaults, which
+          # are for the real multi-tier stack, not a laptop scale test.
+          resources:
+            requests:
+              cpu: "5m"
+              memory: "16Mi"
+            limits:
+              cpu: "150m"
+              memory: "128Mi"
+          volumeMounts:
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_api_token
+              subPath: mohawk_api_token
+              readOnly: true
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_tpm_ca_cert.pem
+              subPath: mohawk_tpm_ca_cert.pem
+              readOnly: true
+            - name: node-agent-certs
+              mountPath: /run/secrets/node-agent-certs
+              readOnly: true
+      volumes:
+        - name: shared-secrets
+          secret:
+            secretName: mohawk-shared-secrets
+        - name: node-agent-certs
+          hostPath:
+            path: /mnt/scale-test-certs
+            type: Directory

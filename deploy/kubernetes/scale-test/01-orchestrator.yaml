@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+  namespace: scale-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: local/orchestrator:scale-test
+          imagePullPolicy: Never
+          env:
+            - name: IPFS_API_ENDPOINT
+              value: "http://ipfs:5001"
+            - name: MOHAWK_LIBP2P_PORT
+              value: "4101"
+            - name: MOHAWK_TRANSPORT_KEX_MODE
+              value: "x25519-mlkem768-hybrid"
+            - name: MOHAWK_DISABLE_QUIC
+              value: "true"
+            - name: MOHAWK_TPM_IDENTITY_SIG_MODE
+              value: "xmss"
+            - name: MOHAWK_TPM_CA_CERT_FILE
+              value: "/run/secrets/mohawk_tpm_ca_cert.pem"
+            - name: MOHAWK_TPM_CERT_FILE
+              value: "/run/secrets/mohawk_tpm_orchestrator_cert.pem"
+            - name: MOHAWK_TPM_KEY_FILE
+              value: "/run/secrets/mohawk_tpm_orchestrator_key.pem"
+            - name: MOHAWK_ADMIN_TOKEN_FILE
+              value: "/run/secrets/mohawk_api_token"
+            - name: MOHAWK_PQC_MIGRATION_ENABLED
+              value: "true"
+            - name: MOHAWK_PQC_LOCK_LEGACY_TRANSFERS
+              value: "true"
+            - name: MOHAWK_PQC_MIGRATION_ETA
+              value: "2027-12-31T00:00:00Z"
+            - name: MOHAWK_PQC_MIGRATION_EPOCH
+              value: "2027-12-31T00:00:00Z"
+            - name: MOHAWK_PQC_REQUIRE_CRYPTO_AFTER_EPOCH
+              value: "true"
+            - name: MOHAWK_LEDGER_STATE_PATH
+              value: "/var/lib/mohawk/utility-ledger/state.json"
+            - name: MOHAWK_LEDGER_AUDIT_PATH
+              value: "/var/lib/mohawk/utility-ledger/audit.jsonl"
+            - name: MOHAWK_API_AUTH_MODE
+              value: "file-only"
+            - name: MOHAWK_API_TOKEN_FILE
+              value: "/run/secrets/mohawk_api_token"
+            - name: MOHAWK_API_ENFORCE_ROLES
+              value: "true"
+            - name: MOHAWK_API_BRIDGE_ALLOWED_ROLES
+              value: "bridge,admin"
+            - name: MOHAWK_API_HYBRID_ALLOWED_ROLES
+              value: "verifier,admin"
+            - name: MOHAWK_UTILITY_RATE_LIMIT_PER_MIN
+              value: "240"
+            - name: MOHAWK_UTILITY_ENFORCE_ROLES
+              value: "true"
+            - name: MOHAWK_UTILITY_MINT_ALLOWED_ROLES
+              value: "minter,admin"
+            - name: MOHAWK_UTILITY_TRANSFER_ALLOWED_ROLES
+              value: "user,operator,admin"
+            - name: MOHAWK_UTILITY_BACKUP_ALLOWED_ROLES
+              value: "operator,admin"
+            - name: MOHAWK_UTILITY_RESTORE_ALLOWED_ROLES
+              value: "admin"
+          ports:
+            - containerPort: 8080
+            - containerPort: 9091
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          volumeMounts:
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_api_token
+              subPath: mohawk_api_token
+              readOnly: true
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_tpm_ca_cert.pem
+              subPath: mohawk_tpm_ca_cert.pem
+              readOnly: true
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_tpm_orchestrator_cert.pem
+              subPath: mohawk_tpm_orchestrator_cert.pem
+              readOnly: true
+            - name: shared-secrets
+              mountPath: /run/secrets/mohawk_tpm_orchestrator_key.pem
+              subPath: mohawk_tpm_orchestrator_key.pem
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9091
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9091
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: shared-secrets
+          secret:
+            secretName: mohawk-shared-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator
+  namespace: scale-test
+spec:
+  selector:
+    app: orchestrator
+  ports:
+    - name: api
+      port: 8080
+      targetPort: 8080
+    - name: metrics
+      port: 9091
+      targetPort: 9091
