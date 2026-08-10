@@ -7,7 +7,7 @@
 
 ## Quick Navigation
 
-- **[Getting Started](guides/GETTING_STARTED.md)** - Installation, quickstart, first steps (placeholder stub — see [Documentation Status](#documentation-status))
+- **[Getting Started](guides/GETTING_STARTED.md)** - Installation, quickstart, first steps (real)
 - **[Architecture Guide](ARCHITECTURE.md)** - System design, component overview
 - **[API Reference](API_REFERENCE.md)** - Go packages, gRPC services, Python SDK
 - **[Deployment Guide](DEPLOYMENT.md)** - Docker, Kubernetes, Cloud deployment
@@ -69,7 +69,7 @@ docs/architecture/
 ```
 docs/guides/
 ├── README.md                        - (real) directory overview
-├── GETTING_STARTED.md               - Installation, quickstart
+├── GETTING_STARTED.md               - (real) Installation, quickstart
 ├── DEPLOYMENT.md                    - Docker, K8s, Cloud templates
 ├── OPERATIONS.md                    - Monitoring, troubleshooting
 ├── MONITORING_OBSERVABILITY.md      - Prometheus, Grafana, Jaeger
@@ -243,6 +243,7 @@ What's actually real and worth trusting:
 - Formal proofs and specifications: real, see [proofs/FORMAL_TRACEABILITY_MATRIX.md](../proofs/FORMAL_TRACEABILITY_MATRIX.md) for the honest per-theorem scope.
 - The Genesis Testnet deployment path in the root [README.md](../README.md) (Docker Compose, launch scripts) — actually runnable.
 - `sdk/python/README.md` for the Python SDK API surface.
+- [guides/GETTING_STARTED.md](guides/GETTING_STARTED.md) — real content as of this update, every command verified against actual scripts/Makefile targets/Compose files in this repo.
 
 Treat any other doc under `docs/` not listed above as unverified until you've
 checked it against the actual code -- this index's own file inventory has
