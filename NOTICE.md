@@ -11,6 +11,10 @@ Portions of protocol technology implemented in this repository are marked **Pate
 
 This notice is informational and does not modify, replace, or restrict permissions granted by Apache-2.0 for this repository.
 
+## Licensing Model
+
+This repository has no separate proprietary or enterprise-tier license: all code here is Apache-2.0. There is no dual-license split and no gated "enterprise edition" — the Patent Pending disclosure above does not create one.
+
 ## Trademark and Naming
 
 Project names, marks, and branding are not granted for unrestricted use by the Apache-2.0 copyright license.
