@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Apr 28, 2026
+Aug 10, 2026
 
 ---
 
@@ -45,8 +45,8 @@ Sovereign-Mohawk has moved from early SDK bring-up into **mainnet-readiness gate
 
 ### A1. Security & Assurance (Critical Path)
 
-- [x] External security audit (runtime + SDK + bridge)
-- [x] Penetration test across orchestrator/API and bridge settlement paths
+- [ ] External security audit (runtime + SDK + bridge) — **corrected 2026-08-10, was incorrectly checked**: the CertiK engagement was scoped (`results/security-audit/audit_handoff_certik_2026-03-31.md`, `control_to_evidence_matrix_2026-03-31.md`) but never completed. `results/security-audit/audit_closure_report_2026-03-31.md` and `docs/CERTIK_AUDIT_SUMMARY.md` both record it in their own words: "Final auditor findings received: Pending" / "Formal remediation closure signed off: Pending" — no later evidence exists anywhere that this changed. What's real and complete instead: an internal code/configuration review with zero findings (`results/go-live/evidence/security_audit_report_2026-03-26.md`) — a materially weaker claim than "external security audit," since its own Method section describes review + smoke-test validation, not independent third-party testing.
+- [ ] Penetration test across orchestrator/API and bridge settlement paths — **corrected 2026-08-10, was incorrectly checked**, same caveat as above: `results/go-live/evidence/penetration_test_report_2026-03-26.md` is real and complete, but its own Method section describes automated AuthN/AuthZ smoke validation (`scripts/strict_auth_smoke.py`, readiness/chaos gate output), not independent third-party penetration testing.
 - [x] Threat-model refresh for mTLS control plane + internal metrics plane
 - [x] Dependency vulnerability baseline and patch SLA policy
 - [x] Runtime proof-verifier fail-closed boot enforcement (no silent disable path)
@@ -102,7 +102,7 @@ TPM production closure sign-off (2026-04-11):
 
 ### A4. Performance and Scale Sign-off (Critical Path)
 
-- [x] 1M+ node aggregation rehearsal with reproducible benchmark artifacts
+- [ ] 1M+ node aggregation rehearsal with reproducible benchmark artifacts — **corrected 2026-08-10, was incorrectly checked**: no artifact substantiating a 1M-node rehearsal exists anywhere in this repository (verified via a full-repo search for any "1M node"/"million node" reference). This item previously contradicted "2026 Success Metrics" below, which correctly lists the same 1M+ node exercise as not yet done. Real, CI-verified scale evidence in this repo tops out at 500-1,500 nodes (`.github/workflows/swarm-runtime-matrix.yml`, `captured_artifacts/500node_scale_test_manifest.json`) and a separate 10k-node run (`captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md`).
 - [x] End-to-end latency validation under failure injection scenarios
 - [x] Python-vs-Go bridge compression overhead profiling report with optimization decisions
 - [x] CI automation for bridge compression benchmark artifact publishing
@@ -140,10 +140,12 @@ TPM production closure sign-off (2026-04-11):
 
 **Exit Criteria for v1.0.0 GA:**
 
-- [x] Security audit completed with no unresolved critical findings
+- [ ] Security audit completed with no unresolved critical findings — **corrected 2026-08-10, was incorrectly checked**; see A1 above, the external audit engagement remains pending, not completed
 - [x] TPM attestation path fully enabled in production mode
-- [x] 1M-scale rehearsal passed with documented SLO results
+- [ ] 1M-scale rehearsal passed with documented SLO results — **corrected 2026-08-10, was incorrectly checked**; see A4 above, no 1M-scale evidence exists in this repository
 - [x] Operations runbook published and exercised in drills
+
+**As of this correction, GA is not actually exit-criteria-complete**: 2 of 4 criteria above require real work (an actual completed external audit, and either a genuine 1M-node rehearsal or a revised, honestly-scoped scale claim) before the "Cut GA tag" item in A5 should be considered unblocked on these grounds.
 
 ---
 
@@ -247,6 +249,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-08-10 | 3.5 | GA-readiness audit against real evidence (not just the checkmarks): corrected 4 checkboxes across A1 and A4 and the v1.0.0 GA Exit Criteria that were marked complete but weren't. External security audit and penetration test: the CertiK engagement was scoped but never completed (its own closure report says findings are still "Pending"); what's real instead is a weaker internal code/config review. 1M+ node aggregation rehearsal: no artifact anywhere in this repo substantiates it (real scale evidence tops out at 500-1,500 nodes); this item previously contradicted the still-correctly-unchecked "2026 Success Metrics" entry for the same claim. TPM attestation and operations-runbook drills were verified genuine and left checked. |
 | 2026-04-28 | 3.4 | Completed Sprint 1 and Phase 2 hardening deliverables: Lean proof metrics extraction, theorem dependency audit, proof-regression CI workflow, and traceability expansion for Theorem4ChernoffBounds/Theorem6ConvergenceReals |
 | 2026-04-28 | 3.3 | Added a concrete two-sprint execution plan with explicit dependencies, exit criteria, and contributor routing for the next roadmap slice |
 | 2026-04-11 | 3.2 | TPM production closure signed off: cross-platform matrix PASS, closure validation PASS, production attestation set to approved, and CI workflow evidence linked |
