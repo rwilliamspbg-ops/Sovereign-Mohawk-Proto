@@ -39,6 +39,13 @@ test_output.txt
 test_results.txt
 stress_test_output.log
 
+# Ephemeral local runs of the trace-verification workflows (hbft-trace-verification.yml,
+# rdp-trace-verification.yml, hbft-statistical-sanity.yml) -- these workflows only ever
+# upload this output as a CI artifact, never commit it back to the repo.
+test-results/hbft-trace/
+test-results/rdp-trace/
+test-results/hbft-statcheck/
+
 # Local scratch / browser profile cache
 tmp/
 
