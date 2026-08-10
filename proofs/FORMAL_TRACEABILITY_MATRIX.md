@@ -141,15 +141,16 @@ same tree the claim itself lives in.
 
 ## Latest Validation Run
 
-- Date (UTC): 2026-08-04
-- Branch: `feat/rdp-adaptive-composition` (off `main`, then merged forward
-  onto `main` after PR #144's docs-only Groth16/q-SDH feasibility finding
-  landed first — that PR touched only row 5 and this same section, no
-  overlap with row 2's content; resolved as a straightforward merge, not a
-  real content conflict). Closes row 2's "adaptive composition ... out of
-  scope" gap for real, using the corrected uniform-bound formulation
-  rather than the expectation-based chain rule previously cited — see that
-  row's updated notes for the full reasoning)
+- Date (UTC): 2026-08-10
+- Branch: `docs/refresh-formal-traceability-matrix-validation-run` (off
+  `origin/main`). Housekeeping refresh only — no new theorems, no matrix
+  row content changes. Brings this section current with two changes that
+  landed after the 2026-08-04 run below but never updated it: [PR
+  #162](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/162)
+  (row 12's `n>2f+2` precondition and general-`m` selection closure) and
+  commit `27b989af` (removal of the unclaimed, vacuous
+  `Specification/Byzantine.lean`, PR #163) — neither PR had refreshed this
+  section's counts at merge time.
 - Commands executed:
   - `cd proofs && lake build LeanFormalization Specification Refinement`
   - `python3 scripts/ci/lint_formal_proof_claims.py --repo-root .`
@@ -160,21 +161,46 @@ same tree the claim itself lives in.
   - `python3 scripts/ci/generate_formal_validation_report.py --repo-root . --check`
   - `python3 scripts/ci/check_markdown_links.py`
 - Results:
-  - Lean build: pass, 8340 jobs; **zero `sorry`s remain in
-    `proofs/LeanFormalization`** (unaffected — this run adds two new
-    theorems, closes no sorries, introduces none). Both new theorems
-    (`RenyiDivergence_sum_le_of_bound`, `RDP_adaptive_composition`) were
-    first validated standalone via `lake env lean` against a scratch file
-    before being applied to the real file, per this repo's established
-    workflow
-  - Vacuous/misleading-theorem lint: pass (`22` Lean files checked)
-  - Traceability validation: pass (`10` modules, `91` theorem symbols, `38`
-    runtime test refs) — the `+2` vs. the pre-#144 baseline is the two new
-    theorems added to row 2's list (PR #144 was docs-only and added none);
-    runtime-test-ref count unchanged (pure Lean-side work)
+  - Lean build: pass, 8339 jobs (one fewer than the prior run's 8340, from
+    `Byzantine.lean`'s removal); **zero `sorry`s remain in
+    `proofs/LeanFormalization`**
+  - Vacuous/misleading-theorem lint: pass (`21` Lean files checked, down
+    from `22` — `Byzantine.lean` no longer exists to check)
+  - Traceability validation: pass (`10` modules, `91` theorem symbols, `44`
+    runtime test refs) — the `+6` vs. the 2026-08-04 baseline (`38`) is
+    PR #162's new/promoted test references (`TestMultiKrumLeanCorrespondence_GeneralM`
+    plus the HBFT/RDP trace-validator test suite:
+    `TestSimulator_RunRound_CallsRealMultiKrumSelect`,
+    `TestRunStatCheck_EmpiricalRateRoughlyMatchesTheory`,
+    `TestHBFTStatisticalSanityCheck`, `TestHBFTTrace`,
+    `TestRDPAccountantTrace`); theorem symbol count unchanged (`91`) since
+    PR #162 added new Refinement-layer functions/proofs rather than new
+    `theorem_claims.json`-tracked symbols
   - Theorem/runtime consistency check: pass (`12` regex checks, unchanged)
-  - Refinement drift check (`scripts/check_refinement.py`): pass (checked
-    since `Refinement/RDPAccountant.lean` is a related module for this
-    claim; unaffected — no `Refinement/*.lean` or Go files touched)
-  - Formal validation report consistency: pass after regeneration
-  - Markdown link check: pass (129 files)
+  - Refinement drift check (`scripts/check_refinement.py`): pass, `0`
+    missing on both sides (7 Lean Refinement/Specification files, 4 Go
+    files checked)
+  - Formal validation report consistency: pass after regeneration — real
+    content changes this run: `runtime_reference_count` corrected from a
+    stale `38` to `44` (matching the traceability validation above), plus
+    updated input file hashes/Merkle root reflecting the matrix and go.mod
+    changes since 2026-08-04
+  - Markdown link check: pass (130 files, up from 129)
+
+### Prior run — 2026-08-04
+
+- Branch: `feat/rdp-adaptive-composition` (off `main`, then merged forward
+  onto `main` after PR #144's docs-only Groth16/q-SDH feasibility finding
+  landed first — that PR touched only row 5 and this same section, no
+  overlap with row 2's content; resolved as a straightforward merge, not a
+  real content conflict). Closes row 2's "adaptive composition ... out of
+  scope" gap for real, using the corrected uniform-bound formulation
+  rather than the expectation-based chain rule previously cited — see that
+  row's updated notes for the full reasoning)
+- Results: Lean build pass (8340 jobs, zero `sorry`s); vacuous-theorem lint
+  pass (22 files); traceability validation pass (10 modules, 91 theorem
+  symbols, 38 runtime test refs — the `+2` vs. the pre-#144 baseline was
+  the two new theorems added to row 2's list); theorem/runtime consistency
+  pass (12 regex checks); refinement drift check pass; formal validation
+  report regenerated and self-consistent; markdown link check pass (129
+  files).
