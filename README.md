@@ -505,18 +505,12 @@ Validated startup options:
 
 # Start orchestrator + shard + node-agent-1..3
 ./scripts/genesis-launch.sh --all-nodes
-
-# Equivalent Make target
-make regional-shard
 ```
 
 1. Full local stack (orchestrator + 3 node agents):
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --no-build
-
-# Equivalent Make target
-make full-stack-3-nodes
 ```
 
 Native PowerShell (Windows):
@@ -659,9 +653,6 @@ Stop the stack:
 
 ```bash
 ./scripts/launch_full_stack_3_nodes.sh --down
-
-# Equivalent Make target
-make full-stack-3-nodes-down
 ```
 
 PowerShell stop:
