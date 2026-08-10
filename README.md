@@ -1212,6 +1212,15 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 * [captured_artifacts/release_package_manifest_checksums_2026-04-17.txt](captured_artifacts/release_package_manifest_checksums_2026-04-17.txt) - Release package checksum record
 * [results/go-live/evidence/slo_sli_baseline_2026-03-28.md](results/go-live/evidence/slo_sli_baseline_2026-03-28.md) - Versioned SLO/SLI definitions for Phase 3 closure
 * [results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md](results/go-live/evidence/failure_injection_latency_validation_2026-03-28.md) - Failure-injection latency validation report
+* [results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md](results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md) - Single-host libp2p transport and partition-style reachability evidence
+* [results/go-live/evidence/partition_probe_2026-08-10.json](results/go-live/evidence/partition_probe_2026-08-10.json) - Structured partition-style probe output
+* [results/go-live/evidence/docker_transport_topology_2026-08-10.json](results/go-live/evidence/docker_transport_topology_2026-08-10.json) - Docker bridge topology transport probe output
+* [results/go-live/evidence/transport_performance_metrics_2026-08-10.json](results/go-live/evidence/transport_performance_metrics_2026-08-10.json) - Single-host libp2p transport benchmark results
+* [results/go-live/evidence/transport_benchmark_sweep_2026-08-10.json](results/go-live/evidence/transport_benchmark_sweep_2026-08-10.json) - Repeated local benchmark sweep for the same transport path
+* [results/go-live/evidence/transport_impairment_probe_2026-08-10.json](results/go-live/evidence/transport_impairment_probe_2026-08-10.json) - Single-host dial failure probe snapshot
+* [results/go-live/evidence/transport_delay_probe_2026-08-10.json](results/go-live/evidence/transport_delay_probe_2026-08-10.json) - Local transport delay-style probe output
+* [results/go-live/evidence/transport_repeatability_2026-08-10.json](results/go-live/evidence/transport_repeatability_2026-08-10.json) - Five-run local repeatability sweep for the transport benchmark
+* [results/go-live/evidence/transport_congestion_probe_2026-08-10.json](results/go-live/evidence/transport_congestion_probe_2026-08-10.json) - Three-pass local congestion-style probe output
 * [results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md](results/go-live/evidence/tpm_attestation_cross_platform_matrix_2026-03-28.md) - TPM production-closure cross-platform validation matrix
 * [results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md](results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md) - TPM closure validator status report
 * [results/go-live/evidence/tpm_attestation_local_sandbox_2026-03-29.md](results/go-live/evidence/tpm_attestation_local_sandbox_2026-03-29.md) - Local sandbox TPM/forensics validation snapshot for Mini-Mohawk profile

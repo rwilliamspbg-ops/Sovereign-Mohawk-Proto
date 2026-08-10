@@ -1,0 +1,16 @@
+{
+  "generated_at_utc": "2026-08-10T16:55:00Z",
+  "scope": "Single-host libp2p transport benchmark for the local echo path on this host.",
+  "benchmark": {
+    "name": "BenchmarkProbeLocalEcho",
+    "ops_per_sec": 29.381734844533895,
+    "ns_per_op": 34034750.0,
+    "allocs_per_op": 36124.0,
+    "bytes_per_op": 3674378.0
+  },
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "go": "go1.26.5"
+  },
+  "notes": "These numbers are from a real local transport benchmark and are not a claim about wide-area throughput or production cluster performance."
+}

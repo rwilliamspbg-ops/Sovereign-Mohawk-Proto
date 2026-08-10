@@ -1,0 +1,18 @@
+{
+  "generated_at_utc": "2026-08-10T17:00:00Z",
+  "scope": "Repeated single-host libp2p transport benchmark sweep for the local echo path.",
+  "benchmark_runs": [
+    {
+      "name": "BenchmarkProbeLocalEcho",
+      "ns_per_op": 35260887.0,
+      "bytes_per_op": 3707509.0,
+      "allocs_per_op": 36291.0,
+      "ops_per_sec": 28.360035299168736
+    }
+  ],
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "go": "go1.26.5"
+  },
+  "notes": "This is a repeated local benchmark sweep and should not be interpreted as WAN throughput evidence."
+}
