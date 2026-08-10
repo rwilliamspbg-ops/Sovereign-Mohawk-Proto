@@ -7,22 +7,22 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="google-site-verification" content="OfRG1PZblNsYFmZ8bOL8Mgjidg-sz_1ZSnfbqEfLNWs" />
-    <title>Sovereign Mohawk: Formally Verified 10M-Node Federated Learning</title>
-    <meta name="description" content="Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.">
+    <title>Sovereign Mohawk: Formally Verified Federated Learning (10M-Node Design Target)</title>
+    <meta name="description" content="Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability. Formal proofs are parametrized up to a 10M-node design target; real deployment evidence currently covers 500 live Kubernetes pods.">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
     <link rel="icon" type="image/png" sizes="512x512" href="assets/img/favicon-512.png">
     <link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon-180.png">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Sovereign Mohawk Proto">
-    <meta property="og:title" content="Sovereign Mohawk: Formally Verified 10M-Node Federated Learning">
-    <meta property="og:description" content="Theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and post-quantum transport.">
+    <meta property="og:title" content="Sovereign Mohawk: Formally Verified Federated Learning (10M-Node Design Target)">
+    <meta property="og:description" content="Theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and post-quantum transport. 10M nodes is a formally-proven design parameter, not an operational deployment claim.">
     <meta property="og:url" content="https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/">
     <meta property="og:image" content="https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/assets/img/social-preview.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sovereign Mohawk: Formally Verified 10M-Node Federated Learning">
-    <meta name="twitter:description" content="Theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and post-quantum transport.">
+    <meta name="twitter:title" content="Sovereign Mohawk: Formally Verified Federated Learning (10M-Node Design Target)">
+    <meta name="twitter:description" content="Theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and post-quantum transport. 10M nodes is a formally-proven design parameter, not an operational deployment claim.">
     <meta name="twitter:image" content="https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/assets/img/social-preview.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -126,12 +126,16 @@
                     Go-Live Runtime Status: 8/8 Attestations
                 </div>
                 <h1 class="text-5xl md:text-6xl font-bold tracking-tight mb-6">
-                    Planetary-Scale Sovereign FL<br>
+                    Formally Verified Sovereign FL<br>
                     in <span class="gradient-text">Under 5 Minutes</span>
                 </h1>
                 <p class="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                     Start with a Flower-compatible quickstart, then scale into formally verified aggregation,
                     TPM-rooted trust, PQC migration readiness, and Byzantine-resilient coordination.
+                </p>
+                <p class="mt-3 text-sm text-gray-500 max-w-2xl mx-auto">
+                    10M nodes is a formally-proven design target for the Lean theorems below, not an operational deployment claim.
+                    Real, reproducible multi-node evidence currently covers <a href="#evidence" class="text-indigo-600 hover:underline font-medium">500 live Kubernetes pods</a>.
                 </p>
                 <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                     <a class="inline-flex items-center px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto#run-sovereign-fl-in-under-5-minutes">
@@ -169,11 +173,11 @@
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml"><img alt="GA Tag Safety" src="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/ga-tag-safety.yml/badge.svg"></a>
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/go.mod"><img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/rwilliamspbg-ops/Sovereign-Mohawk-Proto"></a>
                 <a href="https://pypi.org/project/mohawk/"><img alt="Python SDK" src="https://img.shields.io/pypi/v/mohawk?label=Python%20SDK"></a>
-                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/HARDWARE_COMPATIBILITY.md"><img alt="Compatibility" src="https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/HARDWARE_COMPATIBILITY.md"><img alt="Compatibility" src="https://img.shields.io/badge/Compatibility-Linux%20%7C%20macOS%20%7C%20Windows-2ea043"></a>
                 <a href="https://rwilliamspbg-ops.github.io/Sovereign-Mohawk-Proto/"><img alt="Testnet Status" src="https://img.shields.io/website?url=https%3A%2F%2Frwilliamspbg-ops.github.io%2FSovereign-Mohawk-Proto%2F&amp;label=Testnet%20Status"></a>
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/SECURITY.md"><img alt="PQC Transport" src="https://img.shields.io/badge/PQC%20Transport-x25519--mlkem768--hybrid-6f42c1"></a>
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/SECURITY.md"><img alt="TPM Identity" src="https://img.shields.io/badge/TPM%20Identity-XMSS%20Enforced-6f42c1"></a>
-                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/RELEASE_NOTES_PQC_OVERHAUL.md"><img alt="PQC Migration" src="https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043"></a>
+                <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/RELEASE_NOTES_PQC_OVERHAUL.md"><img alt="PQC Migration" src="https://img.shields.io/badge/PQC%20Migration-Crypto%20After%20Epoch%20Enabled-2ea043"></a>
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/COMPLIANCE.md"><img alt="EU AI Act High-Risk Readiness" src="https://img.shields.io/badge/EU%20AI%20Act-High--Risk%20Readiness-2ea043"></a>
                 <a href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/LICENSE.md"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
             </div>
@@ -202,7 +206,7 @@
                 </a>
             </div>
             <div class="mt-6 text-center">
-                <a class="inline-flex items-center px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PUBLIC_ARTIFACTS.md">
+                <a class="inline-flex items-center px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/PUBLIC_ARTIFACTS.md">
                     Browse Public Artifact Index
                 </a>
             </div>
@@ -227,7 +231,7 @@
                     <div class="text-sm font-semibold text-blue-800 mb-2">Performance</div>
                     <div class="text-3xl font-bold text-blue-700">233/233</div>
                     <div class="text-sm text-blue-700 mt-1">Test suite pass rate documented</div>
-                    <a class="inline-block mt-3 text-sm font-semibold text-blue-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PERFORMANCE_SUMMARY.md">Open Performance Summary</a>
+                    <a class="inline-block mt-3 text-sm font-semibold text-blue-800 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/archive/root-cleanup-2026-07/PERFORMANCE_SUMMARY.md">Open Performance Summary</a>
                 </div>
                 <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
                     <div class="text-sm font-semibold text-emerald-800 mb-2">Lean Formalization</div>
@@ -253,10 +257,10 @@
                 <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
                     <h3 class="text-lg font-bold text-gray-900 mb-4">Today-Relevant Documentation</h3>
                     <ul class="space-y-2 text-sm text-gray-700">
-                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PHASE3_COMPLETE_FINAL_REPORT.md">Phase 3 Completion Final Report</a> - empirical validation outcomes and theorem remediation status.</li>
-                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/REMEDIATION_100_PERCENT_COMPLETE.md">Remediation 100 Percent Complete</a> - publication-readiness justification and remaining standard-result notes.</li>
-                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/PERFORMANCE_SUMMARY.md">Performance Summary</a> - 233-test summary, phase-by-phase throughput, and runtime metrics.</li>
-                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/TEST_EXECUTION_COMPLETE_REPORT.md">Test Execution Complete Report</a> - full test coverage taxonomy and phase detail.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/archive/root-cleanup-2026-07/PHASE3_COMPLETE_FINAL_REPORT.md">Phase 3 Completion Final Report</a> - empirical validation outcomes and theorem remediation status.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/archive/root-cleanup-2026-07/REMEDIATION_100_PERCENT_COMPLETE.md">Remediation 100 Percent Complete</a> - publication-readiness justification and remaining standard-result notes.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/archive/root-cleanup-2026-07/PERFORMANCE_SUMMARY.md">Performance Summary</a> - 233-test summary, phase-by-phase throughput, and runtime metrics.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/docs/archive/root-cleanup-2026-07/TEST_EXECUTION_COMPLETE_REPORT.md">Test Execution Complete Report</a> - full test coverage taxonomy and phase detail.</li>
                     </ul>
                 </div>
 
@@ -267,6 +271,15 @@
                         <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/proofs/formal_validation_report.json">Formal Validation Report (JSON)</a> - machine-readable verification output.</li>
                         <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/proofs/formal-verification-bundle/bundle_manifest.json">Verification Bundle Manifest</a> - traceable artifact inventory for audit.</li>
                         <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/.github/workflows/verify-proofs.yml">Verify Proofs Workflow</a> - CI gate wiring for formal proof checks.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl border border-gray-200 p-6 md:col-span-2">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Real-World Scale & Transport Evidence (2026-08-10)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Reproducible, hands-on evidence collected against the actual runtime and transport stack - each doc includes an explicit "what this does and does not establish" section rather than extrapolating beyond what was measured.</p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md">Kubernetes Scale Deployment Test</a> - 500 real Kubernetes pods running unmodified orchestrator/node-agent binaries with real mTLS identity per replica and real gradient submissions; includes security tests (mTLS enforcement, wrong-token rejection) and real performance data. Explicitly does not claim 1M-node evidence. Reproducible via <a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/deploy/kubernetes/scale-test/README.md">deploy/kubernetes/scale-test/</a>.</li>
+                        <li><a class="text-indigo-700 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md">Distributed Systems Transport Evidence</a> - real exercise of the repository's libp2p transport stack (relay, hole-punching, partition-style probes), independently re-verified across two hosts. Single-host scope; explicitly does not claim WAN/geographic distribution or TPM attestation.</li>
                     </ul>
                 </div>
             </div>
@@ -500,17 +513,23 @@
                 <h2 class="text-3xl font-bold text-gray-900 mb-6">Abstract</h2>
                 <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-indigo-600 mb-8">
                     <p class="text-gray-700 leading-relaxed mb-4">
-                        We present <strong>Sovereign Mohawk</strong>, the first federated learning (FL) architecture to achieve simultaneous guarantees of 
-                        <strong>Byzantine fault tolerance</strong>, <strong>differential privacy</strong>, <strong>optimal communication complexity</strong>, 
-                        and <strong>cryptographic verifiability</strong> at a scale of 10 million nodes. Our core contribution is a 
-                        <em>proof-driven design methodology</em> that treats formal verification as a constructive tool rather than a post-hoc validation step, 
+                        We present <strong>Sovereign Mohawk</strong>, a federated learning (FL) architecture whose formal proofs establish simultaneous guarantees of
+                        <strong>Byzantine fault tolerance</strong>, <strong>differential privacy</strong>, <strong>optimal communication complexity</strong>,
+                        and <strong>cryptographic verifiability</strong> for configurations parametrized up to a design target of 10 million nodes. Our core contribution is a
+                        <em>proof-driven design methodology</em> that treats formal verification as a constructive tool rather than a post-hoc validation step,
                         yielding six interconnected theorems that collectively establish provable security and efficiency.
                     </p>
                     <p class="text-gray-700 leading-relaxed">
                         The architecture introduces <strong>Hierarchical Multi-Krum aggregation</strong>, achieving <strong>55.5% Byzantine resilience</strong>—
-                        a significant improvement over the theoretical $&lt;50\%$ limit in flat architectures—while maintaining $O(d \log n)$ communication 
-                        complexity via tree-based gradient synthesis. We integrate <strong>zk-SNARK-based verifiable aggregation</strong>, enabling 10ms 
+                        a significant improvement over the theoretical $&lt;50\%$ limit in flat architectures—while maintaining $O(d \log n)$ communication
+                        complexity via tree-based gradient synthesis. We integrate <strong>zk-SNARK-based verifiable aggregation</strong>, enabling 10ms
                         verification of global model updates without re-execution or data exposure.
+                    </p>
+                    <p class="text-sm text-gray-500 mt-4 border-t border-gray-200 pt-4">
+                        <strong>Scope note:</strong> the 10M-node figure is a mathematical parameter in the theorem statements below, formally
+                        checked in Lean — it is not a claim that the system has been run at that scale. The largest real, reproducible deployment
+                        evidence in this repository is <a class="text-indigo-600 hover:underline" href="https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md">500 live Kubernetes pods</a>
+                        running unmodified orchestrator/node-agent binaries with real mTLS identity and real gradient submissions.
                     </p>
                 </div>
 
@@ -532,7 +551,7 @@
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">The Six-Theorem Verification Stack</h2>
                 <p class="text-gray-600 max-w-2xl mx-auto">
                     Each theorem addresses a critical dimension of distributed learning security and efficiency,
-                    collectively enabling planetary-scale deployment with mathematical guarantees.
+                    collectively establishing mathematical guarantees for the architecture's 10M-node design target.
                 </p>
             </div>
 
@@ -902,7 +921,11 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
                 </div>
                 <div class="metric-card p-4 rounded-xl border border-indigo-100">
                     <div class="text-2xl font-bold text-indigo-600">10M</div>
-                    <div class="text-xs text-gray-600 mt-1">Node Scale</div>
+                    <div class="text-xs text-gray-600 mt-1">Node Scale (Formal Design Target)</div>
+                </div>
+                <div class="metric-card p-4 rounded-xl border border-indigo-100">
+                    <div class="text-2xl font-bold text-indigo-600">500</div>
+                    <div class="text-xs text-gray-600 mt-1">Node Scale (Real K8s Deployment)</div>
                 </div>
                 <div class="metric-card p-4 rounded-xl border border-indigo-100">
                     <div class="text-2xl font-bold text-indigo-600">10ms</div>
@@ -979,7 +1002,7 @@ constraint: U_global = Σ w_i · U_i ∧ <br>
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <h4 class="text-white font-bold mb-4">Sovereign Mohawk</h4>
-                    <p class="text-sm">Formally verified federated learning architecture scaling to 10 million nodes with Byzantine resilience and zero-knowledge verification.</p>
+                    <p class="text-sm">Formally verified federated learning architecture with a 10M-node formal design target, Byzantine resilience, and zero-knowledge verification. Real deployment evidence currently covers 500 live Kubernetes pods.</p>
                 </div>
                 <div>
                     <h4 class="text-white font-bold mb-4">Theorems</h4>
