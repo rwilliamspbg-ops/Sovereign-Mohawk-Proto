@@ -1,0 +1,36 @@
+{
+  "generated_at_utc": "2026-08-10T17:20:00Z",
+  "scope": "Five-run repeatability sweep for the local transport benchmark.",
+  "runs": [
+    {
+      "ops_per_sec": 29.775930465817932,
+      "ns_per_op": 33584173.0
+    },
+    {
+      "ops_per_sec": 29.85578342949085,
+      "ns_per_op": 33494348.0
+    },
+    {
+      "ops_per_sec": 29.214621859811594,
+      "ns_per_op": 34229435.0
+    },
+    {
+      "ops_per_sec": 29.999339714532884,
+      "ns_per_op": 33334067.0
+    },
+    {
+      "ops_per_sec": 28.157907178191092,
+      "ns_per_op": 35514003.0
+    }
+  ],
+  "summary": {
+    "count": 5,
+    "median_ops_per_sec": 29.775930465817932,
+    "median_ns_per_op": 33584173.0
+  },
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "go": "go1.26.5"
+  },
+  "notes": "This is a local repeatability sweep and not a WAN throughput claim."
+}

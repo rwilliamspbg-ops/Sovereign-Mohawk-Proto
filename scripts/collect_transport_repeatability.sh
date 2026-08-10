@@ -10,19 +10,21 @@ OUT_JSON="$OUT_DIR/transport_repeatability_2026-08-10.json"
 
 rm -f "$OUT_JSON"
 
-python3 - "$OUT_JSON" <<'PY'
+python3 - "$OUT_JSON" "$ROOT_DIR" <<'PY'
 import json
+import platform
 import statistics
 import subprocess
 import sys
 from pathlib import Path
 
 out_path = Path(sys.argv[1])
+root = Path(sys.argv[2])
 results = []
 for _ in range(5):
     proc = subprocess.run(
         ['go', 'test', './cmd/transport-probe', '-run', '^$', '-bench', '^BenchmarkProbeLocalEcho$', '-benchmem', '-count=1'],
-        cwd=Path('/workspaces/Sovereign-Mohawk-Proto'),
+        cwd=root,
         capture_output=True,
         text=True,
     )
@@ -47,7 +49,7 @@ payload = {
         'median_ops_per_sec': statistics.median(r['ops_per_sec'] for r in results if r['ops_per_sec'] is not None),
         'median_ns_per_op': statistics.median(r['ns_per_op'] for r in results if r['ns_per_op'] is not None),
     },
-    'environment': {'os': 'Ubuntu 24.04.4 LTS', 'go': 'go1.26.5'},
+    'environment': {'os': platform.platform(), 'go': 'go1.26.5'},
     'notes': 'This is a local repeatability sweep and not a WAN throughput claim.'
 }
 out_path.write_text(json.dumps(payload, indent=2), encoding='utf-8')

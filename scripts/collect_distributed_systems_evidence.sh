@@ -58,7 +58,11 @@ print(payload['addresses'][0])
 PY
 )"
 
-go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1
+# MSYS2_ARG_CONV_EXCL: $PEER_ADDR is a raw libp2p multiaddr (e.g.
+# "/ip4/.../tcp/..."), which Git Bash on Windows otherwise auto-converts
+# as if it were a Unix path argument, corrupting it before the dial
+# subcommand ever parses it.
+MSYS2_ARG_CONV_EXCL="/ip4" go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1
 wait "$LISTENER_PID" || true
 python3 - "$DIAL_LOG" "$DIAL_JSON" <<'PY'
 import json
@@ -83,14 +87,19 @@ else:
     raise SystemExit('no dial payload found')
 PY
 
+DETECTED_OS="$(uname -a 2>/dev/null || echo unknown)"
+DETECTED_DOCKER="$(docker --version 2>/dev/null || echo unavailable)"
+DETECTED_GO="$(go version 2>/dev/null || echo unavailable)"
+TPM_DEVICES_JSON="$(python3 -c "import json,glob; print(json.dumps(sorted(glob.glob('/dev/tpm*'))))")"
+
 cat > "$OUT_DIR/distributed_systems_transport_evidence_2026-08-10.json" <<EOF
 {
   "generated_at_utc": "2026-08-10T16:25:00Z",
   "environment": {
-    "os": "Ubuntu 24.04.4 LTS",
-    "docker": "29.3.0-1",
-    "go": "go1.26.5",
-    "tpm_devices": []
+    "os": $(python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$DETECTED_OS"),
+    "docker": $(python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$DETECTED_DOCKER"),
+    "go": $(python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$DETECTED_GO"),
+    "tpm_devices": $TPM_DEVICES_JSON
   },
   "tests": {
     "local_echo": $(cat "$LOCAL_ECHO_JSON"),
@@ -100,7 +109,14 @@ cat > "$OUT_DIR/distributed_systems_transport_evidence_2026-08-10.json" <<EOF
   },
   "notes": {
     "scope": "This session exercised the repository's real libp2p transport stack with relay and hole-punching settings enabled. It does not claim WAN or multi-site reachability; it is a single-host transport-path probe only.",
-    "tpm": "No /dev/tpm* device was present in this Codespace, so TPM attestation was scoped out of this round."
+    "tpm": $(python3 -c "
+import json
+devices = json.loads('$TPM_DEVICES_JSON')
+if devices:
+    print(json.dumps('TPM device(s) present but not exercised by this probe: ' + ', '.join(devices)))
+else:
+    print(json.dumps('No /dev/tpm* device was present on this host, so TPM attestation was scoped out of this round.'))
+")
   }
 }
 EOF

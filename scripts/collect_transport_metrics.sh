@@ -16,6 +16,7 @@ GO111MODULE=on go test ./cmd/transport-probe -run '^$' -bench '^BenchmarkProbeLo
 
 python3 - "$BENCH_JSON" "$OUT_JSON" <<'PY'
 import json
+import platform
 import sys
 from pathlib import Path
 
@@ -52,7 +53,7 @@ for line in text.splitlines():
 
 payload = {
     'generated_at_utc': '2026-08-10T16:55:00Z',
-    'scope': 'Single-host libp2p transport benchmark for the local echo path on this Codespace.',
+    'scope': 'Single-host libp2p transport benchmark for the local echo path on this host.',
     'benchmark': {
         'name': 'BenchmarkProbeLocalEcho',
         'ops_per_sec': ops_per_sec,
@@ -61,7 +62,7 @@ payload = {
         'bytes_per_op': bytes_per_op,
     },
     'environment': {
-        'os': 'Ubuntu 24.04.4 LTS',
+        'os': platform.platform(),
         'go': 'go1.26.5',
     },
     'notes': 'These numbers are from a real local transport benchmark and are not a claim about wide-area throughput or production cluster performance.'

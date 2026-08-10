@@ -10,15 +10,16 @@ OUT_JSON="$OUT_DIR/transport_congestion_probe_2026-08-10.json"
 
 rm -f "$OUT_JSON"
 
-python3 - "$OUT_JSON" <<'PY'
+python3 - "$OUT_JSON" "$ROOT_DIR" <<'PY'
 import json
+import platform
 import subprocess
 import sys
 import time
 from pathlib import Path
 
 out_path = Path(sys.argv[1])
-root = Path('/workspaces/Sovereign-Mohawk-Proto')
+root = Path(sys.argv[2])
 
 listener = subprocess.Popen(
     ['go', 'run', './cmd/transport-probe', 'listen'],
@@ -66,7 +67,7 @@ try:
         'scope': 'Three-pass local congestion-style probe for the libp2p listener/dialer path.',
         'listener': {'peer_id': peer_id, 'peer_addr': peer_addr},
         'dial_results': dial_results,
-        'environment': {'os': 'Ubuntu 24.04.4 LTS'},
+        'environment': {'os': platform.platform()},
         'notes': 'This is a bounded local congestion-style probe and not a claim about wide-area network congestion.'
     }
     out_path.write_text(json.dumps(payload, indent=2), encoding='utf-8')

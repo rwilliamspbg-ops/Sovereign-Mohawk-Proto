@@ -24,7 +24,14 @@ trap cleanup EXIT
 docker network rm "$NETWORK_NAME" >/dev/null 2>&1 || true
 docker network create "$NETWORK_NAME" >/dev/null
 
-docker run -d --name "$LISTENER_CONTAINER" --network "$NETWORK_NAME" \
+# MSYS_NO_PATHCONV is scoped to just this docker invocation (not exported
+# for the whole script): under Git Bash on Windows, MSYS's path-conversion
+# heuristic misparses the "$ROOT_DIR:/src" host:container bind-mount spec
+# (the colon looks like a Windows drive letter to it), corrupting both the
+# source and destination paths. Exporting it for the whole script instead
+# would break the plain Unix-style paths the later python3 heredocs in
+# this file expect.
+MSYS_NO_PATHCONV=1 docker run -d --name "$LISTENER_CONTAINER" --network "$NETWORK_NAME" \
   -v "$ROOT_DIR:/src" -w /src golang:1.26-bookworm \
   bash -lc '/usr/local/go/bin/go run ./cmd/transport-probe listen' >/dev/null
 
@@ -130,7 +137,7 @@ PY
 )"
 
 set +e
-if docker run --rm --network "$NETWORK_NAME" \
+if MSYS_NO_PATHCONV=1 docker run --rm --network "$NETWORK_NAME" \
   -v "$ROOT_DIR:/src" -w /src golang:1.26-bookworm \
   bash -lc "/usr/local/go/bin/go run ./cmd/transport-probe dial '$PEER_ID' '$PEER_ADDR'" > "$DIAL_LOG" 2>&1; then
   DIALED=1
@@ -141,7 +148,14 @@ set -e
 
 docker rm -f "$LISTENER_CONTAINER" >/dev/null 2>&1 || true
 
-python3 - "$RESULT_JSON" "$NETWORK_NAME" "$LISTENER_LOG" "$DIAL_LOG" "$PEER_ID" "$PEER_ADDR" "$DIALED" <<'PY'
+# MSYS2_ARG_CONV_EXCL (not the blunt MSYS_NO_PATHCONV, which would also
+# stop $LISTENER_LOG/$DIAL_LOG/$RESULT_JSON -- real file paths -- from
+# being converted and break this the other way): $PEER_ADDR is a raw
+# libp2p multiaddr (e.g. "/ip4/.../tcp/..."), which Git Bash on Windows
+# otherwise auto-converts as if it were a Unix path argument, corrupting
+# it before python ever sees it. Excluding only the "/ip4" prefix leaves
+# the real file-path arguments converted normally.
+MSYS2_ARG_CONV_EXCL="/ip4" python3 - "$RESULT_JSON" "$NETWORK_NAME" "$LISTENER_LOG" "$DIAL_LOG" "$PEER_ID" "$PEER_ADDR" "$DIALED" <<'PY'
 import json
 import sys
 from pathlib import Path

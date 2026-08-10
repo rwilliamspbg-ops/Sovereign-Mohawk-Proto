@@ -1,0 +1,36 @@
+{
+  "generated_at_utc": "2026-08-10T16:45:00Z",
+  "network": {
+    "name": "mohawk-transport-topology",
+    "driver": "bridge"
+  },
+  "listener": {
+    "peer_id": "12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu",
+    "peer_addr": "/ip4/172.20.0.2/tcp/41583",
+    "payload": {
+      "addresses": [
+        "/ip4/127.0.0.1/tcp/41583",
+        "/ip4/127.0.0.1/udp/58070/quic-v1",
+        "/ip4/172.20.0.2/tcp/41583",
+        "/ip4/172.20.0.2/udp/58070/quic-v1"
+      ],
+      "dialable_addr": "/ip4/172.20.0.2/tcp/41583",
+      "mode": "listen",
+      "peer_id": "12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu"
+    },
+    "log_path": "C:\\Users\\rwill\\Sovereign-Mohawk-Proto\\results\\go-live\\evidence\\docker_transport_listener.log"
+  },
+  "dialer": {
+    "succeeded": false,
+    "payload": {
+      "accepted": false,
+      "error": "gradient: connect to 12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu: failed to dial: failed to dial 12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu: all dials failed\n  * [/ip4/172.20.0.2/tcp/41583] dial tcp4 172.20.0.2:41583: i/o timeout",
+      "mode": "dial",
+      "peer_addr": "/ip4/172.20.0.2/tcp/41583",
+      "peer_id": "12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu",
+      "reason": "gradient: connect to 12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu: failed to dial: failed to dial 12D3KooWJJbPN2XKJqFfhgPfpY3a3drs39SSerbTEngfkSbpgkQu: all dials failed\n  * [/ip4/172.20.0.2/tcp/41583] dial tcp4 172.20.0.2:41583: i/o timeout"
+    },
+    "log_path": "C:\\Users\\rwill\\Sovereign-Mohawk-Proto\\results\\go-live\\evidence\\docker_transport_dial.log"
+  },
+  "notes": "Single-host container topology on a Docker bridge network; this remains a local topology probe rather than WAN or multi-site evidence."
+}

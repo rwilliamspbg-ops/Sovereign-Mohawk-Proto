@@ -57,7 +57,11 @@ PY
 )"
 
 if [ -n "$PEER_ID" ] && [ -n "$PEER_ADDR" ]; then
-  go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1
+  # MSYS2_ARG_CONV_EXCL: $PEER_ADDR is a raw libp2p multiaddr
+  # (e.g. "/ip4/.../tcp/..."), which Git Bash on Windows otherwise
+  # auto-converts as if it were a Unix path argument, corrupting it
+  # before the dial subcommand ever parses it.
+  MSYS2_ARG_CONV_EXCL="/ip4" go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1
   DIAL_RC=$?
 else
   DIAL_RC=2
@@ -66,8 +70,9 @@ set -e
 
 wait "$LISTENER_PID" || true
 
-python3 - "$OUT_JSON" "$PEER_ID" "$PEER_ADDR" "$LISTENER_LOG" "$DIAL_LOG" "$DIAL_RC" <<'PY'
+MSYS2_ARG_CONV_EXCL="/ip4" python3 - "$OUT_JSON" "$PEER_ID" "$PEER_ADDR" "$LISTENER_LOG" "$DIAL_LOG" "$DIAL_RC" <<'PY'
 import json
+import platform
 import sys
 from pathlib import Path
 
@@ -91,7 +96,7 @@ payload = {
         'log_path': dial_log,
         'output': output_text,
     },
-    'environment': {'os': 'Ubuntu 24.04.4 LTS'},
+    'environment': {'os': platform.platform()},
     'notes': 'This is a local transport impairment probe and not WAN or production-network evidence.'
 }
 out_path.write_text(json.dumps(payload, indent=2), encoding='utf-8')

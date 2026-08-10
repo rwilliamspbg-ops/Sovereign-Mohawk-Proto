@@ -1,0 +1,18 @@
+{
+  "generated_at_utc": "2026-08-10T17:10:00Z",
+  "scope": "Single-host local delay probe for the libp2p listener/dialer path.",
+  "listener": {
+    "peer_id": "12D3KooWKaVaXGCDoUwfvpdjJ6MmbYnjS8EbubsPFDQuP9bUzLFT",
+    "peer_addr": "/ip4/10.0.0.87/tcp/53989",
+    "log_path": "C:/Users/rwill/Sovereign-Mohawk-Proto/results/go-live/evidence/transport_delay_listener.log"
+  },
+  "dial": {
+    "returncode": 0,
+    "log_path": "C:/Users/rwill/Sovereign-Mohawk-Proto/results/go-live/evidence/transport_delay_dial.log",
+    "output": "{\"accepted\":true,\"mode\":\"dial\",\"peer_addr\":\"/ip4/10.0.0.87/tcp/53989\",\"peer_id\":\"12D3KooWKaVaXGCDoUwfvpdjJ6MmbYnjS8EbubsPFDQuP9bUzLFT\",\"reason\":\"\"}"
+  },
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0"
+  },
+  "notes": "This is a local transport impairment probe and not WAN or production-network evidence."
+}

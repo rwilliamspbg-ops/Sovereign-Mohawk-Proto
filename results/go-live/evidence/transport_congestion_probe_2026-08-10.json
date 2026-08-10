@@ -1,0 +1,29 @@
+{
+  "generated_at_utc": "2026-08-10T17:30:00Z",
+  "scope": "Three-pass local congestion-style probe for the libp2p listener/dialer path.",
+  "listener": {
+    "peer_id": "12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC",
+    "peer_addr": "/ip4/10.0.0.87/tcp/53993"
+  },
+  "dial_results": [
+    {
+      "returncode": 1,
+      "stdout": "{\"accepted\":false,\"error\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\",\"mode\":\"dial\",\"peer_addr\":\"/ip4/10.0.0.87/tcp/53993\",\"peer_id\":\"12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC\",\"reason\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\"}",
+      "stderr": "exit status 1"
+    },
+    {
+      "returncode": 1,
+      "stdout": "{\"accepted\":false,\"error\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\",\"mode\":\"dial\",\"peer_addr\":\"/ip4/10.0.0.87/tcp/53993\",\"peer_id\":\"12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC\",\"reason\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\"}",
+      "stderr": "exit status 1"
+    },
+    {
+      "returncode": 1,
+      "stdout": "{\"accepted\":false,\"error\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\",\"mode\":\"dial\",\"peer_addr\":\"/ip4/10.0.0.87/tcp/53993\",\"peer_id\":\"12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC\",\"reason\":\"gradient: connect to 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: failed to dial: failed to dial 12D3KooWAs79JM39ZkmWwC8zcdjGYSW8ft6zH17Qs2e9ZjrrrehC: all dials failed\\n  * [/ip4/10.0.0.87/tcp/53993] dial tcp4 10.0.0.87:53993: connectex: No connection could be made because the target machine actively refused it.\"}",
+      "stderr": "exit status 1"
+    }
+  ],
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0"
+  },
+  "notes": "This is a bounded local congestion-style probe and not a claim about wide-area network congestion."
+}

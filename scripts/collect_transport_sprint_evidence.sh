@@ -12,15 +12,16 @@ IMPAIR_OUT="$OUT_DIR/transport_impairment_probe_2026-08-10.json"
 
 rm -f "$BENCH_OUT" "$IMPAIR_OUT"
 
-python3 - <<'PY'
+python3 - "$ROOT_DIR" <<'PY'
 import json
 import os
+import platform
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-root = Path('/workspaces/Sovereign-Mohawk-Proto')
+root = Path(sys.argv[1])
 out_path = root / 'results/go-live/evidence/transport_benchmark_sweep_2026-08-10.json'
 
 cmd = ['go', 'test', './cmd/transport-probe', '-run', '^$', '-bench', '^BenchmarkProbeLocalEcho$', '-benchmem', '-count=1']
@@ -47,20 +48,21 @@ payload = {
     'generated_at_utc': '2026-08-10T17:00:00Z',
     'scope': 'Repeated single-host libp2p transport benchmark sweep for the local echo path.',
     'benchmark_runs': rows,
-    'environment': {'os': 'Ubuntu 24.04.4 LTS', 'go': 'go1.26.5'},
+    'environment': {'os': platform.platform(), 'go': 'go1.26.5'},
     'notes': 'This is a repeated local benchmark sweep and should not be interpreted as WAN throughput evidence.'
 }
 out_path.write_text(json.dumps(payload, indent=2), encoding='utf-8')
 PY
 
-python3 - <<'PY'
+python3 - "$ROOT_DIR" <<'PY'
 import json
 import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
 
-root = Path('/workspaces/Sovereign-Mohawk-Proto')
+root = Path(sys.argv[1])
 out_path = root / 'results/go-live/evidence/transport_impairment_probe_2026-08-10.json'
 
 listener = subprocess.Popen(
@@ -101,7 +103,7 @@ try:
         'scope': 'Single-host impairment probe that attempts a dial while the listener is active.',
         'listener': {'peer_id': peer_id, 'peer_addr': peer_addr},
         'dial': {'returncode': dial.returncode, 'stdout': dial.stdout.strip(), 'stderr': dial.stderr.strip()},
-        'environment': {'os': 'Ubuntu 24.04.4 LTS'},
+        'environment': {'os': platform.platform()},
         'notes': 'This is a local transport resilience probe and not wide-area network impairment evidence.'
     }
     out_path.write_text(json.dumps(payload, indent=2), encoding='utf-8')

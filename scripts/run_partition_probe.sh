@@ -76,7 +76,11 @@ PY
 )"
 set -e
 
-if go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1; then
+# MSYS2_ARG_CONV_EXCL: $PEER_ADDR is a raw libp2p multiaddr (e.g.
+# "/ip4/.../tcp/..."), which Git Bash on Windows otherwise auto-converts
+# as if it were a Unix path argument, corrupting it before the dial
+# subcommand ever parses it.
+if MSYS2_ARG_CONV_EXCL="/ip4" go run ./cmd/transport-probe dial "$PEER_ID" "$PEER_ADDR" > "$DIAL_LOG" 2>&1; then
   DIALED=1
 else
   DIALED=0
