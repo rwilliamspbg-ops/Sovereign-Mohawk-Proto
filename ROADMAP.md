@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Apr 28, 2026
+Aug 10, 2026
 
 ---
 
@@ -196,8 +196,8 @@ This plan turns the roadmap priorities into the next two execution sprints so co
 - [x] P1.1: Formalize Chernoff bounds in a new Lean module and wire it into the traceability matrix
 - [x] P2.1: Implement Lean proof metrics extraction for baseline analysis
 - [x] P2.2: Add proof regression detection to CI with non-blocking PR comments
-- [ ] P3.1: Add property-based tests for the core formal claims
-- [ ] Exit criteria: new proof module compiles, metrics pipeline runs on current proofs, and the new test layer is green
+- [x] P3.1: Add property-based tests for the core formal claims
+- [x] Exit criteria: new proof module compiles, metrics pipeline runs on current proofs, and the new test layer is green
 
 ### Dependencies And Ordering
 
@@ -247,6 +247,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-08-10 | 3.5 | Closed Sprint 2's P3.1: added property-based tests for rows 12 (`internal/multikrum_property_test.go`) and 13 (`test/rdp_accountant_property_test.go`) of the formal traceability matrix, generating random inputs rather than fixed vectors to check the invariants already established by Refinement/MultiKrum.lean and Refinement/RDPAccountant.lean; marked Sprint 2's exit criteria complete |
 | 2026-04-28 | 3.4 | Completed Sprint 1 and Phase 2 hardening deliverables: Lean proof metrics extraction, theorem dependency audit, proof-regression CI workflow, and traceability expansion for Theorem4ChernoffBounds/Theorem6ConvergenceReals |
 | 2026-04-28 | 3.3 | Added a concrete two-sprint execution plan with explicit dependencies, exit criteria, and contributor routing for the next roadmap slice |
 | 2026-04-11 | 3.2 | TPM production closure signed off: cross-platform matrix PASS, closure validation PASS, production attestation set to approved, and CI workflow evidence linked |
