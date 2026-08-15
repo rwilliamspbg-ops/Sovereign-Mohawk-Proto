@@ -43,7 +43,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.26.5+auto
+  GOTOOLCHAIN: go1.26.6+auto
   MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
 
 jobs:
