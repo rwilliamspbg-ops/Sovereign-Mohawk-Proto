@@ -1,5 +1,10 @@
 # Stage 1: Build the real fl-aggregator binary
-FROM golang:1.26.5-alpine AS builder
+FROM golang:1.26.6-alpine AS builder
+
+# Force the exact toolchain go.mod requires regardless of what the base
+# image's own `go` binary reports -- see Dockerfile's identical comment
+# for the observed CI failure this defends against.
+ENV GOTOOLCHAIN=go1.26.6+auto
 
 RUN apk add --no-cache git make
 

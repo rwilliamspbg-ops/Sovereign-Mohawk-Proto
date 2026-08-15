@@ -47,15 +47,25 @@
 //     (e.g. a Powers-of-Tau + circuit-specific MPC) would require. Treat
 //     dataCommitmentVK as a development/demo key, not a production-
 //     security guarantee.
-//  2. This circuit is not yet wired into any production call path.
-//     internal/pyapi/api.go's CGo exports, internal/hybrid/verifier.go,
-//     and internal/batch/aggregator.go all still call the pre-existing
-//     VerifyProof/GenesisProofBytes path (zero public inputs, hardcoded
-//     or nil digests) — connecting a real per-round gradient/model
-//     commitment (e.g. internal/computeproof.Trace's DatasetCommitment/
-//     ModelCommitmentBefore/After fields, currently unpopulated by any
-//     production caller) into this circuit's Preimage remains follow-up
-//     work, not attempted here.
+//  2. Wired into production as of 2026-08-15: internal/pyapi/api.go's
+//     VerifyZKProof/BatchVerifyProofs CGo exports and
+//     internal/hybrid/verifier.go's SNARKVerifier/VerifyHybrid now accept
+//     an optional hex-encoded commitment (internal.ParseCommitmentHex) and
+//     route to VerifyDataCommitmentProof when one is supplied, falling
+//     back to the legacy VerifyProof/GenesisProofBytes path when absent —
+//     purely additive, no existing caller's behavior changed.
+//     internal/batch/aggregator.go was previously (incorrectly) listed
+//     here as a third call site to wire: it does not call VerifyProof,
+//     VerifyZKProof, or BatchVerifyProofs at all — ProcessRound uses a
+//     third, unrelated verifier (internal/proofs.Verifier, a hardcoded
+//     SHA-256-of-empty-string baseline check), so there was nothing to
+//     wire there.
+//     Connecting a real per-round gradient/model commitment (e.g.
+//     internal/computeproof.Trace's DatasetCommitment/
+//     ModelCommitmentBefore/After fields, still unpopulated by any
+//     production caller as of this writing) into this circuit's Preimage
+//     remains separate follow-up work, not attempted here — today's
+//     callers must supply the commitment themselves.
 package internal
 
 import (

@@ -1,5 +1,10 @@
 # Build stage: Use Go 1.22-alpine for a lightweight build environment
-FROM golang:1.26.5-alpine AS builder
+FROM golang:1.26.6-alpine AS builder
+
+# Force the exact toolchain go.mod requires; see root Dockerfile's comment
+# for the observed CI failure (missed Go-version bump in this file) this
+# defends against.
+ENV GOTOOLCHAIN=go1.26.6+auto
 
 # Set the working directory to the root of the project
 WORKDIR /app
