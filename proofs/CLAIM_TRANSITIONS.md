@@ -224,3 +224,5 @@ discriminates a wrong bound. See the matrix row's own Notes for the full
 technical reasoning, including the explicit precision tradeoff (a coarse
 but real bound, chosen because this gap's use case -- a privacy-budget
 safety-margin check -- doesn't need Taylor-level tightness).
+
+- **PR:** #174
