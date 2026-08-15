@@ -195,3 +195,32 @@ unconditional reflexivity axiom would be observably false: `NaN <= NaN`
 evaluates to `false`).
 
 - **PR:** #162
+
+### 2026-08-15 -- Row 13 (RDP accountant refinement): closed the (ε, δ)-DP conversion gap via a computable bound
+
+`empirically_verified_ledger; conversion_gap_formalized_not_closed;
+check_budget_decision_empirically_validated_via_trace` ->
+`empirically_verified_ledger; conversion_bound_closed_via_computable_sandwich;
+check_budget_decision_empirically_validated_via_trace`
+
+Closed the "(ε, δ)-DP conversion... formalized separately, not closed" gap
+for real, not by making `Real.log` computable (impossible) but by proving
+a genuine two-sided *rational bound* on it. New file
+`proofs/Refinement/RDPLogBound.lean`: `rdpLog_sandwich` bounds `Real.log x`
+for any `x > 0` via a power-of-2 argument reduction `x = r·2^k`,
+`r ∈ [1,2)`, combining Mathlib's own already-proven `Real.log_two_near_10`
+(the `k·log 2` term) with the elementary near-1 inequalities
+`Real.one_sub_inv_le_log_of_pos`/`Real.log_le_sub_one_of_pos` (the residual
+`log r` term) -- deliberately not a Taylor-remainder bound, which is also
+available in this pinned Mathlib but converges too slowly near the `[1,2)`
+window's edge for this reduction. `rdpToApproxDP_bound` specializes to
+`alpha=10` (Go's fixed production value) and connects directly to
+`Refinement.rdpToApproxDP`. Concrete `#eval`-pinned instances at three
+representative delta values (Go's `1e-5` default, plus `1e-3`/`1e-8`) are
+checked against Go's actual `math.Log`-based `GetCurrentEpsilonRat()`
+output in `test/rdp_conversion_bound_test.go`, all passing, with a
+negative-control pass (not itself committed) confirming the test actually
+discriminates a wrong bound. See the matrix row's own Notes for the full
+technical reasoning, including the explicit precision tradeoff (a coarse
+but real bound, chosen because this gap's use case -- a privacy-budget
+safety-margin check -- doesn't need Taylor-level tightness).
