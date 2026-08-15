@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"math/big"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -43,6 +44,12 @@ type VerifyRequest struct {
 	SNARKProof   []byte     `json:"snark_proof"`
 	STARKProof   []byte     `json:"stark_proof"`
 	STARKBackend string     `json:"stark_backend"`
+	// Commitment is an optional hex-encoded (optionally 0x-prefixed) real
+	// per-round Groth16 commitment (see internal/zksnark_circuit_verifier.go).
+	// When present, SNARK verification runs against that commitment via the
+	// real DataCommitmentCircuit instead of the legacy fixed genesis
+	// identity — see internalpkg.ParseCommitmentHex for parsing semantics.
+	Commitment string `json:"commitment,omitempty"`
 }
 
 // VerifyResult reports per-scheme status and final policy decision.
@@ -55,9 +62,12 @@ type VerifyResult struct {
 	STARKBackend string `json:"stark_backend"`
 }
 
-// SNARKVerifier abstracts zk-SNARK verification backend.
+// SNARKVerifier abstracts zk-SNARK verification backend. commitment is
+// optional: nil means verify against the legacy fixed genesis identity;
+// non-nil means verify the proof against that real per-round commitment via
+// the DataCommitmentCircuit (see internal/zksnark_circuit_verifier.go).
 type SNARKVerifier interface {
-	Verify(proof []byte) (bool, error)
+	Verify(proof []byte, commitment *big.Int) (bool, error)
 }
 
 // STARKVerifier abstracts zk-STARK verification backend.
@@ -160,7 +170,11 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 	if err != nil {
 		return VerifyResult{}, err
 	}
-	snarkOK, snarkBackend, snarkErr := verifySNARKWithAcceleration(req.SNARKProof)
+	commitment, err := internalpkg.ParseCommitmentHex(req.Commitment)
+	if err != nil {
+		return VerifyResult{}, fmt.Errorf("invalid commitment: %w", err)
+	}
+	snarkOK, snarkBackend, snarkErr := verifySNARKWithAcceleration(req.SNARKProof, commitment)
 	starkOK, starkErr := starkVerifier.Verify(req.STARKProof)
 
 	result := VerifyResult{
@@ -192,9 +206,15 @@ func VerifyHybrid(req VerifyRequest) (VerifyResult, error) {
 	return result, nil
 }
 
-func verifySNARKWithAcceleration(proof []byte) (bool, string, error) {
+func verifySNARKWithAcceleration(proof []byte, commitment *big.Int) (bool, string, error) {
 	accel := currentSNARKAccelerator()
-	if accel != nil {
+	// Accelerators are opaque proof-bytes-over-stdin backends with no
+	// concept of a commitment — routing a commitment-bound verification
+	// request through one would silently ignore the commitment and could
+	// report success against the wrong (or no) statement. When a
+	// commitment is supplied, go straight to the CPU path, which does
+	// understand it.
+	if accel != nil && commitment == nil {
 		timeout := 2 * time.Second
 		if raw := strings.TrimSpace(os.Getenv("MOHAWK_SNARK_ACCEL_TIMEOUT")); raw != "" {
 			if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
@@ -207,16 +227,19 @@ func verifySNARKWithAcceleration(proof []byte) (bool, string, error) {
 		if err == nil {
 			return ok, accel.BackendName(), nil
 		}
-		cpuOK, cpuErr := defaultSNARKBridge.Verify(proof)
+		cpuOK, cpuErr := defaultSNARKBridge.Verify(proof, commitment)
 		return cpuOK, "cpu_fallback", errors.Join(fmt.Errorf("snark accelerator %s failed: %w", accel.BackendName(), err), cpuErr)
 	}
-	ok, err := defaultSNARKBridge.Verify(proof)
+	ok, err := defaultSNARKBridge.Verify(proof, commitment)
 	return ok, "cpu", err
 }
 
 type snarkVerifier struct{}
 
-func (snarkVerifier) Verify(proof []byte) (bool, error) {
+func (snarkVerifier) Verify(proof []byte, commitment *big.Int) (bool, error) {
+	if commitment != nil {
+		return internalpkg.VerifyDataCommitmentProof(proof, commitment)
+	}
 	if len(proof) == 0 {
 		return false, fmt.Errorf("snark proof missing")
 	}
