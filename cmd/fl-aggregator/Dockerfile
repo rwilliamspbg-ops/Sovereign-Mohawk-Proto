@@ -1,5 +1,9 @@
 # build stage
-FROM golang:1.26.5-alpine AS build
+FROM golang:1.26.6-alpine AS build
+# Force the exact toolchain go.mod requires; see root Dockerfile's comment
+# for the observed CI failure (missed Go-version bump in this file) this
+# defends against.
+ENV GOTOOLCHAIN=go1.26.6+auto
 WORKDIR /src
 COPY ../../ ./
 RUN go mod tidy && \
