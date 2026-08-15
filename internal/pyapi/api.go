@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/big"
 	"os"
 	"runtime"
 	"strconv"
@@ -511,7 +512,15 @@ func VerifyZKProof(proofJSON *C.char) *C.char {
 			fmt.Sprintf("Failed to parse proof payload: %v", err), "")
 	}
 	proofBytes := extractProofBytes(payload)
-	valid, err := internalpkg.VerifyProof(proofBytes, nil)
+	commitment, err := extractCommitment(payload)
+	if err != nil {
+		latencyMS := float64(time.Since(started).Microseconds()) / 1000.0
+		metrics.ObserveProofVerification("groth16", false, latencyMS)
+		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
+		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
+		return marshalResultEC(false, "PROOF_PARSE_ERROR", fmt.Sprintf("invalid commitment: %v", err), "")
+	}
+	valid, err := verifyProofPayload(proofBytes, commitment)
 	latencyMS := float64(time.Since(started).Microseconds()) / 1000.0
 	if err != nil {
 		metrics.ObserveProofVerification("groth16", false, latencyMS)
@@ -523,7 +532,11 @@ func VerifyZKProof(proofJSON *C.char) *C.char {
 		metrics.ObserveProofVerification("groth16", false, latencyMS)
 		metrics.ObserveAcceleratorOp("cpu", "proof_verify", false)
 		metrics.ObserveAcceleratorOpLatency("cpu", "proof_verify", latencyMS)
-		return marshalResultEC(false, "PROOF_INVALID", "pairing check failed: proof does not satisfy genesis VK", "")
+		reason := "pairing check failed: proof does not satisfy genesis VK"
+		if commitment != nil {
+			reason = "pairing check failed: proof does not satisfy commitment"
+		}
+		return marshalResultEC(false, "PROOF_INVALID", reason, "")
 	}
 	metrics.ObserveProofVerification("groth16", true, latencyMS)
 	metrics.ObserveAcceleratorOp("cpu", "proof_verify", true)
@@ -531,6 +544,7 @@ func VerifyZKProof(proofJSON *C.char) *C.char {
 	data, _ := json.Marshal(map[string]any{
 		"valid":                valid,
 		"verification_time_ms": latencyMS,
+		"commitment_bound":     commitment != nil,
 	})
 	return marshalResult(true, "Proof verified", string(data))
 }
@@ -946,8 +960,9 @@ func safeIntFromCInt(v C.int) (int, error) {
 func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 	raw := C.GoString(payloadJSON)
 	var proofs []struct {
-		ID    string `json:"id"`
-		Proof string `json:"proof"`
+		ID         string `json:"id"`
+		Proof      string `json:"proof"`
+		Commitment string `json:"commitment,omitempty"`
 	}
 	if err := json.Unmarshal([]byte(raw), &proofs); err != nil {
 		return marshalResult(false, fmt.Sprintf("parse error: %v", err), "")
@@ -974,13 +989,18 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 
 	for i, p := range proofs {
 		wg.Add(1)
-		go func(idx int, id, proof string) {
+		go func(idx int, id, proof, commitmentHex string) {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
+			commitment, err := internalpkg.ParseCommitmentHex(commitmentHex)
+			if err != nil {
+				results[idx] = verifyResult{ID: id, Valid: false, Error: fmt.Sprintf("invalid commitment: %v", err)}
+				return
+			}
 			proofBytes := decodeProofString(proof)
 			batchStart := time.Now()
-			valid, err := internalpkg.VerifyProof(proofBytes, nil)
+			valid, err := verifyProofPayload(proofBytes, commitment)
 			batchLatency := float64(time.Since(batchStart).Microseconds()) / 1000.0
 			metrics.ObserveProofVerification("groth16", valid && err == nil, batchLatency)
 			r := verifyResult{ID: id, Valid: valid}
@@ -988,7 +1008,7 @@ func BatchVerifyProofs(payloadJSON *C.char) *C.char {
 				r.Error = err.Error()
 			}
 			results[idx] = r
-		}(i, p.ID, p.Proof)
+		}(i, p.ID, p.Proof, p.Commitment)
 	}
 	wg.Wait()
 
@@ -1411,6 +1431,31 @@ func decodeProofString(s string) []byte {
 	}
 	// Raw string fallback
 	return []byte(s)
+}
+
+// extractCommitment reads the optional "commitment" field from a proof
+// verification payload. See internalpkg.ParseCommitmentHex for
+// absence/error semantics.
+func extractCommitment(payload map[string]any) (*big.Int, error) {
+	raw, ok := payload["commitment"].(string)
+	if !ok {
+		return nil, nil
+	}
+	return internalpkg.ParseCommitmentHex(raw)
+}
+
+// verifyProofPayload picks the verification path for a proof: when a
+// commitment is supplied, it verifies against the real per-round Groth16
+// circuit (DataCommitmentCircuit, a genuine compiled circuit with its own
+// trusted setup — see internal/zksnark_circuit_verifier.go); otherwise it
+// falls back to the legacy fixed genesis-identity path
+// (internalpkg.VerifyProof) for backward compatibility with callers that
+// never send a commitment.
+func verifyProofPayload(proofBytes []byte, commitment *big.Int) (bool, error) {
+	if commitment != nil {
+		return internalpkg.VerifyDataCommitmentProof(proofBytes, commitment)
+	}
+	return internalpkg.VerifyProof(proofBytes, nil)
 }
 
 func extractNodeIDArg(raw string) string {
