@@ -2,7 +2,7 @@
 
 ## Last Updated
 
-Aug 10, 2026
+Aug 15, 2026
 
 ---
 
@@ -102,8 +102,9 @@ TPM production closure sign-off (2026-04-11):
 
 ### A4. Performance and Scale Sign-off (Critical Path)
 
-- [ ] 1M+ node aggregation rehearsal with reproducible benchmark artifacts — **corrected 2026-08-10, was incorrectly checked**: no artifact substantiating a 1M-node rehearsal exists anywhere in this repository (verified via a full-repo search for any "1M node"/"million node" reference). This item previously contradicted "2026 Success Metrics" below, which correctly lists the same 1M+ node exercise as not yet done. Real, CI-verified scale evidence in this repo tops out at 500-1,500 nodes (`.github/workflows/swarm-runtime-matrix.yml`, `captured_artifacts/500node_scale_test_manifest.json`) and a separate 10k-node run (`captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md`). Still open at 1M scale; see the next item for a real (not 1M-scale) replacement of what this repo can currently prove.
+- [ ] 1M+ node aggregation rehearsal with reproducible benchmark artifacts — **corrected 2026-08-10, was incorrectly checked**: no artifact substantiating a 1M-node rehearsal exists anywhere in this repository (verified via a full-repo search for any "1M node"/"million node" reference). This item previously contradicted "2026 Success Metrics" below, which correctly lists the same 1M+ node exercise as not yet done. Real, CI-verified scale evidence in this repo tops out at 500-1,500 nodes (`.github/workflows/swarm-runtime-matrix.yml`, `captured_artifacts/500node_scale_test_manifest.json`) and a separate 10k-node run (`captured_artifacts/fedavg_10k_node_runtime_evaluation_2026-04-13.md`). Still open at 1M scale; see the next item for a real (not 1M-scale) replacement of what this repo can currently prove. — **refined 2026-08-15**: the "500-1,500 nodes" framing above conflates two different kinds of evidence and should not be read as a graduated scale ladder. The 500-node figure is the real deployment test below. The 1,500-node figure (`captured_artifacts/loaded_1500node_stress_capture_2026-04-13.md`) and the 10k-node figure are both Go unit-test profile-validation runs completing in near-zero elapsed time — explicitly disclaimed in their own text as "not a long-running distributed soak test," not deployment evidence. Don't cite them alongside the 500-pod test as comparable real-world scale points.
 - [x] Real multi-hundred-node Kubernetes deployment test (2026-08-10) — see [results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md](results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md), reproducible via [deploy/kubernetes/scale-test/README.md](deploy/kubernetes/scale-test/README.md). 500 real Kubernetes pods (unmodified orchestrator/node-agent binaries, real mTLS identity per replica, real gradient submissions) stable and healthy; 700 destabilizes the control plane due to Docker Desktop disk I/O, not memory/CPU (root-caused, not just observed). Includes real security tests (mTLS enforcement, wrong-token rejection) and real performance data (~31ms mean gradient-submit latency under contention, 5544/5544 TPM verifications successful). Explicitly **does not** claim 1M-node evidence — see the item above and the doc's own "What this does and does not establish" section.
+- [ ] **Added 2026-08-15**: real multi-host / WAN distributed evidence at any scale. Every real deployment artifact in this repo to date, including the 500-pod test above, ran on a **single host** (one laptop's `kind` cluster, per the evidence doc's own environment description). No multi-node or WAN run exists anywhere in the repo (verified: zero "WAN" references repo-wide). This is a sharper near-term gap than the 1M-node target — a single real multi-host run, even at modest node counts, would establish something the current evidence base cannot: that the control/data planes work at all across host boundaries, not just across pods sharing one kernel.
 - [x] End-to-end latency validation under failure injection scenarios
 - [x] Single-host libp2p relay/hole-punch transport evidence captured for the real transport code paths in [results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md](results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md) — this is real transport-path evidence on one host and explicitly does not claim WAN/geographic distribution or TPM attestation
 - [x] Python-vs-Go bridge compression overhead profiling report with optimization decisions
@@ -116,6 +117,19 @@ TPM production closure sign-off (2026-04-11):
 - [x] Finalize v1.0.0 release candidate checklist
 - [ ] Cut GA tag
 - [x] Publish deployment guide for genesis-to-production rollout path
+
+### A6. Documentation Completeness (Gap Alignment, added 2026-08-15)
+
+- [ ] Replace placeholder scaffolds under `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, and `docs/performance/` with real content. Verified 2026-08-15: nearly every file in these directories (e.g. `docs/architecture/BYZANTINE_RESILIENCE.md`, `docs/guides/OPERATIONS.md`, `docs/security/INCIDENT_RESPONSE.md`, `docs/API_REFERENCE.md`, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`) contains only the identical stub text "Scaffold document created to preserve canonical documentation links. See docs/INDEX.md..." — not thin drafts, but non-content. `docs/guides/GETTING_STARTED.md` is the one real exception.
+- [ ] Publish a rendered gRPC/REST API reference. Currently only the raw `api/federation/federation.proto` exists; there is no generated or hand-written reference doc.
+- [ ] Note: README, the Flower-compatible quickstart, `make` targets, `genesis-launch.sh`, and the Helm/Kind deployment docs (`helm/sovereign-mohawk/README.md`, `deploy/kubernetes/scale-test/README.md`) were verified 2026-08-15 as genuinely substantive — this gap is specifically the `docs/` subdirectory scaffolds and API reference, not the top-level onboarding path.
+
+### A7. Formal Verification Remaining Gaps (Gap Alignment, added 2026-08-15)
+
+Verified against `proofs/FORMAL_TRACEABILITY_MATRIX.md` as of the 2026-08-10 commit touching `proofs/`: zero `sorry`s remain across `proofs/LeanFormalization`/`Specification`/`Refinement`, and the eight axioms present (`Refinement/MultiKrum.lean`) are documented, CI-allowlisted IEEE-754 non-NaN comparison facts, not placeholders. Two concrete gaps remain open and are tracked here rather than as a general "formalization incomplete" note:
+
+- [x] Close the full RDP → (ε, δ)-DP conversion proof. **Merged 2026-08-15**: [#174](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/174) adds `proofs/Refinement/RDPLogBound.lean` (`rdpLog_sandwich`/`rdpToApproxDP_bound`), a computable two-sided rational bound on `Real.log` closing this gap without needing `Real.log` itself to be computable — see the PR and `proofs/FORMAL_TRACEABILITY_MATRIX.md` row 13 for the full technical reasoning, including the deliberate precision tradeoff (a coarse-but-general bound, not Taylor-tight).
+- [x] Wire the real Groth16/BN254 circuit (`internal/zksnark_circuit_verifier.go`, genuine trusted setup) into production call sites. **Merged 2026-08-15**: [#173](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/173) wires it additively into `pyapi`'s `VerifyZKProof`/`BatchVerifyProofs` and `hybrid`'s `SNARKVerifier`/`VerifyHybrid` (legacy no-commitment callers unaffected). Confirmed during that work that `internal/batch/aggregator.go` was never actually a third call site needing this (it doesn't call the affected verify functions at all). The corresponding Lean model (`Theorem5Cryptography.lean`) still remains abstract with no pairing/hardness machinery — that part of the gap was explicitly out of scope for #173 and stays open regardless.
 
 ### Phase 3 Closure Checklist (Current Evidence)
 
@@ -240,9 +254,10 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 
 **High-Impact Areas:**
 
-- Security hardening and audit remediation (Phase 3)
-- TPM attestation completion and validation (Phase 3)
-- Scale rehearsal and performance sign-off (Phase 3)
+- Security hardening and audit remediation (Phase 3) — TPM, FIPS, threat-model, and WASM hardening are done; the external audit/pentest itself is the one remaining item
+- Multi-host/WAN deployment evidence at any scale (Phase 3, A4)
+- Documentation completeness for `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, `docs/performance/` (Phase 3, A6)
+- Remaining formal-verification gaps: RDP → (ε, δ)-DP conversion, Groth16 production wiring (Phase 3, A7)
 - Blockchain incentive and verification layer work (Phase 4)
 
 ---
@@ -251,6 +266,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-08-15 | 3.9 | Folded in an independent gap-analysis verification pass (four parallel research agents against current repo state). Refined A4's "500-1,500 nodes" framing: the 1,500/10k-node figures are Go unit-test profile runs, not deployment evidence, and should not be cited alongside the real 500-pod test. Added a new A4 item: zero multi-host/WAN evidence exists at any scale (every real artifact to date ran on one laptop). Added new A6 (Documentation Completeness) tracking the placeholder scaffolds under `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, `docs/performance/` and the missing rendered API reference — confirmed the top-level README/quickstart/Helm docs are NOT part of this gap. Added new A7 (Formal Verification Remaining Gaps): confirmed zero sorries and all eight `Refinement/MultiKrum.lean` axioms are documented/justified, with two genuine open items — the RDP→(ε,δ)-DP conversion proof and wiring the real Groth16/BN254 circuit into production call sites, both since closed via [#174](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/174) and [#173](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/173) respectively (merged 2026-08-15). Also confirmed TPM cross-platform evidence, FIPS hardening, threat-model refresh, and WASM verifier restrictions are all already complete as tracked above (no roadmap change needed there, just independent confirmation) and that the ops runbook (A3) is substantively real, not thin. |
 | 2026-08-10 | 3.8 | Added single-host libp2p relay/hole-punch evidence for the actual transport code paths in `internal/network/transport.go` via `go run ./cmd/transport-probe` (local echo + relay-flow), and documented the scope explicitly: this is real transport-path evidence on one host, not WAN/geographically distributed evidence. Also documented that TPM attestation was scoped out because no `/dev/tpm*` device was present in this Codespace. See `results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md`. |
 | 2026-08-10 | 3.7 | Added real, reproducible evidence at A4: a 500-real-pod Kubernetes deployment test (unmodified orchestrator/node-agent binaries, real mTLS identity, real gradient submissions and security tests) as an honestly-scoped, real replacement for the still-corrected "1M+ node" claim -- explicitly not claiming 1M-node evidence. See `results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md` and `deploy/kubernetes/scale-test/`. Along the way, found and fixed a real bug: `helm/sovereign-mohawk/values.yaml`'s node-agent/orchestrator image references didn't match what CI actually publishes, so `make deploy-to-kind` would have failed with `ImagePullBackOff`. |
 | 2026-08-10 | 3.6 | GA-readiness audit against real evidence (not just the checkmarks): corrected 4 checkboxes across A1 and A4 and the v1.0.0 GA Exit Criteria that were marked complete but weren't. External security audit and penetration test: the CertiK engagement was scoped but never completed (its own closure report says findings are still "Pending"); what's real instead is a weaker internal code/config review. 1M+ node aggregation rehearsal: no artifact anywhere in this repo substantiates it (real scale evidence tops out at 500-1,500 nodes); this item previously contradicted the still-correctly-unchecked "2026 Success Metrics" entry for the same claim. TPM attestation and operations-runbook drills were verified genuine and left checked. |
