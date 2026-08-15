@@ -9,7 +9,7 @@ For what's still a placeholder elsewhere in the docs tree, see
 
 ## Prerequisites
 
-- **Go** — version pinned in [go.mod](../../go.mod) (`go 1.26.5` as of this
+- **Go** — version pinned in [go.mod](../../go.mod) (`go 1.26.6` as of this
   writing). Only needed if you're building the Go runtime or the Python
   SDK's native library.
 - **A working C compiler, with `CGO_ENABLED=1`** — required specifically
