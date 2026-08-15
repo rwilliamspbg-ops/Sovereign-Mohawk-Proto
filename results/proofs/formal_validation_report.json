@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "e41048e1db00df2e0489d888e49ae0ebb860cb317871ac3339d9b1716e98fefd",
+  "input_merkle_root": "d8163fe5b1aa41246ed1d4769d430fbe1c5930dfd7829f1f503e8e39088d91a3",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "33e72e44c9a629b785bf4c180c0f731f50ffcae255fdea37a5a1f0fc584a8293"
+      "sha256": "3eed09af3bc2dccbf91b63a48ee36eebcdacbed1e5a7ca1b0e120e8e43059555"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -322,7 +322,7 @@
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 50,
+    "runtime_reference_count": 51,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
       "internal/hbft/simulator_test.go::TestSimulator_RunRound_CallsRealMultiKrumSelect",
@@ -362,6 +362,7 @@
       "test/rdp_accountant_test.go::TestRDPAccountant_CheckBudget_Exceeded",
       "test/rdp_accountant_test.go::TestRDPAccountant_InitialBudget",
       "test/rdp_accountant_trace_test.go::TestRDPAccountantTrace",
+      "test/rdp_conversion_bound_test.go::TestRDPConversionBound",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Fail",
       "test/straggler_test.go::TestStragglerMonitor_ValidateLiveness_Pass",
       "test/transport_byte_size_test.go::TestTransportByteSizeConvention",
