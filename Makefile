@@ -9,7 +9,7 @@
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
-.PHONY: simulate-fl-1k benchmarks-reproducibility deploy-to-kind cloud-template-scaffold
+.PHONY: simulate-fl-1k benchmarks-reproducibility deploy-to-kind cloud-template-scaffold run-kind-scale-test
 
 help:
 	@echo "Sovereign-Mohawk Development Commands"
@@ -46,6 +46,12 @@ help:
 	@echo "  make simulate-fl-1k  - Run zero-config local FL simulator (1k virtual nodes)"
 	@echo "  make benchmarks-reproducibility - Build reproducibility benchmark artifacts"
 	@echo "  make deploy-to-kind  - Deploy Helm chart to local kind cluster"
+	@echo "  make run-kind-scale-test - Run the stronger local kind scale-test harness"
+	@echo "  make run-kind-scale-matrix - Run staged local kind scale matrix (100/300/500)"
+	@echo "  make collect-kind-scale-latency - Capture kind scale latency evidence"
+	@echo "  make run-kind-scale-evidence - Run matrix + latency evidence together"
+	@echo "  make check-test-host-prereqs - Validate local host tools for kind-based evidence"
+	@echo "  make install-kind-prereqs-ubuntu - Install kind/kubectl/docker on Ubuntu/Debian"
 	@echo "  make cloud-template-scaffold - Show cloud quickstart scaffold assets"
 	@echo "  make lint            - Check code with linters (ruff)"
 	@echo "  make black           - Check code formatting (black)"
@@ -210,6 +216,28 @@ benchmarks-reproducibility:
 
 deploy-to-kind:
 	@bash scripts/deploy_to_kind.sh
+
+run-kind-scale-test:
+	@bash scripts/check_test_host_prereqs.sh
+	@bash scripts/run_kind_scale_test.sh
+
+run-kind-scale-matrix:
+	@bash scripts/check_test_host_prereqs.sh
+	@bash scripts/run_kind_scale_matrix.sh
+
+collect-kind-scale-latency:
+	@bash scripts/check_test_host_prereqs.sh
+	@bash scripts/collect_kind_scale_latency.sh
+
+run-kind-scale-evidence:
+	@bash scripts/check_test_host_prereqs.sh
+	@bash scripts/run_kind_scale_evidence.sh
+
+check-test-host-prereqs:
+	@bash scripts/check_test_host_prereqs.sh
+
+install-kind-prereqs-ubuntu:
+	@bash scripts/install_kind_prereqs_ubuntu.sh
 
 cloud-template-scaffold:
 	@echo "Cloud template scaffolds:"

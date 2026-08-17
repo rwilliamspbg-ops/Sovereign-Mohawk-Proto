@@ -1,0 +1,5 @@
+requested_replicas,ready_replicas,result
+100,100,pass
+300,300,pass
+500,500,pass
+700,not-complete,insufficient-cpu
