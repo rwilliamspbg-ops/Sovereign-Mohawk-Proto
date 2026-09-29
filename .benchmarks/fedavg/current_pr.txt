@@ -1,0 +1,26 @@
+goos: linux
+goarch: amd64
+pkg: github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test
+cpu: Intel(R) Xeon(R) Processor @ 2.30GHz
+BenchmarkAggregateParallel/clients32_dim2048/workers1-2         	    1543	     75579 ns/op	3468.47 MB/s	    8313 B/op	       5 allocs/op
+BenchmarkAggregateParallel/clients32_dim2048/workers2-2         	    1694	     66653 ns/op	3932.94 MB/s	    8477 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients32_dim2048/workers4-2         	    1819	     63394 ns/op	4135.16 MB/s	    8741 B/op	      15 allocs/op
+BenchmarkAggregateParallel/clients32_dim2048/workers8-2         	    1699	     76165 ns/op	3441.81 MB/s	    9249 B/op	      27 allocs/op
+BenchmarkAggregateParallel/clients32_dim2048/workersAuto-2      	    1672	     77009 ns/op	3404.08 MB/s	    8327 B/op	       5 allocs/op
+BenchmarkAggregateParallel/clients128_dim4096/workers1-2        	     240	    435054 ns/op	4820.44 MB/s	   16506 B/op	       5 allocs/op
+BenchmarkAggregateParallel/clients128_dim4096/workers2-2        	     376	    266766 ns/op	7861.39 MB/s	   16704 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients128_dim4096/workers4-2        	     430	    294374 ns/op	7124.11 MB/s	   16916 B/op	      15 allocs/op
+BenchmarkAggregateParallel/clients128_dim4096/workers8-2        	     337	    319679 ns/op	6560.18 MB/s	   17427 B/op	      27 allocs/op
+BenchmarkAggregateParallel/clients128_dim4096/workersAuto-2     	     343	    311245 ns/op	6737.94 MB/s	   16707 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients256_dim8192/workers1-2        	      73	   1532792 ns/op	5472.76 MB/s	   32891 B/op	       5 allocs/op
+BenchmarkAggregateParallel/clients256_dim8192/workers2-2        	     129	    854376 ns/op	9818.40 MB/s	   33044 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients256_dim8192/workers4-2        	     129	    866811 ns/op	9677.55 MB/s	   33554 B/op	      15 allocs/op
+BenchmarkAggregateParallel/clients256_dim8192/workers8-2        	     124	    887899 ns/op	9447.71 MB/s	   34077 B/op	      27 allocs/op
+BenchmarkAggregateParallel/clients256_dim8192/workersAuto-2     	     132	    847421 ns/op	9898.98 MB/s	   33292 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients512_dim8192/workers1-2        	      32	   3213091 ns/op	5221.52 MB/s	   33920 B/op	       5 allocs/op
+BenchmarkAggregateParallel/clients512_dim8192/workers2-2        	      69	   1608841 ns/op	10428.14 MB/s	   33048 B/op	       9 allocs/op
+BenchmarkAggregateParallel/clients512_dim8192/workers4-2        	      69	   1634414 ns/op	10264.97 MB/s	   33779 B/op	      15 allocs/op
+BenchmarkAggregateParallel/clients512_dim8192/workers8-2        	      68	   1681197 ns/op	9979.33 MB/s	   33817 B/op	      27 allocs/op
+BenchmarkAggregateParallel/clients512_dim8192/workersAuto-2     	      67	   1649115 ns/op	10173.47 MB/s	   33049 B/op	       9 allocs/op
+PASS
+ok  	github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/test	3.282s

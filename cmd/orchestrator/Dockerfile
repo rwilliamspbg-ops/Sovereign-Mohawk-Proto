@@ -9,7 +9,7 @@ ENV GOTOOLCHAIN=go1.26.6+auto
 WORKDIR /app
 RUN apk add --no-cache git gcc musl-dev
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download || go mod download
 COPY . .
 RUN go build -o main ./cmd/orchestrator
 

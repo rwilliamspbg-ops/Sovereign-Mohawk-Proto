@@ -150,13 +150,21 @@ jobs:
           restore-keys: |
             fedavg-main-
 
-      - name: Require cached baseline
+      - name: Ensure FedAvg baseline (generate on-the-fly if cache miss)
         if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
+          set -euo pipefail
+          mkdir -p .benchmarks/fedavg
           if [ ! -s .benchmarks/fedavg/base_main.txt ]; then
-            echo "error: missing cached FedAvg baseline from main"
-            echo "hint: run this workflow on main to seed fedavg-main-* cache"
-            exit 1
+            echo "Notice: missing cached FedAvg baseline from main cache. Generating baseline on-the-fly from base SHA..."
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            WORKTREE_DIR="/tmp/fedavg-base-worktree"
+            rm -rf "$WORKTREE_DIR"
+            git worktree add "$WORKTREE_DIR" "$BASE_SHA"
+            pushd "$WORKTREE_DIR"
+            ./scripts/go_with_toolchain.sh go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > "$GITHUB_WORKSPACE/.benchmarks/fedavg/base_main.txt"
+            popd
+            git worktree remove "$WORKTREE_DIR" --force || rm -rf "$WORKTREE_DIR"
           fi
 
       - name: Run current FedAvg benchmark
