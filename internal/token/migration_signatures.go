@@ -1,7 +1,6 @@
 package token
 
 import (
-	"crypto/ecdh"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/elliptic"
@@ -179,12 +178,11 @@ func parseECDSAP256PublicKey(raw []byte) (*ecdsa.PublicKey, error) {
 	if len(raw) != 65 || raw[0] != 0x04 {
 		return nil, fmt.Errorf("invalid uncompressed P-256 public key")
 	}
-	if _, err := ecdh.P256().NewPublicKey(raw); err != nil {
+	pub, err := ecdsa.ParseUncompressedPublicKey(elliptic.P256(), raw)
+	if err != nil {
 		return nil, fmt.Errorf("invalid uncompressed P-256 public key")
 	}
-	x := new(big.Int).SetBytes(raw[1:33])
-	y := new(big.Int).SetBytes(raw[33:65])
-	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil
+	return pub, nil
 }
 
 func parseEd25519PublicKey(raw []byte) (ed25519.PublicKey, error) {
