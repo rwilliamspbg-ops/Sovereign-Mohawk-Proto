@@ -176,17 +176,17 @@ func TestTransferIdempotencyAndNonceReplay(t *testing.T) {
 	if _, err := l.Mint("protocol", "edge-a", 10, "seed"); err != nil {
 		t.Fatalf("seed mint failed: %v", err)
 	}
-	if _, err := l.TransferWithControls("edge-a", "edge-b", 2, "pay", "tx-1", 1); err != nil {
+	if _, err := l.TransferWithControls("edge-a", "edge-b", 2, TransferOptions{Memo: "pay", IdempotencyKey: "tx-1", Nonce: 1}); err != nil {
 		t.Fatalf("transfer failed: %v", err)
 	}
-	dup, err := l.TransferWithControls("edge-a", "edge-b", 2, "pay-again", "tx-1", 1)
+	dup, err := l.TransferWithControls("edge-a", "edge-b", 2, TransferOptions{Memo: "pay-again", IdempotencyKey: "tx-1", Nonce: 1})
 	if err != nil {
 		t.Fatalf("idempotent transfer should not error: %v", err)
 	}
 	if dup.Memo != "pay" {
 		t.Fatalf("expected idempotent replay to return original memo, got %q", dup.Memo)
 	}
-	if _, err := l.TransferWithControls("edge-a", "edge-b", 1, "replay", "tx-2", 1); err == nil {
+	if _, err := l.TransferWithControls("edge-a", "edge-b", 1, TransferOptions{Memo: "replay", IdempotencyKey: "tx-2", Nonce: 1}); err == nil {
 		t.Fatal("expected nonce replay to fail")
 	}
 	if got := l.Balance("edge-a"); got != 8 {
