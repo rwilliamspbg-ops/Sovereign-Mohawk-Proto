@@ -470,3 +470,24 @@ func BenchmarkFederationBatchForwarding(b *testing.B) {
 
 	client.Close()
 }
+
+// BenchmarkPathHopsAppendDirect measures the raw slice allocation performance of path hop tracking
+func BenchmarkPathHopsAppendDirect(b *testing.B) {
+	tierIDs := []string{"regional-1", "continental-1", "global-1"}
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		// Simulating batch of 100 gradients arriving with unallocated PathHops
+		gradients := make([]*GradientMessage, 100)
+		for j := 0; j < 100; j++ {
+			gradients[j] = &GradientMessage{}
+		}
+
+		for _, tierID := range tierIDs {
+			for _, g := range gradients {
+				g.PathHops = append(g.PathHops, tierID)
+			}
+		}
+	}
+}
