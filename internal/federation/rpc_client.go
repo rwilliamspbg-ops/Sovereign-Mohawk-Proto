@@ -51,6 +51,9 @@ func (c *RPCClient) ForwardGradient(ctx context.Context, gradient *GradientMessa
 	}
 
 	// Record routing breadcrumb
+	if cap(gradient.PathHops) == 0 {
+		gradient.PathHops = make([]string, 0, 4)
+	}
 	gradient.PathHops = append(gradient.PathHops, c.config.TierID)
 
 	// Use actual gRPC backend
@@ -95,6 +98,9 @@ func (c *RPCClient) ForwardBatch(ctx context.Context, gradients []*GradientMessa
 
 	// Prepare batch message
 	for _, g := range gradients {
+		if cap(g.PathHops) == 0 {
+			g.PathHops = make([]string, 0, 4)
+		}
 		g.PathHops = append(g.PathHops, c.config.TierID)
 	}
 

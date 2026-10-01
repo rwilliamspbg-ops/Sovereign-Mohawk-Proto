@@ -158,7 +158,6 @@ jobs:
             mkdir -p .benchmarks/fedavg
             ./scripts/go_with_toolchain.sh go test ./test -run '^$' -bench '^BenchmarkAggregateParallel$' -benchmem -benchtime="${FEDAVG_BENCH_TIME}" -count="${FEDAVG_BENCH_COUNT}" -cpu="${FEDAVG_BENCH_CPU}" > .benchmarks/fedavg/base_main.txt
           fi
-
       - name: Run current FedAvg benchmark
         if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
