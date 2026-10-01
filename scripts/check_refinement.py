@@ -67,7 +67,7 @@ REQUIRED_GO_FILES = {
         r"func\s+NewHost\s*\(\s*ctx\s+context\.Context\s*,\s*cfg\s+Config\s*\)\s*\(\s*corehost\.Host\s*,\s*error\s*\)",
     ],
     "internal/token/ledger.go": [
-        r"func\s+\(\s*l\s+\*Ledger\s*\)\s+TransferWithControls\s*\(\s*from\s+string\s*,\s*to\s+string\s*,\s*amount\s+float64\s*,\s*memo\s+string\s*,\s*idempotencyKey\s+string\s*,\s*nonce\s+uint64\s*\)\s*\(\s*Tx\s*,\s*error\s*\)",
+        r"func\s+\(\s*l\s+\*Ledger\s*\)\s+TransferWithControls\s*\(\s*from\s+string\s*,\s*to\s+string\s*,\s*amount\s+float64\s*,\s*opts\s+TransferOptions\s*\)\s*\(\s*Tx\s*,\s*error\s*\)",
     ],
 }
 
