@@ -182,7 +182,9 @@ func parseECDSAP256PublicKey(raw []byte) (*ecdsa.PublicKey, error) {
 	if _, err := ecdh.P256().NewPublicKey(raw); err != nil {
 		return nil, fmt.Errorf("invalid uncompressed P-256 public key")
 	}
-	return ecdsa.ParseUncompressedPublicKey(elliptic.P256(), raw)
+	x := new(big.Int).SetBytes(raw[1:33])
+	y := new(big.Int).SetBytes(raw[33:65])
+	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil //nolint:staticcheck // legacy uncompressed P-256 public key struct
 }
 
 func parseEd25519PublicKey(raw []byte) (ed25519.PublicKey, error) {
