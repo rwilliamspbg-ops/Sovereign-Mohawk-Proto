@@ -166,6 +166,7 @@ jobs:
             popd
             git worktree remove "$WORKTREE_DIR" --force || rm -rf "$WORKTREE_DIR"
           fi
+
       - name: Run current FedAvg benchmark
         if: steps.perf_changes.outputs.run_benchmark == 'true'
         run: |
