@@ -1202,7 +1202,11 @@ func TransferUtilityCoin(payloadJSON *C.char) *C.char {
 	if err := enforceUtilityRateLimit(from); err != nil {
 		return marshalResult(false, err.Error(), "")
 	}
-	tx, err := utilityCoinLedger.TransferWithControls(from, to, req.Amount, req.Memo, req.IdempotencyKey, req.Nonce)
+	tx, err := utilityCoinLedger.TransferWithControls(from, to, req.Amount, token.TransferOptions{
+		Memo:           req.Memo,
+		IdempotencyKey: req.IdempotencyKey,
+		Nonce:          req.Nonce,
+	})
 	if err != nil {
 		return marshalResult(false, err.Error(), "")
 	}

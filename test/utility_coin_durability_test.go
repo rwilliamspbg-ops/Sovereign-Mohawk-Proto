@@ -75,10 +75,10 @@ func TestUtilityCoinIdempotencyAndNonceReplay(t *testing.T) {
 		t.Fatalf("unexpected balance after idempotent mint: %.4f", got)
 	}
 
-	if _, err := ledger.TransferWithControls("edge-a", "edge-b", 2, "pay", "tx-1", 2); err != nil {
+	if _, err := ledger.TransferWithControls("edge-a", "edge-b", 2, token.TransferOptions{Memo: "pay", IdempotencyKey: "tx-1", Nonce: 2}); err != nil {
 		t.Fatalf("transfer with controls failed: %v", err)
 	}
-	if _, err := ledger.TransferWithControls("edge-a", "edge-b", 2, "replay", "tx-2", 2); err == nil {
+	if _, err := ledger.TransferWithControls("edge-a", "edge-b", 2, token.TransferOptions{Memo: "replay", IdempotencyKey: "tx-2", Nonce: 2}); err == nil {
 		t.Fatal("expected nonce replay to fail")
 	}
 }
