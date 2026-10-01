@@ -184,7 +184,8 @@ func parseECDSAP256PublicKey(raw []byte) (*ecdsa.PublicKey, error) {
 	}
 	x := new(big.Int).SetBytes(raw[1:33])
 	y := new(big.Int).SetBytes(raw[33:65])
-	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil //nolint:staticcheck // legacy uncompressed P-256 public key struct
+	//nolint:staticcheck // X and Y fields used for ECDSA public key construction from legacy raw byte format
+	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil
 }
 
 func parseEd25519PublicKey(raw []byte) (ed25519.PublicKey, error) {
