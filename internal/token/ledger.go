@@ -262,7 +262,7 @@ func (l *Ledger) MintWithControls(actor string, to string, amount float64, memo 
 
 // Transfer moves utility coins between accounts.
 func (l *Ledger) Transfer(from string, to string, amount float64, memo string) (Tx, error) {
-	return l.TransferWithControls(from, to, amount, memo, "", 0)
+	return l.TransferWithControls(from, to, amount, TransferOptions{Memo: memo})
 }
 
 // MigrateWithDualSignature moves funds from a legacy account to an ML-DSA account.
@@ -372,11 +372,18 @@ func (l *Ledger) Burn(from string, amount float64, memo string) (Tx, error) {
 	return l.BurnWithControls(from, amount, memo, "", 0)
 }
 
+// TransferOptions holds optional parameters and controls for coin transfers.
+type TransferOptions struct {
+	Memo           string
+	IdempotencyKey string
+	Nonce          uint64
+}
+
 // TransferWithControls transfers coins with optional idempotency and nonce replay controls.
-func (l *Ledger) TransferWithControls(from string, to string, amount float64, memo string, idempotencyKey string, nonce uint64) (Tx, error) {
+func (l *Ledger) TransferWithControls(from string, to string, amount float64, opts TransferOptions) (Tx, error) {
 	from = strings.TrimSpace(from)
 	to = strings.TrimSpace(to)
-	idempotencyKey = strings.TrimSpace(idempotencyKey)
+	idempotencyKey := strings.TrimSpace(opts.IdempotencyKey)
 	amountUnits, err := l.amountToUnits(amount)
 	if err != nil {
 		return Tx{}, err
@@ -392,12 +399,12 @@ func (l *Ledger) TransferWithControls(from string, to string, amount float64, me
 			return existing, nil
 		}
 	}
-	if nonce > 0 {
+	if opts.Nonce > 0 {
 		last := l.nonces[from]
-		if nonce <= last {
-			return Tx{}, fmt.Errorf("replay detected for account %q: nonce %d <= %d", from, nonce, last)
+		if opts.Nonce <= last {
+			return Tx{}, fmt.Errorf("replay detected for account %q: nonce %d <= %d", from, opts.Nonce, last)
 		}
-		l.nonces[from] = nonce
+		l.nonces[from] = opts.Nonce
 	}
 	if l.lockLegacyTransfers {
 		if mapped, ok := l.migrations[from]; ok && mapped != "" {
@@ -415,7 +422,7 @@ func (l *Ledger) TransferWithControls(from string, to string, amount float64, me
 		To:          to,
 		Amount:      l.unitsToAmount(amountUnits),
 		AmountUnits: amountUnits,
-		Memo:        memo,
+		Memo:        opts.Memo,
 		Timestamp:   time.Now().UTC(),
 	}
 	l.txns = append(l.txns, tx)

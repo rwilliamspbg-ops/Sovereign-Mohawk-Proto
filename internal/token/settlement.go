@@ -18,5 +18,9 @@ func (l *Ledger) SettleTaskPayout(payer string, worker string, taskID string, am
 	}
 	memo := fmt.Sprintf("task_settlement:%s:%s", taskID, proofID)
 	idempotencyKey := fmt.Sprintf("task:%s:%s", taskID, proofID)
-	return l.TransferWithControls(payer, worker, amount, memo, idempotencyKey, nonce)
+	return l.TransferWithControls(payer, worker, amount, TransferOptions{
+		Memo:           memo,
+		IdempotencyKey: idempotencyKey,
+		Nonce:          nonce,
+	})
 }

@@ -20,7 +20,7 @@ func TestLedgerLeanCorrespondence(t *testing.T) {
 		if _, err := l.Mint("minter", "acct2", 0.000050, ""); err != nil {
 			t.Fatalf("mint acct2: %v", err)
 		}
-		if _, err := l.TransferWithControls("acct1", "acct2", 0.000030, "", "", 0); err != nil {
+		if _, err := l.TransferWithControls("acct1", "acct2", 0.000030, TransferOptions{}); err != nil {
 			t.Fatalf("transfer: %v", err)
 		}
 
@@ -41,7 +41,7 @@ func TestLedgerLeanCorrespondence(t *testing.T) {
 			t.Fatalf("mint acct1: %v", err)
 		}
 
-		_, err := l.TransferWithControls("acct1", "acct2", 0.000050, "", "", 0)
+		_, err := l.TransferWithControls("acct1", "acct2", 0.000050, TransferOptions{})
 		if err == nil {
 			t.Fatal("expected insufficient-balance error, got nil")
 		}
