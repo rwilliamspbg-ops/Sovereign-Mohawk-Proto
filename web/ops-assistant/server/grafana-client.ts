@@ -4,7 +4,7 @@ import { getAuthManager, type AuthManager } from './auth-manager.js';
 /**
  * Grafana API Client
  * Provides methods to interact with Grafana dashboards, alerts, and annotations
- * 
+ *
  * Enhanced with:
  * - Unified authentication management via AuthManager
  * - Automatic 401 detection and re-authentication
@@ -75,20 +75,10 @@ export class GrafanaClient {
   private authManager: AuthManager;
   private isReauthenticating: boolean = false;
 
-  constructor(
-    baseUrl: string = 'http://grafana:3000',
-    apiToken?: string
-  ) {
+  constructor(baseUrl: string = 'http://grafana:3000', apiToken?: string) {
     this.baseUrl = baseUrl;
-    this.apiToken = apiToken || process.env.GRAFANA_API_TOKEN || 'admin';
+    this.apiToken = apiToken || process.env.GRAFANA_API_TOKEN || '';
     this.authManager = getAuthManager();
-
-    if (this.apiToken === 'admin') {
-      console.warn(
-        '[GrafanaClient] ⚠️ WARNING: Using default "admin" token. ' +
-        'Set GRAFANA_API_TOKEN environment variable or /run/secrets/grafana_api_token file'
-      );
-    }
 
     // Create axios instance with interceptors for auth handling
     this.axiosInstance = axios.create({
@@ -104,10 +94,17 @@ export class GrafanaClient {
     this.axiosInstance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const configWithRetryMarker = error.config as (AxiosRequestConfig & { _grafanaAuthRetried?: boolean }) | undefined;
-        if (error.response?.status === 401 && !this.isReauthenticating && !configWithRetryMarker?._grafanaAuthRetried) {
-          console.warn('[GrafanaClient] 🔄 Received 401 Unauthorized, attempting re-authentication...');
-          
+        const configWithRetryMarker = error.config as
+          (AxiosRequestConfig & { _grafanaAuthRetried?: boolean }) | undefined;
+        if (
+          error.response?.status === 401 &&
+          !this.isReauthenticating &&
+          !configWithRetryMarker?._grafanaAuthRetried
+        ) {
+          console.warn(
+            '[GrafanaClient] 🔄 Received 401 Unauthorized, attempting re-authentication...'
+          );
+
           // Trace the auth failure
           this.authManager.addRequestTrace(
             'ops-assistant',
@@ -121,7 +118,7 @@ export class GrafanaClient {
           try {
             // Attempt to refresh/validate token
             await this.revalidateAndRefreshToken();
-            
+
             // Retry the original request with new token
             if (configWithRetryMarker) {
               configWithRetryMarker._grafanaAuthRetried = true;
@@ -167,10 +164,10 @@ export class GrafanaClient {
     try {
       const token = await this.authManager.getGrafanaToken();
       this.apiToken = token;
-      
+
       // Update axios instance headers
       this.axiosInstance.defaults.headers.Authorization = `Bearer ${token}`;
-      
+
       console.log('[GrafanaClient] ✓ Token refreshed successfully');
     } catch (error) {
       console.error('[GrafanaClient] ✗ Token refresh failed:', error);
@@ -204,13 +201,7 @@ export class GrafanaClient {
       tokenLength: this.apiToken.length,
     });
 
-    this.authManager.addRequestTrace(
-      'ops-assistant',
-      'grafana',
-      'GET',
-      statusCode,
-      errorMessage
-    );
+    this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', statusCode, errorMessage);
   }
 
   /**
@@ -239,9 +230,7 @@ export class GrafanaClient {
    */
   async getDashboardByUid(uid: string): Promise<DashboardDetail | null> {
     try {
-      const response = await this.axiosInstance.get<DashboardDetail>(
-        `/api/dashboards/uid/${uid}`
-      );
+      const response = await this.axiosInstance.get<DashboardDetail>(`/api/dashboards/uid/${uid}`);
       this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
@@ -255,12 +244,9 @@ export class GrafanaClient {
    */
   async searchDashboards(query: string): Promise<Dashboard[]> {
     try {
-      const response = await this.axiosInstance.get<Dashboard[]>(
-        '/api/search',
-        {
-          params: { query, type: 'dash-db' },
-        }
-      );
+      const response = await this.axiosInstance.get<Dashboard[]>('/api/search', {
+        params: { query, type: 'dash-db' },
+      });
       this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
@@ -313,10 +299,7 @@ export class GrafanaClient {
       if (panelId) params.panelId = panelId;
       if (tags) params.tags = tags;
 
-      const response = await this.axiosInstance.get<Annotation[]>(
-        '/api/annotations',
-        { params }
-      );
+      const response = await this.axiosInstance.get<Annotation[]>('/api/annotations', { params });
       this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return response.data;
     } catch (error) {
@@ -369,14 +352,17 @@ export class GrafanaClient {
    */
   async queryDatasource(datasourceId: number, targets: any[]): Promise<any> {
     try {
-      const response = await this.axiosInstance.post(
-        `/api/datasources/${datasourceId}/query`,
-        { targets }
-      );
+      const response = await this.axiosInstance.post(`/api/datasources/${datasourceId}/query`, {
+        targets,
+      });
       this.authManager.addRequestTrace('ops-assistant', 'grafana', 'POST', 200);
       return response.data;
     } catch (error) {
-      this.handleError(`queryDatasource(${datasourceId})`, error, `/api/datasources/${datasourceId}/query`);
+      this.handleError(
+        `queryDatasource(${datasourceId})`,
+        error,
+        `/api/datasources/${datasourceId}/query`
+      );
       return null;
     }
   }
@@ -435,7 +421,11 @@ export class GrafanaClient {
       this.authManager.addRequestTrace('ops-assistant', 'grafana', 'GET', 200);
       return true;
     } catch (error) {
-      this.handleError(`testDatasource(${datasourceId})`, error, `/api/datasources/${datasourceId}`);
+      this.handleError(
+        `testDatasource(${datasourceId})`,
+        error,
+        `/api/datasources/${datasourceId}`
+      );
       return false;
     }
   }
