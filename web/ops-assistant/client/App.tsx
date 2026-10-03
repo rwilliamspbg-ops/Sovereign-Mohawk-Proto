@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { CopilotChat } from '@copilotkit/react-ui';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { useCopilotAction } from '@copilotkit/react-core';
 import MetricsView from './components/MetricsView';
 import GrafanaDashboardView from './components/GrafanaDashboardView';
@@ -9,6 +8,24 @@ import { useAgUiStream } from './hooks/useAgUiStream';
 import { A2UiAction } from './types/protocol';
 import '@copilotkit/react-ui/styles.css';
 import './styles/app.css';
+
+/**
+ * CopilotChat is loaded on demand rather than statically imported.
+ *
+ * Its dependency tree is large and entirely chat-specific: @copilotkit/react-ui
+ * pulls in streamdown, which pulls in mermaid (~83 MB installed, ~660 kB of
+ * lazily-loaded diagram code), katex, shiki and the full syntax-highlighter
+ * language registry. Statically importing it put ~1.5 MB of that into the
+ * entry chunk that every operator downloads before the first paint -- including
+ * the Metrics and Dashboards views, which never touch it.
+ *
+ * Deferring it means an unconfigured or chat-free deployment never downloads
+ * any of it. The loading fallback is intentionally quiet: chat is the default
+ * tab, so a spinner here would flash on every page load.
+ */
+const CopilotChat = lazy(() =>
+  import('@copilotkit/react-ui').then((m) => ({ default: m.CopilotChat }))
+);
 
 /**
  * Enhanced Operations Assistant Application
@@ -344,13 +361,15 @@ const App: React.FC<AppProps> = ({ chatEnabled = true }) => {
               </div>
               {chatEnabled ? (
                 <div className="chat-container">
-                  <CopilotChat
-                    instructions="You are an expert network operations assistant. Help users monitor and analyze their infrastructure using real-time metrics from Prometheus and Grafana dashboards. Provide actionable insights and recommendations for system optimization."
-                    labels={{
-                      initial: "Hi! I'm your operations assistant. How can I help you today?",
-                      placeholder: "Ask about metrics, dashboards, or system health...",
-                    }}
-                  />
+                  <Suspense fallback={null}>
+                    <CopilotChat
+                      instructions="You are an expert network operations assistant. Help users monitor and analyze their infrastructure using real-time metrics from Prometheus and Grafana dashboards. Provide actionable insights and recommendations for system optimization."
+                      labels={{
+                        initial: "Hi! I'm your operations assistant. How can I help you today?",
+                        placeholder: "Ask about metrics, dashboards, or system health...",
+                      }}
+                    />
+                  </Suspense>
                 </div>
               ) : (
                 <ChatUnavailable />
