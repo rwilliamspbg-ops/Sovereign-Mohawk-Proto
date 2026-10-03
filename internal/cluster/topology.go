@@ -73,7 +73,13 @@ func (t *Topology) AssignAggregator(edgeNodeID string, aggregators []string) err
 		numPaths = len(aggregators)
 	}
 
-	t.edges[edgeNodeID] = aggregators[:numPaths]
+	// Copy rather than alias: storing aggregators[:numPaths] would share the
+	// caller's backing array, so a later mutation of that slice would silently
+	// reroute this edge node's gradients.
+	assigned := make([]string, numPaths)
+	copy(assigned, aggregators[:numPaths])
+
+	t.edges[edgeNodeID] = assigned
 	return nil
 }
 
@@ -87,7 +93,10 @@ func (t *Topology) GetAssignedAggregators(edgeNodeID string) ([]string, error) {
 		return nil, fmt.Errorf("node %s not assigned", edgeNodeID)
 	}
 
-	return aggs, nil
+	// Hand back a copy so callers cannot mutate topology state without the lock.
+	out := make([]string, len(aggs))
+	copy(out, aggs)
+	return out, nil
 }
 
 // UpdateReputation adjusts Byzantine scoring

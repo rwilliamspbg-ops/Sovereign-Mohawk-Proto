@@ -6,6 +6,129 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed - Claim/Artifact Drift (2026-05-11 → 2026-10-03)
+
+This entry restores the changelog after a five-month gap. All items below are
+derived from the commit history in the stated window; nothing here is new work.
+
+#### Removed
+
+- **Dead test scaffold**: deleted `test/attestation_test.go.disabled`, a disabled
+  test carrying an unresolved `// adjust import if path differs` comment. It had
+  never executed.
+
+#### Security
+
+- **Removed `MOHAWK_ALLOW_UNAUTH_ADMIN` backdoor** from the orchestrator
+  (2026-05-24). This was a real authentication bypass, not a hardening nicety.
+- **Closed a signature-bypass** in `MigrateWithDualSignatureCryptographic`
+  (2026-07-27).
+- **Removed a hardcoded default Grafana API token** from the ops-assistant
+  `GrafanaClient` (2026-09-29 → 2026-10-01); the constructor now falls back to an
+  empty string and requires an explicitly supplied token. Unit tests added.
+- **Bounded Grafana 401 retry handling** in the ops-assistant client, and fixed a
+  401 retry loop in the ops summary path.
+- Dependency CVE remediation: `golang.org/x/crypto` v0.51.0 → v0.52.0 (HIGH CVEs,
+  2026-06-25); `socket.io-parser` for CVE-2026-69185 (2026-08-04); npm
+  dependencies via the trivy-fs gate (2026-06-16); Go toolchain 1.26.3 → 1.26.4
+  for GO-2026-5037 / GO-2026-5039 (2026-06-15), then 1.26.5 → 1.26.6 for six
+  disclosed stdlib CVEs (2026-08-15).
+
+#### Formal Verification
+
+The largest body of work in this window. Zero `sorry` remain across
+`proofs/LeanFormalization`, `proofs/Specification`, and `proofs/Refinement`; the
+eight remaining axioms are documented, CI-allowlisted IEEE-754 non-NaN comparison
+facts in `proofs/Refinement/MultiKrum.lean`, not placeholders.
+
+- **Closed the RDP → (ε, δ)-DP conversion gap** (#174, 2026-08-15) via
+  `proofs/Refinement/RDPLogBound.lean`, providing a computable two-sided rational
+  bound on `Real.log` so the conversion does not require `Real.log` itself to be
+  computable. Coarse-but-general rather than Taylor-tight, by design.
+- **Wired the real Groth16/BN254 circuit** (#173, 2026-08-15) into `pyapi`'s
+  `VerifyZKProof`/`BatchVerifyProofs` and `hybrid`'s `SNARKVerifier`/`VerifyHybrid`.
+  Additive: legacy no-commitment callers are unaffected.
+- Closed row 12's MultiKrum precondition/general-m gaps; closed
+  `RDP_sequential_composition`, the last open `sorry`; closed adaptive RDP
+  composition (Track C).
+- Replaced vacuous or mislabeled theorems in Theorem 5 and 6 with grounded
+  statements; grounded `chernoff_bound` in a real PMF probability.
+- Added real Go correspondence models for `MultiKrum`, `RDPAccountant`, `Ledger`,
+  and `Transport` in `proofs/Refinement/`.
+- Removed unclaimed, vacuous `Specification/Byzantine.lean` and orphaned
+  `Theorem2RDP_Enhanced`/`AdvancedRDP` modules.
+- Moved two unsound Lean drafts to `proofs/quarantined/` with a README explaining
+  why each fails to establish what its name claims.
+- Added trace-verification CI for the RDP accountant and hierarchical BFT, a Lean
+  structural replay validator, a machine-checked audit log for claim transitions,
+  and a hierarchical BFT statistical sanity check (Technique B).
+- Added property-based tests for Multi-Krum and the RDP accountant (ROADMAP P3.1).
+- Made the required CI gate actually verify Lean proofs; replaced the blanket
+  axiom ban with an explicit allowlist.
+- Added a real circuit-derived Groth16 verifier (Track B1) and documented the
+  Groth16/q-SDH feasibility finding (Track B2).
+
+#### Performance
+
+- Vectorized the SDK Python token-batch generator; corrected unrealistic
+  performance thresholds.
+- Optimized Go gradient aggregation and Multi-Krum; pre-allocated `PathHops` in
+  `RPCClient`; concurrent Prometheus query fetching.
+
+#### Testing & CI
+
+- **Go coverage is now published as a README badge.** `go-test.yml` already
+  computed `test-results/go-coverage-summary.txt` on every run and uploaded it as
+  an artifact, but the figure was never surfaced. New
+  `scripts/generate_coverage_badge.py` converts the summary into a shields.io
+  endpoint payload, and `.github/workflows/update-go-coverage-badge.yml`
+  publishes it to the `badges` branch after each successful `Go Test` run,
+  following the existing `update-release-performance-badge.yml` pattern.
+- **New `go-test-race` CI job** (`go-test.yml`): no workflow previously ran
+  `go test -race`, so concurrent-access tests in `internal/cluster` (mutex) and
+  `internal/federation` (`sync.RWMutex`) were never race-checked. The job pins
+  `CGO_ENABLED=1`, preflights `command -v gcc`, and uploads a report artifact.
+- **cgo-gated test files no longer vanish silently.** The four
+  `internal/pyapi` test files (`api_aggregate_integration_test.go`,
+  `api_security_test.go`, `api_zkproof_commitment_test.go`,
+  `compress_benchmark_test.go`) all carry `//go:build cgo`. Where no C compiler
+  is installed, `CGO_ENABLED` defaults to 0, Go excludes them, and reports
+  `[no test files]` instead of failing — the whole Go↔Python bridge test suite
+  could disappear with a green build and no error. `go-test.yml` now sets
+  `CGO_ENABLED=1` explicitly and asserts that `internal/pyapi` reports passing
+  results, failing the build if the tests are skipped. Verified against four
+  report shapes, including a real cgo-disabled report.
+- **Corrected per-package coverage reporting**: `go-test.yml` now passes
+  `-coverpkg=./internal/...`. Most packages under `internal/` have no `_test.go`
+  files of their own and are exercised from the separate top-level `test/`
+  package, so Go previously attributed 0% to them regardless of actual coverage.
+  Real total coverage is 68.6%, not the ~45% the old reporting implied.
+- **New tests for `internal/cluster` and `internal/federation`'s per-tier DP
+  tracking**, the two least-covered packages. `internal/cluster` went from 0% to
+  100% statement coverage; `dp_tier_tracking.go` from 0% to 93–100% across 11 of
+  14 functions.
+- Added unit test coverage for `EnforceFIPSGate` (`internal/startup/fips_test.go`).
+- Encapsulated stress-test options and `TransferWithControls` parameters into
+  config/option structs.
+- Added a local `kind` scale harness with boundary evidence.
+- Fixed a Go version mismatch across `Dockerfile` and `Dockerfile.stress`
+  (stale Alpine 3.21 → 3.24).
+
+#### Fixed - Two Correctness Bugs Surfaced by the New Tests
+
+- **`internal/federation` DP budget was ignored** (`dp_tier_tracking.go`).
+  `RecordAggregation` compared cumulative epsilon against a hardcoded
+  `globalEps > 100.0`, ignoring the `maxGlobalEpsilon` value passed to
+  `NewDPTierTracker` entirely and bypassing the accountant's RDP → (ε, δ)
+  conversion. A caller configuring a budget of 1000 got a hard failure on the
+  first aggregation (ε≈185), and the documented default of 2.0 was effectively
+  unenforced. It now calls `globalBudget.CheckBudget()`, which enforces the
+  configured budget with the proper conversion.
+- **`internal/cluster` slice aliasing** (`topology.go`). `AssignAggregator` stored
+  a subslice of the caller's backing array, so mutating that array after the call
+  would silently reroute an edge node's gradient paths. `GetAssignedAggregators`
+  returned the topology's internal slice directly, letting callers mutate cluster
+  routing without holding the lock. Both now copy.
 
 ### Fixed - PR Build/Test Split and Archive Navigation
 

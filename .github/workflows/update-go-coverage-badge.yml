@@ -1,0 +1,108 @@
+name: Update Go Coverage Badge
+
+# Publishes the total Go coverage figure that `go-test.yml` already computes
+# (test-results/go-coverage-summary.txt) as a shields.io endpoint badge. The data
+# was being collected on every run and uploaded as an artifact, but never
+# surfaced anywhere a reader could see it.
+
+on:
+  workflow_run:
+    workflows: ["Go Test"]
+    types: [completed]
+  schedule:
+    - cron: "41 */12 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: "true"
+
+jobs:
+  update-badge:
+    # Only publish from a successful Go Test run, so the badge never advertises
+    # coverage from a run whose tests failed.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Download coverage summary from the triggering run
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: go-test-report
+          path: test-results
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Generate coverage badge JSON
+        run: |
+          set -euo pipefail
+          if [ ! -f test-results/go-coverage-summary.txt ]; then
+            echo "::error::go-coverage-summary.txt missing from the go-test-report artifact."
+            echo "::error::Expected 'go tool cover -func' output produced by go-test.yml."
+            exit 1
+          fi
+          python3 scripts/generate_coverage_badge.py \
+            --summary test-results/go-coverage-summary.txt \
+            --out badges/go_coverage_badge.json
+          # Persist outside the working tree: the branch switch in the next step
+          # discards untracked files on the currently checked-out branch, and
+          # the badge is not tracked on main.
+          cp badges/go_coverage_badge.json /tmp/go_coverage_badge.json
+
+      - name: Commit badge update if changed
+        run: |
+          set -euo pipefail
+          badge_file="badges/go_coverage_badge.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Push to a dedicated unprotected branch so branch protection on main is
+          # not violated (same pattern as update-release-performance-badge.yml).
+          badges_branch="badges"
+          git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
+
+          # The generate step wrote $badge_file into the working tree on the
+          # currently checked-out branch. Left in place it makes `git checkout`
+          # refuse to switch branches, so clear it whether tracked or untracked.
+          git checkout -- "$badge_file" 2>/dev/null || rm -f "$badge_file"
+
+          if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
+            git checkout -B "${badges_branch}" "origin/${badges_branch}"
+          else
+            git checkout --orphan "${badges_branch}"
+            git reset --hard
+          fi
+
+          # Re-create the badge in the new branch context.
+          mkdir -p badges
+          cp /tmp/go_coverage_badge.json "${badge_file}"
+
+          if git ls-files --error-unmatch "${badge_file}" >/dev/null 2>&1 && git diff --quiet -- "${badge_file}"; then
+            echo "No badge update needed."
+            exit 0
+          fi
+
+          git add -f "$badge_file"
+          if git diff --cached --quiet; then
+            echo "No badge update needed."
+            exit 0
+          fi
+
+          git commit -m "docs: refresh Go coverage badge"
+
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: pushing to ${badges_branch}"
+            if git push origin "HEAD:${badges_branch}"; then
+              echo "Push succeeded on attempt ${attempt}."
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+
+          echo "Failed to push badge update after 3 attempts."
+          exit 1
