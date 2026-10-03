@@ -59,7 +59,8 @@
       "react-syntax-highlighter": {
         "refractor": "^5.0.0"
       }
-    }
+    },
+    "@a2ui/web_core": "0.10.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

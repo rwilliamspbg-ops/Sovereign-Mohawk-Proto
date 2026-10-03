@@ -23,6 +23,15 @@ derived from the commit history in the stated window; nothing here is new work.
   (2026-05-24). This was a real authentication bypass, not a hardening nicety.
 - **Closed a signature-bypass** in `MigrateWithDualSignatureCryptographic`
   (2026-07-27).
+- **Bumped `@a2ui/web_core` 0.9.0 → 0.10.2** in `web/ops-assistant` for
+  CVE-2026-10032 / GHSA-72qq-p3r5-f7wq — a CRITICAL XSS (CVSS 9.3) where
+  `openUrl` passed an agent-supplied URL directly to `window.open()` with no
+  scheme validation, letting a malicious agent execute arbitrary JavaScript in
+  the app origin via a `javascript:` URI in a Button `functionCall` action.
+  Reachable here because the ops-assistant server handles A2UI action-button
+  intents. The vulnerable version was an **exact** pin in
+  `@copilotkit/a2ui-renderer@1.57.1`, so it could not be upgraded by resolving
+  the tree; fixed with an `overrides` entry. Upstream fix: a2ui #1707.
 - **Removed a hardcoded default Grafana API token** from the ops-assistant
   `GrafanaClient` (2026-09-29 → 2026-10-01); the constructor now falls back to an
   empty string and requires an explicitly supplied token. Unit tests added.
