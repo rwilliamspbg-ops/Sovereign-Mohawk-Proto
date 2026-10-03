@@ -120,16 +120,19 @@ TPM production closure sign-off (2026-04-11):
 
 ### A6. Documentation Completeness (Gap Alignment, added 2026-08-15)
 
-- [ ] Replace placeholder scaffolds under `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, and `docs/performance/` with real content. Verified 2026-08-15: nearly every file in these directories (e.g. `docs/architecture/BYZANTINE_RESILIENCE.md`, `docs/guides/OPERATIONS.md`, `docs/security/INCIDENT_RESPONSE.md`, `docs/API_REFERENCE.md`, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`) contains only the identical stub text "Scaffold document created to preserve canonical documentation links. See docs/INDEX.md..." — not thin drafts, but non-content. `docs/guides/GETTING_STARTED.md` is the one real exception.
+- [ ] Replace placeholder scaffolds under `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, and `docs/performance/` with real content. Verified 2026-08-15 and re-verified 2026-10-03: **31 of the 38 markdown files** in these directories (e.g. `docs/architecture/BYZANTINE_RESILIENCE.md`, `docs/guides/OPERATIONS.md`, `docs/security/INCIDENT_RESPONSE.md`, `docs/API_REFERENCE.md`, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`) contain only the identical stub text "Scaffold document created to preserve canonical documentation links. See docs/INDEX.md..." — not thin drafts, but non-content. `docs/guides/GETTING_STARTED.md` is the one real exception. Note the irony worth fixing first: `docs/security/INCIDENT_RESPONSE.md` is a scaffold in a repo whose single GA blocker is an external security audit.
 - [ ] Publish a rendered gRPC/REST API reference. Currently only the raw `api/federation/federation.proto` exists; there is no generated or hand-written reference doc.
 - [ ] Note: README, the Flower-compatible quickstart, `make` targets, `genesis-launch.sh`, and the Helm/Kind deployment docs (`helm/sovereign-mohawk/README.md`, `deploy/kubernetes/scale-test/README.md`) were verified 2026-08-15 as genuinely substantive — this gap is specifically the `docs/` subdirectory scaffolds and API reference, not the top-level onboarding path.
 
 ### A7. Formal Verification Remaining Gaps (Gap Alignment, added 2026-08-15)
 
-Verified against `proofs/FORMAL_TRACEABILITY_MATRIX.md` as of the 2026-08-10 commit touching `proofs/`: zero `sorry`s remain across `proofs/LeanFormalization`/`Specification`/`Refinement`, and the eight axioms present (`Refinement/MultiKrum.lean`) are documented, CI-allowlisted IEEE-754 non-NaN comparison facts, not placeholders. Two concrete gaps remain open and are tracked here rather than as a general "formalization incomplete" note:
+Verified against `proofs/FORMAL_TRACEABILITY_MATRIX.md` as of the 2026-08-10 commit touching `proofs/`: zero `sorry`s remain across `proofs/LeanFormalization`/`Specification`/`Refinement`, and the eight axioms present (`Refinement/MultiKrum.lean`) are documented, CI-allowlisted IEEE-754 non-NaN comparison facts, not placeholders. Two concrete gaps were tracked here rather than as a general "formalization incomplete" note. **Split into three items on 2026-10-03** — the original two-item framing checked both boxes `[x]` while the second item's own text said part of it stayed open, which made the checkbox unreadable.
 
 - [x] Close the full RDP → (ε, δ)-DP conversion proof. **Merged 2026-08-15**: [#174](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/174) adds `proofs/Refinement/RDPLogBound.lean` (`rdpLog_sandwich`/`rdpToApproxDP_bound`), a computable two-sided rational bound on `Real.log` closing this gap without needing `Real.log` itself to be computable — see the PR and `proofs/FORMAL_TRACEABILITY_MATRIX.md` row 13 for the full technical reasoning, including the deliberate precision tradeoff (a coarse-but-general bound, not Taylor-tight).
-- [x] Wire the real Groth16/BN254 circuit (`internal/zksnark_circuit_verifier.go`, genuine trusted setup) into production call sites. **Merged 2026-08-15**: [#173](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/173) wires it additively into `pyapi`'s `VerifyZKProof`/`BatchVerifyProofs` and `hybrid`'s `SNARKVerifier`/`VerifyHybrid` (legacy no-commitment callers unaffected). Confirmed during that work that `internal/batch/aggregator.go` was never actually a third call site needing this (it doesn't call the affected verify functions at all). The corresponding Lean model (`Theorem5Cryptography.lean`) still remains abstract with no pairing/hardness machinery — that part of the gap was explicitly out of scope for #173 and stays open regardless.
+- [x] Wire the real Groth16/BN254 circuit (`internal/zksnark_circuit_verifier.go`, genuine trusted setup) into production call sites. **Merged 2026-08-15**: [#173](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/173) wires it additively into `pyapi`'s `VerifyZKProof`/`BatchVerifyProofs` and `hybrid`'s `SNARKVerifier`/`VerifyHybrid` (legacy no-commitment callers unaffected). Confirmed during that work that `internal/batch/aggregator.go` was never actually a third call site needing this (it doesn't call the affected verify functions at all).
+- [ ] **Open (split out 2026-10-03).** Formalize the circuit itself in Lean. `Theorem5Cryptography.lean` still describes only an abstract constant-operation cost model — it does not formalize the compiled R1CS circuit, its `groth16.Setup`, or MiMC's collision resistance. Two sub-gaps, both still open:
+  - **Trusted setup is not a production ceremony.** The setup is a single in-process `groth16.Setup` call, so the toxic waste is momentarily held by whichever process runs the initialization. It is lazy-loaded (`sync.Once`) so the cost is paid only by callers that use it, but that is a performance fix, not a ceremony.
+  - **Lean cryptography model.** Assessed 2026-08-15 against pinned Mathlib: real elliptic-curve group law and generic bilinear-map machinery exist, but there is **zero pairing/Tate-Weil machinery and zero computational-hardness (q-SDH) formalization anywhere in Mathlib**. Those two carry Groth16's actual security content, and building either is a multi-month from-scratch effort, not a bounded PR. An explicit-extractor knowledge-soundness restatement was assessed and rejected as content-free (the existing witness is already, in effect, a constructive extractor). Decision of record: keep this claim scoped as the abstract constant-operation model and revisit only if Mathlib gains pairing/hardness infrastructure upstream. See `proofs/FORMAL_TRACEABILITY_MATRIX.md` row 5, "Scope, explicitly not closed by this pass" items (1) and (3).
 
 ### Phase 3 Closure Checklist (Current Evidence)
 
@@ -200,16 +203,73 @@ Verified against `proofs/FORMAL_TRACEABILITY_MATRIX.md` as of the 2026-08-10 com
 
 ## Concrete Execution Plan
 
-This plan turns the roadmap priorities into the next two execution sprints so contributors can pick up a scoped task and finish it with clear acceptance criteria.
+This plan turns the roadmap priorities into the next execution sprints so contributors can pick up a scoped task and finish it with clear acceptance criteria.
 
-### Sprint 1: Documentation and Telemetry Foundation
+> **Rewritten 2026-10-03.** Sprint 1 and Sprint 2 (below, retained for history) both completed in April 2026. They stayed in this section as the routing target for `CONTRIBUTING.md`, which meant new contributors were directed at finished work. Sprints 3–5 below come from a full-repo audit run 2026-10-03 (build, vet, `go test ./...`, `go mod tidy`, `govulncheck`, per-package coverage, workflow and roadmap claim verification).
+
+### Sprint 3: Claim Integrity (week 1) — ✅ COMPLETE
+
+No new engineering; making the docs match artifacts. Cheap, and it makes every later claim defensible.
+
+- [x] S3.1 Split A7 into three items so the Lean cryptography model reads as open rather than buried inside a `[x]` checkbox (done 2026-10-03)
+- [x] S3.2 Rebuild `CHANGELOG.md` for the 2026-05-11 → 2026-10-03 gap; 321 commits had gone unrecorded (done 2026-10-03)
+- [x] S3.3 Delete `test/attestation_test.go.disabled` — disabled test with an unresolved `// adjust import if path differs` comment that had never run (done 2026-10-03)
+- [x] S3.4 Correct the "High-Impact Areas" list, which still advertised two A7 items as remaining after they were closed (done 2026-10-03)
+- [ ] S3.5 Decide `internal/thresholdagg` (open, needs a maintainer call): the package sums **plaintext `int64`** and says so in its own doc comment, but compiles into no binary — it has zero production importers, only its own tests. Two viable options, both defensible: (a) delete it and `test/threshold_aggregation_test.go` alongside it, or (b) keep it but move it under a build tag so it is unambiguously not a shipped primitive. Leaving it as-is is the one option that isn't — 100% coverage makes it look load-bearing when it provides zero confidentiality, in a security protocol.
+- [x] S3.6 Squash the 6 duplicate cherry-picks of the Grafana token fix and 4 of the `TransferWithControls` refactor in the 2026-09-29 → 2026-10-01 window before GA — 29 commits there carry only 18 distinct changes (deferred to pre-GA cleanup)
+
+### Sprint 4: Coverage Blind Spot (week 2)
+
+**S4.1 done 2026-10-03.** Added `-coverpkg=./internal/...` to `go-test.yml`. This immediately corrected a wrong number: total coverage is **68.6%**, not the 45.3% first reported. The 11 packages that appeared to contribute 0% were not uncovered — Go simply wasn't attributing the `test/` package's coverage to them. They are individually well covered (`internal/accelerator` functions at 83–100%, `internal/metrics` at 55–90%).
+
+- [x] S4.1 Add `-coverpkg=./internal/...` to `go-test.yml` so per-package numbers are honest (done 2026-10-03)
+- [x] S4.2 Cover the genuinely thin packages the corrected numbers exposed. **Done 2026-10-03 for the two worst:** `internal/cluster` 0.0% → **100%** (all 8 functions) and `internal/federation`'s `dp_tier_tracking.go` 0.0% → 93–100% across 11 of 14 functions. Two real bugs found and fixed in the process (below). Total coverage 64.1% → 68.6%. Still thin: `internal/hybrid` (2.5%), `internal/ipfs` (4.4%), `internal/network` (4.5%), and `CoordinatorWithDP`'s `Start`/`Stop`/`GetDPStats`/`NewCoordinatorWithDP`, which need a live coordinator.
+- [x] S4.4 Publish the coverage badge. **Done 2026-10-03.** `go-test.yml` already generated `test-results/go-coverage-summary.txt` on every run and uploaded it as an artifact, but nothing surfaced it. Added `scripts/generate_coverage_badge.py` (tested against a real summary plus five adversarial inputs: missing file, no total line, empty file, multiple totals, threshold boundaries) and `.github/workflows/update-go-coverage-badge.yml`, which downloads the `go-test-report` artifact from the triggering `Go Test` run and publishes a shields.io endpoint badge to the existing `badges` branch, following the `update-release-performance-badge.yml` pattern. README badge added. **The badge renders nothing until the workflow first runs** — the `badges` branch exists but has no `go_coverage_badge.json` yet.
+- [ ] S4.5 Review the 43-workflow CI surface (5,775 lines of YAML, 18,308 lines of `scripts/`) against 19,649 lines of Go. Measure per-workflow runtime via `gh run list` and drop gates that no longer gate anything real. **Blocked 2026-10-03:** `gh` is not installed on this machine, so per-workflow runtimes cannot be retrieved without installing and authenticating it. Note this session also *added* workflows, so the count is now 45, not 43.
+- [x] S4.6 Add `go test -race` to CI. **Added 2026-10-03** as a second job (`go-test-race`) in `go-test.yml`, with `CGO_ENABLED: "1"` and a `command -v gcc` preflight. No workflow previously ran the race detector, so the concurrent-access tests in `internal/cluster` and `internal/federation` were never race-checked. **Not verified locally** — this machine has no C compiler (no gcc/clang, and WSL has neither gcc nor Go), so the job's runtime behavior is untested; it depends on `ubuntu-latest` shipping gcc as documented.
+
+#### S4.3 rescoped: cgo-gated tests were vanishing silently (2026-10-03)
+
+The original S4.3 read "cover `internal/pyapi`". That was based on a wrong premise: `internal/pyapi` already has **four** test files. They all carry `//go:build cgo`, so with `CGO_ENABLED=0` (the default wherever no C compiler is installed) Go reports `[no test files]` instead of failing. The entire Go↔Python bridge test suite can disappear with **no error and a green build**.
+
+The four affected files: `api_aggregate_integration_test.go`, `api_security_test.go`, `api_zkproof_commitment_test.go`, `compress_benchmark_test.go`.
+
+CI is *not* currently affected — `ubuntu-latest` ships gcc, so `CGO_ENABLED` defaults to 1 there and those tests do run. The exposure is developer machines and any future runner without a C toolchain. Hardened anyway, because "silently skipped" is the failure mode most likely to go unnoticed for years:
+
+- `go-test.yml` now sets `CGO_ENABLED=1` explicitly rather than relying on the runner default.
+- Added an **assertion step** that fails the build if `internal/pyapi` reports `skip`/`[no test files]` or has no passing results. Verified against four scenarios: the real cgo-disabled report from this machine (correctly fails), a healthy cgo report (passes), the package absent (fails), and the package failing (fails).
+
+Actual pyapi coverage can therefore only be measured on a cgo-enabled toolchain — worth doing on a Linux runner before drawing conclusions about that package.
+
+#### Bugs found and fixed while adding coverage (2026-10-03)
+
+Both were found by writing tests that assert correct behavior first, watching them fail against the existing code, then fixing — so each fix is evidence-backed rather than speculative.
+
+1. **`internal/cluster` slice aliasing** (`topology.go`). `AssignAggregator` stored `aggregators[:numPaths]`, sharing the caller's backing array — a later mutation of the caller's slice would silently reroute an edge node's gradients. `GetAssignedAggregators` returned the topology's internal slice, letting callers mutate cluster routing without holding the lock. Both now copy. Found via `TestAssignAggregatorCopiesCallerSlice` and `TestGetAssignedAggregatorsReturnsDefensiveCopy`.
+2. **`internal/federation` DP budget ignored its own configuration** (`dp_tier_tracking.go`). `RecordAggregation` compared against a hardcoded `globalEps > 100.0`, ignoring the `maxGlobalEpsilon` passed to `NewDPTierTracker` entirely, and using a raw float comparison rather than the accountant's proper RDP → (ε, δ) conversion. Now calls `globalBudget.CheckBudget()`, which enforces the configured budget with the correct conversion. Found via `TestRecordAggregationEnforcesConfiguredGlobalBudget` — with a configured budget of 1000, a *single* aggregation tripped the hardcoded limit (ε≈185).
+
+### Sprint 5: Real Distributed Evidence (weeks 3–5)
+
+The actual GA blocker, and the only sprint that changes what the project can claim. Every real deployment artifact in this repo to date ran on a single host.
+
+- [ ] S5.1 Stand up ≥3 hosts (or cheap VMs), deploy unmodified orchestrator/node-agent binaries via `deploy/kubernetes/scale-test/` with real mTLS identity. Any node count ≥3 across real host boundaries — this closes A4's WAN gap at an achievable scope and establishes something single-host evidence cannot.
+- [ ] S5.2 Root-cause the 700-pod control-plane destabilization (A4 attributes it to Docker Desktop disk I/O). A real single-host limit worth understanding before scaling out.
+
+### Sprint 6: Documentation (parallel, weeks 3–6)
+
+31 of 38 markdown files across `docs/{architecture,guides,api,security,performance}` are the identical stub string "Scaffold document created to preserve canonical documentation links." Not thin drafts — non-content.
+
+- [ ] S6.1 Write the highest-traffic six: `docs/security/INCIDENT_RESPONSE.md`, `docs/architecture/ARCHITECTURE.md`, `docs/guides/OPERATIONS.md`, `docs/API_REFERENCE.md`, `docs/DEPLOYMENT.md`, `docs/security/BYZANTINE_RESILIENCE.md`.
+- [ ] S6.2 Render the gRPC reference from `api/federation/federation.proto` (A6).
+
+### Sprint 1: Documentation and Telemetry Foundation — ✅ COMPLETE (2026-04-28)
 
 - [x] QW1: Add strategy docstrings to the six Lean theorem files in `proofs/LeanFormalization/`
 - [x] QW2: Export the five runtime health metrics from the aggregator, accountant, and orchestrator paths
 - [x] QW3: Publish the Lean contributor playbook at `docs/CONTRIBUTING_LEAN_PROOFS.md`
 - [x] Exit criteria: docstrings merged, metrics visible at `/metrics`, and the playbook reviewed by a contributor
 
-### Sprint 2: Proof Hardening and Test Coverage
+### Sprint 2: Proof Hardening and Test Coverage — ✅ COMPLETE (2026-04-28)
 
 - [x] P1.1: Formalize Chernoff bounds in a new Lean module and wire it into the traceability matrix
 - [x] P2.1: Implement Lean proof metrics extraction for baseline analysis
@@ -219,10 +279,15 @@ This plan turns the roadmap priorities into the next two execution sprints so co
 
 ### Dependencies And Ordering
 
-- QW1, QW2, and QW3 are the fastest path to immediate contributor velocity and operator visibility.
-- P1.1 must land before P1.2 because the real-valued convergence work depends on the probabilistic extension.
-- P2.1 must land before P2.2 because the CI workflow compares the extracted metrics.
-- P3.1 should land before the fuzzing and large-scale simulation work so the property suite can serve as the first regression net.
+- **S4.1 gates S4.2 and S4.3** — without `-coverpkg`, per-package numbers stay blind. Done 2026-10-03, and it immediately changed the target list: `internal/metrics` and `internal/accelerator` turned out to be well covered, while `internal/cluster` (0.0%) and `internal/federation` (2.9%) are the real gaps.
+- **Sprint 3 gates everything.** Claim integrity is a day of work that makes Sprints 4–6 defensible.
+- **Sprint 5 is the long pole** and the only genuine differentiator; start host provisioning early even though the deploy work lands later.
+- **Sprint 6 runs parallel** — independent prose, no dependency on the others.
+- Historical ordering, retained from Sprints 1–2: QW1/QW2/QW3 were the fastest path to contributor velocity and operator visibility; P1.1 before P1.2 (real-valued convergence depends on the probabilistic extension); P2.1 before P2.2 (the CI workflow compares extracted metrics); P3.1 before the fuzzing and large-scale simulation work (the property suite serves as the first regression net).
+
+### Blocked, Not Actionable by Engineering
+
+The **external security audit and penetration test** (A1) are the one true GA blocker. They require budget and a signed engagement, not a PR — no code change closes them. GA exit criteria cannot be met without this.
 
 ---
 
@@ -257,7 +322,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 - Security hardening and audit remediation (Phase 3) — TPM, FIPS, threat-model, and WASM hardening are done; the external audit/pentest itself is the one remaining item
 - Multi-host/WAN deployment evidence at any scale (Phase 3, A4)
 - Documentation completeness for `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, `docs/performance/` (Phase 3, A6)
-- Remaining formal-verification gaps: RDP → (ε, δ)-DP conversion, Groth16 production wiring (Phase 3, A7)
+- Remaining formal-verification gaps: Lean cryptography model for the Groth16 circuit, and a production trusted-setup ceremony (Phase 3, A7 — the RDP→(ε,δ) conversion and Groth16 production wiring are closed as of 2026-08-15)
 - Blockchain incentive and verification layer work (Phase 4)
 
 ---
@@ -266,6 +331,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 
 | Date | Version | Changes |
 | ---- | ------- | ------- |
+| 2026-10-03 | 4.0 | Independent full-repo audit pass (`go build`, `go vet`, `go test ./...`, `go mod tidy`, `govulncheck`, per-package coverage, roadmap claim re-verification). Build/vet/tests/tidy all clean; `govulncheck` reports 0 vulnerabilities in reachable code; 8 Lean axioms confirmed as documented IEEE-754 non-NaN facts, all in `Refinement/MultiKrum.lean`. Changes made: **A7 restructured** from 2 items to 3 — it previously checked both boxes `[x]` while the second item's own text said the Lean cryptography model stayed open, making the checkbox unreadable; the open item is now a separate `[ ]` with both sub-gaps spelled out (non-ceremony trusted setup, and the Mathlib pairing/q-SDH absence that makes the Lean model a multi-month effort). **"High-Impact Areas" corrected** — it still advertised the RDP conversion and Groth16 wiring as remaining work 18 days after both were closed. **A6 sharpened** with the re-verified figure (31 of 38 files are scaffolds, not "nearly every"). **Concrete Execution Plan rewritten**: Sprints 1 and 2 both completed in April 2026 but remained the section `CONTRIBUTING.md` routes contributors to, so new contributors were being pointed at finished work; Sprints 3–6 added from audit findings, with Sprint 3 (claim integrity) marked complete. Added an explicit "Blocked, Not Actionable by Engineering" note that the external security audit and pentest — the one true GA blocker — cannot be closed by any code change. Noted that the 2026-09-29→2026-10-01 window carries 29 commits for only 18 distinct changes (6 duplicate cherry-picks of the Grafana token fix), which should be squashed before GA. |
 | 2026-08-15 | 3.9 | Folded in an independent gap-analysis verification pass (four parallel research agents against current repo state). Refined A4's "500-1,500 nodes" framing: the 1,500/10k-node figures are Go unit-test profile runs, not deployment evidence, and should not be cited alongside the real 500-pod test. Added a new A4 item: zero multi-host/WAN evidence exists at any scale (every real artifact to date ran on one laptop). Added new A6 (Documentation Completeness) tracking the placeholder scaffolds under `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, `docs/performance/` and the missing rendered API reference — confirmed the top-level README/quickstart/Helm docs are NOT part of this gap. Added new A7 (Formal Verification Remaining Gaps): confirmed zero sorries and all eight `Refinement/MultiKrum.lean` axioms are documented/justified, with two genuine open items — the RDP→(ε,δ)-DP conversion proof and wiring the real Groth16/BN254 circuit into production call sites, both since closed via [#174](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/174) and [#173](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/pull/173) respectively (merged 2026-08-15). Also confirmed TPM cross-platform evidence, FIPS hardening, threat-model refresh, and WASM verifier restrictions are all already complete as tracked above (no roadmap change needed there, just independent confirmation) and that the ops runbook (A3) is substantively real, not thin. |
 | 2026-08-10 | 3.8 | Added single-host libp2p relay/hole-punch evidence for the actual transport code paths in `internal/network/transport.go` via `go run ./cmd/transport-probe` (local echo + relay-flow), and documented the scope explicitly: this is real transport-path evidence on one host, not WAN/geographically distributed evidence. Also documented that TPM attestation was scoped out because no `/dev/tpm*` device was present in this Codespace. See `results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.md`. |
 | 2026-08-10 | 3.7 | Added real, reproducible evidence at A4: a 500-real-pod Kubernetes deployment test (unmodified orchestrator/node-agent binaries, real mTLS identity, real gradient submissions and security tests) as an honestly-scoped, real replacement for the still-corrected "1M+ node" claim -- explicitly not claiming 1M-node evidence. See `results/go-live/evidence/k8s_scale_deployment_test_2026-08-10.md` and `deploy/kubernetes/scale-test/`. Along the way, found and fixed a real bug: `helm/sovereign-mohawk/values.yaml`'s node-agent/orchestrator image references didn't match what CI actually publishes, so `make deploy-to-kind` would have failed with `ImagePullBackOff`. |

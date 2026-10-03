@@ -33,8 +33,53 @@ jobs:
           mkdir -p test-results
           source scripts/ensure_go_toolchain.sh
           set -o pipefail
-          go test -json -covermode=atomic -coverprofile=test-results/go-coverage.out ./... | tee test-results/go-test-report.jsonl
+          # Explicitly enable cgo. Four test files in internal/pyapi carry
+          # //go:build cgo, so with cgo disabled Go silently reports
+          # "[no test files]" for that package instead of failing — the entire
+          # Go<->Python bridge test suite disappears without any error.
+          export CGO_ENABLED=1
+          # -coverpkg is required for honest per-package numbers: most packages in
+          # internal/ have no _test.go files of their own and are exercised from the
+          # separate top-level test/ package, so without it Go attributes 0% to them
+          # regardless of whether they are actually covered.
+          go test -json -covermode=atomic -coverpkg=./internal/... -coverprofile=test-results/go-coverage.out ./... | tee test-results/go-test-report.jsonl
           go tool cover -func=test-results/go-coverage.out > test-results/go-coverage-summary.txt
+
+      - name: Assert cgo-gated tests actually ran
+        run: |
+          # A package whose tests are all excluded by build constraints reports
+          # Action "skip" / "[no test files]" rather than failing. Guard against
+          # internal/pyapi's four //go:build cgo test files silently vanishing
+          # on a cgo-disabled runner. Parsed with python rather than grep so the
+          # check does not depend on JSON field ordering.
+          python3 - <<'PY'
+          import json, sys
+          pkg = "internal/pyapi"
+          actions = set()
+          with open("test-results/go-test-report.jsonl", encoding="utf-8", errors="replace") as fh:
+              for line in fh:
+                  line = line.strip()
+                  if not line:
+                      continue
+                  try:
+                      rec = json.loads(line)
+                  except ValueError:
+                      continue
+                  if rec.get("Package", "").endswith(pkg):
+                      actions.add(rec.get("Action"))
+          if not actions:
+              print(f"::error::No test results at all for {pkg}.")
+              sys.exit(1)
+          if "skip" in actions and "pass" not in actions:
+              print(f"::error::{pkg} reported skip/[no test files]. Its test files are")
+              print("::error:://go:build cgo gated, so a cgo-disabled runner makes them vanish")
+              print("::error::silently instead of failing. Check CGO_ENABLED on this runner.")
+              sys.exit(1)
+          if "pass" not in actions:
+              print(f"::error::{pkg} did not pass. Actions seen: {sorted(actions)}")
+              sys.exit(1)
+          print(f"cgo-gated {pkg} tests ran and passed (actions: {sorted(actions)})")
+          PY
 
       - name: Upload Go test artifact
         if: always()
@@ -45,3 +90,42 @@ jobs:
             test-results/go-test-report.jsonl
             test-results/go-coverage.out
             test-results/go-coverage-summary.txt
+
+  # Concurrency correctness gate. No other workflow runs -race, so the
+  # concurrent-access tests in internal/cluster (Topology mutex) and
+  # internal/federation (DPTierTracker RWMutex) were previously never
+  # race-checked. Requires cgo, which needs a C toolchain on the runner;
+  # ubuntu-latest ships gcc, so CGO_ENABLED must stay at 1.
+  go-test-race:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CGO_ENABLED: "1"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Verify cgo toolchain is present
+        run: |
+          command -v gcc
+          go env CGO_ENABLED
+
+      - name: Run race detector
+        run: |
+          mkdir -p test-results
+          source scripts/ensure_go_toolchain.sh
+          set -o pipefail
+          go test -race -timeout 15m ./... | tee test-results/go-test-race.txt
+
+      - name: Upload race report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: go-test-race-report
+          path: test-results/go-test-race.txt

@@ -82,12 +82,16 @@ func (t *DPTierTracker) RecordAggregation(tierNodeID string, gradientCount int, 
 	t.aggregationsPerTier[tierNodeID]++
 	t.totalAggregations++
 
-	// Check if global budget is exhausted
+	// Check against the configured global budget. Previously this compared
+	// against a hardcoded 100.0, silently ignoring the maxGlobalEpsilon passed
+	// to NewDPTierTracker and disagreeing with the accountant's own RDP ->
+	// (eps, delta) conversion, which CheckBudget() performs properly.
 	globalEps := t.globalBudget.GetCurrentEpsilon()
-	if globalEps > 100.0 { // Hard limit
+	if err := t.globalBudget.CheckBudget(); err != nil {
 		t.budgetExhausted = true
-		log.Printf("WARNING: Global DP budget exhausted at tier %s (epsilon=%.4f)", tierNodeID, globalEps)
-		return fmt.Errorf("global DP budget exhausted")
+		log.Printf("WARNING: Global DP budget exhausted at tier %s (epsilon=%.4f, budget=%.4f)",
+			tierNodeID, globalEps, t.globalBudget.MaxBudgetFloat())
+		return fmt.Errorf("global DP budget exhausted: %w", err)
 	}
 
 	log.Printf("[DP-tracking] Tier=%s, Agg=%d, Tier-Epsilon=%.4f, Global-Epsilon=%.4f",
