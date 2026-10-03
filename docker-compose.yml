@@ -391,6 +391,14 @@ services:
     build:
       context: .
       dockerfile: web/ops-assistant/Dockerfile
+      args:
+        # Vite inlines VITE_* at build time, so they must be passed here rather
+        # than as runtime `environment:` values. Sourced from the repo-root .env
+        # that genesis-launch.sh creates; unset vars resolve to empty strings,
+        # which the client falls back to same-origin defaults for.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+        VITE_WS_URL: ${VITE_WS_URL:-}
+        VITE_COPILOT_PUBLIC_API_KEY: ${VITE_COPILOT_PUBLIC_API_KEY:-}
     container_name: ops-assistant
     environment:
       - PROMETHEUS_URL=http://prometheus:9090

@@ -55,17 +55,21 @@ interface OpsSummary {
   };
 }
 
-const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<ViewType>('chat');
-  const [summary, setSummary] = useState<OpsSummary | null>(null);
-  const [summaryError, setSummaryError] = useState<string | null>(null);
-  const [intentMessage, setIntentMessage] = useState<string | null>(null);
-  const [busyIntent, setBusyIntent] = useState<string | null>(null);
-
-  const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
-  const { events, latestEnvelope, connectionStatus } = useAgUiStream();
-
-  // Register CopilotKit Actions
+/**
+ * Registers the CopilotKit actions this app exposes to the assistant.
+ *
+ * These must live in a child of <CopilotKit> because they are React hooks --
+ * they cannot be called conditionally. main.tsx renders this component only
+ * when a CopilotKit provider is actually available (i.e. a publicApiKey or
+ * runtimeUrl was configured at build time); otherwise it is never mounted and
+ * the CopilotKit hooks never run.
+ *
+ * Keeping them out of <App/> is what lets the metrics and dashboards tabs work
+ * in an unconfigured deployment: previously these hooks were called
+ * unconditionally, so a missing provider key threw during render and left the
+ * whole page blank.
+ */
+const CopilotActions: React.FC = () => {
   useCopilotAction({
     name: 'queryMetric',
     description: 'Query Prometheus metrics with custom PromQL queries',
@@ -147,6 +151,74 @@ const App: React.FC = () => {
       }
     },
   });
+
+  return null;
+};
+
+/**
+ * Chat is CopilotKit-backed, so it needs a CopilotKit provider. When neither a
+ * publicApiKey nor a runtimeUrl was configured at build time this panel explains
+ * what is missing and how to enable it, instead of the page failing to render.
+ */
+const ChatUnavailable: React.FC = () => (
+  <div className="chat-container">
+    <div
+      style={{
+        padding: '1.5rem',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        background: '#f9fafb',
+        color: '#374151',
+        fontSize: '0.9rem',
+        lineHeight: 1.5,
+      }}
+    >
+      <h3 style={{ marginTop: 0, fontSize: '1rem' }}>Chat is not configured</h3>
+      <p style={{ marginBottom: '0.75rem' }}>
+        The assistant chat is provided by CopilotKit and needs either a CopilotKit
+        Cloud API key or a self-hosted CopilotKit runtime URL. This deployment
+        serves its own agent surface at <code>/api/agent/events</code> and{' '}
+        <code>/api/agent/intent</code>, but does not expose a CopilotKit runtime,
+        so chat is disabled by default.
+      </p>
+      <p style={{ marginBottom: '0.5rem' }}>To enable it, set either of these at build time:</p>
+      <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+        <li>
+          <code>VITE_COPILOT_PUBLIC_API_KEY</code> — a CopilotKit Cloud public key
+        </li>
+        <li>
+          <code>VITE_COPILOT_RUNTIME_URL</code> — a self-hosted CopilotKit runtime base URL
+        </li>
+      </ul>
+      <p style={{ marginTop: '0.75rem', marginBottom: 0 }}>
+        The <strong>Metrics</strong> and <strong>Dashboards</strong> tabs do not depend on
+        CopilotKit and remain fully functional.
+      </p>
+    </div>
+  </div>
+);
+
+interface AppProps {
+  /**
+   * Whether a CopilotKit provider is present. main.tsx passes false when no
+   * publicApiKey/runtimeUrl was configured at build time.
+   */
+  chatEnabled?: boolean;
+}
+
+const App: React.FC<AppProps> = ({ chatEnabled = true }) => {
+  const [activeView, setActiveView] = useState<ViewType>('chat');
+  const [summary, setSummary] = useState<OpsSummary | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [intentMessage, setIntentMessage] = useState<string | null>(null);
+  const [busyIntent, setBusyIntent] = useState<string | null>(null);
+
+  const runtimeConfig = useMemo(() => getRuntimeConfig(), []);
+  const { events, latestEnvelope, connectionStatus } = useAgUiStream();
+
+  // Register CopilotKit Actions
+  {/* CopilotKit actions are registered by <CopilotActions/>, mounted by main.tsx
+      only when a CopilotKit provider is available. See the note on that component. */}
 
   useEffect(() => {
     let active = true;
@@ -270,15 +342,19 @@ const App: React.FC = () => {
                 <h2>AI Operations Assistant</h2>
                 <p>Ask questions about your metrics, dashboards, and system health</p>
               </div>
-              <div className="chat-container">
-                <CopilotChat
-                  instructions="You are an expert network operations assistant. Help users monitor and analyze their infrastructure using real-time metrics from Prometheus and Grafana dashboards. Provide actionable insights and recommendations for system optimization."
-                  labels={{
-                    initial: "Hi! I'm your operations assistant. How can I help you today?",
-                    placeholder: "Ask about metrics, dashboards, or system health...",
-                  }}
-                />
-              </div>
+              {chatEnabled ? (
+                <div className="chat-container">
+                  <CopilotChat
+                    instructions="You are an expert network operations assistant. Help users monitor and analyze their infrastructure using real-time metrics from Prometheus and Grafana dashboards. Provide actionable insights and recommendations for system optimization."
+                    labels={{
+                      initial: "Hi! I'm your operations assistant. How can I help you today?",
+                      placeholder: "Ask about metrics, dashboards, or system health...",
+                    }}
+                  />
+                </div>
+              ) : (
+                <ChatUnavailable />
+              )}
               <div className="agent-workflow-panel">
                 <div className="agent-workflow-header">
                   <h3>Agent Workflow Surface</h3>
