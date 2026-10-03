@@ -170,8 +170,7 @@ export const identifyAnomalyAction = {
         const values: number[] = series.values.map((v: any) => parseFloat(v[1]));
         const mean = values.reduce((a, b) => a + b, 0) / values.length;
         const variance =
-          values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
-          values.length;
+          values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
         const stdDev = Math.sqrt(variance);
 
         series.values.forEach((v: any, _idx: number) => {
@@ -206,8 +205,7 @@ export const identifyAnomalyAction = {
  */
 export const compareMetricsAction = {
   name: 'compareMetrics',
-  description:
-    'Compare multiple metrics side-by-side to identify patterns and correlations.',
+  description: 'Compare multiple metrics side-by-side to identify patterns and correlations.',
   parameters: {
     type: 'object',
     properties: {
@@ -256,8 +254,7 @@ export const compareMetricsAction = {
  */
 export const predictTrendAction = {
   name: 'predictTrend',
-  description:
-    'Analyze historical data and predict future metric trends using linear regression.',
+  description: 'Analyze historical data and predict future metric trends using linear regression.',
   parameters: {
     type: 'object',
     properties: {
@@ -294,7 +291,7 @@ export const predictTrendAction = {
 
       for (const series of results) {
         const values: number[] = series.values.map((v: any) => parseFloat(v[1]));
-        
+
         // Simple linear regression
         const n = values.length;
         const sumX = (n * (n - 1)) / 2;
@@ -340,8 +337,7 @@ export const predictTrendAction = {
  */
 export const searchEventsAction = {
   name: 'searchEvents',
-  description:
-    'Search for events, annotations, and alerts across dashboards.',
+  description: 'Search for events, annotations, and alerts across dashboards.',
   parameters: {
     type: 'object',
     properties: {
@@ -358,9 +354,7 @@ export const searchEventsAction = {
   },
   handler: async (params: any) => {
     try {
-      const annotations = await grafanaClient.getAnnotations(
-        params.dashboardId
-      );
+      const annotations = await grafanaClient.getAnnotations(params.dashboardId);
       const alerts = await grafanaClient.getAlerts();
 
       const filteredAnnotations = annotations.filter((a: any) =>
@@ -391,15 +385,13 @@ export const searchEventsAction = {
  */
 export const getNetworkTopologyAction = {
   name: 'getNetworkTopology',
-  description:
-    'Visualize network topology and component relationships based on metrics.',
+  description: 'Visualize network topology and component relationships based on metrics.',
   parameters: {
     type: 'object',
     properties: {
       scope: {
         type: 'string',
-        description:
-          'Scope for topology (e.g., "kubernetes", "services", "hosts")',
+        description: 'Scope for topology (e.g., "kubernetes", "services", "hosts")',
         default: 'services',
       },
     },
@@ -443,8 +435,7 @@ export const getNetworkTopologyAction = {
  */
 export const alertOnConditionAction = {
   name: 'alertOnCondition',
-  description:
-    'Create a custom alert that triggers when a metric crosses a threshold.',
+  description: 'Create a custom alert that triggers when a metric crosses a threshold.',
   parameters: {
     type: 'object',
     properties: {
@@ -513,17 +504,19 @@ export const analyzePerformanceAction = {
       ];
 
       const results: any = {};
-      for (const query of queries) {
-        try {
-          const response = await axios.get(`${prometheusUrl}/api/v1/query`, {
-            params: { query },
-          });
-          const label = query.split('(')[0];
-          results[label] = response.data.data.result;
-        } catch {
-          // Metric not available
-        }
-      }
+      await Promise.all(
+        queries.map(async (query) => {
+          try {
+            const response = await axios.get(`${prometheusUrl}/api/v1/query`, {
+              params: { query },
+            });
+            const label = query.split('(')[0];
+            results[label] = response.data.data.result;
+          } catch {
+            // Metric not available
+          }
+        })
+      );
 
       return {
         success: true,
@@ -699,8 +692,7 @@ export const getNetworkStatsAction = {
         params: { query: `count(up == 1) / count(up)` },
       });
 
-      const uptime =
-        parseFloat(upResponse.data.data.result[0]?.value[1] || 0) * 100;
+      const uptime = parseFloat(upResponse.data.data.result[0]?.value[1] || 0) * 100;
 
       const errorResponse = await axios.get(`${prometheusUrl}/api/v1/query`, {
         params: {
@@ -708,8 +700,7 @@ export const getNetworkStatsAction = {
         },
       });
 
-      const errorRate =
-        parseFloat(errorResponse.data.data.result[0]?.value[1] || 0) * 100;
+      const errorRate = parseFloat(errorResponse.data.data.result[0]?.value[1] || 0) * 100;
 
       return {
         success: true,
@@ -748,4 +739,3 @@ export const advancedActions = [
   detectAnomaliesAction,
   getIntelligenceScoreboardAction,
 ];
-
