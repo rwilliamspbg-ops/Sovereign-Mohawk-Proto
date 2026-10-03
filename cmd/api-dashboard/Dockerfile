@@ -14,7 +14,7 @@ RUN apk add --no-cache git
 
 # Copy go.mod and go.sum from the root to leverage Docker cache
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download || go mod download
 
 # Copy the entire project source
 COPY . .

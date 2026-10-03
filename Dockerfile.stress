@@ -14,7 +14,7 @@ WORKDIR /app
 
 # Copy dependency manifests first for better caching
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download || go mod download
 
 # Copy source code and build with optimizations
 COPY . .
