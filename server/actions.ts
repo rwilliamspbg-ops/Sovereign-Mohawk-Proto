@@ -503,17 +503,19 @@ export const analyzePerformanceAction = {
       ];
 
       const results: any = {};
-      for (const query of queries) {
-        try {
-          const response = await axios.get(`${prometheusUrl}/api/v1/query`, {
-            params: { query },
-          });
-          const label = query.split('(')[0];
-          results[label] = response.data.data.result;
-        } catch (e) {
-          // Metric not available
-        }
-      }
+      await Promise.all(
+        queries.map(async (query) => {
+          try {
+            const response = await axios.get(`${prometheusUrl}/api/v1/query`, {
+              params: { query },
+            });
+            const label = query.split('(')[0];
+            results[label] = response.data.data.result;
+          } catch {
+            // Metric not available
+          }
+        })
+      );
 
       return {
         success: true,
