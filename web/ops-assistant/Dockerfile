@@ -16,6 +16,17 @@ COPY web/ops-assistant/server ./server
 COPY web/ops-assistant/client ./client
 COPY web/ops-assistant/index.html ./index.html
 
+# Vite inlines VITE_* variables at BUILD time, so they must be present here --
+# they cannot be supplied later via compose `environment:`. compose passes them
+# as build args sourced from the repo-root .env (see docker-compose.yml).
+# Unset values become empty strings, which the client treats as "use defaults".
+ARG VITE_API_BASE_URL=""
+ARG VITE_WS_URL=""
+ARG VITE_COPILOT_PUBLIC_API_KEY=""
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_WS_URL=${VITE_WS_URL}
+ENV VITE_COPILOT_PUBLIC_API_KEY=${VITE_COPILOT_PUBLIC_API_KEY}
+
 # Build
 RUN npm run build
 
