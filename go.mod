@@ -13,11 +13,11 @@
 // limitations under the License.
 module github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 
-go 1.26.6
+go 1.26.8
 
 require (
-	github.com/consensys/gnark v0.16.3
-	github.com/consensys/gnark-crypto v0.21.0
+	github.com/consensys/gnark v0.16.4
+	github.com/consensys/gnark-crypto v0.21.1-0.20260913224755-1409fe592052
 	github.com/libp2p/go-libp2p v0.48.0
 	github.com/multiformats/go-multiaddr v0.16.1
 	github.com/prometheus/client_golang v1.24.1
