@@ -119,18 +119,42 @@ func readBoundedBytes(r io.Reader, max uint32) ([]byte, error) {
 	return buf, nil
 }
 
+// gradientEncodedSize returns the exact wire size of an encoded gradient so the
+// buffer can be allocated once. Every field is length-prefixed, so the total is
+// a simple sum.
+func gradientEncodedSize(g *GradientMessage) int {
+	size := 4 + len(g.GradientID) // GradientID
+	size += 4 + len(g.SourceNodeID)
+	size += 4 + len(g.SourceTierNodeID)
+	size += 8                       // AggregationRound
+	size += 4                       // dimension count
+	size += 8 * len(g.GradientData) // float64 payload
+	size += 8                       // Norm
+	size += 8                       // Timestamp
+	size += 4                       // path hop count
+	for _, hop := range g.PathHops {
+		size += 4 + len(hop)
+	}
+	size += 4 + len(g.Proof)
+	return size
+}
+
 // encodeGradient serializes a GradientMessage into its wire payload.
+//
+// The buffer is allocated once at its exact final size, so the payload costs a
+// single allocation and never regrows. The previous form grew an unsized
+// bytes.Buffer through len(g.GradientData) individual Write calls, reallocating
+// as it doubled. Output is byte-identical (see wire_encode_test.go); only the
+// buffering changes.
 func encodeGradient(g *GradientMessage) []byte {
-	buf := new(bytes.Buffer)
+	buf := bytes.NewBuffer(make([]byte, 0, gradientEncodedSize(g)))
 	writeString(buf, g.GradientID)
 	writeString(buf, g.SourceNodeID)
 	writeString(buf, g.SourceTierNodeID)
 	writeUint64(buf, g.AggregationRound)
 
 	writeUint32(buf, uint32(len(g.GradientData)))
-	for _, v := range g.GradientData {
-		writeFloat64(buf, v)
-	}
+	writeFloat64Slice(buf, g.GradientData)
 
 	writeFloat64(buf, g.Norm)
 	writeUint64(buf, uint64(g.Timestamp.UnixNano()))
@@ -143,6 +167,16 @@ func encodeGradient(g *GradientMessage) []byte {
 	writeByteSlice(buf, g.Proof)
 
 	return buf.Bytes()
+}
+
+// writeFloat64Slice appends big-endian float64s into a buffer that has already
+// been sized to hold them, so the writes never trigger growth.
+func writeFloat64Slice(buf *bytes.Buffer, values []float64) {
+	var tmp [8]byte
+	for _, v := range values {
+		binary.BigEndian.PutUint64(tmp[:], math.Float64bits(v))
+		buf.Write(tmp[:])
+	}
 }
 
 // decodeGradient reads a GradientMessage payload from r. Callers must have
