@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "host": "AMD Ryzen AI 7 350 w/ Radeon 860M (16 cores)",
+    "go_version": "go1.27.2",
+    "os": "windows/amd64",
+    "benchtime": "2s",
+    "recorded": "2026-10-14",
+    "note": "Measured after sizing encodeGradient's buffer to its exact final length. Previous: GradientForwarding 567626ns/1038 allocs, BatchForwarding 9827786ns/10368 allocs. Batch forwarding improved 1.74x; the residual 10301 allocs are dominated by per-gradient GradientMessage allocation in the caller, not the encoder."
+  },
+  "BenchmarkFederationGradientForwarding_ns": 523805,
+  "BenchmarkFederationGradientForwarding_allocs": 1031,
+  "BenchmarkFederationBatchForwarding_ns": 5256936,
+  "BenchmarkFederationBatchForwarding_allocs": 10301
+}

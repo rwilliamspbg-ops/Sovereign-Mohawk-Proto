@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "host": "AMD Ryzen AI 7 350 w/ Radeon 860M (16 cores)",
+    "go_version": "go1.27.2",
+    "os": "windows/amd64",
+    "benchtime": "1s",
+    "recorded": "2026-10-14",
+    "note": "First baselines for the consensus layer; it previously had no benchmarks. SingleCommittee = 1 tier x 1 committee x 27 nodes. MultiTier = 3 x 6 x 27 = 486 nodes. HighDimension uses dim=512 to isolate the O(n^2 * dimension) distance cost in MultiKrumSelect."
+  },
+  "BenchmarkRunRound_SingleCommittee_ns": 17614,
+  "BenchmarkRunRound_SingleCommittee_allocs": 50,
+  "BenchmarkRunRound_MultiTier_ns": 358602,
+  "BenchmarkRunRound_MultiTier_allocs": 831,
+  "BenchmarkRunRound_HighDimension_ns": 177750,
+  "BenchmarkRunRound_HighDimension_allocs": 50,
+  "BenchmarkRun_ConsecutiveRounds_ns": 222698,
+  "BenchmarkRun_ConsecutiveRounds_allocs": 481
+}
