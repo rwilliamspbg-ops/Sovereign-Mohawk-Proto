@@ -10,7 +10,7 @@ FROM golang:1.27-alpine AS builder
 # auto-download sidesteps relying on the base image's baked-in version at
 # all, matching the same GOTOOLCHAIN=X+auto pattern already hardcoded
 # throughout this repo's .github/workflows/*.yml files.
-ENV GOTOOLCHAIN=go1.26.6+auto
+ENV GOTOOLCHAIN=go1.27.2+auto
 
 # Install build dependencies without pinning obsolete Alpine package revisions
 RUN apk add --no-cache git make
