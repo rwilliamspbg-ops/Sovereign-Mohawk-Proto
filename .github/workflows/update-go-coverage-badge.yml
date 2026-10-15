@@ -68,13 +68,29 @@ jobs:
       - name: Generate coverage badge JSON
         run: |
           set -euo pipefail
-          if [ ! -f test-results/go-coverage-summary.txt ]; then
+          # go-test.yml uploads three sibling files under test-results/, and
+          # upload-artifact strips their common directory, so the summary lands
+          # at the archive root rather than under test-results/. Accept either
+          # layout instead of hard-coding one generation's behaviour.
+          summary=""
+          for candidate in \
+            test-results/go-coverage-summary.txt \
+            go-coverage-summary.txt; do
+            if [ -f "$candidate" ]; then
+              summary="$candidate"
+              break
+            fi
+          done
+          if [ -z "$summary" ]; then
             echo "::error::go-coverage-summary.txt missing from the go-test-report artifact."
             echo "::error::Expected 'go tool cover -func' output produced by go-test.yml."
+            echo "::error::Artifact contents:"
+            find test-results -type f 2>/dev/null || true
             exit 1
           fi
+          echo "Using coverage summary at $summary"
           python3 scripts/generate_coverage_badge.py \
-            --summary test-results/go-coverage-summary.txt \
+            --summary "$summary" \
             --out badges/go_coverage_badge.json
           # Persist outside the working tree: the branch switch in the next step
           # discards untracked files on the currently checked-out branch, and
