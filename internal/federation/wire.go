@@ -18,6 +18,7 @@ import (
 	"io"
 	"math"
 	"time"
+	"unsafe"
 )
 
 const (
@@ -97,11 +98,18 @@ func readBoundedString(r io.Reader) (string, error) {
 	if n > maxStringLen {
 		return "", fmt.Errorf("string field too large: %d bytes", n)
 	}
+	// Read directly into the string's backing array. The previous form
+	// allocated a []byte and then copied it into a string, costing two
+	// allocations per string field. buf does not escape this function, so
+	// aliasing it as the string's storage is safe.
 	buf := make([]byte, n)
 	if _, err := io.ReadFull(r, buf); err != nil {
 		return "", err
 	}
-	return string(buf), nil
+	if n == 0 {
+		return "", nil
+	}
+	return unsafe.String(&buf[0], n), nil
 }
 
 func readBoundedBytes(r io.Reader, max uint32) ([]byte, error) {
@@ -209,9 +217,18 @@ func decodeGradient(r io.Reader) (*GradientMessage, error) {
 	}
 	g.DimensionCount = int(dim)
 	g.GradientData = make([]float64, dim)
-	for i := range g.GradientData {
-		if g.GradientData[i], err = readFloat64(r); err != nil {
-			return nil, fmt.Errorf("gradient data[%d]: %w", i, err)
+	// Read the whole float64 payload in one call and decode in place. The
+	// previous form issued one io.ReadFull per element, so a 1000-dim gradient
+	// cost 1000 separate reads through the reader's bounds checks.
+	if dim > 0 {
+		raw := make([]byte, int(dim)*8)
+		if _, err := io.ReadFull(r, raw); err != nil {
+			return nil, fmt.Errorf("gradient data: %w", err)
+		}
+		for i := range g.GradientData {
+			g.GradientData[i] = math.Float64frombits(
+				binary.BigEndian.Uint64(raw[i*8 : i*8+8]),
+			)
 		}
 	}
 
