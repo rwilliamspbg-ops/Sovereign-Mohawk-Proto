@@ -109,12 +109,14 @@ jobs:
           badges_branch="badges"
           git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
 
-          # The generate step wrote $badge_file into the working tree on the
-          # currently checked-out branch. An untracked file makes `git checkout`
-          # refuse to switch branches ("local changes would be overwritten"),
-          # and `git checkout --` only clears tracked ones, so remove it
-          # unconditionally -- the authoritative copy is in /tmp.
+          # The download and generate steps leave untracked files in the working
+          # tree (the extracted artifact under test-results/, and the badge
+          # itself). An untracked file makes `git checkout` refuse to switch
+          # branches ("local changes would be overwritten"), and `git checkout
+          # --` only clears tracked ones, so remove them unconditionally -- the
+          # authoritative badge copy is in /tmp.
           rm -f "$badge_file"
+          rm -rf test-results
 
           if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
             git checkout -B "${badges_branch}" "origin/${badges_branch}"
