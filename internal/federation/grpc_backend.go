@@ -135,7 +135,14 @@ func (g *GRPCClientBackend) SendBatch(ctx context.Context, gradients []*Gradient
 		g.mu.RUnlock()
 	}
 
-	body := new(bytes.Buffer)
+	// Size the batch body up front so the per-gradient payloads are written
+	// once. The previous form grew an unsized buffer and then copied each
+	// payload into it, so every gradient was serialized twice.
+	bodyLen := 4
+	for _, grad := range gradients {
+		bodyLen += 4 + gradientEncodedSize(grad)
+	}
+	body := bytes.NewBuffer(make([]byte, 0, bodyLen))
 	writeUint32(body, uint32(len(gradients)))
 	for _, grad := range gradients {
 		payload := encodeGradient(grad)

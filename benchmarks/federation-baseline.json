@@ -5,10 +5,11 @@
     "os": "windows/amd64",
     "benchtime": "2s",
     "recorded": "2026-10-14",
-    "note": "Measured after sizing encodeGradient's buffer to its exact final length. Previous: GradientForwarding 567626ns/1038 allocs, BatchForwarding 9827786ns/10368 allocs. Batch forwarding improved 1.74x; the residual 10301 allocs are dominated by per-gradient GradientMessage allocation in the caller, not the encoder."
+    "note": "Batch forwarding measured with a receiver that drains the aggregation channel. The benchmark previously left MaxBufferedGradients unset (0), so once the 10000-slot channel filled every further gradient was dropped and the number described a path that aggregated nothing -- main logged 0 warnings only because its client was too slow to fill the channel.\n\nProgression for BatchForwarding (10 x 1000-dim gradients):\n  9827786 ns / 10368 allocs  original\n  5256936 ns / 10301 allocs  after sizing encodeGradient (PR #200)\n  338578  ns / 294   allocs  after pre-sizing the batch body and bulk-reading the decode path\n\nGradientForwarding is unchanged at 523805 ns / 1031 allocs; it sends one gradient per call so the batch-body and bulk-decode paths do not apply."
   },
   "BenchmarkFederationGradientForwarding_ns": 523805,
   "BenchmarkFederationGradientForwarding_allocs": 1031,
-  "BenchmarkFederationBatchForwarding_ns": 5256936,
-  "BenchmarkFederationBatchForwarding_allocs": 10301
+  "BenchmarkFederationBatchForwarding_ns": 338578,
+  "BenchmarkFederationBatchForwarding_allocs": 294,
+  "BenchmarkFederationBatchForwarding_bytes": 416416
 }
