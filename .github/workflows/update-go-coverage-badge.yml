@@ -30,9 +30,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      # download-artifact v8 requires a matching upload-artifact v5+; a v4
-      # upload produces an unreadable blob and this step fails with a bare
-      # "digest-mismatch" that says nothing about the real cause.
+      # The artifact actions must be version-matched: upload-artifact v7 with
+      # download-artifact v7. A v7 upload read by a v8 download fails with a
+      # bare "digest-mismatch" that says nothing about the real cause, and the
+      # summary file is present the whole time.
       #
       # On workflow_dispatch and schedule there is no triggering run, so resolve
       # the most recent successful Go Test run instead of passing an empty
@@ -57,7 +58,7 @@ jobs:
           echo "Reading coverage summary from Go Test run $run_id"
 
       - name: Download coverage summary from the triggering run
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: go-test-report
           path: test-results
