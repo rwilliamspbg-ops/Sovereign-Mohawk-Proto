@@ -115,7 +115,7 @@ jobs:
 
       - name: Upload TPM matrix row artifact
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: tpm-signoff-row-${{ matrix.platform }}
           path: test-results/tpm-signoff/${{ matrix.platform }}/
@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload TPM production sign-off artifacts
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: tpm-production-signoff-artifacts
           path: |

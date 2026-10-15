@@ -78,7 +78,7 @@ jobs:
         run: sha256sum dist/* > dist/sha256sums.txt
 
       - name: Upload SDK build artifacts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: python-sdk-dist
           path: sdk/python/dist/

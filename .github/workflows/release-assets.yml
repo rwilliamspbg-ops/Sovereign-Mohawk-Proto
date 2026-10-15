@@ -128,7 +128,7 @@ jobs:
           make package-formal-verification-artifacts
 
       - name: Upload release prep artifacts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: release-prep-assets
           retention-days: 30
@@ -190,7 +190,7 @@ jobs:
           printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
 
       - name: Upload docker release artifacts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: docker-release-assets-${{ matrix.image_name }}
           retention-days: 30

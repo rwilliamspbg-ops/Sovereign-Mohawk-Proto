@@ -30,6 +30,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
+      # download-artifact v8 requires a matching upload-artifact v5+; a v4
+      # upload produces an unreadable blob and this step fails with a bare
+      # "digest-mismatch" that says nothing about the real cause.
       - name: Download coverage summary from the triggering run
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
@@ -67,9 +70,11 @@ jobs:
           git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
 
           # The generate step wrote $badge_file into the working tree on the
-          # currently checked-out branch. Left in place it makes `git checkout`
-          # refuse to switch branches, so clear it whether tracked or untracked.
-          git checkout -- "$badge_file" 2>/dev/null || rm -f "$badge_file"
+          # currently checked-out branch. An untracked file makes `git checkout`
+          # refuse to switch branches ("local changes would be overwritten"),
+          # and `git checkout --` only clears tracked ones, so remove it
+          # unconditionally -- the authoritative copy is in /tmp.
+          rm -f "$badge_file"
 
           if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
             git checkout -B "${badges_branch}" "origin/${badges_branch}"

@@ -41,7 +41,7 @@ jobs:
 
       - name: Upload dependency audit artifact
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: theorem-dependency-audit
           path: results/proofs/theorem_dependency_audit.json
@@ -212,7 +212,7 @@ jobs:
 
       - name: Upload proof regression artifact
         if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: proof-regression-report
           path: |
