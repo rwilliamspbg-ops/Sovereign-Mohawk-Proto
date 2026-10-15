@@ -13,7 +13,7 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GOTOOLCHAIN: go1.27.2+auto
-  GOVULNCHECK_VERSION: v1.1.4
+  GOVULNCHECK_VERSION: v1.9.0
 
 jobs:
   go-vulncheck:

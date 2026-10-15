@@ -183,7 +183,7 @@ jobs:
 
           # Security scanning
           echo "=== Security Scanning ===" >> /tmp/in-toto/verification.txt
-          ./scripts/go_with_toolchain.sh go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          ./scripts/go_with_toolchain.sh go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
           govulncheck ./... >> /tmp/in-toto/verification.txt 2>&1
 
           # Verify checksums
