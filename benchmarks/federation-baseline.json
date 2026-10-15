@@ -5,11 +5,11 @@
     "os": "windows/amd64",
     "benchtime": "2s",
     "recorded": "2026-10-14",
-    "note": "Batch forwarding measured with a receiver that drains the aggregation channel. The benchmark previously left MaxBufferedGradients unset (0), so once the 10000-slot channel filled every further gradient was dropped and the number described a path that aggregated nothing -- main logged 0 warnings only because its client was too slow to fill the channel.\n\nProgression for BatchForwarding (10 x 1000-dim gradients):\n  9827786 ns / 10368 allocs  original\n  5256936 ns / 10301 allocs  after sizing encodeGradient (PR #200)\n  338578  ns / 294   allocs  after pre-sizing the batch body and bulk-reading the decode path\n\nGradientForwarding is unchanged at 523805 ns / 1031 allocs; it sends one gradient per call so the batch-body and bulk-decode paths do not apply."
+    "note": "Both benchmarks now run against a receiver that drains the aggregation channel. Previously neither set MaxBufferedGradients, leaving the overflow buffer at 0, so once the 10000-slot channel filled every further gradient was dropped and the numbers described a path that aggregated nothing. Neither logged warnings before this fix only because each client was too slow to fill the channel.\n\nProgression for BatchForwarding (10 x 1000-dim gradients):\n  9827786 ns / 10368 allocs  original\n  5256936 ns / 10301 allocs  after sizing encodeGradient (PR #200)\n  338578  ns / 294   allocs  after pre-sizing the batch body and bulk-reading decode\n\nGradientForwarding (single gradient per call) measures 119614 ns / 28 allocs. The earlier 523805 ns / 1031 allocs figure was inflated by the same backpressure defect. Its cost is dominated by the synchronous 1-byte ACK -- SendGradient blocks on io.ReadFull for the peer's acknowledgement, which is one network round trip per gradient and a deliberate durability property. Encoding is only 5252 ns of the 119614; the batch-body and bulk-decode optimizations do not apply because it sends one gradient per call. Amortizing the round trip is what ForwardBatch is for.\n\nMeasured with each benchmark in its own process; running both in one `go test -bench` invocation saturates the shared receiver and inflates both."
   },
-  "BenchmarkFederationGradientForwarding_ns": 523805,
-  "BenchmarkFederationGradientForwarding_allocs": 1031,
-  "BenchmarkFederationBatchForwarding_ns": 338578,
-  "BenchmarkFederationBatchForwarding_allocs": 294,
-  "BenchmarkFederationBatchForwarding_bytes": 416416
+  "BenchmarkFederationGradientForwarding_ns": 119614,
+  "BenchmarkFederationGradientForwarding_allocs": 28,
+  "BenchmarkFederationBatchForwarding_ns": 444455,
+  "BenchmarkFederationBatchForwarding_allocs": 293,
+  "BenchmarkFederationBatchForwarding_bytes": 416441
 }

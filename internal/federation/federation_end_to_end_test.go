@@ -379,11 +379,20 @@ func BenchmarkFederationGradientForwarding(b *testing.B) {
 			TierID:       "bench-continental",
 			Level:        TierContinental,
 			ChildNodeIDs: []string{"bench-regional"},
+			// Same as the batch benchmark: without a bound the overflow buffer
+			// is 0 and every gradient past the channel capacity is dropped, so
+			// the measurement describes backpressure rather than forwarding.
+			MaxBufferedGradients: 100000,
 		},
 		":9201",
 	)
 	handler.Start(":9201")
 	defer handler.Close()
+
+	// Drain so the receiver keeps up with the sender.
+	aggCtx, cancelAgg := context.WithCancel(context.Background())
+	defer cancelAgg()
+	go handler.AggregateLoop(aggCtx)
 
 	client := NewRPCClient(config, "localhost:9201")
 	ctx := context.Background()

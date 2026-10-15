@@ -213,7 +213,7 @@ jobs:
           cat SHA512SUMS
 
       - name: Upload artifact hashes
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: release-artifacts
           path: /tmp/release-artifacts
@@ -299,7 +299,7 @@ jobs:
           cat /tmp/slsa-provenance.json | jq .
 
       - name: Upload SLSA provenance as artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: slsa-provenance
           path: /tmp/slsa-provenance.json
@@ -354,7 +354,7 @@ jobs:
           echo "All artifacts signed with Sigstore keyless signing"
 
       - name: Upload signatures
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
           name: release-signatures
           path: |
