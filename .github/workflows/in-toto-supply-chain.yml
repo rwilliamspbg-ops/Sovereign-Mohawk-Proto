@@ -64,7 +64,7 @@ jobs:
           echo "Recorded $(grep -c . /tmp/in-toto/materials.txt) source files"
 
       - name: Upload materials manifest
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-materials
           path: /tmp/in-toto/materials.txt
@@ -127,7 +127,7 @@ jobs:
           cat /tmp/in-toto/products.txt
 
       - name: Upload products manifest
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-products
           path: /tmp/in-toto/products.txt
@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload verification results
         if: always()
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-verification
           path: /tmp/in-toto/verification.txt
@@ -394,7 +394,7 @@ jobs:
           ls -la /tmp/in-toto-links/
 
       - name: Upload in-toto metadata
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-metadata
           path: |
@@ -414,7 +414,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Download all in-toto artifacts
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           path: /tmp/all-in-toto
 
