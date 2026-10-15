@@ -1,160 +1,160 @@
-name: Build and Test
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-concurrency:
-  group: build-test-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.27.2+auto
-  # CI-only placeholder; docker-compose.yml requires this to be set (no
-  # insecure default) and CI never exposes the Grafana UI to anything.
-  GRAFANA_ADMIN_PASSWORD: ci-runner-not-a-real-secret
-
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
-        with:
-          go-version-file: 'go.mod'
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
-        with:
-          toolchain: 1.94.1
-          targets: wasm32-unknown-unknown
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-        with:
-          python-version: '3.12'
-
-      - name: Build Wasm Module
-        run: |
-          cd wasm-modules/fl_task
-          cargo build --target wasm32-unknown-unknown --release
-      - name: Go Build and Test
-        run: |
-          mkdir -p test-results
-          source scripts/ensure_go_toolchain.sh
-          go mod tidy
-          if ! git diff --exit-code -- go.mod go.sum; then
-            echo "go.mod/go.sum drift detected. Run 'go mod tidy' and commit the changes."
-            exit 1
-          fi
-          go build ./...
-          set -o pipefail
-          go test -json ./... | tee test-results/go-test-report.jsonl
-      - name: Validate Capabilities
-        run: python3 scripts/validate_capabilities.py
-
-      - name: Install Python SDK Test Dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -e ./sdk/python[dev]
-
-      - name: Python SDK Tests
-        run: |
-          mkdir -p test-results
-          cd sdk/python
-          pytest -q \
-            --ignore=tests/test_benchmarks.py \
-            --ignore=tests/test_comprehensive_stress_function.py \
-            --ignore=tests/test_dataloader_optimization.py \
-            --ignore=tests/test_llm_training_performance.py \
-            --ignore=tests/test_phase1_coverage_expansion.py \
-            --junitxml=../../test-results/python-sdk-junit.xml
-
-      - name: Verify Python SDK WASM Examples
-        run: |
-          python3 sdk/python/examples/wasm_hot_reload_demo.py --ci
-          python3 sdk/python/examples/wasm_hot_reload_async_demo.py --ci
-
-      - name: Verify Docker Stack
-        run: docker compose config
-
-      - name: Prepare runtime secrets
-        run: |
-          mkdir -p runtime-secrets
-          if [ ! -s runtime-secrets/mohawk_api_token ]; then
-            python3 -c 'import os, secrets, pathlib; p = pathlib.Path("runtime-secrets/mohawk_api_token"); p.write_text(secrets.token_hex(24), encoding="utf-8"); os.chmod(p, 0o600)'
-          fi
-          if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
-            openssl req -x509 -newkey rsa:3072 \
-              -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
-              -out runtime-secrets/mohawk_tpm_ca_cert.pem \
-              -sha256 -days 365 -nodes \
-              -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
-          fi
-
-      - name: Monitoring Smoke Check
-        run: |
-          set -euo pipefail
-          mkdir -p test-results
-          docker compose up -d --build orchestrator prometheus tpm-metrics
-          # Wait for Prometheus to become ready; increase timeout for CI runners
-          for i in {1..60}; do
-            if curl -fsS http://localhost:9090/-/healthy >/dev/null; then
-              echo "prometheus ready after attempt=$i"
-              break
-            fi
-            echo "waiting for prometheus... attempt=$i"
-            docker compose ps --all || true
-            sleep 5
-          done
-          # Wait for the metric to appear in Prometheus
-          for i in {1..60}; do
-            if curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep -q 'mohawk_utility_coin_total_supply'; then
-              echo "metric present after attempt=$i"
-              break
-            fi
-            sleep 5
-          done
-          curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | tee test-results/monitoring-smoke-query.json
-          grep 'mohawk_utility_coin_total_supply' test-results/monitoring-smoke-query.json
-          docker compose down -v
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
-
-      - name: Build OCI image artifacts for workflow downloads
-        run: |
-          mkdir -p test-results/docker-images
-          docker buildx build \
-            --file cmd/orchestrator/Dockerfile \
-            --tag mohawk/orchestrator:ci \
-            --output type=oci,dest=test-results/docker-images/orchestrator-ci.oci.tar \
-            .
-          docker buildx build \
-            --file cmd/node-agent/Dockerfile \
-            --tag mohawk/node-agent:ci \
-            --output type=oci,dest=test-results/docker-images/node-agent-ci.oci.tar \
-            .
-          sha256sum test-results/docker-images/*.tar > test-results/docker-images/sha256sums.txt
-
-      - name: Generate source SBOM
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-        with:
-          format: spdx-json
-          output-file: test-results/sbom-source.spdx.json
-
-      - name: Upload build and test artifacts
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: build-test-artifacts
-          path: |
-            test-results/
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: build-test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  GOTOOLCHAIN: go1.27.2+auto
+  # CI-only placeholder; docker-compose.yml requires this to be set (no
+  # insecure default) and CI never exposes the Grafana UI to anything.
+  GRAFANA_ADMIN_PASSWORD: ci-runner-not-a-real-secret
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
+        with:
+          toolchain: 1.94.1
+          targets: wasm32-unknown-unknown
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+
+      - name: Build Wasm Module
+        run: |
+          cd wasm-modules/fl_task
+          cargo build --target wasm32-unknown-unknown --release
+      - name: Go Build and Test
+        run: |
+          mkdir -p test-results
+          source scripts/ensure_go_toolchain.sh
+          go mod tidy
+          if ! git diff --exit-code -- go.mod go.sum; then
+            echo "go.mod/go.sum drift detected. Run 'go mod tidy' and commit the changes."
+            exit 1
+          fi
+          go build ./...
+          set -o pipefail
+          go test -json ./... | tee test-results/go-test-report.jsonl
+      - name: Validate Capabilities
+        run: python3 scripts/validate_capabilities.py
+
+      - name: Install Python SDK Test Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -e ./sdk/python[dev]
+
+      - name: Python SDK Tests
+        run: |
+          mkdir -p test-results
+          cd sdk/python
+          pytest -q \
+            --ignore=tests/test_benchmarks.py \
+            --ignore=tests/test_comprehensive_stress_function.py \
+            --ignore=tests/test_dataloader_optimization.py \
+            --ignore=tests/test_llm_training_performance.py \
+            --ignore=tests/test_phase1_coverage_expansion.py \
+            --junitxml=../../test-results/python-sdk-junit.xml
+
+      - name: Verify Python SDK WASM Examples
+        run: |
+          python3 sdk/python/examples/wasm_hot_reload_demo.py --ci
+          python3 sdk/python/examples/wasm_hot_reload_async_demo.py --ci
+
+      - name: Verify Docker Stack
+        run: docker compose config
+
+      - name: Prepare runtime secrets
+        run: |
+          mkdir -p runtime-secrets
+          if [ ! -s runtime-secrets/mohawk_api_token ]; then
+            python3 -c 'import os, secrets, pathlib; p = pathlib.Path("runtime-secrets/mohawk_api_token"); p.write_text(secrets.token_hex(24), encoding="utf-8"); os.chmod(p, 0o600)'
+          fi
+          if [ ! -s runtime-secrets/mohawk_tpm_ca_cert.pem ] || [ ! -s runtime-secrets/mohawk_tpm_ca_key.pem ]; then
+            openssl req -x509 -newkey rsa:3072 \
+              -keyout runtime-secrets/mohawk_tpm_ca_key.pem \
+              -out runtime-secrets/mohawk_tpm_ca_cert.pem \
+              -sha256 -days 365 -nodes \
+              -subj "/CN=Sovereign-Mohawk TPM Root/O=Sovereign-Mohawk" >/dev/null 2>&1
+          fi
+
+      - name: Monitoring Smoke Check
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          docker compose up -d --build orchestrator prometheus tpm-metrics
+          # Wait for Prometheus to become ready; increase timeout for CI runners
+          for i in {1..60}; do
+            if curl -fsS http://localhost:9090/-/healthy >/dev/null; then
+              echo "prometheus ready after attempt=$i"
+              break
+            fi
+            echo "waiting for prometheus... attempt=$i"
+            docker compose ps --all || true
+            sleep 5
+          done
+          # Wait for the metric to appear in Prometheus
+          for i in {1..60}; do
+            if curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | grep -q 'mohawk_utility_coin_total_supply'; then
+              echo "metric present after attempt=$i"
+              break
+            fi
+            sleep 5
+          done
+          curl -fsS "http://localhost:9090/api/v1/query?query=mohawk_utility_coin_total_supply" | tee test-results/monitoring-smoke-query.json
+          grep 'mohawk_utility_coin_total_supply' test-results/monitoring-smoke-query.json
+          docker compose down -v
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Build OCI image artifacts for workflow downloads
+        run: |
+          mkdir -p test-results/docker-images
+          docker buildx build \
+            --file cmd/orchestrator/Dockerfile \
+            --tag mohawk/orchestrator:ci \
+            --output type=oci,dest=test-results/docker-images/orchestrator-ci.oci.tar \
+            .
+          docker buildx build \
+            --file cmd/node-agent/Dockerfile \
+            --tag mohawk/node-agent:ci \
+            --output type=oci,dest=test-results/docker-images/node-agent-ci.oci.tar \
+            .
+          sha256sum test-results/docker-images/*.tar > test-results/docker-images/sha256sums.txt
+
+      - name: Generate source SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          format: spdx-json
+          output-file: test-results/sbom-source.spdx.json
+
+      - name: Upload build and test artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: build-test-artifacts
+          path: |
+            test-results/
