@@ -30,24 +30,67 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
+      # The artifact actions must be version-matched: upload-artifact v7 with
+      # download-artifact v7. A v7 upload read by a v8 download fails with a
+      # bare "digest-mismatch" that says nothing about the real cause, and the
+      # summary file is present the whole time.
+      #
+      # On workflow_dispatch and schedule there is no triggering run, so resolve
+      # the most recent successful Go Test run instead of passing an empty
+      # run-id (which makes the API look for run 0 and fail with "Not Found").
+      - name: Resolve the Go Test run to read coverage from
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            run_id="${{ github.event.workflow_run.id }}"
+          else
+            run_id="$(gh api "repos/${{ github.repository }}/actions/workflows/go-test.yml/runs?status=success&per_page=1" \
+              --jq '.workflow_runs[0].id')"
+            if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+              echo "::error::No successful Go Test run found to read coverage from."
+              exit 1
+            fi
+          fi
+          echo "run-id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "Reading coverage summary from Go Test run $run_id"
+
       - name: Download coverage summary from the triggering run
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: go-test-report
           path: test-results
           github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.resolve.outputs.run-id }}
 
       - name: Generate coverage badge JSON
         run: |
           set -euo pipefail
-          if [ ! -f test-results/go-coverage-summary.txt ]; then
+          # go-test.yml uploads three sibling files under test-results/, and
+          # upload-artifact strips their common directory, so the summary lands
+          # at the archive root rather than under test-results/. Accept either
+          # layout instead of hard-coding one generation's behaviour.
+          summary=""
+          for candidate in \
+            test-results/go-coverage-summary.txt \
+            go-coverage-summary.txt; do
+            if [ -f "$candidate" ]; then
+              summary="$candidate"
+              break
+            fi
+          done
+          if [ -z "$summary" ]; then
             echo "::error::go-coverage-summary.txt missing from the go-test-report artifact."
             echo "::error::Expected 'go tool cover -func' output produced by go-test.yml."
+            echo "::error::Artifact contents:"
+            find test-results -type f 2>/dev/null || true
             exit 1
           fi
+          echo "Using coverage summary at $summary"
           python3 scripts/generate_coverage_badge.py \
-            --summary test-results/go-coverage-summary.txt \
+            --summary "$summary" \
             --out badges/go_coverage_badge.json
           # Persist outside the working tree: the branch switch in the next step
           # discards untracked files on the currently checked-out branch, and
@@ -66,10 +109,14 @@ jobs:
           badges_branch="badges"
           git fetch origin "${badges_branch}:refs/remotes/origin/${badges_branch}" 2>/dev/null || true
 
-          # The generate step wrote $badge_file into the working tree on the
-          # currently checked-out branch. Left in place it makes `git checkout`
-          # refuse to switch branches, so clear it whether tracked or untracked.
-          git checkout -- "$badge_file" 2>/dev/null || rm -f "$badge_file"
+          # The download and generate steps leave untracked files in the working
+          # tree (the extracted artifact under test-results/, and the badge
+          # itself). An untracked file makes `git checkout` refuse to switch
+          # branches ("local changes would be overwritten"), and `git checkout
+          # --` only clears tracked ones, so remove them unconditionally -- the
+          # authoritative badge copy is in /tmp.
+          rm -f "$badge_file"
+          rm -rf test-results
 
           if git show-ref --verify --quiet "refs/remotes/origin/${badges_branch}"; then
             git checkout -B "${badges_branch}" "origin/${badges_branch}"

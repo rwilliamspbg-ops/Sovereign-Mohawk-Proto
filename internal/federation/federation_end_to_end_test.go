@@ -379,11 +379,20 @@ func BenchmarkFederationGradientForwarding(b *testing.B) {
 			TierID:       "bench-continental",
 			Level:        TierContinental,
 			ChildNodeIDs: []string{"bench-regional"},
+			// Same as the batch benchmark: without a bound the overflow buffer
+			// is 0 and every gradient past the channel capacity is dropped, so
+			// the measurement describes backpressure rather than forwarding.
+			MaxBufferedGradients: 100000,
 		},
 		":9201",
 	)
 	handler.Start(":9201")
 	defer handler.Close()
+
+	// Drain so the receiver keeps up with the sender.
+	aggCtx, cancelAgg := context.WithCancel(context.Background())
+	defer cancelAgg()
+	go handler.AggregateLoop(aggCtx)
 
 	client := NewRPCClient(config, "localhost:9201")
 	ctx := context.Background()
@@ -426,14 +435,26 @@ func BenchmarkFederationBatchForwarding(b *testing.B) {
 
 	handler, _ := NewRPCHandler(
 		TierConfig{
-			TierID:       "bench-batch-continental",
-			Level:        TierContinental,
-			ChildNodeIDs: []string{"bench-batch-regional"},
+			TierID:                 "bench-batch-continental",
+			Level:                  TierContinental,
+			ChildNodeIDs:           []string{"bench-batch-regional"},
+			// Without this the overflow buffer is sized 0, so once the
+			// aggregation channel (10000) fills every subsequent gradient is
+			// dropped and the benchmark measures a path that aggregates
+			// nothing. Draining via AggregateLoop keeps the receiver keeping
+			// up so the number reflects encode/transport/decode.
+			MaxBufferedGradients:   100000,
 		},
 		":9202",
 	)
 	handler.Start(":9202")
 	defer handler.Close()
+
+	// Drain the aggregation channel; without a consumer the receiver applies
+	// backpressure and the benchmark measures drops instead of forwarding.
+	aggCtx, cancelAgg := context.WithCancel(context.Background())
+	defer cancelAgg()
+	go handler.AggregateLoop(aggCtx)
 
 	client := NewRPCClient(config, "localhost:9202")
 	ctx := context.Background()
