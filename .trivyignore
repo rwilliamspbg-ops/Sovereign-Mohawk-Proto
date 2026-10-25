@@ -1,0 +1,2 @@
+# Ignore zod vulnerability in ops-assistant pending v4 breaking migration
+CVE-2023-54404

@@ -187,7 +187,8 @@ theorem theorem5_circuit_bound_soundness (stmt : CircuitBoundStatement) (proof :
   rw [decide_eq_true_eq] at hpayload hvk1 hvk2 hne
   refine ⟨⟨proof.proof_payload, proof.proof_payload⟩, ?_⟩
   unfold CircuitBoundRelation
-  exact ⟨hpayload, hvk2, hne⟩
+  have hcomm : proof.proof_payload = stmt.data_commitment_digest := hpayload
+  exact ⟨hcomm, hvk2, hne⟩
 
 /-- Constant verifier operation count, restated as its own theorem for
     traceability-matrix compatibility. -/
