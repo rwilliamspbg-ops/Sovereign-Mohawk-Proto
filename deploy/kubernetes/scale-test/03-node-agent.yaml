@@ -63,6 +63,8 @@ spec:
               value: "xmss"
             - name: MOHAWK_TPM_CA_CERT_FILE
               value: "/run/secrets/mohawk_tpm_ca_cert.pem"
+            - name: MOHAWK_ALLOW_INSECURE_WASM_FALLBACK
+              value: "false"
             - name: MOHAWK_API_AUTH_MODE
               value: "file-only"
             - name: MOHAWK_API_TOKEN_FILE
