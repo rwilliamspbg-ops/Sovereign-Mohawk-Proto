@@ -10,7 +10,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.27.2+auto
+  GOTOOLCHAIN: go1.27.3+auto
 
 jobs:
   analyze:
@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Enforce required Go toolchain mode
-        run: echo "GOTOOLCHAIN=go1.27.2+auto" >> "$GITHUB_ENV"
+        run: echo "GOTOOLCHAIN=go1.27.3+auto" >> "$GITHUB_ENV"
 
       - name: Setup Go
         if: matrix.language == 'go'
@@ -45,7 +45,7 @@ jobs:
       - name: Autobuild
         uses: github/codeql-action/autobuild@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee
         env:
-          GOTOOLCHAIN: go1.27.2+auto
+          GOTOOLCHAIN: go1.27.3+auto
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee
