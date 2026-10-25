@@ -7,7 +7,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.27.2+auto
+  GOTOOLCHAIN: go1.27.3+auto
   MATHLIB_CACHE_DIR: ${{ github.workspace }}/proofs/.lake/mathlib-cache
 
 jobs:
@@ -92,6 +92,11 @@ jobs:
         run: |
           source scripts/ensure_go_toolchain.sh
           GODEBUG=fips140=on MOHAWK_REQUIRE_FIPS_MODE_FOR_TESTS=true go test ./test -run '^TestFIPSRegression$'
+
+      - name: Verify fail-closed verifier boot paths (WASM fallback gate)
+        run: |
+          source scripts/ensure_go_toolchain.sh
+          MOHAWK_ALLOW_INSECURE_WASM_FALLBACK=false go test ./cmd/node-agent/...
 
       - name: Run full validation fast profile
         run: python3 tests/scripts/python/run_full_validation_suite.py --profile fast

@@ -152,7 +152,7 @@ noncomputable def RenyiDivergence {α : Type*} [Fintype α] (p q : α → ℝ) (
     weighted power-mean inequality (`Real.rpow_arith_mean_le_arith_mean_rpow`,
     i.e. Jensen's inequality for the convex map `x ↦ x^order`).
 
-    Note on hypotheses: the previous `sorry`'d version of this theorem took no
+    Note on hypotheses: the previous unproven version of this theorem took no
     normalization hypothesis (`∑ p = 1`, `∑ q = 1`). Without normalization the
     claim is actually FALSE — e.g. a single-point space with `p = 100`,
     `q = 0.01`, `order = 2` gives `RenyiDivergence p q order < 0`. The two sum
@@ -196,7 +196,7 @@ theorem RenyiDivergence_nonneg {α : Type*} [Fintype α] (p q : α → ℝ) (ord
     Note on the limit target: `RenyiDivergence p q order`'s `order > 1` branch is
     `(1/(order-1)) * log(∑ q^order / p^(order-1))`. Substituting `order = 1 + β` and
     differentiating in `β` at `β = 0` gives the limit `∑ q(x) * log(q(x)/p(x))` — i.e.
-    the limit is `KL(q‖p)`, not `KL(p‖q)`. A previous, still-`sorry`'d version of this
+    the limit is `KL(q‖p)`, not `KL(p‖q)`. A previous, still-unproven version of this
     theorem stated the limit as `∑ p * log(p/q)` (`KL(p‖q)`), which is generally FALSE
     (KL divergence is asymmetric) for this file's `RenyiDivergence` convention — see the
     hand derivation in the traceability matrix's Theorem 2 row.
@@ -331,7 +331,7 @@ theorem sum_rpow_div_ge {ι : Type*} (s : Finset ι) (p q : ι → ℝ) (order :
     PROVEN for real for order > 1, via `sum_rpow_div_ge` applied per-fiber
     (`Finset.sum_fiberwise` splits the global sum by `f`'s fibers; each fiber
     gets its own instance of the power-mean inequality). Narrowed from the
-    previous `sorry`'d signature (`0 < order`, `order ≠ 1`, covering the
+    previous unproven signature (`0 < order`, `order ≠ 1`, covering the
     order < 1 branch too) to `1 < order`: the order < 1 and order = 1 cases
     use different branches of `RenyiDivergence` (with `p`/`q` swapped, or the
     KL-style sum) and need a different argument (see
