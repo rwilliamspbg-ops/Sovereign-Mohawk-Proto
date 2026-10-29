@@ -46,7 +46,7 @@ Direct dependencies currently pinned in go.mod:
 
 Toolchain baseline:
 
-- Go 1.25.9
+- Go 1.27.3
 - Lean 4 + Mathlib (pinned by proofs/lean-toolchain and Lake files)
 
 ## Upgrade Dependency Matrix (2026-2027)

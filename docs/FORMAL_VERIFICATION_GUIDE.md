@@ -6,7 +6,7 @@ This guide provides a minimal, reproducible workflow to validate Sovereign Mohaw
 
 - Linux or macOS shell environment
 - Python 3.10+
-- Go toolchain matching `go.mod` (`go 1.25.9`)
+- Go toolchain matching `go.mod` (`go 1.27.3`)
 - Lean toolchain pinned in `proofs/lean-toolchain`
 
 Optional (for clean-room reproducibility):
@@ -77,7 +77,7 @@ Pinned baseline:
 
 - Base image: `ubuntu:24.04`
 - Lean toolchain installed via Elan: `leanprover/lean4:v4.30.0-rc2`
-- Go toolchain: `1.25.9`
+- Go toolchain: `1.27.3`
 - Python 3 via Debian apt packages
 
 ## Formal Tooling Test Coverage
