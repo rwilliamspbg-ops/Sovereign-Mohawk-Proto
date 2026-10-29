@@ -1141,7 +1141,7 @@ Sovereign-Mohawk-Proto/
 
 ## 🎯 What's New in This Release
 
-### Platform Upgrade (v2.0.1.Alpha)
+### Platform Upgrade (v2.1.0)
 
 ✨ **New Features:**
 
@@ -1154,7 +1154,7 @@ Sovereign-Mohawk-Proto/
 🔧 **Technical Details:**
 
 * Exported Go bridge now includes proof batching, hybrid verification, bridge transfer, device info, gradient compression, and utility-ledger operations.
-* Python package version: `2.0.1.Alpha`.
+* Python package version: `2.1.0`.
 * Strict CI gates: build/test, linter, performance gate, capability sync, proof audit, and pages deploy.
 * Benchmarked SDK mean latencies: 10.55 ms verify, 30.63 us aggregate, 995.70 us compression.
 

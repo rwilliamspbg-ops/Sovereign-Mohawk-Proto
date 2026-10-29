@@ -32,6 +32,30 @@ normalize_uname_arch() {
   esac
 }
 
+# `go` is a native Windows binary on MSYS/Git-Bash hosts. Given an MSYS-style
+# GOROOT (/c/Program Files/Go) it cannot resolve its own stdlib or toolchain,
+# concludes it must re-download one, and then dies with a misleading
+# "verifying module: missing GOSUMDB" (or "GOPROXY list is not the empty
+# string, but contains no entries") -- neither of which names the real cause.
+# Convert GOROOT to a native Windows path before exporting it.
+#
+# On Linux/macOS cygpath is absent and TOOLCHAIN_ROOT is already a native
+# absolute path, so this returns its input unchanged and CI is unaffected.
+to_native_path() {
+  # Only MSYS-style drive paths (/c/..., /d/...) need converting. A POSIX path
+  # like /usr/local/go is already what native Go expects, so leave it alone even
+  # if cygpath happens to be installed -- converting it would BREAK Linux CI.
+  case "$1" in
+    /[A-Za-z]/*) ;;
+    *) printf '%s' "$1"; return 0 ;;
+  esac
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1" 2>/dev/null || printf '%s' "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
 required_go_version="$(awk '/^toolchain[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
 if [[ -z "$required_go_version" ]]; then
   required_go_version="$(awk '/^go[[:space:]]+/ {print $2; exit}' go.mod 2>/dev/null || true)"
@@ -39,7 +63,17 @@ fi
 required_go_version="${required_go_version:-1.25.9}"
 required_go_version="${required_go_version#go}"
 
-cache_root="${GOCACHE:-$HOME/.cache/go-build}"
+# Same MSYS-vs-native problem as GOROOT below: on Git-Bash $HOME is /c/Users/x,
+# so the default cache path is POSIX-absolute but not Windows-absolute. Native Go
+# rejects it ("GOCACHE is not an absolute path") and silently falls back to
+# GOCACHE=off, which disables the build cache entirely and recompiles every
+# package on every run. Convert it. An explicit GOCACHE from the caller is
+# already in whatever form that caller intended, so pass it through untouched.
+if [[ -n "${GOCACHE:-}" ]]; then
+  cache_root="$GOCACHE"
+else
+  cache_root="$(to_native_path "$HOME/.cache/go-build")"
+fi
 cache_marker="${cache_root}/.toolchain-go${required_go_version}"
 if [[ ! -f "$cache_marker" ]]; then
   rm -rf "$cache_root"
@@ -53,8 +87,8 @@ GO_BIN_DIR="$(cd "$(dirname "$GO_BIN")" && pwd)"
 TOOLCHAIN_ROOT="$(cd "$GO_BIN_DIR/.." && pwd)"
 
 if [[ -x "$TOOLCHAIN_ROOT/pkg/tool/$(go env GOOS)_$(go env GOARCH)/compile" ]]; then
-  export GOROOT="$TOOLCHAIN_ROOT"
-  export PATH="$GOROOT/bin:$PATH"
+  export GOROOT="$(to_native_path "$TOOLCHAIN_ROOT")"
+  export PATH="$TOOLCHAIN_ROOT/bin:$PATH"
 fi
 
 current_go_version_raw="$(GOTOOLCHAIN=local go env GOVERSION 2>/dev/null || true)"

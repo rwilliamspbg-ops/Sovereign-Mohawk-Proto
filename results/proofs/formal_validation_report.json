@@ -8,7 +8,7 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "d8163fe5b1aa41246ed1d4769d430fbe1c5930dfd7829f1f503e8e39088d91a3",
+  "input_merkle_root": "7836c03955b230733521acef999fed037d8ce941658cb6bb6d27620569a07d3e",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -16,11 +16,11 @@
     },
     {
       "path": "go.mod",
-      "sha256": "54ed2b97893983808db612a0f04c3ccef8ffc9378d61830994337d4cafdff164"
+      "sha256": "fddc9054e00162ad4797c18fe04d227e01ce8e7ec233bd606ab55661ce92ccac"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "3eed09af3bc2dccbf91b63a48ee36eebcdacbed1e5a7ca1b0e120e8e43059555"
+      "sha256": "674008c29354209a093fe317dcd7c6c8c0a1dbe4ac7cf5ce6aa357c0208984ed"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -314,10 +314,10 @@
     "theorem_symbol_count": 156
   },
   "toolchain_lock": {
-    "go_version": "1.26.5",
+    "go_version": "1.26.6",
     "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
     "mathlib4_ref": "v4.30.0-rc2",
-    "zk_backend_gnark_crypto": "v0.20.1"
+    "zk_backend_gnark_crypto": "v0.21.0"
   },
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
