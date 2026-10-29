@@ -32,6 +32,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Pin pytest<8 until pytest-benchmark supports pytest 8+ (tracked for lift)
           pip install 'pytest<8' 'pytest-benchmark>=4.0' numpy
           cd sdk/python && pip install -e .
 

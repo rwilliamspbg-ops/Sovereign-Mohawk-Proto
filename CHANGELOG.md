@@ -5,6 +5,17 @@ All notable changes to the Sovereign-Mohawk Protocol are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-10-29
+### Added
+- Ledger `transferSpec` formalization closure: absent-account and insufficient-balance guards now match Go's `TransferWithControls`.
+- Zero Lean warnings (exponentiation threshold + simpa hint resolved).
+- CVE-2026-90711 fix (proxy-addr bump, rust-toolchain re-pin).
+- Go toolchain Windows path hardening in `scripts/ensure_go_toolchain.sh`.
+
+### Changed
+- CI: pytest pinned `<8` until pytest-benchmark supports pytest 8+.
+- Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
+
 ## [Unreleased]
 ### Fixed - Claim/Artifact Drift (2026-05-11 → 2026-10-03)
 
