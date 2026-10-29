@@ -36,7 +36,7 @@ jobs:
 
       - name: Build SDK benchmark artifact
         run: |
-          pip install pytest pytest-benchmark numpy
+          pip install 'pytest<8' 'pytest-benchmark>=4.0' numpy
           cd sdk/python && pip install -e .
           cd ../..
           pytest sdk/python/tests/test_benchmarks.py --benchmark-only --benchmark-json=benchmark-results.json

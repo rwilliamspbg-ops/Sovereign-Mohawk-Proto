@@ -33,7 +33,7 @@ func TestLedgerLeanCorrespondence(t *testing.T) {
 	})
 
 	t.Run("insufficient_balance_rejected_unlike_transferSpec", func(t *testing.T) {
-		// Lean's transferSpec_permits_insufficient_balance shows the Lean
+		// Lean's transferSpec now mirrors Go's sufficiency guard (closed 2026-08):
 		// spec applies this transfer unconditionally, producing balance -40.
 		// Go rejects it outright -- a real, documented correspondence gap.
 		l := NewLedger("MHC", "minter")

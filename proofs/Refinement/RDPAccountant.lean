@@ -1,6 +1,8 @@
 import Mathlib
 import Specification.Privacy
 
+set_option linter.unnecessarySimpa false
+
 /-!
 # RDP Accountant Refinement: Lean Spec ↔ Go Implementation
 
