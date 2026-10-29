@@ -137,3 +137,18 @@ This writes:
 - `release-assets/formal/formal-verification-bundle.tar.gz`
 - `release-assets/formal/bundle_manifest.json`
 - `release-assets/formal/sha256sums.txt`
+
+## WSL Reproducible Build (Windows hosts)
+
+```bash
+# In WSL (Ubuntu), native storage only (not /mnt/c)
+rm -rf ~/leanwork/proofs
+mkdir -p ~/leanwork
+cp -r /mnt/c/Users/<user>/Sovereign-Mohawk-Proto/proofs ~/leanwork/proofs
+export PATH="$HOME/.elan/bin:$PATH"
+cd ~/leanwork/proofs
+lake exe cache get
+lake build LeanFormalization Specification Refinement
+```
+
+Toolchain is pinned in `proofs/lean-toolchain`. Do not build on Windows-mounted paths.
