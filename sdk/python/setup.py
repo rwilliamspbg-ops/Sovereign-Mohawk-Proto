@@ -46,13 +46,17 @@ def _build_go_library(output_dir: Path) -> Path:
     ]
     print(f"Running: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True)
+        result = subprocess.run(
+            cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True
+        )
         if result.stdout:
             print(result.stdout)
         if result.stderr:
             print(result.stderr, file=sys.stderr)
         if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
+            raise subprocess.CalledProcessError(
+                result.returncode, cmd, result.stdout, result.stderr
+            )
     except subprocess.CalledProcessError as exc:
         print(f"Build failed:\n{exc.stderr}", file=sys.stderr)
         raise RuntimeError(f"Failed to build Go library: {exc}") from exc
