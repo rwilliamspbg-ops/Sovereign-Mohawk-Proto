@@ -104,7 +104,7 @@ jobs:
           
           # Build Python SDK
           cd sdk/python && python -m pip install build
-          python -m build --wheel -d /tmp/in-toto-build/
+          python -m build --wheel --outdir /tmp/in-toto-build/
           cd ../..
 
       - name: Record build products
