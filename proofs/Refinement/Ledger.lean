@@ -73,11 +73,22 @@ def applyTransferEntry (sender receiver : Nat) (amount : Int) (entry : Nat × In
     entry
 
 
+def balanceOf (acct : Nat) (entries : List (Nat × Int)) : Int :=
+  match entries.find? (fun e => e.fst = acct) with
+  | some e => e.snd
+  | none => 0
+
+def ensureAccount (acct : Nat) (entries : List (Nat × Int)) : List (Nat × Int) :=
+  if acct ∈ entries.map Prod.fst then entries else entries ++ [(acct, 0)]
+
 def transferSpec (sender receiver : Nat) (amount : Int) (s : LedgerState) : LedgerState :=
   if sender = receiver ∨ amount < 0 then
     s
+  else if balanceOf sender s.balances < amount then
+    s
   else
-    { balances := s.balances.map (applyTransferEntry sender receiver amount) }
+    let balances := ensureAccount sender (ensureAccount receiver s.balances)
+    { balances := balances.map (applyTransferEntry sender receiver amount) }
 
 
 def transferImpl (sender receiver : Nat) (amount : Int) (s : LedgerState) : LedgerState :=
@@ -194,25 +205,14 @@ theorem transfer_impl_conserves_total
     (h_receiver : receiver ∈ s.balances.map Prod.fst) :
     totalBalance (transferImpl sender receiver amount s).balances = totalBalance s.balances := by
   unfold transferImpl transferSpec
-  split_ifs with h
+  split_ifs with h h2
   · rfl
-  · simp only [totalBalance_eq_sum]
+  · rfl
+  · have hrecv : ensureAccount receiver s.balances = s.balances := if_pos h_receiver
+    have hsend : ensureAccount sender (ensureAccount receiver s.balances) = s.balances := by
+      rw [hrecv]; exact if_pos h_sender
+    rw [hsend]
+    simp only [totalBalance_eq_sum]
     exact transferSum_conserves sender receiver amount h_ne s.balances h_nodup h_sender h_receiver
-
-/-- Counterexample: transferring to an account id absent from `s.balances`
-    silently loses value rather than erroring — Go's map-backed ledger has
-    no such failure mode (an absent key defaults to zero and the mutation
-    always applies). -/
-theorem transferSpec_absent_account_drops_value :
-    totalBalance (transferSpec 1 9 30 ⟨[(1, 100), (2, 50), (3, 0)]⟩).balances
-      ≠ totalBalance [(1, 100), (2, 50), (3, 0)] := by decide
-
-/-- Counterexample: `transferSpec` has no balance-sufficiency check at all.
-    Go's `TransferWithControls` rejects this exact scenario outright
-    (`insufficient balance in "acct1"` — see
-    `internal/token/ledger_lean_correspondence_test.go`); the Lean spec
-    applies it unconditionally and produces a negative balance. -/
-theorem transferSpec_permits_insufficient_balance :
-    (transferSpec 1 2 50 ⟨[(1, 10), (2, 0)]⟩).balances = [(1, -40), (2, 50)] := by decide
 
 end Refinement

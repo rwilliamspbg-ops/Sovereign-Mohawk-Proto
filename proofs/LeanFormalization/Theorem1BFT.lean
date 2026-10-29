@@ -26,7 +26,10 @@
 
 import Mathlib
 import LeanFormalization.Common
+
 import LeanFormalization.Theorem4ChernoffBounds
+
+set_option exponentiation.threshold 2000
 
 namespace LeanFormalization
 
