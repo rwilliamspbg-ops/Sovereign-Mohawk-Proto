@@ -18,6 +18,7 @@ import (
 	"io"
 	"math"
 	"time"
+	"unsafe"
 )
 
 const (
@@ -97,11 +98,18 @@ func readBoundedString(r io.Reader) (string, error) {
 	if n > maxStringLen {
 		return "", fmt.Errorf("string field too large: %d bytes", n)
 	}
+	// Read directly into the string's backing array. The previous form
+	// allocated a []byte and then copied it into a string, costing two
+	// allocations per string field. buf does not escape this function, so
+	// aliasing it as the string's storage is safe.
 	buf := make([]byte, n)
 	if _, err := io.ReadFull(r, buf); err != nil {
 		return "", err
 	}
-	return string(buf), nil
+	if n == 0 {
+		return "", nil
+	}
+	return unsafe.String(&buf[0], n), nil
 }
 
 func readBoundedBytes(r io.Reader, max uint32) ([]byte, error) {
@@ -119,18 +127,42 @@ func readBoundedBytes(r io.Reader, max uint32) ([]byte, error) {
 	return buf, nil
 }
 
+// gradientEncodedSize returns the exact wire size of an encoded gradient so the
+// buffer can be allocated once. Every field is length-prefixed, so the total is
+// a simple sum.
+func gradientEncodedSize(g *GradientMessage) int {
+	size := 4 + len(g.GradientID) // GradientID
+	size += 4 + len(g.SourceNodeID)
+	size += 4 + len(g.SourceTierNodeID)
+	size += 8                       // AggregationRound
+	size += 4                       // dimension count
+	size += 8 * len(g.GradientData) // float64 payload
+	size += 8                       // Norm
+	size += 8                       // Timestamp
+	size += 4                       // path hop count
+	for _, hop := range g.PathHops {
+		size += 4 + len(hop)
+	}
+	size += 4 + len(g.Proof)
+	return size
+}
+
 // encodeGradient serializes a GradientMessage into its wire payload.
+//
+// The buffer is allocated once at its exact final size, so the payload costs a
+// single allocation and never regrows. The previous form grew an unsized
+// bytes.Buffer through len(g.GradientData) individual Write calls, reallocating
+// as it doubled. Output is byte-identical (see wire_encode_test.go); only the
+// buffering changes.
 func encodeGradient(g *GradientMessage) []byte {
-	buf := new(bytes.Buffer)
+	buf := bytes.NewBuffer(make([]byte, 0, gradientEncodedSize(g)))
 	writeString(buf, g.GradientID)
 	writeString(buf, g.SourceNodeID)
 	writeString(buf, g.SourceTierNodeID)
 	writeUint64(buf, g.AggregationRound)
 
 	writeUint32(buf, uint32(len(g.GradientData)))
-	for _, v := range g.GradientData {
-		writeFloat64(buf, v)
-	}
+	writeFloat64Slice(buf, g.GradientData)
 
 	writeFloat64(buf, g.Norm)
 	writeUint64(buf, uint64(g.Timestamp.UnixNano()))
@@ -143,6 +175,16 @@ func encodeGradient(g *GradientMessage) []byte {
 	writeByteSlice(buf, g.Proof)
 
 	return buf.Bytes()
+}
+
+// writeFloat64Slice appends big-endian float64s into a buffer that has already
+// been sized to hold them, so the writes never trigger growth.
+func writeFloat64Slice(buf *bytes.Buffer, values []float64) {
+	var tmp [8]byte
+	for _, v := range values {
+		binary.BigEndian.PutUint64(tmp[:], math.Float64bits(v))
+		buf.Write(tmp[:])
+	}
 }
 
 // decodeGradient reads a GradientMessage payload from r. Callers must have
@@ -175,9 +217,18 @@ func decodeGradient(r io.Reader) (*GradientMessage, error) {
 	}
 	g.DimensionCount = int(dim)
 	g.GradientData = make([]float64, dim)
-	for i := range g.GradientData {
-		if g.GradientData[i], err = readFloat64(r); err != nil {
-			return nil, fmt.Errorf("gradient data[%d]: %w", i, err)
+	// Read the whole float64 payload in one call and decode in place. The
+	// previous form issued one io.ReadFull per element, so a 1000-dim gradient
+	// cost 1000 separate reads through the reader's bounds checks.
+	if dim > 0 {
+		raw := make([]byte, int(dim)*8)
+		if _, err := io.ReadFull(r, raw); err != nil {
+			return nil, fmt.Errorf("gradient data: %w", err)
+		}
+		for i := range g.GradientData {
+			g.GradientData[i] = math.Float64frombits(
+				binary.BigEndian.Uint64(raw[i*8 : i*8+8]),
+			)
 		}
 	}
 

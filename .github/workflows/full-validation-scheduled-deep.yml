@@ -7,7 +7,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.26.6+auto
+  GOTOOLCHAIN: go1.27.3+auto
   # CI-only placeholder; docker-compose.yml requires this to be set (no
   # insecure default) and CI never exposes the Grafana UI to anything.
   GRAFANA_ADMIN_PASSWORD: ci-runner-not-a-real-secret
@@ -27,7 +27,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.12'
 
@@ -42,7 +42,7 @@ jobs:
 
       - name: Upload validation artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: full-validation-deep-artifacts
           path: test-results/full-validation/

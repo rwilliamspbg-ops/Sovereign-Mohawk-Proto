@@ -78,7 +78,7 @@ def main():
 
     # Check 4: Parser Patterns
     print("\n[4] Parser Compatibility Check")
-    lean_pattern = r"LeanFormalization/Theorem\d+\.lean"
+    lean_pattern = r"LeanFormalization/Theorem[0-9]+\w*\.lean"
     test_pattern = r"[^ ]+\.(go|py)::[A-Za-z0-9_]+"
 
     with open(matrix_file, "r", encoding="utf-8", errors="ignore") as f:

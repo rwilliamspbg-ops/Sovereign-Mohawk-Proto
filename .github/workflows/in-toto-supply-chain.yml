@@ -19,7 +19,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  GOTOOLCHAIN: go1.26.6+auto
+  GOTOOLCHAIN: go1.27.3+auto
 
 jobs:
   # Record in-toto material step (source code)
@@ -64,7 +64,7 @@ jobs:
           echo "Recorded $(grep -c . /tmp/in-toto/materials.txt) source files"
 
       - name: Upload materials manifest
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-materials
           path: /tmp/in-toto/materials.txt
@@ -90,7 +90,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.12'
 
@@ -127,7 +127,7 @@ jobs:
           cat /tmp/in-toto/products.txt
 
       - name: Upload products manifest
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-products
           path: /tmp/in-toto/products.txt
@@ -152,7 +152,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: '3.12'
 
@@ -183,7 +183,7 @@ jobs:
 
           # Security scanning
           echo "=== Security Scanning ===" >> /tmp/in-toto/verification.txt
-          ./scripts/go_with_toolchain.sh go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          ./scripts/go_with_toolchain.sh go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
           govulncheck ./... >> /tmp/in-toto/verification.txt 2>&1
 
           # Verify checksums
@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload verification results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-verification
           path: /tmp/in-toto/verification.txt
@@ -394,7 +394,7 @@ jobs:
           ls -la /tmp/in-toto-links/
 
       - name: Upload in-toto metadata
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: in-toto-metadata
           path: |
@@ -414,7 +414,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Download all in-toto artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           path: /tmp/all-in-toto
 
@@ -470,7 +470,7 @@ jobs:
           cat /tmp/in-toto-attestation-summary.md
 
       - name: Publish attestations to release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64
         with:
           name: "Release ${{ steps.version.outputs.tag }} - In-Toto Attestations"
           tag_name: "${{ steps.version.outputs.tag }}"

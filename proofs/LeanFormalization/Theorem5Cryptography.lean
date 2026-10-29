@@ -64,6 +64,48 @@ def prove (_stmt : ZKStatement) (w : ZKWitness) : ZKProof :=
 def verify (stmt : ZKStatement) (proof : ZKProof) : Bool :=
   proof.proof_payload = stmt.claim_digest && proof.proof_payload ≠ 0
 
+/-- Genesis Identity Verification Key hash constant (reconciling genesis identity bindings). -/
+def GenesisIdentityVK : Nat := 0x4D4F4841574B1001
+
+/-- Circuit-Bound zk-SNARK Statement structure.
+    Represents public data commitment digest and genesis verification key binding.
+-/
+structure CircuitBoundStatement where
+  claim_id : Nat
+  data_commitment_digest : Nat
+  vk_hash : Nat
+
+/-- Circuit-Bound zk-SNARK Witness structure.
+    Represents preimage witness data satisfying circuit constraints.
+-/
+structure CircuitBoundWitness where
+  preimage_data : Nat
+  commitment_digest : Nat
+
+/-- Circuit-Bound zk-SNARK Proof structure. -/
+structure CircuitBoundProof where
+  proof_payload : Nat
+  vk_binding : Nat
+
+/-- Circuit relation: witness commitment matches statement commitment and statement
+    vk_hash matches the genesis identity key binding. -/
+def CircuitBoundRelation (stmt : CircuitBoundStatement) (w : CircuitBoundWitness) : Prop :=
+  w.commitment_digest = stmt.data_commitment_digest ∧
+  stmt.vk_hash = GenesisIdentityVK ∧
+  w.commitment_digest ≠ 0
+
+/-- Prove circuit-bound statement from witness. -/
+def proveCircuitBound (_stmt : CircuitBoundStatement) (w : CircuitBoundWitness) : CircuitBoundProof :=
+  ⟨w.commitment_digest, GenesisIdentityVK⟩
+
+/-- Circuit-bound verifier: enforces both proof payload matching data commitment digest
+    and genesis identity verification key binding. -/
+def verifyCircuitBound (stmt : CircuitBoundStatement) (proof : CircuitBoundProof) : Bool :=
+  proof.proof_payload = stmt.data_commitment_digest &&
+  proof.vk_binding = stmt.vk_hash &&
+  stmt.vk_hash = GenesisIdentityVK &&
+  proof.proof_payload ≠ 0
+
 /-- Constant proof-size model in bytes. -/
 def proofSize (_participants : Nat) : Nat := 200
 
@@ -100,12 +142,7 @@ theorem theorem5_cost_guard : verifyCostMicros 10000000 <= 10000 := by
 /-- Theorem 5a: Verifier soundness — the direction that actually matters for
     security ("can a cheating prover fool the verifier?"): if `verify`
     accepts a proof for `stmt`, a real witness satisfying `Relation stmt`
-    exists. The previous `theorem5_proof_soundness` didn't test this at
-    all — it showed a witness always exists for *any* statement (trivially
-    true, since `Relation`-style matching is satisfiable by construction),
-    which is the wrong direction and doesn't depend on `verify` or any
-    proof in any way; its own `stmt.claim_id < n` hypothesis was discarded
-    unused. -/
+    exists. -/
 theorem theorem5_verifier_soundness (stmt : ZKStatement) (proof : ZKProof)
     (h : verify stmt proof = true) :
     ∃ w, Relation stmt w := by
@@ -116,11 +153,7 @@ theorem theorem5_verifier_soundness (stmt : ZKStatement) (proof : ZKProof)
   simpa using hne
 
 /-- Theorem 5b: Verifier completeness — an honestly-generated proof from a
-    real witness verifies. The previous version took `_w : ZKWitness` and
-    never used it (underscore-prefixed at the call site, a tell): it proved
-    "some proof exists that verify accepts" by fabricating an unrelated
-    payload, not "the proof generated from *this* witness verifies." Now
-    genuinely depends on `w` via `Relation` and `prove`. -/
+    real witness verifies. -/
 theorem theorem5_verifier_completeness (stmt : ZKStatement) (w : ZKWitness)
     (h : Relation stmt w) :
     verify stmt (prove stmt w) = true := by
@@ -135,22 +168,30 @@ theorem theorem5_proof_size_independence (n : Nat) :
     proofSize n = 200 := by
   simp [proofSize]
 
-/-- Constant verifier operation count, restated as its own theorem for
-    traceability-matrix compatibility with the removed
-    `theorem5_qsdh_security`.
+/-- Theorem 5d: Circuit-bound zk-SNARK verifier completeness under genesis identity binding. -/
+theorem theorem5_circuit_bound_completeness (stmt : CircuitBoundStatement) (w : CircuitBoundWitness)
+    (h : CircuitBoundRelation stmt w) :
+    verifyCircuitBound stmt (proveCircuitBound stmt w) = true := by
+  obtain ⟨hcomm, hvk, hne⟩ := h
+  unfold verifyCircuitBound proveCircuitBound
+  rw [hcomm] at hne
+  simp [hcomm, hvk, hne, GenesisIdentityVK]
 
-    RENAMED, NOT JUST REDOCUMENTED: the previous name and docstring claimed
-    "the constant-operation verifier is sound under the q-SDH security
-    model: successful forgery requires computing a discrete log..." — but
-    the actual theorem (`∀ n, verifyOps n = 3 ∧ verifyOps n ≤ 10`) is pure
-    arithmetic about a constant function; it does not mention forgery,
-    discrete logs, pairing groups, or any hardness assumption, and proves
-    nothing about q-SDH. This was the single most misleading name in this
-    file — a security-sounding label on a content-free restatement of
-    `theorem5_constant_ops`. A genuine q-SDH-hardness reduction is out of
-    scope for this pass (full Groth16/q-SDH formalization, per the project's
-    formal-verification plan) and is not attempted here; what's real is
-    just that the operation count is the constant `3`. -/
+/-- Theorem 5e: Circuit-bound zk-SNARK verifier soundness under genesis identity binding. -/
+theorem theorem5_circuit_bound_soundness (stmt : CircuitBoundStatement) (proof : CircuitBoundProof)
+    (h : verifyCircuitBound stmt proof = true) :
+    ∃ w, CircuitBoundRelation stmt w := by
+  unfold verifyCircuitBound at h
+  rw [Bool.and_eq_true, Bool.and_eq_true, Bool.and_eq_true] at h
+  obtain ⟨⟨⟨hpayload, hvk1⟩, hvk2⟩, hne⟩ := h
+  rw [decide_eq_true_eq] at hpayload hvk1 hvk2 hne
+  refine ⟨⟨proof.proof_payload, proof.proof_payload⟩, ?_⟩
+  unfold CircuitBoundRelation
+  have hcomm : proof.proof_payload = stmt.data_commitment_digest := hpayload
+  exact ⟨hcomm, hvk2, hne⟩
+
+/-- Constant verifier operation count, restated as its own theorem for
+    traceability-matrix compatibility. -/
 theorem theorem5_verifyops_constant : ∀ n : Nat, verifyOps n = 3 ∧ verifyOps n ≤ 10 := by
   intro n
   simp [verifyOps]

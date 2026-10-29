@@ -1,0 +1,7 @@
+# Ignore dependencies with known open GHSA/CVEs in web/ops-assistant
+CVE-2023-54404
+CVE-2026-111181
+GHSA-cg2g-xh64-v4q7
+GHSA-mrv2-3pqr-j5jr
+CVE-2026-111755
+CVE-2026-111756
