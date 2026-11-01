@@ -6,6 +6,9 @@ import (
 )
 
 func TestGetVerifiedQuoteLeaseCache(t *testing.T) {
+	cacheMutex.Lock()
+	quoteCache = make(map[string]CachedQuote)
+	cacheMutex.Unlock()
 	t.Setenv("MOHAWK_TPM_IDENTITY_SIG_MODE", "rsa-pss-sha256")
 	t.Setenv("MOHAWK_TPM_QUOTE_LEASE_TTL", "2m")
 
