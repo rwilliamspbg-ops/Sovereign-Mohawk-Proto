@@ -1,0 +1,24 @@
+name: Deep Fuzz (nightly)
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [FuzzMigrationSigningDigest, FuzzManifestUnmarshal, FuzzThresholdAggUnmarshal, FuzzVerifyZKProof, FuzzRDPShardStep, FuzzSchedulerAllocate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Run deep fuzz
+        run: go test -run=XXX -fuzz=${{ matrix.target }} -fuzztime=5m ./test/
+      - name: Upload fuzz cache
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-corpus-${{ matrix.target }}
+          path: ~/.cache/go-build/fuzz 2>/dev/null || true
