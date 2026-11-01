@@ -15,6 +15,17 @@ func FuzzManifestUnmarshal(f *testing.F) {
 		if err := json.Unmarshal(data, &m); err != nil {
 			return
 		}
+		b, err := json.Marshal(m)
+		if err != nil {
+			t.Fatalf("marshal failed: %v", err)
+		}
+		var m2 manifest.Manifest
+		if err := json.Unmarshal(b, &m2); err != nil {
+			t.Fatalf("round-trip unmarshal failed: %v", err)
+		}
+		if m.TaskID != m2.TaskID || m.NodeID != m2.NodeID {
+			t.Fatalf("round-trip identity mismatch")
+		}
 		_ = m.ValidateCommunicationComplexity(2, 4)
 	})
 }

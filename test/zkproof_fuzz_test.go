@@ -14,6 +14,10 @@ func FuzzVerifyZKProof(f *testing.F) {
 		}
 		var s [32]byte
 		copy(s[:], salt)
-		_, _ = proofs.VerifyHashCommitment(expectedRoot, proofData, s)
+		r1, _ := proofs.VerifyHashCommitment(expectedRoot, proofData, s)
+		r2, _ := proofs.VerifyHashCommitment(expectedRoot, proofData, s)
+		if r1 != r2 {
+			t.Fatalf("non-deterministic result: %v vs %v", r1, r2)
+		}
 	})
 }
