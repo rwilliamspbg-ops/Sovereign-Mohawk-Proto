@@ -10,15 +10,15 @@ jobs:
       matrix:
         target: [FuzzMigrationSigningDigest, FuzzManifestUnmarshal, FuzzThresholdAggUnmarshal, FuzzVerifyZKProof, FuzzRDPShardStep, FuzzSchedulerAllocate]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
         with:
           go-version-file: go.mod
       - name: Run deep fuzz
         run: go test -run=XXX -fuzz=${{ matrix.target }} -fuzztime=5m ./test/
       - name: Upload fuzz cache
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: fuzz-corpus-${{ matrix.target }}
           path: ~/.cache/go-build/fuzz 2>/dev/null || true
