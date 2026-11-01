@@ -14,6 +14,6 @@ func FuzzVerifyZKProof(f *testing.F) {
 		}
 		var s [32]byte
 		copy(s[:], salt)
-		_, _ = proofs.VerifyZKProof(expectedRoot, proofData, s)
+		_, _ = proofs.VerifyHashCommitment(expectedRoot, proofData, s)
 	})
 }
