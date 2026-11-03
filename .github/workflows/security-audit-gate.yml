@@ -43,6 +43,7 @@ jobs:
             -w /repo \
             aquasec/trivy:0.57.1 \
             fs \
+            --db-repository ghcr.io/aquasecurity/trivy-db \
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
             --skip-dirs runtime-secrets \
