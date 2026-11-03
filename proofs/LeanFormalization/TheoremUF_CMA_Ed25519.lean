@@ -19,7 +19,7 @@ structure Ed25519Sig where
 /-- Turn an `Ed25519Sig` into a `PQCSig`.  Uses the genuine Ed25519
     verifier from `Ed25519.lean`. -/
 def Ed25519ToPQC (s : Ed25519Sig) : PQCSig where
-  verify := fun m sig => ed25519Verify sig m s.pk
+  verify := fun (m : List UInt8) sig => ed25519VerifyBytes sig s.pk m
   forgeable := False
 
 /-- Conditional UF-CMA statement for Ed25519.  Security is taken as an

@@ -37,22 +37,22 @@ abbrev totalByzantine (tiers : List Tier) : Nat :=
 
 /-- Legacy (pre-quantum) signature scheme. -/
 structure LegacySig where
-  verify : Nat → Nat → Bool
+  verify : List UInt8 → Nat → Bool
   forgeable : Prop
 
 /-- Post-quantum signature scheme. -/
 structure PQCSig where
-  verify : Nat → Nat → Bool
+  verify : List UInt8 → Nat → Bool
   forgeable : Prop
 
 /-- Signature oracle for chosen-message attack games. -/
 structure SignOracle where
-  sign : Nat → Nat
+  sign : List UInt8 → Nat
 
 /-- Adversary model used in UF-CMA games and hijack analysis. -/
 structure Adversary where
-  queries : List Nat
-  forgeryMsg : Nat
+  queries : List (List UInt8)
+  forgeryMsg : List UInt8
   forgerySig : Nat
 
 /-- UF-CMA win condition: fresh-message valid forgery. -/
