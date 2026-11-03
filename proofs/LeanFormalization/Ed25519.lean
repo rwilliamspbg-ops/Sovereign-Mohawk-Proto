@@ -9,7 +9,7 @@ implementation: message encoding is restricted (empty message or a Nat encoded
 as 32 little-endian bytes), scalar multiplication assumes a 256-bit bound,
 and the group-law/decoding code has not been audited against the full RFC 8032
 test suite. It must not be used as a foundation for security claims beyond
-the single empty-message test vector exercised in `Ed25519Test` (if present). -/
+the RFC 8032 test vectors exercised in `Ed25519Test` (if present). -/
 namespace LeanFormalization
 
 /-- Ed25519 field prime p = 2^255 - 19. -/
