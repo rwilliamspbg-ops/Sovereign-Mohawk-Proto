@@ -88,6 +88,18 @@ facts in `proofs/Refinement/MultiKrum.lean`, not placeholders.
 - Added a real circuit-derived Groth16 verifier (Track B1) and documented the
   Groth16/q-SDH feasibility finding (Track B2).
 
+- **Added an experimental Ed25519-style verifier model** in
+  `proofs/LeanFormalization/Ed25519.lean` (field arithmetic, twisted-Edwards
+  point operations, SHA-512, and signature verification). Wired it into
+  `TheoremUF_CMA_Ed25519.lean`, removing the insecure `sig = msg` placeholder
+  and the `placeholder_is_forgeable` theorem. Verified against the RFC 8032
+  empty-message test vector (valid signature verifies; tampered message does
+  not). **This is not a verified production implementation**: message encoding
+  is restricted, scalar multiplication assumes a 256-bit bound, and the
+  group law/decoding are unaudited. The UF-CMA security statement remains
+  conditional on an explicit `h_secure` hypothesis (discrete-log reduction
+  not yet formalized).
+
 #### Performance
 
 - Vectorized the SDK Python token-batch generator; corrected unrealistic
