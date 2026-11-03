@@ -134,17 +134,13 @@ def decodePoint (bytes : List UInt8) : Option AffinePoint :=
       -- also need x != 0 edge? skip
       some { x := x', y := yval, inf := false }
 
-/-- Verify Ed25519 signature. sig, msg, pk are Nats. -/
-def ed25519Verify (sig msg pk : Nat) : Bool :=
-  -- encode msg, pk, sig as bytes
-  -- msg: variable length; use minimal bytes then... Ed25519 messages arbitrary. We'll encode msg as LE bytes (minimal).
-  -- For simplicity, encode pk as 32 bytes LE, sig as 64 bytes LE.
+/-- Core verification given the message as raw bytes. -/
+def ed25519VerifyCore (sig pk : Nat) (msgBytes : List UInt8) : Bool :=
   let pkBytes := natToBytesLE pk 32
   let sigBytes := natToBytesLE sig 64
   let Rbytes := sigBytes.take 32
   let Sbytes := sigBytes.drop 32
   let S := bytesToNatLE Sbytes
-  -- check S < L
   if S >= ed25519L then false
   else
     match decodePoint Rbytes with
@@ -153,24 +149,21 @@ def ed25519Verify (sig msg pk : Nat) : Bool :=
       match decodePoint pkBytes with
       | none => false
       | some Apt =>
-        -- Message encoding limitation: a Nat cannot represent arbitrary byte
-        -- strings. For the empty message (msg == 0) we use [], matching the
-        -- RFC 8032 empty-message test vector; nonzero msgs are encoded as 32
-        -- little-endian bytes. This is a simplification, not a general
-        -- message encoding.
-        let msgBytes := if msg == 0 then [] else natToBytesLE msg 32
-        -- h = SHA512(R || A || M) mod L
         let hInput := Rbytes ++ pkBytes ++ msgBytes
         let hHash := sha512 hInput
         let h := bytesToNatLE hHash % ed25519L
-        -- compute S*B
         let SB := affineScalarMulImpl S affineBase
-        -- compute h*A
         let hA := affineScalarMulImpl h Apt
-        -- R + h*A
         let RhA := affineAdd Rpt hA
-        -- compare SB and RhA (affine)
         (SB.x == RhA.x && SB.y == RhA.y && !SB.inf && !RhA.inf)
+
+/-- Verify against an arbitrary message (as bytes). -/
+def ed25519VerifyBytes (sig pk : Nat) (msgBytes : List UInt8) : Bool :=
+  ed25519VerifyCore sig pk msgBytes
+
+/-- Backwards-compatible Nat-message interface. -/
+def ed25519Verify (sig msg pk : Nat) : Bool :=
+  ed25519VerifyCore sig pk (if msg == 0 then [] else natToBytesLE msg 32)
 
 -- Keep the old interface name working:
 def ed25519VerifyReal (sig msg pk : Nat) : Bool := ed25519Verify sig msg pk
