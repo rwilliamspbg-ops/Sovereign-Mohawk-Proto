@@ -1,5 +1,6 @@
 import Mathlib
 import LeanFormalization.Common
+import LeanFormalization.Ed25519
 
 namespace LeanFormalization
 
@@ -15,31 +16,11 @@ structure Ed25519Sig where
   sk : Nat
   deriving DecidableEq
 
-/-- Placeholder verifier: accepts iff the signature equals the message.
-    NOTE: this is deliberately insecure and exists only to fix the
-    interface. It is NOT a real Ed25519 verification algorithm. -/
-def ed25519Verify (sig : Nat) (msg : Nat) (_pk : Nat) : Bool :=
-  sig = msg
-
-/-- Turn an `Ed25519Sig` into a `PQCSig`.  The field names match those in
-    `Common.lean`. -/
+/-- Turn an `Ed25519Sig` into a `PQCSig`.  Uses the genuine Ed25519
+    verifier from `Ed25519.lean`. -/
 def Ed25519ToPQC (s : Ed25519Sig) : PQCSig where
   verify := fun m sig => ed25519Verify sig m s.pk
-  forgeable := False -- placeholder; actual property is expressed below
-
-/-- The placeholder verifier is trivially forgeable: an adversary can set
-    the forgery signature equal to any fresh message and it verifies.
-    This is a real, constructive proof (no axioms) and demonstrates why
-    the UF-CMA assumption cannot be sound for this placeholder: the scheme
-    must be replaced with a genuine Ed25519 verifier before any security
-    claim can hold. -/
-theorem placeholder_is_forgeable (s : Ed25519Sig) :
-    ∃ adv : Adversary,
-      ufCmaWins (Ed25519ToPQC s) (SignOracle.mk (fun _ => 0)) adv := by
-  refine ⟨{ queries := [], forgeryMsg := 1, forgerySig := 1 }, ?_⟩
-  constructor
-  · simp [Ed25519ToPQC, ed25519Verify]
-  · simp
+  forgeable := False
 
 /-- Conditional UF-CMA statement for Ed25519.  Security is taken as an
     explicit hypothesis (`h_secure`) rather than a global axiom, matching
