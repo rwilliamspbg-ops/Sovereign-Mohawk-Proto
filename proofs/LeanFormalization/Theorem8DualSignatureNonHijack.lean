@@ -35,7 +35,7 @@ inductive LedgerTransition : LedgerState → LedgerState → Prop where
       (h_auth : postEpochAccepts s.auth)
       (h_phase : s.phase = MigrationPhase.preEpoch) :
       LedgerTransition s { s with phase := MigrationPhase.cutover }
-  | cutoverToPost (s : LedgerState) (pqc : PQCSig) (msg sig : Nat)
+  | cutoverToPost (s : LedgerState) (pqc : PQCSig) (msg : List UInt8) (sig : Nat)
       (h_auth : postEpochAccepts s.auth)
       (h_witness : pqcSignedWitnessed pqc s.auth msg sig)
       (h_phase : s.phase = MigrationPhase.cutover) :
@@ -67,7 +67,7 @@ theorem ledger_invariant_post_epoch (s t : LedgerState)
     satisfiable for any `msg`/`sig` pair by construction of `pqc.verify`. -/
 theorem ledger_cutoverToPost_requires_pqc_query
     (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
-    (s : LedgerState) (msg sig : Nat) (queries : List Nat)
+    (s : LedgerState) (msg : List UInt8) (sig : Nat) (queries : List (List UInt8))
     (h_auth : postEpochAccepts s.auth)
     (h_witness : pqcSignedWitnessed pqc s.auth msg sig)
     (h_fresh : msg ∉ queries) :
@@ -125,7 +125,7 @@ theorem theorem8_no_hijack_possible (auth : MigrationAuth)
     (oracle : SignOracle)
     (_h_secure : pqcUnforgeable pqc oracle)
     (h_post : postEpochAccepts auth) :
-    ¬ canHijack auth (Adversary.mk [] 0 0) := by
+    ¬ canHijack auth (Adversary.mk [] [] 0) := by
   intro h
   have hs : hijackSafe auth := theorem8_post_epoch_non_hijack auth h_post
   exact h.2 hs
@@ -138,7 +138,7 @@ theorem theorem8_no_hijack_possible (auth : MigrationAuth)
     `h_secure` is genuinely used here. -/
 theorem pqc_hardness_blocks_unwitnessed_hijack_safety
     (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
-    (auth : MigrationAuth) (queries : List Nat) (msg sig : Nat)
+    (auth : MigrationAuth) (queries : List (List UInt8)) (msg : List UInt8) (sig : Nat)
     (h_witness : pqcSignedWitnessed pqc auth msg sig)
     (h_fresh : msg ∉ queries) :
     ¬ hijackSafe auth := by

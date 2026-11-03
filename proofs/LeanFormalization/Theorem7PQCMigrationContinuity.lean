@@ -85,7 +85,7 @@ left toward a full end-to-end claim.
     unfolded into its useful contrapositive form. -/
 theorem pqc_unforgeable_no_valid_sig_for_unqueried
     (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
-    (queries : List Nat) (msg sig : Nat) (h_fresh : msg ∉ queries) :
+    (queries : List (List UInt8)) (msg : List UInt8) (sig : Nat) (h_fresh : msg ∉ queries) :
     pqc.verify msg sig = false := by
   cases h : pqc.verify msg sig with
   | false => rfl
@@ -94,7 +94,7 @@ theorem pqc_unforgeable_no_valid_sig_for_unqueried
 /-- What it would mean for a `MigrationAuth`'s PQC bit to be *witnessed*:
     backed by an actual signature check against a chosen scheme, message, and
     signature, rather than a free-standing boolean anyone could set. -/
-def pqcSignedWitnessed (pqc : PQCSig) (auth : MigrationAuth) (msg sig : Nat) : Prop :=
+def pqcSignedWitnessed (pqc : PQCSig) (auth : MigrationAuth) (msg : List UInt8) (sig : Nat) : Prop :=
   auth.pqcSigned = pqc.verify msg sig
 
 /-- Real reduction: an adversary who hasn't obtained a legitimate PQC
@@ -104,7 +104,7 @@ def pqcSignedWitnessed (pqc : PQCSig) (auth : MigrationAuth) (msg sig : Nat) : P
     used here. -/
 theorem pqc_hardness_blocks_unwitnessed_acceptance
     (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
-    (auth : MigrationAuth) (queries : List Nat) (msg sig : Nat)
+    (auth : MigrationAuth) (queries : List (List UInt8)) (msg : List UInt8) (sig : Nat)
     (h_witness : pqcSignedWitnessed pqc auth msg sig)
     (h_fresh : msg ∉ queries) :
     auth.pqcSigned = false := by
@@ -118,7 +118,7 @@ theorem pqc_hardness_blocks_unwitnessed_acceptance
     UF-CMA-secure. -/
 theorem pqc_hardness_blocks_unwitnessed_post_epoch_accept
     (pqc : PQCSig) (oracle : SignOracle) (h_secure : pqcUnforgeable pqc oracle)
-    (auth : MigrationAuth) (queries : List Nat) (msg sig : Nat)
+    (auth : MigrationAuth) (queries : List (List UInt8)) (msg : List UInt8) (sig : Nat)
     (h_witness : pqcSignedWitnessed pqc auth msg sig)
     (h_fresh : msg ∉ queries) :
     ¬ postEpochAccepts auth := by

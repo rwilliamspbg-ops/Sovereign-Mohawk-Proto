@@ -175,7 +175,9 @@ def ed25519VerifyCore (sig pk : Nat) (msgBytes : List UInt8) : Bool :=
 def ed25519VerifyBytes (sig pk : Nat) (msgBytes : List UInt8) : Bool :=
   ed25519VerifyCore sig pk msgBytes
 
-/-- Backwards-compatible Nat-message interface. -/
+/-- Backwards-compatible Nat-message interface (encodes a Nat as 32 LE bytes).
+    The formal interface (PQCSig.verify) now takes `List UInt8` directly via
+    `ed25519VerifyBytes`, so arbitrary-length messages are supported. -/
 def ed25519Verify (sig msg pk : Nat) : Bool :=
   ed25519VerifyCore sig pk (if msg == 0 then [] else natToBytesLE msg 32)
 
