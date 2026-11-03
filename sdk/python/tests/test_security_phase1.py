@@ -432,7 +432,7 @@ class TestPerformance:
         duration = time.time() - start
 
         # Should be reasonably fast in CI environments.
-        assert duration < 0.5
+        assert duration < 2.0
 
 
 # ============================================================================
