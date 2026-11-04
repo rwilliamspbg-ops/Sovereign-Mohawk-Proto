@@ -49,7 +49,8 @@ theorem straggler_impl_correlated_refines_spec (p : ℚ) (r : ℕ) (rho : ℚ)
     (hsat : p ^ r * (1 + (r : ℚ) * rho - rho) ≤ 1) :
     stragglerImplCorrelated p r rho = stragglerSpecBound p r rho := by
   unfold stragglerImplCorrelated stragglerSpecBound
-  rw [if_pos ⟨hp.1, hp.2, hrho.1, hrho.2⟩]
+  have hcond : 0 ≤ p ∧ p ≤ 1 ∧ 0 ≤ rho ∧ rho ≤ 1 := ⟨hp.1, hp.2, hrho.1, hrho.2⟩
+  rw [if_pos hcond]
   have hr_nonneg : 0 ≤ (r : ℚ) := by positivity
   have hp_pow_nonneg : 0 ≤ p ^ r := by apply pow_nonneg hp.1
   have hfactor : 0 ≤ 1 + (r : ℚ) * rho - rho := by nlinarith [hrho.1, hr_nonneg]
@@ -66,7 +67,8 @@ theorem straggler_independent_le_correlated (p : ℚ) (r : ℕ) (rho : ℚ)
     (hp : 0 ≤ p ∧ p ≤ 1) (hrho : 0 ≤ rho ∧ rho ≤ 1) (hr : 1 ≤ r) :
     stragglerImplIndependent p r ≤ stragglerSpecBound p r rho := by
   unfold stragglerImplIndependent stragglerSpecBound
-  rw [if_pos ⟨hp.1, hp.2, hrho.1, hrho.2⟩]
+  have hcond : 0 ≤ p ∧ p ≤ 1 ∧ 0 ≤ rho ∧ rho ≤ 1 := ⟨hp.1, hp.2, hrho.1, hrho.2⟩
+  rw [if_pos hcond]
   have hrho_factor : (1 : ℚ) ≤ 1 + (r : ℚ) * rho - rho := by
     have hrr : (1 : ℚ) ≤ (r : ℚ) := by exact_mod_cast hr
     nlinarith [hrho.1, hrr]
