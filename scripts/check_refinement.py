@@ -47,6 +47,14 @@ REQUIRED_LEAN_FILES = {
         "def transportImplBytes",
         "theorem transport_impl_bounded",
     ],
+    "Refinement/ZKCircuit.lean": [
+        "structure ZKSpec",
+        "def zkSpecRelation",
+        "def zkSpecVerify",
+        "def zkImplVerify",
+        "theorem zk_impl_refines_spec",
+        "theorem zk_impl_complete",
+    ],
     "Refinement/Ledger.lean": [
         "def transferSpec",
         "def transferImpl",
