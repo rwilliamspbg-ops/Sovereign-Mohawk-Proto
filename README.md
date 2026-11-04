@@ -34,6 +34,22 @@
 
 Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
 
+## Seeking External Formal Review
+
+We are actively seeking **independent review** of the formal claims (Lean 4 theorems,
+refinement bridges, Ed25519 UF-CMA reduction, MiMC/ZK circuit, convergence and
+straggler models) and the Go runtime security surface — on a **zero budget**.
+
+- **Audit scope & how to review**: [`docs/EXTERNAL_AUDIT_SCOPE.md`](docs/EXTERNAL_AUDIT_SCOPE.md)
+- **Open review issues**: [label `audit-help-wanted`](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues?q=label%3Aaudit-help-wanted)
+- **Review log**: [`AUDITS.md`](AUDITS.md)
+- **Rebuild & check**: `cd proofs && lake build` then
+  `python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/`
+
+Contributors receive public credit, co-authorship on resulting notes, and
+letters of recommendation. See the scope doc for the prioritized component list
+and the full axiom/sorry inventory.
+
 ## Run Sovereign FL In Under 5 Minutes
 
 **Goal:** Flower-level developer friendliness with provable security, sovereign trust roots, and quantum-ready transport.
