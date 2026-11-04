@@ -11,6 +11,13 @@ single entry point for anyone considering a review.
 ## 1. How to rebuild and check everything (one command)
 
 ```bash
+make audit-ready-check
+```
+
+which runs `lake build`, `check_refinement.py`, and the theorem/runtime
+consistency check. Equivalent manual commands:
+
+```bash
 cd proofs && lake build
 python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/
 python3 scripts/ci/check_theorem_runtime_consistency.py

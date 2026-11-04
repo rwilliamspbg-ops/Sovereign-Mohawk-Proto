@@ -5,7 +5,7 @@
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
 .PHONY: artifact-summary build-python-lib audit verify
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
-.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts
+.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
@@ -280,6 +280,13 @@ validate-formal-tooling-tests:
 verify-formal-proofs:
 	@cd proofs && lake build LeanFormalization Specification Refinement
 	@python3 scripts/ci/lint_formal_proof_claims.py --repo-root .
+
+# One-command audit-ready check for external reviewers.
+audit-ready-check:
+	@cd proofs && lake build LeanFormalization Specification Refinement
+	@python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/
+	@python3 scripts/ci/check_theorem_runtime_consistency.py
+	@echo "audit-ready-check: PASS"
 
 refresh-formal-validation:
 	@python3 scripts/ci/generate_formal_validation_report.py --repo-root .
