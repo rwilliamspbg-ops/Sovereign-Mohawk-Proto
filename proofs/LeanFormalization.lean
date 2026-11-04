@@ -5,6 +5,7 @@ import LeanFormalization.Theorem4Liveness
 import LeanFormalization.Theorem4ChernoffBounds
 import LeanFormalization.Theorem4StragglerResilience
 import LeanFormalization.Theorem5Cryptography
+import LeanFormalization.Theorem5MiMCFormalization
 import LeanFormalization.Theorem6Convergence
 import LeanFormalization.Theorem6ConvergenceReals
 import LeanFormalization.Theorem6StochasticConvergence
