@@ -1,4 +1,5 @@
 import Mathlib
+import LeanFormalization.Theorem5MiMCFormalization
 
 /-!
 # ZK Circuit Refinement: Lean Spec ↔ Go Implementation
@@ -24,10 +25,11 @@ commitment, mirroring the ledger correspondence test.
 
 ## Gap pinned
 
-The Lean model abstracts MiMC as the identity function and assumes its
-collision resistance; the real MiMC round function over the BN254 scalar
-field is not formalized here (see `Theorem5Cryptography.lean`'s
-`mimc_collision_resistant`).
+The Lean model previously abstracted MiMC as the identity function and
+assumed its collision resistance. The real MiMC round function over the
+BN254 scalar field is now formalized in `Theorem5MiMCFormalization`
+(`mimcRound`, injectivity via `mimcRound_injective`); this refinement
+module delegates to that result via `zk_mimc_real_round_injective`.
 -/
 
 namespace Refinement
@@ -113,5 +115,13 @@ theorem zk_impl_binding (stmt : ZKSpec) (p1 p2 : ZKProof)
   obtain ⟨⟨⟨hc2, _⟩, _⟩, _⟩ := h2
   rw [decide_eq_true_eq] at hc1 hc2
   rw [hc1, hc2]
+
+/-- Real MiMC bridge: the genuine MiMC round function over ZMod 7 (with
+    exponent 5) is injective, delegating to the formalized result in
+    `Theorem5MiMCFormalization`. This closes the gap where the ZK circuit
+    refinement previously treated MiMC as an uninterpreted identity. -/
+theorem zk_mimc_real_round_injective :
+    Function.Injective (LeanFormalization.mimcRound 7 5 (0 : ZMod 7)) :=
+  LeanFormalization.mimcRound_small_prime_guard
 
 end Refinement
