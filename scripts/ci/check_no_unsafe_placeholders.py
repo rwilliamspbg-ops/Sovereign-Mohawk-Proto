@@ -65,6 +65,21 @@ ALLOWED_AXIOMS: dict[tuple[str, str], str] = {
         "Float has no order axioms in Lean or Mathlib; restricted to "
         "non-NaN values, where it is true."
     ),
+    ("LeanFormalization/DiscreteLogReduction.lean", "dlL_prime"): (
+        "Primality of the 253-bit Ed25519 subgroup order L is a standard "
+        "number-theoretic fact; proving primality of a 253-bit integer in "
+        "Lean/Mathlib is out of scope for this formalization."
+    ),
+    ("LeanFormalization/DiscreteLogReduction.lean", "ForkingLemma"): (
+        "Isolates the probability/rewinding step of the Forking Lemma, which "
+        "requires a random-oracle model and probability accounting not yet "
+        "present in this repository."
+    ),
+    ("LeanFormalization/DiscreteLogReduction.lean", "ed25519_uf_cma_from_dlp"): (
+        "Overall reduction from DLP hardness to Ed25519 UF-CMA security; "
+        "the algebraic core (recovery_yields_secret) is fully proved, but "
+        "the probability accounting is the documented open gap."
+    ),
 }
 
 SCAN_DIRS = ["LeanFormalization", "Specification", "Refinement"]
