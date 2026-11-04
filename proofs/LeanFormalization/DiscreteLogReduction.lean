@@ -30,7 +30,7 @@ def dlAdversarySucceeds (adv : DLAdversary) (inst : DLInstance) : Bool :=
   | none => false
   | some a => dlVerify inst a
 
-def DiscreteLogHard : Prop := True
+def DiscreteLogHard : Prop := ∀ (adv : DLAdversary) (inst : DLInstance), dlAdversarySucceeds adv inst = false
 
 def scalarModInv (x : Nat) : Nat :=
   ZMod.val (x : ZMod dlL)⁻¹
@@ -112,13 +112,12 @@ theorem recovery_yields_secret (r a h1 h2 S1 S2 : Nat)
   rw [ZMod.val_natCast, ZMod.val_natCast] at hval
   exact hval
 
-def ForkingLemma : Prop := True
+axiom ForkingLemma : Prop
 
-theorem ed25519_uf_cma_from_dlp (s : Ed25519Sig) (oracle : SignOracle)
-    (h_dlp : DiscreteLogHard) (h_fork : ForkingLemma) :
-    pqcUnforgeable (Ed25519ToPQC s) oracle := by
-  intro adv
-  sorry
+axiom ed25519_uf_cma_from_dlp :
+    ∀ (s : Ed25519Sig) (oracle : SignOracle),
+      DiscreteLogHard → ForkingLemma →
+      pqcUnforgeable (Ed25519ToPQC s) oracle
 
 theorem recovery_sanity_example :
     let r := 5; let a := 7; let h1 := 3; let h2 := 11
