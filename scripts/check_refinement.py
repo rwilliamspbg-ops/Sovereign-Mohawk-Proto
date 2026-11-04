@@ -75,6 +75,13 @@ REQUIRED_LEAN_FILES = {
         "theorem zk_impl_complete",
         "theorem zk_mimc_real_round_injective",
     ],
+    "Refinement/BFT.lean": [
+        "def bftSpecSafe",
+        "def bftImplSafe",
+        "theorem bft_impl_refines_spec",
+        "theorem bft_gap_witness",
+        "theorem bft_concrete_guard",
+    ],
     "Refinement/Ledger.lean": [
         "def transferSpec",
         "def transferImpl",
