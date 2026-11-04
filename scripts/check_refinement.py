@@ -47,6 +47,13 @@ REQUIRED_LEAN_FILES = {
         "def transportImplBytes",
         "theorem transport_impl_bounded",
     ],
+    "Refinement/Straggler.lean": [
+        "def stragglerSpecBound",
+        "def stragglerImplCorrelated",
+        "theorem straggler_impl_correlated_refines_spec",
+        "theorem straggler_independent_le_correlated",
+        "theorem straggler_adversarial_refines",
+    ],
     "Refinement/ZKCircuit.lean": [
         "structure ZKSpec",
         "def zkSpecRelation",
