@@ -1,5 +1,3 @@
-# FORMAL VERIFICATION GUIDE
+# Formal Verification Guide
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](../INDEX.md) for current navigation and status.
+See [FORMAL_VERIFICATION_GUIDE.md](../../FORMAL_VERIFICATION_GUIDE.md) (root) for the full guide, and `docs/CONTRIBUTING_LEAN_PROOFS.md`.
