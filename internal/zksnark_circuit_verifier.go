@@ -54,12 +54,10 @@
 //     route to VerifyDataCommitmentProof when one is supplied, falling
 //     back to the legacy VerifyProof/GenesisProofBytes path when absent —
 //     purely additive, no existing caller's behavior changed.
-//     internal/batch/aggregator.go was previously (incorrectly) listed
-//     here as a third call site to wire: it does not call VerifyProof,
-//     VerifyZKProof, or BatchVerifyProofs at all — ProcessRound uses a
-//     third, unrelated verifier (internal/proofs.Verifier, a hardcoded
-//     SHA-256-of-empty-string baseline check), so there was nothing to
-//     wire there.
+//     internal/batch/aggregator.go's Aggregator now also supports the circuit
+//     path: when Aggregator.GradientCommitment is non-nil, ProcessRound
+//     verifies via VerifyDataCommitmentProof instead of the legacy
+//     SHA-256-of-empty baseline check (see test/batch_zk_attestation_test.go).
 //     Connecting a real per-round gradient/model commitment (e.g.
 //     internal/computeproof.Trace's DatasetCommitment/
 //     ModelCommitmentBefore/After fields, still unpopulated by any
