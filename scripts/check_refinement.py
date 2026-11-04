@@ -54,6 +54,12 @@ REQUIRED_LEAN_FILES = {
         "theorem straggler_independent_le_correlated",
         "theorem straggler_adversarial_refines",
     ],
+    "Refinement/DLP.lean": [
+        "def dlpSpecVerify",
+        "def dlpImplVerify",
+        "theorem dlp_impl_refines_spec",
+        "theorem dlp_impl_complete",
+    ],
     "Refinement/Convergence.lean": [
         "def convergenceSpecEnvelope",
         "def convergenceImplEnvelope",
