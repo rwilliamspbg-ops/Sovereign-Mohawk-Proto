@@ -32,21 +32,15 @@
 // (in zksnark_verifier.go) could not provide.
 //
 // Scope, stated plainly (read before citing this as production-ready):
-//  1. The (proving key, verifying key) pair below comes from a single
-//     in-process groth16.Setup call, run lazily (via sync.Once) on first
-//     use rather than at package init — package `internal` is imported by
-//     nearly everything in this repo, and forcing every such binary to pay
-//     a circuit-compile-plus-Setup cost merely for importing the package,
-//     whether or not it ever calls into this file, is wasteful and was
-//     measured to add a real, avoidable performance cost to unrelated
-//     benchmarks. This is a REAL trusted setup over a REAL compiled
-//     circuit — not a fixed identity — but it is not a multi-party
-//     ceremony: the toxic waste is momentarily held by whichever
-//     goroutine runs the setup and is discarded, not distributed across
-//     independent participants the way a production Groth16 deployment
-//     (e.g. a Powers-of-Tau + circuit-specific MPC) would require. Treat
-//     dataCommitmentVK as a development/demo key, not a production-
-//     security guarantee.
+//  1. The (proving key, verifying key) pair below comes from a multi-party
+//     trusted setup (MPC) simulated in-process: N independent contributors
+//     chain their contributions via gnark's mpcsetup flow (Phase 1 SRS +
+//     Phase 2 circuit-specific), and the final key is sealed with a public
+//     beacon challenge. No single contributor holds the toxic waste. This is
+//     still an in-process simulation (not a distributed ceremony over a
+//     network), so treat dataCommitmentVK as a development/demo key, not a
+//     production-security guarantee. A real deployment would run each
+//     contribution on a separate, independently-operated machine.
 //  2. Wired into production as of 2026-08-15: internal/pyapi/api.go's
 //     VerifyZKProof/BatchVerifyProofs CGo exports and
 //     internal/hybrid/verifier.go's SNARKVerifier/VerifyHybrid now accept
@@ -75,7 +69,9 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	gnarkmimc "github.com/consensys/gnark-crypto/hash"
 	"github.com/consensys/gnark/backend/groth16"
+	mpcsetup "github.com/consensys/gnark/backend/groth16/bn254/mpcsetup"
 	"github.com/consensys/gnark/constraint"
+	cs "github.com/consensys/gnark/constraint/bn254"
 	"github.com/consensys/gnark/frontend"
 	"github.com/consensys/gnark/frontend/cs/r1cs"
 	"github.com/consensys/gnark/std/hash/mimc"
@@ -107,10 +103,12 @@ var (
 	dataCommitmentErr  error
 )
 
-// ensureDataCommitmentSetup compiles DataCommitmentCircuit and runs its
-// Groth16 trusted setup exactly once, on first use, rather than at package
-// init — see the file doc comment's scope note for why eager init() was
-// rejected.
+// ensureDataCommitmentSetup compiles DataCommitmentCircuit and runs a
+// multi-party trusted setup (MPC) over it, simulating N independent
+// contributors in-process. The final (proving key, verifying key) pair
+// is produced via gnark's mpcsetup flow, so no single party holds the
+// toxic waste — the beacon contribution at Seal is reproducible by any
+// verifier. Runs lazily via sync.Once on first use.
 func ensureDataCommitmentSetup() error {
 	dataCommitmentOnce.Do(func() {
 		ccs, err := frontend.Compile(ecc.BN254.ScalarField(), r1cs.NewBuilder, &DataCommitmentCircuit{})
@@ -118,11 +116,68 @@ func ensureDataCommitmentSetup() error {
 			dataCommitmentErr = fmt.Errorf("compile DataCommitmentCircuit: %w", err)
 			return
 		}
-		pk, vk, err := groth16.Setup(ccs)
+
+		const nContributors = 3
+		domainSize := ecc.NextPowerOfTwo(uint64(ccs.GetNbConstraints()))
+		beacon := []byte("sovereign-mohawk mpc beacon")
+
+		// Phase 1: circuit-independent SRS, chained contributions.
+		p1 := mpcsetup.Phase1{}
+		p1.Initialize(domainSize)
+		var phase1Contribs []*mpcsetup.Phase1
+		cur := p1
+		for i := 0; i < nContributors; i++ {
+			cur.Contribute()
+			cp := new(mpcsetup.Phase1)
+			*cp = cur
+			phase1Contribs = append(phase1Contribs, cp)
+			// chain: serialize and deserialize into a fresh Phase1 for next contributor
+			var buf bytes.Buffer
+			if _, err := cur.WriteTo(&buf); err != nil {
+				dataCommitmentErr = fmt.Errorf("phase1 marshal: %w", err)
+				return
+			}
+			next := mpcsetup.Phase1{}
+			if _, err := next.ReadFrom(&buf); err != nil {
+				dataCommitmentErr = fmt.Errorf("phase1 unmarshal: %w", err)
+				return
+			}
+			cur = next
+		}
+		srsCommons, err := mpcsetup.VerifyPhase1(domainSize, beacon, phase1Contribs...)
 		if err != nil {
-			dataCommitmentErr = fmt.Errorf("groth16 setup for DataCommitmentCircuit: %w", err)
+			dataCommitmentErr = fmt.Errorf("mpc phase1 verify: %w", err)
 			return
 		}
+
+		// Phase 2: circuit-specific setup, chained contributions.
+		p2 := mpcsetup.Phase2{}
+		p2.Initialize(ccs.(*cs.R1CS), &srsCommons)
+		var phase2Contribs []*mpcsetup.Phase2
+		cur2 := p2
+		for i := 0; i < nContributors; i++ {
+			cur2.Contribute()
+			cp := new(mpcsetup.Phase2)
+			*cp = cur2
+			phase2Contribs = append(phase2Contribs, cp)
+			var buf bytes.Buffer
+			if _, err := cur2.WriteTo(&buf); err != nil {
+				dataCommitmentErr = fmt.Errorf("phase2 marshal: %w", err)
+				return
+			}
+			next := mpcsetup.Phase2{}
+			if _, err := next.ReadFrom(&buf); err != nil {
+				dataCommitmentErr = fmt.Errorf("phase2 unmarshal: %w", err)
+				return
+			}
+			cur2 = next
+		}
+		pk, vk, err := mpcsetup.VerifyPhase2(ccs.(*cs.R1CS), &srsCommons, beacon, phase2Contribs...)
+		if err != nil {
+			dataCommitmentErr = fmt.Errorf("mpc phase2 verify: %w", err)
+			return
+		}
+
 		dataCommitmentCCS = ccs
 		dataCommitmentPK = pk
 		dataCommitmentVK = vk
