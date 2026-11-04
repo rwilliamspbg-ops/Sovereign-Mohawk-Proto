@@ -54,6 +54,12 @@ REQUIRED_LEAN_FILES = {
         "theorem straggler_independent_le_correlated",
         "theorem straggler_adversarial_refines",
     ],
+    "Refinement/Convergence.lean": [
+        "def convergenceSpecEnvelope",
+        "def convergenceImplEnvelope",
+        "theorem convergence_impl_refines_spec",
+        "theorem convergence_envelope_rounds_monotone",
+    ],
     "Refinement/ZKCircuit.lean": [
         "structure ZKSpec",
         "def zkSpecRelation",
