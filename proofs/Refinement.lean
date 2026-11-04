@@ -5,3 +5,4 @@ import Refinement.Ledger
 import Refinement.Straggler
 import Refinement.ZKCircuit
 import Refinement.Convergence
+import Refinement.DLP
