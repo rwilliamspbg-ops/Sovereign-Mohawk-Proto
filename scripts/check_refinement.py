@@ -73,6 +73,7 @@ REQUIRED_LEAN_FILES = {
         "def zkImplVerify",
         "theorem zk_impl_refines_spec",
         "theorem zk_impl_complete",
+        "theorem zk_mimc_real_round_injective",
     ],
     "Refinement/Ledger.lean": [
         "def transferSpec",
