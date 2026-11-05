@@ -5,7 +5,7 @@
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
 .PHONY: artifact-summary build-python-lib audit verify
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
-.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check
+.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check docs-check docs-api
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
@@ -287,6 +287,14 @@ audit-ready-check:
 	@python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/
 	@python3 scripts/ci/check_theorem_runtime_consistency.py
 	@echo "audit-ready-check: PASS"
+
+# Fail if any placeholder scaffold remains under the docs target dirs.
+docs-check:
+	@if grep -rl "Scaffold document created to preserve canonical documentation links" docs/architecture docs/guides docs/api docs/security docs/performance 2>/dev/null; then echo "ERROR: scaffold placeholders found"; exit 1; else echo "docs-check: PASS (no scaffolds)"; fi
+
+# Regenerate the gRPC reference from the proto (manual today; see docs/api/GRPC_FEDERATION.md).
+docs-api:
+	@echo "docs-api: manual regeneration not yet automated; edit docs/api/GRPC_FEDERATION.md by hand."
 
 refresh-formal-validation:
 	@python3 scripts/ci/generate_formal_validation_report.py --repo-root .

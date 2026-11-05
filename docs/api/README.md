@@ -1,38 +1,7 @@
 # API Reference & Integration
 
----
+Real content as of 2026-11-04.
 
-## Go Package Documentation
-
-- **API_REFERENCE.md** - Complete Go packages, types, methods
-
-### Package Structure
-```
-internal/
-├── transport/          - Multi-path transport layer
-├── streaming_aggregator/ - Streaming gradient aggregation
-└── federation/         - Multi-tier federation protocol
-```
-
----
-
-## Python SDK
-
-- **PYTHON_SDK_GUIDE.md** - Python SDK installation and usage
-- Examples available in `sdk/python/examples/`
-
----
-
-## gRPC Services
-
-- **GRPC_SERVICES.md** - Service definitions, endpoints
-
----
-
-## REST API
-
-- **REST_API.md** - HTTP endpoints for monitoring/control
-
----
-
-See [../INDEX.md](../INDEX.md) for complete documentation navigation.
+- `API_REFERENCE.md` — Go package surface, auth, error model, versioning.
+- `GRPC_FEDERATION.md` — gRPC service/message tables from `api/federation/federation.proto`.
+- `PYTHON_SDK_GUIDE.md` — install + examples; full API in `sdk/python/README.md`.
