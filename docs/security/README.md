@@ -1,26 +1,9 @@
 # Security & Compliance Documentation
 
----
+Real content as of 2026-11-04.
 
-## Security
-
-- **SECURITY.md** - PQC (post-quantum cryptography), TPM, XMSS
-- **THREAT_MODEL.md** - Threat scenarios, mitigations
-
----
-
-## Compliance
-
-- **COMPLIANCE.md** - EU AI Act, FedRAMP, regulatory alignment
-- **INCIDENT_RESPONSE.md** - Security incident response procedures
-- **SUPPLY_CHAIN_SECURITY.md** - Artifact verification, dependencies
-
----
-
-## Vulnerability Disclosure
-
-- **VULNERABILITY_DISCLOSURE.md** - Responsible disclosure policy
-
----
-
-See [../INDEX.md](../INDEX.md) for complete documentation navigation.
+- `SECURITY.md` — security overview, crypto primitives, runtime hardening.
+- `THREAT_MODEL.md` — STRIDE analysis, trust boundaries, formal coverage.
+- `INCIDENT_RESPONSE.md` — severity, playbooks, evidence, post-incident template.
+- `SUPPLY_CHAIN_SECURITY.md` — signing, SLSA, in-toto, dependency hygiene.
+- `COMPLIANCE.md` — regulatory alignment index (EU AI Act, FedRAMP, FIPS).
