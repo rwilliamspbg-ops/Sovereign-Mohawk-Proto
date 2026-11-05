@@ -30,7 +30,7 @@ Full step-by-step verification is in
 sha256sum -c SHA256SUMS
 
 # Container image
-cosign verify --certificate-identity-regexp '.*' \
+cosign verify --certificate-identity 'https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/.github/workflows/<release-workflow>.yml@refs/tags/<version>' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   ghcr.io/rwilliamspbg-ops/Sovereign-Mohawk-Proto:<version>
 
