@@ -1,5 +1,3 @@
-# OPERATIONS
+# Operations Guide
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](INDEX.md) for current navigation and status.
+See [docs/guides/OPERATIONS.md](guides/OPERATIONS.md) for the full operations runbook.

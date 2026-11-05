@@ -1,5 +1,3 @@
-# DEPLOYMENT
+# Deployment Guide
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](INDEX.md) for current navigation and status.
+See [docs/guides/DEPLOYMENT.md](guides/DEPLOYMENT.md) for the full deployment guide (Docker Compose, Kubernetes/Helm, genesis launch).

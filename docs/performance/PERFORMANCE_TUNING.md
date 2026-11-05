@@ -1,5 +1,3 @@
-# PERFORMANCE TUNING
+# Performance Tuning
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](../INDEX.md) for current navigation and status.
+See `docs/BENCHMARKS_AND_REPRODUCIBILITY.md` and `results/` for benchmark evidence. Tuning knobs: `StreamingAggregatorOptions`, committee sizing (`NodesPerCommittee`), transport (QUIC vs TCP).
