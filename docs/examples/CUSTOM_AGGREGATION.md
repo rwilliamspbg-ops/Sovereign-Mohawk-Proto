@@ -1,5 +1,3 @@
-# CUSTOM AGGREGATION
+# Custom Aggregation
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](../INDEX.md) for current navigation and status.
+See `internal/batch/aggregator.go` and `docs/api/API_REFERENCE.md`. Custom aggregation methods can be selected via `aggregation_method` in `AggregationResult`.

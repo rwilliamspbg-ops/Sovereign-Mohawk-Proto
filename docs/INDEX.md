@@ -244,10 +244,13 @@ What's actually real and worth trusting:
 - The Genesis Testnet deployment path in the root [README.md](../README.md) (Docker Compose, launch scripts) — actually runnable.
 - `sdk/python/README.md` for the Python SDK API surface.
 - [guides/GETTING_STARTED.md](guides/GETTING_STARTED.md) — real content as of this update, every command verified against actual scripts/Makefile targets/Compose files in this repo.
+- **Security docs** (`docs/security/`): incident response, threat model, supply chain, security overview, compliance — all real as of 2026-11-04 (PR #253).
+- **API docs** (`docs/api/`): API reference, gRPC federation service, Python SDK guide — real as of 2026-11-04 (PR #254).
+- **Architecture docs** (`docs/architecture/`, `docs/ARCHITECTURE.md`): real as of 2026-11-04 (PR #255).
+- **Operations docs** (`docs/guides/`): operations, deployment, monitoring, troubleshooting, scaling, post-deployment validation, development — real as of 2026-11-04 (PR #256).
+- External audit scope: `docs/EXTERNAL_AUDIT_SCOPE.md`, `AUDITS.md` (PR #252).
 
-Treat any other doc under `docs/` not listed above as unverified until you've
-checked it against the actual code -- this index's own file inventory has
-not been re-audited past what's listed above.
+No 5-line placeholder scaffolds remain under `docs/` (verified: `grep -rl "Scaffold document created" docs/` returns 0).
 
 ### In Progress 🔄
 - Publishing guides to external wiki

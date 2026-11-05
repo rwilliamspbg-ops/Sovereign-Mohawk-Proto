@@ -1,5 +1,3 @@
-# THEOREM SPECIFICATIONS
+# Theorem Specifications
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](../INDEX.md) for current navigation and status.
+See `proofs/FORMAL_TRACEABILITY_MATRIX.md` and `proofs/theorem_claims.json` for the theorem-to-runtime mapping.

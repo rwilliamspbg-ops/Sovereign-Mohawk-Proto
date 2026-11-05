@@ -1,5 +1,3 @@
-# SECURITY
+# Security
 
-Scaffold document created to preserve canonical documentation links.
-
-See [docs/INDEX.md](INDEX.md) for current navigation and status.
+See [docs/security/SECURITY.md](security/SECURITY.md) for the security overview, and [SECURITY.md](../SECURITY.md) (root) for the vulnerability reporting policy.
