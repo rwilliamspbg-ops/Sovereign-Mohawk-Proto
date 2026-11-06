@@ -70,12 +70,28 @@ func TestDiscoveryBootstrapBadPeer(t *testing.T) {
 	}
 }
 
-func TestDiscoveryNilSafety(t *testing.T) {
-	var d *Discovery
-	if err := d.Close(); err != nil {
-		t.Fatalf("nil close: %v", err)
+func TestDiscoveryMDNSStartStop(t *testing.T) {
+	ctx := context.Background()
+	cfg := DefaultConfig(0)
+	cfg.ListenAddrs = []string{"/ip4/127.0.0.1/tcp/0"}
+	h, err := NewHost(ctx, cfg)
+	if err != nil {
+		t.Fatalf("NewHost: %v", err)
 	}
-	if d.PeerCount() != 0 {
-		t.Fatal("expected 0")
+	defer h.Close()
+
+	d := NewDiscovery(h, nil)
+	if err := d.StartMDNS(ctx, "mohawk-test"); err != nil {
+		t.Fatalf("StartMDNS: %v", err)
+	}
+	if err := d.StopMDNS(); err != nil {
+		t.Fatalf("StopMDNS: %v", err)
+	}
+}
+
+func TestDiscoveryMDNSNilSafety(t *testing.T) {
+	var d *Discovery
+	if err := d.StopMDNS(); err != nil {
+		t.Fatalf("nil stop: %v", err)
 	}
 }
