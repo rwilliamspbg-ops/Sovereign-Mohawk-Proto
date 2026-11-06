@@ -125,6 +125,12 @@ func NewSimulator(cfg SimulatorConfig) (*Simulator, error) {
 			cfg.Topology.NodesPerCommittee, f, 2*f+2)
 	}
 
+	// Wire the proven Chernoff hierarchical bound into construction: a
+	// topology whose parameters make the bound vacuous (> 1) is rejected
+	// up front rather than producing misleading simulation results.
+	if err := (&Simulator{cfg: cfg}).ValidateChernoffBound(1.0); err != nil {
+		return nil, err
+	}
 	rng := rand.New(rand.NewPCG(cfg.Seed, 0))
 	nodes := make(map[NodeID]*NodeState, cfg.Topology.TotalNodes())
 	tierPools := make([][]NodeID, cfg.Topology.Tiers)
