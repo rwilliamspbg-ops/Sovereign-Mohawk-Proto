@@ -201,16 +201,26 @@ theorem theorem5_verifyops_constant : ∀ n : Nat, verifyOps n = 3 ∧ verifyOps
     by DataCommitmentCircuit in internal/zksnark_circuit_verifier.go. The full
     algebraic definition of MiMC over the BN254 scalar field is out of scope;
     only its binding property (collision resistance) is assumed, below. -/
+-- NOTE (audit): In this formalization `mimc` is modeled as the identity
+-- function (a surrogate for the real MiMC round function over BN254). The
+-- *real* MiMC's collision resistance is NOT machine-checked here; it is
+-- isolated as the named axiom `mimc_collision_resistant` below so that the
+-- assumption is explicit and auditable. In the surrogate identity model the
+-- axiom happens to be derivable, but it is kept as a named assumption to
+-- flag the real-MiMC assumption for reviewers (consistent with the repo's
+-- surrogate-model convention, e.g. row 5 "model_verified").
 def mimc : Nat → Nat := fun x => x
 
 /-- Collision resistance of MiMC: two preimages mapping to the same digest are
     equal. This is the property that makes a proof against a commitment bind to
-    the specific data that produced it. Stated as a documented axiom because
-    proving collision resistance of MiMC reduces to hardness assumptions
-    (and the concrete MiMC round function) outside this formalization. -/
-theorem mimc_collision_resistant : ∀ x y : Nat, mimc x = mimc y → x = y := by
-  intro x y h
-  simpa [mimc] using h
+    the specific data that produced it.
+
+    NOTE (audit): This is an EXPLICIT, NAMED ASSUMPTION (axiom). It is NOT
+    proven. It assumes MiMC is collision-resistant, which follows from the
+    hardness of the MiMC permutation over the BN254 scalar field — a standard
+    but unverified assumption in this formalization. See
+    docs/EXTERNAL_AUDIT_SCOPE.md for the full axiom list. -/
+axiom mimc_collision_resistant : ∀ x y : Nat, mimc x = mimc y → x = y
 
 /-- Circuit-derived verification key hash. In the Go runtime this is the
     groth16.VerifyingKey produced by groth16.Setup over the compiled

@@ -14,7 +14,7 @@ Federated learning promises privacy-preserving distributed machine learning, but
 
 **Today, we're releasing 52 machine-checked formal theorems proving core claims about Sovereign-Mohawk:**
 
-- Byzantine resilience: 55.5% fault tolerance (Theorem 1)
+- Byzantine resilience: 55.5% fault-tolerance *claim* is a deterministic compositional statement that was disproven (machine-checked counterexample); the probabilistic repair (Chernoff) is proved at deployment scale. See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1.
 - Privacy bookkeeping: integer budget-composition surrogate (Theorem 2)
 - Communication efficiency: O(d log n) vs O(dn) naive (Theorem 3)
 - Liveness: integer redundancy guard surrogate (Theorem 4)
