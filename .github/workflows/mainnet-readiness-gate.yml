@@ -52,7 +52,19 @@ jobs:
 
       - name: Start monitoring stack
         run: |
-          docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana
+          for attempt in 1 2 3; do
+            if docker compose up -d --build orchestrator prometheus tpm-metrics pyapi-metrics-exporter grafana; then
+              echo "stack started on attempt $attempt"
+              break
+            fi
+            echo "attempt $attempt failed; retrying in 30s..."
+            docker compose down -v 2>/dev/null || true
+            sleep 30
+            if [ "$attempt" = "3" ]; then
+              echo "all attempts failed"
+              exit 1
+            fi
+          done
 
       - name: Run mainnet readiness checks
         run: |
