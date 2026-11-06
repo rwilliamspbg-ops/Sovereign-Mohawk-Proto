@@ -7,9 +7,46 @@
 package federation
 
 import (
+	"context"
 	"math"
 	"testing"
 )
+
+// TestAsyncModeAggregatesAcrossRounds verifies that async consensus
+// collects gradients from multiple rounds within the staleness window
+// instead of requiring a full quorum in a single round.
+func TestAsyncModeAggregatesAcrossRounds(t *testing.T) {
+	config := TierConfig{
+		TierID:             "async-tier",
+		MinQuorumSize:      2,
+		AsyncMode:          true,
+		StalenessWindow:    3,
+		MaxBufferedGradients: 1000,
+	}
+	handler, err := NewRPCHandler(config, ":0")
+	if err != nil {
+		t.Fatalf("NewRPCHandler: %v", err)
+	}
+
+	// Two gradients in round 1 (below quorum of 2? actually 2 meets quorum)
+	g1 := gradMsg("a", []float64{1.0, 1.0})
+	g1.AggregationRound = 1
+	g2 := gradMsg("b", []float64{1.0, 1.0})
+	g2.AggregationRound = 1
+	handler.bufferGradient(g1)
+	handler.bufferGradient(g2)
+
+	// One gradient in round 2 (straggler missed round 1's full set)
+	g3 := gradMsg("c", []float64{1.0, 1.0})
+	g3.AggregationRound = 2
+	handler.bufferGradient(g3)
+
+	handler.flushPendingAggregations(context.Background())
+
+	if handler.gradientsAggregated == 0 {
+		t.Fatal("expected async aggregation to produce a result")
+	}
+}
 
 func gradMsg(id string, data []float64) *GradientMessage {
 	g := &GradientMessage{

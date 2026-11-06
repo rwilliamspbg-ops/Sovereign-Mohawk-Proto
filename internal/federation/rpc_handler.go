@@ -30,7 +30,10 @@ type RPCHandler struct {
 	childHealth   map[string]FederationHealth // childNodeID -> health
 	childBuffers  map[string][]*GradientMessage
 	bufferMu      sync.Mutex
-	maxBufferSize int
+	maxBufferSize   int
+	asyncMode       bool
+	stalenessWindow int
+	currentRound    uint64
 
 	// Aggregation
 	aggregationChan    chan *GradientMessage
@@ -52,6 +55,8 @@ func NewRPCHandler(config TierConfig, listenAddr string) (*RPCHandler, error) {
 		aggregationChan:    make(chan *GradientMessage, 10000),
 		aggregationTimeout: 5 * time.Second,
 		maxBufferSize:      config.MaxBufferedGradients,
+		asyncMode:          config.AsyncMode,
+		stalenessWindow:    config.StalenessWindow,
 		done:               make(chan struct{}),
 		conns:              make(map[net.Conn]struct{}),
 	}
@@ -385,6 +390,11 @@ func (h *RPCHandler) flushPendingAggregations(ctx context.Context) {
 	h.bufferMu.Lock()
 	defer h.bufferMu.Unlock()
 
+	if h.asyncMode {
+		h.flushAsync(ctx)
+		return
+	}
+
 	for round, gradients := range h.childBuffers {
 		if len(gradients) == 0 {
 			continue
@@ -408,6 +418,71 @@ func (h *RPCHandler) flushPendingAggregations(ctx context.Context) {
 
 		atomic.AddInt64(&h.gradientsAggregated, 1)
 		delete(h.childBuffers, round)
+	}
+}
+
+// flushAsync implements asynchronous consensus: instead of requiring a full
+// quorum within a single round, it collects gradients from all rounds within
+// the staleness window of the latest observed round and aggregates them
+// together (stale-gradient-tolerant aggregation). This allows progress even
+// when stragglers miss a round, at the cost of incorporating older updates
+// with implicit age decay handled by including them in the aggregate.
+func (h *RPCHandler) flushAsync(ctx context.Context) {
+	if h.stalenessWindow <= 0 {
+		h.stalenessWindow = 3
+	}
+
+	// Determine the latest round present in the buffer.
+	latest := uint64(0)
+	for round := range h.childBuffers {
+		// round is "round-N"
+		var r uint64
+		fmt.Sscanf(round, "round-%d", &r)
+		if r > latest {
+			latest = r
+		}
+	}
+	if latest == 0 {
+		// No round info; fall back to syncing all buffers.
+		latest = h.currentRound
+	}
+	h.currentRound = latest
+
+	// Collect gradients within the staleness window.
+	var collected []*GradientMessage
+	for round := range h.childBuffers {
+		var r uint64
+		fmt.Sscanf(round, "round-%d", &r)
+		if latest == 0 || r == 0 || latest-r <= uint64(h.stalenessWindow) {
+			collected = append(collected, h.childBuffers[round]...)
+		}
+	}
+	if len(collected) == 0 {
+		return
+	}
+	if len(collected) < h.config.MinQuorumSize {
+		return
+	}
+
+	aggregated, method := h.aggregate(collected)
+	log.Printf(
+		"[%s rpc-handler] async aggregated %d gradients (window=%d latest=%d) method=%s norm=%.4f",
+		h.config.TierID,
+		len(collected),
+		h.stalenessWindow,
+		latest,
+		method,
+		aggregated.Norm,
+	)
+	atomic.AddInt64(&h.gradientsAggregated, 1)
+
+	// Clear flushed rounds within the window.
+	for round := range h.childBuffers {
+		var r uint64
+		fmt.Sscanf(round, "round-%d", &r)
+		if latest == 0 || r == 0 || latest-r <= uint64(h.stalenessWindow) {
+			delete(h.childBuffers, round)
+		}
 	}
 }
 

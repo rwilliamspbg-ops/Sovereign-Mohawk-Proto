@@ -56,6 +56,8 @@ type TierConfig struct {
 	AggregationTimeoutMs   int       // Max time to wait for children
 	ByzantineToleranceFrac float64   // Fraud resilience (default 0.33)
 	MaxBufferedGradients   int       // Circuit breaker
+	AsyncMode              bool      // Enable asynchronous consensus (stale-gradient-tolerant)
+	StalenessWindow        int       // Max round age for stale gradients in async mode (default 3)
 }
 
 // AggregationRequest represents a request from parent tier
