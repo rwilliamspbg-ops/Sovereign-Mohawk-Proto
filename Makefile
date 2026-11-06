@@ -296,6 +296,20 @@ docs-check:
 docs-api:
 	@echo "docs-api: manual regeneration not yet automated; edit docs/api/GRPC_FEDERATION.md by hand."
 
+fuzz:
+	@echo "Running Go fuzz targets (30s each)..."
+	@for t in FuzzClampFloat FuzzTrimByGradientNorm FuzzHierarchicalAverage FuzzMeanGradient FuzzMaxGradNorm FuzzResolvedQuorum FuzzEWMA FuzzScaleVector FuzzApplyStalenessDecay; do \
+		echo "=== $$t ==="; \
+		go test ./internal/ -run='^$$' -fuzz="^$${t}$$" -fuzztime=30s || exit 1; \
+	done
+
+fuzz-short:
+	@echo "Running Go fuzz targets (5s each)..."
+	@for t in FuzzClampFloat FuzzTrimByGradientNorm FuzzHierarchicalAverage FuzzMeanGradient FuzzMaxGradNorm FuzzResolvedQuorum FuzzEWMA FuzzScaleVector FuzzApplyStalenessDecay; do \
+		echo "=== $$t ==="; \
+		go test ./internal/ -run='^$$' -fuzz="^$${t}$$" -fuzztime=5s || exit 1; \
+	done
+
 refresh-formal-validation:
 	@python3 scripts/ci/generate_formal_validation_report.py --repo-root .
 
@@ -310,6 +324,7 @@ package-formal-verification-artifacts:
 
 # Shortcuts
 .PHONY: h v s st r c l lo li
+.PHONY: fuzz fuzz-short
 
 h: help
 v: validate
