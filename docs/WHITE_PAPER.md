@@ -50,7 +50,7 @@ III. Formal Guarantees
 
 Theorem 1 (BFT Resilience): If $f_t < n_t/2$ at each tier $t$, the global model is $(\sum f_t)$-Byzantine resilient.
 
-Result: The system tolerates up to 5,555,555 Byzantine nodes (55.5% of 10M) through hierarchical selection and cross-tier induction.
+Result: The deterministic compositional claim (that recursive hierarchical composition of per-tier honest-majority filtering converges to 55.5%) was attempted and found FALSE via a machine-checked counterexample (`hierarchical_composition_counterexample`). A probabilistic repair (Chernoff bound, `chernoff_hierarchical_bound_deployment_scale`) proves the failure probability is at most 200/10^1000 at deployment scale (200 committees × 50,000 nodes). See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1 Notes.
 
 Implementation: See the hierarchical_krum.go logic.
 

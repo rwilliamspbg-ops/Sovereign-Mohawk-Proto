@@ -89,9 +89,9 @@ Axioms present in the proof tree (16 total, all documented):
 | File | Axiom | Status |
 |---|---|---|
 | `DiscreteLogReduction.lean` | `dlL_prime` (Nat.Prime) | assumption on group order |
-| `DiscreteLogReduction.lean` | `ForkingLemma` (Prop) | unproven lemma, load-bearing |
-| `DiscreteLogReduction.lean` | `ed25519_uf_cma_from_dlp` | reduction, load-bearing |
-| `Theorem5Cryptography.lean` | MiMC collision resistance | documented axiom |
+| `DiscreteLogReduction.lean` | `ForkingLemma` (Prop) | unproven lemma, load-bearing; standard forking lemma for SHA-512 (Ed25519) |
+| `DiscreteLogReduction.lean` | `ed25519_uf_cma_from_dlp` | reduction, load-bearing; "security reduction under standard DLP" (classical, unverified) |
+| `Theorem5Cryptography.lean` | MiMC collision resistance | documented axiom; MiMC declared as opaque symbol (no longer trivially provable) |
 | `Refinement/MultiKrum.lean` | 8 `Float.*` ordering axioms | IEEE 754 properties, standard |
 
 `sorry` placeholders: 0 (CI-enforced: `proof-quality-checks` fails on new

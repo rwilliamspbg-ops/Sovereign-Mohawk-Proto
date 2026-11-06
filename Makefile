@@ -5,7 +5,7 @@
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
 .PHONY: artifact-summary build-python-lib audit verify
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
-.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check docs-check docs-api
+.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check audit-bundle docs-check docs-api
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
@@ -287,6 +287,26 @@ audit-ready-check:
 	@python3 scripts/check_refinement.py --lean proofs/Specification/System.lean --go internal/
 	@python3 scripts/ci/check_theorem_runtime_consistency.py
 	@echo "audit-ready-check: PASS"
+
+# One-command audit bundle for external reviewers: scope doc + top-4 Lean files +
+# corresponding Go files + axiom list + how-to-rebuild guide.
+audit-bundle:
+	@rm -rf /tmp/audit-bundle && mkdir -p /tmp/audit-bundle/lean /tmp/audit-bundle/go /tmp/audit-bundle/docs
+	@cp docs/EXTERNAL_AUDIT_SCOPE.md /tmp/audit-bundle/docs/
+	@cp proofs/FORMAL_TRACEABILITY_MATRIX.md /tmp/audit-bundle/docs/ 2>/dev/null || true
+	@for f in DiscreteLogReduction Theorem1BFT Theorem5Cryptography; do \
+	  cp proofs/LeanFormalization/$$f.lean /tmp/audit-bundle/lean/ 2>/dev/null || true; \
+	done
+	@cp proofs/Refinement/MultiKrum.lean /tmp/audit-bundle/lean/ 2>/dev/null || true
+	@cp internal/multikrum/*.go /tmp/audit-bundle/go/ 2>/dev/null || true
+	@cp internal/zksnark_verifier.go /tmp/audit-bundle/go/ 2>/dev/null || true
+	@echo "Audit bundle contents:" > /tmp/audit-bundle/README.md
+	@echo "1. Read docs/EXTERNAL_AUDIT_SCOPE.md for scope and axiom list." >> /tmp/audit-bundle/README.md
+	@echo "2. Rebuild Lean: cd proofs && lake build LeanFormalization" >> /tmp/audit-bundle/README.md
+	@echo "3. Run Go tests: go test ./..." >> /tmp/audit-bundle/README.md
+	@echo "4. Axioms are listed in docs/EXTERNAL_AUDIT_SCOPE.md section 6." >> /tmp/audit-bundle/README.md
+	@tar -czf audit-bundle.tar.gz -C /tmp audit-bundle
+	@echo "audit-bundle: created audit-bundle.tar.gz"
 
 # Fail if any placeholder scaffold remains under the docs target dirs.
 docs-check:

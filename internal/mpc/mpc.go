@@ -5,8 +5,23 @@
 // partial sum is broadcast. The global aggregate is the sum of all partial
 // sums — no single party ever sees another party's plaintext update.
 //
-// Scope: additive (n,n) sharing over float64. Production should move to
-// fixed-point or field arithmetic and a (t,n) threshold scheme.
+// SIMULATION ONLY — TRUSTED SETUP CAVEAT
+//
+// This package implements an (n,n) additive secret-sharing aggregator that runs
+// ENTIRELY IN-PROCESS: all parties are goroutines/structs in a single process
+// sharing one address space. There is NO distributed ceremony, NO independent
+// machines, and NO network transport. The "trusted setup" is therefore a
+// SIMULATION and MUST NOT be presented as a production MPC ceremony.
+//
+// Production ceremony is OUT OF SCOPE for this package. A real deployment
+// requires: (t,n) threshold sharing, independent machines, authenticated
+// channels, a documented ceremony transcript, and an external verifier that
+// re-checks the published shares against the public commitment.
+//
+// External verification hook: callers can use `VerifyShares` to re-check that a
+// published set of shares sums to the claimed aggregate, and `VerifyPartialSum`
+// to re-check a party's partial sum. These are pure functions over published
+// data and can be run by an independent auditor without trusting this package.
 package mpc
 
 import (
@@ -82,6 +97,50 @@ func Aggregate(vecs [][]float64) ([]float64, error) {
 	return out, nil
 }
 
+// VerifyShares checks that the given published shares sum (element-wise) to
+// claimed. It is a pure function over published data and can be run by an
+// independent auditor. Returns an error on dimension mismatch or mismatch.
+func VerifyShares(shares [][]float64, claimed []float64) error {
+	if len(shares) == 0 {
+		return fmt.Errorf("mpc: no shares")
+	}
+	dim := len(shares[0])
+	for _, s := range shares {
+		if len(s) != dim {
+			return fmt.Errorf("mpc: share dimension mismatch")
+		}
+	}
+	if len(claimed) != dim {
+		return fmt.Errorf("mpc: claimed dimension mismatch")
+	}
+	sum, err := Aggregate(shares)
+	if err != nil {
+		return err
+	}
+	for i := range sum {
+		if math.Abs(sum[i]-claimed[i]) > 1e-9 {
+			return fmt.Errorf("mpc: share sum mismatch at index %d: got %v want %v", i, sum[i], claimed[i])
+		}
+	}
+	return nil
+}
+
+// VerifyPartialSum checks that partial equals the element-wise sum of received.
+func VerifyPartialSum(received [][]float64, partial []float64) error {
+	sum, err := Aggregate(received)
+	if err != nil {
+		return err
+	}
+	if len(sum) != len(partial) {
+		return fmt.Errorf("mpc: partial dimension mismatch")
+	}
+	for i := range sum {
+		if math.Abs(sum[i]-partial[i]) > 1e-9 {
+			return fmt.Errorf("mpc: partial sum mismatch at index %d", i)
+		}
+	}
+	return nil
+}
 // Coordinator runs an (n,n) additive MPC aggregation round.
 type Coordinator struct {
 	Parties []PartyID

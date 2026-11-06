@@ -412,15 +412,15 @@ All runtime tests in `test/` and `internal/` directories pass against the formal
 
 **COMPREHENSIVE VALIDATION COMPLETE**
 
-The Sovereign-Mohawk formal proof system is **fully verified and production-ready**:
+The Sovereign-Mohawk formal proof system has **internal validation complete** with the following honest scope:
 
-1. **All 52 theorems proven** with zero placeholders
-2. **Runtime evidence exists** for all major claims
+1. **All 52 theorems proven** with zero `sorry` placeholders (CI-enforced)
+2. **Runtime evidence exists** for all major claims (see FORMAL_TRACEABILITY_MATRIX.md)
 3. **Traceability matrix is parser-compatible** (98% score)
 4. **Type-safety guaranteed** by Lean 4 compiler
-5. **No unproven assumptions** beyond q-SDH (standard cryptography)
+5. **Remaining named assumptions** (axioms) are explicitly documented in docs/EXTERNAL_AUDIT_SCOPE.md §6 — including `ForkingLemma`, `ed25519_uf_cma_from_dlp` ("security reduction under standard DLP"), MiMC collision resistance (MiMC now an opaque symbol), `dlL_prime`, and 8 `Float.*` ordering axioms. These are NOT all discharged; several are load-bearing and unproven.
 
-**Certification Status:** ✓ **INTERNAL VALIDATION COMPLETE**
+**Certification Status:** ✓ **INTERNAL VALIDATION COMPLETE** (not a claim of full formal verification of all cryptographic assumptions)
 
 ---
 
