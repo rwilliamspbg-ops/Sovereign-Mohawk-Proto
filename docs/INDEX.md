@@ -313,6 +313,7 @@ this index referenced one that was never created.)
 - **Academic Paper:** [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md)
 - **White Paper:** [WHITE_PAPER.md](WHITE_PAPER.md)
 - **Roadmap:** [ROADMAP.md](../ROADMAP.md)
+- **Gold-Standard Plan:** [GOLD_STANDARD_PLAN.md](GOLD_STANDARD_PLAN.md)
 - **Contributing:** [CONTRIBUTING.md](../CONTRIBUTING.md)
 - **Security Policy:** [SECURITY.md](security/SECURITY.md)
 
