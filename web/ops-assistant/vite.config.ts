@@ -23,8 +23,10 @@ export default defineConfig({
         // each deploy. Per-language syntax-highlighter chunks are already
         // split automatically by react-syntax-highlighter's own dynamic
         // imports - this only targets the vendor baseline.
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom']
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'vendor-react';
+          }
         }
       }
     }

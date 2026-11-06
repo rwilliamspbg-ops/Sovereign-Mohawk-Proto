@@ -49,7 +49,7 @@
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "ws": "^8.21.0",
-    "zod": "^3.22.4",
+    "zod": "^4.6.6",
     "zustand": "^4.4.1"
   },
   "overrides": {
@@ -74,17 +74,17 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/ws": "^8.5.8",
-    "@vitejs/plugin-react": "^4.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.8.0",
     "prettier": "^3.9.6",
-    "tsx": "^4.0.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.2.0",
     "typescript-eslint": "^8.65.0",
-    "vite": "^6.4.4",
+    "vite": "^8.3.6",
     "vitest": "^5.0.5"
   }
 }
