@@ -16,6 +16,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/hva"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/metrics"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/tee"
 )
 
 // Tier represents the hierarchical level of the aggregator.
@@ -45,6 +47,10 @@ type Aggregator struct {
 	Convergence          *ConvergenceMonitor
 	MeshPlan             hva.Plan
 	recentRoundLatencyMs float64
+	// TEE (optional): when set, aggregation can be run inside an enclave.
+	TEEProvider  tee.TEEProvider
+	TEETrusted   *tee.TrustedMeasurements
+	TEEBinary    []byte
 }
 
 // BatchProcessingOptions controls optional Byzantine filtering for gradient batches.
@@ -429,6 +435,25 @@ func meanGradient(updates [][]float64) []float64 {
 	return avg
 }
 
+// EnclaveAvailable reports whether a TEE backend is configured and available.
+func (a *Aggregator) EnclaveAvailable(ctx context.Context) bool {
+	if a.TEEProvider == nil {
+		return false
+	}
+	return a.TEEProvider.Available(ctx)
+}
+
+// RunAggregationInEnclave executes fn inside the configured enclave when a TEE
+// provider is set; otherwise it runs fn in-process (passthrough). This keeps
+// callers TEE-agnostic: the same code path works on hardware without an enclave.
+func (a *Aggregator) RunAggregationInEnclave(ctx context.Context, input []byte, fn tee.AggregationFunc) ([]byte, error) {
+	if a.TEEProvider == nil || a.TEETrusted == nil || len(a.TEEBinary) == 0 {
+		// No enclave configured: passthrough.
+		return fn(input)
+	}
+	agg := tee.NewProtectedAggregator(a.TEEProvider, a.TEETrusted, a.TEEBinary)
+	return agg.Run(ctx, input, fn)
+}
 func maxGradNorm(updates [][]float64) float64 {
 	maxSqNorm := 0.0
 	for _, update := range updates {
