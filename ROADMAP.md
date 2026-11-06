@@ -190,7 +190,18 @@ Verified against `proofs/FORMAL_TRACEABILITY_MATRIX.md` as of the 2026-08-10 com
 
 ---
 
-## Deferred / Optional Backlog
+## Phase 6: Gold-Standard Elevation 🔮 **FUTURE (6–9 months)**
+
+**Target:** 2027
+**Plan:** [docs/GOLD_STANDARD_PLAN.md](docs/GOLD_STANDARD_PLAN.md)
+
+- [ ] P1 Dynamic ZK weight verifiability (per-update SNARK: training + norm bound + DP noise)
+- [ ] P2 True wide-area mesh resilience (libp2p DHT + NAT hole-punch + async consensus)
+- [ ] P3 Lean → executable code (fuzzing + Kani + verified codegen for aggregation kernel)
+- [ ] P4 TEE native acceleration (SEV-SNP/SGX enclave-protected aggregation + optional MPC)
+
+---
+
 
 - [ ] Sphinx docs pipeline + hosted API site
 - [ ] Type stubs (`.pyi`) completeness pass for SDK ergonomics
