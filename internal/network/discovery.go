@@ -9,6 +9,7 @@ import (
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	peer "github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
+	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 )
 
 // Discovery manages peer discovery for a libp2p host. It supports two modes:
@@ -24,6 +25,7 @@ type Discovery struct {
 	bootstrapPeers  []string
 	mu              sync.Mutex
 	connectedPeers  map[peer.ID]time.Time
+	mdnsService     mdns.Service
 }
 
 // NewDiscovery creates a discovery manager for the given host.
@@ -65,7 +67,52 @@ func (d *Discovery) Bootstrap(ctx context.Context) (int, error) {
 	return connected, nil
 }
 
-// ConnectedPeers returns the set of peers discovered/connected so far.
+// StartMDNS begins local-network multicast discovery. Discovered peers are
+// recorded in ConnectedPeers. Returns an error if the service cannot start.
+func (d *Discovery) StartMDNS(ctx context.Context, serviceName string) error {
+	if d == nil {
+		return fmt.Errorf("discovery not initialized")
+	}
+	if serviceName == "" {
+		serviceName = "mohawk"
+	}
+	notifee := &mdnsNotifee{d: d}
+	svc := mdns.NewMdnsService(d.host, serviceName, notifee)
+	if svc == nil {
+		return fmt.Errorf("mdns: failed to start service")
+	}
+	d.mu.Lock()
+	d.mdnsService = svc
+	d.mu.Unlock()
+	return nil
+}
+
+// StopMDNS stops the multicast discovery service.
+func (d *Discovery) StopMDNS() error {
+	if d == nil {
+		return nil
+	}
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.mdnsService != nil {
+		err := d.mdnsService.Close()
+		d.mdnsService = nil
+		return err
+	}
+	return nil
+}
+
+type mdnsNotifee struct {
+	d *Discovery
+}
+
+func (n *mdnsNotifee) HandlePeerFound(pi peer.AddrInfo) {
+	n.d.mu.Lock()
+	defer n.d.mu.Unlock()
+	n.d.connectedPeers[pi.ID] = time.Now()
+	// Best-effort connect
+	_ = n.d.host.Connect(context.Background(), pi)
+}
 func (d *Discovery) ConnectedPeers() []peer.ID {
 	if d == nil {
 		return nil
