@@ -108,6 +108,13 @@ func GenesisProofBytes() []byte {
 // Active Guard — Theorem 5: verification must complete within 15 ms.
 // The four Miller-loop pairing check on BN254 is O(1) in the number of nodes
 // because proof size is constant regardless of the aggregation scale.
+// Deprecated: genesisVK is a fixed, content-free identity with no circuit
+// behind it; it cannot attest to data integrity. Production callers should
+// use VerifyDataCommitmentProof (zksnark_circuit_verifier.go), whose
+// verification key comes from a real groth16.Setup over a compiled R1CS
+// circuit. Retained for backward compatibility with existing callers
+// (pyapi CGo exports, internal/hybrid, internal/batch/aggregator); migration
+// is tracked as GOLD_STANDARD_PLAN P1.1.
 func VerifyProof(proof []byte, inputs []byte) (bool, error) {
 	start := time.Now()
 
