@@ -18,14 +18,14 @@ export const AgUiEventSchema = z.object({
   sessionId: z.string().optional(),
   runId: z.string().optional(),
   kind: AgUiEventKindSchema,
-  payload: z.record(z.unknown()),
-  meta: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
+  payload: z.record(z.string(), z.unknown()),
+  meta: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
 });
 
 const A2UiComponentSchema = z.object({
   id: z.string(),
   kind: z.enum(['text', 'metric', 'table', 'chart', 'form', 'timeline', 'button']),
-  props: z.record(z.unknown()),
+  props: z.record(z.string(), z.unknown()),
 });
 
 const A2UiActionSchema = z.object({
