@@ -64,7 +64,13 @@ theorem robbins_siegmund_weighted_sum_bound (V a b : ℕ → ℚ)
       have htel : (Finset.range T).sum (fun t => V t - V (t + 1)) = V 0 - V T := by
         have heq : V T = V 0 + (Finset.range T).sum (fun t => V (t + 1) - V t) :=
           Finset.eq_sum_range_sub V T
-        linarith [heq]
+        have hneg : (Finset.range T).sum (fun t => V t - V (t + 1)) =
+                    -(Finset.range T).sum (fun t => V (t + 1) - V t) := by
+          rw [← Finset.sum_neg_distrib]
+          apply Finset.sum_congr rfl
+          intro t _
+          ring
+        linarith [heq, hneg]
       rw [htel]
     _ ≤ V 0 + (Finset.range T).sum b := by
       linarith [hV T]
