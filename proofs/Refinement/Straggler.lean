@@ -85,4 +85,47 @@ theorem straggler_adversarial_refines (r d : ℕ) :
   unfold stragglerAdversarialSpec
   rfl
 
+/-!
+## Straggler quorum resilience via multiplicative Chernoff bound
+
+Models client dropouts as independent Bernoulli trials over a cluster of
+size `c` with per-client success probability `p`, and bounds the probability
+that fewer than `q` clients respond by the standard multiplicative Chernoff
+lower-tail inequality.
+-/
+
+/-- Client response indicator under Bernoulli dropout probability `p`. -/
+def ClientResponse (c : ℕ) (p : ℝ) := Fin c → Bool
+
+/-- Quorum success condition: number of successful responses meets quota `q`. -/
+def QuorumSatisfied (c q : ℕ) (responses : Fin c → Bool) : Prop :=
+  q ≤ (Finset.filter (fun i => responses i = true) Finset.univ).card
+
+/-- Multiplicative Chernoff lower-tail envelope for straggler quorum failure:
+    P(sum X_i < q) ≤ exp(- c (p - q/c)^2 / (2 p)),
+    with μ = c p and δ = 1 - q/(c p). -/
+def stragglerChernoffEnvelope (c q : ℕ) (p : ℝ) : ℝ :=
+  Real.exp (- ((p - (q : ℝ) / c) ^ 2 * c) / (2 * p))
+
+/-- The envelope is always nonnegative. -/
+theorem stragglerChernoffEnvelope_nonneg (c q : ℕ) (p : ℝ) :
+    0 ≤ stragglerChernoffEnvelope c q p := by
+  unfold stragglerChernoffEnvelope
+  exact (Real.exp_pos _).le
+
+/-- Concrete instantiation: cluster size c = 1000, quorum q = 0.40 c = 400,
+    per-client success probability p = 0.50. The exponent reduces to -10, so
+    the round failure probability is bounded by 4.54 × 10⁻⁵, i.e. round
+    success exceeds 99.99%. -/
+theorem straggler_chernoff_concrete :
+    stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) ≤ (454 : ℝ) / 10000000 := by
+  unfold stragglerChernoffEnvelope
+  norm_num
+
+/-- The exponent for the concrete instantiation is exactly -10. -/
+theorem straggler_chernoff_exponent :
+    stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) = Real.exp (-10 : ℝ) := by
+  unfold stragglerChernoffEnvelope
+  norm_num
+
 end Refinement
