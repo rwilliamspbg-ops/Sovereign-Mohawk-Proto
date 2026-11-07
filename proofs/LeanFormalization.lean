@@ -19,3 +19,4 @@ import LeanFormalization.Filtration
 import LeanFormalization.ConditionalExpectationGradient
 import LeanFormalization.Measurability
 import LeanFormalization.RobbinsSiegmund
+import LeanFormalization.DescentInequality
