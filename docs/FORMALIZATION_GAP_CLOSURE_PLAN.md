@@ -224,9 +224,12 @@ rather than native `Float`.
 - **2026-11-07**: Gap 4 first slice landed (PR #276): `Refinement/AsyncConvergence.lean`
   adds stale-weight in `[0,1]`, async envelope = sync + staleness term, rounds
   monotonicity, summability bound, large-scale guard, and floating-point
-  refinement lemma. All CI checks green. Remaining Gap 4 work: Go-side
-  property tests (`internal/federation/async_refinement_test.go`) and traceability
-  matrix row updates.
+  refinement lemma. All CI checks green.
+
+- **2026-11-07**: Gap 4 test landed (PR #277): `internal/federation/async_refinement_test.go`
+  verifies async flush produces aggregates and envelope sanity. All CI green.
+
+Remaining Gap 4 work: traceability matrix row updates (rows 6/11 → `refinement_verified`).
 
 - All four gaps have at least one machine-checked theorem (no `sorry`) in
   the corresponding module.
