@@ -11,10 +11,11 @@ section DescentInequalityDerivation
 
 open scoped MeasureTheory
 open scoped InnerProductSpace
-local notation "⟪" x ", " y "⟫" => inner (𝕜 := ℝ) x y
 
 variable {Ω : Type*} {m : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
+
+local notation "⟪" x ", " y "⟫" => inner (𝕜 := ℝ) x y
 
 variable (θstar : E)
 variable (fval : E → ℝ) (grad : E → E)
@@ -77,7 +78,7 @@ theorem descent_inequality_derived :
       apply MeasureTheory.condExp_add
       · exact hV_int
       · exact hinner_int.smul (-2 * η)
-    exact h1.trans (EventuallyEq.add h2 (EventuallyEq.refl _))
+    exact h1.trans (Filter.EventuallyEq.add h2 (Filter.EventuallyEq.refl _))
   have hsmulB : MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫)
       =ᵐ[μ] (-2 * η) • MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫) := by
     exact MeasureTheory.condExp_smul (-2 * η) (fun ω' => ⟪θ ω' - θstar, g ω'⟫) m
@@ -104,19 +105,19 @@ theorem descent_inequality_derived :
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2)
           + (-2 * η) • MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫)
           + (η ^ 2) • MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) := by
-          apply EventuallyEq.add
-          · apply EventuallyEq.add
+          apply Filter.EventuallyEq.add
+          · apply Filter.EventuallyEq.add
             · exact hVmeas
             · exact hsmulB
           · exact hsmulC
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2)
           + (-2 * η) • (fun ω => ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫)
           + (η ^ 2) • MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) := by
-          apply EventuallyEq.add
-          · apply EventuallyEq.add
-            · exact EventuallyEq.refl _
-            · exact EventuallyEq.smul (-2 * η) hpull
-          · exact EventuallyEq.refl _
+          apply Filter.EventuallyEq.add
+          · apply Filter.EventuallyEq.add
+            · exact Filter.EventuallyEq.refl _
+            · exact Filter.EventuallyEq.smul (-2 * η) hpull
+          · exact Filter.EventuallyEq.refl _
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2
           - 2 * η * ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫
           + η ^ 2 * MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω) := by
