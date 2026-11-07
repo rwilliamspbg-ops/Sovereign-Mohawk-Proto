@@ -33,7 +33,7 @@ theorem robbins_siegmund_telescoping (V a b : ℕ → ℚ)
     have hVT : 0 ≤ V T := hV T
     have hdecay : (1 - a T) * V T ≤ V T := by
       have h1a : 0 ≤ 1 - a T := by linarith [ha1T]
-      nlinarith [h1a, hVT]
+      nlinarith [h1a, hVT, ha T]
     calc
       V (T + 1) ≤ (1 - a T) * V T + b T := hstep
       _ ≤ V T + b T := by linarith [hdecay]
