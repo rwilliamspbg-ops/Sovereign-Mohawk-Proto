@@ -58,8 +58,10 @@ theorem masked_gradient_jointly_measurable
   -- The masked gradient is an if-then-else on a measurable predicate.
   -- `Measurable.ite` requires the predicate measurable and both branches
   -- measurable in `(θ, ω)`.
-  have hpred : Measurable (fun p : Θ × Ω => mask p.2) :=
-    hmask.comp measurable_snd
+  have hpred : MeasurableSet {p : Θ × Ω | mask p.2 = true} := by
+    have hω : MeasurableSet {ω : Ω | mask ω = true} :=
+      hmask (MeasurableSet.singleton true)
+    exact measurable_snd hω
   have hthen : Measurable (fun p : Θ × Ω => grad p.1 p.2) := hgrad
   have helf : Measurable (fun _ : Θ × Ω => zero) := measurable_const
   exact Measurable.ite hpred hthen helf
@@ -69,7 +71,8 @@ theorem masked_gradient_measurable_fixed
     (grad : Θ → Ω → E) (mask : Ω → Bool) (zero : E) (θ : Θ)
     (hgrad : Measurable (grad θ)) (hmask : Measurable mask) :
     Measurable (fun ω => maskedGradient grad mask zero θ ω) := by
-  have hpred : Measurable mask := hmask
+  have hpred : MeasurableSet {ω : Ω | mask ω = true} :=
+    hmask (MeasurableSet.singleton true)
   have hthen : Measurable (grad θ) := hgrad
   have helf : Measurable (fun _ : Ω => zero) := measurable_const
   exact Measurable.ite hpred hthen helf
