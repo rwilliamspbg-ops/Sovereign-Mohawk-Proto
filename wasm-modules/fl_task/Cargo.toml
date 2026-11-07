@@ -16,3 +16,6 @@ wasm-bindgen = "0.2"
 # Ensure openssl is NOT included for the wasm target
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
