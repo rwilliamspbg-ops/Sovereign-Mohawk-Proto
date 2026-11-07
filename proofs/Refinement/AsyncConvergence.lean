@@ -49,10 +49,8 @@ theorem stale_weight_le_one (age : ℕ) : staleWeight age ≤ 1 := by
   by_cases h : age = 0
   · simp [h]
   · simp [h]
-    have hage : (0 : ℚ) ≤ (age : ℚ) := by positivity
-    have : (1 : ℚ) / (1 + (age : ℚ)) ≤ 1 := by
-      exact (div_le_one (by positivity)).mpr (by linarith)
-    exact this
+    have hpos : 0 < 1 + (age : ℚ) := by positivity
+    exact (div_le_one hpos).mpr (by linarith)
 
 /-- Stale weight lies in the unit interval. -/
 theorem stale_weight_in_unit (age : ℕ) :
@@ -122,7 +120,7 @@ theorem staleness_term_le_rate (K T W : ℕ) (hK : 0 < K) (hT : 0 < T) :
     stalenessTerm K T W ≤ (W : ℚ) / (2 * (K : ℚ) * (T : ℚ)) := by
   unfold stalenessTerm
   rw [if_pos ⟨hK, hT⟩]
-  rfl
+  exact le_rfl
 
 /-- Concrete guard: async envelope for 100 clients, 1000 rounds, window 3,
     10% heterogeneity stays below 5%. -/
