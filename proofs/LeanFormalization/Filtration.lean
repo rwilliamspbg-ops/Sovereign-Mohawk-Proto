@@ -30,12 +30,12 @@ abbrev FederatedFiltration (ι : Type*) [Preorder ι] := MeasureTheory.Filtratio
 
 /-- Monotonicity of the filtration (comes from the structure's `mono'`). -/
 theorem federated_filtration_monotone {ι : Type*} [Preorder ι]
-    (f : FederatedFiltration ι) : Monotone f.seq :=
-  f.mono'
+    (f : MeasureTheory.Filtration ι m) : ∀ a b, a ≤ b → f a ≤ f b :=
+  fun a b h => f.mono' h
 
 /-- Each `ℱ_t` is a sub-σ-algebra of the ambient `m`. -/
 theorem federated_filtration_le {ι : Type*} [Preorder ι]
-    (f : FederatedFiltration ι) (i : ι) : f i ≤ m :=
+    (f : MeasureTheory.Filtration ι m) (i : ι) : f i ≤ m :=
   f.le' i
 
 /-- A sequence of per-round stochastic gradients is strongly adapted to the
@@ -50,7 +50,7 @@ theorem gradient_condExp_stronglyMeasurable
     {μ : MeasureTheory.Measure Ω} {E : Type*} [TopologicalSpace E]
     [MeasurableSpace E] [BorelSpace E] [NormedAddCommGroup E]
     [NormedSpace ℝ E] [CompleteSpace E]
-    (f : FederatedFiltration ℕ) (g : ℕ → Ω → E)
+    (f : MeasureTheory.Filtration ℕ m) (g : ℕ → Ω → E)
     (n : ℕ) (hg : MeasureTheory.Integrable (g n) μ) :
     MeasureTheory.StronglyMeasurable (f n) (MeasureTheory.condExp (f n) μ (g n)) :=
   MeasureTheory.stronglyMeasurable_condExp (m₀ := m) (m := f n) (μ := μ) (f := g n)
@@ -59,7 +59,7 @@ theorem gradient_condExp_stronglyMeasurable
     gradient equals the full gradient. Recorded as a property of the noise
     distribution, to be discharged per noise model. -/
 structure UnbiasedGradient (μ : MeasureTheory.Measure Ω)
-    (f : FederatedFiltration ℕ) where
+    (f : MeasureTheory.Filtration ℕ m) where
   grad : ℕ → Ω → ℝ
   fullGrad : ℕ → ℝ
   integrable : ∀ n, MeasureTheory.Integrable (grad n) μ
