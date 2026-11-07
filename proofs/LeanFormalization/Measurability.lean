@@ -1,6 +1,6 @@
 import Mathlib
 import Mathlib.MeasureTheory.MeasurableSpace.Basic
-import Mathlib.MeasureTheory.Function.StronglyMeasurable
+import Mathlib.MeasureTheory.Function.StronglyMeasurable.Basic
 
 namespace LeanFormalization
 
