@@ -23,23 +23,6 @@ variable (fval : E → ℝ) (grad : E → E)
 variable (θ : Ω → E) (g : Ω → E)
 variable (η μsc L σ2 : ℝ)
 
-variable (hθ_meas : StronglyMeasurable[m] θ)
-variable (hθ_int : MeasureTheory.Integrable θ μ)
-variable (hg_int : MeasureTheory.Integrable g μ)
-variable (hV_int : MeasureTheory.Integrable (fun ω => ‖θ ω - θstar‖ ^ 2) μ)
-variable (hinner_int : MeasureTheory.Integrable (fun ω => ⟪θ ω - θstar, g ω⟫) μ)
-variable (hnormg_int : MeasureTheory.Integrable (fun ω => ‖g ω‖ ^ 2) μ)
-variable (hVmeas : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2) ω = ‖θ ω - θstar‖ ^ 2)
-variable (hpull : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫) ω = ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫)
-variable (hunbias : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ g ω = grad (θ ω))
-variable (hvar : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω ≤ ‖grad (θ ω)‖ ^ 2 + σ2)
-variable (hsc : ∀ x : E, ⟪x - θstar, grad x⟫ ≥ (μsc / 2) * ‖x - θstar‖ ^ 2 + (fval x - fval θstar))
-variable (hsmooth : ∀ x : E, ‖grad x‖ ^ 2 ≤ 2 * L * (fval x - fval θstar))
-variable (hmin : ∀ x : E, fval θstar ≤ fval x)
-variable (hη : 0 < η ∧ η ≤ 1 / L)
-variable (hμsc : 0 < μsc)
-variable (hL : 0 < L)
-variable (hσ2 : 0 ≤ σ2)
 
 lemma sgd_step_expand (ω : Ω) :
     ‖θ ω - η • g ω - θstar‖ ^ 2 =
@@ -54,7 +37,21 @@ lemma sgd_step_expand (ω : Ω) :
   rw [hinner, hnorm]
   ring
 
-theorem descent_inequality_derived :
+theorem descent_inequality_derived
+    (hV_int : MeasureTheory.Integrable (fun ω => ‖θ ω - θstar‖ ^ 2) μ)
+    (hinner_int : MeasureTheory.Integrable (fun ω => ⟪θ ω - θstar, g ω⟫) μ)
+    (hnormg_int : MeasureTheory.Integrable (fun ω => ‖g ω‖ ^ 2) μ)
+    (hVmeas : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2) ω = ‖θ ω - θstar‖ ^ 2)
+    (hpull : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫) ω = ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫)
+    (hunbias : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ g ω = grad (θ ω))
+    (hvar : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω ≤ ‖grad (θ ω)‖ ^ 2 + σ2)
+    (hsc : ∀ x : E, ⟪x - θstar, grad x⟫ ≥ (μsc / 2) * ‖x - θstar‖ ^ 2 + (fval x - fval θstar))
+    (hsmooth : ∀ x : E, ‖grad x‖ ^ 2 ≤ 2 * L * (fval x - fval θstar))
+    (hmin : ∀ x : E, fval θstar ≤ fval x)
+    (hη : 0 < η ∧ η ≤ 1 / L)
+    (hμsc : 0 < μsc)
+    (hL : 0 < L)
+    (hσ2 : 0 ≤ σ2) :
     ∀ᵐ ω ∂μ,
       MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2) ω ≤
       (1 - η * μsc) * ‖θ ω - θstar‖ ^ 2 + η ^ 2 * σ2 := by
