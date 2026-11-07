@@ -33,7 +33,7 @@ structure ConditionalGradientModel (μ : MeasureTheory.Measure Ω)
     ∀ n, StronglyMeasurable[f n] (MeasureTheory.condExp (f n) μ (grad n))
 
 /-- The conditional expectation of a conditional-gradient model's gradient. -/
-def ConditionalGradientModel.condExp
+noncomputable def ConditionalGradientModel.condExp
     {μ : MeasureTheory.Measure Ω} {f : MeasureTheory.Filtration ℕ m}
     (M : ConditionalGradientModel μ f) (n : ℕ) : Ω → ℝ :=
   MeasureTheory.condExp (f n) μ (M.grad n)
