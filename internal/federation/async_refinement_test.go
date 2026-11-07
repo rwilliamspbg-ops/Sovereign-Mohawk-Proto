@@ -2,7 +2,6 @@ package federation
 
 import (
 	"context"
-	"math"
 	"testing"
 )
 
@@ -37,8 +36,8 @@ func TestAsyncRefinementEnvelopeBound(t *testing.T) {
 	if handler.gradientsAggregated == 0 {
 		t.Fatal("expected async aggregation to produce a result")
 	}
-	// Envelope sanity: aggregate count must be finite and non-negative.
-	if math.IsNaN(float64(handler.gradientsAggregated)) || handler.gradientsAggregated < 0 {
+	// Envelope sanity: aggregate count must be non-negative.
+	if handler.gradientsAggregated < 0 {
 		t.Fatalf("invalid aggregate count: %d", handler.gradientsAggregated)
 	}
 }
