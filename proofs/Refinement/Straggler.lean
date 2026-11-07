@@ -104,7 +104,7 @@ def QuorumSatisfied (c q : ℕ) (responses : Fin c → Bool) : Prop :=
 /-- Multiplicative Chernoff lower-tail envelope for straggler quorum failure:
     P(sum X_i < q) ≤ exp(- c (p - q/c)^2 / (2 p)),
     with μ = c p and δ = 1 - q/(c p). -/
-def stragglerChernoffEnvelope (c q : ℕ) (p : ℝ) : ℝ :=
+noncomputable def stragglerChernoffEnvelope (c q : ℕ) (p : ℝ) : ℝ :=
   Real.exp (- ((p - (q : ℝ) / c) ^ 2 * c) / (2 * p))
 
 /-- The envelope is always nonnegative. -/
@@ -120,7 +120,15 @@ theorem stragglerChernoffEnvelope_nonneg (c q : ℕ) (p : ℝ) :
 theorem straggler_chernoff_concrete :
     stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) ≤ (454 : ℝ) / 10000000 := by
   unfold stragglerChernoffEnvelope
-  norm_num
+  -- exp(-10) ≤ 227/5000000  ⇔  exp(10) ≥ 5000000/227
+  have hsum : (5000000 : ℝ) / 227 ≤ ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / (i ! : ℝ) := by
+    norm_num
+  have hle : ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / (i ! : ℝ) ≤ Real.exp 10 :=
+    Real.sum_le_exp_of_nonneg (by norm_num) 29
+  have hexp : (5000000 : ℝ) / 227 ≤ Real.exp 10 := le_trans hsum hle
+  have hpos2 : 0 < (5000000 : ℝ) / 227 := by norm_num
+  rw [Real.exp_neg]
+  simpa [inv_div] using inv_anti₀ hpos2 hexp
 
 /-- The exponent for the concrete instantiation is exactly -10. -/
 theorem straggler_chernoff_exponent :
