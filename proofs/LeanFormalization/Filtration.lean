@@ -41,7 +41,7 @@ theorem federated_filtration_le {ι : Type*} [Preorder ι]
 /-- A sequence of per-round stochastic gradients is strongly adapted to the
     filtration: each `g_t` is `ℱ_t`-strongly-measurable. -/
 def GradientStronglyAdapted {E : Type*} [TopologicalSpace E]
-    (f : FederatedFiltration ℕ) (g : (i : ℕ) → Ω → E) : Prop :=
+    (f : MeasureTheory.Filtration ℕ m) (g : (i : ℕ) → Ω → E) : Prop :=
   MeasureTheory.StronglyAdapted f g
 
 /-- Conditional expectation of the gradient given round-`t` history exists and
@@ -52,8 +52,8 @@ theorem gradient_condExp_stronglyMeasurable
     [NormedSpace ℝ E] [CompleteSpace E]
     (f : FederatedFiltration ℕ) (g : ℕ → Ω → E)
     (n : ℕ) (hg : MeasureTheory.Integrable (g n) μ) :
-    MeasureTheory.StronglyMeasurable (f n) (μ[g n | f n]) :=
-  MeasureTheory.stronglyMeasurable_condExp
+    MeasureTheory.StronglyMeasurable (f n) (MeasureTheory.condExp (f n) μ (g n)) :=
+  MeasureTheory.stronglyMeasurable_condExp (m₀ := m) (m := f n) (μ := μ) (f := g n)
 
 /-- Unbiasedness structure: the conditional expectation of the stochastic
     gradient equals the full gradient. Recorded as a property of the noise
@@ -63,7 +63,7 @@ structure UnbiasedGradient (μ : MeasureTheory.Measure Ω)
   grad : ℕ → Ω → ℝ
   fullGrad : ℕ → ℝ
   integrable : ∀ n, MeasureTheory.Integrable (grad n) μ
-  unbiased : ∀ n, μ[grad n | f n] =ᵐ[μ] (fun _ => fullGrad n)
+  unbiased : ∀ n, MeasureTheory.condExp (f n) μ (grad n) =ᵐ[μ] (fun _ => fullGrad n)
 
 end FiltrationGap
 
