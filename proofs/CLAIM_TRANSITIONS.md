@@ -226,3 +226,32 @@ but real bound, chosen because this gap's use case -- a privacy-budget
 safety-margin check -- doesn't need Taylor-level tightness).
 
 - **PR:** #174
+
+### 2026-11-07 -- Row 6 (Surrogate convergence envelope): status promoted to measure-theoretic verified (Gaps 1-3 scaffolding)
+
+`surrogate_verified_with_cast_bridge` ->
+`measure_theoretic_verified (Gaps 1-3 scaffolding)`
+
+Closed the measure-theoretic scaffolding gaps behind Theorem 6: discrete
+filtrations and conditional-expectation (Filtration.lean), strong
+measurability of stochastic-gradient operators including masked/dropout
+paths (Measurability.lean), and the Robbins-Siegmund telescoping core
+(RobbinsSiegmund.lean). All modules machine-checked with no `sorry` and
+wired into `LeanFormalization.lean`. The full descent-inequality derivation
+from smoothness/convexity remains future work.
+
+- **PR:** #278, #279, #280
+
+### 2026-11-07 -- Row 11 (Real-valued convergence envelope): status promoted to measure-theoretic verified (Gaps 1-4 scaffolding)
+
+`Surrogate verified` ->
+`measure_theoretic_verified (Gaps 1-4 scaffolding)`
+
+Extended Row 6's measure-theoretic scaffolding with the async refinement
+bridge (Refinement/AsyncConvergence.lean, PR #276) including the
+floating-point refinement guard, plus a Go property test
+(internal/federation/async_refinement_test.go, PR #277). Gaps 1-4 now
+all have machine-checked modules. Full measure-theoretic descent-inequality
+derivation remains future work.
+
+- **PR:** #276, #277
