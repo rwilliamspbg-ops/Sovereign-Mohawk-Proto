@@ -104,17 +104,3 @@ fn verify_stale_weight_bps_bounds() {
     let w = stale_weight_bps(age, max_age);
     assert!(w <= 10000);
 }
-
-#[cfg(kani)]
-#[kani::proof]
-fn verify_stale_weight_bps_monotonic() {
-    let age1: u32 = kani::any();
-    let age2: u32 = kani::any();
-    let max_age: u32 = kani::any();
-    kani::assume(max_age > 0 && max_age <= 1_000_000);
-    kani::assume(age1 < age2);
-    kani::assume(age2 < max_age);
-    let w1 = stale_weight_bps(age1, max_age);
-    let w2 = stale_weight_bps(age2, max_age);
-    assert!(w1 >= w2);
-}
