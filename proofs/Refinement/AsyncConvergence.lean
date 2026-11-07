@@ -50,7 +50,7 @@ theorem stale_weight_le_one (age : ℕ) : staleWeight age ≤ 1 := by
   · simp [h]
   · simp [h]
     have hpos : 0 < 1 + (age : ℚ) := by positivity
-    exact (div_le_one hpos).mpr (by linarith)
+    exact (div_le_one hpos).mpr (by exact_mod_cast Nat.succ_le_succ (Nat.zero_le age))
 
 /-- Stale weight lies in the unit interval. -/
 theorem stale_weight_in_unit (age : ℕ) :
