@@ -110,7 +110,7 @@ theorem descent_inequality_derived
           apply Filter.EventuallyEq.add
           · apply Filter.EventuallyEq.add
             · exact Filter.EventuallyEq.rfl
-            · exact hpull.fun_comp (fun x => (-2 * η) * x)
+            · exact Filter.EventuallyEq.fun_comp hpull (fun x => (-2 * η) * x)
           · exact Filter.EventuallyEq.rfl
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2
           - 2 * η * ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫
