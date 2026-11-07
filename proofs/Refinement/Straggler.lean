@@ -120,28 +120,21 @@ theorem stragglerChernoffEnvelope_nonneg (c q : ℕ) (p : ℝ) :
 theorem straggler_chernoff_concrete :
     stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) ≤ (454 : ℝ) / 10000000 := by
   unfold stragglerChernoffEnvelope
-  -- Reduce the exponent to -10.
-  have hexponent : - (((1 / 2 : ℝ) - (400 : ℝ) / 1000) ^ 2 * 1000) / (2 * (1 / 2 : ℝ)) = -10 := by
+  -- Step 1: the exponent is ≤ -10 (pure rational arithmetic).
+  have hE : - (((1 / 2 : ℝ) - (400 : ℝ) / 1000) ^ 2 * 1000) / (2 * (1 / 2 : ℝ)) ≤ -10 := by
     norm_num
-  -- Rewrite the goal's exponent.
-  have : stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) = Real.exp (-10 : ℝ) := by
-    unfold stragglerChernoffEnvelope
-    rw [hexponent]
-  rw [this]
-  -- exp(-10) ≤ 227/5000000  ⇔  exp(10) ≥ 5000000/227
+  have h1 : Real.exp (- (((1 / 2 : ℝ) - (400 : ℝ) / 1000) ^ 2 * 1000) / (2 * (1 / 2 : ℝ))) ≤ Real.exp (-10) :=
+    Real.exp_le_exp.mpr hE
+  -- Step 2: exp(-10) ≤ 454/10000000 via exp(10) ≥ 5000000/227.
   have hsum : (5000000 : ℝ) / 227 ≤ ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / ↑(Nat.factorial i) := by
     norm_num
   have hle : ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / ↑(Nat.factorial i) ≤ Real.exp 10 :=
     Real.sum_le_exp_of_nonneg (by norm_num) 29
   have hexp : (5000000 : ℝ) / 227 ≤ Real.exp 10 := le_trans hsum hle
   have hpos2 : 0 < (5000000 : ℝ) / 227 := by norm_num
-  rw [Real.exp_neg]
-  simpa [inv_div] using inv_anti₀ hpos2 hexp
-
-/-- The exponent for the concrete instantiation is exactly -10. -/
-theorem straggler_chernoff_exponent :
-    stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) = Real.exp (-10 : ℝ) := by
-  unfold stragglerChernoffEnvelope
-  norm_num
+  have h2 : Real.exp (-10) ≤ (454 : ℝ) / 10000000 := by
+    rw [Real.exp_neg]
+    simpa [inv_div] using inv_anti₀ hpos2 hexp
+  exact le_trans h1 h2
 
 end Refinement
