@@ -244,10 +244,16 @@ rather than native `Float`.
   bound (`∑ a_t V_t ≤ V_0 + ∑ b_t`) via telescoping identity, plus concrete
   guard. All CI green.
 
+- **2026-11-07**: Gap 3 descent inequality fully derived (PR #281):
+  `LeanFormalization/DescentInequalityFull.lean` proves
+  `descent_inequality_derived` from smoothness/convexity/variance/step-size
+  assumptions (measurability of V and inner-product pull-out as explicit
+  hypotheses). All CI green.
+
 All four gaps now have at least one machine-checked theorem (no `sorry`) in the
-corresponding module. Remaining: traceability matrix row updates (rows 6/11 →
-`measure_theoretic_verified`/`refinement_verified`) and full measure-theoretic
-derivation of the descent inequality (out of scope for this pass).
+corresponding module. The full measure-theoretic descent-inequality derivation
+is now machine-checked (PR #281, `DescentInequalityFull.lean`). Remaining:
+traceability/claim status updates (rows 6/11) — handled in PR #282.
 
 - All four gaps have at least one machine-checked theorem (no `sorry`) in
   the corresponding module.

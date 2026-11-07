@@ -94,13 +94,16 @@
     {
       "id": "theorem6_convergence",
       "status": "surrogate_verified_with_cast_bridge",
-      "formal_scope": "integer and rational convergence envelopes with runtime guard alignment",
+      "formal_scope": "integer and rational convergence envelopes with runtime guard alignment; measure-theoretic descent-inequality derivation now machine-checked (DescentInequalityFull.lean, PR #281)",
       "blocking_gaps": [
         "stronger non-convex O(1/sqrt(KT)) convergence bounds remain roadmap work"
       ],
       "lean_modules": [
         "proofs/LeanFormalization/Theorem6Convergence.lean",
-        "proofs/LeanFormalization/Theorem6ConvergenceReals.lean"
+        "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
+        "proofs/LeanFormalization/DescentInequality.lean",
+        "proofs/LeanFormalization/RobbinsSiegmund.lean",
+        "proofs/LeanFormalization/DescentInequalityFull.lean"
       ],
       "runtime_targets": [
         {
