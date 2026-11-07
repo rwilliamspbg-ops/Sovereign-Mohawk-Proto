@@ -255,3 +255,24 @@ all have machine-checked modules. Full measure-theoretic descent-inequality
 derivation remains future work.
 
 - **PR:** #276, #277
+
+### 2026-11-07 -- Row 6/11 (Convergence): full measure-theoretic descent-inequality derivation landed (PR #281)
+
+`measure_theoretic_verified (Gaps 1-3 scaffolding)` ->
+`measure_theoretic_verified (Gaps 1-4 scaffolding + descent derivation)`
+
+Closed the remaining "full measure-theoretic derivation of the descent
+inequality" item: new module `LeanFormalization/DescentInequalityFull.lean`
+proves `descent_inequality_derived` (and `sgd_step_expand`) from
+smoothness (L), strong convexity (μ_sc), bounded variance (σ²) and step
+size (η ≤ 1/L), with the measurability of V and the inner-product
+pull-out recorded as explicit hypotheses (`hVmeas`, `hpull`), consistent
+with the module's other regularity assumptions. All CI checks green
+(Verify Formal Proofs run 42406701459). No `sorry`/`axiom`/`admit`.
+
+- **PR:** #281
+
+Remaining roadmap items (not in scope here): full supermartingale
+convergence (Gap 3 capstone), floating-point refinement (Gap 4
+deepening), Kani (Unix-only, blocked on Windows host), and the
+ed25519 UF-CMA / Forking Lemma / MiMC collision axioms (separate track).

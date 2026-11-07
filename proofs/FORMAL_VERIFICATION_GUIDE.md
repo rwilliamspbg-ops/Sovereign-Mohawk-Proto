@@ -30,7 +30,7 @@ lake build LeanFormalization Mathlib
 | 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | fully_formalized |
 | 4 | Integer liveness guard surrogate (with Chernoff extension) | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | model_verified |
 | 5 | Constant-cost verifier model | `cryptography.md` | `Theorem5Cryptography.lean` | `theorem5_constant_cost` | model_verified |
-| 6 | Convergence envelope surrogate (with real-valued bridge) | `convergence.md` | `Theorem6Convergence.lean` | `theorem6_large_scale_guard` | surrogate_verified_with_cast_bridge |
+| 6 | Convergence envelope (measure-theoretic descent derivation) | `convergence.md` | `Theorem6Convergence.lean`, `RobbinsSiegmund.lean`, `DescentInequalityFull.lean` | `theorem6_large_scale_guard`, `descent_inequality_derived` | measure_theoretic_verified (PR #281) |
 
 ## Verification Steps
 
