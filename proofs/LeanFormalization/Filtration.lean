@@ -21,6 +21,8 @@ is Gap 3 (Robbins–Siegmund).
 
 section FiltrationGap
 
+open scoped MeasureTheory
+
 variable {Ω : Type*} {m : MeasurableSpace Ω}
 
 /-- A federated training filtration: an increasing family of sub-σ-algebras
@@ -50,7 +52,7 @@ theorem gradient_condExp_stronglyMeasurable
     {μ : MeasureTheory.Measure Ω}
     (f : MeasureTheory.Filtration ℕ m) (g : ℕ → Ω → ℝ)
     (n : ℕ) (hg : MeasureTheory.Integrable (g n) μ) :
-    MeasureTheory.StronglyMeasurable (f n) (MeasureTheory.condExp (f n) μ (g n)) :=
+    StronglyMeasurable[f n] (MeasureTheory.condExp (f n) μ (g n)) :=
   MeasureTheory.stronglyMeasurable_condExp (m₀ := m) (m := f n) (μ := μ) (f := g n)
 
 /-- Unbiasedness structure: the conditional expectation of the stochastic
