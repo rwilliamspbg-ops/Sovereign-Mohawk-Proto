@@ -35,7 +35,7 @@ lemma sgd_step_expand (ω : Ω) :
   have hnorm : ‖η • g ω‖ ^ 2 = η ^ 2 * ‖g ω‖ ^ 2 := by
     rw [norm_smul]
     rw [mul_pow]
-    rw [sq_abs]
+    rw [sq_abs η]
   rw [hinner, hnorm]
   ring
 
@@ -58,21 +58,21 @@ theorem descent_inequality_derived
       MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2) ω ≤
       (1 - η * μsc) * ‖θ ω - θstar‖ ^ 2 + η ^ 2 * σ2 := by
   have hsplit : MeasureTheory.condExp m μ (fun ω' =>
-          ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2)
+          ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2)
       =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2)
-        + MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫)
+        + MeasureTheory.condExp m μ (fun ω' => (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
         + MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2) := by
     have h1 : MeasureTheory.condExp m μ (fun ω' =>
-            (‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫) + η ^ 2 * ‖g ω'‖ ^ 2)
-        =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫)
+            (‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫) + η ^ 2 * ‖g ω'‖ ^ 2)
+        =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
           + MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2) := by
       exact MeasureTheory.condExp_add (hV_int.sub (hinner_int.smul (2 * η))) (hnormg_int.smul (η ^ 2)) m
-    have h2 : MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫)
+    have h2 : MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
         =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2)
-          + MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫) := by
+          + MeasureTheory.condExp m μ (fun ω' => (-2 * η) * ⟪θ ω' - θstar, g ω'⟫) := by
       exact MeasureTheory.condExp_add hV_int (hinner_int.smul (-2 * η)) m
     exact h1.trans (Filter.EventuallyEq.add h2 (Filter.EventuallyEq.rfl))
-  have hsmulB : MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫)
+  have hsmulB : MeasureTheory.condExp m μ (fun ω' => (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
       =ᵐ[μ] (-2 * η) • MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫) := by
     exact MeasureTheory.condExp_smul (-2 * η) (fun ω' => ⟪θ ω' - θstar, g ω'⟫) m
   have hsmulC : MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2)
@@ -80,7 +80,7 @@ theorem descent_inequality_derived
     exact MeasureTheory.condExp_smul (η ^ 2) (fun ω' => ‖g ω'‖ ^ 2) m
   have hcong : MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2)
       =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' =>
-          ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2) := by
+          ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2) := by
     apply MeasureTheory.condExp_congr_ae
     filter_upwards with ω'
     exact sgd_step_expand θstar θ g η ω'
@@ -91,9 +91,9 @@ theorem descent_inequality_derived
     calc
       MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2)
           =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' =>
-              ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2) := hcong
+              ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫ + η ^ 2 * ‖g ω'‖ ^ 2) := hcong
       _ =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2)
-          + MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫)
+          + MeasureTheory.condExp m μ (fun ω' => (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
           + MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2) := hsplit
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2)
           + (-2 * η) • MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫)
@@ -116,6 +116,7 @@ theorem descent_inequality_derived
           + η ^ 2 * MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω) := by
           filter_upwards with ω
           simp [smul_eq_mul]
+          ring
   have hexp2 : ∀ᵐ ω ∂μ,
       MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2) ω ≤
       ‖θ ω - θstar‖ ^ 2
