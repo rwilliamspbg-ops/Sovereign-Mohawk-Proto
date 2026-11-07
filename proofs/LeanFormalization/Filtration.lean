@@ -19,6 +19,8 @@ surrogates to real measure spaces. Full derivation of the descent inequality
 is Gap 3 (Robbins–Siegmund).
 -/
 
+section FiltrationGap
+
 variable {Ω : Type*} {m : MeasurableSpace Ω}
 
 /-- A federated training filtration: an increasing family of sub-σ-algebras
@@ -38,9 +40,9 @@ theorem federated_filtration_le {ι : Type*} [Preorder ι]
 
 /-- A sequence of per-round stochastic gradients is strongly adapted to the
     filtration: each `g_t` is `ℱ_t`-strongly-measurable. -/
-def GradientProcess (ι : Type*) [Preorder ι] (E : Type*) [TopologicalSpace E]
-    (f : FederatedFiltration ι) :=
-  { g : (i : ι) → Ω → E // MeasureTheory.StronglyAdapted f g }
+def GradientStronglyAdapted {E : Type*} [TopologicalSpace E]
+    (f : FederatedFiltration ℕ) (g : (i : ℕ) → Ω → E) : Prop :=
+  MeasureTheory.StronglyAdapted f g
 
 /-- Conditional expectation of the gradient given round-`t` history exists and
     is `ℱ_t`-strongly-measurable, provided the gradient is integrable. -/
@@ -50,16 +52,19 @@ theorem gradient_condExp_stronglyMeasurable
     [NormedSpace ℝ E] [CompleteSpace E]
     (f : FederatedFiltration ℕ) (g : ℕ → Ω → E)
     (n : ℕ) (hg : MeasureTheory.Integrable (g n) μ) :
-    MeasureTheory.StronglyMeasurable[f n] (μ[g n | f n]) :=
+    MeasureTheory.StronglyMeasurable (f n) (μ[g n | f n]) :=
   MeasureTheory.stronglyMeasurable_condExp
 
-/-- Unbiasedness statement (as a hypothesis): the conditional expectation of
-    the stochastic gradient equals the full gradient. Recorded as a property of
-    the noise distribution, to be discharged per noise model (i.i.d., dropout,
-    etc.). -/
-structure UnbiasedGradient (μ : MeasureTheory.Measure Ω) (f : FederatedFiltration ℕ)
-    (g : ℕ → Ω → (Fin 1 → ℝ)) where
-  fullGrad : ℕ → (Fin 1 → ℝ)
-  unbiased : ∀ n, μ[g n | f n] =ᵐ[μ] (fun _ => fullGrad n)
+/-- Unbiasedness structure: the conditional expectation of the stochastic
+    gradient equals the full gradient. Recorded as a property of the noise
+    distribution, to be discharged per noise model. -/
+structure UnbiasedGradient (μ : MeasureTheory.Measure Ω)
+    (f : FederatedFiltration ℕ) where
+  grad : ℕ → Ω → ℝ
+  fullGrad : ℕ → ℝ
+  integrable : ∀ n, MeasureTheory.Integrable (grad n) μ
+  unbiased : ∀ n, μ[grad n | f n] =ᵐ[μ] (fun _ => fullGrad n)
+
+end FiltrationGap
 
 end LeanFormalization
