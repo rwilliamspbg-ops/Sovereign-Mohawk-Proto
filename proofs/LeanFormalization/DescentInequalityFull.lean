@@ -10,6 +10,7 @@ namespace LeanFormalization
 section DescentInequalityDerivation
 
 open scoped MeasureTheory
+open scoped InnerProductSpace
 
 variable {Ω : Type*} {m : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
