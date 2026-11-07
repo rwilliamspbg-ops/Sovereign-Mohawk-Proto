@@ -35,3 +35,29 @@ pub extern "C" fn run_task() {
         }
     }
 }
+
+
+/// Clamp an integer gradient component to [-bound, bound].
+pub fn clamp_i32(x: i32, bound: i32) -> i32 {
+    if bound <= 0 {
+        0
+    } else if x > bound {
+        bound
+    } else if x < -bound {
+        -bound
+    } else {
+        x
+    }
+}
+
+#[cfg(kani)]
+#[kani::proof]
+fn verify_clamp_i32() {
+    let x: i32 = kani::any();
+    let bound: i32 = kani::any();
+    kani::assume(bound >= 0);
+    kani::assume(bound <= i32::MAX / 2);
+    let y = clamp_i32(x, bound);
+    assert!(y >= -bound);
+    assert!(y <= bound);
+}
