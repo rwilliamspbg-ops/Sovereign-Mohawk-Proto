@@ -61,6 +61,27 @@ theorem supermartingale_convergence_L1
     linarith [hcond, hl, hr]
   exact robbins_siegmund_deterministic e a b he_nonneg hstep_e ha hb_nonneg hsummable_b hdivergent_a
 
+
+/-- Almost-sure strengthening (in progress): under the same hypotheses,
+    `V_t -> 0` almost surely. The proof requires the supermartingale
+    transform `M_t = V_t + sum_{k<t} a_k V_k - sum_{k<t} b_k` and an
+    application of Mathlib's submartingale convergence theorem; the
+    deterministic limit lemma `robbins_siegmund_limit_zero` discharges
+    the final step. Tracked with `sorry` until the transform is wired. -/
+theorem supermartingale_convergence_ae
+    (hμ : IsProbabilityMeasure μ)
+    (V : ℕ → Ω → ℝ) (a b : ℕ → ℝ)
+    (hV_nonneg : ∀ t ω, 0 ≤ V t ω)
+    (hV_sa : StronglyAdapted ℱ V)
+    (hV_int : ∀ t, Integrable (V t) μ)
+    (hstep : ∀ t, ∀ᵐ ω ∂μ, μ[V (t + 1) | ℱ t] ω ≤ (1 - a t) * V t ω + b t)
+    (ha : ∀ t, 0 ≤ a t ∧ a t ≤ 1)
+    (hb_nonneg : ∀ t, 0 ≤ b t)
+    (hsummable_b : Summable b)
+    (hdivergent_a : ¬ Summable a) :
+    ∀ᵐ ω ∂μ, Tendsto (fun t => V t ω) atTop (𝓝 0) := by
+  sorry
+
 end SupermartingaleConvergence
 
 end LeanFormalization
