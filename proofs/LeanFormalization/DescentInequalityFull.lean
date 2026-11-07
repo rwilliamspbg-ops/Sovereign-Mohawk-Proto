@@ -11,6 +11,7 @@ section DescentInequalityDerivation
 
 open scoped MeasureTheory
 open scoped InnerProductSpace
+local notation "⟪" x ", " y "⟫" => inner (𝕜 := ℝ) x y
 
 variable {Ω : Type*} {m : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
