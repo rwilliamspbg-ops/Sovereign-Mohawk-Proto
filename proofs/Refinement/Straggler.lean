@@ -134,7 +134,8 @@ theorem straggler_chernoff_concrete :
   have hpos2 : 0 < (5000000 : ℝ) / 227 := by norm_num
   have h2 : Real.exp (-10) ≤ (454 : ℝ) / 10000000 := by
     rw [Real.exp_neg]
-    simpa [inv_div] using inv_anti₀ hpos2 hexp
+    have hinv : (Real.exp 10)⁻¹ ≤ (227 : ℝ) / 5000000 := simpa [inv_div] using inv_anti₀ hpos2 hexp
+    exact le_trans hinv (by norm_num)
   exact le_trans h1 h2
 
 end Refinement
