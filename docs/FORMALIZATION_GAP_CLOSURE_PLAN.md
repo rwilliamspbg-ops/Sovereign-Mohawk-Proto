@@ -219,7 +219,14 @@ rather than native `Float`.
 | 3 | Gap 2 (measurability) | Needed to state Gap 3's hypotheses |
 | 4 | Gap 3 (Robbins–Siegmund) | Capstone; depends on 1 & 2 |
 
-## Success criteria for 90+/100
+## Progress log
+
+- **2026-11-07**: Gap 4 first slice landed (PR #276): `Refinement/AsyncConvergence.lean`
+  adds stale-weight in `[0,1]`, async envelope = sync + staleness term, rounds
+  monotonicity, summability bound, large-scale guard, and floating-point
+  refinement lemma. All CI checks green. Remaining Gap 4 work: Go-side
+  property tests (`internal/federation/async_refinement_test.go`) and traceability
+  matrix row updates.
 
 - All four gaps have at least one machine-checked theorem (no `sorry`) in
   the corresponding module.
