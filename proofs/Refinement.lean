@@ -5,5 +5,6 @@ import Refinement.Ledger
 import Refinement.Straggler
 import Refinement.ZKCircuit
 import Refinement.Convergence
+import Refinement.AsyncConvergence
 import Refinement.DLP
 import Refinement.BFT
