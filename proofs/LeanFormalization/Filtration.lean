@@ -47,10 +47,8 @@ def GradientStronglyAdapted {E : Type*} [TopologicalSpace E]
 /-- Conditional expectation of the gradient given round-`t` history exists and
     is `ℱ_t`-strongly-measurable, provided the gradient is integrable. -/
 theorem gradient_condExp_stronglyMeasurable
-    {μ : MeasureTheory.Measure Ω} {E : Type*} [TopologicalSpace E]
-    [MeasurableSpace E] [BorelSpace E] [NormedAddCommGroup E]
-    [NormedSpace ℝ E] [CompleteSpace E]
-    (f : MeasureTheory.Filtration ℕ m) (g : ℕ → Ω → E)
+    {μ : MeasureTheory.Measure Ω}
+    (f : MeasureTheory.Filtration ℕ m) (g : ℕ → Ω → ℝ)
     (n : ℕ) (hg : MeasureTheory.Integrable (g n) μ) :
     MeasureTheory.StronglyMeasurable (f n) (MeasureTheory.condExp (f n) μ (g n)) :=
   MeasureTheory.stronglyMeasurable_condExp (m₀ := m) (m := f n) (μ := μ) (f := g n)
