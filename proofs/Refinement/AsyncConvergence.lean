@@ -50,7 +50,7 @@ theorem stale_weight_le_one (age : ℕ) : staleWeight age ≤ 1 := by
   · simp [h]
   · simp [h]
     have hpos : 0 < 1 + (age : ℚ) := by positivity
-    exact (div_le_one hpos).mpr (by exact_mod_cast Nat.succ_le_succ (Nat.zero_le age))
+    exact (div_le_one hpos).mpr (add_le_add_left (Nat.cast_nonneg age) 1)
 
 /-- Stale weight lies in the unit interval. -/
 theorem stale_weight_in_unit (age : ℕ) :
@@ -118,9 +118,7 @@ theorem staleness_term_rounds_monotone (K W : ℕ) (T1 T2 : ℕ)
     Recorded here as the algebraic bound `stalenessTerm K T W ≤ W/(2*K*T)`. -/
 theorem staleness_term_le_rate (K T W : ℕ) (hK : 0 < K) (hT : 0 < T) :
     stalenessTerm K T W ≤ (W : ℚ) / (2 * (K : ℚ) * (T : ℚ)) := by
-  unfold stalenessTerm
-  rw [if_pos ⟨hK, hT⟩]
-  exact le_rfl
+  simp [stalenessTerm, hK, hT]
 
 /-- Concrete guard: async envelope for 100 clients, 1000 rounds, window 3,
     10% heterogeneity stays below 5%. -/
