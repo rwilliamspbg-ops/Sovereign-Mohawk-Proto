@@ -11,7 +11,7 @@ section DescentInequalityDerivation
 
 open scoped MeasureTheory
 
-variable {Ω : Type*} {m mΩ : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}
+variable {Ω : Type*} {m : MeasurableSpace Ω} {μ : MeasureTheory.Measure Ω}
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
 
 variable (θstar : E)
@@ -26,6 +26,7 @@ variable (hg_int : MeasureTheory.Integrable g μ)
 variable (hV_int : MeasureTheory.Integrable (fun ω => ‖θ ω - θstar‖ ^ 2) μ)
 variable (hinner_int : MeasureTheory.Integrable (fun ω => inner (θ ω - θstar) (g ω)) μ)
 variable (hnormg_int : MeasureTheory.Integrable (fun ω => ‖g ω‖ ^ 2) μ)
+variable (hVmeas : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2) ω = ‖θ ω - θstar‖ ^ 2)
 variable (hunbias : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ g ω = grad (θ ω))
 variable (hvar : ∀ᵐ ω ∂μ, MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω ≤ ‖grad (θ ω)‖ ^ 2 + σ2)
 variable (hsc : ∀ x : E, inner (x - θstar) (grad x) ≥ (μsc / 2) * ‖x - θstar‖ ^ 2 + (fval x - fval θstar))
@@ -35,9 +36,6 @@ variable (hη : 0 < η ∧ η ≤ 1 / L)
 variable (hμsc : 0 < μsc)
 variable (hL : 0 < L)
 variable (hσ2 : 0 ≤ σ2)
-variable (hm : m ≤ mΩ)
-variable [hprob : MeasureTheory.IsProbabilityMeasure μ]
-variable [hσfin : SigmaFinite (μ.trim hm)]
 
 lemma sgd_step_expand (ω : Ω) :
     ‖θ ω - η • g ω - θstar‖ ^ 2 =
@@ -56,16 +54,6 @@ theorem descent_inequality_derived :
     ∀ᵐ ω ∂μ,
       MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - η • g ω' - θstar‖ ^ 2) ω ≤
       (1 - η * μsc) * ‖θ ω - θstar‖ ^ 2 + η ^ 2 * σ2 := by
-  have hVmeas : ∀ᵐ ω ∂μ,
-      MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2) ω =
-      ‖θ ω - θstar‖ ^ 2 := by
-    have hf : StronglyMeasurable[m] (fun ω => ‖θ ω - θstar‖ ^ 2) := by
-      have hcont : Continuous (fun x : E => ‖x - θstar‖ ^ 2) := by fun_prop
-      exact hcont.comp_stronglyMeasurable hθ_meas
-    have heq : MeasureTheory.condExp m μ (fun ω => ‖θ ω - θstar‖ ^ 2) = (fun ω => ‖θ ω - θstar‖ ^ 2) :=
-      MeasureTheory.condExp_of_stronglyMeasurable hm hf hV_int
-    filter_upwards with ω
-    exact congrFun heq ω
   have hpull : ∀ᵐ ω ∂μ,
       MeasureTheory.condExp m μ (fun ω' => inner (θ ω' - θstar) (g ω')) ω =
       inner (θ ω - θstar) (MeasureTheory.condExp m μ g ω) := by
