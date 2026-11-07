@@ -26,7 +26,7 @@ variable (η μsc L σ2 : ℝ)
 
 lemma sgd_step_expand (ω : Ω) :
     ‖θ ω - η • g ω - θstar‖ ^ 2 =
-    ‖θ ω - θstar‖ ^ 2 - 2 * η * ⟪θ ω - θstar, g ω⟫ + η ^ 2 * ‖g ω‖ ^ 2 := by
+    ‖θ ω - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω - θstar, g ω⟫ + η ^ 2 * ‖g ω‖ ^ 2 := by
   have h1 : θ ω - η • g ω - θstar = (θ ω - θstar) - η • g ω := by
     abel
   rw [h1, norm_sub_sq_real]
@@ -34,8 +34,9 @@ lemma sgd_step_expand (ω : Ω) :
     exact inner_smul_right (θ ω - θstar) (g ω) η
   have hnorm : ‖η • g ω‖ ^ 2 = η ^ 2 * ‖g ω‖ ^ 2 := by
     rw [norm_smul]
+    rw [Real.norm_eq_abs]
     rw [mul_pow]
-    rw [sq_abs η]
+    rw [sq_abs]
   rw [hinner, hnorm]
   ring
 
@@ -66,7 +67,7 @@ theorem descent_inequality_derived
             (‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫) + η ^ 2 * ‖g ω'‖ ^ 2)
         =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
           + MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2) := by
-      exact MeasureTheory.condExp_add (hV_int.sub (hinner_int.smul (2 * η))) (hnormg_int.smul (η ^ 2)) m
+      exact MeasureTheory.condExp_add (hV_int.add (hinner_int.smul (-2 * η))) (hnormg_int.smul (η ^ 2)) m
     have h2 : MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 + (-2 * η) * ⟪θ ω' - θstar, g ω'⟫)
         =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2)
           + MeasureTheory.condExp m μ (fun ω' => (-2 * η) * ⟪θ ω' - θstar, g ω'⟫) := by
