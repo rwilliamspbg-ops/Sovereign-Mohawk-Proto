@@ -110,7 +110,7 @@ theorem descent_inequality_derived
           apply Filter.EventuallyEq.add
           · apply Filter.EventuallyEq.add
             · exact Filter.EventuallyEq.rfl
-            · exact Filter.EventuallyEq.smul (Filter.EventuallyEq.rfl (fun _ => -2 * η)) hpull
+            · exact Filter.EventuallyEq.smul (Filter.EventuallyEq.refl (fun _ => -2 * η)) hpull
           · exact Filter.EventuallyEq.rfl
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2
           - 2 * η * ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫
@@ -148,7 +148,9 @@ theorem descent_inequality_derived
     have h2 : η ^ 2 * ‖grad (θ ω)‖ ^ 2 ≤ η ^ 2 * (2 * L * (fval (θ ω) - fval θstar)) := by
       have hc2 : 0 ≤ η ^ 2 := sq_nonneg η
       exact mul_le_mul_of_nonneg_left hsmw hc2
-    have hηL : η * L ≤ 1 := by nlinarith [hη.2, hL]
+    have hηL : η * L ≤ 1 := by
+      calc η * L ≤ (1 / L) * L := mul_le_mul_of_nonneg_right hη.2 (le_of_lt hL)
+        _ = 1 := div_mul_cancel₀ 1 (ne_of_gt hL)
     have hcoef : -2 * η + 2 * η ^ 2 * L ≤ 0 := by nlinarith [hη.1, hηL]
     have hprod : (-2 * η + 2 * η ^ 2 * L) * (fval (θ ω) - fval θstar) ≤ 0 := by
       nlinarith [hcoef, hfnonneg]
