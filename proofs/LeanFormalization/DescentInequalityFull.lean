@@ -28,12 +28,14 @@ lemma sgd_step_expand (ω : Ω) :
     ‖θ ω - η • g ω - θstar‖ ^ 2 =
     ‖θ ω - θstar‖ ^ 2 - 2 * η * ⟪θ ω - θstar, g ω⟫ + η ^ 2 * ‖g ω‖ ^ 2 := by
   have h1 : θ ω - η • g ω - θstar = (θ ω - θstar) - η • g ω := by
-    simp [sub_eq_add_neg, smul_sub]
+    abel
   rw [h1, norm_sub_sq_real]
   have hinner : ⟪θ ω - θstar, η • g ω⟫ = η * ⟪θ ω - θstar, g ω⟫ := by
     exact inner_smul_right (θ ω - θstar) (g ω) η
   have hnorm : ‖η • g ω‖ ^ 2 = η ^ 2 * ‖g ω‖ ^ 2 := by
-    rw [norm_smul, mul_pow, sq_abs]
+    rw [norm_smul]
+    rw [mul_pow]
+    rw [sq_abs]
   rw [hinner, hnorm]
   ring
 
@@ -64,18 +66,12 @@ theorem descent_inequality_derived
             (‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫) + η ^ 2 * ‖g ω'‖ ^ 2)
         =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫)
           + MeasureTheory.condExp m μ (fun ω' => η ^ 2 * ‖g ω'‖ ^ 2) := by
-      apply MeasureTheory.condExp_add
-      · apply MeasureTheory.Integrable.sub
-        · exact hV_int
-        · exact hinner_int.smul (2 * η)
-      · exact hnormg_int.smul (η ^ 2)
+      exact MeasureTheory.condExp_add (hV_int.sub (hinner_int.smul (2 * η))) (hnormg_int.smul (η ^ 2)) m
     have h2 : MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2 - 2 * η * ⟪θ ω' - θstar, g ω'⟫)
         =ᵐ[μ] MeasureTheory.condExp m μ (fun ω' => ‖θ ω' - θstar‖ ^ 2)
           + MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫) := by
-      apply MeasureTheory.condExp_add
-      · exact hV_int
-      · exact hinner_int.smul (-2 * η)
-    exact h1.trans (Filter.EventuallyEq.add h2 (Filter.EventuallyEq.refl _))
+      exact MeasureTheory.condExp_add hV_int (hinner_int.smul (-2 * η)) m
+    exact h1.trans (Filter.EventuallyEq.add h2 (Filter.EventuallyEq.rfl))
   have hsmulB : MeasureTheory.condExp m μ (fun ω' => -2 * η * ⟪θ ω' - θstar, g ω'⟫)
       =ᵐ[μ] (-2 * η) • MeasureTheory.condExp m μ (fun ω' => ⟪θ ω' - θstar, g ω'⟫) := by
     exact MeasureTheory.condExp_smul (-2 * η) (fun ω' => ⟪θ ω' - θstar, g ω'⟫) m
@@ -112,9 +108,9 @@ theorem descent_inequality_derived
           + (η ^ 2) • MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) := by
           apply Filter.EventuallyEq.add
           · apply Filter.EventuallyEq.add
-            · exact Filter.EventuallyEq.refl _
+            · exact Filter.EventuallyEq.rfl
             · exact Filter.EventuallyEq.smul (-2 * η) hpull
-          · exact Filter.EventuallyEq.refl _
+          · exact Filter.EventuallyEq.rfl
       _ =ᵐ[μ] (fun ω => ‖θ ω - θstar‖ ^ 2
           - 2 * η * ⟪θ ω - θstar, MeasureTheory.condExp m μ g ω⟫
           + η ^ 2 * MeasureTheory.condExp m μ (fun ω' => ‖g ω'‖ ^ 2) ω) := by
