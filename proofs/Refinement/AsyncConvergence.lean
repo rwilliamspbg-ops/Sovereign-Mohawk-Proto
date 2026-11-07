@@ -50,9 +50,8 @@ theorem stale_weight_le_one (age : ℕ) : staleWeight age ≤ 1 := by
   · simp [h]
   · simp [h]
     have hage : (0 : ℚ) ≤ (age : ℚ) := by positivity
-    have hden : (1 : ℚ) ≤ 1 + (age : ℚ) := by linarith
     have : (1 : ℚ) / (1 + (age : ℚ)) ≤ 1 := by
-      apply div_le_one_of_le (by positivity) (by linarith)
+      exact (div_le_one (by positivity)).mpr (by linarith)
     exact this
 
 /-- Stale weight lies in the unit interval. -/
