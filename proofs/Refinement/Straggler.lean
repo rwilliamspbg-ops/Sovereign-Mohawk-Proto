@@ -121,9 +121,9 @@ theorem straggler_chernoff_concrete :
     stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) ≤ (454 : ℝ) / 10000000 := by
   unfold stragglerChernoffEnvelope
   -- exp(-10) ≤ 227/5000000  ⇔  exp(10) ≥ 5000000/227
-  have hsum : (5000000 : ℝ) / 227 ≤ ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / (i ! : ℝ) := by
+  have hsum : (5000000 : ℝ) / 227 ≤ ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / ↑(Nat.factorial i) := by
     norm_num
-  have hle : ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / (i ! : ℝ) ≤ Real.exp 10 :=
+  have hle : ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / ↑(Nat.factorial i) ≤ Real.exp 10 :=
     Real.sum_le_exp_of_nonneg (by norm_num) 29
   have hexp : (5000000 : ℝ) / 227 ≤ Real.exp 10 := le_trans hsum hle
   have hpos2 : 0 < (5000000 : ℝ) / 227 := by norm_num
