@@ -229,7 +229,25 @@ rather than native `Float`.
 - **2026-11-07**: Gap 4 test landed (PR #277): `internal/federation/async_refinement_test.go`
   verifies async flush produces aggregates and envelope sanity. All CI green.
 
-Remaining Gap 4 work: traceability matrix row updates (rows 6/11 → `refinement_verified`).
+- **2026-11-07**: Gap 1 landed (PR #278): `LeanFormalization/Filtration.lean`
+  adds `FederatedFiltration = Mathlib.Filtration`, monotonicity, sub-σ-algebra,
+  strongly-adapted gradient process, condExp strongly-measurable, unbiasedness
+  structure. All CI green.
+
+- **2026-11-07**: Gap 2 landed (PR #279): `LeanFormalization/Measurability.lean`
+  adds measurability composition lemmas for stochastic gradient (fixed params and
+  joint), masked/dropout gradient measurability via `Measurable.ite`, and
+  `DiscreteNoise = PMF` alias. All CI green.
+
+- **2026-11-07**: Gap 3 landed (PR #280): `LeanFormalization/RobbinsSiegmund.lean`
+  adds machine-checked telescoping core (`V_T ≤ V_0 + ∑ b`) and weighted sum
+  bound (`∑ a_t V_t ≤ V_0 + ∑ b_t`) via telescoping identity, plus concrete
+  guard. All CI green.
+
+All four gaps now have at least one machine-checked theorem (no `sorry`) in the
+corresponding module. Remaining: traceability matrix row updates (rows 6/11 →
+`measure_theoretic_verified`/`refinement_verified`) and full measure-theoretic
+derivation of the descent inequality (out of scope for this pass).
 
 - All four gaps have at least one machine-checked theorem (no `sorry`) in
   the corresponding module.
