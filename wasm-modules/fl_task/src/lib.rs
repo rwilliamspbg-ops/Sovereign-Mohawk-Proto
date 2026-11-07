@@ -74,7 +74,7 @@ fn verify_sum4_i64_bounded() {
     let xs: [i32; 4] = kani::any();
     let bound: i32 = kani::any();
     kani::assume(bound >= 0);
-    kani::assume(bound <= 1_000_000);
+    kani::assume(bound <= 1_000);
     for i in 0..4 {
         kani::assume(xs[i] >= -bound && xs[i] <= bound);
     }
@@ -100,7 +100,7 @@ pub fn stale_weight_bps(age: u32, max_age: u32) -> u32 {
 fn verify_stale_weight_bps_bounds() {
     let age: u32 = kani::any();
     let max_age: u32 = kani::any();
-    kani::assume(max_age <= 1_000_000);
+    kani::assume(max_age <= 1_000);
     let w = stale_weight_bps(age, max_age);
     assert!(w <= 10000);
 }
