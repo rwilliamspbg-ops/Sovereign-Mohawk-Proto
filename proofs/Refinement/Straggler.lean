@@ -120,6 +120,14 @@ theorem stragglerChernoffEnvelope_nonneg (c q : ℕ) (p : ℝ) :
 theorem straggler_chernoff_concrete :
     stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) ≤ (454 : ℝ) / 10000000 := by
   unfold stragglerChernoffEnvelope
+  -- Reduce the exponent to -10.
+  have hexponent : - (((1 / 2 : ℝ) - (400 : ℝ) / 1000) ^ 2 * 1000) / (2 * (1 / 2 : ℝ)) = -10 := by
+    norm_num
+  -- Rewrite the goal's exponent.
+  have : stragglerChernoffEnvelope 1000 400 (1 / 2 : ℝ) = Real.exp (-10 : ℝ) := by
+    unfold stragglerChernoffEnvelope
+    rw [hexponent]
+  rw [this]
   -- exp(-10) ≤ 227/5000000  ⇔  exp(10) ≥ 5000000/227
   have hsum : (5000000 : ℝ) / 227 ≤ ∑ i ∈ Finset.range 29, (10 : ℝ) ^ i / ↑(Nat.factorial i) := by
     norm_num
