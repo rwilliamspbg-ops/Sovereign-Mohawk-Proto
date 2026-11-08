@@ -30,7 +30,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o aggregator ./cmd/aggre
 FROM alpine:3.24
 
 # Install runtime dependencies without pinning unavailable Alpine package revisions
-RUN apk add --no-cache ca-certificates tini zlib>=1.4-r0
+RUN apk add --no-cache ca-certificates tini 'zlib>=1.4-r0'
 
 # Create non-root user for enhanced security
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
