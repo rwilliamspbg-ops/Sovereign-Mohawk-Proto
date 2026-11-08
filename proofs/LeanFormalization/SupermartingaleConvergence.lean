@@ -42,24 +42,43 @@ theorem supermartingale_convergence_L1
     intro t
     have hcond : ∫ ω, μ[V (t + 1) | ℱ t] ω ∂μ ≤
         ∫ ω, ((1 - a t) * V t ω + b t) ∂μ := by
-      apply integral_mono_ae (hV_int (t + 1)).integrable (by
+      apply integral_mono_ae integrable_condExp (by
         have : Integrable (fun ω => (1 - a t) * V t ω + b t) μ := by
           apply Integrable.add
-          · exact (hV_int t).smul (1 - a t)
+          · exact Integrable.smul (1 - a t) (hV_int t)
           · exact integrable_const (b t)
         exact this)
       exact hstep t
     have hl : ∫ ω, μ[V (t + 1) | ℱ t] ω ∂μ = e (t + 1) := by
-      simpa [e] using integral_condExp (ℱ.le t) (hV_int (t + 1))
+      simpa [e] using integral_condExp (ℱ.le t)
     have hr : ∫ ω, ((1 - a t) * V t ω + b t) ∂μ =
         (1 - a t) * e t + b t := by
       have h1 : ∫ ω, (1 - a t) * V t ω ∂μ = (1 - a t) * e t := by
-        simp [integral_smul, e]
+        simp [integral_const_mul, e]
       have h2 : ∫ ω, b t ∂μ = b t := by
-        simp [integral_const, hμ.measure_univ]
-      simp [integral_add (hV_int t).smul (1 - a t) (integrable_const (b t)), h1, h2]
+        rw [integral_const]
+        rw [measureReal_univ_eq_one (μ := μ)]
+        simp [smul_eq_mul]
+      rw [integral_add (Integrable.const_mul (hV_int t) (1 - a t)) (integrable_const (b t))]
+      rw [h1, h2]
     linarith [hcond, hl, hr]
   exact robbins_siegmund_deterministic e a b he_nonneg hstep_e ha hb_nonneg hsummable_b hdivergent_a
+
+
+/-- Almost-sure strengthening (work in progress). -/
+theorem supermartingale_convergence_ae
+    (hμ : IsProbabilityMeasure μ)
+    (V : ℕ → Ω → ℝ) (a b : ℕ → ℝ)
+    (hV_nonneg : ∀ t ω, 0 ≤ V t ω)
+    (hV_sa : StronglyAdapted ℱ V)
+    (hV_int : ∀ t, Integrable (V t) μ)
+    (hstep : ∀ t, ∀ᵐ ω ∂μ, μ[V (t + 1) | ℱ t] ω ≤ (1 - a t) * V t ω + b t)
+    (ha : ∀ t, 0 ≤ a t ∧ a t ≤ 1)
+    (hb_nonneg : ∀ t, 0 ≤ b t)
+    (hsummable_b : Summable b)
+    (hdivergent_a : ¬ Summable a) :
+    ∀ᵐ ω ∂μ, Tendsto (fun t => V t ω) atTop (𝓝 0) := by
+  sorry
 
 end SupermartingaleConvergence
 

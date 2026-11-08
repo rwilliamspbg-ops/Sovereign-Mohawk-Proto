@@ -20,4 +20,6 @@ import LeanFormalization.ConditionalExpectationGradient
 import LeanFormalization.Measurability
 import LeanFormalization.RobbinsSiegmund
 import LeanFormalization.DescentInequality
+import LeanFormalization.RobbinsSiegmundDeterministic
+import LeanFormalization.SupermartingaleConvergence
 import LeanFormalization.DescentInequalityFull
