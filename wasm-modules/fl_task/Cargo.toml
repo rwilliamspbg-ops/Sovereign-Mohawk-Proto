@@ -7,6 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+ed25519-dalek = { version = "2", default-features = false, features = ["alloc"] }
 # Use rustls-tls to avoid C-dependency errors on Wasm targets [cite: 14]
 reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
