@@ -40,7 +40,7 @@ alone.
   batch, gradient computation, norm clipping, DP noise injection, compression.
 - Define the public inputs: model hash (before/after), dataset commitment,
   gradient norm bound, DP ε/δ, compressed update hash.
-- Deliverable: `proofs/ZKWeightProof.lean` + `circuits/weight_update.nr` (or `.rs` for Halo2).
+- Deliverable: `proofs/ZKWeightProof.lean` + `circuits/src/main.nr` (Noir 1.0).
 - Gate: circuit compiles to a proving key; constraint count documented.
 
 **P1.2 — Client-side prover integration (3–4 weeks)**
