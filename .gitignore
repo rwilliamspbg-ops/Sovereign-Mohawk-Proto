@@ -90,3 +90,6 @@ results/**
 !results/proofs/formal-verification-bundle/bundle_manifest.json
 !results/proofs/formal-verification-bundle.tar.gz
 testnet-gui
+
+# Local build artifacts
+pyapi.exe

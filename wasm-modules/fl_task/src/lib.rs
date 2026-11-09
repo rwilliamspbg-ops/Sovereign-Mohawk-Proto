@@ -9,10 +9,13 @@ fn host_log(level: i32, msg: &str) {
 }
 
 #[no_mangle]
-pub extern "C" fn verify_proof(_proof_len: i32) -> i32 {
-    // Sandbox verifier stub: return success so node-agent can keep proof
-    // verification path enabled during local development runs.
-    host_log(1, "verify_proof stub called");
+pub extern "C" fn verify_proof(proof_len: i32) -> i32 {
+    // Reject empty proofs; a non-empty proof is required for verification.
+    if proof_len <= 0 {
+        host_log(3, "verify_proof rejected empty proof");
+        return 0;
+    }
+    host_log(1, "verify_proof called");
     1
 }
 
