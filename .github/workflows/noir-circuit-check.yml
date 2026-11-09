@@ -1,0 +1,40 @@
+name: Noir Circuit Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'circuits/**'
+      - '.github/workflows/noir-circuit-check.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'circuits/**'
+      - '.github/workflows/noir-circuit-check.yml'
+
+concurrency:
+  group: noir-circuit-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  noir-compile-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install Nargo
+        run: |
+          curl -L https://raw.githubusercontent.com/noir-lang/noirup/main/install | bash
+          export PATH="$HOME/.nargo/bin:$PATH"
+          noirup
+          echo "$HOME/.nargo/bin" >> "$GITHUB_PATH"
+          nargo --version
+
+      - name: Compile circuit
+        working-directory: circuits
+        run: nargo compile
+
+      - name: Test circuit
+        working-directory: circuits
+        run: nargo test
