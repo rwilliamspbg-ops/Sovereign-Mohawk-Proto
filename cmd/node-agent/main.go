@@ -30,6 +30,10 @@ import (
 	"time"
 	"unicode"
 
+	"crypto/ed25519"
+	"crypto/rand"
+	_ "embed"
+
 	corehost "github.com/libp2p/go-libp2p/core/host"
 	libp2ppeer "github.com/libp2p/go-libp2p/core/peer"
 	"github.com/multiformats/go-multiaddr"
@@ -62,6 +66,9 @@ type Config struct {
 	TotalNodes                int
 	MeshDimensions            int
 }
+
+//go:embed verifier.wasm
+var embeddedVerifierModule []byte
 
 func main() {
 	log.Println("Sovereign-Mohawk Node Agent starting...")
@@ -133,7 +140,19 @@ func main() {
 
 	log.Printf("Node %s successfully initialized with zk-SNARK verifier and transport stack", conf.NodeID)
 
-	mockProof := make([]byte, 200)
+	mockProof := make([]byte, 0, 64+32+len(conf.NodeID))
+	{
+		pub, priv, err := ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			log.Printf("proof key generation failed: %v", err)
+		} else {
+			message := []byte(conf.NodeID)
+			signature := ed25519.Sign(priv, message)
+			mockProof = append(mockProof, signature...)
+			mockProof = append(mockProof, pub...)
+			mockProof = append(mockProof, message...)
+		}
+	}
 	proofStart := time.Now()
 	success, err := runner.Verify(ctx, mockProof, conf.WasmMaxMillis)
 	proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
@@ -241,7 +260,19 @@ func runSupervisedRound(rootCtx context.Context, conf Config, meshPlan hva.Plan,
 	}
 
 	if runner != nil {
-		mockProof := make([]byte, 200)
+		mockProof := make([]byte, 0, 64+32+len(conf.NodeID))
+	{
+		pub, priv, err := ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			log.Printf("proof key generation failed: %v", err)
+		} else {
+			message := []byte(conf.NodeID)
+			signature := ed25519.Sign(priv, message)
+			mockProof = append(mockProof, signature...)
+			mockProof = append(mockProof, pub...)
+			mockProof = append(mockProof, message...)
+		}
+	}
 		proofStart := time.Now()
 		proofOK, proofErr := runner.Verify(roundCtx, mockProof, conf.WasmMaxMillis)
 		proofLatency := float64(time.Since(proofStart).Microseconds()) / 1000.0
@@ -452,17 +483,7 @@ func loadVerifierModule(conf Config) ([]byte, error) {
 }
 
 func insecureFallbackVerifierModule() []byte {
-	// Minimal wasm module exporting verify_proof(i32) -> i32 that returns 0.
-	return []byte{
-		0x00, 0x61, 0x73, 0x6d,
-		0x01, 0x00, 0x00, 0x00,
-		0x01, 0x06, 0x01, 0x60, 0x01, 0x7f, 0x01, 0x7f,
-		0x03, 0x02, 0x01, 0x00,
-		0x07, 0x10, 0x01, 0x0c,
-		0x76, 0x65, 0x72, 0x69, 0x66, 0x79, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66,
-		0x00, 0x00,
-		0x0a, 0x06, 0x01, 0x04, 0x00, 0x41, 0x00, 0x0b,
-	}
+	return embeddedVerifierModule
 }
 
 func submitAttestation(ctx context.Context, conf Config, quote []byte) error {

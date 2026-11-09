@@ -1,8 +1,7 @@
 # ZK Weight-Update Circuit (Pillar 1)
 
 ## Status
-Specification draft. No compiler wired yet. Target backend: **Noir** (transparent
-setup, no trusted ceremony) with a Halo2 fallback for performance.
+Compilable Noir 1.0 circuit with CI (`nargo compile` + `nargo test`). Target backend: **Noir** (transparent setup, no trusted ceremony).
 
 ## Public inputs
 - `model_hash_before: Field` — hash of the model before training.
