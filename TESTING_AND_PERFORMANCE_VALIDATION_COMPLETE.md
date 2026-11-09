@@ -19,7 +19,7 @@ Phase 3a has been subjected to comprehensive stress testing including 40+ indivi
 ✅ **100% Documentation Coverage** (all sections present & valid)  
 ✅ **100% Link Integrity** (all references validated)  
 ✅ **100% CI/CD Configuration** (fully operational)  
-✅ **Zero Placeholders** (52 theorem symbols are placeholder-free and machine-checked for syntax/build in the validation pipeline)  
+✅ **Zero Placeholders (L1)** (L1 supermartingale convergence proof is machine-checked; the almost-sure strengthening `supermartingale_convergence_ae` remains WIP with a documented `sorry`)  
 ✅ **Internal Validation Complete** (evidence package ready for independent audit)
 
 ---
