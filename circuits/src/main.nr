@@ -21,11 +21,20 @@ fn main(
     assert(recomputed != 0);
 
     // 2. Norm bound: sum(gradients[i]^2) <= grad_norm_bound^2
-    let mut norm_sq: Field = 0;
+    // Enforce integer-domain semantics with explicit range checks
+    // to avoid modular wraparound and lossy truncation bypasses.
+    let bound_u128: u128 = grad_norm_bound as u128;
+    assert((bound_u128 as Field) == grad_norm_bound);
+    assert(bound_u128 < (1_u128 << 64));
+
+    let mut norm_sq_u128: u128 = 0;
     for i in 0..8 {
-        norm_sq = norm_sq + gradients[i] * gradients[i];
+        let g_u128: u128 = gradients[i] as u128;
+        assert((g_u128 as Field) == gradients[i]);
+        assert(g_u128 < (1_u128 << 64));
+        norm_sq_u128 = norm_sq_u128 + g_u128 * g_u128;
     }
-    assert((norm_sq as u128) <= ((grad_norm_bound * grad_norm_bound) as u128));
+    assert(norm_sq_u128 <= bound_u128 * bound_u128);
 
     // 3. DP noise present (non-zero vector check as placeholder)
     let mut noise_sum: Field = 0;
