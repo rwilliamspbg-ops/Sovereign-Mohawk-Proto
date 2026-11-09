@@ -38,7 +38,7 @@ func NewRealGRPCServer() (*grpc.Server, *bufconn.Listener, error) {
 
 // DialRealFederation creates a gRPC client connection to a bufconn listener.
 func DialRealFederation(ctx context.Context, lis *bufconn.Listener) (federationpb.FederationServiceClient, func(), error) {
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(func(ctx context.Context, s string) (net.Conn, error) {
+	conn, err := grpc.NewClient("passthrough:///bufnet", grpc.WithContextDialer(func(ctx context.Context, s string) (net.Conn, error) {
 		return lis.DialContext(ctx)
 	}), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
