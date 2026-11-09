@@ -478,6 +478,34 @@ func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	mem := h.mod.Memory()
+	if mem == nil {
+		return false, fmt.Errorf("wasm module missing memory export")
+	}
+
+	allocFn := h.mod.ExportedFunction("alloc")
+	if allocFn == nil {
+		return false, fmt.Errorf("wasm module missing required export: alloc")
+	}
+
+	allocResults, err := allocFn.Call(execCtx, uint64(len(proof)))
+	if err != nil {
+		if execCtx.Err() != nil {
+			return false, fmt.Errorf("wasm execution timed out after %dms: %w", maxMillis, execCtx.Err())
+		}
+		return false, fmt.Errorf("wasm alloc error: %w", err)
+	}
+	if len(allocResults) == 0 {
+		return false, fmt.Errorf("alloc returned no result")
+	}
+	ptr := uint32(allocResults[0])
+	if ptr == 0 {
+		return false, fmt.Errorf("wasm alloc returned null pointer")
+	}
+	if !mem.Write(ptr, proof) {
+		return false, fmt.Errorf("failed to write proof into wasm memory")
+	}
+
 	fn := h.mod.ExportedFunction("verify_proof")
 	if fn == nil {
 		return false, fmt.Errorf("wasm module missing required export: verify_proof")
@@ -488,7 +516,7 @@ func (h *Host) Verify(ctx context.Context, proof []byte, maxMillis uint64) (bool
 	if err != nil {
 		return false, err
 	}
-	results, err := fn.Call(execCtx, proofLen)
+	results, err := fn.Call(execCtx, uint64(ptr), proofLen)
 	if err != nil {
 		if execCtx.Err() != nil {
 			return false, fmt.Errorf("wasm execution timed out after %dms: %w", maxMillis, execCtx.Err())
