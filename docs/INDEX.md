@@ -44,12 +44,10 @@
 
 ## Core Documentation
 
-The trees below list only files that actually exist in this repo. Unless
-marked `(real)`, every listed file is a 5-line placeholder scaffold ("Scaffold
-document created to preserve canonical documentation links... See
-docs/INDEX.md") — see [Documentation Status](#documentation-status). A
-"Not created" line per section names what earlier versions of this index
-claimed existed but doesn't.
+Documentation status is tracked in `docs/ROADMAP.md`. The historical
+"5-line placeholder scaffold" note below is retained for context but many
+of these files have since been expanded; verify individual files before
+relying on this index.
 
 ### Architecture & Design
 ```

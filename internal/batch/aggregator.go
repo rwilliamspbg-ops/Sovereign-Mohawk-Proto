@@ -5,6 +5,7 @@ package batch
 import (
 	"fmt"
 	"math/big"
+	"os"
 	"time"
 
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
@@ -101,6 +102,13 @@ func (a *Aggregator) ProcessRound(mode Mode) (err error) {
 			return fmt.Errorf("zk circuit attestation failure: %v", err)
 		}
 	} else {
+		// Legacy empty-proof baseline is retained only for backward
+		// compatibility and is disabled by default. Operators/tests that
+		// still need it must opt in explicitly via the environment.
+		if os.Getenv("MOHAWK_ALLOW_LEGACY_ATTESTATION") != "1" {
+			return fmt.Errorf("zk attestation failure: gradient commitment required (legacy empty-proof fallback disabled)")
+		}
+
 		// Baseline SHA256 for an empty proof (prototype default)
 		expected := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 		salt := [32]byte{}
