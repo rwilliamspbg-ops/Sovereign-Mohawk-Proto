@@ -18,9 +18,9 @@ type RealFederationServer struct {
 
 func (s *RealFederationServer) ForwardGradient(ctx context.Context, req *federationpb.GradientRequest) (*federationpb.ForwardResponse, error) {
 	return &federationpb.ForwardResponse{
-		Success:          true,
-		Message:          "ok",
-		AcceptedCount:    1,
+		Success:       true,
+		Message:       "ok",
+		AcceptedCount: 1,
 	}, nil
 }
 
