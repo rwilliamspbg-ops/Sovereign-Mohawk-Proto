@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package federation;
 
-option go_package = "github.com/sovereign-mohawk/proto-gen/federation;federationpb";
+option go_package = "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/gen/federation;federationpb";
 
 import "google/protobuf/timestamp.proto";
 
