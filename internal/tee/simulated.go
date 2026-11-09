@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"os"
+	"runtime"
 )
 
 // SimulatedProvider is the CI-safe backend. It runs the enclave logic in
@@ -75,7 +77,7 @@ type sgxProvider struct{ trusted *TrustedMeasurements }
 
 func NewSGXProvider(trusted *TrustedMeasurements) TEEProvider { return &sgxProvider{trusted: trusted} }
 func (p *sgxProvider) Platform() Platform                    { return PlatformSGX }
-func (p *sgxProvider) Available(_ context.Context) bool      { return false } // TODO: probe /dev/sgx_enclave
+func (p *sgxProvider) Available(_ context.Context) bool { return sgxAvailable() }
 func (p *sgxProvider) CreateEnclave(context.Context, []byte) (EnclaveHandle, error) {
 	return EnclaveHandle{}, ErrNotAvailable
 }
@@ -91,7 +93,7 @@ type sevProvider struct{ trusted *TrustedMeasurements }
 
 func NewSEVProvider(trusted *TrustedMeasurements) TEEProvider { return &sevProvider{trusted: trusted} }
 func (p *sevProvider) Platform() Platform                    { return PlatformSEVSNP }
-func (p *sevProvider) Available(_ context.Context) bool      { return false } // TODO: probe /dev/sev
+func (p *sevProvider) Available(_ context.Context) bool { return sevAvailable() }
 func (p *sevProvider) CreateEnclave(context.Context, []byte) (EnclaveHandle, error) {
 	return EnclaveHandle{}, ErrNotAvailable
 }
@@ -109,7 +111,7 @@ func NewTrustZoneProvider(trusted *TrustedMeasurements) TEEProvider {
 	return &trustZoneProvider{trusted: trusted}
 }
 func (p *trustZoneProvider) Platform() Platform                    { return PlatformTrustZone }
-func (p *trustZoneProvider) Available(_ context.Context) bool      { return false } // TODO: OP-TEE probe
+func (p *trustZoneProvider) Available(_ context.Context) bool { return trustZoneAvailable() }
 func (p *trustZoneProvider) CreateEnclave(context.Context, []byte) (EnclaveHandle, error) {
 	return EnclaveHandle{}, ErrNotAvailable
 }
@@ -120,6 +122,42 @@ func (p *trustZoneProvider) Run(context.Context, EnclaveHandle, []byte, func([]b
 	return nil, ErrNotAvailable
 }
 func (p *trustZoneProvider) Destroy(context.Context, EnclaveHandle) error { return ErrNotAvailable }
+
+func sgxAvailable() bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	for _, p := range []string{"/dev/sgx_enclave", "/dev/sgx_provision", "/dev/sgx"} {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+func sevAvailable() bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	for _, p := range []string{"/dev/sev", "/dev/sev-guest", "/dev/sev-guest"} {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+func trustZoneAvailable() bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	for _, p := range []string{"/dev/tee0", "/dev/teepriv0", "/dev/optee"} {
+		if _, err := os.Stat(p); err == nil {
+			return true
+		}
+	}
+	return false
+}
 
 func newHandleID() string {
 	b := make([]byte, 8)
