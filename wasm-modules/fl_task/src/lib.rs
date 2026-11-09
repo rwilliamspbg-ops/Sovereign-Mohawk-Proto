@@ -1,3 +1,5 @@
+use ed25519_dalek::{Signature, VerifyingKey, Verifier};
+
 #[link(wasm_import_module = "env")]
 extern "C" {
     fn log(level: i32, ptr: *const u8, len: i32);
@@ -8,15 +10,47 @@ fn host_log(level: i32, msg: &str) {
     unsafe { log(level, msg.as_ptr(), msg.len() as i32) }
 }
 
+static mut HEAP_PTR: usize = 65536;
+
 #[no_mangle]
-pub extern "C" fn verify_proof(proof_len: i32) -> i32 {
-    // Reject empty proofs; a non-empty proof is required for verification.
-    if proof_len <= 0 {
-        host_log(3, "verify_proof rejected empty proof");
+pub extern "C" fn alloc(size: i32) -> i32 {
+    if size <= 0 {
         return 0;
     }
-    host_log(1, "verify_proof called");
-    1
+    unsafe {
+        let ptr = HEAP_PTR;
+        HEAP_PTR += size as usize;
+        HEAP_PTR = (HEAP_PTR + 7) & !7;
+        ptr as i32
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn verify_proof(ptr: i32, len: i32) -> i32 {
+    if len < 96 || ptr <= 0 {
+        return 0;
+    }
+    let slice = unsafe { core::slice::from_raw_parts(ptr as *const u8, len as usize) };
+
+    let mut sig_bytes = [0u8; 64];
+    sig_bytes.copy_from_slice(&slice[0..64]);
+    let mut pk_bytes = [0u8; 32];
+    pk_bytes.copy_from_slice(&slice[64..96]);
+    let message = &slice[96..];
+
+    let signature = Signature::from_bytes(&sig_bytes);
+    let verifying_key = match VerifyingKey::from_bytes(&pk_bytes) {
+        Ok(k) => k,
+        Err(_) => return 0,
+    };
+
+    if verifying_key.verify(message, &signature).is_ok() {
+        host_log(1, "verify_proof succeeded");
+        1
+    } else {
+        host_log(3, "verify_proof failed");
+        0
+    }
 }
 
 #[no_mangle]
