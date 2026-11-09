@@ -14,14 +14,12 @@ theorem robbins_siegmund_limit_zero
     (L : ℝ) (hL : Tendsto V atTop (𝓝 L)) :
     L = 0 := by
   have hLnn : 0 ≤ L := by
-    apply le_of_tendsto tendsto_const_nhds hL
-    filter_upwards with k
-    exact hV k
+    exact ge_of_tendsto hL (by filter_upwards with k; exact hV k)
   by_contra hne
   have hLpos : 0 < L := lt_of_le_of_ne hLnn (Ne.symm hne)
   have hev : ∀ᶠ k in atTop, V k ≥ L / 2 := by
-    have := Metric.tendsto_atTop.1 hL (L / 2) (by positivity)
-    filter_upwards [this] with k hk
+    rcases Metric.tendsto_atTop.1 hL (L / 2) (by positivity) with ⟨N, hN⟩
+    filter_upwards [Filter.eventually_atTop.2 ⟨N, hN⟩] with k hk
     have := (abs_lt.1 hk).1
     linarith
   rcases Filter.eventually_atTop.1 hev with ⟨N, hN⟩
@@ -52,7 +50,7 @@ theorem robbins_siegmund_limit_zero
     simp [hkn'] at hk
   have htail : Summable (fun k => if k ≥ N then a k else 0) := by
     have hne : L / 2 ≠ 0 := by positivity
-    have hsmul : Summable (fun k => (2 / L) * g k) := hg_summable.smul (2 / L)
+    have hsmul : Summable (fun k => (2 / L) * g k) := Summable.const_smul (2 / L) hg_summable
     have heq : (fun k => (2 / L) * g k) = (fun k => if k < N then 0 else a k) := by
       funext k
       by_cases hkn : k < N
@@ -78,7 +76,7 @@ theorem robbins_siegmund_limit_zero
         simp [hkn, hkn']
     have hadd : Summable (fun k => (if k < N then a k else 0) + (if k ≥ N then a k else 0)) :=
       Summable.add hprefix htail
-    exact (Summable.congr hadd hdecomp.symm)
+    exact (Summable.congr hadd (fun k => (hdecomp k).symm))
   exact hdiv ha_summable
 
 /-- Deterministic Robbins-Siegmund convergence (rational surrogate capstone). -/
@@ -97,9 +95,10 @@ theorem robbins_siegmund_deterministic
   have hB : Tendsto Bt atTop (𝓝 (∑' k, b k)) := hsummable_b.hasSum.tendsto_sum_nat
   have hBmono : Monotone Bt := by
     intro i j hij
-    exact Finset.sum_le_sum_of_subset (Finset.range_subset.mpr hij)
-      (fun k _ => hb_nonneg k)
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hij)
+                  (fun k _ _ => hb_nonneg k)
   have hM_antitone : Antitone Mt := by
+    apply antitone_nat_of_succ_le
     intro t
     show Mt (t + 1) ≤ Mt t
     simp [Mt, At, Bt, Finset.sum_range_succ]
@@ -118,13 +117,13 @@ theorem robbins_siegmund_deterministic
     linarith [hVt, hAt, hBt]
   have hM : Tendsto Mt atTop (𝓝 (⨅ t, Mt t)) :=
     tendsto_atTop_ciInf hM_antitone hM_bddBelow
-  have hVA : Tendsto (fun t => V t + At t) atTop (𝓝 (⨅ t, Mt t + ∑' k, b k)) := by
+  have hVA : Tendsto (fun t => V t + At t) atTop (𝓝 ((⨅ t, Mt t) + ∑' k, b k)) := by
     have hsum : (fun t => V t + At t) = (fun t => Mt t + Bt t) := by
       funext t; simp [Mt]
     rw [hsum]
     exact Tendsto.add hM hB
   have hAt_bddAbove : BddAbove (Set.range At) := by
-    let L := ⨅ t, Mt t + ∑' k, b k
+    let L := (⨅ t, Mt t) + ∑' k, b k
     have hev := Metric.tendsto_atTop.1 hVA 1 (by norm_num : (0 : ℝ) < 1)
     rcases hev with ⟨N, hN⟩
     let C1 := (Finset.range (N + 1)).sup' (by simp) At
@@ -137,28 +136,113 @@ theorem robbins_siegmund_deterministic
       exact le_trans hle (le_max_left _ _)
     · have habs : |(V t + At t) - L| < 1 := hN t (by omega)
       have hleVA : V t + At t ≤ L + 1 := by
-        have := (abs_lt.1 habs).1
+        have := (abs_lt.1 habs).2
         linarith
       have hVt : 0 ≤ V t := hV_nonneg t
       have hAtle : At t ≤ V t + At t := by linarith [hVt]
       exact le_trans hAtle (le_trans hleVA (le_max_right _ _))
   have hAt_monotone : Monotone At := by
     intro i j hij
-    exact Finset.sum_le_sum_of_subset (Finset.range_subset.mpr hij)
-      (fun k _ => by nlinarith [(ha k).1, hV_nonneg k])
+    exact Finset.sum_le_sum_of_subset_of_nonneg (Finset.range_subset_range.mpr hij)
+              (fun k _ _ => by nlinarith [(ha k).1, hV_nonneg k])
   have hAt : Tendsto At atTop (𝓝 (⨆ t, At t)) :=
     tendsto_atTop_ciSup hAt_monotone hAt_bddAbove
-  have hV_conv : Tendsto V atTop (𝓝 ((⨅ t, Mt t + ∑' k, b k) - (⨆ t, At t))) := by
-    have hsum : (fun t => V t) = (fun t => (V t + At t) - At t) := by
+  have hV_conv : Tendsto V atTop (𝓝 (((⨅ t, Mt t) + ∑' k, b k) - (⨆ t, At t))) := by
+    have hsum : V = (fun t => (V t + At t) - At t) := by
       funext t; ring
     rw [hsum]
     exact Tendsto.sub hVA hAt
+  have hf_nonneg : ∀ k, 0 ≤ a k * V k := by
+    intro k
+    nlinarith [(ha k).1, hV_nonneg k]
+  have hIsLUB : IsLUB (Set.range fun s : Finset ℕ => s.sum (fun k => a k * V k)) (⨆ t, At t) := by
+    refine ⟨?_, ?_⟩
+    · intro c hc
+      rcases hc with ⟨s, rfl⟩
+      by_cases hs : s.Nonempty
+      · let m := s.max' hs
+        have hsub : s ⊆ Finset.range (m + 1) := by
+          intro k hk
+          apply Finset.mem_range.mpr
+          have hkm : k ≤ m := Finset.le_max' s k hk
+          omega
+        have hsum_le : s.sum (fun k => a k * V k) ≤ (Finset.range (m + 1)).sum (fun k => a k * V k) := by
+          exact Finset.sum_le_sum_of_subset_of_nonneg hsub (fun k _ _ => hf_nonneg k)
+        have hAt_le : (Finset.range (m + 1)).sum (fun k => a k * V k) ≤ ⨆ t, At t := by
+          have : (Finset.range (m + 1)).sum (fun k => a k * V k) = At (m + 1) := rfl
+          rw [this]
+          exact le_ciSup hAt_bddAbove (m + 1)
+        exact le_trans hsum_le hAt_le
+      · have hs_empty : s = ∅ := Finset.not_nonempty_iff_eq_empty.mp hs
+        simp [hs_empty]
+        exact le_ciSup hAt_bddAbove 0
+    · intro b hb
+      apply ciSup_le
+      intro t
+      exact @hb ((Finset.range t).sum (fun k => a k * V k)) (Set.mem_range.mpr ⟨Finset.range t, rfl⟩)
   have hsum_aV : Summable (fun k => a k * V k) := by
-    refine ⟨⨆ t, At t, ?_⟩
-    have : Tendsto (fun t => (Finset.range t).sum (fun k => a k * V k)) atTop (𝓝 (⨆ t, At t)) := by
-      simpa [At] using hAt
-    exact this
-  exact robbins_siegmund_limit_zero a V (fun k => (ha k).1) hV_nonneg hdivergent_a hsum_aV
-    ((⨅ t, Mt t + ∑' k, b k) - (⨆ t, At t)) hV_conv
+    exact ⟨⨆ t, At t, hasSum_of_isLUB_of_nonneg (⨆ t, At t) hf_nonneg hIsLUB⟩
+  have hL0 := robbins_siegmund_limit_zero a V (fun k => (ha k).1) hV_nonneg hdivergent_a hsum_aV
+    (((⨅ t, Mt t) + ∑' k, b k) - (⨆ t, At t)) hV_conv
+  simpa [hL0] using hV_conv
+
+
+/-- A nonnegative sequence whose partial sums converge is summable. -/
+theorem summable_of_convergent_partial_sums_nonneg (f : ℕ → ℝ)
+    (hf : ∀ k, 0 ≤ f k)
+    (hconv : ∃ C, Tendsto (fun t => (Finset.range t).sum f) atTop (𝓝 C)) :
+    Summable f := by
+  rcases hconv with ⟨C, hT⟩
+  have hbdd : BddAbove (Set.range (fun t => (Finset.range t).sum f)) := by
+    rcases Metric.tendsto_atTop.1 hT 1 (by norm_num) with ⟨N, hN⟩
+    by_cases hN0 : N = 0
+    · refine ⟨C + 1, ?_⟩
+      intro x hx
+      rcases hx with ⟨t, rfl⟩
+      have habs : |(Finset.range t).sum f - C| < 1 := hN t (by omega)
+      have hle : (Finset.range t).sum f ≤ C + 1 := by
+        have := (abs_lt.1 habs).2
+        linarith
+      exact hle
+    · let C1 := (Finset.range N).sup' (Finset.nonempty_range_iff.mpr hN0) (fun t => (Finset.range t).sum f)
+      refine ⟨max C1 (C + 1), ?_⟩
+      intro x hx
+      rcases hx with ⟨t, rfl⟩
+      by_cases htt : t < N
+      · have ht : t ∈ Finset.range N := Finset.mem_range.mpr htt
+        have hle : (Finset.range t).sum f ≤ C1 := Finset.le_sup' (fun t => (Finset.range t).sum f) ht
+        exact le_trans hle (le_max_left _ _)
+      · have habs : |(Finset.range t).sum f - C| < 1 := hN t (Nat.le_of_not_lt htt)
+        have hle : (Finset.range t).sum f ≤ C + 1 := by
+          have := (abs_lt.1 habs).2
+          linarith
+        exact le_trans hle (le_max_right _ _)
+  let S := ⨆ t, (Finset.range t).sum f
+  have hIsLUB : IsLUB (Set.range fun s : Finset ℕ => s.sum f) S := by
+    refine ⟨?_, ?_⟩
+    · intro c hc
+      rcases hc with ⟨s, rfl⟩
+      by_cases hs : s.Nonempty
+      · let m := s.max' hs
+        have hsub : s ⊆ Finset.range (m + 1) := by
+          intro k hk
+          apply Finset.mem_range.mpr
+          have hkm : k ≤ m := Finset.le_max' s k hk
+          omega
+        have hsum_le : s.sum f ≤ (Finset.range (m + 1)).sum f := by
+          exact Finset.sum_le_sum_of_subset_of_nonneg hsub (fun k _ _ => hf k)
+        have hAt_le : (Finset.range (m + 1)).sum f ≤ S := by
+          have : (Finset.range (m + 1)).sum f = (Finset.range (m + 1)).sum f := rfl
+          exact le_ciSup hbdd (m + 1)
+        exact le_trans hsum_le hAt_le
+      · have hs_empty : s = ∅ := Finset.not_nonempty_iff_eq_empty.mp hs
+        simp [hs_empty]
+        exact le_ciSup hbdd 0
+    · intro b hb
+      apply ciSup_le
+      intro t
+      exact @hb ((Finset.range t).sum f) (Set.mem_range.mpr ⟨Finset.range t, rfl⟩)
+  exact ⟨S, hasSum_of_isLUB_of_nonneg S hf hIsLUB⟩
+
 
 end LeanFormalization
