@@ -39,3 +39,6 @@ jobs:
 
       - name: Fuzz hbft simulator
         run: go test ./internal/hbft/... -fuzz=FuzzNewSimulator -fuzztime=60s
+
+      - name: Fuzz proofs verifier
+        run: go test ./internal/proofs/... -fuzz=FuzzVerifyHashCommitment -fuzztime=60s
