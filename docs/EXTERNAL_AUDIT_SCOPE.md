@@ -94,8 +94,10 @@ Axioms present in the proof tree (16 total, all documented):
 | `Theorem5Cryptography.lean` | MiMC collision resistance | documented axiom; MiMC declared as opaque symbol (no longer trivially provable) |
 | `Refinement/MultiKrum.lean` | 8 `Float.*` ordering axioms | IEEE 754 properties, standard |
 
-`sorry` placeholders: 0 (CI-enforced: `proof-quality-checks` fails on new
-`axiom`/`admit`).
+`sorry` placeholders: 1 (`supermartingale_convergence_ae` in
+`SupermartingaleConvergence.lean` — almost-sure strengthening, work in
+progress; requires the full supermartingale transform). CI enforces no *new*
+`sorry`/`admit`/`axiom` beyond the documented set.
 
 Other honest limitations:
 - The MPC trusted setup is simulated in-process (N=3 contributors chained in
