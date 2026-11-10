@@ -17,6 +17,165 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
+
+This section covers work merged after the 2.1.0 release candidate. The dominant themes
+are (1) closing the remaining Lean formalization gaps with machine-checked proofs,
+(2) replacing simulated cryptography with real implementations (ed25519 in WASM,
+Groth16 via gnark, a Noir circuit, and a real gRPC service), (3) adding TEE/MPC
+abstractions with honest fail-closed scoping, and (4) expanding property-based and fuzz
+testing until every `internal/` package carries at least one machine-checked invariant.
+
+#### Formal Verification (Lean)
+
+- **L1 supermartingale convergence completed (Gap 3)** (#286):
+  `supermartingale_convergence_L1` is fully proved with no `sorry`; it integrates the
+  conditional-expectation step hypothesis over the probability measure to obtain the
+  deterministic Robbins–Siegmund step inequality, then applies
+  `robbins_siegmund_deterministic`. The almost-sure strengthening
+  `supermartingale_convergence_ae` remains a single documented `sorry` pending the full
+  supermartingale transform.
+- **Robbins–Siegmund telescoping core** (#280) and **descent inequality from
+  smoothness/convexity** (#281): derives
+  `E[V_{t+1}|F_t] ≤ (1−ημ)V_t + η²σ²` from L-smoothness, μ-strong convexity, unbiased
+  bounded-variance gradients, and η ≤ 1/L, replacing the structured-hypothesis
+  scaffolding with an actual conditional-expectation expansion.
+- **Measure-theoretic SGD convergence envelope** (#240): Theorem 6 graduated from the
+  surrogate to an expectation-based descent-lemma framework with a nonnegative rate bound.
+- **Stochastic (martingale) convergence envelope** (#234): Theorem 6 extended with explicit
+  client-variance (σ²/K) and gradient-drift (δ²) terms matching the martingale descent
+  lemma.
+- **Correlated/adversarial straggler & quorum resilience** (#235): Theorem 4 relaxed from
+  an independence assumption to a correlated-dropout model (ρ) and an adversarial budget
+  model, with monotonicity and concrete guards.
+- **Measure-theoretic foundations**: filtration & conditional-expectation scaffolding
+  (#278), measurability scaffolding for stochastic gradient noise (#279), and a
+  conditional-expectation gradient module.
+- **Ed25519 UF-CMA**: replaced the UF-CMA axiom with a constructive forgeability proof
+  (#226), added an experimental Ed25519-style verifier model (RFC 8032) (#227/#228),
+  audited decoding — canonical y, sign bit, point-on-curve, subgroup check (#229) —
+  generalized message encoding from `Nat` to `List UInt8` (#231), and added a
+  discrete-log reduction scaffold with the algebraic core proved (#232).
+- **MiMC data-commitment circuit in Lean** (#233) with a real MiMC formalization over
+  BN254 including the permutation property (#243).
+- **BFT refinement bridge** (#245): `bftSpecSafe` (2f < n), `bftImplSafe` (n > 2f + 2),
+  refinement (impl ⇒ spec), gap witness, and concrete guard; no `sorry`, no new axioms.
+- **Refinement bridges** connecting Lean specifications to the Go runtime: convergence
+  (#241), straggler resilience (#239), DLP (#242), ZK circuit (#236), and async
+  convergence (#276).
+- **Audit-scope sorry count corrected** (#302) to match the actual proof state. The proof
+  tree now carries 16 documented axioms and exactly one `sorry`
+  (`supermartingale_convergence_ae`); CI enforces no *new* `sorry`/`admit`/`axiom` beyond
+  the documented set.
+
+#### Cryptography & Zero-Knowledge
+
+- **True ed25519 verification in WASM** (#294): the Rust `verify_proof` performs real
+  ed25519 signature verification over `sig(64) || pubkey(32) || message`; the host writes
+  proof bytes into WASM memory via the exported `alloc` and calls `verify_proof(ptr, len)`.
+  Node-agent generates real ed25519-signed proofs.
+- **Empty-proof rejection** (#293): `verify_proof` returns 0 for empty proofs instead of
+  unconditionally returning 1; the committed WASM artifact was rebuilt.
+- **Real Groth16 prover via gnark** (#299): `internal/zkprover` gains a gnark/BN254
+  `DataCommitment` prover with a Prove/Verify round-trip test.
+- **Client-side ZK prover interface** (#269): backend-agnostic `Prover` interface with
+  `MockProver`, `CLIProver`, and `SelectProver`.
+- **Noir weight-update circuit** (#295): `circuits/src/main.nr` compiles with Noir 1.0.0,
+  `nargo test` passes, and a CI workflow (`.github/workflows/noir-circuit-check.yml`) was
+  added. The norm bound uses 64-bit range checks and `u128` comparison; `model_hash_after`
+  and `update_hash` are bound via Pedersen hash chains.
+- **Federation protobuf generated** (#296): `federation.proto` compiles with `protoc`;
+  generated Go code in `gen/federation` builds.
+- **MPC trusted setup** (#246): replaces single-party `groth16.Setup` with the gnark
+  `mpcsetup` flow (N=3 contributors, Phase 1+2, beacon-sealed); no single contributor holds
+  toxic waste.
+- **genesisVK deprecation** (#274): `VerifyProof` deprecated in favor of the
+  circuit-derived `VerifyDataCommitmentProof`.
+
+#### TEE & MPC
+
+- **TEE provider abstraction** (#263): `internal/tee` introduces a hardware-agnostic
+  `TEEProvider` interface, a fail-closed `TrustedMeasurements` allow-list, a simulation
+  backend exercising the full attestation gate, and `ProtectedAggregator`. Hardware
+  backends are explicit stubs (unavailable).
+- **Real hardware availability probes** (#297): SGX/SEV-SNP/TrustZone `Available()` now
+  probe `/dev` nodes instead of always returning false; enclave creation remains
+  fail-closed until full backends are implemented.
+- **Optional TEE-protected aggregation** (#266): `Aggregator` gains optional TEE fields
+  plus `EnclaveAvailable` and `RunAggregationInEnclave`; passthrough when unconfigured.
+- **Additive secret-sharing MPC aggregator** (#268): `internal/mpc` with `SplitVector`,
+  `Aggregate`, and a coordinator `(n,n)` additive MPC round.
+- **TEE backend scope documented** (#300): honest fail-closed status and backend scope.
+
+#### Networking & Transport
+
+- **Real gRPC federation service** (#301): a real gRPC server/client using the generated
+  protobuf contract, with a round-trip test.
+- **kad-dht replaced with bootstrap discovery** (#267): avoids GO-2024-3218.
+- **mDNS local discovery** (#273): added to `Discovery`.
+- **Async consensus mode** (#275): `AsyncMode` + `StalenessWindow` in `TierConfig`; async
+  flush collects gradients across rounds within the staleness window instead of requiring a
+  full quorum per round. Sync mode unchanged.
+- **Async convergence bridge** (#276): stale-weight in `[0,1]`, async envelope = sync +
+  staleness term, rounds monotonicity, summability bound, large-scale guard, and FP
+  refinement.
+- **Networking/transport performance audit** (#213): re-baselined networking and gradient
+  transport performance.
+
+#### Testing & CI
+
+- **Kani verification workflow** (#283): dedicated Ubuntu Kani job running `cargo kani` on
+  `wasm-modules/fl_task` (clamp_i32 harness); harnesses added for `sum4` and stale-weight
+  bounds, with assumption bounds tightened for tractable verification.
+- **Property-based fuzzing for aggregation helpers** (#264) and **`make fuzz` /
+  `make fuzz-short` targets** (#265).
+- **Proven Chernoff bound wired into the hbft simulator** (#271): fail-closed, with tests.
+- **Property-based regression nets for four refinement bridges** (#272).
+- **Async refinement envelope property test** (#277).
+- **Mutation score tracking script** (#225).
+- **Fuzz targets + property test + CI workflows** (#223).
+- **Per-package fuzz targets and CI gate** (#303–#308): aggregation kernel invariants,
+  batch verifier, hbft simulator construction, WASM malformed-proof rejection,
+  hash-commitment verifier, and a `fuzz.yml` workflow (with the Go 1.27.3 toolchain fix).
+- **Property tests for all remaining internal packages** (#308–#310): MRC adapter
+  send/health, compute-proof build/verify + tamper rejection, and invariants for `hva`,
+  `ipfs`, `manifest`, `metrics`, `privacy`, and `scheduler`. Every `internal/` package now
+  has at least one machine-checked invariant test.
+- **trivy DB mirror fix** (#230): use `ghcr.io` instead of the unreliable
+  `mirror.gcr.io`.
+- **Mainnet readiness gate retry** (#259): retry `docker compose up`.
+
+#### Security & Dependencies
+
+- **zlib upgraded to 1.4-r0** in the container image (#289).
+- **Legacy empty-proof attestation retired by default** (#290): the SHA-256-of-empty
+  fallback is disabled unless explicitly opted in; a secure-default regression test was
+  added and the zero-placeholder documentation claim was corrected (L1 only).
+- **Orphaned files removed** (#291, #292): orphaned Rust attestation files and stray
+  top-level artifacts; `pyapi.exe` ignored.
+- **Dependency bumps**: Go minor/patch (#201, #220, #287), GitHub Actions (#210, #288),
+  `docker/login-action` (#221), `github.com/pion/stun/v3` (#260), npm/yarn (#261), and
+  `follow-redirects` 1.16.2 for CVE-2026-116689 (#222).
+- **PQC migration controls hardened** (#212).
+- **Lean formalization matrix audit** (#211) and **verifier boot-path enforcement**.
+
+#### Documentation & Audit Readiness
+
+- **External audit scope** (#252): `docs/EXTERNAL_AUDIT_SCOPE.md`, review log, and a README
+  call for review.
+- **Scaffold docs replaced with verified content** (#253–#258): security, API,
+  architecture, ops/perf/example docs, plus a certificate of security/infra posture, a
+  3-node load script, and small benchmark artifacts.
+- **Gold-standard elevation plan** (#262): four pillars, 6–9 month roadmap.
+- **Audit-readiness pack** (#270): isolates load-bearing crypto axioms as named assumptions,
+  tightens public-doc claims to match `FORMAL_TRACEABILITY_MATRIX`, makes the MPC
+  trusted-setup story honest with verification hooks, and ships `make audit-bundle`.
+- **P1/P4 completion report** (#298): detailed status of completed P1/P4 items with
+  verified commands and remaining open engineering work.
+- **Next actions plan** (#224).
+- **Version discipline + reproducibility** (#217): `VERSION` file, sync check, WSL docs.
+- **Go toolchain info audit** (#218).
+
 ### Fixed - Claim/Artifact Drift (2026-05-11 → 2026-10-03)
 
 This entry restores the changelog after a five-month gap. All items below are
