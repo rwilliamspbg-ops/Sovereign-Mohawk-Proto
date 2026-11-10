@@ -33,7 +33,6 @@ jobs:
 
       - name: Fuzz batch verifier
         run: go test ./internal/batch/... -fuzz=FuzzVerifySignatures -fuzztime=60s
-
       - name: Fuzz wasm verifier
         run: go test ./internal/wasmhost/... -fuzz=FuzzVerifyRejectsMalformedProofs -fuzztime=60s
 
