@@ -33,3 +33,11 @@ jobs:
 
       - name: Fuzz batch verifier
         run: go test ./internal/batch/... -fuzz=FuzzVerifySignatures -fuzztime=60s
+      - name: Fuzz wasm verifier
+        run: go test ./internal/wasmhost/... -fuzz=FuzzVerifyRejectsMalformedProofs -fuzztime=60s
+
+      - name: Fuzz hbft simulator
+        run: go test ./internal/hbft/... -fuzz=FuzzNewSimulator -fuzztime=60s
+
+      - name: Fuzz proofs verifier
+        run: go test ./internal/proofs/... -fuzz=FuzzVerifyHashCommitment -fuzztime=60s
