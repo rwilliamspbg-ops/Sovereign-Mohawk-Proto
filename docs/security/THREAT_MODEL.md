@@ -112,3 +112,12 @@ NOT covered (honest scope limits):
 - External audit scope: `docs/EXTERNAL_AUDIT_SCOPE.md`
 - Root security policy: `SECURITY.md`
 - Formal traceability: `proofs/FORMAL_TRACEABILITY_MATRIX.md`
+
+## TEE backend status (2026-11-09)
+
+- Availability probes for SGX, SEV-SNP, and TrustZone now inspect real
+  `/dev` nodes instead of unconditionally returning false.
+- Enclave creation, attestation, and protected aggregation remain
+  unimplemented; providers return `ErrNotAvailable` (fail-closed).
+- No TEE backend is currently used to protect aggregation in production.
+- Simulation mode (`SimulatedProvider`) remains the CI and development path.
