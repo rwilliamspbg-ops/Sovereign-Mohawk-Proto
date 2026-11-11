@@ -147,12 +147,12 @@ theorem pqc_hardness_blocks_unwitnessed_hijack_safety
     (pqc_hardness_blocks_unwitnessed_acceptance pqc oracle h_secure auth queries msg sig
       h_witness h_fresh)
 
-/-- Scale guard (native_decide style). -/
+/-- Scale guard. -/
 theorem theorem8_scale_non_hijack_guard :
     hijackSafe {legacySigned := true, pqcSigned := true, legacyCompromised := false} := by
   have _ : global_scale ≥ 10000000 := by
     unfold global_scale
-    native_decide
+    norm_num
   simp [hijackSafe]
 
 /--

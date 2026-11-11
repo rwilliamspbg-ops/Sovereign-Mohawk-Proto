@@ -70,26 +70,6 @@ ALLOWED_AXIOMS: dict[tuple[str, str], str] = {
         "number-theoretic fact; proving primality of a 253-bit integer in "
         "Lean/Mathlib is out of scope for this formalization."
     ),
-    ("LeanFormalization/DiscreteLogReduction.lean", "ForkingLemma"): (
-        "Isolates the probability/rewinding step of the Forking Lemma, which "
-        "requires a random-oracle model and probability accounting not yet "
-        "present in this repository."
-    ),
-    ("LeanFormalization/DiscreteLogReduction.lean", "ed25519_uf_cma_from_dlp"): (
-        "Overall reduction from DLP hardness to Ed25519 UF-CMA security; "
-        "the algebraic core (recovery_yields_secret) is fully proved, but "
-        "the probability accounting is the documented open gap."
-    ),
-    ("LeanFormalization/Theorem5Cryptography.lean", "mimc"): (
-        "MiMC hash is declared as an opaque function symbol; its concrete "
-        "algebraic definition over BN254 is out of scope. Collision resistance "
-        "is the separate, explicitly-named axiom mimc_collision_resistant."
-    ),
-    ("LeanFormalization/Theorem5Cryptography.lean", "mimc_collision_resistant"): (
-        "EXPLICIT, NAMED ASSUMPTION (not proven). Collision resistance of "
-        "MiMC reduces to hardness of the MiMC permutation over BN254; "
-        "declared as an axiom with a clear caveat (see EXTERNAL_AUDIT_SCOPE)."
-    ),
 }
 
 SCAN_DIRS = ["LeanFormalization", "Specification", "Refinement"]

@@ -112,25 +112,6 @@ theorem recovery_yields_secret (r a h1 h2 S1 S2 : Nat)
   rw [ZMod.val_natCast, ZMod.val_natCast] at hval
   exact hval
 
-/-- NOTE (audit): `ForkingLemma` is an EXPLICIT, NAMED ASSUMPTION (axiom).
-    It is NOT proven. It states the standard forking lemma used in the
-    security reduction of Schnorr/Ed25519 signature schemes. This reduction
-    assumes the forking lemma holds for the specific hash function used
-    (SHA-512 in Ed25519). See docs/EXTERNAL_AUDIT_SCOPE.md. -/
-axiom ForkingLemma : Prop
-
-/-- NOTE (audit): `ed25519_uf_cma_from_dlp` is an EXPLICIT, NAMED ASSUMPTION
-    (axiom). It is NOT proven. It states the standard reduction: if the
-    discrete logarithm problem is hard and the forking lemma applies, then
-    Ed25519 (modeled as Ed25519ToPQC) is unforgeable under chosen-message
-    attack (UF-CMA). This is a "security reduction under standard DLP" — the
-    reduction itself is classical but unverified in this formalization.
-    See docs/EXTERNAL_AUDIT_SCOPE.md. -/
-axiom ed25519_uf_cma_from_dlp :
-    ∀ (s : Ed25519Sig) (oracle : SignOracle),
-      DiscreteLogHard → ForkingLemma →
-      pqcUnforgeable (Ed25519ToPQC s) oracle
-
 theorem recovery_sanity_example :
     let r := 5; let a := 7; let h1 := 3; let h2 := 11
     let S1 := (r + h1 * a) % dlL
