@@ -185,14 +185,17 @@ finding along the way: Lean's `Float` type carries zero order axioms at
 all (`floatSpec` is opaque with no asserted reflexivity, antisymmetry,
 transitivity, or totality), and neither does Mathlib define any order
 instance for it -- both confirmed by direct inspection, not assumed. The
-proof therefore introduces this repository's **first proof-relevant axioms
-beyond Mathlib's own foundations**: eight axioms in `Refinement/
-MultiKrum.lean` stating real, restricted (non-NaN-scoped) facts about IEEE
-754 double comparison, explicitly documented as a trust boundary rather
-than presented as derived. See the matrix row's own Notes for the full
-reasoning, including why the non-NaN restriction is load-bearing (an
-unconditional reflexivity axiom would be observably false: `NaN <= NaN`
-evaluates to `false`).
+proof therefore needed this repository's **first proof-relevant assumptions
+beyond Mathlib's own foundations**: facts about IEEE 754 double comparison,
+restricted (non-NaN-scoped), explicitly documented as a trust boundary rather
+than presented as derived. **Update (PR #316): these are no longer `axiom`
+declarations.** They were originally eight global axioms in
+`Refinement/MultiKrum.lean`; they are now the `FloatOrderLaws` structure,
+passed as an explicit hypothesis to each theorem that needs it, so the
+development is axiom-free. The trust boundary itself is unchanged and remains
+documented in the matrix row's own Notes, including why the non-NaN
+restriction is load-bearing (an unconditional reflexivity law would be
+observably false: `NaN <= NaN` evaluates to `false`).
 
 - **PR:** #162
 

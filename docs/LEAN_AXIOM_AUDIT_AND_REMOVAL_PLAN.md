@@ -3,8 +3,12 @@
 **Date:** 2026-11-11
 **Scope:** `proofs/` — `LeanFormalization/`, `Specification/`, `Refinement/`, `TraceValidator/`, `quarantined/`
 **Toolchain:** Lean 4.30.0-rc2 + Mathlib v4.30.0-rc2 (the exact pins in `proofs/lean-toolchain` / `proofs/lakefile.lean`)
-**Status:** Audit complete and machine-verified. Execution in progress on
-`fix/lean-remove-dead-axioms-and-native-decide` (Phases 0 and 2).
+**Status:** Audit complete and machine-verified. **All phases executed and
+merged** (2026-11-11): Phase 0 dead-axiom deletion and Phase 2
+`native_decide` replacement (#313), Phase 1 the last `sorry` (#315), Phase 3
+`FloatOrderLaws` (#316), Phase 4 `dlL_prime` demotion (#318). The Lean
+development is now **axiom-free and sorry-free**, with two explicit hypotheses
+(`FloatOrderLaws`, `Fact (Nat.Prime dlL)`) and no `native_decide`.
 
 ---
 

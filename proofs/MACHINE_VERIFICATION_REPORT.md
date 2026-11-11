@@ -164,16 +164,37 @@ All theorems will compile and verify in <5 minutes on standard hardware.
 
 ## Conclusion
 
-The Sovereign-Mohawk formal proof system contains **52 machine-verified theorems** covering:
+The Sovereign-Mohawk formal proof system contains several hundred Lean
+declarations (the 2026-04-19 count of 52 symbols is stale; the current
+development builds ~510 declarations across 142 files), each carrying a
+recorded status label and scope in `proofs/FORMAL_TRACEABILITY_MATRIX.md`.
+They cover:
 
-1. **Byzantine Fault Tolerance** - 55.5% resilience guarantee
-2. **Differential Privacy** - integer budget-composition surrogate
-3. **Communication Efficiency** - O(d log n) hierarchical complexity
-4. **Liveness Guarantees** - integer redundancy/dropout surrogate
-5. **Cryptographic Verification** - constant-cost verifier model
-6. **Convergence Bounds** - surrogate envelope behavior checks
+1. **Byzantine Fault Tolerance** — single-tier 5/9 guard arithmetic
+   (`fully_formalized`); the original **55.5% hierarchical composition
+   guarantee was DISPROVEN** by our own machine-checked counterexample. A
+   probabilistic Chernoff repair is proved for an explicit i.i.d. Bernoulli
+   committee-sampling model, and is vacuous under an adversarial placement
+   model.
+2. **Differential Privacy** — integer budget-composition surrogate.
+3. **Communication Efficiency** — O(d log n) hierarchical complexity.
+4. **Liveness** — integer redundancy/dropout surrogate (a probability model,
+   not the deployed runtime).
+5. **Cryptographic Verification** — constant-cost verifier **model**, not a
+   Groth16 soundness proof.
+6. **Convergence Bounds** — measure-theoretic descent derivation; the
+   almost-sure strengthening is now proved (PR #315).
 
-**STATUS: MACHINE-CHECKED SOURCE PACKAGE; READY FOR INDEPENDENT AUDIT**
+The Lean development is axiom-free and sorry-free; the only assumptions are
+the Mathlib foundation (`propext`, `Classical.choice`, `Quot.sound`) plus two
+explicit hypotheses passed at each use site (`FloatOrderLaws` and
+`Fact (Nat.Prime dlL)`). **Nothing here is a machine-checked statement about
+the deployed Go binary**: Lean cannot invoke Go source, so every Go↔Lean
+correspondence is empirical.
+
+**STATUS: MACHINE-CHECKED SOURCE PACKAGE; READY FOR INDEPENDENT AUDIT** —
+where "audit" means auditing the Lean statements and their recorded scope,
+not certifying the production runtime.
 
 ---
 

@@ -47,8 +47,12 @@ Every compliance claim maps to:
 
 ## 5. Formal verification as compliance evidence
 
-- Lean 4 proofs + refinement bridges provide machine-checked evidence for the
-  BFT, privacy, and ZK claims cited above.
+- Lean 4 proofs + refinement bridges provide **machine-checked evidence about
+  stated models** for the BFT, privacy, and ZK claims cited above — not
+  evidence about the deployed runtime. Each claim carries a status label and a
+  recorded scope in `proofs/FORMAL_TRACEABILITY_MATRIX.md`; several are
+  surrogates or empirical correspondences, and the deterministic hierarchical
+  BFT composition claim is disproven.
 - CI gates (`verify-lean-formalization`, `proof-traceability`) keep claims
   honest.
 - External audit scope: `docs/EXTERNAL_AUDIT_SCOPE.md`.

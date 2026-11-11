@@ -146,6 +146,12 @@ Result: CLEAN
 - **~1,600+ lines of proof code** using deterministic tactics
 - **Type-safe verification** guaranteed by Lean 4 compiler
 
+> **Update (2026-11-11):** the symbol count is stale — the current development
+> builds ~510 declarations across 142 files. The placeholder-free statement now
+> also holds for `axiom`: the development is **axiom-free and sorry-free**, with
+> only Mathlib's foundation and two explicit hypotheses (`FloatOrderLaws`,
+> `Fact (Nat.Prime dlL)`). See `proofs/FORMAL_TRACEABILITY_MATRIX.md`.
+
 ### Strength: Runtime Evidence Exists
 
 Every formal claim has corresponding test evidence:
