@@ -10,7 +10,7 @@ namespace LeanFormalization
   Tactics used:
   - `rfl` for model equalities
   - `simp` for verifier and cost normalization
-  - `norm_num` and `native_decide` for concrete scale guards
+  - `norm_num` for concrete scale guards
 
   Future work:
   Extend the abstract verifier story with hybrid proof accounting and size-
@@ -133,11 +133,11 @@ theorem theorem5_constant_cost (n m : Nat) :
 
 /-- Concrete latency guard modeled as bounded operation count. -/
 theorem theorem5_ops_guard : verifyOps 10000000 <= 10 := by
-  native_decide
+  simp [verifyOps]
 
 /-- Concrete runtime guard for the 10M-node profile in this model. -/
 theorem theorem5_cost_guard : verifyCostMicros 10000000 <= 10000 := by
-  native_decide
+  simp [verifyCostMicros, verifyOps]
 
 /-- Theorem 5a: Verifier soundness — the direction that actually matters for
     security ("can a cheating prover fool the verifier?"): if `verify`
@@ -200,27 +200,17 @@ theorem theorem5_verifyops_constant : ∀ n : Nat, verifyOps n = 3 ∧ verifyOps
 /-- MiMC hash (abstract function symbol). Models the in-circuit MiMC hasher used
     by DataCommitmentCircuit in internal/zksnark_circuit_verifier.go. The full
     algebraic definition of MiMC over the BN254 scalar field is out of scope;
-    only its binding property (collision resistance) is assumed, below. -/
--- NOTE (audit): In this formalization `mimc` is modeled as the identity
--- function (a surrogate for the real MiMC round function over BN254). The
--- *real* MiMC's collision resistance is NOT machine-checked here; it is
--- isolated as the named axiom `mimc_collision_resistant` below so that the
--- assumption is explicit and auditable. In the surrogate identity model the
--- axiom happens to be derivable, but it is kept as a named assumption to
--- flag the real-MiMC assumption for reviewers (consistent with the repo's
--- surrogate-model convention, e.g. row 5 "model_verified").
+    `mimc` is modeled as the identity function (a surrogate for the real MiMC
+    round function over BN254).
+
+    NOTE (audit): this module previously carried a named axiom
+    `mimc_collision_resistant` asserting MiMC's collision resistance. It had
+    zero dependents -- `theorem5_mimc_binding` below proves commitment equality
+    directly from the verifier predicate without it -- so it was removed as
+    dead. The real-MiMC collision-resistance assumption is still not
+    machine-checked here; it lives in the Go runtime's use of the real MiMC
+    permutation, not in this Lean surrogate model. -/
 def mimc : Nat → Nat := fun x => x
-
-/-- Collision resistance of MiMC: two preimages mapping to the same digest are
-    equal. This is the property that makes a proof against a commitment bind to
-    the specific data that produced it.
-
-    NOTE (audit): This is an EXPLICIT, NAMED ASSUMPTION (axiom). It is NOT
-    proven. It assumes MiMC is collision-resistant, which follows from the
-    hardness of the MiMC permutation over the BN254 scalar field — a standard
-    but unverified assumption in this formalization. See
-    docs/EXTERNAL_AUDIT_SCOPE.md for the full axiom list. -/
-axiom mimc_collision_resistant : ∀ x y : Nat, mimc x = mimc y → x = y
 
 /-- Circuit-derived verification key hash. In the Go runtime this is the
     groth16.VerifyingKey produced by groth16.Setup over the compiled

@@ -129,10 +129,10 @@ theorem pqc_hardness_blocks_unwitnessed_post_epoch_accept
   rw [h_false] at h
   exact absurd h.2 (by decide)
 
-/-- Scale guard for 10M-node profile (native_decide style). -/
+/-- Scale guard for 10M-node profile. -/
 theorem theorem7_scale_bound : global_scale ≥ 10000000 := by
   unfold global_scale
-  native_decide
+  norm_num
 
 theorem theorem7_scale_guard :
     postEpochAccepts { legacySigned := true, pqcSigned := true, legacyCompromised := false } := by

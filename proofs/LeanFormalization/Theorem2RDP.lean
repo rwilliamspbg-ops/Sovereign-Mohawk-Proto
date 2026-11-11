@@ -106,12 +106,12 @@ theorem theorem2_conversion_denominator_pos {alpha : ℚ} (h_alpha : 1 < alpha) 
 /-- Example composition for a 4-tier privacy budget profile. -/
 theorem theorem2_example_profile :
     composeEps [1, 5, 10, 0] = 16 := by
-  native_decide
+  norm_num [composeEps]
 
 /-- Tight budget guard: composed epsilon remains under configured ceiling. -/
 theorem theorem2_budget_guard :
     composeEps [1, 5, 10, 0] <= 20 := by
-  native_decide
+  norm_num [composeEps]
 
 /-- Concrete rational profile mirrors the runtime accountant's additive ledger. -/
 theorem theorem2_rat_example_profile :
