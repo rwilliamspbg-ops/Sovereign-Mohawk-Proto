@@ -122,25 +122,42 @@ once NaN is admitted, so Lean does not assert one). Mathlib does not define
 any order instance for `Float` either (confirmed by grepping the pinned
 Mathlib source for `LinearOrder`/`PartialOrder`/`Preorder Float`: no
 matches), so `PartialOrder Float` fails to synthesize even with Mathlib
-imported. The axioms below assert exactly what is true of the real IEEE 754
-double-precision comparison this compiles to at runtime, restricted to
-non-NaN values — restriction is necessary, not cosmetic: `NaN ≤ NaN`
-evaluates to `false` (confirmed via `#eval`), so an unconditional `a ≤ a`
-axiom would be observably false. Every use below discharges the non-NaN side
-conditions from `neighborScore`'s outputs (sums of non-negative squared
-distances, always finite for the finite gradient inputs this codebase
-handles), never asserted for an arbitrary `Float`. -/
+imported.
 
-axiom float_le_refl (a : Float) (ha : ¬ a.isNaN) : a ≤ a
-axiom float_le_of_lt (a b : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) : a < b → a ≤ b
-axiom float_not_lt_iff_le (a b : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) : ¬ a < b ↔ b ≤ a
-axiom float_not_le_iff_lt (a b : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) : ¬ a ≤ b ↔ b < a
-axiom float_le_antisymm (a b : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) : a ≤ b → b ≤ a → a = b
-axiom float_lt_of_lt_of_le (a b c : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) (hc : ¬ c.isNaN)
-    (h1 : a < b) (h2 : b ≤ c) : a < c
-axiom float_le_of_le_of_le (a b c : Float) (ha : ¬ a.isNaN) (hb : ¬ b.isNaN) (hc : ¬ c.isNaN)
-    (h1 : a ≤ b) (h2 : b ≤ c) : a ≤ c
-axiom float_lt_irrefl (a : Float) (ha : ¬ a.isNaN) : ¬ a < a
+Because Lean cannot see `Float`'s order at all, the ordinary total-order laws
+are packaged once in `FloatOrderLaws` below. It is **not** a global `axiom`:
+it is an explicit argument to each theorem that needs it, so the assumption
+is visible at every use site rather than inherited silently from the global
+context. Every law is restricted to non-NaN values — restriction is
+necessary, not cosmetic: `NaN ≤ NaN` evaluates to `false` (confirmed via
+`#eval`), so an unconditional `a ≤ a` would be observably false. Every use
+discharges the non-NaN side conditions from `neighborScore`'s outputs (sums
+of non-negative squared distances, always finite for the finite gradient
+inputs this codebase handles), never asserted for an arbitrary `Float`.
+
+`FloatOrderLaws` is exactly the set of facts true of the IEEE-754
+double-precision comparison this compiles to at runtime, restricted to the
+non-NaN values that occur here; it is the single, clearly-labelled trust
+boundary of this module. -/
+
+/-- The IEEE-754 total-order laws for non-NaN doubles, which Lean's opaque
+`Float` comparison does not provide.
+
+This is an explicit argument to the theorems that need it — not a global
+`axiom` — so the assumption is visible at each use site. It is the single
+trust boundary of the Multi-Krum refinement: everything else in this module
+is proved from it by ordinary reasoning. -/
+structure FloatOrderLaws where
+  le_refl : ∀ a : Float, ¬ a.isNaN → a ≤ a
+  le_of_lt : ∀ a b : Float, ¬ a.isNaN → ¬ b.isNaN → a < b → a ≤ b
+  not_lt_iff_le : ∀ a b : Float, ¬ a.isNaN → ¬ b.isNaN → (¬ a < b ↔ b ≤ a)
+  not_le_iff_lt : ∀ a b : Float, ¬ a.isNaN → ¬ b.isNaN → (¬ a ≤ b ↔ b < a)
+  le_antisymm : ∀ a b : Float, ¬ a.isNaN → ¬ b.isNaN → a ≤ b → b ≤ a → a = b
+  lt_of_lt_of_le : ∀ a b c : Float, ¬ a.isNaN → ¬ b.isNaN → ¬ c.isNaN →
+    a < b → b ≤ c → a < c
+  le_of_le_of_le : ∀ a b c : Float, ¬ a.isNaN → ¬ b.isNaN → ¬ c.isNaN →
+    a ≤ b → b ≤ c → a ≤ c
+  lt_irrefl : ∀ a : Float, ¬ a.isNaN → ¬ a < a
 
 /-- "The lowest-index, lowest-scoring index," matching `argmin?`/`argminAux`'s
 tie-break convention (scan ascending index, replace best only on strict
@@ -177,7 +194,7 @@ theorem getAt?_drop {α : Type} (xs : List α) (idx j : Nat) :
           rw [heq, List.drop_succ_cons]
           exact ih xs
 
-theorem IsMinIdx_unique (xs : List Float) (hnn : NoNaNList xs) (i j : Nat)
+theorem IsMinIdx_unique (L : FloatOrderLaws) (xs : List Float) (hnn : NoNaNList xs) (i j : Nat)
     (hi : IsMinIdx xs i) (hj : IsMinIdx xs j) : i = j := by
   obtain ⟨vi, hvi, hile, himin⟩ := hi
   obtain ⟨vj, hvj, hjle, hjmin⟩ := hj
@@ -185,7 +202,7 @@ theorem IsMinIdx_unique (xs : List Float) (hnn : NoNaNList xs) (i j : Nat)
   have hnvj : ¬ vj.isNaN := hnn j vj hvj
   have h1 : vi ≤ vj := hile j vj hvj
   have h2 : vj ≤ vi := hjle i vi hvi
-  have heq : vi = vj := float_le_antisymm vi vj hnvi hnvj h1 h2
+  have heq : vi = vj := L.le_antisymm vi vj hnvi hnvj h1 h2
   have hij : i ≤ j := himin j vj hvj heq.symm
   have hji : j ≤ i := hjmin i vi hvi heq
   omega
@@ -199,7 +216,7 @@ def IsMinIdxUpTo (xs : List Float) (bound bestIdx : Nat) (best : Float) : Prop :
 over the whole list -- proven by strengthening to a loop invariant
 (`IsMinIdxUpTo`) tracking correctness over the already-scanned prefix, and
 inducting on the still-to-scan suffix. -/
-theorem argminAux_spec (xs : List Float) (hnn : NoNaNList xs) :
+theorem argminAux_spec (L : FloatOrderLaws) (xs : List Float) (hnn : NoNaNList xs) :
     ∀ (rest : List Float) (idx bestIdx : Nat) (best : Float),
       rest = xs.drop idx →
       IsMinIdxUpTo xs idx bestIdx best →
@@ -244,22 +261,22 @@ theorem argminAux_spec (xs : List Float) (hnn : NoNaNList xs) :
           · intro j w hj hw
             rcases Nat.lt_succ_iff_lt_or_eq.mp hj with hj' | hj'
             · have hbw : best ≤ w := hlb j w hj' hw
-              exact float_le_of_lt y w hnvy (hnn j w hw) (float_lt_of_lt_of_le y best w hnvy hnvbest (hnn j w hw) hylt hbw)
+              exact L.le_of_lt y w hnvy (hnn j w hw) (L.lt_of_lt_of_le y best w hnvy hnvbest (hnn j w hw) hylt hbw)
             · subst hj'
               have hwy : w = y := by rw [hw] at hyget; exact Option.some.inj hyget
               rw [hwy]
-              exact float_le_refl y hnvy
+              exact L.le_refl y hnvy
           · intro j w hj hw heq
             rcases Nat.lt_succ_iff_lt_or_eq.mp hj with hj' | hj'
             · exfalso
               have hbw : best ≤ w := hlb j w hj' hw
-              have hlt : y < w := float_lt_of_lt_of_le y best w hnvy hnvbest (hnn j w hw) hylt hbw
+              have hlt : y < w := L.lt_of_lt_of_le y best w hnvy hnvbest (hnn j w hw) hylt hbw
               rw [heq] at hlt
-              exact float_lt_irrefl y hnvy hlt
+              exact L.lt_irrefl y hnvy hlt
             · omega
         exact ih (idx + 1) idx y hysdrop hstep
       · rename_i hnylt
-        have hble : best ≤ y := (float_not_lt_iff_le y best hnvy hnvbest).mp hnylt
+        have hble : best ≤ y := (L.not_lt_iff_le y best hnvy hnvbest).mp hnylt
         have hstep : IsMinIdxUpTo xs (idx + 1) bestIdx best := by
           refine ⟨hval, by omega, ?_, ?_⟩
           · intro j w hj hw
@@ -283,7 +300,7 @@ theorem isMinIdxUpTo_length_isMinIdx (xs : List Float) (bestIdx : Nat) (best : F
   · intro j w hw heq
     exact htie j w (getAt?_some_lt_length xs j w hw) hw heq
 
-theorem argmin?_isMinIdx (xs : List Float) (hnn : NoNaNList xs) (idx : Nat)
+theorem argmin?_isMinIdx (L : FloatOrderLaws) (xs : List Float) (hnn : NoNaNList xs) (idx : Nat)
     (h : argmin? xs = some idx) : IsMinIdx xs idx := by
   cases xs with
   | nil => simp [argmin?] at h
@@ -298,10 +315,10 @@ theorem argmin?_isMinIdx (xs : List Float) (hnn : NoNaNList xs) (idx : Nat)
           subst hj0
           have hwx : w = x := Option.some.inj hw.symm
           rw [hwx]
-          exact float_le_refl x hnvx
+          exact L.le_refl x hnvx
         · intro j w hj _hw _heq
           omega
-      obtain ⟨best', hbest'⟩ := argminAux_spec (x :: rest) hnn rest 1 0 x rfl hinit
+      obtain ⟨best', hbest'⟩ := argminAux_spec L (x :: rest) hnn rest 1 0 x rfl hinit
       rw [hidxeq] at hbest'
       exact isMinIdxUpTo_length_isMinIdx (x :: rest) idx best' hbest'
 
@@ -356,7 +373,7 @@ def IsMinScorePairVal (xs : List (Nat × Float)) (v : Nat × Float) : Prop :=
 structural induction (no accumulator threading needed, unlike `argminAux`'s
 loop-invariant induction: `minFoldPair`'s recursion is a genuine structural
 fold, each call strictly on a smaller sub-list). -/
-theorem minFoldPair_spec (xs : List (Nat × Float)) :
+theorem minFoldPair_spec (L : FloatOrderLaws) (xs : List (Nat × Float)) :
     NoNaNPairs xs → HeadFirst xs → ∀ v, minFoldPair xs = some v → IsMinScorePairVal xs v := by
   induction xs with
   | nil => intro _ _ v h; simp [minFoldPair] at h
@@ -373,7 +390,7 @@ theorem minFoldPair_spec (xs : List (Nat × Float)) :
           rw [hv, hxsnil]
           refine ⟨List.mem_cons_self, ?_, ?_⟩
           · intro w hw; cases hw with
-            | head => exact float_le_refl x.2 hnvx
+            | head => exact L.le_refl x.2 hnvx
             | tail _ hw' => exact absurd hw' (List.not_mem_nil)
           · intro w hw _heq; cases hw with
             | head => exact Nat.le_refl _
@@ -393,28 +410,28 @@ theorem minFoldPair_spec (xs : List (Nat × Float)) :
             refine ⟨List.mem_cons_self, ?_, ?_⟩
             · intro w hw
               cases hw with
-              | head => exact float_le_refl x.2 hnvx
+              | head => exact L.le_refl x.2 hnvx
               | tail _ hw' =>
                   have hyw := hylb w hw'
-                  exact float_le_of_le_of_le x.2 y.2 w.2 hnvx hnvy (hnn w (List.mem_cons_of_mem x hw')) hcmp hyw
+                  exact L.le_of_le_of_le x.2 y.2 w.2 hnvx hnvy (hnn w (List.mem_cons_of_mem x hw')) hcmp hyw
             · intro w hw _heq
               cases hw with
               | head => exact Nat.le_refl _
               | tail _ hw' => exact hhfhd w hw'
           · simp only [hcmp, if_false] at hv
             rw [hv]
-            have hlt : y.2 < x.2 := (float_not_le_iff_lt x.2 y.2 hnvx hnvy).mp hcmp
+            have hlt : y.2 < x.2 := (L.not_le_iff_lt x.2 y.2 hnvx hnvy).mp hcmp
             refine ⟨List.mem_cons_of_mem x hymem, ?_, ?_⟩
             · intro w hw
               cases hw with
-              | head => exact float_le_of_lt y.2 x.2 hnvy hnvx hlt
+              | head => exact L.le_of_lt y.2 x.2 hnvy hnvx hlt
               | tail _ hw' => exact hylb w hw'
             · intro w hw heq
               cases hw with
               | head =>
                   exfalso
                   have hcontra : y.2 < y.2 := by rw [heq] at hlt; exact hlt
-                  exact float_lt_irrefl y.2 hnvy hcontra
+                  exact L.lt_irrefl y.2 hnvy hcontra
               | tail _ hw' => exact hytie w hw' heq
 
 theorem headFirst_append_of_le (l : List (Nat × Float)) (last : Nat × Float)
@@ -508,7 +525,7 @@ theorem isMinScorePairVal_to_isMinIdx (n : Nat) (score : Nat → Float) (v : Nat
       exact hle
     · exact absurd hw (by simp)
 
-theorem multiKrumSelectManyImpl_one_selects_argmin (nodes : List Node) (k : Nat)
+theorem multiKrumSelectManyImpl_one_selects_argmin (L : FloatOrderLaws) (nodes : List Node) (k : Nat)
     (hnonempty : nodes ≠ [])
     (hnn : NoNaNList ((List.range (nodes.map Node.gradient).length).map
       (fun i => neighborScore (nodes.map Node.gradient) i (Nat.min k ((nodes.map Node.gradient).length - 1))))) :
@@ -540,7 +557,7 @@ theorem multiKrumSelectManyImpl_one_selects_argmin (nodes : List Node) (k : Nat)
     | none => exact absurd ((minFoldPair_none_iff scored).mp hms) hscoredne
     | some w => exact ⟨w, rfl⟩
   obtain ⟨w, hw⟩ := hmfp
-  have hspec := minFoldPair_spec scored hnnpairs hheadfirst w hw
+  have hspec := minFoldPair_spec L scored hnnpairs hheadfirst w hw
   have hidxmin : IsMinIdx scores w.1 := by
     have hbridge := isMinScorePairVal_to_isMinIdx gradients.length (fun i => neighborScore gradients i neighbors) w hspec
     rw [hscoresdef]; exact hbridge
@@ -555,8 +572,8 @@ theorem multiKrumSelectManyImpl_one_selects_argmin (nodes : List Node) (k : Nat)
         exact hgradne hgnil
     | cons a as => exact ⟨argminAux as 0 1 a, rfl⟩
   obtain ⟨idx, hidx⟩ := hargmin_exists
-  have hidxmin' : IsMinIdx scores idx := argmin?_isMinIdx scores hnn idx hidx
-  have hidxeq : w.1 = idx := IsMinIdx_unique scores hnn w.1 idx hidxmin hidxmin'
+  have hidxmin' : IsMinIdx scores idx := argmin?_isMinIdx L scores hnn idx hidx
+  have hidxeq : w.1 = idx := IsMinIdx_unique L scores hnn w.1 idx hidxmin hidxmin'
   refine ⟨idx, hidx, ?_⟩
   show ((sortAscByScore scored).take 1).map Prod.fst = [idx]
   have hheadeq : (sortAscByScore scored).head? = some w := by
@@ -573,14 +590,14 @@ theorem multiKrumSelectManyImpl_one_selects_argmin (nodes : List Node) (k : Nat)
 /-- The headline correspondence theorem closing row 12's gap 2: general-`m`
 selection at `m = 1` agrees with `multiKrumSelectImpl` exactly, including its
 Go-facing output shape (the selected gradient, not just its index). -/
-theorem multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl (nodes : List Node) (k : Nat)
+theorem multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl (L : FloatOrderLaws) (nodes : List Node) (k : Nat)
     (hnonempty : nodes ≠ [])
     (hnn : NoNaNList ((List.range (nodes.map Node.gradient).length).map
       (fun i => neighborScore (nodes.map Node.gradient) i (Nat.min k ((nodes.map Node.gradient).length - 1))))) :
     ∃ idx,
       multiKrumSelectManyImpl nodes 1 k = [idx] ∧
       multiKrumSelectImpl nodes k = getAt? (nodes.map Node.gradient) idx := by
-  obtain ⟨idx, hidx, hmany⟩ := multiKrumSelectManyImpl_one_selects_argmin nodes k hnonempty hnn
+  obtain ⟨idx, hidx, hmany⟩ := multiKrumSelectManyImpl_one_selects_argmin L nodes k hnonempty hnn
   refine ⟨idx, hmany, ?_⟩
   have hgradne : nodes.map Node.gradient ≠ [] := by
     simp only [ne_eq, List.map_eq_nil_iff]
