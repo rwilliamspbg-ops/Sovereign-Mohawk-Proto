@@ -7,23 +7,25 @@ in-progress proofs, per the existing convention this check preserves).
 
 `axiom` is banned by default too, for the same reason: a vacuous, unproven
 "trust me" is exactly what this repo's formal-verification effort exists to
-prevent from hiding behind a passing build. But a small number of axioms can
-be the honest choice when a fact is genuinely outside what Lean/Mathlib can
-derive -- e.g. `proofs/LeanFormalization/DiscreteLogReduction.lean`'s
-`dlL_prime`, whose 253-bit primality is a standard number-theoretic fact
-that is out of scope to re-derive in Lean. Rather than a blanket ban or an
-easily-slapped-on marker comment, each axiom must be explicitly named in
+prevent from hiding behind a passing build. Rather than a blanket ban or an
+easily-slapped-on marker comment, any axiom must be explicitly named in
 ALLOWED_AXIOMS below, keyed to the exact file it's expected in -- adding a
 new axiom means a visible, reviewable change to this allowlist, not a
 silent pass.
 
-Note: the eight `Float` order axioms that used to live in
-`proofs/Refinement/MultiKrum.lean` are gone. Lean's `Float` carries no
-order laws (`#print floatSpec` shows an opaque constant asserting nothing)
-and Mathlib defines no order instance for it, so the ordinary total-order
-laws are now packaged in that file as the `FloatOrderLaws` structure and
-passed explicitly to the theorems that need them -- an assumption at each
-use site rather than a global axiom.
+That allowlist is currently empty. The two assumptions this development
+still carries are deliberately **not** axioms, so they do not appear here:
+
+  * the IEEE-754 `Float` order laws -- Lean's `Float` carries no order laws
+    (`#print floatSpec` shows an opaque constant asserting nothing) and
+    Mathlib defines no order instance for it, so the laws are packaged as
+    the `FloatOrderLaws` structure in `proofs/Refinement/MultiKrum.lean`
+    and passed explicitly to the theorems that need them;
+  * the primality of the 253-bit Ed25519 subgroup order `L` -- a standard
+    number-theoretic fact that is out of scope to re-derive in Lean, carried
+    as the explicit `Fact (Nat.Prime dlL)` hypothesis on the four
+    declarations in `proofs/LeanFormalization/DiscreteLogReduction.lean`
+    that need it.
 
 Consolidates what were previously two independently-drifting inline `grep`
 checks (`.github/workflows/verify-proofs.yml`'s `verify-lean-formalization`
@@ -40,13 +42,15 @@ from pathlib import Path
 # (relative path from proofs/, axiom name) -> why it's allowed. The reason is
 # documentation for reviewers, not machine-checked, but every entry must be
 # real and specific -- "needed for a proof" is not a reason.
-ALLOWED_AXIOMS: dict[tuple[str, str], str] = {
-    ("LeanFormalization/DiscreteLogReduction.lean", "dlL_prime"): (
-        "Primality of the 253-bit Ed25519 subgroup order L is a standard "
-        "number-theoretic fact; proving primality of a 253-bit integer in "
-        "Lean/Mathlib is out of scope for this formalization."
-    ),
-}
+#
+# The allowlist is currently EMPTY: the Lean development has no `axiom`
+# declarations at all. The two remaining assumptions are not axioms --
+#   * the IEEE-754 `Float` order laws are the `FloatOrderLaws` structure in
+#     proofs/Refinement/MultiKrum.lean, passed explicitly to each theorem;
+#   * the primality of the Ed25519 subgroup order L is the explicit
+#     `Fact (Nat.Prime dlL)` hypothesis on the four declarations in
+#     proofs/LeanFormalization/DiscreteLogReduction.lean that need it.
+ALLOWED_AXIOMS: dict[tuple[str, str], str] = {}
 
 SCAN_DIRS = ["LeanFormalization", "Specification", "Refinement"]
 ADMIT_RE = re.compile(r"\badmit\b")

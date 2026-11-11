@@ -9,9 +9,27 @@ open LeanFormalization
 
 abbrev dlL : Nat := ed25519L
 
-axiom dlL_prime : Nat.Prime dlL
+/-! ## The one assumption in this module
 
-instance : Fact (Nat.Prime dlL) := ⟨dlL_prime⟩
+`dlL` is the Ed25519 subgroup order
+
+    7237005577332262213973186563042994240857116359379907606001950938285454250989
+
+(2^252 + 27742317777372353535851937790883648493), whose primality is a standard,
+externally checkable number-theoretic fact (RFC 8032 / the Ed25519 reference
+implementation). It is **not** re-derived here: proving primality of a 253-bit
+integer in Lean is out of scope for this formalization — `decide` hits the
+maximum recursion depth and `native_decide` does not finish, because the
+number is far too large for either kernel reduction or compiled evaluation.
+
+It is therefore an explicit hypothesis, `Fact (Nat.Prime dlL)`, on the four
+declarations that need it — `scalarModInv`, `recoverSecret`,
+`recovery_yields_secret`, `recovery_sanity_example` — rather than a global
+`axiom`. This does not reduce the total trust (primality is still assumed), but
+it removes the assumption from the global proof tree and makes it **local and
+visible at each use site**: every consumer sees exactly what is being assumed
+instead of inheriting it silently. `dlVerify`, `dlAdversarySucceeds`, and
+`DiscreteLogHard` do not need it and remain unconditional. -/
 
 structure DLInstance where
   point : AffinePoint
@@ -32,19 +50,21 @@ def dlAdversarySucceeds (adv : DLAdversary) (inst : DLInstance) : Bool :=
 
 def DiscreteLogHard : Prop := ∀ (adv : DLAdversary) (inst : DLInstance), dlAdversarySucceeds adv inst = false
 
-def scalarModInv (x : Nat) : Nat :=
-  ZMod.val (x : ZMod dlL)⁻¹
+def scalarModInv (hp : Fact (Nat.Prime dlL)) (x : Nat) : Nat := by
+  letI : Fact (Nat.Prime dlL) := hp
+  exact ZMod.val (x : ZMod dlL)⁻¹
 
-def recoverSecret (S1 S2 h1 h2 : Nat) : Nat :=
+def recoverSecret (hp : Fact (Nat.Prime dlL)) (S1 S2 h1 h2 : Nat) : Nat :=
   let diffS := (S1 + dlL - S2 % dlL) % dlL
   let diffH := (h1 + dlL - h2 % dlL) % dlL
-  (diffS * scalarModInv diffH) % dlL
+  (diffS * scalarModInv hp diffH) % dlL
 
-theorem recovery_yields_secret (r a h1 h2 S1 S2 : Nat)
+theorem recovery_yields_secret (hp : Fact (Nat.Prime dlL)) (r a h1 h2 S1 S2 : Nat)
     (hS1 : S1 % dlL = (r + h1 * a) % dlL)
     (hS2 : S2 % dlL = (r + h2 * a) % dlL)
     (hdiff : (h1 % dlL) ≠ (h2 % dlL)) :
-    (recoverSecret S1 S2 h1 h2) % dlL = a % dlL := by
+    (recoverSecret hp S1 S2 h1 h2) % dlL = a % dlL := by
+  letI : Fact (Nat.Prime dlL) := hp
   set p := dlL
   have h1c : (S1 : ZMod p) = (r : ZMod p) + (h1 : ZMod p) * (a : ZMod p) := by
     have : (↑(S1 % p) : ZMod p) = (↑((r + h1 * a) % p) : ZMod p) := by rw [hS1]
@@ -83,10 +103,10 @@ theorem recovery_yields_secret (r a h1 h2 S1 S2 : Nat)
       omega
     rw [Nat.cast_sub hb]
     simp [Nat.cast_add, ZMod.natCast_mod]
-  have hinv : (scalarModInv ((h1 + p - h2 % p) % p) : ZMod p) =
+  have hinv : (scalarModInv hp ((h1 + p - h2 % p) % p) : ZMod p) =
       ((h1 : ZMod p) - (h2 : ZMod p))⁻¹ := by
     simp [scalarModInv, ZMod.natCast_val, hdiffH]
-  have hres : (recoverSecret S1 S2 h1 h2 : ZMod p) =
+  have hres : (recoverSecret hp S1 S2 h1 h2 : ZMod p) =
       ((S1 : ZMod p) - (S2 : ZMod p)) *
       (((h1 : ZMod p) - (h2 : ZMod p))⁻¹) := by
     unfold recoverSecret
@@ -107,16 +127,16 @@ theorem recovery_yields_secret (r a h1 h2 S1 S2 : Nat)
     simp
   rw [hcancel] at hres
   -- hres : (recoverSecret ... : ZMod p) = (a : ZMod p)
-  have hval : ZMod.val (recoverSecret S1 S2 h1 h2 : ZMod p) = ZMod.val (a : ZMod p) :=
+  have hval : ZMod.val (recoverSecret hp S1 S2 h1 h2 : ZMod p) = ZMod.val (a : ZMod p) :=
     congrArg ZMod.val hres
   rw [ZMod.val_natCast, ZMod.val_natCast] at hval
   exact hval
 
-theorem recovery_sanity_example :
+theorem recovery_sanity_example (hp : Fact (Nat.Prime dlL)) :
     let r := 5; let a := 7; let h1 := 3; let h2 := 11
     let S1 := (r + h1 * a) % dlL
     let S2 := (r + h2 * a) % dlL
-    (recoverSecret S1 S2 h1 h2) % dlL = a % dlL := by
-  exact recovery_yields_secret 5 7 3 11 ((5 + 3 * 7) % dlL) ((5 + 11 * 7) % dlL) rfl rfl (by decide)
+    (recoverSecret hp S1 S2 h1 h2) % dlL = a % dlL := by
+  exact recovery_yields_secret hp 5 7 3 11 ((5 + 3 * 7) % dlL) ((5 + 11 * 7) % dlL) rfl rfl (by decide)
 
 end LeanFormalization

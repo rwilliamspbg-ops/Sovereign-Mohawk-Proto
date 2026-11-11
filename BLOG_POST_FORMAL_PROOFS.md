@@ -4,7 +4,7 @@
 "Sovereign-Mohawk Is the First Federated Learning System with Machine-Checked Formal Proofs"
 
 ## Subtitle
-270+ Lean 4 theorems and lemmas, one documented axiom, zero sorries, CI/CD gated—bringing mathematical certainty to distributed systems.
+270+ Lean 4 theorems and lemmas, zero axioms, zero sorries, CI/CD gated—bringing mathematical certainty to distributed systems.
 
 ---
 
@@ -23,7 +23,10 @@ Federated learning promises privacy-preserving distributed machine learning, but
 
 All proofs are **sorry-free** and **CI-gated** to prevent regressions. They are **publication-ready** for peer review.
 
-The proof tree carries exactly **one** documented axiom, `dlL_prime` — the primality of the 253-bit Ed25519 subgroup order L, a standard number-theoretic fact that is out of scope to re-derive in Lean. Everything else rests on Mathlib's foundation (`propext`, `Classical.choice`, `Quot.sound`). The IEEE-754 `Float` order laws that Lean cannot see are not axioms either: they are packaged in one named structure, `FloatOrderLaws`, and passed explicitly to the theorems that need them, so the assumption is visible at every use site.
+The proof tree carries **zero axioms**. It rests on Mathlib's foundation (`propext`, `Classical.choice`, `Quot.sound`) plus two assumptions that are deliberately **not** axioms, so they appear as explicit hypotheses at every use site rather than in the global proof tree:
+
+- the IEEE-754 `Float` order laws that Lean cannot see — packaged in one named structure, `FloatOrderLaws`, and passed explicitly to the theorems that need them;
+- the primality of the 253-bit Ed25519 subgroup order L — a standard number-theoretic fact that is out of scope to re-derive in Lean, carried as the explicit `Fact (Nat.Prime dlL)` hypothesis on the four declarations that need it.
 
 This is rare in federated learning. Most projects never reach this level of rigor.
 
@@ -50,7 +53,7 @@ We formalized all 6 core theorems in **Lean 4**, a proof assistant backed by the
 
 **What this means:**
 - Every theorem is machine-verified by the Lean compiler
-- One explicitly documented axiom; zero sorries; the one remaining assumption is visible at every use site
+- Zero axioms and zero sorries; the two remaining assumptions are visible at every use site as explicit hypotheses
 - Every proof can be inspected and independently verified
 - Changing the code breaks the proofs (instant regression detection)
 - Works great for publication, audits, regulatory compliance
