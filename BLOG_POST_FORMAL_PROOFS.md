@@ -4,7 +4,7 @@
 "Sovereign-Mohawk Is the First Federated Learning System with Machine-Checked Formal Proofs"
 
 ## Subtitle
-52 Lean 4 theorems, zero axioms, CI/CD gated—bringing mathematical certainty to distributed systems.
+270+ Lean 4 theorems and lemmas, one documented axiom, zero sorries, CI/CD gated—bringing mathematical certainty to distributed systems.
 
 ---
 
@@ -12,7 +12,7 @@
 
 Federated learning promises privacy-preserving distributed machine learning, but most projects are built on handwritten proofs and human verification. We're changing that.
 
-**Today, we're releasing 52 machine-checked formal theorems proving core claims about Sovereign-Mohawk:**
+**Today, we're releasing 270+ machine-checked theorems and lemmas proving core claims about Sovereign-Mohawk:**
 
 - Byzantine resilience: 55.5% fault-tolerance *claim* is a deterministic compositional statement that was disproven (machine-checked counterexample); the probabilistic repair (Chernoff) is proved at deployment scale. See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1.
 - Privacy bookkeeping: integer budget-composition surrogate (Theorem 2)
@@ -21,7 +21,9 @@ Federated learning promises privacy-preserving distributed machine learning, but
 - Verification speed: constant-cost verifier model (Theorem 5)
 - Convergence: surrogate envelope decreases with rounds (Theorem 6)
 
-All 52 proofs have **zero axioms** (no sorry/admit/axiom placeholders). All are **CI-gated** to prevent regressions. All are **publication-ready** for peer review.
+All proofs are **sorry-free** and **CI-gated** to prevent regressions. They are **publication-ready** for peer review.
+
+The proof tree carries exactly **one** documented axiom, `dlL_prime` — the primality of the 253-bit Ed25519 subgroup order L, a standard number-theoretic fact that is out of scope to re-derive in Lean. Everything else rests on Mathlib's foundation (`propext`, `Classical.choice`, `Quot.sound`). The IEEE-754 `Float` order laws that Lean cannot see are not axioms either: they are packaged in one named structure, `FloatOrderLaws`, and passed explicitly to the theorems that need them, so the assumption is visible at every use site.
 
 This is rare in federated learning. Most projects never reach this level of rigor.
 
@@ -48,7 +50,7 @@ We formalized all 6 core theorems in **Lean 4**, a proof assistant backed by the
 
 **What this means:**
 - Every theorem is machine-verified by the Lean compiler
-- Zero axioms = no unproven assumptions
+- One explicitly documented axiom; zero sorries; the one remaining assumption is visible at every use site
 - Every proof can be inspected and independently verified
 - Changing the code breaks the proofs (instant regression detection)
 - Works great for publication, audits, regulatory compliance
@@ -73,7 +75,7 @@ The `norm_num` tactic didn't just check this manually—it proved it algorithmic
 
 **Phase 2:** Formalize in Lean 4  
 → Each claim becomes a machine-checked theorem  
-→ Full artifact: 52 theorems, 17 definitions, 500+ lines
+→ Full artifact: 270+ theorems and lemmas, 17 definitions, 500+ lines
 
 **Phase 3:** CI/CD gate + documentation  
 → GitHub Actions runs `lake build` on every push  
@@ -96,7 +98,7 @@ git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 cd proofs
 lake update
 lake build LeanFormalization Mathlib
-# Output: All 52 theorems verified ✓
+# Output: All 270+ theorems and lemmas verified ✓
 ```
 
 **Claim-to-theorem mapping** (you can inspect each):

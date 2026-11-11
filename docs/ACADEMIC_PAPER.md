@@ -568,30 +568,45 @@ structure Float where val : floatSpec.float
 
 Because IEEE-754 floating-point arithmetic admits Not-a-Number (`NaN`) values, floating-point comparison is not a partial order ($x \le y \land y \le x$ does not imply $x = y$ if $x$ is `NaN`). Consequently, Mathlib intentionally does *not* synthesize an instance for `LinearOrder Float`, and basic properties such as transitivity and antisymmetry are unprovable from Lean core.
 
-### 10.3 The Eight Minimal IEEE-754 Order Axioms
-Rather than disguising this limitation, we explicitly isolate eight minimal, named order axioms in `Refinement/MultiKrum.lean`, conditioned strictly on non-`NaN` inputs (`NoNaNList`):
+### 10.3 The Single IEEE-754 Order Assumption
+Rather than disguising this limitation, we isolate the needed total-order laws
+in one named structure, `FloatOrderLaws`, in `Refinement/MultiKrum.lean`,
+conditioned strictly on non-`NaN` inputs (`NoNaNList`):
 
-| # | Axiom Identifier | Formal Proposition ($\forall a, b, c \notin \text{NaN}$) |
+| # | Field | Formal Proposition ($\forall a, b, c \notin \text{NaN}$) |
 | :--- | :--- | :--- |
-| **1** | `float_le_refl` | $a \le a$ |
-| **2** | `float_le_of_lt` | $a < b \implies a \le b$ |
-| **3** | `float_not_lt_iff_le` | $\neg (a < b) \iff b \le a$ |
-| **4** | `float_not_le_iff_lt` | $\neg (a \le b) \iff b < a$ |
-| **5** | `float_le_antisymm` | $a \le b \land b \le a \implies a = b$ |
-| **6** | `float_lt_of_lt_of_le` | $a < b \land b \le c \implies a < c$ |
-| **7** | `float_le_of_le_of_le` | $a \le b \land b \le c \implies a \le c$ |
-| **8** | `float_lt_irrefl` | $\neg (a < a)$ |
+| **1** | `le_refl` | $a \le a$ |
+| **2** | `le_of_lt` | $a < b \implies a \le b$ |
+| **3** | `not_lt_iff_le` | $\neg (a < b) \iff b \le a$ |
+| **4** | `not_le_iff_lt` | $\neg (a \le b) \iff b < a$ |
+| **5** | `le_antisymm` | $a \le b \land b \le a \implies a = b$ |
+| **6** | `lt_of_lt_of_le` | $a < b \land b \le c \implies a < c$ |
+| **7** | `le_of_le_of_le` | $a \le b \land b \le c \implies a \le c$ |
+| **8** | `lt_irrefl` | $\neg (a < a)$ |
 
-*Table 3: The Eight Minimal IEEE-754 Float Axioms in Lean 4.*
+*Table 3: The IEEE-754 Float Order Laws in Lean 4.*
 
-Under these eight explicit axioms, we machine-check that our inductive Multi-Krum implementation selects the unique minimum score pair and matches the single-element argmin:
+These are **not** global `axiom` declarations. They are fields of a structure
+that is passed explicitly to each theorem that needs it, so the assumption is
+visible at every use site rather than inherited silently from the global
+context. `#print axioms` on `multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl`
+reports only Mathlib's foundation (`propext`, `Classical.choice`,
+`Quot.sound`) — the eight laws appear as the theorem's explicit argument, not
+as axioms in its proof tree.
+
+Under this single explicit assumption, we machine-check that our inductive
+Multi-Krum implementation selects the unique minimum score pair and matches
+the single-element argmin:
 ```lean
 theorem multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl
-    (nodes : List Node) (k : Nat) :
-    multiKrumSelectManyImpl nodes 1 = multiKrumSelectImpl nodes := by ...
+    (L : FloatOrderLaws) (nodes : List Node) (k : Nat) :
+    ... := by ...
 ```
 
-Continuous integration executes `scripts/ci/check_no_unsafe_placeholders.py` to ensure that no unapproved axioms or unproven `sorry` placeholders exist beyond these eight documented IEEE-754 axioms.
+Continuous integration executes `scripts/ci/check_no_unsafe_placeholders.py`
+to ensure that no unapproved axioms or unproven `sorry` placeholders exist.
+The Float order laws are no longer on that allowlist, because they are no
+longer axioms.
 
 ---
 
