@@ -5,12 +5,13 @@ FROM golang:1.27.4-alpine AS builder
 # Force the exact toolchain go.mod requires regardless of what the base
 # image's own `go` binary reports -- observed CI failure (2026-08-15):
 # `go mod download` ran against a stale go1.26.5 inside a freshly-tagged
-# golang:1.26.6-alpine image (base-image/layer-cache mismatch, not a
+# golang:1.27.4-alpine image (base-image/layer-cache mismatch, not a
 # missing tag -- the 1.26.6-alpine tag is real and published). GOTOOLCHAIN
 # auto-download sidesteps relying on the base image's baked-in version at
 # all, matching the same GOTOOLCHAIN=X+auto pattern already hardcoded
 # throughout this repo's .github/workflows/*.yml files.
-ENV GOTOOLCHAIN=go1.27.2+auto
+ENV GOTOOLCHAIN=go1.27.4+auto
+ENV GODEBUG=http2client=0
 
 # Install build dependencies without pinning obsolete Alpine package revisions
 RUN apk add --no-cache git make
@@ -19,7 +20,10 @@ WORKDIR /app
 
 # Copy dependency manifests first for better caching
 COPY go.mod go.sum ./
-RUN go mod download || go mod download
+RUN go mod download \
+      || (sleep 10 && go mod download) \
+      || (sleep 20 && go mod download) \
+      || (sleep 40 && go mod download)
 
 # Copy source code and build with optimizations
 COPY . .

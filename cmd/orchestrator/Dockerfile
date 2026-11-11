@@ -1,15 +1,19 @@
 # Build stage
-FROM golang:1.26.6-alpine AS builder
+FROM golang:1.27.4-alpine AS builder
 # Force the exact toolchain go.mod requires; see root Dockerfile's comment
 # for the observed CI failure (missed Go-version bump in this file, the
 # actual root cause of the Chaos Readiness/Mainnet Readiness/Grafana and
 # Prometheus Smoke CI failures this docker-compose-built image caused)
 # this defends against.
-ENV GOTOOLCHAIN=go1.26.6+auto
+ENV GOTOOLCHAIN=go1.27.4+auto
+ENV GODEBUG=http2client=0
 WORKDIR /app
 RUN apk add --no-cache git gcc musl-dev
 COPY go.mod go.sum ./
-RUN go mod download || go mod download
+RUN go mod download \
+      || (sleep 10 && go mod download) \
+      || (sleep 20 && go mod download) \
+      || (sleep 40 && go mod download)
 COPY . .
 RUN go build -o main ./cmd/orchestrator
 

@@ -1,12 +1,15 @@
 # build stage
-FROM golang:1.26.6-alpine AS build
+FROM golang:1.27.4-alpine AS build
 # Force the exact toolchain go.mod requires; see root Dockerfile's comment
 # for the observed CI failure (missed Go-version bump in this file) this
 # defends against.
-ENV GOTOOLCHAIN=go1.26.6+auto
+ENV GOTOOLCHAIN=go1.27.4+auto
+ENV GODEBUG=http2client=0
 WORKDIR /src
 COPY ../../ ./
-RUN go mod tidy && \
+RUN (go mod tidy \
+      || (sleep 10 && go mod tidy) \
+      || (sleep 20 && go mod tidy)) && \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/app ./cmd/orchestrator
 RUN go build -o main ./cmd/fl-aggregator/main.go
 # runtime stage
