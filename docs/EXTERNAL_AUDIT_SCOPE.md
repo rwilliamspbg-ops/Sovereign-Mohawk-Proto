@@ -54,7 +54,7 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      or does it abstract away the curve/field details that carry the security?
 
 3. **MiMC circuit ↔ Go verifier refinement**
-   - `proofs/Refinement/ZKCircuit.lean`, `proofs/Refinement/MiMC.lean`
+   - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5MiMCFormalization.lean`
    - `internal/zksnark_circuit_verifier.go` (circuit + MPC setup)
    - Question: does the Lean circuit model match the gnark circuit actually
      compiled? Is the multi-party setup (MPC, N=3, beacon-sealed) correctly
@@ -84,19 +84,25 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
 
 ## 6. Known limitations and remaining axioms (be honest)
 
-Axioms present in the proof tree (16 total, all documented):
+Axioms present in the proof tree (1 total, documented):
 
 | File | Axiom | Status |
 |---|---|---|
-| `DiscreteLogReduction.lean` | `dlL_prime` (Nat.Prime) | assumption on group order |
-| `DiscreteLogReduction.lean` | `ForkingLemma` (Prop) | unproven lemma, load-bearing; standard forking lemma for SHA-512 (Ed25519) |
-| `DiscreteLogReduction.lean` | `ed25519_uf_cma_from_dlp` | reduction, load-bearing; "security reduction under standard DLP" (classical, unverified) |
-| `Theorem5Cryptography.lean` | MiMC collision resistance | documented axiom; MiMC declared as opaque symbol (no longer trivially provable) |
-| `Refinement/MultiKrum.lean` | 8 `Float.*` ordering axioms | IEEE 754 properties, standard |
+| `DiscreteLogReduction.lean` | `dlL_prime` (Nat.Prime) | assumption on the 253-bit Ed25519 subgroup order L; primality is a standard number-theoretic fact, out of scope to re-derive in Lean |
 
-`sorry` placeholders: 1 (`supermartingale_convergence_ae` in
-`SupermartingaleConvergence.lean` — almost-sure strengthening, work in
-progress; requires the full supermartingale transform). CI enforces no *new*
+Previously-listed axioms that have since been **removed**:
+
+| File | Axiom | How it was removed |
+|---|---|---|
+| `DiscreteLogReduction.lean` | `ForkingLemma` | deleted — dead, zero dependents (#313) |
+| `DiscreteLogReduction.lean` | `ed25519_uf_cma_from_dlp` | deleted — dead, zero dependents (#313) |
+| `Theorem5Cryptography.lean` | MiMC collision resistance | deleted — dead, zero dependents (#313) |
+| `Refinement/MultiKrum.lean` | 8 `Float.*` ordering axioms | packaged as the `FloatOrderLaws` structure, passed explicitly to each theorem that needs it — no longer global axioms (#316) |
+
+`sorry` placeholders: 0. The last one (`supermartingale_convergence_ae` in
+`SupermartingaleConvergence.lean`, the almost-sure strengthening) was closed in
+#315 via the supermartingale transform `M_t = V_t + S_t - C_t` and
+`Submartingale.exists_ae_tendsto_of_bdd`. CI enforces no *new*
 `sorry`/`admit`/`axiom` beyond the documented set.
 
 Other honest limitations:

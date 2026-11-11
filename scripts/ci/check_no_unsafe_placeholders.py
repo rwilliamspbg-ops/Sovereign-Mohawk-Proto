@@ -9,13 +9,21 @@ in-progress proofs, per the existing convention this check preserves).
 "trust me" is exactly what this repo's formal-verification effort exists to
 prevent from hiding behind a passing build. But a small number of axioms can
 be the honest choice when a fact is genuinely outside what Lean/Mathlib can
-derive -- e.g. `proofs/Refinement/MultiKrum.lean`'s `float_le_*` axioms,
-added because Lean's `Float` type carries zero order axioms at all (`#print
-floatSpec` shows an opaque constant asserting nothing) and Mathlib defines no
-order instance for it either. Rather than a blanket ban or an easily-slapped-
-on marker comment, each axiom must be explicitly named in ALLOWED_AXIOMS
-below, keyed to the exact file it's expected in -- adding a new axiom means a
-visible, reviewable change to this allowlist, not a silent pass.
+derive -- e.g. `proofs/LeanFormalization/DiscreteLogReduction.lean`'s
+`dlL_prime`, whose 253-bit primality is a standard number-theoretic fact
+that is out of scope to re-derive in Lean. Rather than a blanket ban or an
+easily-slapped-on marker comment, each axiom must be explicitly named in
+ALLOWED_AXIOMS below, keyed to the exact file it's expected in -- adding a
+new axiom means a visible, reviewable change to this allowlist, not a
+silent pass.
+
+Note: the eight `Float` order axioms that used to live in
+`proofs/Refinement/MultiKrum.lean` are gone. Lean's `Float` carries no
+order laws (`#print floatSpec` shows an opaque constant asserting nothing)
+and Mathlib defines no order instance for it, so the ordinary total-order
+laws are now packaged in that file as the `FloatOrderLaws` structure and
+passed explicitly to the theorems that need them -- an assumption at each
+use site rather than a global axiom.
 
 Consolidates what were previously two independently-drifting inline `grep`
 checks (`.github/workflows/verify-proofs.yml`'s `verify-lean-formalization`
@@ -33,38 +41,6 @@ from pathlib import Path
 # documentation for reviewers, not machine-checked, but every entry must be
 # real and specific -- "needed for a proof" is not a reason.
 ALLOWED_AXIOMS: dict[tuple[str, str], str] = {
-    ("Refinement/MultiKrum.lean", "float_le_refl"): (
-        "Float has no order axioms in Lean or Mathlib (see file's doc "
-        "comment); restricted to non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_le_of_lt"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_not_lt_iff_le"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_not_le_iff_lt"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_le_antisymm"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_lt_of_lt_of_le"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_le_of_le_of_le"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
-    ("Refinement/MultiKrum.lean", "float_lt_irrefl"): (
-        "Float has no order axioms in Lean or Mathlib; restricted to "
-        "non-NaN values, where it is true."
-    ),
     ("LeanFormalization/DiscreteLogReduction.lean", "dlL_prime"): (
         "Primality of the 253-bit Ed25519 subgroup order L is a standard "
         "number-theoretic fact; proving primality of a 253-bit integer in "

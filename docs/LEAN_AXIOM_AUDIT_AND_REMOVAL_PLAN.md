@@ -321,6 +321,22 @@ the replacement on this host.**
 
 ### Phase 3 — The eight `Float` axioms (scope decision required)
 
+> **Status: DONE (Option B, `fix/lean-float-order-laws`).** The eight `axiom`
+> declarations are deleted. The laws are packaged as the `FloatOrderLaws`
+> structure in `proofs/Refinement/MultiKrum.lean` and passed explicitly to
+> `IsMinIdx_unique`, `argminAux_spec`, `minFoldPair_spec`, `argmin?_isMinIdx`,
+> `multiKrumSelectManyImpl_one_selects_argmin`, and
+> `multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl`. `#print axioms` on
+> those theorems now reports only Mathlib's foundation; the CI allowlist drops
+> from 13 entries to 1 (`dlL_prime`).
+>
+> Full genericization over `[LinearOrder α]` was tried and rejected: Lean's
+> `Float.le` is `floatSpec.le a.val b.val` with `floatSpec` opaque, so a
+> generic `[LinearOrder α]` development does **not** transport to the concrete
+> `Float` definitions definitionally (verified: `argminAuxG (α := Float) =
+> argminAuxF` is not provable by `rfl`). Packaging the laws into one explicit
+> structure is the honest achievable form of Option B.
+
 **Effort: not a proof problem — see §3.2.** Three honest options:
 
 **Option A — keep them (recommended if the goal is minimal, honest change).**
