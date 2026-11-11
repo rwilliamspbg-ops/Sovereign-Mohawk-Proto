@@ -142,14 +142,14 @@ lake build LeanFormalization Mathlib
 - **Supply chain trust:** Immutable GitHub commits + CI/CD evidence chain
 
 ### For Researchers
-- **Publication-ready:** Can submit to FMCAD, ITP, CPP (top formal methods venues)
+- **Submissible:** Written up for FMCAD/ITP/CPP; peer review will judge whether the scoped results meet the bar
 - **Reproducible:** Anyone can clone, build, and verify the proofs
 - **Citable:** Specific commit hash makes it permanent and verifiable
 
 ### For the Community
 - **Rare achievement:** Federated learning systems rarely have formal proofs
 - **Inspiration:** Sets a standard for rigor in distributed ML
-- **Transparency:** Proves claims with math, not marketing
+- **Transparency:** States every assumption in the statement of the theorem, and publishes the disproofs alongside the results
 
 ---
 
@@ -162,7 +162,7 @@ lake build LeanFormalization Mathlib
 
 **Next 2-4 weeks:**
 - Deepen proofs with probability theory (Mathlib.Probability)
-- Formalize hierarchy as recursive inductive structure
+- Close the remaining gaps: instantiate MiMC at BN254, derive the Gaussian RDP bound, and tighten the m>1 selection gap
 - Link to runtime Go tests (formal + empirical validation)
 
 **Next 6 months:**
@@ -192,7 +192,7 @@ Federated learning is only as trustworthy as its guarantees. We've moved from
 handwritten proofs to machine-checked theorems *about explicit models* — and
 we're publishing where the checking stops.
 
-This is the beginning. Over the next 6 months, we'll deepen the proofs, publish in top venues, and set the standard for rigor in distributed systems.
+This is the beginning. Over the next 6 months we'll deepen the proofs and submit them for peer review — and keep publishing where the checking stops.
 
 **Welcome to federated learning with its assumptions written down.**
 
