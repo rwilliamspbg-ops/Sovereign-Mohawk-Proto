@@ -183,6 +183,12 @@ grep -r "sorry\|axiom\|admit" proofs/LeanFormalization/*.lean
 
 **Interpretation:** All 52 theorems have complete proofs with zero placeholders, unproven lemmas, or axioms beyond standard Mathlib.
 
+> **Update (2026-11-11):** the placeholder-free statement is still true and now
+> also holds for `axiom` — the development is axiom-free and sorry-free, with
+> only Mathlib's foundation plus two explicit hypotheses (`FloatOrderLaws`,
+> `Fact (Nat.Prime dlL)`). The 52-symbol count is stale; the current development
+> builds ~510 declarations. See `proofs/FORMAL_TRACEABILITY_MATRIX.md`.
+
 ---
 
 ## Runtime Test Evidence Cross-Validation
