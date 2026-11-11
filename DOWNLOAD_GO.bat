@@ -1,19 +1,19 @@
 @echo off
-REM Download Go 1.25.9 using curl (built-in on Windows 10+)
+REM Download Go 1.27.4 using curl (built-in on Windows 10+)
 
 setlocal enabledelayedexpansion
 
 echo.
 echo ╔═══════════════════════════════════════════════════════════╗
-echo ║  Go 1.25.9 Download Helper                               ║
+echo ║  Go 1.27.4 Download Helper                               ║
 echo ║  Using built-in curl                                     ║
 echo ╚═══════════════════════════════════════════════════════════╝
 echo.
 
-set "DOWNLOAD_URL=https://go.dev/dl/go1.25.9.windows-amd64.zip"
-set "OUTPUT_FILE=go1.25.9.zip"
+set "DOWNLOAD_URL=https://go.dev/dl/go1.27.4.windows-amd64.zip"
+set "OUTPUT_FILE=go1.27.4.zip"
 
-echo Downloading Go 1.25.9...
+echo Downloading Go 1.27.4...
 echo From: %DOWNLOAD_URL%
 echo To: %OUTPUT_FILE%
 echo.
@@ -49,7 +49,7 @@ if %ERRORLEVEL% equ 0 (
     echo.
     echo Manual download:
     echo 1. Visit: https://go.dev/dl/
-    echo 2. Download: go1.25.9.windows-amd64.zip
+    echo 2. Download: go1.27.4.windows-amd64.zip
     echo 3. Extract to C:\ (creates C:\go)
     echo 4. Add C:\go\bin to PATH
     echo 5. Restart terminal

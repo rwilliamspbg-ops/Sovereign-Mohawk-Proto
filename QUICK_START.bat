@@ -19,7 +19,7 @@ go version >nul 2>&1
 if !errorlevel! neq 0 (
     echo ERROR: Go not found in PATH
     echo.
-    echo Install Go 1.25.9+ from: https://go.dev/dl/
+    echo Install Go 1.27.4+ from: https://go.dev/dl/
     echo After installation, restart this terminal
     echo.
     pause

@@ -448,7 +448,7 @@ Full release notes: [RELEASE_NOTES_PQC_OVERHAUL.md](docs/RELEASE_NOTES_PQC_OVERH
 
 ### Go Runtime
 
-Sovereign-Mohawk is built with **Go 1.27.3+**.
+Sovereign-Mohawk is built with **Go 1.27.4+**.
 
 ```bash
 git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto.git
@@ -938,7 +938,7 @@ Latest runtime microbenchmark matrix for `AggregateParallel` includes:
 Run locally:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.3.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.4.linux-amd64 \
 GOROOT=$TOOLROOT PATH=$TOOLROOT/bin:$PATH GOTOOLCHAIN=local \
 go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=200ms
 ```
@@ -946,7 +946,7 @@ go test ./test -run '^$' -bench BenchmarkAggregateParallel -benchmem -benchtime=
 Generate a base-vs-current comparison report:
 
 ```bash
-TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.3.linux-amd64 \
+TOOLROOT=/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.4.linux-amd64 \
 BASE_REF=origin/main BENCH_TIME=200ms BENCH_COUNT=10 \
 BENCH_CPU=2 \
 USE_BENCHSTAT=always BENCHSTAT_ALPHA=0.01 \

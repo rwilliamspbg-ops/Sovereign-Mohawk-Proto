@@ -1,7 +1,7 @@
 @echo off
 REM ═══════════════════════════════════════════════════════════════════
 REM Sovereign-Mohawk Environment Quick Setup
-REM Downloads and installs Go 1.25.9 and Python 3
+REM Downloads and installs Go 1.27.4 and Python 3
 REM Run as Administrator
 REM ═══════════════════════════════════════════════════════════════════
 
@@ -10,7 +10,7 @@ setlocal enabledelayedexpansion
 echo.
 echo ╔═══════════════════════════════════════════════════════════╗
 echo ║  Environment Setup - Sovereign-Mohawk                    ║
-echo ║  Go 1.25.9 + Python 3 Installation Helper               ║
+echo ║  Go 1.27.4 + Python 3 Installation Helper               ║
 echo ╚═══════════════════════════════════════════════════════════╝
 echo.
 
@@ -66,7 +66,7 @@ REM Menu
 :menu
 echo Select what to install:
 echo.
-echo 1. Go 1.25.9 (required)
+echo 1. Go 1.27.4 (required)
 echo 2. Python 3.12 (optional, for analysis)
 echo 3. Both
 echo 4. Skip installation
@@ -91,7 +91,7 @@ goto finish
 
 :install_go
 echo.
-echo Downloading Go 1.25.9...
+echo Downloading Go 1.27.4...
 echo (this may take 1-2 minutes)
 echo.
 
@@ -99,8 +99,8 @@ REM Use PowerShell for download
 powershell -NoProfile -Command ^
   "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
   "$ProgressPreference = 'SilentlyContinue'; " ^
-  "Write-Host 'Downloading Go 1.25.9...'; " ^
-  "Invoke-WebRequest -Uri 'https://go.dev/dl/go1.25.9.windows-amd64.msi' -OutFile 'go_installer.msi'; " ^
+  "Write-Host 'Downloading Go 1.27.4...'; " ^
+  "Invoke-WebRequest -Uri 'https://go.dev/dl/go1.27.4.windows-amd64.msi' -OutFile 'go_installer.msi'; " ^
   "Write-Host 'Download complete. Running installer...'; " ^
   "Start-Process 'go_installer.msi' -Wait -ArgumentList '/quiet'; " ^
   "Write-Host 'Go installation complete'"
@@ -110,10 +110,10 @@ echo Testing Go installation...
 go version
 
 if !errorlevel! equ 0 (
-    echo ✓ Go 1.25.9 installed successfully
+    echo ✓ Go 1.27.4 installed successfully
 ) else (
     echo ✗ Go installation may have failed
-    echo   Try manual install: https://go.dev/dl/go1.25.9.windows-amd64.msi
+    echo   Try manual install: https://go.dev/dl/go1.27.4.windows-amd64.msi
 )
 
 echo.
@@ -153,9 +153,9 @@ echo.
 echo Manual Download Instructions:
 echo ════════════════════════════════════════════════════════════
 echo.
-echo Go 1.25.9 (REQUIRED):
+echo Go 1.27.4 (REQUIRED):
 echo   1. Visit: https://go.dev/dl/
-echo   2. Download: go1.25.9.windows-amd64.msi
+echo   2. Download: go1.27.4.windows-amd64.msi
 echo   3. Run installer, use default options
 echo   4. Restart terminal
 echo.

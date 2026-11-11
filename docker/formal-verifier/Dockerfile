@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-ARG GO_VERSION=1.25.9
+ARG GO_VERSION=1.27.4
 
 USER root
 
