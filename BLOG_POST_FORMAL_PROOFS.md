@@ -1,10 +1,10 @@
-# Blog Post: Sovereign-Mohawk Machine-Checked Formal Proofs
+# Blog Post: Sovereign-Mohawk's Machine-Checked Formal Proofs — An Honest Status
 
 ## Title
-"Sovereign-Mohawk Is the First Federated Learning System with Machine-Checked Formal Proofs"
+"Sovereign-Mohawk's Machine-Checked Formal Proofs: An Honest Status Report"
 
 ## Subtitle
-270+ Lean 4 theorems and lemmas, zero axioms, zero sorries, CI/CD gated—bringing mathematical certainty to distributed systems.
+270+ Lean 4 theorems and lemmas, zero axioms, zero sorries, CI/CD gated — and an honest breakdown of which claims are machine-checked about the protocol *model*, which are surrogates, and which are only checked empirically against the Go runtime.
 
 ---
 
@@ -21,7 +21,10 @@ Federated learning promises privacy-preserving distributed machine learning, but
 - Verification speed: constant-cost verifier model (Theorem 5)
 - Convergence: surrogate envelope decreases with rounds (Theorem 6)
 
-All proofs are **sorry-free** and **CI-gated** to prevent regressions. They are **publication-ready** for peer review.
+All proofs are **sorry-free** and **CI-gated** to prevent regressions. "Sorry-free"
+means the Lean kernel accepts every statement; it does **not** mean the results
+are proved about the deployed runtime — most are proved about a stated model,
+and the Go↔Lean correspondence is empirical.
 
 The proof tree carries **zero axioms**. It rests on Mathlib's foundation (`propext`, `Classical.choice`, `Quot.sound`) plus two assumptions that are deliberately **not** axioms, so they appear as explicit hypotheses at every use site rather than in the global proof tree:
 
@@ -120,8 +123,10 @@ lake build LeanFormalization Mathlib
 ## Why This Matters
 
 ### For Enterprise Users
-- **Regulatory compliance:** Formal proofs are admissible in security audits (SOC 2, ISO 27001)
-- **Risk reduction:** Machine-checked guarantees catch human error
+- **Regulatory compliance:** the Lean artifacts are inspectable evidence for an
+  auditor, but they are not a certification and do not by themselves satisfy a
+  SOC 2 / ISO 27001 control
+- **Risk reduction:** machine-checked *models* catch human error in the protocol reasoning they cover
 - **Supply chain trust:** Immutable GitHub commits + CI/CD evidence chain
 
 ### For Researchers
@@ -171,11 +176,13 @@ If you find a gap, open an issue. We welcome peer review.
 
 ## Conclusion
 
-Federated learning is only as trustworthy as its guarantees. We've moved from handwritten proofs to machine-checked theorems.
+Federated learning is only as trustworthy as its guarantees. We've moved from
+handwritten proofs to machine-checked theorems *about explicit models* — and
+we're publishing where the checking stops.
 
 This is the beginning. Over the next 6 months, we'll deepen the proofs, publish in top venues, and set the standard for rigor in distributed systems.
 
-**Welcome to provably correct federated learning.**
+**Welcome to federated learning with its assumptions written down.**
 
 ---
 
