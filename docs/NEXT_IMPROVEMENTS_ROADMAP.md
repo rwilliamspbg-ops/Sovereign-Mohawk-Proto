@@ -4,6 +4,25 @@
 **Prepared:** 2026-04-19  
 **Focus Areas:** Lean formalization, CI/CD hardening, testing depth, deployment observability
 
+> ## ⚠️ STALE CLAIMS IN THIS ROADMAP
+>
+> This is a forward-looking task list from 2026-04-19. Several items assume the
+> original **55.5% hierarchical Byzantine composition** claim is true and
+> propose work to *verify* or *operationalize* it. That claim was
+> **disproven** — `hierarchical_composition_counterexample` is a machine-checked
+> two-tier tree where every tier's honest-majority guard holds while the global
+> Byzantine leaf fraction is **60%**. No per-tier threshold fixes it.
+>
+> Items affected: §3c ("Verify resilience holds at 55.5% Byzantine threshold"),
+> §4c (`theorem-bft-breach.md`: "If Byzantine estimate > 55.5%"), §7's
+> "Validate scale: 10M nodes with 5.55M Byzantine → 55.5%" outline, and §8b's
+> "Understanding Theorem 1: 55.5% Resilience" topic. Treat those as describing
+> a claim that no longer exists; the live position is in
+> `proofs/FORMAL_TRACEABILITY_MATRIX.md` row 1 (single-tier guard arithmetic
+> `fully_formalized`; compositional claim disproven; probabilistic Chernoff
+> repair proved for the i.i.d. Bernoulli model). Also note the Lean development
+> is now axiom-free and sorry-free (PRs #313, #315, #316, #318).
+
 ---
 
 ## Priority 1: Phase 3b Probabilistic Formalization (HIGH IMPACT)

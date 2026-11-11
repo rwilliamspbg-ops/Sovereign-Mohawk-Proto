@@ -25,7 +25,7 @@ lake build LeanFormalization Mathlib
 
 | # | Claim | Markdown Proof | Lean Module | Key Theorem | Status |
 |---|-------|---|---|---|---|
-| 1 | 55.5% Byzantine resilience | `bft_resilience.md` | `Theorem1BFT.lean` | `theorem1_global_bound_checked` | fully_formalized |
+| 1 | ~~55.5% Byzantine resilience~~ — single-tier 5/9 guard arithmetic is `fully_formalized`; the hierarchical composition claim is **disproven** (`hierarchical_composition_counterexample`); a probabilistic Chernoff repair is proved for the i.i.d. Bernoulli model | `bft_resilience.md` | `Theorem1BFT.lean` | `theorem1_five_ninths_guard`, `theorem1_global_bound_checked`, `hierarchical_composition_counterexample`, `chernoff_hierarchical_bound_deployment_scale` | guard-dependent (single-tier); compositional claim disproven; probabilistic repair proved |
 | 2 | Integer privacy-budget composition surrogate (with Gaussian RDP axiom) | `differential_privacy.md` | `Theorem2RDP.lean` | `theorem2_budget_guard` | surrogate_verified_with_gaussian_axiom |
 | 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | fully_formalized |
 | 4 | Integer liveness guard surrogate (with Chernoff extension) | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | model_verified |
