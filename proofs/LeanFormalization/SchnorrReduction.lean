@@ -1,5 +1,4 @@
 import Mathlib
-import LeanFormalization.DiscreteLogReduction
 
 /-!
 # A Proper Reduction for the Schnorr / Ed25519 Identification Protocol
