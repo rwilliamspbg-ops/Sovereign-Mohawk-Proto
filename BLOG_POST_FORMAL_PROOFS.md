@@ -4,7 +4,7 @@
 "Sovereign-Mohawk's Machine-Checked Formal Proofs: An Honest Status Report"
 
 ## Subtitle
-270+ Lean 4 theorems and lemmas, zero axioms, zero sorries, CI/CD gated — and an honest breakdown of which claims are machine-checked about the protocol *model*, which are surrogates, and which are only checked empirically against the Go runtime.
+510+ Lean 4 declarations across 142 files, zero axioms, zero sorries, CI/CD gated — and an honest breakdown of which claims are machine-checked about the protocol *model*, which are surrogates, and which are only checked empirically against the Go runtime.
 
 ---
 
@@ -12,9 +12,9 @@
 
 Federated learning promises privacy-preserving distributed machine learning, but most projects are built on handwritten proofs and human verification. We're changing that.
 
-**Today, we're releasing 270+ machine-checked theorems and lemmas proving core claims about Sovereign-Mohawk:**
+**Today, we're releasing 510+ Lean 4 declarations across 142 files, covering the core claims about Sovereign-Mohawk's protocol *models* — each with a recorded status and scope:**
 
-- Byzantine resilience: 55.5% fault-tolerance *claim* is a deterministic compositional statement that was disproven (machine-checked counterexample); the probabilistic repair (Chernoff) is proved at deployment scale. See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1.
+- Byzantine resilience: the 55.5% fault-tolerance *claim* was a deterministic compositional statement and was **disproven** (machine-checked counterexample, 60% global Byzantine leaf fraction). A probabilistic Chernoff repair is proved — **under an explicit i.i.d. Bernoulli committee-sampling model**, not for adversarial placement. See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1.
 - Privacy bookkeeping: integer budget-composition surrogate (Theorem 2)
 - Communication efficiency: O(d log n) vs O(dn) naive (Theorem 3)
 - Liveness: integer redundancy guard surrogate (Theorem 4)
@@ -37,7 +37,7 @@ This is rare in federated learning. Most projects never reach this level of rigo
 
 ## The Problem
 
-**Federated learning is complex.** When you're coordinating updates from 10 million devices across a hierarchy, scaling aggregation, defending against Byzantine adversaries, and preserving privacy—all at the same time—it's easy to make mistakes.
+**Federated learning is complex.** When you're designing for 10 million devices across a hierarchy (our target envelope, not a deployment we have measured), scaling aggregation, defending against Byzantine adversaries, and preserving privacy—all at the same time—it's easy to make mistakes.
 
 Traditional approaches:
 - Write a paper with hand-sketched proofs
@@ -52,25 +52,37 @@ Traditional approaches:
 
 ## The Solution: Machine-Checked Proofs
 
-We formalized all 6 core theorems in **Lean 4**, a proof assistant backed by the world's leading academic verification community.
+We formalized the core claims in **Lean 4**, a proof assistant backed by the world's leading academic verification community. Several are surrogates or models rather than full results — we label which.
 
 **What this means:**
-- Every theorem is machine-verified by the Lean compiler
+- Every theorem is accepted by the Lean kernel (no `sorry`, no `axiom`)
+- "Machine-checked" means checked *about the stated model*, not about the deployed Go binary
 - Zero axioms and zero sorries; the two remaining assumptions are visible at every use site as explicit hypotheses
 - Every proof can be inspected and independently verified
 - Changing the code breaks the proofs (instant regression detection)
-- Works great for publication, audits, regulatory compliance
+- Inspectable evidence for publication and audit; **not** a certification, and not by itself a SOC 2 / ISO 27001 control
 
 **Example: Theorem 1 (Byzantine Resilience)**
 
 ```lean
--- Claim: 5.55M Byzantine nodes out of 10M are tolerated
+/-- Single-tier 5/9 profile guard: if 9f < 5n then f/n < 5/9. -/
+theorem theorem1_five_ninths_guard (n f : ℕ) (hn : 0 < n) (h : 9 * f < 5 * n) :
+    (f : ℚ) / n < (5 : ℚ) / 9 := by ...
+
+/-- Concrete instance at the 10M-node target. -/
 theorem theorem1_global_bound_checked :
-    (5_550_000 : ℤ) < (10_000_000 : ℤ) / 2 := by
-  norm_num  -- Machine verifies the arithmetic: 5,550,000 < 5,000,000 ✓
+    (5_555_555 : ℚ) / 10_000_000 < (5 : ℚ) / 9 :=
+  theorem1_five_ninths_guard 10_000_000 5_555_555 (by norm_num) (by norm_num)
 ```
 
-The `norm_num` tactic didn't just check this manually—it proved it algorithmically, and Lean verified the proof is sound.
+(Signatures verbatim from `proofs/LeanFormalization/Theorem1BFT.lean:47,86` —
+an earlier version of this post showed `5_550_000 < 10_000_000 / 2` as
+machine-verified, which is false arithmetic and not the real theorem.)
+
+What this actually establishes is a **single-tier, guard-conditional** fact:
+*if* a tier of `n` nodes has `f` Byzantine with `9f < 5n`, then `f/n < 5/9`.
+It is **not** a global Byzantine tolerance — the hierarchical composition claim
+was disproven (see the counterexample below).
 
 ---
 
@@ -81,7 +93,7 @@ The `norm_num` tactic didn't just check this manually—it proved it algorithmic
 
 **Phase 2:** Formalize in Lean 4  
 → Each claim becomes a machine-checked theorem  
-→ Full artifact: 270+ theorems and lemmas, 17 definitions, 500+ lines
+→ Full artifact: 510+ declarations across 142 files (axiom-free, sorry-free)
 
 **Phase 3:** CI/CD gate + documentation  
 → GitHub Actions runs `lake build` on every push  
@@ -104,18 +116,18 @@ git clone https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 cd proofs
 lake update
 lake build LeanFormalization Mathlib
-# Output: All 270+ theorems and lemmas verified ✓
+# Output: all declarations built, no sorry/axiom placeholders ✓
 ```
 
 **Claim-to-theorem mapping** (you can inspect each):
 
 | Claim | Lean Module | Key Theorem |
 |-------|---|---|
-| 55.5% Byzantine resilience | `Theorem1BFT.lean` | `theorem1_global_bound_checked` |
+| ~~55.5% Byzantine resilience~~ (composition **disproven**) | `Theorem1BFT.lean` | `hierarchical_composition_counterexample`; single-tier guard `theorem1_five_ninths_guard` |
 | Integer privacy-budget composition surrogate | `Theorem2RDP.lean` | `theorem2_budget_guard` |
-| O(d log n) communication | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` |
+| O(d log n) path-depth **proxy** | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` |
 | Integer liveness guard surrogate | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` |
-| Constant-cost verifier model | `Theorem5Cryptography.lean` | `theorem5_constant_cost` |
+| Constant-cost verifier **model** | `Theorem5Cryptography.lean` | `theorem5_constant_cost` |
 | Non-IID convergence | `Theorem6Convergence.lean` | `theorem6_*` (6 theorems) |
 
 ---
@@ -156,7 +168,7 @@ lake build LeanFormalization Mathlib
 **Next 6 months:**
 - Submit paper to FMCAD/ITP/CPP
 - Archive proofs to Formal Proofs Repository (AFP)
-- Create regulatory compliance evidence package
+- Create a compliance evidence package that states plainly what the Lean artifacts do and do not cover
 
 ---
 
