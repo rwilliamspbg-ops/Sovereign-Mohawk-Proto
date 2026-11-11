@@ -376,6 +376,16 @@ dead-ends.
 
 ### Phase 4 — `dlL_prime` (hard; two real options)
 
+> **Status: DONE (Option B, `fix/lean-dlL-prime-hypothesis`).** The `axiom
+> dlL_prime : Nat.Prime dlL` and the global `instance : Fact (Nat.Prime dlL)`
+> are deleted. The primality of the Ed25519 subgroup order is now the explicit
+> `Fact (Nat.Prime dlL)` hypothesis on the four declarations that need it:
+> `scalarModInv`, `recoverSecret`, `recovery_yields_secret`,
+> `recovery_sanity_example`. `dlVerify`, `dlAdversarySucceeds`, and
+> `DiscreteLogHard` do not need it and remain unconditional. `#print axioms`
+> on all four now reports only Mathlib's foundation; the CI allowlist is empty
+> and the Lean development has **zero** `axiom` declarations.
+
 **Effort: high for a full machine-checked proof; low for the honest alternative.**
 
 **Option A — prove it.** Requires a 253-bit primality certificate in Lean.
@@ -492,15 +502,29 @@ python3 scripts/ci/check_no_unsafe_placeholders.py
 
 ## 6. Bottom line
 
+> **Update after execution: all four phases are DONE. The Lean development now
+> has zero `axiom` declarations and zero `sorry`s.** `#print axioms` over all
+> 272 theorems and lemmas reports only Mathlib's foundation (`propext`,
+> `Classical.choice`, `Quot.sound`). The two remaining assumptions are
+> explicit hypotheses, not axioms — `FloatOrderLaws` in the Multi-Krum
+> refinement, and `Fact (Nat.Prime dlL)` in the discrete-log reduction.
+
+Original assessment, for the record:
+
 - **10 of 20 trust items are removable with modest, low-risk work** (3 dead
-  axioms, 6 `native_decide`s, 1 `sorry`).
+  axioms, 6 `native_decide`s, 1 `sorry`). — *Done in #313 and #315.*
 - **9 are irreducible without a scope decision**: 8 `Float` order axioms (Lean
-  cannot see `Float`'s order) and 1 253-bit primality axiom.
+  cannot see `Float`'s order) and 1 253-bit primality axiom. — *Resolved in
+  #316 and #318 by packaging each as an explicit hypothesis rather than an
+  axiom; neither assumption was provable, both are now visible at every use
+  site instead of being global.*
 - **The `sorry` is real work but very doable** — Mathlib has
   `supermartingale_nat`, `Submartingale.ae_tendsto_limitProcess`,
   `MeasureTheory.ae_lt_top`, and `lintegral_iSup`, which is exactly the toolkit
-  the proof needs.
-- **The public docs overstate the result.** "Zero axioms" is not true today and
-  cannot be made true without either dropping the `Float` ordering reasoning or
-  accepting a documented IEEE-754 assumption. That correction is part of the
-  job, not an optional extra.
+  the proof needs. — *Done in #315.*
+- **The public docs overstate the result.** "Zero axioms" was not true when
+  this plan was written and could not be made true without either dropping the
+  `Float` ordering reasoning or accepting a documented IEEE-754 assumption.
+  That correction was part of the job — and the honest end state turned out to
+  be stronger than the original options suggested: both assumptions are now
+  local hypotheses, so "zero axioms" is literally true.

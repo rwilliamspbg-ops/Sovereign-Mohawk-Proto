@@ -44,9 +44,12 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
 
 1. **Discrete-log reduction + Forking Lemma core**
    - `proofs/LeanFormalization/DiscreteLogReduction.lean`
-   - Axioms in play: `dlL_prime`, `ForkingLemma`, `ed25519_uf_cma_from_dlp`.
-   - Question: is the reduction algebraically sound? Are the axioms discharged
-     by a real forking-lemma argument, or are they load-bearing assumptions?
+   - Axioms in play: none. `dlL_prime` was demoted from a global `axiom` to the
+     explicit `Fact (Nat.Prime dlL)` hypothesis on the four declarations that
+     need it (#318); `ForkingLemma` and `ed25519_uf_cma_from_dlp` were deleted
+     as dead (#313).
+   - Question: is the reduction algebraically sound? Are the assumptions
+     discharged by a real forking-lemma argument, or are they load-bearing?
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`
@@ -84,11 +87,9 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
 
 ## 6. Known limitations and remaining axioms (be honest)
 
-Axioms present in the proof tree (1 total, documented):
-
-| File | Axiom | Status |
-|---|---|---|
-| `DiscreteLogReduction.lean` | `dlL_prime` (Nat.Prime) | assumption on the 253-bit Ed25519 subgroup order L; primality is a standard number-theoretic fact, out of scope to re-derive in Lean |
+Axioms present in the proof tree: **0**. The Lean development is axiom-free;
+`#print axioms` over all 272 theorems and lemmas reports only Mathlib's
+foundation (`propext`, `Classical.choice`, `Quot.sound`).
 
 Previously-listed axioms that have since been **removed**:
 
@@ -98,6 +99,7 @@ Previously-listed axioms that have since been **removed**:
 | `DiscreteLogReduction.lean` | `ed25519_uf_cma_from_dlp` | deleted — dead, zero dependents (#313) |
 | `Theorem5Cryptography.lean` | MiMC collision resistance | deleted — dead, zero dependents (#313) |
 | `Refinement/MultiKrum.lean` | 8 `Float.*` ordering axioms | packaged as the `FloatOrderLaws` structure, passed explicitly to each theorem that needs it — no longer global axioms (#316) |
+| `DiscreteLogReduction.lean` | `dlL_prime` | demoted from a global `axiom` to the explicit `Fact (Nat.Prime dlL)` hypothesis on the four declarations that need it (#318) |
 
 `sorry` placeholders: 0. The last one (`supermartingale_convergence_ae` in
 `SupermartingaleConvergence.lean`, the almost-sure strengthening) was closed in

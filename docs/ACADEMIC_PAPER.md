@@ -743,7 +743,7 @@ We explicitly record technical limitations and open gaps:
 2. **Groth16 Trusted Setup:** Groth16 pairing verification depends on an initial structured reference string (SRS). Migrating to transparent STARK or Halo2 schemes would eliminate trusted setup dependencies.
 3. **Sampling Distribution Assumptions:** The probabilistic repair strictly presumes independent Bernoulli committee sampling. Non-uniform or geographically correlated adversarial node concentration remains an open theoretical direction.
 4. **Physical WAN Scaling:** While multi-node container benchmarks up to 1,500 pods confirm microsecond aggregation efficiency, real-world planetary deployments across high-jitter wireless WANs remain future empirical work.
-5. **253-Bit Primality Axiom:** In `DiscreteLogReduction.lean`, the primality of the Ed25519 subgroup order $L = 2^{252} + 27742317777372353535851937790883648493$ (`dlL_prime`) is formalized as a named hypothesis, as 253-bit primality certificates exceed Lean's native decidability timeout.
+5. **253-Bit Primality Hypothesis:** In `DiscreteLogReduction.lean`, the primality of the Ed25519 subgroup order $L = 2^{252} + 27742317777372353535851937790883648493$ is carried as the explicit hypothesis $\texttt{Fact (Nat.Prime L)}$ on the four declarations that need it, as 253-bit primality certificates exceed Lean's native decidability timeout. It is not a global `axiom`; every consumer sees the assumption in the statement.
 
 ---
 
