@@ -102,7 +102,9 @@ Required test cases:
 
 ## 8. Conclusion
 
-The Python SDK C-shared library bridge (`internal/pyapi/api.go`) is formally verified to:
+The Python SDK C-shared library bridge (`internal/pyapi/api.go`) is
+**empirically validated** (by the Go test suite listed above — there is no Lean
+model of the C-shared bridge, so nothing here is machine-checked) to:
 
 1. **Maintain memory safety** without buffer overflows or dangling pointers
 2. **Preserve type correctness** across language boundaries

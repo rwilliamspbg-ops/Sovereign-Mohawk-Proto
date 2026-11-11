@@ -780,7 +780,7 @@ The author thanks the developers and maintainers of Lean 4, Mathlib, the `gnark`
 15. C. Dwork and A. Roth, "The algorithmic foundations of differential privacy," *Foundations and Trends in Theoretical Computer Science*, vol. 9, no. 3–4, pp. 211–407, 2014.
 16. D. J. Bernstein, "Curve25519: new Diffie-Hellman speed records," in *Proc. 9th International Conference on Public Key Cryptography (PKC)*, pp. 207–228, 2006.
 17. National Institute of Standards and Technology (NIST), "FIPS 203: Module-Lattice-Based Key-Encapsulation Mechanism Standard," U.S. Department of Commerce, 2024.
-18. R. Williams, "Sovereign Mohawk Proto: Formally Verified Hierarchical Federated Learning Engine," GitHub Repository, 2026. `https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto`.
+18. R. Williams, "Sovereign Mohawk Proto: A Scoped Lean 4 Formalization of a Hierarchical Federated Learning Engine," GitHub Repository, 2026. `https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto`.
 19. L. de Moura and S. Ullrich, "The Lean 4 theorem prover and programming language," in *Proc. 28th International Conference on Automated Deduction (CADE)*, pp. 625–635, 2021.
 20. M. R. Albrecht, L. Grassi, C. Rechberger, A. Roy, and T. Tiessen, "MiMC: Efficient cryptographic primitive for SNARKs and STARKs," in *Proc. 22nd International Conference on the Theory and Application of Cryptology and Information Security (ASIACRYPT)*, pp. 191–219, 2016.
 21. H. Robbins and D. Siegmund, "A convergence theorem for nonnegative almost supermartingales and some applications," in *Optimizing Methods in Statistics*, Academic Press, pp. 233–257, 1971.

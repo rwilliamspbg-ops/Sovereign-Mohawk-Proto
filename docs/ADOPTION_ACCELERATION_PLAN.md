@@ -9,7 +9,8 @@ Make Sovereign-Mohawk the default high-assurance federated learning protocol for
 ## Strategic Positioning
 
 - Developer experience comparable to Flower.
-- Verifiability and trust guarantees unmatched by existing FL stacks.
+- Scope-labelled Lean formalization (axiom-free, sorry-free) with an explicit
+  statement of what each claim does and does not cover.
 - Production-ready deployment defaults for cloud, edge, and sovereign infrastructure.
 
 ## Pillar 1: Usability and Onboarding First

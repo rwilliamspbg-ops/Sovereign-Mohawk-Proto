@@ -1,7 +1,7 @@
 # Mathlib Enhancement Guide for Full Formal Machine Validation
 
 **Status:** Current proofs use basic decision procedures (norm_num, omega, linarith)  
-**Goal:** Integrate Mathlib for deeper formal verification and stronger guarantees  
+**Goal:** Integrate Mathlib for deeper formal verification and additional derived results — as *scoped* machine-checked theorems about stated models, not as a proof of the deployed runtime.
 **Effort:** Medium (2-4 weeks for full implementation)
 
 ---
@@ -477,8 +477,8 @@ lake build LeanFormalization.MathLib.Theorem1Enhanced
 **Mathlib enhancement** (Phase 3b) would provide:
 - ✓ Publication-ready proofs (top-tier venues)
 - ✓ Regulatory-grade formal verification
-- ✓ Foundation-level soundness guarantees
+- ✓ Foundation-level soundness of the Lean kernel itself (Mathlib's own foundation: propext / Classical.choice / Quot.sound)
 - ✓ 70% more theorems covering edge cases
-- ✓ Establish Sovereign-Mohawk as formally verified system
+- ✓ Scope-labelled Lean formalization; see `proofs/FORMAL_TRACEABILITY_MATRIX.md`
 
 **Status:** Ready to proceed when needed. Current deployment safe without Mathlib enhancements.
