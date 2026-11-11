@@ -5,7 +5,8 @@ FROM golang:1.27.4-alpine AS builder
 # Force the exact toolchain go.mod requires regardless of what the base
 # image's own `go` binary reports -- see Dockerfile's identical comment
 # for the observed CI failure this defends against.
-ENV GOTOOLCHAIN=go1.26.6+auto
+ENV GOTOOLCHAIN=go1.27.4+auto
+ENV GODEBUG=http2client=0
 
 # Install build dependencies without pinning obsolete Alpine package revisions
 RUN apk add --no-cache git make
@@ -14,7 +15,10 @@ WORKDIR /app
 
 # Copy dependency manifests first for better caching
 COPY go.mod go.sum ./
-RUN go mod download || go mod download
+RUN go mod download \
+      || (sleep 10 && go mod download) \
+      || (sleep 20 && go mod download) \
+      || (sleep 40 && go mod download)
 
 # Copy source code and build with optimizations
 COPY . .

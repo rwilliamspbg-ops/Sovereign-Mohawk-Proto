@@ -1,10 +1,11 @@
 # Build stage: Use Go 1.22-alpine for a lightweight build environment
-FROM golang:1.26.6-alpine AS builder
+FROM golang:1.27.4-alpine AS builder
 
 # Force the exact toolchain go.mod requires; see root Dockerfile's comment
 # for the observed CI failure (missed Go-version bump in this file) this
 # defends against.
-ENV GOTOOLCHAIN=go1.26.6+auto
+ENV GOTOOLCHAIN=go1.27.4+auto
+ENV GODEBUG=http2client=0
 
 # Set the working directory to the root of the project
 WORKDIR /app
@@ -14,7 +15,10 @@ RUN apk add --no-cache git
 
 # Copy go.mod and go.sum from the root to leverage Docker cache
 COPY go.mod go.sum ./
-RUN go mod download || go mod download
+RUN go mod download \
+      || (sleep 10 && go mod download) \
+      || (sleep 20 && go mod download) \
+      || (sleep 40 && go mod download)
 
 # Copy the entire project source
 COPY . .
