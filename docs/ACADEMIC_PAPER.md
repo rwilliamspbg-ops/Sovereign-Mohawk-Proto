@@ -125,8 +125,8 @@ Output: Aggregated gradient vector \tilde{g}.
 ### 2.3 Scientific Scope & Epistemic Honesty Statement
 In strict alignment with formal verification best practices, we explicitly delimit the scope of our claims:
 1. **Topological vs. Empirical Scale:** The $10^7$ figure is strictly a topological design capacity parameter ($T=200, c=50,000$). Empirical testbed measurements are conducted on single-host Kind Kubernetes clusters up to 500 active pods, CI swarm matrices from 500 to 1,500 container nodes, and 1,000-node Python simulator runs.
-2. **Axiomatic Boundaries:** The formalization isolates foundational assumptions. Gaussian differential privacy mechanisms and abstract Groth16 succinctness bounds are modeled via approved formal specifications rather than fully unwound measure-theoretic proofs.
-3. **Traceability Matrix:** Every claim in this paper maps bijectively to an entry in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), continuously audited in CI.
+2. **Assumption Boundaries:** The formalization is **axiom-free** (`#print axioms` reports only Mathlib's foundation: `propext`, `Classical.choice`, `Quot.sound`). What remains are explicit hypotheses at each use site — `FloatOrderLaws` (IEEE-754 non-NaN order) and `Fact (Nat.Prime dlL)` — plus one axiom bridge for the Gaussian mechanism's Rényi divergence, which is assumed rather than derived from Mathlib's measure theory. Groth16 succinctness is an abstract constant-operation model, not a pairing-based proof.
+3. **Traceability Matrix:** Every claim in this paper maps to an entry in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which records the Lean module, the runtime evidence, and the claim's status. Not every entry is `fully_formalized`; several are surrogates, models, or empirical correspondences, and the matrix says so per row.
 
 ---
 
@@ -558,7 +558,7 @@ As proved above, `pqc_hardness_blocks_unwitnessed_acceptance` verifies that a co
 
 ---
 
-## 10. Implementation Refinement and The Eight IEEE-754 Float Axioms
+## 10. Implementation Refinement and the FloatOrderLaws Hypothesis
 
 ### 10.1 Go Runtime Correspondence
 To bridge mathematical specifications with production software, Sovereign-Mohawk's core Multi-Krum algorithm is implemented in Go (`internal/multikrum.go`) and formally modeled in Lean 4 (`proofs/Refinement/MultiKrum.lean`). The Go implementation computes pairwise squared Euclidean distances over `float64` vectors, sorts Krum scores, and selects the $m$ argmin indices.
@@ -574,7 +574,7 @@ structure Float where val : floatSpec.float
 
 Because IEEE-754 floating-point arithmetic admits Not-a-Number (`NaN`) values, floating-point comparison is not a partial order ($x \le y \land y \le x$ does not imply $x = y$ if $x$ is `NaN`). Consequently, Mathlib intentionally does *not* synthesize an instance for `LinearOrder Float`, and basic properties such as transitivity and antisymmetry are unprovable from Lean core.
 
-### 10.3 The Single IEEE-754 Order Assumption
+### 10.3 The FloatOrderLaws Hypothesis (formerly eight global axioms)
 Rather than disguising this limitation, we isolate the needed total-order laws
 in one named structure, `FloatOrderLaws`, in `Refinement/MultiKrum.lean`,
 conditioned strictly on non-`NaN` inputs (`NoNaNList`):
