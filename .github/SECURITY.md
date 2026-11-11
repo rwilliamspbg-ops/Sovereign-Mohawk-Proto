@@ -1,7 +1,13 @@
 # Security Policy: Sovereign Mohawk
 
 ## 🛡️ Our Commitment
-Sovereign Mohawk is built on formal proofs and zero-trust hardware. However, no system is perfect. We take security reports seriously and prioritize fixing vulnerabilities that could compromise data sovereignty or model integrity.
+Sovereign Mohawk pairs an axiom-free Lean 4 formal development — in which every
+claim carries a status label and a recorded scope — with zero-trust hardware
+controls. Those formal results are machine-checked **about stated models and
+hypotheses**, not about the deployed runtime, and the Go↔Lean correspondence is
+empirical; per-claim status is in `proofs/FORMAL_TRACEABILITY_MATRIX.md`. No
+system is perfect. We take security reports seriously and prioritize fixing
+vulnerabilities that could compromise data sovereignty or model integrity.
 
 ## 🚀 Reporting a Vulnerability
 **Do not open a public GitHub issue for security vulnerabilities.**

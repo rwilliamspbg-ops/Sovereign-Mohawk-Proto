@@ -1,4 +1,4 @@
-# Sovereign-Mohawk: A Formally Verified 10M-Node Architecture
+# Sovereign-Mohawk: A 10M-Node Architecture with a Scoped Lean 4 Formalization
 
 Author: Sovereign-Mohawk Core Team
 
@@ -8,7 +8,16 @@ Repository: Sovereign-Mohawk-Proto
 
 I. Executive Summary
 
-Sovereign-Mohawk is a decentralized intelligence protocol designed to solve the Trust-Scale Paradox. While traditional Federated Learning (FL) systems struggle with Byzantine faults and hardware bottlenecks at scale, Sovereign-Mohawk provides a hierarchical, formally verified framework that supports 10 million nodes. It achieves this through a combination of Hierarchical Multi-Krum resilience, Rényi Differential Privacy (RDP), and Async TPM Attestation.
+Sovereign-Mohawk is a decentralized intelligence protocol designed to solve the Trust-Scale Paradox. While traditional Federated Learning (FL) systems struggle with Byzantine faults and hardware bottlenecks at scale, Sovereign-Mohawk provides a hierarchical framework whose protocol claims are formalized in Lean 4, targeting 10 million nodes. It achieves this through a combination of Hierarchical Multi-Krum resilience, Rényi Differential Privacy (RDP), and Async TPM Attestation.
+
+**Read this first.** The formalization is axiom-free and sorry-free, but it is
+*not* a proof of the deployed runtime: every claim carries a status label
+(`fully_formalized`, `surrogate_verified`, `model_verified`, `Phase 4 model`,
+`measure_theoretic_verified`, `empirically_verified`) in
+`proofs/FORMAL_TRACEABILITY_MATRIX.md`, and the Go↔Lean correspondence is
+**empirical**, since Lean cannot invoke Go source. Most importantly, the
+deterministic compositional Byzantine claim this white paper originally led
+with was **disproven** by our own machine-checked counterexample — see §3.
 
 II. System Architecture
 
@@ -48,7 +57,14 @@ III. Formal Guarantees
 
 1. Byzantine Fault Tolerance (BFT)
 
-Theorem 1 (BFT Resilience): If $f_t < n_t/2$ at each tier $t$, the global model is $(\sum f_t)$-Byzantine resilient.
+**Theorem 1 (BFT Resilience) — original statement, now DISPROVEN.** The claim
+was: "If $f_t < n_t/2$ at each tier $t$, the global model is $(\sum f_t)$-Byzantine
+resilient." This is **false**. `hierarchical_composition_counterexample` is a
+machine-checked two-tier tree in which every tier satisfies its local
+honest-majority guard while the global Byzantine leaf fraction is **60%**. The
+mechanism is structural — a tier that passes its local guard is credited its
+full leaf weight regardless of how close to 50% Byzantine it is internally — so
+no per-level threshold fixes it.
 
 Result: The deterministic compositional claim (that recursive hierarchical composition of per-tier honest-majority filtering converges to 55.5%) was attempted and found FALSE via a machine-checked counterexample (`hierarchical_composition_counterexample`). A probabilistic repair (Chernoff bound, `chernoff_hierarchical_bound_deployment_scale`) proves the failure probability is at most 200/10^1000 at deployment scale (200 committees × 50,000 nodes). See proofs/FORMAL_TRACEABILITY_MATRIX.md row 1 Notes.
 
@@ -104,4 +120,4 @@ Legal Summary: See NOTICE.md for consolidated licensing, IP disclosure, and trad
 
 VII. Conclusion
 
-Sovereign-Mohawk provides the first provably secure and efficient architecture for 10M-node decentralized intelligence. By moving the Sovereign-Mohawk-Proto from empirical validation to formal verification, we establish a new standard for global data sovereignty.
+Sovereign-Mohawk provides a 10M-node-targeted architecture whose protocol claims are formalized in Lean 4 with an explicit, machine-readable statement of what each claim does and does not cover. By moving the Sovereign-Mohawk-Proto from unqualified claims to formal models with recorded scope — including publishing the disproof of our own original compositional Byzantine claim — we aim to establish a standard for honesty in global data sovereignty, not a claim of universal provable security.

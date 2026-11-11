@@ -20,11 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
 This section covers work merged after the 2.1.0 release candidate. The dominant themes
-are (1) closing the remaining Lean formalization gaps with machine-checked proofs,
+are (1) closing the remaining Lean formalization gaps with machine-checked theorems
+(*about stated models and hypotheses* — the Go↔Lean correspondence remains empirical,
+and per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md`),
 (2) replacing simulated cryptography with real implementations (ed25519 in WASM,
 Groth16 via gnark, a Noir circuit, and a real gRPC service), (3) adding TEE/MPC
 abstractions with honest fail-closed scoping, and (4) expanding property-based and fuzz
-testing until every `internal/` package carries at least one machine-checked invariant.
+testing.
 
 #### Formal Verification (Lean)
 
@@ -33,8 +35,10 @@ testing until every `internal/` package carries at least one machine-checked inv
   conditional-expectation step hypothesis over the probability measure to obtain the
   deterministic Robbins–Siegmund step inequality, then applies
   `robbins_siegmund_deterministic`. The almost-sure strengthening
-  `supermartingale_convergence_ae` remains a single documented `sorry` pending the full
-  supermartingale transform.
+  **Update (PR #315): `supermartingale_convergence_ae` is now fully proved — the
+  last `sorry` in the development is closed**, via the supermartingale transform
+  `M_t = V_t + S_t - C_t` and `Submartingale.exists_ae_tendsto_of_bdd`; the Lean
+  development is now sorry-free and axiom-free.
 - **Robbins–Siegmund telescoping core** (#280) and **descent inequality from
   smoothness/convexity** (#281): derives
   `E[V_{t+1}|F_t] ≤ (1−ημ)V_t + η²σ²` from L-smoothness, μ-strong convexity, unbiased

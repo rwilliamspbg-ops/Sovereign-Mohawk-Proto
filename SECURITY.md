@@ -21,7 +21,7 @@ We enforce security through **Proof-Driven Design**. The following "guards" are 
 
 1. **Byzantine Guard (`internal/tpm/tpm.go`):** Enforces $n > 2f + 1$ at every aggregation tier.
 2. **Privacy Guard (`internal/rdp_accountant.go`):** Prevents membership inference attacks by strictly enforcing the $\epsilon = 2.0$ budget.
-3. **Succinct Verification (`internal/zksnark_verifier.go`):** Uses Groth16 zk-SNARKs to ensure that regional aggregates are mathematically valid without re-executing training.
+3. **Succinct Verification (`internal/zksnark_verifier.go`):** Uses Groth16 zk-SNARKs to check a proof against a verification key. **Scope caveat:** the configured key (`genesisVK`) is a fixed, content-free pairing identity, not derived from a circuit's trusted setup — so the verifier attests to a hardcoded genesis proof, not to "regional nodes haven't tampered with model weights". See `internal/zksnark_verifier.go`'s own doc comment and `proofs/cryptography.md`.
 
 ### Runtime Hardening Notes (Apr 2026)
 
@@ -69,10 +69,10 @@ For consolidated legal context, see [NOTICE.md](./NOTICE.md).
 
 | Component | Security Status | Proof Reference |
 | :--- | :--- | :--- |
-| **BFT Layer** | 🛡️ Verified | [Theorem 1](./proofs/bft_resilience.md) |
-| **Privacy Layer** | 🔒 Verified | [Theorem 2](./proofs/differential_privacy.md) |
-| **Liveness Layer** | ⚡ Guard-verified | [Theorem 4](./internal/stragglers.md) |
-| **Integrity Layer** | ✅ Verified | [Theorem 5](./proofs/cryptography.md) |
+| **BFT Layer** | 🛡️ Model-checked (single tier) | [Theorem 1](./proofs/bft_resilience.md) — hierarchical composition **disproven**; see matrix row 1 |
+| **Privacy Layer** | 🔒 Surrogate-verified | [Theorem 2](./proofs/differential_privacy.md) — list-based rational surrogate |
+| **Liveness Layer** | ⚡ Model-verified | [Theorem 4](./internal/stragglers.md) — Chernoff surrogate on a probability model |
+| **Integrity Layer** | ✅ Model-verified | [Theorem 5](./proofs/cryptography.md) — abstract constant-cost model, not a soundness proof |
 
 ## 🛡️ Sovereign Mohawk: Hierarchical Byzantine Safety Bounds
 
@@ -88,17 +88,30 @@ Unlike "Star" topologies that process all nodes at a single central point, SMP u
 
 #### 2. Hardware-Rooted Identity (TPM Gating)
 
-The system leverages [TPM-inspired trust stubs](https://github.com/rwilliamspbg-ops/Sovereign_Map_Federated_Learning/blob/main/TPM_TRUST_GUIDE.md) to enforce a "One-Hardware-One-Vote" policy. This makes **Sybil Attacks** (spawning thousands of fake nodes) logistically impossible for an attacker, as every model update requires a unique RSA-PSS signature tied to a verified hardware ID.
+The system uses TPM-backed attestation metadata to support a
+"One-Hardware-One-Vote" policy. **Scope caveat:** the TPM integration is a
+stubbed/abstracted layer on some platforms (see `internal/tpm/` and
+`results/go-live/evidence/`), and a hardware identity check raises the cost of
+a Sybil attack rather than making it "logistically impossible" — an attacker
+with access to sufficiently many distinct hardware identities, or to a
+compromised attestation path, is not addressed by this control alone.
 
 #### 3. zk-SNARK Integrity Proofs
 
-Every aggregation round generates a 200-byte **Zero-Knowledge Proof** in the abstract verifier-cost model. This supports constant-size verification claims, but it should not be read as a full protocol proof for all runtime behaviors.
+The cost model in `Theorem5Cryptography.lean` is an **abstract
+constant-operation model**: it shows that, under the model's assumptions, proof
+size and verification cost do not grow with the number of participants. It is
+**not** a soundness proof for Groth16, and it is **not** a measurement of the
+production verifier. Separately, the deployed verifier
+(`internal/zksnark_verifier.go`) checks Groth16 proofs against a fixed
+`genesisVK` that is not derived from a circuit's trusted setup, so it does not
+currently bind a proof to gradient or model-weight content.
 
 ### 📊 Competitive Comparison
 
 | Metric | Industry Standard (Flower/TFF) | Sovereign Mohawk (SMP) |
 | :--- | :--- | :--- |
-| **BFT Limit** | 33.3% | **80% (Verified)** |
-| **Scaling** | $O(n)$ | **$O(\log n)$** |
-| **Verification** | None (Trust-based) | **zk-SNARK (Math-based)** |
-| **Overhead** | ~40TB (at 10M nodes) | **28MB (at 10M nodes)** |
+| **BFT claim** | 33.3% (honest majority) | **No global bound.** Single-tier guard arithmetic is machine-checked; deterministic hierarchical composition is **disproven** (60% counterexample). A probabilistic Chernoff repair is proved for the i.i.d. Bernoulli committee-sampling model. |
+| **Path depth** | $O(n)$ | $O(\log n)$ **path-depth proxy** (machine-checked); total bytes remain model-dependent |
+| **Verification** | Trust-based | Abstract constant-cost **model**; deployed verifier checks against a fixed genesis VK |
+| **Overhead** | ~40TB (at 10M nodes, naive) | 28MB (at 10M nodes) — **model-level** estimate from the Lean transport spec, not a measured deployment figure |
