@@ -22,12 +22,26 @@ Given `n` gradient updates with at most `f` Byzantine (malicious) ones:
 
 Requires `n > 2f+2` so that `n - f - 2 > 0`.
 
-## 3. What is formalized vs. surrogate
+## 3. What is formalized, what is disproven, and what is surrogate
 
 - **Formalized**: single-tier Multi-Krum selection properties (Lean).
-- **Surrogate (not formalized)**: hierarchical composition across L1-L4 tiers.
-  The Lean artifacts model a single aggregation step; the tiered composition is
-  claimed but not proven. See `docs/EXTERNAL_AUDIT_SCOPE.md`.
+- **Disproven**: deterministic hierarchical composition across L1-L4 tiers.
+  `hierarchical_composition_counterexample` is a machine-checked two-tier tree in
+  which every tier's honest-majority guard holds yet the global Byzantine leaf
+  fraction is **60%**. No per-level threshold fixes the gap; it is structural.
+  What is machine-checked in its place: single-tier guard arithmetic
+  (`theorem1_five_ninths_guard`, conditional on `9f < 5n`) and a
+  **probabilistic** repair — a Chernoff bound over i.i.d. Bernoulli committee
+  sampling (`chernoff_hierarchical_bound_deployment_scale`).
+- **Surrogate / model-level**: the liveness and straggler guards
+  (`Theorem4Liveness.lean`, `Theorem4ChernoffBounds.lean`) are proved about an
+  explicit probability model, not about the deployed runtime.
+- **Empirical only**: the Go↔Lean correspondence for Multi-Krum selection is
+  checked by pinned `#eval` vectors and property tests, never by a
+  machine-checked cross-language equality (Lean cannot invoke Go source).
+
+See `docs/EXTERNAL_AUDIT_SCOPE.md` and
+`proofs/FORMAL_TRACEABILITY_MATRIX.md` row 1.
 
 ## 4. Configuration
 

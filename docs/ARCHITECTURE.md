@@ -7,8 +7,10 @@
 Sovereign Mohawk is a theorem-guided federated-learning runtime: edge devices
 train locally, gradients flow up a four-tier hierarchy (L1 Edge -> L2 Regional
 -> L3 Continental -> L4 Global), and each tier aggregates with Byzantine
-filtering and privacy accounting. Formal proofs (Lean 4) back the key invariants;
-refinement bridges connect them to Go predicates.
+filtering and privacy accounting. Lean 4 formal proofs cover *models* of the
+key invariants, each with a recorded status and scope; refinement bridges
+connect some of them to Go predicates, and those correspondences are
+**empirical**, not machine-checked. See §5.
 
 ## 2. Tier hierarchy
 
@@ -43,7 +45,9 @@ flowchart BT
 
 ## 4. Data flow (one round)
 
-1. Edge nodes compute gradients, attach a Byzantine-resilience proof.
+1. Edge nodes compute gradients and submit them for aggregation. (There is no
+   per-gradient "Byzantine-resilience proof" attached at the edge; Byzantine
+   filtering happens at the aggregation tier.)
 2. Gradients stream (gRPC `ReceiveGradients`) to the regional aggregator.
 3. Regional runs Multi-Krum filtering (`n > 2f+2`), aggregates survivors.
 4. Aggregated gradient forwards to continental, then global.
@@ -52,9 +56,13 @@ flowchart BT
 ## 5. Formal verification status
 
 See `proofs/FORMAL_TRACEABILITY_MATRIX.md` and `docs/EXTERNAL_AUDIT_SCOPE.md`.
-Key honesty notes: hierarchical BFT composition is a surrogate (single-tier
-Multi-Krum is the formalized part); the MPC trusted setup is simulated
-in-process.
+Key honesty notes: hierarchical BFT composition is **disproven** (there is a
+machine-checked counterexample), and only single-tier Multi-Krum plus a
+probabilistic Chernoff repair under an explicit sampling model are
+machine-checked; the MPC trusted setup is simulated in-process; the Lean
+development is axiom-free and sorry-free, with two explicit hypotheses
+(`FloatOrderLaws` and `Fact (Nat.Prime dlL)`); and no claim is a machine-checked
+statement about the deployed Go binary.
 
 ## 6. Cross-references
 

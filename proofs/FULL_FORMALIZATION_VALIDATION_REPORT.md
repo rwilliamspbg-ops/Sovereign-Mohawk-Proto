@@ -418,7 +418,7 @@ The Sovereign-Mohawk formal proof system has **internal validation complete** wi
 2. **Runtime evidence exists** for all major claims (see FORMAL_TRACEABILITY_MATRIX.md)
 3. **Traceability matrix is parser-compatible** (98% score)
 4. **Type-safety guaranteed** by Lean 4 compiler
-5. **Remaining named assumptions** (axioms) are explicitly documented in docs/EXTERNAL_AUDIT_SCOPE.md §6 — including `ForkingLemma`, `ed25519_uf_cma_from_dlp` ("security reduction under standard DLP"), MiMC collision resistance (MiMC now an opaque symbol), `dlL_prime`, and 8 `Float.*` ordering axioms. These are NOT all discharged; several are load-bearing and unproven.
+5. **Remaining named assumptions** (explicit hypotheses, not axioms — the development is axiom-free as of PR #316/#318) are documented in docs/EXTERNAL_AUDIT_SCOPE.md §6 — the IEEE-754 non-NaN ordering laws (`FloatOrderLaws`, an explicit hypothesis in `Refinement/MultiKrum.lean`) and the primality of the 253-bit Ed25519 subgroup order (`Fact (Nat.Prime dlL)`, an explicit hypothesis in `LeanFormalization/DiscreteLogReduction.lean`). Earlier revisions also carried `ForkingLemma`, `ed25519_uf_cma_from_dlp`, MiMC collision resistance, and `dlL_prime` as global axioms; the first three were deleted as dead (PR #313) and `dlL_prime` was demoted to a hypothesis (PR #318). These assumptions are NOT all discharged; several are load-bearing.
 
 **Certification Status:** ✓ **INTERNAL VALIDATION COMPLETE** (not a claim of full formal verification of all cryptographic assumptions)
 

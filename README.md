@@ -32,7 +32,7 @@
 [![Multi-Tier Federation](https://img.shields.io/badge/Federation-Regional→Continental→Global-blueviolet)](internal/federation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.md)
 
-Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine resilience, RDP privacy accounting, TPM-backed attestation, and deployable observability.
+Sovereign Mohawk Proto is a theorem-guided federated-learning runtime with Byzantine-resilience *modeling*, RDP privacy accounting, TPM-backed attestation, and deployable observability. "Theorem-guided" is not "theorem-proved end to end": the Lean development is axiom-free and sorry-free, but most claims are proved about a **model** of the system, and the Go↔Lean correspondence is **empirical**. The per-claim status is in the traceability matrix — read it before relying on any single claim.
 
 ## Seeking External Formal Review
 
@@ -52,7 +52,11 @@ and the full axiom/sorry inventory.
 
 ## Run Sovereign FL In Under 5 Minutes
 
-**Goal:** Flower-level developer friendliness with provable security, sovereign trust roots, and quantum-ready transport.
+**Goal:** Flower-level developer friendliness with formally *modeled* security
+guarantees (see [Formal Verification Status](#formal-verification-status) —
+several claims are surrogates or empirical correspondences, not
+machine-checked facts about the Go runtime), sovereign trust roots, and
+quantum-ready transport.
 
 Start from source:
 
@@ -100,6 +104,37 @@ Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
 - **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 15 claims, each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._
+
+### What the status labels actually mean
+
+The Lean development is **axiom-free and sorry-free**: `#print axioms` over all
+272 theorems and lemmas reports only Mathlib's foundation (`propext`,
+`Classical.choice`, `Quot.sound`), and the placeholder scan passes with an
+empty allowlist. Two assumptions remain, both carried as **explicit
+hypotheses at each use site**, never as axioms:
+
+- `FloatOrderLaws` in `proofs/Refinement/MultiKrum.lean` — the IEEE-754
+  non-NaN total-order laws. Lean's `Float.le` is opaque, so these cannot be
+  derived; they are true of the runtime comparison, restricted to non-NaN
+  values (which is load-bearing: `NaN ≤ NaN` is `false`).
+- `Fact (Nat.Prime dlL)` in `proofs/LeanFormalization/DiscreteLogReduction.lean`
+  — primality of the 253-bit Ed25519 subgroup order `L`. Out of scope to
+  re-derive in Lean; standard and externally checkable.
+
+"Axiom-free" is therefore a statement about the *proof tree*, not about
+*trust*: these two assumptions are still assumed. The status labels describe
+how much of the system a claim covers:
+
+| Label | Meaning |
+|---|---|
+| `fully_formalized` | Machine-checked, but still conditional on the theorem's own stated hypotheses. It is not a claim about the Go binary. |
+| `surrogate_verified` / `surrogate_verified_*` | A simplified model or surrogate quantity is proved; the real system is not. |
+| `model_verified` / `Phase 4 model` / `measure_theoretic_verified` | Proved about an abstract model (cost model, data model, probability model), not about the deployed runtime. |
+| `empirically_verified` / `*_empirically_validated` | Agreement between Lean and Go observed on pinned vectors or replayed traces. Lean cannot invoke Go source, so this is **never** a machine-checked cross-language equality. |
+| `fixed_vacuous_stub` | A prior `True`-stub placeholder; now a real statement, but with only formula-level Go correspondence. |
+
+If a claim matters to you, open its row in the matrix and read the Notes
+column — that is where the caveats live.
 - Machine-checkable formal validation report: [results/proofs/formal_validation_report.json](results/proofs/formal_validation_report.json)
 - Verification bundle manifest + archive: [results/proofs/formal-verification-bundle/bundle_manifest.json](results/proofs/formal-verification-bundle/bundle_manifest.json), [results/proofs/formal-verification-bundle.tar.gz](results/proofs/formal-verification-bundle.tar.gz)
 - Independent verifier guide: [docs/FORMAL_VERIFICATION_GUIDE.md](docs/FORMAL_VERIFICATION_GUIDE.md)
@@ -352,14 +387,14 @@ Trust and verification harden as updates move upward from edge privacy-preservin
 
 ## 🚀 Why Mohawk?
 
-Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines machine-checked Lean formalization workflows with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only.
+Traditional federated learning protocols struggle with linear scaling bottlenecks, brittle trust models, and limited runtime interoperability. Sovereign-Mohawk combines machine-checked Lean formalization *models* of the protocol with deployment-grade runtime components so the protocol can be tested, monitored, and integrated instead of staying paper-only. The Lean side is not a proof of the Go binary: each claim is proved about a stated model, and where the two sides are compared at all, the comparison is empirical.
 
 ### 📊 Comparative Analysis
 
 | Feature | NVIDIA FLARE | PySyft | **Sovereign-Mohawk** |
 | :--- | :---: | :---: | :---: |
 | **Lean Formalization + CI Gate** | Not presented | Not presented | **Yes (`proofs/LeanFormalization` + CI build/placeholder checks)** |
-| **Byzantine Resilience Guarantee** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **Concrete 5/9 profile guard check (surrogate verified; see proofs/LeanFormalization/Theorem1BFT.lean)** |
+| **Byzantine Resilience Claim** | No published 55.5% theorem guarantee | No published 55.5% theorem guarantee | **Disproven as stated** — the deterministic composition claim has a machine-checked counterexample; a single-tier 5/9 guard check (`surrogate_verified`) and a probabilistic Chernoff repair are machine-checked. See row 1 of the traceability matrix. |
 | **Targeted Scale Envelope** | Enterprise FL deployments | Research/privacy-focused FL workflows | **10M-node architecture target** |
 | **Communication Complexity** | Aggregation-centric orchestration | Aggregation-centric orchestration | **Logarithmic path-depth proxy; total bytes model-dependent** |
 | **PQC Enforcement (2026 Profile)** | No default hybrid KEX + XMSS + crypto-cutover profile | No default hybrid KEX + XMSS + crypto-cutover profile | **Default-enforced PQC profile** |
@@ -379,7 +414,18 @@ Watch the short walkthrough showing MOHAWK orchestration + PySyft-style FL flow:
 
 ## ✨ Key Capabilities
 
-* 🛡️ **Byzantine Fault Tolerance:** honest-majority composition is formalized in [proofs/bft_resilience.md](proofs/bft_resilience.md) and a separate concrete 5/9 profile guard is machine-checked in [proofs/LeanFormalization/Theorem1BFT.lean](proofs/LeanFormalization/Theorem1BFT.lean).
+* 🛡️ **Byzantine Fault Tolerance — *not* what the old claim said.** The
+  deterministic claim "hierarchical composition of per-tier Multi-Krum guards
+  gives 55.5% Byzantine fault tolerance" was **disproven**: there is a
+  machine-checked counterexample (`hierarchical_composition_counterexample`)
+  showing a two-tier tree in which every tier's honest-majority guard holds
+  while the global Byzantine leaf fraction is 60%. What *is* machine-checked:
+  single-tier, guard-dependent arithmetic (`Theorem1BFT.lean`), and a
+  **probabilistic** repair — a Chernoff bound over i.i.d. Bernoulli committee
+  sampling (`chernoff_hierarchical_bound_deployment_scale`). See
+  [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md)
+  row 1, and read its Notes column: the Go↔Lean correspondence is empirical,
+  not a machine-checked cross-language equality.
 * 🐌 **Straggler Resilience:** redundancy/liveness guard claims are tracked in [internal/stragglers.md](internal/stragglers.md) and formalized as surrogate checks in [proofs/LeanFormalization/Theorem4Liveness.lean](proofs/LeanFormalization/Theorem4Liveness.lean).
 * ✅ **Instant Verifiability:** zk proof-path claim tracked in [proofs/cryptography.md](proofs/cryptography.md) and formalized in [proofs/LeanFormalization/Theorem5Cryptography.lean](proofs/LeanFormalization/Theorem5Cryptography.lean).
 * 🔏 **Ed25519 UF-CMA Formalization (experimental):** an experimental, unaudited Ed25519-style verifier (field arithmetic, twisted-Edwards point operations, SHA-512) is in [proofs/LeanFormalization/Ed25519.lean](proofs/LeanFormalization/Ed25519.lean), with the UF-CMA security statement in [proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean](proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean) (conditional on an explicit discrete-log hardness hypothesis). **Not** a verified production implementation; message encoding and group law are simplified and unaudited.
@@ -1046,7 +1092,12 @@ The system leverages a proof-driven monitoring strategy and production CI gates.
 
 ### GitHub Actions
 
-All production-grade safety requirements are verified on every push:
+Every push runs the CI gates listed below. "Verified" here means **the checks
+ran and passed** — build, tests, lints, benchmark regression gates, and the
+required Lean build + placeholder scan. It does **not** mean the formal
+*claims* about the system are machine-checked end to end: per-claim status is
+in the [traceability matrix](proofs/FORMAL_TRACEABILITY_MATRIX.md), and many
+claims are model-level or empirically cross-checked only.
 
 * **Build and Test:** Go build/test, Wasm module build, capability validation, and Docker stack config. The PR build/test workflow keeps benchmark-heavy Python SDK suites in the dedicated performance gate.
 * **Integrity Guard - Linter:** `golangci-lint`, `black --check`, and targeted `flake8` validation.
@@ -1193,7 +1244,12 @@ See [ROADMAP.md](ROADMAP.md) for detailed feature timeline and development prior
 
 ### Current Phase: v1.0.0 GA Closure (Q2 2026)
 
-**Program Stage:** Go-Live Formalization Complete
+**Program Stage:** Go-Live *Artifacts* Complete — the go-live evidence bundle
+exists and the Lean development is axiom-free and sorry-free. This is not a
+statement that the system's security claims are machine-checked end to end;
+see [Formal Verification Status](#formal-verification-status) and the
+[traceability matrix](proofs/FORMAL_TRACEABILITY_MATRIX.md) for per-claim
+status.
 
 **Next Up:**
 

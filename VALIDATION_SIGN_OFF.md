@@ -1,4 +1,26 @@
 # COMPLETE VALIDATION & FORMAL PROOF CERTIFICATION
+
+> ## ⚠️ SUPERSEDED — READ THIS BEFORE QUOTING ANYTHING BELOW
+>
+> This document is a **historical artifact from 2025-06-21** and is kept for
+> audit trail only. Several of its headline claims are now known to be **false**
+> or were never supported by the artifacts. Do not cite it. The authoritative,
+> per-claim status is [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](proofs/FORMAL_TRACEABILITY_MATRIX.md).
+>
+> Specific corrections:
+>
+> | Claim in this document | Reality |
+> |---|---|
+> | "Theorem 1 … Hierarchical composition verified" | **Disproven.** `hierarchical_composition_counterexample` is a machine-checked two-tier tree where every tier's honest-majority guard holds yet the global Byzantine leaf fraction is **60%**. Deterministic per-tier composition does not give a global bound. |
+> | "Theorem 1 … 55.5%" / "9f < 5n (55.5%)" as a system guarantee | The 5/9 figure is a **single-tier, guard-conditional** arithmetic fact (`theorem1_five_ninths_guard`, hypothesis `9f < 5n`). It is not a global Byzantine tolerance. |
+> | "Theorem 4 … Result: 99.902% > 99.99% ✓" | **Arithmetic error.** 99.902% is *less than* 99.99%. The stated inequality does not hold; the liveness claim is a surrogate on an explicit probability model in any case. |
+> | "All theorems: 100% mathematically sound, machine-verified" / "MAXIMUM CORRECTNESS" | Overstated. The Lean development is axiom-free and sorry-free, but the theorems are machine-checked **about stated models and hypotheses**, not about the deployed Go runtime. Per-claim status labels are `fully_formalized`, `surrogate_verified`, `model_verified`, `Phase 4 model`, `measure_theoretic_verified`, `empirically_verified`. |
+> | "Go↔Lean correspondence" implied | **Empirical only** (pinned `#eval` vectors / replayed traces). Lean cannot invoke Go source, so no cross-language equality is machine-checked. |
+> | "APPROVED FOR IMMEDIATE PRODUCTION MERGE" / "PRODUCTION READY" | Not supported. See the repository's own [README](README.md#formal-verification-status) for what is and is not proved. |
+>
+> The remainder of this file is left unmodified as a record of what was
+> claimed at the time.
+
 ## Executive Summary - All Systems GO
 
 **Date:** 2025-06-21  
