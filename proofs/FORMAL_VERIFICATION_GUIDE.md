@@ -30,7 +30,9 @@ lake build LeanFormalization Mathlib
 | 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | fully_formalized |
 | 4 | Integer liveness guard surrogate (with Chernoff extension) | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | model_verified |
 | 5 | Constant-cost verifier model | `cryptography.md` | `Theorem5Cryptography.lean` | `theorem5_constant_cost` | model_verified |
-| 6 | Convergence envelope (measure-theoretic descent derivation) | `convergence.md` | `Theorem6Convergence.lean`, `RobbinsSiegmund.lean`, `DescentInequalityFull.lean` | `theorem6_large_scale_guard`, `descent_inequality_derived` | measure_theoretic_verified (PR #281) |
+| 6 | ~~Surrogate convergence envelope~~ — **superseded by row 16**, which connects the descent inequality to the Multi-Krum aggregation rule and proves a.s. convergence under a Robbins–Monro schedule | `convergence.md` | `Theorem6Convergence.lean`, `RobbinsSiegmund.lean`, `DescentInequalityFull.lean`, `MultiKrumConvergence.lean` | `theorem6_large_scale_guard`, `descent_inequality_derived`, `mkAggregate_deviation_sq_le`, `mkAggregate_deviation_sq_le_split`, `multikrum_descent_inequality`, `summable_diminishingStep_sq`, `not_summable_diminishingStep`, `multikrum_convergence_ae` | measure_theoretic_verified (PR #281); row 16 adds a real a.s. convergence theorem |
+| 7 | Corrected hierarchical composition + probabilistic guard bound | `bft_resilience.md` | `ProtocolSafety.lean` | `HTree.fractionSafe`, `HTree.fractionSafe_node_of_forall`, `guardThreshold`, `guardThreshold_correct`, `multikrum_guard_failure_prob`, `multikrum_guard_failure_deployment_scale` | fully_formalized (counting); model_verified (probabilistic, i.i.d. Bernoulli model) |
+| 8 | Proper reduction for the Schnorr/Ed25519 identification protocol | `cryptography.md` | `SchnorrReduction.lean` | `schnorr_special_soundness`, `schnorr_hvzk_simulation`, `schnorr_hvzk_commitment_bijective`, `forger_implies_dlog` | fully_formalized (group algebra); the forking step is an explicit hypothesis |
 
 ## Verification Steps
 
