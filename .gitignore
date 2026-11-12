@@ -99,3 +99,6 @@ circuits/target/
 # Rust build artifacts for the WASM module (the committed .wasm artifact stays tracked).
 wasm-modules/fl_task/target/
 wasm-modules/fl_task/Cargo.lock
+
+# Local LaTeX draft (not part of the repository)
+docs/sovereign_mohawk_ieee.tex
