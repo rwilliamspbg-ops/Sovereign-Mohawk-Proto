@@ -146,19 +146,30 @@ def ForkingStep : Prop :=
       schnorrAccept q pk c R s ∧ schnorrAccept q pk c' R s'
 
 /-- **The reduction.** Modulo the forking step, a forger that produces one
-accepting transcript yields the discrete logarithm: there is `a` with
-`pk = a`, and it is computed as `(s - s') * (c - c')⁻¹`.
+accepting transcript yields the discrete logarithm: the two forked transcripts
+recover `pk = (s - s') * (c - c')⁻¹`.
+
+The earlier revision of this theorem concluded `∃ a, pk = a`, which is
+satisfiable by `a := pk` without using either hypothesis — a vacuous statement,
+even though the proof happened to use the extractor as the witness. This
+version pins the conclusion to the extractor applied to the forked transcripts,
+so the statement is false whenever the extraction fails.
 
 Contrapositive (in prose, not formalized): if the discrete logarithm problem is
-hard in `ZMod q` — no algorithm recovers `a` from `pk = a` with non-negligible
-probability — then no such forger exists, i.e. the Schnorr identification
-protocol is secure against impersonation under honest-verifier execution. -/
+hard in `ZMod q` — no algorithm recovers the exponent from `pk` with
+non-negligible probability — then no such forger exists, i.e. the Schnorr
+identification protocol is secure against impersonation under honest-verifier
+execution. -/
 theorem forger_implies_dlog (hfork : ForkingStep q) (f : SchnorrForger q) (pk : ZMod q)
     (hsucc : ∃ c R s, f.forge pk c = some (R, s) ∧ schnorrAccept q pk c R s) :
-    ∃ a : ZMod q, pk = a := by
+    ∃ (R c c' s s' : ZMod q),
+      pk = (s - s') * (c - c')⁻¹ ∧ c ≠ c' ∧
+      f.forge pk c = some (R, s) ∧ f.forge pk c' = some (R, s') ∧
+      schnorrAccept q pk c R s ∧ schnorrAccept q pk c' R s' := by
   obtain ⟨R, c, c', s, s', hcne, h1, h2, hv1, hv2⟩ := hfork f pk hsucc
-  refine ⟨(s - s') * (c - c')⁻¹, ?_⟩
-  exact schnorr_special_soundness q pk c c' R s s' hcne hv1 hv2
+  exact ⟨R, c, c', s, s',
+    schnorr_special_soundness q pk c c' R s s' hcne hv1 hv2,
+    hcne, h1, h2, hv1, hv2⟩
 
 /-- Concrete instance over the prime field `ZMod 7`: an honest prover with
 secret `3` and commitment `5`, facing challenges `2` and `4`, answers
