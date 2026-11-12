@@ -46,6 +46,9 @@ test-results/hbft-trace/
 test-results/rdp-trace/
 test-results/hbft-statcheck/
 
+# Ephemeral local full-validation runs -- commit only curated evidence (see results/).
+test-results/full-validation/
+
 # Local scratch / browser profile cache
 tmp/
 
@@ -93,3 +96,6 @@ testnet-gui
 # Local build artifacts
 pyapi.exe
 circuits/target/
+# Rust build artifacts for the WASM module (the committed .wasm artifact stays tracked).
+wasm-modules/fl_task/target/
+wasm-modules/fl_task/Cargo.lock
