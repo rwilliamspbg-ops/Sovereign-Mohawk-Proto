@@ -25,4 +25,5 @@ import LeanFormalization.SupermartingaleConvergence
 import LeanFormalization.DescentInequalityFull
 import LeanFormalization.MultiKrumConvergence
 import LeanFormalization.ProtocolSafety
+import LeanFormalization.KrumSelection
 import LeanFormalization.SchnorrReduction
