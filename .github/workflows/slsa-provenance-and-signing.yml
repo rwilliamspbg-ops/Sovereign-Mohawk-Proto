@@ -461,7 +461,7 @@ jobs:
             /tmp/all-artifacts/release-signatures/*
             /tmp/all-artifacts/slsa-provenance/*
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(steps.version.outputs.tag, 'rc') || contains(steps.version.outputs.tag, 'alpha') || contains(steps.version.outputs.tag, 'beta') }}
           generate_release_notes: false
 
       - name: Log release publication
