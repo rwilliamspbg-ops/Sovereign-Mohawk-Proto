@@ -19,6 +19,7 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GOTOOLCHAIN: go1.27.4+auto
+  CGO_ENABLED: "1"
 
 jobs:
   prepare-release-assets:
@@ -30,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch base ref
-        run: git fetch origin main --depth=1
+        run: git fetch origin +refs/heads/main:refs/remotes/origin/main --depth=1
 
       - name: Set up Node (for npm package assets)
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -130,7 +131,17 @@ jobs:
 
       - name: Build formal verification release artifacts
         run: |
+          python3 scripts/ci/generate_formal_validation_report.py --repo-root .
+          python3 scripts/ci/build_formal_verification_bundle.py
           make package-formal-verification-artifacts
+
+      - name: Stage formal verification artifacts
+        run: |
+          mkdir -p release-assets/formal
+          cp results/proofs/formal_validation_report.json release-assets/formal/
+          cp results/proofs/formal-verification-bundle.tar.gz release-assets/formal/
+          cp results/proofs/formal-verification-bundle/bundle_manifest.json release-assets/formal/
+          sha256sum release-assets/formal/* > release-assets/formal/sha256sums.txt
 
       - name: Upload release prep artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -159,7 +170,7 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch base ref
-        run: git fetch origin main --depth=1
+        run: git fetch origin +refs/heads/main:refs/remotes/origin/main --depth=1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4

@@ -179,7 +179,7 @@ jobs:
 
           # Run Python tests
           echo "=== Python Test Suite ===" >> /tmp/in-toto/verification.txt
-          (cd sdk/python && python -m pytest tests/ -v) >> /tmp/in-toto/verification.txt 2>&1
+          (cd sdk/python && python -m pip install -e ".[dev]" && python -m pytest tests/ -v) >> /tmp/in-toto/verification.txt 2>&1
 
           # Security scanning
           echo "=== Security Scanning ===" >> /tmp/in-toto/verification.txt

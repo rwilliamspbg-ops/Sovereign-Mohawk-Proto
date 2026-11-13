@@ -150,7 +150,7 @@ class TestPhase5Documentation:
 
     def test_version_in_docstring(self):
         """Test version is documented."""
-        assert "2.1.0" in mohawk.__doc__ or "v2.1" in mohawk.__doc__
+        assert "2.2.0" in mohawk.__doc__ or "v2.2" in mohawk.__doc__
 
     def test_security_features_documented(self):
         """Test security features are documented."""
@@ -254,7 +254,7 @@ class TestBuildValidation:
     def test_version_accessible(self):
         """Test version is accessible."""
         assert hasattr(mohawk, "__version__")
-        assert mohawk.__version__ == "2.1.0"
+        assert mohawk.__version__ == "2.2.0"
 
     def test_all_list_complete(self):
         """Test __all__ list is properly defined."""
@@ -353,8 +353,8 @@ class TestRolloutReadiness:
         """Test version follows upgrade path."""
         version = mohawk.__version__
 
-        # Should be 2.1.0 (2.0.x -> 2.1.0)
-        assert version.startswith("2.1")
+        # Should be 2.2.0 (2.1.x -> 2.2.0)
+        assert version.startswith("2.2")
 
     def test_documentation_links_valid(self):
         """Test documentation references are valid."""
