@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI: pytest pinned `<8` until pytest-benchmark supports pytest 8+.
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
-## [Unreleased]
+## [2.2.0] - 2026-11-13
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
 This section covers work merged after the 2.1.0 release candidate. The dominant themes
@@ -180,6 +180,7 @@ testing.
 - **Version discipline + reproducibility** (#217): `VERSION` file, sync check, WSL docs.
 - **Go toolchain info audit** (#218).
 
+## [Unreleased]
 ### Fixed - Claim/Artifact Drift (2026-05-11 → 2026-10-03)
 
 This entry restores the changelog after a five-month gap. All items below are

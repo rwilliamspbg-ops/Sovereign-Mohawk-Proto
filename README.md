@@ -1209,7 +1209,7 @@ Sovereign-Mohawk-Proto/
 
 ## 🎯 What's New in This Release
 
-### Platform Upgrade (v2.1.0)
+### Platform Upgrade (v2.2.0)
 
 ✨ **New Features:**
 

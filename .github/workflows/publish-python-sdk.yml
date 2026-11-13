@@ -13,6 +13,7 @@ name: Publish Python SDK
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CGO_ENABLED: "1"
 
 permissions:
   contents: write

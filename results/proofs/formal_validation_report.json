@@ -8,78 +8,307 @@
       "surrogate_verified_with_gaussian_axiom": 1
     }
   },
-  "input_merkle_root": "7836c03955b230733521acef999fed037d8ce941658cb6bb6d27620569a07d3e",
+  "input_merkle_root": "d52d6055aa4b31e2f2f403ad392605f483fdda298cc63ba854f6c44a3eeb20b6",
   "inputs": [
     {
       "path": "capabilities.json",
-      "sha256": "c4d918cec533dfa0f246997d0d7dea2d50703f20a656f474c3803ae598977681"
+      "sha256": "8dee5354e14db90362ed0ab44861bca7647fbcda4e44a5091fe76836c73cf2da"
     },
     {
       "path": "go.mod",
-      "sha256": "fddc9054e00162ad4797c18fe04d227e01ce8e7ec233bd606ab55661ce92ccac"
+      "sha256": "6f0ba45339937a836bb015b73943927975c56a0bcd1cdda56e0fb10351ddd4da"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "674008c29354209a093fe317dcd7c6c8c0a1dbe4ac7cf5ce6aa357c0208984ed"
+      "sha256": "da0fd89aae96026e8f73aa661353381f26f0376ee611dcb7e9da2082f9dc958c"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "a82a55d8c59b5b84222a583cc2f4e7ec60f1aabf8625ee4f087961142d6e3897"
+      "sha256": "d967211241080a0051096d7610fc92df8de3274f9fc6c6be181f4ec43e91292d"
+    },
+    {
+      "path": "proofs/LeanFormalization/ConditionalExpectationGradient.lean",
+      "sha256": "22f4b8d4128e71ad607f85c87ab35f6079f551d7019b80c9ab17afbfd813a5bc"
+    },
+    {
+      "path": "proofs/LeanFormalization/DescentInequality.lean",
+      "sha256": "451b1b3ec8f711cfe586c35b9f8b51c38804f97ad6c77d95a800906f8de62f91"
+    },
+    {
+      "path": "proofs/LeanFormalization/DescentInequalityFull.lean",
+      "sha256": "ad320613b113a6b133d987d1e222f224c19bc279d3047d60a7b27eed9b46df2f"
+    },
+    {
+      "path": "proofs/LeanFormalization/DiscreteLogReduction.lean",
+      "sha256": "6bc980085a3a13c1307e63c716b6d97e7d4ab5a4d1004bc9c313d2f024456ecf"
+    },
+    {
+      "path": "proofs/LeanFormalization/Filtration.lean",
+      "sha256": "16abf170f4f9544829efb328ee165c21bdb8d5a28f53ae0ff5db39512801e907"
+    },
+    {
+      "path": "proofs/LeanFormalization/KrumSelection.lean",
+      "sha256": "af5b2eef858b8b41ec3bc6c25188a6de4fe36c069215da7b60adad124b737c4a"
+    },
+    {
+      "path": "proofs/LeanFormalization/Measurability.lean",
+      "sha256": "c30874a07688d9b675b5d15018208e214b9a2412961d56507f413b2f93d2c95a"
+    },
+    {
+      "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
+      "sha256": "45c37bb50dead7bfcbd711aa1ce214859be3eabd9d68e2b83eb72a9649fbbd94"
+    },
+    {
+      "path": "proofs/LeanFormalization/ProtocolSafety.lean",
+      "sha256": "e58e8b93713ed1bb836d73a49d4e223b6f0149262d4d663f001c6c0b57071b67"
+    },
+    {
+      "path": "proofs/LeanFormalization/RobbinsSiegmund.lean",
+      "sha256": "97e3f81ba53c971c8c3ecd182c7e5eb65a663d363a2868e5d6cd12d54766cbc2"
+    },
+    {
+      "path": "proofs/LeanFormalization/RobbinsSiegmundDeterministic.lean",
+      "sha256": "a3cae320cf8097be3f16c7daa59a3d663deee738b2ea84fd04f787ee2547f52c"
+    },
+    {
+      "path": "proofs/LeanFormalization/SchnorrReduction.lean",
+      "sha256": "d3822574383dc90e0506416dfdd9236e18787ca1d50665179438e6e3384c8dda"
+    },
+    {
+      "path": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
+      "sha256": "3a3dcbf64193a145d4d1df94ae2a3f564922ae69a28604821a27c2feeb0ad0c1"
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "b1832d15100b99d748c0c445c54be5141668aad8d397fa3124b0248bbdf2da7f"
+      "sha256": "45679944375b1689bd8963388f84b31fb76418d6c6730964a75231320892ddfa"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "a8e3ccf934e03e5510417d6b0980a3edc43b7199c980375714b200471c2a0946"
+      "sha256": "37912ef1cbec387b73193a17ec74ddd4b2ea716d93a49c23fee3d067c56836b6"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
-      "sha256": "7da01f9560dbb23592dccd8897f5f6259c259214063b573d569566b88df005c7"
+      "sha256": "6141c07f623c1cc179294fb372164e59d8bbd0d7fb4d5a680354a6dfc6975932"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4ChernoffBounds.lean",
-      "sha256": "86e5f7eb00a277dfce361e3910b8e30c9e7fb4cc47fecbb7cd6ecdac7636c9e6"
+      "sha256": "ca2ac054dbe1c280500ea95d8d1891449df14ba59865b62bfd5c6ccc90f477c4"
     },
     {
       "path": "proofs/LeanFormalization/Theorem4Liveness.lean",
-      "sha256": "e45b8ed289d0e9fe65200d924f2927d2b68bdd5fb55b00741a46e7d922fe19b5"
+      "sha256": "14518fc27ca7483fe69be722b500deeffa36d2e34f18d9d4b75a68278e81eb41"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem4StragglerResilience.lean",
+      "sha256": "4249f0cc7a0fa6920440321e0b723e044be0038cbebe51ce0eaa78f28343724e"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "c738450d99c7ab9f737a6fb153a19b0419bda083aeebcd361493f086bb2bde1d"
+      "sha256": "d4eacec653162267dbf1da66a13bf18ad4d89fe156bc2943d7fa71d1174604ce"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
+      "sha256": "3bbcc89d1c686286f9a4617ec6036f6371212899a2a7de048761e28e5f90bde1"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
-      "sha256": "731e2e2d5d7c0f381f070846cca196c7707b19f37b595574aef955400a382396"
+      "sha256": "05e2794793540eca124018727c27ecf624330ff79f9892c2db84b7401553bcae"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6ConvergenceReals.lean",
-      "sha256": "a9f4f0f02035b674761870ad717aa41d90558778600014ae6a41fc693884a33d"
+      "sha256": "e1a6b848543d672322c6a463a77397e973f053a9fce22b697f88879aac91f47b"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
+      "sha256": "170cf9975edf18fe62edf3386dc52c60a4943041752492a96d23853c2975e117"
+    },
+    {
+      "path": "proofs/LeanFormalization/Theorem6StochasticConvergence.lean",
+      "sha256": "aca2d1231430f8eaeb93c9d7442c6c86fd796351cf4e7f8625eff74445c1b8fa"
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "f2c50cfcc3b4db8b1ff43aac71e082cc6eb99ac7920638e2dc61c581098b4873"
+      "sha256": "8c16265297c31d013a9b361785df5d18798665bcee23085f71b8401ecdd0850f"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "a9a7fd966a3159f8852e85c275e61c9af79879ef176d2cfcb5280d40c4d910a1"
+      "sha256": "03b4d1c6b230c686db8088074cd5291d2c59107fca09f74e0289265de1dba3d5"
+    },
+    {
+      "path": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean",
+      "sha256": "832bc7114a3e593af7219269902eb6b2ffdc80de8d089ab87338ccfc619175ae"
+    },
+    {
+      "path": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519_example.lean",
+      "sha256": "5360993c4566df468f3c589a7318b62c5ee3f6e0eb1b4549e6d56ca7343416b5"
     },
     {
       "path": "proofs/lakefile.lean",
-      "sha256": "978fd5491833c03de95bc7cb3ea5a2d65c0344d0605ccecd56305c663be347bc"
+      "sha256": "3b0b04d66a7ed458e275f0bf494a2726c574d4d558b697f54eb6fb07c47bc1ea"
     },
     {
       "path": "proofs/lean-toolchain",
-      "sha256": "4ffb62ce8c8f7ebaff1c1e98c5d36fd60956fb6c9a55d66d8c75ceaae9e96507"
+      "sha256": "ce4c4e3d87434b9663f46de25ce34b48a0cf0d392e0a320a0787b4674a2d7b61"
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "6b59fc9ffaa36f8c843eea0d0a82a413b38874ab1ca78610cf62916eef3cd6d0"
+      "sha256": "2e4384188442c113fb9eea32056ced521fd4a1d1031a690b9b74d981a303a73d"
     }
   ],
   "lean_modules": [
+    {
+      "file": "proofs/LeanFormalization/ConditionalExpectationGradient.lean",
+      "module": "LeanFormalization.ConditionalExpectationGradient",
+      "symbol_count": 2,
+      "symbols": [
+        "ConditionalGradientModel",
+        "unbiased_conditional_gradient"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/DescentInequality.lean",
+      "module": "LeanFormalization.DescentInequality",
+      "symbol_count": 2,
+      "symbols": [
+        "descent_implies_telescoping",
+        "descent_inequality_concrete_guard"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/DescentInequalityFull.lean",
+      "module": "LeanFormalization.DescentInequalityFull",
+      "symbol_count": 2,
+      "symbols": [
+        "descent_inequality_derived",
+        "sgd_step_expand"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/DiscreteLogReduction.lean",
+      "module": "LeanFormalization.DiscreteLogReduction",
+      "symbol_count": 7,
+      "symbols": [
+        "DiscreteLogHard",
+        "dlAdversarySucceeds",
+        "dlVerify",
+        "recoverSecret",
+        "recovery_sanity_example",
+        "recovery_yields_secret",
+        "scalarModInv"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Filtration.lean",
+      "module": "LeanFormalization.Filtration",
+      "symbol_count": 4,
+      "symbols": [
+        "GradientStronglyAdapted",
+        "federated_filtration_le",
+        "federated_filtration_monotone",
+        "gradient_condExp_stronglyMeasurable"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/KrumSelection.lean",
+      "module": "LeanFormalization.KrumSelection",
+      "symbol_count": 4,
+      "symbols": [
+        "exists_subset_card_eq_of_le",
+        "krumScore_le_of_exists_subset",
+        "krum_selection_safe",
+        "le_krumScore_of_forall_subset"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Measurability.lean",
+      "module": "LeanFormalization.Measurability",
+      "symbol_count": 7,
+      "symbols": [
+        "DropoutMask",
+        "StochasticGradient",
+        "maskedGradient",
+        "masked_gradient_jointly_measurable",
+        "masked_gradient_measurable_fixed",
+        "stochastic_gradient_jointly_measurable",
+        "stochastic_gradient_measurable_fixed"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/MultiKrumConvergence.lean",
+      "module": "LeanFormalization.MultiKrumConvergence",
+      "symbol_count": 7,
+      "symbols": [
+        "mkAggregate_deviation_sq_le",
+        "mkAggregate_deviation_sq_le_split",
+        "mkAggregate_sub",
+        "multikrum_convergence_ae",
+        "multikrum_descent_inequality",
+        "not_summable_diminishingStep",
+        "summable_diminishingStep_sq"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/ProtocolSafety.lean",
+      "module": "LeanFormalization.ProtocolSafety",
+      "symbol_count": 6,
+      "symbols": [
+        "HTree",
+        "guardThreshold",
+        "guardThreshold_correct",
+        "hierarchical_counterexample_safeButFractionUnsafe",
+        "multikrum_guard_failure_deployment_scale",
+        "multikrum_guard_failure_prob"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RobbinsSiegmund.lean",
+      "module": "LeanFormalization.RobbinsSiegmund",
+      "symbol_count": 3,
+      "symbols": [
+        "robbins_siegmund_concrete_guard",
+        "robbins_siegmund_telescoping",
+        "robbins_siegmund_weighted_sum_bound"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RobbinsSiegmundDeterministic.lean",
+      "module": "LeanFormalization.RobbinsSiegmundDeterministic",
+      "symbol_count": 3,
+      "symbols": [
+        "robbins_siegmund_deterministic",
+        "robbins_siegmund_limit_zero",
+        "summable_of_convergent_partial_sums_nonneg"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/SchnorrReduction.lean",
+      "module": "LeanFormalization.SchnorrReduction",
+      "symbol_count": 13,
+      "symbols": [
+        "ForkingStep",
+        "SchnorrForger",
+        "forger_implies_dlog",
+        "here",
+        "schnorrAccept",
+        "schnorr_completeness",
+        "schnorr_concrete_accept",
+        "schnorr_concrete_accept'",
+        "schnorr_concrete_extraction",
+        "schnorr_concrete_reduction",
+        "schnorr_hvzk_commitment_bijective",
+        "schnorr_hvzk_simulation",
+        "schnorr_special_soundness"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
+      "module": "LeanFormalization.SupermartingaleConvergence",
+      "symbol_count": 2,
+      "symbols": [
+        "supermartingale_convergence_L1",
+        "supermartingale_convergence_ae"
+      ]
+    },
     {
       "file": "proofs/LeanFormalization/Theorem1BFT.lean",
       "module": "LeanFormalization.Theorem1BFT",
@@ -206,25 +435,68 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/Theorem4StragglerResilience.lean",
+      "module": "LeanFormalization.Theorem4StragglerResilience",
+      "symbol_count": 9,
+      "symbols": [
+        "adversarialFailureProb",
+        "adversarial_cannot_fail_if_budget_less",
+        "adversarial_monotone_in_budget",
+        "adversarial_total_failure_if_budget_enough",
+        "correlatedFailureProb",
+        "correlated_recovers_independent",
+        "correlated_worst_case_guard",
+        "correlation_increases_failure",
+        "quorumFailureProb"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/Theorem5Cryptography.lean",
       "module": "LeanFormalization.Theorem5Cryptography",
-      "symbol_count": 15,
+      "symbol_count": 29,
       "symbols": [
+        "CircuitBoundRelation",
+        "GenesisIdentityVK",
+        "MiMCRelation",
         "Relation",
+        "circuitVK",
+        "mimc",
         "proofSize",
         "prove",
+        "proveCircuitBound",
+        "proveMiMC",
+        "theorem5_circuit_bound_completeness",
+        "theorem5_circuit_bound_soundness",
         "theorem5_constant_cost",
         "theorem5_constant_ops",
         "theorem5_constant_size",
         "theorem5_cost_guard",
+        "theorem5_mimc_binding",
+        "theorem5_mimc_completeness",
+        "theorem5_mimc_soundness",
         "theorem5_ops_guard",
         "theorem5_proof_size_independence",
         "theorem5_verifier_completeness",
         "theorem5_verifier_soundness",
         "theorem5_verifyops_constant",
         "verify",
+        "verifyCircuitBound",
         "verifyCostMicros",
+        "verifyMiMC",
         "verifyOps"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
+      "module": "LeanFormalization.Theorem5MiMCFormalization",
+      "symbol_count": 6,
+      "symbols": [
+        "bn254Prime",
+        "mimcExponent",
+        "mimcRound",
+        "mimcRound_injective",
+        "mimcRound_small_prime_guard",
+        "pow_injective"
       ]
     },
     {
@@ -262,6 +534,39 @@
         "theorem6_hierarchical_convergence_holds",
         "theorem6_hierarchical_convergence_rate",
         "theorem6_variance_reduction_convergence"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
+      "module": "LeanFormalization.Theorem6MeasureTheoreticConvergence",
+      "symbol_count": 7,
+      "symbols": [
+        "convergence_rate_from_descent",
+        "cumulativeDescent",
+        "descentStep",
+        "descent_step_le_noise",
+        "measure_theoretic_dominates_surrogate",
+        "measure_theoretic_large_scale_guard",
+        "noiseVariance"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Theorem6StochasticConvergence.lean",
+      "module": "LeanFormalization.Theorem6StochasticConvergence",
+      "symbol_count": 12,
+      "symbols": [
+        "clientVarianceTerm",
+        "driftTerm",
+        "martingale_descent_step",
+        "stochasticEnvelope",
+        "stochastic_dominates_deterministic",
+        "stochastic_drift_increases",
+        "stochastic_envelope_decompose",
+        "stochastic_envelope_nonneg",
+        "stochastic_heterogeneity_increases",
+        "stochastic_large_scale_guard",
+        "stochastic_rounds_help_concrete",
+        "stochastic_variance_increases"
       ]
     },
     {
@@ -305,28 +610,47 @@
         "theorem8_refines_go_settlement_sound",
         "theorem8_scale_non_hijack_guard"
       ]
+    },
+    {
+      "file": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean",
+      "module": "LeanFormalization.TheoremUF_CMA_Ed25519",
+      "symbol_count": 2,
+      "symbols": [
+        "Ed25519ToPQC",
+        "Ed25519_uf_cma"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519_example.lean",
+      "module": "LeanFormalization.TheoremUF_CMA_Ed25519_example",
+      "symbol_count": 1,
+      "symbols": [
+        "Ed25519_uf_cma_no_win"
+      ]
     }
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 17,
-    "module_count": 10,
-    "theorem_symbol_count": 156
+    "input_file_count": 36,
+    "module_count": 29,
+    "theorem_symbol_count": 269
   },
   "toolchain_lock": {
-    "go_version": "1.26.6",
+    "go_version": "1.27.4",
     "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
     "mathlib4_ref": "v4.30.0-rc2",
-    "zk_backend_gnark_crypto": "v0.21.0"
+    "zk_backend_gnark_crypto": "v0.22.0"
   },
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 51,
+    "runtime_reference_count": 53,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/federation/async_refinement_test.go::TestAsyncRefinementEnvelopeBound",
       "internal/hbft/simulator_test.go::TestSimulator_RunRound_CallsRealMultiKrumSelect",
       "internal/hbft/statcheck_test.go::TestRunStatCheck_EmpiricalRateRoughlyMatchesTheory",
+      "internal/multikrum.go::MultiKrumAggregate",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence_GeneralM",
       "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_AboveEnvelopeSatisfiesPostconditions",
