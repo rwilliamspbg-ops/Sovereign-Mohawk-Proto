@@ -131,9 +131,9 @@ jobs:
 
       - name: Build formal verification release artifacts
         run: |
+          make package-formal-verification-artifacts
           python3 scripts/ci/generate_formal_validation_report.py --repo-root .
           python3 scripts/ci/build_formal_verification_bundle.py
-          make package-formal-verification-artifacts
 
       - name: Stage formal verification artifacts
         run: |

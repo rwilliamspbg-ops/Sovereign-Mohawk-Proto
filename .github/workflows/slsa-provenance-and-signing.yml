@@ -20,7 +20,6 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   GOTOOLCHAIN: go1.27.4+auto
-  CGO_ENABLED: "1"
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -169,22 +168,22 @@ jobs:
         run: |
           mkdir -p /tmp/release-artifacts
           
-          # Build Go node-agent for multiple platforms
-          export GOOS=linux GOARCH=amd64
+          # Build Go node-agent for multiple platforms (cgo disabled for cross-compilation)
+          export GOOS=linux GOARCH=amd64 CGO_ENABLED=0
           ./scripts/go_with_toolchain.sh go build -o /tmp/release-artifacts/node-agent-linux-amd64 ./cmd/node-agent
           
-          export GOOS=linux GOARCH=arm64
+          export GOOS=linux GOARCH=arm64 CGO_ENABLED=0
           ./scripts/go_with_toolchain.sh go build -o /tmp/release-artifacts/node-agent-linux-arm64 ./cmd/node-agent
           
-          export GOOS=darwin GOARCH=amd64
+          export GOOS=darwin GOARCH=amd64 CGO_ENABLED=0
           ./scripts/go_with_toolchain.sh go build -o /tmp/release-artifacts/node-agent-darwin-amd64 ./cmd/node-agent
           
-          export GOOS=darwin GOARCH=arm64
+          export GOOS=darwin GOARCH=arm64 CGO_ENABLED=0
           ./scripts/go_with_toolchain.sh go build -o /tmp/release-artifacts/node-agent-darwin-arm64 ./cmd/node-agent
           
-          # Build Python SDK wheel
+          # Build Python SDK wheel (cgo required for the shared library)
           cd sdk/python && python -m pip install build
-          python -m build --wheel
+          CGO_ENABLED=1 python -m build --wheel
           cp dist/*.whl /tmp/release-artifacts/
           cd ../..
           
