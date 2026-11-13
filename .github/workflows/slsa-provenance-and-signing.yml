@@ -181,7 +181,10 @@ jobs:
           export GOOS=darwin GOARCH=arm64 CGO_ENABLED=0
           ./scripts/go_with_toolchain.sh go build -o /tmp/release-artifacts/node-agent-darwin-arm64 ./cmd/node-agent
           
-          # Build Python SDK wheel (cgo required for the shared library)
+          # Build Python SDK wheel (cgo required for the shared library).
+          # Unset GOOS/GOARCH so the wheel targets the host -- the cross-compile
+          # exports above otherwise leak in and add -arch arm64 to GOGCCFLAGS.
+          unset GOOS GOARCH
           cd sdk/python && python -m pip install build
           env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u ARCHFLAGS CGO_ENABLED=1 python -m build --wheel
           cp dist/*.whl /tmp/release-artifacts/
