@@ -51,6 +51,10 @@ def _build_go_library(output_dir: Path) -> Path:
     env = os.environ.copy()
     for var in ("CFLAGS", "CPPFLAGS", "LDFLAGS", "ARCHFLAGS", "CGO_CFLAGS", "CGO_LDFLAGS"):
         env.pop(var, None)
+    # Force a known-good C compiler: CI runners may set clang with macOS-style
+    # -arch flags that the Go cgo build rejects on Linux.
+    env["CC"] = "gcc"
+    env["CGO_CFLAGS"] = "-O2 -g"
     try:
         result = subprocess.run(
             cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True, env=env
