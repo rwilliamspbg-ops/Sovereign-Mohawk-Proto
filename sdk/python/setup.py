@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import sys
@@ -45,9 +46,14 @@ def _build_go_library(output_dir: Path) -> Path:
         str(GO_API_PATH),
     ]
     print(f"Running: {' '.join(cmd)}")
+    # The Go cgo build must not inherit Python/distutils CFLAGS: CI runners
+    # set macOS-style -arch flags, which clang rejects on Linux.
+    env = os.environ.copy()
+    for var in ("CFLAGS", "CPPFLAGS", "LDFLAGS", "ARCHFLAGS", "CGO_CFLAGS", "CGO_LDFLAGS"):
+        env.pop(var, None)
     try:
         result = subprocess.run(
-            cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True
+            cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True, env=env
         )
         if result.stdout:
             print(result.stdout)
