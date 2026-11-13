@@ -341,10 +341,10 @@ jobs:
           for file in node-agent-* *.whl; do
             if [ -f "$file" ]; then
               echo "Signing: $file"
-              cosign sign-blob --yes "$file" > "${file}.cosign.sig"
-              
-              # Also create certificate
-              cosign sign-blob --yes --certificate "${file}" > "${file}.cosign.crt"
+              cosign sign-blob --yes \
+                --output-signature "${file}.cosign.sig" \
+                --output-certificate "${file}.cosign.crt" \
+                "$file"
               
               echo "✓ Signed: $file"
             fi
