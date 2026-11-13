@@ -68,7 +68,7 @@ jobs:
 
       - name: Build SDK Source Distribution
         working-directory: sdk/python
-        run: python -m build --sdist --wheel
+        run: env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u ARCHFLAGS python -m build --sdist --wheel
 
       - name: Validate Distribution Metadata
         working-directory: sdk/python
