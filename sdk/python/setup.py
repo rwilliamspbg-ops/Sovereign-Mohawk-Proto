@@ -55,6 +55,8 @@ def _build_go_library(output_dir: Path) -> Path:
     # -arch flags that the Go cgo build rejects on Linux.
     env["CC"] = "gcc"
     env["CGO_CFLAGS"] = "-O2 -g"
+    print(f"DEBUG CC={env.get('CC')!r} CGO_CFLAGS={env.get('CGO_CFLAGS')!r} CFLAGS={env.get('CFLAGS')!r} GOFLAGS={env.get('GOFLAGS')!r} ARCHFLAGS={env.get('ARCHFLAGS')!r}")
+    subprocess.run(["go", "env", "CC", "CGO_CFLAGS", "GOFLAGS", "GOGCCFLAGS"], cwd=str(REPO_ROOT), env=env)
     try:
         result = subprocess.run(
             cmd, cwd=str(REPO_ROOT), check=False, text=True, capture_output=True, env=env

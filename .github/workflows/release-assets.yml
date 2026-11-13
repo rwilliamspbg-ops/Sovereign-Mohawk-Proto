@@ -97,6 +97,7 @@ jobs:
         with:
           format: spdx-json
           output-file: release-assets/sbom-source.spdx.json
+          upload-release-assets: false
       - name: Package npm artifacts (if present)
         run: |
           mkdir -p release-assets/npm
@@ -206,6 +207,7 @@ jobs:
           image: ghcr.io/${{ github.repository_owner }}/sovereign-mohawk-${{ matrix.image_name }}:${{ github.ref_name }}
           format: spdx-json
           output-file: release-assets/docker/sbom-${{ matrix.image_name }}.spdx.json
+          upload-release-assets: false
       - name: Write digest metadata
         run: |
           printf '%s\n' "${{ steps.build_push.outputs.digest }}" > release-assets/docker/${{ matrix.image_name }}-${{ github.ref_name }}.digest
