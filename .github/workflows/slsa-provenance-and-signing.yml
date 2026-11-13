@@ -183,7 +183,7 @@ jobs:
           
           # Build Python SDK wheel (cgo required for the shared library)
           cd sdk/python && python -m pip install build
-          CGO_ENABLED=1 python -m build --wheel
+          env -u CFLAGS -u CPPFLAGS -u LDFLAGS -u ARCHFLAGS CGO_ENABLED=1 python -m build --wheel
           cp dist/*.whl /tmp/release-artifacts/
           cd ../..
           

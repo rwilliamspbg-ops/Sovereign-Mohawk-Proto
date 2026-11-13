@@ -387,7 +387,7 @@ jobs:
           EOF
           
           # Create link chain summary
-          LINK_CHAIN=$(cat /tmp/in-toto-links/*.link | jq -s .)
+          LINK_CHAIN=$(cat /tmp/in-toto-links/*.link | jq -cs .)
           echo "link-chain=${LINK_CHAIN}" >> $GITHUB_OUTPUT
           
           echo "Generated in-toto layout and link metadata"
