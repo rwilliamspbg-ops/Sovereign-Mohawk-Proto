@@ -61,7 +61,9 @@
         "refractor": "^5.0.0"
       }
     },
-    "@a2ui/web_core": "0.10.2"
+    "@a2ui/web_core": "0.10.2",
+    "hono": "4.13.18",
+    "@hono/node-server": "2.1.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
