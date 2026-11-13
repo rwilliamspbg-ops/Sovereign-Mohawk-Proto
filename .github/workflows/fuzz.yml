@@ -5,11 +5,13 @@ on:
     branches: [ main ]
     paths:
       - 'internal/**'
+      - 'test/**'
       - '.github/workflows/fuzz.yml'
   push:
     branches: [ main ]
     paths:
       - 'internal/**'
+      - 'test/**'
       - '.github/workflows/fuzz.yml'
 
 concurrency:
@@ -41,3 +43,18 @@ jobs:
 
       - name: Fuzz proofs verifier
         run: go test ./internal/proofs/... -fuzz=FuzzVerifyHashCommitment -fuzztime=60s
+
+      - name: Fuzz threshold aggregation
+        run: go test ./test/ -run '^FuzzThresholdAggAggregate$' -fuzz '^FuzzThresholdAggAggregate$' -fuzztime=20s
+
+      - name: Fuzz manifest signature
+        run: go test ./test/ -run '^FuzzManifestSignature$' -fuzz '^FuzzManifestSignature$' -fuzztime=20s
+
+      - name: Fuzz hash-commitment verifier (semantic oracle)
+        run: go test ./test/ -run '^FuzzVerifyHashCommitmentSemantic$' -fuzz '^FuzzVerifyHashCommitmentSemantic$' -fuzztime=20s
+
+      - name: Fuzz RDP accountant
+        run: go test ./test/ -run '^FuzzRDPShardStepSemantic$' -fuzz '^FuzzRDPShardStepSemantic$' -fuzztime=20s
+
+      - name: Fuzz scheduler auction
+        run: go test ./test/ -run '^FuzzSchedulerAllocateSemantic$' -fuzz '^FuzzSchedulerAllocateSemantic$' -fuzztime=20s
