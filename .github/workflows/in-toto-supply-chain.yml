@@ -218,7 +218,7 @@ jobs:
 
       - name: Install in-toto tools
         run: |
-          pip install in-toto-py
+          pip install in-toto
           # in-toto-record and in-toto-run will be used to generate link metadata
 
       - name: Generate in-toto link metadata
