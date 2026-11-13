@@ -9,6 +9,13 @@ New in v2.1.0:
 - TLS configuration with certificate pinning
 - Observability with OpenTelemetry
 - Cloud deployment support
+
+New in v2.2.0:
+- Axiom-free, sorry-free Lean formalization (35 modules)
+- Regenerated formal verification bundle and validation report
+- Semantic fuzz oracles for core packages
+- Property tests across all internal packages
+- Security advisory remediation (hono, @hono/node-server, katex)
 """
 
 from .client import MohawkNode
