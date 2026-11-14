@@ -125,6 +125,11 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           TAG="${GITHUB_REF_NAME}"
+          # The release-assets workflow creates the release; create it if missing
+          # (the || true handles a race where both workflows create it).
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --generate-notes --prerelease || true
+          fi
           gh release upload "$TAG" \
             release-performance-evidence/benchmark-results.json \
             release-performance-evidence/results/metrics/fedavg_benchmark_compare.md \
@@ -139,6 +144,10 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG not found; skipping notes update."
+            exit 0
+          fi
           NOTES_FILE="release-notes-updated.md"
           SECTION_FILE="performance-evidence-section.md"
 
