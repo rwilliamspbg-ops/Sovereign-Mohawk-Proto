@@ -130,11 +130,13 @@ jobs:
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --generate-notes --prerelease || true
           fi
+          # captured_artifacts/release_performance_evidence.md is an exact mirror of
+          # results/metrics/release_performance_evidence.md (same basename); uploading
+          # both trips the GitHub asset API (HTTP 404 on the duplicate name).
           gh release upload "$TAG" \
             release-performance-evidence/benchmark-results.json \
             release-performance-evidence/results/metrics/fedavg_benchmark_compare.md \
             release-performance-evidence/results/metrics/release_performance_evidence.md \
-            release-performance-evidence/captured_artifacts/release_performance_evidence.md \
             --clobber
 
       - name: Append performance evidence summary to release notes
