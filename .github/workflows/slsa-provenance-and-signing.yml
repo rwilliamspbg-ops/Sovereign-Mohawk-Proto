@@ -341,10 +341,10 @@ jobs:
           for file in node-agent-* *.whl; do
             if [ -f "$file" ]; then
               echo "Signing: $file"
-              cosign sign-blob --yes "$file" > "${file}.cosign.sig"
-              
-              # Also create certificate
-              cosign sign-blob --yes --certificate "${file}" > "${file}.cosign.crt"
+              cosign sign-blob --yes \
+                --output-signature "${file}.cosign.sig" \
+                --output-certificate "${file}.cosign.crt" \
+                "$file"
               
               echo "✓ Signed: $file"
             fi
@@ -461,7 +461,7 @@ jobs:
             /tmp/all-artifacts/release-signatures/*
             /tmp/all-artifacts/slsa-provenance/*
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(steps.version.outputs.tag, 'rc') || contains(steps.version.outputs.tag, 'alpha') || contains(steps.version.outputs.tag, 'beta') }}
           generate_release_notes: false
 
       - name: Log release publication
