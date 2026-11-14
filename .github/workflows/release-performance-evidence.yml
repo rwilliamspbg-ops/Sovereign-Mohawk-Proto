@@ -122,6 +122,7 @@ jobs:
       - name: Attach evidence artifacts to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           TAG="${GITHUB_REF_NAME}"
           gh release upload "$TAG" \
@@ -134,6 +135,7 @@ jobs:
       - name: Append performance evidence summary to release notes
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
