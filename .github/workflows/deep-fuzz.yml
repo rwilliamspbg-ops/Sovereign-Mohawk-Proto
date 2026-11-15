@@ -15,7 +15,11 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Run deep fuzz
-        run: go test -run=XXX -fuzz=${{ matrix.target }} -fuzztime=5m ./test/
+        # -fuzz is an unanchored regexp: FuzzRDPShardStep also matches
+        # FuzzRDPShardStepSemantic, and go test refuses to fuzz more than
+        # one target. Anchor -run/-fuzz so each matrix entry selects exactly
+        # one fuzz test (same convention as the Makefile fuzz targets).
+        run: go test -run '^${{ matrix.target }}$' -fuzz '^${{ matrix.target }}$' -fuzztime=5m ./test/
       - name: Upload fuzz cache
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
