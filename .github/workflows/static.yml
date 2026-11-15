@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -64,6 +65,31 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
         with:
           path: '.'
+      - name: Wait for the Pages artifact to reach the Actions API
+        run: |
+          set -euo pipefail
+          url="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=github-pages"
+          for attempt in $(seq 1 30); do
+            body="${RUNNER_TEMP}/pages-artifacts.json"
+            status="$(curl -sS -o "${body}" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${url}")"
+            if [ "${status}" != "200" ]; then
+              echo "::error::Actions artifacts API returned HTTP ${status}"
+              cat "${body}"
+              exit 1
+            fi
+            count="$(jq -r '.total_count // 0' "${body}")"
+            if [ "${count}" -gt 0 ]; then
+              echo "github-pages artifact visible to the Actions API after ${attempt} attempt(s)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::github-pages artifact never became visible; deploy-pages would abort with 'No artifacts named github-pages were found'"
+          exit 1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
