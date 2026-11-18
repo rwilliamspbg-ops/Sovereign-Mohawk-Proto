@@ -13,7 +13,13 @@
 // limitations under the License.
 
 // Reference: /proofs/cryptography.md
-// Theorem 5: Constant-time (10ms) zk-SNARK verification for 10M nodes.
+// Theorem 5: O(1) zk-SNARK verification for 10M nodes (constant-operation model).
+//
+// Measured cost of the real circuit is recorded in
+// results/zk/weight-proof-latest.json (verify 0.675 ms, prove 38 ms, 9569
+// constraints). An earlier revision of this comment advertised "10ms" as a
+// measured constant-time verification latency; that figure came from a
+// time.sleep in sdk/python/tests/test_benchmarks.py and has been retracted.
 //
 // Implementation: Groth16 pairing-based zk-SNARK verifier on BN254 (alt_bn128).
 // Wire format (128 bytes, compressed):

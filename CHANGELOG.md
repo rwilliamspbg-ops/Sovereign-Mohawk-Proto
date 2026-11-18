@@ -181,6 +181,43 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### RETRACTED - the advertised "10 ms zk-SNARK verification" figure
+
+The headline zk-SNARK verification latency of **10 ms / 10.55 ms** was **not a
+measurement**. It was a hardcoded `time.sleep(0.0104)` in
+`sdk/python/tests/test_benchmarks.py`, and the performance gate was measuring that
+sleep against a baseline. There was no zk benchmark artifact anywhere in the
+repository.
+
+Retracted on **2026-11-18** and replaced by the real, measured circuit:
+
+| | Retracted | Measured (`results/zk/weight-proof-latest.json`) |
+| --- | --- | --- |
+| verify | 10.55 ms | **0.675 ms** (mean, 200 iterations) |
+| prove | "constant time" | **38.0 ms** (mean, 20 iterations) |
+| setup | — | 41.3 s (one-time, compile + simulated MPC ceremony) |
+| constraints | — | 9 569 |
+| proof size | — | 164 bytes |
+
+Changes:
+
+- `sdk/python/tests/test_benchmarks.py`: the `time.sleep(0.0104)` mock is deleted and
+  `test_verify_proof_performance` is **skipped** with a pointer to the Go benchmark.
+- `internal/zksnark_verifier.go`, `internal/batch/batch.go`: doc comments no longer
+  advertise "10ms"; they state the model/measured distinction.
+- `sdk/python/README.md`, `README.md`: the badge, benchmark table rows and summary
+  lines citing 10.55 ms are removed or replaced with the artifact pointer.
+- `docs/HARDWARE_COMPATIBILITY.md`, `docs/DoD_Alignment_Addendum.md`,
+  `demo_sovereign_mohawk.sh`, `DASHBOARD.md`: the 10 ms envelope is now labelled a
+  **target**, not a measured result.
+- `docs/ACADEMIC_PAPER.md`: §3.4 states the retraction; Table 7's Groth16 row now
+  carries the measured 0.675 ms.
+- `docs/ZK_FINALIZATION_PLAN.md` §0.2 / M3: the retraction checklist is closed.
+
+**Historical CHANGELOG entries below are left as the record of what was claimed at
+the time** (they include the 10 ms figure at former lines 745 and 801); this notice
+is the authoritative retraction.
+
 ### Changed - Paper: first-class claim-status section and the real weight circuit (W5)
 
 - `docs/ACADEMIC_PAPER.md`:

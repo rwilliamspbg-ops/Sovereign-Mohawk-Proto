@@ -13,18 +13,21 @@ and replace the unbacked zk performance figures with measured artifacts.
 | --- | --- | --- |
 | M1 sound binding | **done** | `internal/zkweight_circuit.go`; `test/zkweight_circuit_test.go` (honest round-trip, distinct-witness binding, tampered statement, over-bound, zero dataset, tampered proof); 9569 constraints |
 | M2 production wiring | **done, with two honest gaps** | `internal/zkprover/gnark.go`; `internal/batch/aggregator.go`; `test/batch_zkweight_attestation_test.go`. **Gap 1:** `computeproof.Trace` has no production producer at all (only `computeproof_property_test.go` and `test/computeproof_test.go` construct it, and there is no `GradientUpdate{` construction site anywhere in the tree), so populating it would mean inventing a caller; it is left unwired and recorded here rather than faked. **Gap 2:** `zkprover.MockProver` / `CLIProver` remain placeholders; `SelectProver` can still return them, so they must not be used in a production proof path. |
-| M3 real evidence | **partial** | `cmd/zkweightbench`, `.github/workflows/zk-circuit-gate.yml`, `results/zk/weight-proof-latest.json` (verify 0.67 ms, prove 34 ms, setup 44 s). **The figure retraction is deferred** — see below |
+| M3 real evidence | **done** | `cmd/zkweightbench`, `.github/workflows/zk-circuit-gate.yml`, `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38.0 ms, setup 41.3 s, 9 569 constraints). **Figure retraction done 2026-11-18** — see §0.2 |
 | M4 formal link + docs | **done** | `Theorem5Cryptography.lean` `WeightUpdateCircuit` section; matrix row 21; `circuits/README.md` corrected; `GOLD_STANDARD_PLAN.md` status |
 | M5 decision record | **done** | §1 below |
 
-**Deferred (M3 retraction).** The advertised "10 ms zk-SNARK verification"
-figures (`CHANGELOG.md:745,801`, `sdk/python/README.md:13,23,572`,
-`docs/HARDWARE_COMPATIBILITY.md:41`, `docs/DoD_Alignment_Addendum.md:151`) and
-the `time.sleep(0.0104)` mock in `sdk/python/tests/test_benchmarks.py` are
-**unchanged**. They now coexist with the real measurement
-(`results/zk/weight-proof-latest.json`), which reports **0.67 ms** verify — the
-advertised number is a sleep, not a measurement, and should be retracted or
-replaced with a pointer to the artifact.
+**Done (M3 retraction, 2026-11-18).** The advertised "10 ms zk-SNARK verification"
+figure was retracted across the tree: the `time.sleep(0.0104)` mock is deleted and
+the SDK benchmark test is skipped with a pointer to the artifact; the badge, the
+README benchmark rows, `internal/zksnark_verifier.go`, `internal/batch/batch.go`,
+`demo_sovereign_mohawk.sh`, `docs/HARDWARE_COMPATIBILITY.md`,
+`docs/DoD_Alignment_Addendum.md`, `DASHBOARD.md`, `docs/ACADEMIC_PAPER.md` and
+`docs/EVIDENCE_PACKAGE.md` now cite `results/zk/weight-proof-latest.json`
+(verify 0.675 ms, prove 38.0 ms, setup 41.3 s, 9 569 constraints) or state that the
+10 ms envelope is a target rather than a measurement. Historical CHANGELOG entries
+are left as the record of what was claimed at the time; a retraction notice at the
+top of `[Unreleased]` points at them.
 
 ---
 
@@ -199,15 +202,19 @@ rejected; no caller can reach the legacy identity.
       run the benchmark, upload `results/zk/<date>-<sha>.json`, and **gate** on
       measured budgets (verify ≤ 15 ms; prove ≤ 30 s at `N=8`; scaling slope
       recorded). This is a real gate, not a baseline comparison of a sleep.
-- [ ] **Remove the mock**: delete `time.sleep(0.0104)` from
-      `sdk/python/tests/test_benchmarks.py` and either measure the real SDK
-      `verify_proof` path or mark the test skipped with a pointer to the Go
-      benchmark.
-- [ ] Correct every figure listed in §0.2 to cite the artifact path, or drop
-      the number. Specifically: `CHANGELOG.md:745,801`,
-      `sdk/python/README.md:13,23,572`, `docs/HARDWARE_COMPATIBILITY.md:41`,
-      `docs/DoD_Alignment_Addendum.md:151`, and the `zksnark_verifier.go:16`
-      doc comment.
+- [x] **Remove the mock**: `time.sleep(0.0104)` deleted and the test skipped with a
+      pointer to `results/zk/weight-proof-latest.json`; the now-unused `import time`
+      is gone. The real SDK `verify_proof` path cannot be measured meaningfully
+      here (the fixture proof is invalid, so the call fails fast), so the Go
+      benchmark is the source of truth.
+- [x] Corrected every figure listed in §0.2 to cite the artifact path, or
+      dropped the number: `sdk/python/README.md` (badge, bullet, table row,
+      summary), `README.md` (table row, summary, docs pointer),
+      `internal/zksnark_verifier.go`, `internal/batch/batch.go`,
+      `demo_sovereign_mohawk.sh`, `docs/HARDWARE_COMPATIBILITY.md`,
+      `docs/DoD_Alignment_Addendum.md`, `DASHBOARD.md`, `docs/ACADEMIC_PAPER.md`
+      (§3.4 and Table 7) and `docs/EVIDENCE_PACKAGE.md`. Historical CHANGELOG
+      lines are left intact and flagged by a retraction notice.
 - [ ] Register the artifact under `captured_artifacts/` per
       `docs/ARTIFACT_GOVERNANCE.md`.
 
