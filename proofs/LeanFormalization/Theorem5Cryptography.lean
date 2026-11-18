@@ -294,4 +294,153 @@ theorem theorem5_mimc_binding (stmt : MiMCStatement) (p1 p2 : MiMCProof)
   rw [decide_eq_true_eq] at hc1 hc2
   rw [hc1, hc2]
 
+
+/-! ### WeightUpdateCircuit (Pillar 1)
+
+Models `internal/zkweight_circuit.go`. As with `mimc` above, the hash is a
+deterministic surrogate fold, not the concrete BN254 MiMC permutation; what is
+modelled -- and what the theorems below check -- is the **circuit relation**,
+i.e. which (statement, witness) pairs the constraint system accepts.
+Groth16/q-SDH soundness of the proof system itself is not formalized here
+(same scope limit as `Relation` above). -/
+
+/-- Surrogate for the in-circuit MiMC chain: a deterministic left fold over the
+field elements written to the hasher, from the zero initial state. -/
+def weightHash (xs : List Nat) : Nat := xs.foldl (fun acc x => acc * 31 + x) 0
+
+/-- Squared L2 norm of a gradient vector in the circuit's fixed-point encoding. -/
+def sumSq (xs : List Nat) : Nat := (xs.map (fun g => g * g)).sum
+
+/-- Caller-supplied public values (the derived hashes are computed, not given). -/
+structure WeightPublicInputs where
+  model_hash_before : Nat
+  dataset_commitment : Nat
+  grad_norm_bound : Nat
+  dp_epsilon : Nat
+
+/-- Private training witness. -/
+structure WeightWitness where
+  gradients : List Nat
+  noise : List Nat
+  training_steps : Nat
+
+/-- Full public input vector of the circuit. -/
+structure WeightStatement where
+  model_hash_before : Nat
+  model_hash_after : Nat
+  dataset_commitment : Nat
+  grad_norm_bound : Nat
+  dp_epsilon : Nat
+  update_hash : Nat
+
+/-- Proof object: carries the two derived hashes and the circuit VK binding. -/
+structure WeightProof where
+  model_hash_after : Nat
+  update_hash : Nat
+  vk_binding : Nat
+
+/-- Circuit-derived verification key hash for WeightUpdateCircuit. Distinct from
+    `circuitVK` (the single-scalar DataCommitmentCircuit) and from the genesis
+    identity key. -/
+def weightCircuitVK : Nat := 0x4D4F4841574B3003
+
+/-- Derive the full statement from the caller's inputs and the witness. Mirrors
+    `internal.DeriveWeightStatement`. -/
+def deriveWeightStatement (i : WeightPublicInputs) (w : WeightWitness) : WeightStatement :=
+  { model_hash_before := i.model_hash_before
+    model_hash_after := weightHash ([i.model_hash_before, w.training_steps] ++ w.gradients)
+    dataset_commitment := i.dataset_commitment
+    grad_norm_bound := i.grad_norm_bound
+    dp_epsilon := i.dp_epsilon
+    update_hash := weightHash ([i.dp_epsilon, w.training_steps] ++
+      List.zipWith (· + ·) w.gradients w.noise ++ [i.dataset_commitment]) }
+
+/-- The circuit relation: equal-length vectors, both hash chains reproduced,
+    a non-zero dataset commitment, and the norm bound satisfied. -/
+def WeightRelation (stmt : WeightStatement) (w : WeightWitness) : Prop :=
+  w.gradients.length = w.noise.length ∧
+  stmt.model_hash_after = weightHash ([stmt.model_hash_before, w.training_steps] ++ w.gradients) ∧
+  stmt.update_hash = weightHash ([stmt.dp_epsilon, w.training_steps] ++
+    List.zipWith (· + ·) w.gradients w.noise ++ [stmt.dataset_commitment]) ∧
+  stmt.dataset_commitment ≠ 0 ∧
+  sumSq w.gradients ≤ stmt.grad_norm_bound * stmt.grad_norm_bound
+
+/-- Honest prover: binds the proof to the statement's derived hashes and to the
+    circuit VK. Mirrors `internal.ProveWeightUpdate`. -/
+def proveWeight (stmt : WeightStatement) (w : WeightWitness) : WeightProof :=
+  ⟨stmt.model_hash_after, stmt.update_hash, weightCircuitVK⟩
+
+/-- Verifier: accepts iff the proof carries this statement's derived hashes, the
+    circuit VK, and the dataset commitment is non-zero. -/
+def verifyWeight (stmt : WeightStatement) (p : WeightProof) : Bool :=
+  p.model_hash_after = stmt.model_hash_after &&
+  p.update_hash = stmt.update_hash &&
+  p.vk_binding = weightCircuitVK &&
+  stmt.dataset_commitment ≠ 0
+
+/-- The derived statement really carries the two derived hashes. -/
+theorem theorem_weight_derived_hashes (i : WeightPublicInputs) (w : WeightWitness) :
+    (deriveWeightStatement i w).model_hash_after =
+        weightHash ([i.model_hash_before, w.training_steps] ++ w.gradients) ∧
+    (deriveWeightStatement i w).update_hash =
+        weightHash ([i.dp_epsilon, w.training_steps] ++
+          List.zipWith (· + ·) w.gradients w.noise ++ [i.dataset_commitment]) := by
+  simp [deriveWeightStatement]
+
+/-- An honestly derived statement satisfies the circuit relation, provided the
+    dataset commitment is non-zero, the vectors have equal length, and the norm
+    bound holds. -/
+theorem theorem_weight_relation_of_derived (i : WeightPublicInputs) (w : WeightWitness)
+    (hlen : w.gradients.length = w.noise.length)
+    (hds : i.dataset_commitment ≠ 0)
+    (hnorm : sumSq w.gradients ≤ i.grad_norm_bound * i.grad_norm_bound) :
+    WeightRelation (deriveWeightStatement i w) w := by
+  unfold WeightRelation deriveWeightStatement
+  exact ⟨hlen, rfl, rfl, hds, hnorm⟩
+
+/-- Completeness: an honestly derived statement verifies. -/
+theorem theorem_weight_completeness (i : WeightPublicInputs) (w : WeightWitness)
+    (hds : i.dataset_commitment ≠ 0) :
+    verifyWeight (deriveWeightStatement i w) (proveWeight (deriveWeightStatement i w) w) = true := by
+  simp [verifyWeight, proveWeight, deriveWeightStatement, hds]
+
+/-- Binding: an accepted proof carries the statement's hashes -- it is tied to
+    the statement, not a free-floating identity as the genesis VK was. -/
+theorem theorem_weight_binding (stmt : WeightStatement) (p : WeightProof)
+    (h : verifyWeight stmt p = true) :
+    p.model_hash_after = stmt.model_hash_after ∧ p.update_hash = stmt.update_hash := by
+  unfold verifyWeight at h
+  rw [Bool.and_eq_true, Bool.and_eq_true, Bool.and_eq_true] at h
+  obtain ⟨⟨⟨h1, h2⟩, _⟩, _⟩ := h
+  rw [decide_eq_true_eq] at h1 h2
+  exact ⟨h1, h2⟩
+
+/-- The norm bound is a real conjunct: a relation implies it. -/
+theorem theorem_weight_norm_guard (stmt : WeightStatement) (w : WeightWitness)
+    (h : WeightRelation stmt w) :
+    sumSq w.gradients ≤ stmt.grad_norm_bound * stmt.grad_norm_bound := by
+  obtain ⟨-, -, -, -, hnorm⟩ := h
+  exact hnorm
+
+/-- Negative control: an over-bound gradient vector does not satisfy the relation. -/
+theorem theorem_weight_norm_violation_rejected (stmt : WeightStatement) (w : WeightWitness)
+    (hviol : stmt.grad_norm_bound * stmt.grad_norm_bound < sumSq w.gradients) :
+    ¬ WeightRelation stmt w := by
+  intro hrel
+  obtain ⟨-, -, -, -, hnorm⟩ := hrel
+  omega
+
+/-- Negative control: a zero dataset commitment does not satisfy the relation. -/
+theorem theorem_weight_zero_dataset_rejected (stmt : WeightStatement) (w : WeightWitness)
+    (hrel : WeightRelation stmt w) (hzero : stmt.dataset_commitment = 0) : False := by
+  obtain ⟨-, -, -, hds, -⟩ := hrel
+  exact hds hzero
+
+/-- Negative control: mismatched gradient/noise lengths do not satisfy the relation. -/
+theorem theorem_weight_length_mismatch_rejected (stmt : WeightStatement) (w : WeightWitness)
+    (hmis : w.gradients.length ≠ w.noise.length) : ¬ WeightRelation stmt w := by
+  intro hrel
+  obtain ⟨hlen, -, -, -, -⟩ := hrel
+  exact hmis hlen
+
 end LeanFormalization

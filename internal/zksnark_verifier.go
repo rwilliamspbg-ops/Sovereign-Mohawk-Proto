@@ -39,16 +39,16 @@
 // implemented; what's missing is a real statement-specific circuit and
 // trusted setup to make the proof mean something about submitted data.
 //
-// A real circuit-and-trusted-setup verifier now exists alongside this one:
-// see zksnark_circuit_verifier.go's DataCommitmentCircuit,
-// ProveDataCommitment, and VerifyDataCommitmentProof — its verification
-// key comes from an actual groth16.Setup over a compiled R1CS circuit, and
-// a valid proof genuinely binds to a specific data commitment (not a fixed
-// identity). It is additive, not a replacement: GenesisProofBytes/
-// VerifyProof here remain unchanged for existing callers (pyapi CGo
-// exports, internal/hybrid, internal/batch/aggregator), and the new path
-// is not yet wired into any of those production call sites — see that
-// file's own doc comment for exact scope.
+// Real circuit-and-trusted-setup verifiers now exist alongside this one:
+// see zksnark_circuit_verifier.go's DataCommitmentCircuit (a single-scalar
+// MiMC preimage statement) and zkweight_circuit.go's WeightUpdateCircuit
+// (the full per-update statement: model hashes, dataset commitment, norm
+// bound, DP epsilon, update hash, gradient/noise witness). Both keys come
+// from a real groth16 setup over a compiled R1CS circuit, and both are
+// wired into production call sites (internal/pyapi, internal/hybrid,
+// internal/batch, internal/zkprover). VerifyProof here remains only for
+// backward compatibility with callers that still pass a bare 128-byte
+// genesis proof; it cannot attest to any data.
 package internal
 
 import (
@@ -110,11 +110,12 @@ func GenesisProofBytes() []byte {
 // because proof size is constant regardless of the aggregation scale.
 // Deprecated: genesisVK is a fixed, content-free identity with no circuit
 // behind it; it cannot attest to data integrity. Production callers should
-// use VerifyDataCommitmentProof (zksnark_circuit_verifier.go), whose
-// verification key comes from a real groth16.Setup over a compiled R1CS
-// circuit. Retained for backward compatibility with existing callers
-// (pyapi CGo exports, internal/hybrid, internal/batch/aggregator); migration
-// is tracked as GOLD_STANDARD_PLAN P1.1.
+// use VerifyWeightProof (zkweight_circuit.go) or, for the older single-scalar
+// statement, VerifyDataCommitmentProof (zksnark_circuit_verifier.go).
+//
+// Removal target: 2027-01-15. Until then this function is retained only so
+// existing callers (pyapi CGo exports, internal/hybrid, internal/batch) keep
+// working; migration is tracked in docs/ZK_FINALIZATION_PLAN.md.
 func VerifyProof(proof []byte, inputs []byte) (bool, error) {
 	start := time.Now()
 

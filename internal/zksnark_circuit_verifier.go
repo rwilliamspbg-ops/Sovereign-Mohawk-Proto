@@ -69,9 +69,7 @@ import (
 	"github.com/consensys/gnark-crypto/ecc"
 	gnarkmimc "github.com/consensys/gnark-crypto/hash"
 	"github.com/consensys/gnark/backend/groth16"
-	mpcsetup "github.com/consensys/gnark/backend/groth16/bn254/mpcsetup"
 	"github.com/consensys/gnark/constraint"
-	cs "github.com/consensys/gnark/constraint/bn254"
 	"github.com/consensys/gnark/frontend"
 	"github.com/consensys/gnark/frontend/cs/r1cs"
 	"github.com/consensys/gnark/std/hash/mimc"
@@ -117,67 +115,11 @@ func ensureDataCommitmentSetup() error {
 			return
 		}
 
-		const nContributors = 3
-		domainSize := ecc.NextPowerOfTwo(uint64(ccs.GetNbConstraints()))
-		beacon := []byte("sovereign-mohawk mpc beacon")
-
-		// Phase 1: circuit-independent SRS, chained contributions.
-		p1 := mpcsetup.Phase1{}
-		p1.Initialize(domainSize)
-		var phase1Contribs []*mpcsetup.Phase1
-		cur := p1
-		for i := 0; i < nContributors; i++ {
-			cur.Contribute()
-			cp := new(mpcsetup.Phase1)
-			*cp = cur
-			phase1Contribs = append(phase1Contribs, cp)
-			// chain: serialize and deserialize into a fresh Phase1 for next contributor
-			var buf bytes.Buffer
-			if _, err := cur.WriteTo(&buf); err != nil {
-				dataCommitmentErr = fmt.Errorf("phase1 marshal: %w", err)
-				return
-			}
-			next := mpcsetup.Phase1{}
-			if _, err := next.ReadFrom(&buf); err != nil {
-				dataCommitmentErr = fmt.Errorf("phase1 unmarshal: %w", err)
-				return
-			}
-			cur = next
-		}
-		srsCommons, err := mpcsetup.VerifyPhase1(domainSize, beacon, phase1Contribs...)
+		pk, vk, err := mpcSetupBN254(ccs, 3, []byte("sovereign-mohawk mpc beacon"))
 		if err != nil {
-			dataCommitmentErr = fmt.Errorf("mpc phase1 verify: %w", err)
+			dataCommitmentErr = err
 			return
 		}
-
-		// Phase 2: circuit-specific setup, chained contributions.
-		p2 := mpcsetup.Phase2{}
-		p2.Initialize(ccs.(*cs.R1CS), &srsCommons)
-		var phase2Contribs []*mpcsetup.Phase2
-		cur2 := p2
-		for i := 0; i < nContributors; i++ {
-			cur2.Contribute()
-			cp := new(mpcsetup.Phase2)
-			*cp = cur2
-			phase2Contribs = append(phase2Contribs, cp)
-			var buf bytes.Buffer
-			if _, err := cur2.WriteTo(&buf); err != nil {
-				dataCommitmentErr = fmt.Errorf("phase2 marshal: %w", err)
-				return
-			}
-			next := mpcsetup.Phase2{}
-			if _, err := next.ReadFrom(&buf); err != nil {
-				dataCommitmentErr = fmt.Errorf("phase2 unmarshal: %w", err)
-				return
-			}
-			cur2 = next
-		}
-		pk, vk, err := mpcsetup.VerifyPhase2(ccs.(*cs.R1CS), &srsCommons, beacon, phase2Contribs...)
-		if err != nil {
-			dataCommitmentErr = fmt.Errorf("mpc phase2 verify: %w", err)
-			return
-		}
-
 		dataCommitmentCCS = ccs
 		dataCommitmentPK = pk
 		dataCommitmentVK = vk
