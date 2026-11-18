@@ -57,3 +57,28 @@ func TestBatchAggregator_ZKWeightCircuitAttestation(t *testing.T) {
 		t.Fatal("expected ProcessRound to fail closed without a proof")
 	}
 }
+
+// TestBatchAggregator_ZKWeightProof_ByzantineMix runs the same prove-and-verify
+// path under a 10% Byzantine mix: the proof still has to verify before the round
+// is accepted, and the Byzantine count is still filtered.
+func TestBatchAggregator_ZKWeightProof_ByzantineMix(t *testing.T) {
+	in, w := honestWeightFixture()
+	encoded, st, err := internalpkg.ProveWeightUpdate(in, w)
+	if err != nil {
+		t.Fatalf("ProveWeightUpdate: %v", err)
+	}
+
+	cfg := weightAggregatorConfig()
+	agg := batch.NewAggregator(cfg)
+	agg.WeightProof = encoded
+	agg.WeightStatement = &st
+	if err := agg.ProcessRound(batch.ModeByzantineMix); err != nil {
+		t.Fatalf("ProcessRound(ByzantineMix) with valid weight proof: %v", err)
+	}
+	if !agg.Verified {
+		t.Fatal("expected Verified=true after successful weight attestation")
+	}
+	if agg.FilteredCount != cfg.MaliciousNodes {
+		t.Fatalf("FilteredCount = %d, want %d", agg.FilteredCount, cfg.MaliciousNodes)
+	}
+}

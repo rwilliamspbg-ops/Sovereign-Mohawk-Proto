@@ -208,6 +208,21 @@ testing.
 `...native_decide.ax_1_1`. It is the single survivor already documented in
 `docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md` §2.2. §6 now records it as a
 toolchain trust instead of claiming zero.
+### Added - End-to-end ZK weight proof in the FL round (2026-11-18)
+
+Implements W4 of `docs/MAJOR_WIN_PLAN.md` (added in #349).
+
+- `cmd/simulate`: the round now produces a real `WeightUpdateCircuit` proof and
+  the aggregator verifies it before accepting. Previously `ProcessRound` could
+  only be satisfied through the legacy `MOHAWK_ALLOW_LEGACY_ATTESTATION` opt-in,
+  so `go run ./cmd/simulate` failed closed. The 10 ms projection constant is
+  replaced by the measured 0.67 ms from `results/zk/weight-proof-latest.json`.
+  Measured on this host: 9569 constraints, 363-byte encoded proof, 28 s prove
+  after the one-time trusted setup, 0.5 ms verify.
+- `internal/batch/aggregator.go`: the weight-proof path now emits
+  `ObserveProofVerification("weight-update-circuit", ...)`.
+- `test/batch_zkweight_attestation_test.go`: Byzantine-mix case (10% malicious),
+  asserting the round is accepted and the Byzantine count still filtered.
 
 ### Added - ZK weight-update circuit (2026-11-18)
 

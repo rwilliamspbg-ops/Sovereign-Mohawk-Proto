@@ -1,6 +1,6 @@
 # Major-Win Plan — from honest scoping to external credibility
 
-Status: **W2 + W3 implemented 2026-11-18** (W1, W4–W7 open). Scope: the five
+Status: **W2 + W3 + W4 implemented 2026-11-18** (W1, W5–W7 open). Scope: the five
 suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ---
@@ -82,7 +82,7 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       Mathlib would need, what could be proved with `ZMod r` arithmetic today, and
       what stays assumed.
 
-### W4 — End-to-end FL round with a bound proof (suggestion 2c) · ~1–2 weeks
+### W4 — End-to-end FL round with a bound proof (suggestion 2c) · **done 2026-11-18**
 - [ ] Populate `computeproof.Trace` at a real producer. **Blocker found earlier:**
       no production caller constructs `computeproof.Trace` at all, and there is no
       `GradientUpdate{` construction site — so this needs a design decision
