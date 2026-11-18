@@ -181,6 +181,24 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Changed - Paper: first-class claim-status section and the real weight circuit (W5)
+
+- `docs/ACADEMIC_PAPER.md`:
+  - new top-level **3. Claim Status and Epistemic Scope** -- a status taxonomy
+    (`fully_formalized`, `model_verified`/`surrogate_verified`, `structural`,
+    `circuit_relation_modeled`, `empirical`), the model-vs-runtime distinction, the
+    axiom/hypothesis inventory, and an explicit "what is deliberately not claimed"
+    list. Sections 3-15 renumbered to 4-16 (no cross-references existed).
+  - new **8.4 A Real Weight-Update Circuit**: the six-element `WeightStatement`, the
+    four constrained relations, the measured cost (9 569 constraints, 164 B proof,
+    verify 0.675 ms, prove 38 ms, 41.4 s one-time setup) and the explicit caveats.
+  - fixed the stale claim in contribution 5 that BN254 "is not instantiated".
+  - `2.3` trimmed to a scope-boundary pointer so it does not duplicate section 3.
+- `docs/ACADEMIC_PAPER.pdf` **not** regenerated: no pandoc/LaTeX/HTML-to-PDF engine
+  on this host and no scripted generator in the repo. The committed PDF predates the
+  `.md` by six weeks and was already stale; regenerating it needs a toolchain
+  decision. Recorded as a blocker in `docs/MAJOR_WIN_PLAN.md`.
+
 ### Added - One-script evidence package (W6)
 
 - `scripts/run_evidence_package.sh`: one entry point that runs every

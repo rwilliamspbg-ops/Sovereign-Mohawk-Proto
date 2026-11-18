@@ -1,6 +1,6 @@
 # Major-Win Plan — from honest scoping to external credibility
 
-Status: **W2 + W3 + W4 + W6 + W7 implemented 2026-11-18** (W1, W5 open). Scope: the five
+Status: **W2 + W3 + W4 + W5 + W6 + W7 implemented 2026-11-18** (W1 open; needs a human reviewer). Scope: the five
 suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ---
@@ -91,15 +91,27 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       `internal/batch` inside a chaos test (30% Byzantine) and a scale test.
 - [ ] Expose proof-verification counts in metrics (`metrics.ObserveFedAvg*`).
 
-### W5 — Paper update (suggestion 3) · ~1 week
-- [ ] New §7.x: `WeightUpdateCircuit` — statement, what is bound, measured cost
-      (verify 0.67 ms, prove 34 ms, 9569 constraints, 164 B proof,
-      `results/zk/weight-proof-latest.json`), and the explicit surrogate-hash
-      caveat.
-- [ ] Promote the claim-status / model-vs-runtime methodology to a first-class
-      section (it is currently scattered across the traceability matrix and
-      `EXTERNAL_AUDIT_SCOPE.md` §2/§6).
-- [ ] Regenerate `docs/ACADEMIC_PAPER.pdf`.
+### W5 — Paper update (suggestion 3) · **done 2026-11-18** (PDF regeneration blocked — see note)
+- [x] New §8.4: `WeightUpdateCircuit` — the six-element statement, the four
+      constrained relations (model hash chain, range+norm bound, update hash chain,
+      dataset binding), the measured cost (verify 0.675 ms, prove 38 ms, 9 569
+      constraints, 164 B proof, 41.4 s one-time setup), and the explicit caveats
+      (Lean proves the MiMC injectivity lemma, not this circuit; no q-SDH soundness;
+      simulated ceremony). The old "surrogate hash" caveat was replaced: the circuit
+      uses real gnark MiMC over BN254, so the caveat is now precise about *what* is
+      and is not proved.
+- [x] New first-class **§3 "Claim Status and Epistemic Scope"**: status taxonomy
+      (`fully_formalized`, `model_verified`/`surrogate_verified`, `structural`,
+      `circuit_relation_modeled`, `empirical`), the model-vs-runtime distinction, the
+      axiom/hypothesis inventory, and an explicit "what is deliberately not claimed"
+      list. §2.3 trimmed to a pointer so the two do not duplicate. Sections
+      3–15 renumbered to 4–16 (verified sequential; no cross-references existed).
+- [x] Fixed the stale claim in §1.3 contribution 5 ("BN254 is not instantiated").
+- [ ] **Regenerate `docs/ACADEMIC_PAPER.pdf` — BLOCKED.** No pandoc, LaTeX or
+      HTML-to-PDF engine on this host (`weasyprint`/`markdown`/`reportlab` absent),
+      and the repo has no scripted generator for it. The committed PDF is dated
+      Oct 3 while the `.md` is Nov 18, so it was already stale before this work.
+      Corrected source: `docs/ACADEMIC_PAPER.md`. Needs a toolchain decision.
 
 ### W6 — One-script evidence package (suggestion 4) · **done 2026-11-18**
 - [x] `scripts/run_evidence_package.sh`: one entry point, stages `zk-bench`,
