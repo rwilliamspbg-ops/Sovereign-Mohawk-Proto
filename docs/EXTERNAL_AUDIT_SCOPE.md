@@ -56,12 +56,21 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
    - Question: does the model capture the real Ed25519 verification equation,
      or does it abstract away the curve/field details that carry the security?
 
-3. **MiMC circuit ↔ Go verifier refinement**
-   - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5MiMCFormalization.lean`
-   - `internal/zksnark_circuit_verifier.go` (circuit + MPC setup)
+3. **ZK circuit ↔ Go verifier refinement** (updated 2026-11-18)
+   - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5Cryptography.lean`
+     (`WeightUpdateCircuit` section), `proofs/LeanFormalization/Theorem5MiMCFormalization.lean`
+   - `internal/zkweight_circuit.go` (the circuit production verifies),
+     `internal/zksnark_circuit_verifier.go` (the older single-scalar path)
    - Question: does the Lean circuit model match the gnark circuit actually
-     compiled? Is the multi-party setup (MPC, N=3, beacon-sealed) correctly
-     threaded into the verifier key used at runtime?
+     compiled? `weight_impl_accept_iff` (row 22) is the exact acceptance
+     condition; the soundness direction is Groth16 knowledge soundness and is
+     deliberately not claimed.
+   - The MiMC round injectivity is now stated at the BN254 scalar modulus
+     (`mimcRound_bn254_injective`); `Nat.Prime r` is an explicit hypothesis
+     (trial-division decidability), the exponent coprimality is discharged.
+   - Is the multi-party setup (MPC, N=3, beacon-sealed) correctly threaded into
+     the verification key used at runtime? Note it is an in-process simulation,
+     not a distributed ceremony.
 
 4. **Convergence / straggler refinement bridges**
    - `proofs/Refinement/Convergence.lean`, `proofs/Refinement/Straggler.lean`
@@ -87,8 +96,21 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
 
 ## 6. Known limitations and remaining axioms (be honest)
 
-Axioms present in the proof tree: **0**. The Lean development is axiom-free;
-`#print axioms` over all 272 theorems and lemmas reports only Mathlib's
+**Declared axioms: 0.** No `axiom` declaration is used anywhere in `proofs/`.
+
+**One toolchain trust remains.** `LeanFormalization.chernoffBoundZ_deployment_scale_tiny`
+(`Theorem1BFT.lean`) closes with `native_decide`, which asserts
+`Lean.ofReduceBool` — that the native compiler's evaluator agrees with the kernel.
+`#print axioms` on it reports `[propext, Classical.choice, Quot.sound,
+chernoffBoundZ_deployment_scale_tiny._native.native_decide.ax_1_1]`. It is the
+single survivor of the seven `native_decide` axioms found by the axiom audit
+(`docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md` §2.2); the other six were replaced
+by `norm_num`/`simp` and verified to compile. Per that plan's own trust note this
+is a **toolchain** trust, not a mathematical axiom — but it is not zero, and a
+reviewer should know it is there. The goal is a ~5000-digit rational inequality
+that `norm_num` cannot decide in reasonable time.
+
+Aside from that one, `#print axioms` over the development reports only Mathlib's
 foundation (`propext`, `Classical.choice`, `Quot.sound`).
 
 Previously-listed axioms that have since been **removed**:

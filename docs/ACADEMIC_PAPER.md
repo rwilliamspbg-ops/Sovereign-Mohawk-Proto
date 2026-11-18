@@ -472,10 +472,13 @@ theorem mimcRound_small_prime_guard :
     Function.Injective (mimcRound 7 5 (0 : ZMod 7)) := by ...
 ```
 
-The only concrete field instantiated is the small prime $p = 7$ (a sanity check);
-the BN254 scalar field $r$ is named in the prose but **not** instantiated in the
-development, and the hypotheses `Nat.Prime p` / `Nat.Coprime e (p-1)` are
-discharged by `decide` only at $p = 7$.
+The small-prime instantiation $p = 7$ remains as a sanity check. **Update (2026-11-18):** the
+injectivity lemma is now also stated at the BN254 scalar modulus
+(`mimcRound_bn254_injective`). The exponent coprimality $\mathrm{Coprime}\,5\,(r-1)$
+is discharged concretely by a mod-5 reduction; $\mathrm{Prime}\,r$ remains an
+explicit hypothesis, because Mathlib's `Nat.Prime` decidability is trial division
+and `native_decide` does not terminate in reasonable time (measured: >7 minutes
+without completing). Everything else about the instantiation is machine-checked.
 
 ### 7.3 Scale-Invariant Verifier Cost Model
 In `Theorem5Cryptography.lean`, we formalize an abstract Groth16 verification cost model [5]. Groth16 proofs over BN254 consist of three group elements ($A \in \mathbb{G}_1, B \in \mathbb{G}_2, C \in \mathbb{G}_1$), yielding an exact proof size of 128 bytes (uncompressed: 256 bytes). Verification requires evaluating a fixed pairing identity involving three pairing computations:

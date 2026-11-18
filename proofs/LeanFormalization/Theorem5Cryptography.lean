@@ -367,7 +367,7 @@ def WeightRelation (stmt : WeightStatement) (w : WeightWitness) : Prop :=
 
 /-- Honest prover: binds the proof to the statement's derived hashes and to the
     circuit VK. Mirrors `internal.ProveWeightUpdate`. -/
-def proveWeight (stmt : WeightStatement) (w : WeightWitness) : WeightProof :=
+def proveWeight (stmt : WeightStatement) : WeightProof :=
   ⟨stmt.model_hash_after, stmt.update_hash, weightCircuitVK⟩
 
 /-- Verifier: accepts iff the proof carries this statement's derived hashes, the
@@ -401,7 +401,7 @@ theorem theorem_weight_relation_of_derived (i : WeightPublicInputs) (w : WeightW
 /-- Completeness: an honestly derived statement verifies. -/
 theorem theorem_weight_completeness (i : WeightPublicInputs) (w : WeightWitness)
     (hds : i.dataset_commitment ≠ 0) :
-    verifyWeight (deriveWeightStatement i w) (proveWeight (deriveWeightStatement i w) w) = true := by
+    verifyWeight (deriveWeightStatement i w) (proveWeight (deriveWeightStatement i w)) = true := by
   simp [verifyWeight, proveWeight, deriveWeightStatement, hds]
 
 /-- Binding: an accepted proof carries the statement's hashes -- it is tied to

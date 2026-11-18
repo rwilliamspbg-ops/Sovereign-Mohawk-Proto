@@ -181,6 +181,34 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - ZK weight-circuit refinement and BN254 MiMC instantiation (2026-11-18)
+
+- `proofs/Refinement/ZKCircuit.lean`: a `WeightUpdateCircuit` refinement —
+  `weight_impl_accept_iff` (the implementation predicate's exact acceptance
+  condition), `weight_impl_complete`, `weight_impl_binding`, and two negative
+  controls. The soundness direction is identified as Groth16 knowledge soundness
+  and is explicitly NOT claimed (traceability matrix row 22).
+- `proofs/LeanFormalization/Theorem5MiMCFormalization.lean`:
+  `mimcRound_bn254_injective` states the round injectivity at the BN254 scalar
+  modulus; `bn254Exponent_coprime` discharges the exponent coprimality
+  concretely via an axiom-free mod-5 `decide`. `Nat.Prime bn254Prime` remains an
+  explicit hypothesis (Mathlib's `Nat.Prime` decidability is trial division;
+  `native_decide` did not finish in >7 minutes).
+- `internal/zkweight_vectors_test.go`: pinned MiMC chain vectors, so a
+  gnark-crypto byte-order or `Write`-split change fails CI instead of silently
+  changing the public statement.
+- `docs/MAJOR_WIN_PLAN.md` Appendix A: the written future-work plan for MiMC
+  collision resistance and Groth16 knowledge soundness.
+
+### Fixed - Audit scope over-claimed zero axioms
+
+`docs/EXTERNAL_AUDIT_SCOPE.md` §6 stated "Axioms present in the proof tree: 0".
+`LeanFormalization.chernoffBoundZ_deployment_scale_tiny` closes with
+`native_decide`, which asserts `Lean.ofReduceBool`; `#print axioms` reports
+`...native_decide.ax_1_1`. It is the single survivor already documented in
+`docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md` §2.2. §6 now records it as a
+toolchain trust instead of claiming zero.
+
 ### Added - ZK weight-update circuit (2026-11-18)
 
 - `internal/zkweight_circuit.go`: `WeightUpdateCircuit`, a Groth16/BN254 circuit

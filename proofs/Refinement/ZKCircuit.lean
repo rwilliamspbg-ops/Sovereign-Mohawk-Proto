@@ -1,5 +1,6 @@
 import Mathlib
 import LeanFormalization.Theorem5MiMCFormalization
+import LeanFormalization.Theorem5Cryptography
 
 /-!
 # ZK Circuit Refinement: Lean Spec ↔ Go Implementation
@@ -123,5 +124,93 @@ theorem zk_impl_binding (stmt : ZKSpec) (p1 p2 : ZKProof)
 theorem zk_mimc_real_round_injective :
     Function.Injective (LeanFormalization.mimcRound 7 5 (0 : ZMod 7)) :=
   LeanFormalization.mimcRound_small_prime_guard
+
+
+/-! ### WeightUpdateCircuit refinement
+
+Refinement for `internal/zkweight_circuit.go` -- the circuit production
+actually verifies. The `DataCommitmentCircuit` model above is retained for the
+older single-scalar path, which remains wired for backward compatibility.
+
+**What is proved, and what is deliberately not.** The structural facts below
+need no cryptographic assumption: the implementation predicate is exactly
+"the proof carries this statement's derived hashes, plus the circuit VK, plus a
+non-zero dataset commitment"; honestly derived statements accept their honest
+proof; and two accepted proofs against one statement carry the same hashes.
+
+The fourth property an audit would ask for --
+
+```
+weightImplVerify stmt p = true  ->  exists w, WeightRelation stmt w
+```
+
+is **Groth16 knowledge soundness** for the compiled R1CS. It is NOT proved here,
+and it is not provable in this Mathlib (no pairing or hardness machinery; see
+`docs/MAJOR_WIN_PLAN.md` W2/W3). It is recorded as a gap rather than hidden
+behind a surrogate hash that makes the existential trivially satisfiable -- the
+mistake the `mimc` identity stand-in above risks.
+-/
+
+open LeanFormalization
+
+/-- Implementation predicate mirroring `internal.VerifyWeightProofAgainst`. -/
+def weightImplVerify (stmt : WeightStatement) (proof : WeightProof) : Bool :=
+  proof.model_hash_after = stmt.model_hash_after &&
+  proof.update_hash = stmt.update_hash &&
+  proof.vk_binding = weightCircuitVK &&
+  stmt.dataset_commitment ≠ 0
+
+/-- Honest prover mirroring `internal.ProveWeightUpdate`: the proof carries the
+    statement's derived hashes and the circuit VK. -/
+def weightImplProve (stmt : WeightStatement) : WeightProof :=
+  ⟨stmt.model_hash_after, stmt.update_hash, weightCircuitVK⟩
+
+/-- Exact characterisation of the implementation predicate: it asserts nothing
+    beyond hash equality, the circuit VK, and a non-zero dataset commitment. -/
+theorem weight_impl_accept_iff (stmt : WeightStatement) (proof : WeightProof) :
+    weightImplVerify stmt proof = true ↔
+      proof.model_hash_after = stmt.model_hash_after ∧
+      proof.update_hash = stmt.update_hash ∧
+      proof.vk_binding = weightCircuitVK ∧
+      stmt.dataset_commitment ≠ 0 := by
+  unfold weightImplVerify
+  simp only [Bool.and_eq_true, decide_eq_true_eq]
+  tauto
+
+/-- Completeness: a statement derived from a witness, with a non-zero dataset
+    commitment, accepts its honest proof. -/
+theorem weight_impl_complete (i : WeightPublicInputs) (w : WeightWitness)
+    (hds : i.dataset_commitment ≠ 0) :
+    weightImplVerify (deriveWeightStatement i w) (weightImplProve (deriveWeightStatement i w)) = true := by
+  simp [weightImplVerify, weightImplProve, deriveWeightStatement, hds]
+
+/-- Binding: two proofs accepted against the same statement carry the same
+    derived hashes -- the proof is tied to the statement, not a free-floating
+    identity as `genesisVK` was. -/
+theorem weight_impl_binding (stmt : WeightStatement) (p1 p2 : WeightProof)
+    (h1 : weightImplVerify stmt p1 = true) (h2 : weightImplVerify stmt p2 = true) :
+    p1.model_hash_after = p2.model_hash_after ∧ p1.update_hash = p2.update_hash := by
+  rw [weight_impl_accept_iff] at h1 h2
+  obtain ⟨h1a, h1b, _, _⟩ := h1
+  obtain ⟨h2a, h2b, _, _⟩ := h2
+  exact ⟨h1a.trans h2a.symm, h1b.trans h2b.symm⟩
+
+/-- Negative control: a zero dataset commitment is rejected. -/
+theorem weight_impl_rejects_zero_dataset (stmt : WeightStatement) (proof : WeightProof)
+    (hzero : stmt.dataset_commitment = 0) :
+    weightImplVerify stmt proof = false := by
+  rw [Bool.eq_false_iff]
+  intro h
+  rw [weight_impl_accept_iff] at h
+  exact h.2.2.2 hzero
+
+/-- Negative control: a proof carrying a different update hash is rejected. -/
+theorem weight_impl_rejects_wrong_hash (stmt : WeightStatement) (proof : WeightProof)
+    (hdiff : proof.update_hash ≠ stmt.update_hash) :
+    weightImplVerify stmt proof = false := by
+  rw [Bool.eq_false_iff]
+  intro h
+  rw [weight_impl_accept_iff] at h
+  exact hdiff h.2.1
 
 end Refinement

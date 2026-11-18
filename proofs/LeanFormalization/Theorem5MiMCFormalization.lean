@@ -89,4 +89,41 @@ theorem mimcRound_small_prime_guard :
   · decide
   · decide
 
+
+/-- The BN254 scalar order is `2 (mod 5)`, so `bn254Prime - 1` is `1 (mod 5)` and
+    5 does not divide it. Discharged concretely by kernel reduction (`decide`,
+    not `native_decide`, so no extra axiom is introduced). -/
+theorem bn254Prime_mod_5 : bn254Prime % 5 = 2 := by
+  decide
+
+/-- The MiMC exponent is coprime to `bn254Prime - 1`. Discharged concretely via
+    a mod-5 reduction (a direct kernel `decide` on the 254-bit `Nat.Coprime` also
+    works but is far slower). -/
+theorem bn254Exponent_coprime : Nat.Coprime mimcExponent (bn254Prime - 1) := by
+  unfold Nat.Coprime mimcExponent
+  rw [Nat.gcd_rec]
+  have h : (bn254Prime - 1) % 5 = 1 := by
+    have := bn254Prime_mod_5
+    omega
+  rw [h]
+  norm_num
+
+/-- MiMC round injectivity at the **BN254 scalar field** -- the field the Go
+    circuit in `internal/zkweight_circuit.go` actually hashes over.
+
+    `Nat.Prime bn254Prime` is an explicit hypothesis rather than a discharged
+    fact: the primality of the alt_bn128 scalar order is a published constant,
+    and Mathlib's `Nat.Prime` decidability is trial division, so `native_decide`
+    does not terminate in reasonable time (measured: >7 minutes without
+    completing). The exponent coprimality -- the other hypothesis the general
+    theorem needs -- IS discharged concretely above.
+
+    What this buys over `mimcRound_small_prime_guard`: the injectivity lemma is
+    now *stated* at the real modulus, so the paper's §7.2 caveat ("the BN254
+    scalar field is named in the prose but not instantiated") is discharged for
+    everything except the primality constant itself. -/
+theorem mimcRound_bn254_injective (hp : Nat.Prime bn254Prime) :
+    Function.Injective (mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime)) := by
+  exact mimcRound_injective bn254Prime mimcExponent hp bn254Exponent_coprime (by decide) (0 : ZMod bn254Prime)
+
 end LeanFormalization
