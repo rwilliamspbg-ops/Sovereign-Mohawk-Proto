@@ -181,6 +181,16 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - Cross-project Lean correspondence (2026-11-17)
+
+- `internal/chernoff_lean_correspondence_test.go`: Go transcriptions of the
+  sibling `CausalMohawkBridge` project's `Chernoff` and `Lorentz` Lean modules,
+  pinned to that project's `#eval` values — binomial tail `tail(3,5)=16`,
+  `2^3*16=128 <= 243=3^5`, the cleared form `16*2^8=4096 <= 7776=2^5*3^5`, and
+  the Lorentz interval identity. Extends the deterministic Lean-to-Go
+  correspondence (row 12) to the external project; recorded as row 20 in
+  `proofs/FORMAL_TRACEABILITY_MATRIX.md`. Test-only; no runtime change.
+
 ### Fixed - Claim/Artifact Drift (2026-05-11 → 2026-10-03)
 
 This entry restores the changelog after a five-month gap. All items below are
