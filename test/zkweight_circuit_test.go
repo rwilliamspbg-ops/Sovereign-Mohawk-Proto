@@ -46,7 +46,18 @@ func honestWeightFixture() (internal.WeightPublicInputs, internal.WeightWitness)
 	return in, w
 }
 
+
+// skipWeightProofInRace skips the WeightUpdateCircuit tests when the binary is
+// built with -race; see zkweight_racebuild.go.
+func skipWeightProofInRace(t *testing.T) {
+	t.Helper()
+	if zkWeightRaceBuild {
+		t.Skip("WeightUpdateCircuit tests are skipped in the race build; see test/zkweight_racebuild.go")
+	}
+}
+
 func TestWeightProof_HonestRoundTrips(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	encoded, st, err := internal.ProveWeightUpdate(in, w)
 	if err != nil {
@@ -75,6 +86,7 @@ func TestWeightProof_HonestRoundTrips(t *testing.T) {
 }
 
 func TestWeightProof_DifferentGradientsDifferentStatement(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	_, stA, err := internal.ProveWeightUpdate(in, w)
 	if err != nil {
@@ -101,6 +113,7 @@ func TestWeightProof_DifferentGradientsDifferentStatement(t *testing.T) {
 }
 
 func TestWeightProof_TamperedStatementRejected(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	encoded, st, err := internal.ProveWeightUpdate(in, w)
 	if err != nil {
@@ -123,6 +136,7 @@ func TestWeightProof_TamperedStatementRejected(t *testing.T) {
 }
 
 func TestWeightProof_OverBoundRejected(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	encoded, st, err := internal.ProveWeightUpdate(in, w)
 	if err != nil {
@@ -150,6 +164,7 @@ func TestWeightProof_OverBoundRejected(t *testing.T) {
 }
 
 func TestWeightProof_ZeroDatasetCommitmentUnsatisfiable(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	in.DatasetCommitment = big.NewInt(0)
 	if _, _, err := internal.ProveWeightUpdate(in, w); err == nil {
@@ -158,6 +173,7 @@ func TestWeightProof_ZeroDatasetCommitmentUnsatisfiable(t *testing.T) {
 }
 
 func TestWeightProof_TamperedProofRejected(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	encoded, _, err := internal.ProveWeightUpdate(in, w)
 	if err != nil {
@@ -177,6 +193,7 @@ func TestWeightProof_TamperedProofRejected(t *testing.T) {
 }
 
 func TestWeightProof_ConstraintCountReported(t *testing.T) {
+	skipWeightProofInRace(t)
 	n, err := internal.WeightCircuitConstraintCount()
 	if err != nil {
 		t.Fatalf("WeightCircuitConstraintCount: %v", err)

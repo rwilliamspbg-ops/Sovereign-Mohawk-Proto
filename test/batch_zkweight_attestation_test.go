@@ -21,6 +21,7 @@ func weightAggregatorConfig() *batch.Config {
 // preferred path checks a WeightUpdateCircuit proof against the caller's
 // statement, and fails closed when the statement does not match.
 func TestBatchAggregator_ZKWeightCircuitAttestation(t *testing.T) {
+	skipWeightProofInRace(t)
 	in, w := honestWeightFixture()
 	encoded, st, err := internalpkg.ProveWeightUpdate(in, w)
 	if err != nil {
