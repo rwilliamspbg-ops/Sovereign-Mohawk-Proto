@@ -3,7 +3,7 @@
 # Purpose: Simplified common development tasks
 
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
-.PHONY: artifact-summary build-python-lib audit verify evidence-package
+.PHONY: artifact-summary build-python-lib audit verify evidence-package paper-pdf
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
 .PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check audit-bundle docs-check docs-api
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
@@ -141,6 +141,10 @@ artifact-summary:
 # One-script evidence package. See docs/EVIDENCE_PACKAGE.md.
 evidence-package:
 	@bash scripts/run_evidence_package.sh $(EVIDENCE_ARGS)
+
+# Regenerate docs/ACADEMIC_PAPER.pdf (needs pandoc + typst).
+paper-pdf:
+	@bash scripts/render_paper_pdf.sh
 
 openapi-spec:
 	@python3 scripts/generate_openapi_spec.py --output results/api/openapi.json --server-url https://localhost:8080

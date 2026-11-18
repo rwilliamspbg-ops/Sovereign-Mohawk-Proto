@@ -13,7 +13,9 @@ Repository: [https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto](https:/
 ### Abstract
 Federated learning (FL) at scale requires aggregating model updates across multi-tier topologies while tolerating adversarial participants. A pervasive foundational assumption in hierarchical FL design is compositional safety: if every local aggregation tier enforces an honest-majority guard (e.g., Multi-Krum), the overall network inherits global Byzantine fault tolerance. In this paper, we present **Sovereign-Mohawk**, an FL architecture and Lean 4 formal development that refutes and repairs this assumption.
 
-First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 using `native_decide` for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md`.
+First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 using `native_decide` for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md` and
+defined by the claim-status taxonomy of §3, which separates results proved
+about a model from results measured against the runtime.
 
 **Index Terms:** Federated Learning, Byzantine Fault Tolerance, Formal Verification, Interactive Theorem Proving, Lean 4, Hierarchical Aggregation, Differential Privacy, Zero-Knowledge Proofs, Post-Quantum Cryptography.
 
@@ -53,7 +55,7 @@ This paper makes eight core contributions spanning formal verification, cryptogr
 2. **Exact Rational Chernoff Repair (Theorem 1):** We prove the binomial mean from first principles in Lean 4 and establish an exponential rational Chernoff tail bound. We formally prove why polynomial Markov bounds fail at scale ($40 > 1$) and certify via `native_decide` that the Chernoff bound bounds hierarchical failure probability below $200 \times 10^{-1000}$ **under the explicit i.i.d. Bernoulli committee-assignment model** — the scope of the result, not a guarantee about adversarial placement. We additionally attach that bound to the runtime's actual precondition: `guardThreshold c = (c-1)/2` is proved to be exactly the failure point of `n > 2f + 2`, giving a protocol-level bound on the probability that any committee refuses to run Multi-Krum.
 3. **Constructivist RDP Accounting (Theorem 2):** We formalize Rényi Differential Privacy tensorization over independent mechanisms and solve the constructive non-computability of $\ln(z)$ by proving a two-sided rational sandwich bound in Lean 4, enabling exact $(\epsilon, \delta)$-DP verification.
 4. **Wire-Format Refinement and Communication Depth (Theorem 3):** We prove an $O(d \log n)$ path-depth complexity bound and check a **formula-level** correspondence between the Lean 4 transport model and Go's IEEE-754 gradient serialization in CI — there is no machine-checked cross-language equivalence, because Lean cannot invoke Go source.
-5. **MiMC Permutation and zk-SNARK Verifiability (Theorem 5):** We prove that the MiMC round polynomial $x \mapsto (x + k + c)^5$ is injective under explicit `Nat.Prime` / `Nat.Coprime` hypotheses (the only concrete field instantiated in the development is a small prime field; BN254 is not instantiated), and formalize an $O(1)$ scale-invariant Groth16 verifier cost **model** — a constant operation count, not a soundness proof. In addition, we give a **proper reduction for the Schnorr/Ed25519 identification protocol** (`SchnorrReduction.lean`): special soundness (two accepting transcripts with the same commitment and different challenges recover the key), honest-verifier zero-knowledge, and a forger-implies-discrete-log reduction modulo an explicit forking-lemma hypothesis. A full Groth16/q-SDH formalization remains out of reach: Mathlib has no pairing or computational-hardness machinery.
+5. **MiMC Permutation and zk-SNARK Verifiability (Theorem 5):** We prove that the MiMC round polynomial $x \mapsto (x + k + c)^5$ is injective under explicit `Nat.Prime` / `Nat.Coprime` hypotheses (the only concrete instantiation is a small-prime sanity check; BN254 exponent coprimality is discharged concretely, with `Nat.Prime r` left as an explicit hypothesis), and formalize an $O(1)$ scale-invariant Groth16 verifier cost **model** — a constant operation count, not a soundness proof. In addition, we give a **proper reduction for the Schnorr/Ed25519 identification protocol** (`SchnorrReduction.lean`): special soundness (two accepting transcripts with the same commitment and different challenges recover the key), honest-verifier zero-knowledge, and a forger-implies-discrete-log reduction modulo an explicit forking-lemma hypothesis. A full Groth16/q-SDH formalization remains out of reach: Mathlib has no pairing or computational-hardness machinery.
 6. **Robbins-Siegmund Stochastic Convergence (Theorem 6):** We formalize non-IID SGD descent inequalities and machine-check the Robbins-Siegmund almost-supermartingale lemma, as a **deterministic** limit statement about nonnegative almost-supermartingales; stochastic convergence is a corollary under the model's conditions, not a theorem about the deployed optimizer.
 7. **PQC Migration Non-Hijack Invariants (Theorems 7 & 8):** We formalize a UF-CMA adversarial game and verify *structural* invariants of state ledger transitions across cutover epochs; the named theorems are conditional on UF-CMA hardness and on witnessed acceptance.
 8. **Grounded Swarm Evaluation & Traceability:** We evaluate the Go runtime across single-host Kind Kubernetes clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) attacks, demonstrating $30.63\ \mu\text{s}$ Multi-Krum execution, 86.4% CIFAR-10 accuracy (1.8% gap vs. clean), and sub-400ms round latencies. Claims are tracked in an automated CI traceability matrix that records each claim's status — including those that are surrogates or empirical rather than fully formalized.
@@ -122,28 +124,105 @@ Output: Aggregated gradient vector \tilde{g}.
 ====================================================================================================
 ```
 
-### 2.3 Scientific Scope & Epistemic Honesty Statement
-In strict alignment with formal verification best practices, we explicitly delimit the scope of our claims:
-1. **Topological vs. Empirical Scale:** The $10^7$ figure is strictly a topological design capacity parameter ($T=200, c=50,000$). Empirical testbed measurements are conducted on single-host Kind Kubernetes clusters up to 500 active pods, CI swarm matrices from 500 to 1,500 container nodes, and 1,000-node Python simulator runs.
-2. **Assumption Boundaries:** The formalization is **axiom-free** (`#print axioms` reports only Mathlib's foundation: `propext`, `Classical.choice`, `Quot.sound`). What remains are explicit hypotheses at each use site — `FloatOrderLaws` (IEEE-754 non-NaN order) and `Fact (Nat.Prime dlL)` — plus one axiom bridge for the Gaussian mechanism's Rényi divergence, which is assumed rather than derived from Mathlib's measure theory. Groth16 succinctness is an abstract constant-operation model, not a pairing-based proof.
-3. **Traceability Matrix:** Every claim in this paper maps to an entry in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which records the Lean module, the runtime evidence, and the claim's status. Not every entry is `fully_formalized`; several are surrogates, models, or empirical correspondences, and the matrix says so per row.
+### 2.3 Scope Boundaries
+
+Three boundaries are relevant throughout, and §3 states them as an explicit
+claim-status taxonomy rather than leaving them implicit:
+
+1. **Topological vs. empirical scale.** The $10^7$ figure is strictly a topological
+   design capacity parameter ($T=200, c=50,000$). Empirical testbed measurements are
+   conducted on single-host Kind Kubernetes clusters up to 500 active pods, CI swarm
+   matrices from 500 to 1,500 container nodes, and 1,000-node Python simulator runs.
+2. **Assumption boundaries.** The formalization is **axiom-free** (`#print axioms`
+   reports only Mathlib's foundation: `propext`, `Classical.choice`, `Quot.sound`).
+   What remains are explicit hypotheses at each use site — `FloatOrderLaws`
+   (IEEE-754 non-NaN order) and `Fact (Nat.Prime dlL)` — plus one axiom bridge for the
+   Gaussian mechanism's Rényi divergence, which is assumed rather than derived from
+   Mathlib's measure theory. Groth16 succinctness is an abstract constant-operation
+   model, not a pairing-based proof. §3.3 restates this precisely.
+3. **Traceability.** Every claim in this paper maps to an entry in our machine-readable
+   formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which records the
+   Lean module, the runtime evidence and the claim's status. Not every entry is
+   `fully_formalized`; several are surrogates, models or empirical correspondences,
+   and the matrix says so per row. The status vocabulary is defined in §3.1.
 
 ---
 
-## 3. Machine-Checked Disproof of Deterministic Hierarchical Composition
+## 3. Claim Status and Epistemic Scope
 
-### 3.1 Single-Tier Byzantine Filtering Guard
+This paper makes claims of different strengths. Rather than let "machine-checked" do
+all the work in the abstract, we state once, explicitly, what *kind* of claim each
+result is, and we repeat that status per claim in
+`proofs/FORMAL_TRACEABILITY_MATRIX.md` (§12).
+
+### 3.1 A status taxonomy
+
+| Status | Meaning | Example in this paper |
+| --- | --- | --- |
+| `fully_formalized` | Proved in Lean 4 from stated definitions and hypotheses; `#print axioms` reports only Mathlib's foundation | the local guard arithmetic (§4), the composition counterexample (§4), the Chernoff repair (§5) |
+| `model_verified` / `surrogate_verified` | Proved, but *about a model* that is not the runtime object | the constant-operation Groth16 cost model (§8.3); the Gaussian-mechanism RDP axiom bridge (§6) |
+| `structural` | Invariants proved about a state machine, conditional on a hardness assumption that is not itself formalized | PQC non-hijack (§10) |
+| `circuit_relation_modeled` | The proof system's accepted (statement, witness) pairs are modelled and proved; the cryptographic soundness of the proof system is not | `WeightUpdateCircuit` (§8.4) |
+| `empirical` | Measured or pinned against the runtime, not proved across it | Go↔Lean correspondences (§7, §11), the Kind scale numbers (§13) |
+
+### 3.2 Model vs. runtime
+
+Three distinct objects are easy to conflate, and conflating them is the single most
+common way a formal-methods paper overclaims:
+
+1. **The runtime object** — Go code that actually executes.
+2. **A Lean model of it** — definitions in `proofs/` intended to describe it.
+3. **A proof about the model.**
+
+Only (3) is machine-checked. (2) is validated by pinned `#eval` vectors and replayed
+traces, because **Lean cannot invoke Go source**: there is no machine-checked
+cross-language equality anywhere in this development. When this paper says a theorem
+"corresponds to" a Go function, it means a transcription of the Lean definition was
+checked against the Go output on specific inputs — not that the two were proved
+equal, and not that they agree on all inputs.
+
+### 3.3 Axioms and hypotheses
+
+The Lean development is **axiom-free and sorry-free**: `#print axioms` over the
+development reports only Mathlib's foundation (`propext`, `Classical.choice`,
+`Quot.sound`), with one documented exception — a single `native_decide` reduction
+trust in `chernoffBoundZ_deployment_scale_tiny` (see §15). What remains are
+explicit hypotheses at each use site: `FloatOrderLaws` (IEEE-754 non-NaN order,
+§11), `Fact (Nat.Prime dlL)`, and `Nat.Prime bn254Prime` for the BN254 MiMC
+instantiation (§8.2). No global `axiom` is used, and no proof uses `sorry` or
+`admit`.
+
+### 3.4 What is deliberately not claimed
+
+- **Groth16 / q-SDH soundness is not formalized.** Mathlib has no pairing or
+  computational-hardness machinery; the feasibility scout is recorded in
+  `proofs/theorem_claims.json`. The circuit relation (§8.4) is proved *about*
+  the proof system, not a soundness proof *of* it.
+- **MiMC collision resistance is not formalized.** What is proved is the algebraic
+  injectivity of the round function under explicit prime/coprimality hypotheses
+  (§8.2).
+- **The trusted setup is an in-process simulated ceremony** (`mpcSetupBN254`), not a
+  distributed ceremony over independent machines. It is a development key.
+- **The SDK benchmark's advertised 10 ms figure is a `time.sleep`.** The measured
+  verification cost is 0.675 ms and proving is 38 ms (§8.4). Retraction of the
+  stale figure across the documentation is pending.
+
+---
+
+## 4. Machine-Checked Disproof of Deterministic Hierarchical Composition
+
+### 4.1 Single-Tier Byzantine Filtering Guard
 At a single aggregation tier receiving $n$ candidate gradient updates, Algorithm 1 guarantees that if the Byzantine node count $f$ satisfies the honest-majority condition, the selected aggregate is bounded within a Euclidean hyper-sphere centered at the true mean of honest updates [2]. In Lean 4 (`LeanFormalization/Theorem1BFT.lean`), we formalize the local guard condition:
 $$\mathcal{G}_{\text{local}}(n, f) \equiv (2f < n) \land (9f < 5n)$$
 
 The condition $2f < n$ establishes strict honest majority, while $9f < 5n$ is the single-tier 5/9 profile guard arithmetic checked for concrete configurations — a per-tier, guard-conditional fact, not a global Byzantine tolerance.
 
-### 3.2 The Inductive Composition Fallacy
+### 4.2 The Inductive Composition Fallacy
 Let a tree hierarchy have $L$ levels, where level $l$ contains $T_l$ aggregators. It has been conjectured across the distributed FL literature that if $\mathcal{G}_{\text{local}}(n_{l,i}, f_{l,i})$ holds for every aggregator $i$ at every level $l$, the overall network satisfies a global Byzantine tolerance bound $f_{\text{global}} / n_{\text{global}} < 1/2$.
 
 The mathematical flaw in this inductive hypothesis lies in information hiding at aggregation boundaries: a parent aggregator only receives a single filtered vector from each child committee. The parent cannot distinguish whether a child committee was 100% honest or 49% Byzantine; in both cases, the child's local guard passes, and the child's output is credited with full committee weight. An adversary exploiting this asymmetry can concentrate honest nodes into sacrificial subtrees while overloading other branches.
 
-### 3.3 Lean 4 Formalization of the Counterexample
+### 4.3 Lean 4 Formalization of the Counterexample
 To formally invalidate deterministic composition, we define an inductive aggregation tree data structure in Lean 4:
 
 ```lean
@@ -254,14 +333,14 @@ theorem hierarchical_composition_counterexample :
   decide
 ```
 
-### 3.4 Structural Implications
+### 4.4 Structural Implications
 This formal result proves that deterministic hierarchical composition is structurally unsound under adversarial node placement. Adjusting per-tier thresholds (e.g., requiring $3f < n$ or $4f < n$) merely changes the numeric constants of the counterexample without curing the vulnerability: so long as a passed committee is granted full leaf weight by a parent aggregator that cannot inspect its inner constituent gradients, an adversary can pack Byzantine nodes just below the child threshold while abandoning other committees, driving the global Byzantine ratio arbitrarily close to the per-tier filter limit.
 
 ---
 
-## 4. Probabilistic Composition Repair and Machine-Checked Chernoff Bounds
+## 5. Probabilistic Composition Repair and Machine-Checked Chernoff Bounds
 
-### 4.1 Probabilistic Sampling Model
+### 5.1 Probabilistic Sampling Model
 To restore provable hierarchical resilience, we replace deterministic node assignment with a randomized assignment protocol. Let participants be assigned to $T$ regional committees of capacity $c$ via an explicit independently and identically distributed (i.i.d.) Bernoulli process with parameter $p = \mathbb{P}(\text{Byzantine})$. Under this model, the number of Byzantine nodes $X$ in any committee follows a binomial distribution $\text{Bin}(c, p)$.
 
 The probability that a given committee exceeds its Byzantine filtering tolerance threshold $k$ (where $k = \lceil c/2 \rceil$ for honest majority) is governed by the binomial tail:
@@ -270,7 +349,7 @@ $$\text{binomialTail}(c, k, p) = \sum_{j=k}^c \binom{c}{j} p^j (1-p)^{c-j}$$
 The system failure probability $P_{\text{fail}}$ across the entire hierarchy of $T$ committees is bounded by Boole's inequality (union bound):
 $$P_{\text{fail}} = \mathbb{P}\left(\bigcup_{i=1}^T \{X_i \ge k\}\right) \le 1 - (1 - \text{binomialTail}(c, k, p))^T \le T \cdot \text{binomialTail}(c, k, p)$$
 
-### 4.2 First-Principles Proof of Binomial Mean in Lean 4
+### 5.2 First-Principles Proof of Binomial Mean in Lean 4
 Before bounding the tail, the expectation of a binomial distribution must be formally established. Because Mathlib's distribution library lacked a constructive proof for $\mathbb{E}[\text{Bin}(n, p)] = np$, we formalize the theorem from first principles in Lean 4 using the absorption identity $\binom{n}{i} i = n \binom{n-1}{i-1}$ and the binomial theorem `add_pow`:
 
 ```lean
@@ -292,7 +371,7 @@ theorem binomial_mean (n : ℕ) (p : ℚ) :
     ring
 ```
 
-### 4.3 The Insufficiency of Markov's Inequality at Scale
+### 5.3 The Insufficiency of Markov's Inequality at Scale
 Applying Markov's inequality $\mathbb{P}(X \ge k) \le \frac{\mathbb{E}[X]}{k} = \frac{cp}{k}$ yields a polynomial concentration bound formalized as `binomial_markov` in Lean 4:
 $$P_{\text{fail}} \le T \cdot \frac{c \cdot p}{k}$$
 
@@ -306,7 +385,7 @@ theorem probabilistic_bound_too_loose_at_deployment_scale :
   norm_num
 ```
 
-### 4.4 Machine-Checked Rational Chernoff Bounds
+### 5.4 Machine-Checked Rational Chernoff Bounds
 To overcome the polynomial decay limitation without importing non-computable transcendental real analysis into Lean 4's kernel, we formalize an exponential-moment Chernoff bound using an arbitrary rational base $z \ge 1$.
 
 > **Definition 2 (Rational Chernoff Bound at Base $z$):** For rational base $z \ge 1$, trials $n$, threshold $k$, and success probability $p \in [0, 1]$, the rational Chernoff function is defined over $\mathbb{Q}$:
@@ -328,7 +407,7 @@ theorem binomialTail_le_chernoffBoundZ (n k : ℕ) (p z : ℚ)
     binomialTail n k p ≤ chernoffBoundZ n k p z := by ...
 ```
 
-### 4.5 Deployment-Scale Certification via Native Decide
+### 5.5 Deployment-Scale Certification via Native Decide
 At the target deployment parameters of Sovereign-Mohawk ($T = 200$ committees, $c = 50,000$ leaves per committee, $p = 1/10$, threshold $k = 25,000$), we instantiate base $z = 2$:
 $$\text{chernoffBoundZ}\left(50000, 25000, \frac{1}{10}, 2\right) = \frac{\left(1 - \frac{1}{10} + \frac{2}{10}\right)^{50000}}{2^{25000}} = \frac{\left(\frac{11}{10}\right)^{50000}}{2^{25000}}$$
 
@@ -359,9 +438,9 @@ As certified above, the probability of any tier experiencing a Byzantine failure
 
 ---
 
-## 5. Multi-Tier Rényi Differential Privacy and Constructivist Logarithm Bounds
+## 6. Multi-Tier Rényi Differential Privacy and Constructivist Logarithm Bounds
 
-### 5.1 Rényi Differential Privacy Formulation
+### 6.1 Rényi Differential Privacy Formulation
 Privacy preservation is enforced using Rényi Differential Privacy (RDP) [4]. For order $\alpha > 1$, the Rényi divergence between output distributions $P$ and $Q$ induced by adjacent datasets $D, D'$ is defined as:
 $$D_\alpha(P \parallel Q) = \frac{1}{\alpha - 1} \ln \mathbb{E}_{x \sim Q}\left[\left(\frac{P(x)}{Q(x)}\right)^\alpha\right]$$
 
@@ -370,13 +449,13 @@ A randomized mechanism $\mathcal{M}$ satisfies $(\alpha, \epsilon)$-RDP if $D_\a
 In Lean 4 (`Theorem2RDP.lean`), we formally prove independent mechanism composition: if mechanism $\mathcal{M}_1$ satisfies $(\alpha, \epsilon_1)$-RDP and $\mathcal{M}_2$ satisfies $(\alpha, \epsilon_2)$-RDP on independent executions, their joint output satisfies $(\alpha, \epsilon_1 + \epsilon_2)$-RDP via exact tensorization of product distributions:
 $$D_\alpha(P_1 \otimes P_2 \parallel Q_1 \otimes Q_2) = D_\alpha(P_1 \parallel Q_1) + D_\alpha(P_2 \parallel Q_2)$$
 
-### 5.2 Constructivist Challenge of $(\epsilon, \delta)$-DP Conversion
+### 6.2 Constructivist Challenge of $(\epsilon, \delta)$-DP Conversion
 To map accumulated RDP guarantees to standard $(\epsilon, \delta)$-differential privacy, the runtime applies the canonical transformation:
 $$\epsilon(\delta) = \epsilon_{\text{RDP}} + \frac{\ln(1/\delta)}{\alpha - 1}$$
 
 However, the natural logarithm function $\ln(z)$ is transcendental and non-computable in constructivist kernel logic. A proof assistant kernel cannot evaluate $\ln(10^5)$ directly to verify numeric budget guards.
 
-### 5.3 Machine-Checked Two-Sided Rational Sandwich
+### 6.3 Machine-Checked Two-Sided Rational Sandwich
 We resolve this limitation in `proofs/Refinement/RDPLogBound.lean` by formalizing a verified two-sided rational interval sandwich over positive rationals $\mathbb{Q}^+$.
 
 We decompose $x = 1/\delta$ into a dyadic component $2^k$ and a residual $r \in [1, 2)$ such that $x = 2^k \cdot r$. Then:
@@ -411,9 +490,9 @@ Table 2 records the exact rational bounding intervals certified by Lean 4 for pr
 
 ---
 
-## 6. Communication Complexity and Wire-Format Refinement
+## 7. Communication Complexity and Wire-Format Refinement
 
-### 6.1 Hierarchical Routing Path Depth
+### 7.1 Hierarchical Routing Path Depth
 In flat federated learning topologies, communicating parameter updates between $n$ participants and a central parameter server requires $O(n)$ point-to-point connections, creating severe network bottlenecks. In `Theorem3Communication.lean`, we formalize hierarchical routing complexity.
 
 > **Theorem 2 (Logarithmic Path-Depth Complexity):** For a balanced tree topology of depth $d$ with branching factor $b \ge 2$, the maximum path depth traversed by any gradient update is strictly bounded by $O(d \log_b n)$.
@@ -431,7 +510,7 @@ This is a **path-depth proxy**: it bounds the number of hops a single gradient
 traversal makes, not total bytes on the wire. Total byte volume remains
 model-dependent.
 
-### 6.2 Wire-Format Refinement to Go Runtime
+### 7.2 Wire-Format Refinement to Go Runtime
 To prevent formal specification drift, we verify a concrete refinement relation connecting Lean 4's abstract transport specification to the Go production wire format. In `Refinement/Transport.lean`, we specify the total byte consumption of an aggregation round over $n$ participants with gradient dimension $D$:
 
 > **Theorem 3 (Wire Serialization Exact Equality):** Under the IEEE-754 single-precision floating-point format (4 bytes per scalar element), the total wire consumption of a hierarchical aggregation round matches Go runtime serialization:
@@ -442,12 +521,12 @@ In continuous integration, `test/transport_byte_size_test.go` verifies that `uns
 
 ---
 
-## 7. Zero-Knowledge Integrity via MiMC Hash Commitments and Flat Groth16
+## 8. Zero-Knowledge Integrity via MiMC Hash Commitments and Flat Groth16
 
-### 7.1 Untrusted Aggregator Threat
+### 8.1 Untrusted Aggregator Threat
 In a multi-tier hierarchy, Tier 2 (Regional) aggregators possess significant computational authority. A malicious Tier 2 aggregator could tamper with intermediate vector sums, reporting fraudulent aggregates that poison the global model while conforming to protocol schemas. To enforce verifiable computation without compromising privacy, regional aggregators must submit succinct zero-knowledge arguments of knowledge (zk-SNARKs).
 
-### 7.2 MiMC Permutation Formalization over BN254
+### 8.2 MiMC Permutation Formalization over BN254
 We base gradient vector commitments on the MiMC hash function [20], parameterized over the BN254 elliptic curve scalar field $\mathbb{F}_r$, where:
 $$r = 21888242871839275222246405745257275088548364400416034343698204186575808495617$$
 
@@ -480,7 +559,7 @@ explicit hypothesis, because Mathlib's `Nat.Prime` decidability is trial divisio
 and `native_decide` does not terminate in reasonable time (measured: >7 minutes
 without completing). Everything else about the instantiation is machine-checked.
 
-### 7.3 Scale-Invariant Verifier Cost Model
+### 8.3 Scale-Invariant Verifier Cost Model
 In `Theorem5Cryptography.lean`, we formalize an abstract Groth16 verification cost model [5]. Groth16 proofs over BN254 consist of three group elements ($A \in \mathbb{G}_1, B \in \mathbb{G}_2, C \in \mathbb{G}_1$), yielding an exact proof size of 128 bytes (uncompressed: 256 bytes). Verification requires evaluating a fixed pairing identity involving three pairing computations:
 $$e(A, B) = e(\alpha, \beta) \cdot e\left(\sum_{i=0}^l v_i \gamma_i, \gamma\right) \cdot e(C, \delta)$$
 
@@ -494,19 +573,66 @@ theorem theorem5_constant_ops (n m : Nat) :
   rfl
 ```
 
+### 8.4 A Real Weight-Update Circuit (`WeightUpdateCircuit`)
+
+The integrity goal of §8.1 is only meaningful if a verifier can check a
+*proof* that an update was computed honestly. `internal/zkweight_circuit.go`
+implements a gnark Groth16/BN254 circuit whose public statement is the six-element
+`WeightStatement { ModelHashBefore, ModelHashAfter, DatasetCommitment,
+GradNormBound, DPEpsilon, UpdateHash }` and whose private witness is
+`{ Gradients[8], Noise[8], TrainingSteps }`. Components are signed Q32.32
+fixed-point; the circuit range-checks each component and the norm bound.
+
+The circuit constrains four relations, using gnark's MiMC over the BN254 scalar
+field — the same permutation whose algebra is formalized in §8.2:
+
+1. **Model hash chain.** `MiMC(ModelHashBefore, TrainingSteps, gradients…) =
+   ModelHashAfter`, binding the gradient witness to the stated prior model state.
+2. **Range and norm bound.** Per-component 64-bit range checks, then
+   $\|g\|^2 \le \mathtt{GradNormBound}^2$.
+3. **Update hash chain.** `MiMC(DPEpsilon, TrainingSteps, gradients…+noise…,
+   DatasetCommitment) = UpdateHash`, binding the published update to the DP noise,
+   the DP budget and the dataset commitment.
+4. **Dataset binding.** `DatasetCommitment ≠ 0`.
+
+`ModelHashAfter` and `UpdateHash` are *derived* by the prover's library
+(`DeriveWeightStatement`), not supplied as free public inputs, so a prover cannot
+choose them independently.
+
+**Measured cost** (BN254, `results/zk/weight-proof-latest.json`): 9 569 constraints,
+164-byte proof, verification **0.675 ms**, proving **38 ms** (mean over 200
+iterations), one-time setup 41.4 s (39 ms compile + simulated MPC ceremony).
+Verification is $O(1)$ in participant count: the aggregator's per-proof cost does
+not grow with the network, which is what makes the §8.3 cost model plausible in
+practice even though the model itself is a bookkeeping abstraction.
+
+**Scope caveats (explicit).**
+
+- What is machine-checked in Lean is the MiMC **injectivity lemma** (§8.2), not
+  this circuit. The gnark constraint system is exercised in CI with positive and
+  negative witnesses (`WeightUpdateProofSpec`, `zkweight_circuit_test.go`), and its
+  accepted-pair relation is modelled and proved at the specification level. That is a
+  statement about the circuit, not a q-SDH soundness proof for Groth16.
+- The circuit proves the MiMC *relation* holds; it does not prove MiMC collision
+  resistance.
+- The trusted setup is the same in-process simulation noted in §8.1.
+
+**Refinement status.** Row 22 of the traceability matrix (§12) records this as
+`circuit_relation_modeled`, not `fully_formalized`.
+
 ---
 
-## 8. Stochastic Non-IID Convergence under Robbins-Siegmund Supermartingales
+## 9. Stochastic Non-IID Convergence under Robbins-Siegmund Supermartingales
 
-### 8.1 Federated Non-IID Optimization Model
+### 9.1 Federated Non-IID Optimization Model
 In heterogeneous edge settings, data distributions across participants are non-IID. We model the global optimization objective as $\min_{\theta \in \mathbb{R}^d} F(\theta) \equiv \frac{1}{K} \sum_{k=1}^K F_k(\theta)$, where client loss functions $F_k$ satisfy $L$-smoothness and bounded local gradient variance:
 $$\mathbb{E}[\|\nabla F_k(\theta, \xi) - \nabla F_k(\theta)\|^2] \le \sigma^2, \quad \frac{1}{K} \sum_{k=1}^K \|\nabla F_k(\theta) - \nabla F(\theta)\|^2 \le \zeta^2$$
 
-### 8.2 Descent Lemma and Supermartingale Inequality
+### 9.2 Descent Lemma and Supermartingale Inequality
 In `DescentInequalityFull.lean`, we formalize a one-step descent inequality under client learning rate $\eta \le \frac{1}{2L}$ (the statement proved in `DescentInequalityFull.lean`, which differs from the classical textbook form in its hypotheses):
 $$\mathbb{E}[F(\theta_{t+1}) \mid \mathcal{F}_t] \le F(\theta_t) - \frac{\eta}{2} \|\nabla F(\theta_t)\|^2 + \frac{\eta^2 L}{2} \left(\frac{\sigma^2}{K} + \zeta^2\right)$$
 
-### 8.3 Robbins-Siegmund Deterministic Limit Proof
+### 9.3 Robbins-Siegmund Deterministic Limit Proof
 To establish asymptotic convergence, we formalize the Robbins-Siegmund almost-supermartingale theorem [21]. In `RobbinsSiegmundDeterministic.lean`, we prove from first principles that if sequence $V_k \ge 0$ converges to limit $L$ and step-sizes $a_k \ge 0$ satisfy $\sum a_k = \infty$ with $\sum a_k V_k < \infty$, the limit $L$ must be zero:
 
 ```lean
@@ -525,21 +651,21 @@ proving that the optimization envelope contracts monotonically as round budget $
 
 ---
 
-## 9. Post-Quantum Cryptographic Migration and Non-Hijack Invariants
+## 10. Post-Quantum Cryptographic Migration and Non-Hijack Invariants
 
-### 9.1 Hybrid Post-Quantum Transport and Attestation
+### 10.1 Hybrid Post-Quantum Transport and Attestation
 To defend against "store-now, decrypt-later" adversaries possessing future cryptanalytic quantum capabilities, Sovereign-Mohawk incorporates hybrid post-quantum cryptography by default:
 * **Key Exchange:** Inter-aggregator TLS channels negotiate hybrid X25519-ML-KEM-768 key encapsulation, conforming to NIST FIPS 203 [17].
 * **Hardware Attestation:** Aggregator identities are attested via TPM 2.0 hardware roots of trust bound to XMSS stateful hash-based signatures.
 * **Ledger Continuity:** State ledger transitions require epoch-enforced dual signatures (ECDSA + ML-DSA).
 
-### 9.2 UF-CMA Adversarial Security Model
+### 10.2 UF-CMA Adversarial Security Model
 In `Theorem7PQCMigrationContinuity.lean` and `Theorem8DualSignatureNonHijack.lean`, we formalize an existential unforgeability under chosen-message attack (UF-CMA) game [29].
 
 > **Definition 3 (PQC Unforgeability):** An adversary $\mathcal{A}$ with oracle access to signing oracle $\mathcal{O}$ cannot construct a valid PQC signature on an unqueried message:
 > $$\forall m, \quad m \notin \mathcal{Q}_{\text{queries}} \implies \text{Verify}(\text{pk}_{\text{pqc}}, m, \mathcal{A}^{\mathcal{O}}(m)) = \texttt{false}$$
 
-### 9.3 Machine-Checked Non-Hijack Invariants
+### 10.3 Machine-Checked Non-Hijack Invariants
 We model the ledger migration lifecycle through three explicit phases: `preEpoch`, `cutover`, and `postEpoch`. We define the safety predicate:
 $$\text{hijackSafe}(\text{auth}) \equiv (\text{phase} = \texttt{postEpoch}) \implies \text{auth.pqcSignedWitnessed}$$
 
@@ -561,12 +687,12 @@ As proved above, `pqc_hardness_blocks_unwitnessed_acceptance` verifies that a co
 
 ---
 
-## 10. Implementation Refinement and the FloatOrderLaws Hypothesis
+## 11. Implementation Refinement and the FloatOrderLaws Hypothesis
 
-### 10.1 Go Runtime Correspondence
+### 11.1 Go Runtime Correspondence
 To bridge mathematical specifications with production software, Sovereign-Mohawk's core Multi-Krum algorithm is implemented in Go (`internal/multikrum.go`) and formally modeled in Lean 4 (`proofs/Refinement/MultiKrum.lean`). The Go implementation computes pairwise squared Euclidean distances over `float64` vectors, sorts Krum scores, and selects the $m$ argmin indices.
 
-### 10.2 The Foundational Float Challenge in Lean 4
+### 11.2 The Foundational Float Challenge in Lean 4
 A critical discovery during formalization was that Lean 4 core defines `Float` as an opaque wrapper around an uninterpreted constant:
 ```lean
 structure FloatSpec where
@@ -577,7 +703,7 @@ structure Float where val : floatSpec.float
 
 Because IEEE-754 floating-point arithmetic admits Not-a-Number (`NaN`) values, floating-point comparison is not a partial order ($x \le y \land y \le x$ does not imply $x = y$ if $x$ is `NaN`). Consequently, Mathlib intentionally does *not* synthesize an instance for `LinearOrder Float`, and basic properties such as transitivity and antisymmetry are unprovable from Lean core.
 
-### 10.3 The FloatOrderLaws Hypothesis (formerly eight global axioms)
+### 11.3 The FloatOrderLaws Hypothesis (formerly eight global axioms)
 Rather than disguising this limitation, we isolate the needed total-order laws
 in one named structure, `FloatOrderLaws`, in `Refinement/MultiKrum.lean`,
 conditioned strictly on non-`NaN` inputs (`NoNaNList`):
@@ -619,7 +745,7 @@ longer axioms.
 
 ---
 
-## 11. Master Formal Traceability Matrix
+## 12. Master Formal Traceability Matrix
 
 Every theoretical claim presented in this paper is tracked in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`). Table 4 presents the complete 15-row inventory connecting each claim to its Lean 4 module, core machine-checked theorems, Go implementation, runtime test evidence, and epistemic status.
 
@@ -648,16 +774,16 @@ Every theoretical claim presented in this paper is tracked in our machine-readab
 
 ---
 
-## 12. Empirical Evaluation and Scaled Swarm Experiments
+## 13. Empirical Evaluation and Scaled Swarm Experiments
 
-### 12.1 Experimental Testbed and Setup
+### 13.1 Experimental Testbed and Setup
 We evaluate Sovereign-Mohawk across single-host multi-node Kubernetes (Kind) environments, CI swarm matrices, and simulated container targets. Experiments were executed on an AMD EPYC 7763 64-core workstation (128 threads, 256GB ECC DDR4-3200 RAM) running Ubuntu 22.04 LTS (Linux kernel 6.5). Container resource quotas and pod network isolation were strictly enforced via cgroups v2.
 
 We evaluate performance across two distinct adversarial profiles:
 * **Safe Profile (10% Byzantine):** Corrupted nodes execute sign-flip gradient attacks ($\tilde{g} = -\nabla F(\theta)$).
 * **Edge Profile (35% Byzantine):** Corrupted nodes execute coordinated model manipulation attacks, injecting deceptive high-magnitude vectors crafted to maximize variance while bypassing naive threshold filters.
 
-### 12.2 Byzantine Resilience and Accuracy Preservation
+### 13.2 Byzantine Resilience and Accuracy Preservation
 We evaluate model convergence on the CIFAR-10 classification benchmark across 100 federated rounds using a ResNet-18 architecture with Dirichlet non-IID data partitioning ($\alpha_{\text{Dir}} = 0.5$).
 
 ```
@@ -679,7 +805,7 @@ We evaluate model convergence on the CIFAR-10 classification benchmark across 10
 
 Under the Edge profile (35% Byzantine), unmitigated FedAvg rapidly diverges within 15 rounds, collapsing to random chance accuracy (10.0%). In contrast, Sovereign-Mohawk's hierarchical Multi-Krum filtering isolates corrupted gradients, steadily advancing to 86.4% test accuracy after 100 rounds. This represents a negligible 1.8% accuracy differential compared to the unperturbed clean baseline (88.2%).
 
-### 12.3 Component Ablation Study
+### 13.3 Component Ablation Study
 To dissect the latency and accuracy contributions of each security primitive, we conduct an ablation analysis across 500 container pods at Round 50.
 
 | Configuration / Feature Vector | CIFAR-10 Acc (%) | Round Duration |
@@ -693,7 +819,7 @@ To dissect the latency and accuracy contributions of each security primitive, we
 
 Table 5 confirms that differential privacy noise injection accounts for the vast majority of the 1.8% accuracy drop ($87.8\% \to 86.4\%$). In return, zero-knowledge Groth16 verification and hybrid ML-KEM-768 post-quantum key exchange add only 17 ms of total latency overhead per aggregation round.
 
-### 12.4 Containerized Swarm Scale Benchmarks
+### 13.4 Containerized Swarm Scale Benchmarks
 We measure round completion latencies across scaled container swarm configurations from 500 to 1,500 active container instances.
 
 | Active Nodes | Tier 1 (Edge Ingestion) | Tier 2 (Regional Krum) | Tier 3 (Continental zk) | Total Round Completion |
@@ -706,7 +832,7 @@ We measure round completion latencies across scaled container swarm configuratio
 
 Total aggregation latency scales smoothly from 145 ms at 500 nodes to 373 ms at 1,500 nodes. Hierarchical distribution successfully prevents central bottlenecks, keeping total round completion well under the network synchrony bound $\Delta_2 = 150\text{ s}$.
 
-### 12.5 Runtime Component Microbenchmarks
+### 13.5 Runtime Component Microbenchmarks
 Table 7 reports single-core microbenchmark timings measured on a dedicated AMD EPYC 7763 core.
 
 | Runtime Operation | Mean Latency | Median | Throughput |
@@ -723,18 +849,18 @@ Multi-Krum aggregation executes in just $30.63\ \mu\text{s}$ for $N=100$ vectors
 
 ---
 
-## 13. Related Work
+## 14. Related Work
 
-### 13.1 Byzantine-Robust Federated Learning
+### 14.1 Byzantine-Robust Federated Learning
 Blanchard et al. [2] pioneered Byzantine-tolerant gradient descent with Krum and Multi-Krum for flat master-worker topologies. Subsequent works introduced Bulyan [22], coordinate-wise median, trimmed mean [7], geometric medians [6], and Zeno [32]. However, all prior theoretical guarantees were derived under flat network assumptions. As our counterexample demonstrates, these single-tier bounds do not compose deterministically in hierarchical topologies.
 
-### 13.2 Hierarchical Federated Learning Topologies
+### 14.2 Hierarchical Federated Learning Topologies
 To resolve bandwidth saturation in cellular and IoT networks, hierarchical FL (HFL) architectures cluster edge devices under intermediate gateways [8], [9]. However, existing HFL systems rely exclusively on heuristic security assumptions or flat simulations. Sovereign-Mohawk formalizes hierarchical composition in an interactive theorem prover and publishes a machine-checked disproof of its deterministic variant.
 
-### 13.3 Formal Verification in Distributed Systems & ML
+### 14.3 Formal Verification in Distributed Systems & ML
 Formal verification of distributed consensus protocols (e.g., Raft, Paxos) using IronFleet, Ivy, Coq, and Lean 4 is well-established [10], [11]. However, formalizing statistical ML properties—such as empirical risk descent, differential privacy composition, and statistical Byzantine filtering—remains nascent. Recent analytical work by He and Zhang [12] investigated probabilistic bounds but did not provide machine-checked proofs or refutations.
 
-### 13.4 Verifiable and Post-Quantum Computation
+### 14.4 Verifiable and Post-Quantum Computation
 Zero-knowledge FL systems typically employ recursive proof composition (e.g., Halo2 cycles) [13], incurring severe prover overhead. Sovereign-Mohawk employs flat Groth16 proofs over MiMC permutations on BN254, bypassing recursive overhead. In the post-quantum realm, NIST FIPS 203 [17] standardized ML-KEM; we formalize structural non-hijack invariants for federated ledger cutover (conditional on UF-CMA hardness and witnessed acceptance).
 
 | Framework | Scale Target | Formal BFT Proof | Privacy Accounting | PQC Migration |
@@ -748,7 +874,7 @@ Zero-knowledge FL systems typically employ recursive proof composition (e.g., Ha
 
 ---
 
-## 14. Limitations, Open Gaps, and Threats to Validity
+## 15. Limitations, Open Gaps, and Threats to Validity
 
 We explicitly record technical limitations and open gaps:
 1. **Axiomatized Gaussian RDP:** the Gaussian mechanism's Rényi divergence bound is carried as an axiom bridge (`RenyiDivergence` for the Gaussian mechanism is assumed), not derived from Mathlib's measure theory. The additive rational ledger and the `(ε,δ)` conversion *are* proved.
@@ -759,7 +885,7 @@ We explicitly record technical limitations and open gaps:
 
 ---
 
-## 15. Conclusion & Reproducibility Statement
+## 16. Conclusion & Reproducibility Statement
 
 Sovereign-Mohawk reframes part of the foundations of hierarchical federated learning by machine-checking a counterexample to deterministic Byzantine composition for the credited-weight guard the system uses, and by constructing a probabilistic repair whose scope (i.i.d. Bernoulli committee sampling) is stated explicitly. By pairing a scope-labelled Lean 4 formal development with an industrial Go production runtime — and publishing where the checking stops, including a disproof of our own original claim — we demonstrate that explicit models can guide the design of large-scale distributed machine learning systems.
 
