@@ -181,6 +181,36 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - ZK weight-update circuit (2026-11-18)
+
+- `internal/zkweight_circuit.go`: `WeightUpdateCircuit`, a Groth16/BN254 circuit
+  binding a full training update — model hash chain, per-component 64-bit range
+  check, L2 norm bound, DP epsilon, non-zero dataset commitment, update hash —
+  to the private gradient/noise witness. Replaces the XOR fold the previous
+  prover used to squash the gradient vector into one scalar (linear, hence not
+  collision-resistant). Proofs are framed with their six-field public statement
+  (`VerifyWeightProof`, `VerifyWeightProofAgainst`).
+- `internal/zkprover/gnark.go`: proves the new circuit and verifies against the
+  caller's statement, not merely the embedded one. Requires the fixed circuit
+  arity (8) and a complete public statement.
+- `internal/batch/aggregator.go`: `WeightProof`/`WeightStatement` path; the
+  aggregator verifies the weight proof before accepting a round and stays
+  fail-closed.
+- `cmd/zkweightbench` + `.github/workflows/zk-circuit-gate.yml`: a measured
+  prover/verifier gate writing `results/zk/weight-proof-latest.json`. First real
+  zk measurement in the repo: verify 0.67 ms, prove 34 ms, 9569 constraints,
+  164 B proof, 44 s one-time trusted setup.
+- `proofs/LeanFormalization/Theorem5Cryptography.lean`: `WeightUpdateCircuit`
+  section modelling the circuit relation with completeness, binding and three
+  negative-control theorems (row 21 of the traceability matrix).
+- `docs/ZK_FINALIZATION_PLAN.md`: the binding/evidence gap analysis and plan.
+- `circuits/README.md` corrected to match `main.nr` — it previously advertised
+  a `dp_delta` input, a compression-fidelity constraint and a DP-noise range
+  proof that the circuit does not implement.
+
+The advertised "10 ms zk-SNARK verification" figures are **not** retracted by
+this change; that work is deferred (see `docs/ZK_FINALIZATION_PLAN.md`, M3).
+
 ### Added - Cross-project Lean correspondence (2026-11-17)
 
 - `internal/chernoff_lean_correspondence_test.go`: Go transcriptions of the

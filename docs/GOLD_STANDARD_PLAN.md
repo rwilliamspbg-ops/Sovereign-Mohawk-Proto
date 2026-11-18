@@ -33,6 +33,25 @@ dataset commitment, (b) gradient norm ≤ bound, (c) DP noise was added before
 compression. Aggregator verifies in O(1) pairing time; no trust in Multi-Krum
 alone.
 
+**Status 2026-11-18 (partial).**
+
+- **P1.1** — `WeightUpdateCircuit` (`internal/zkweight_circuit.go`,
+  gnark/Groth16/BN254) implements the per-update statement: model hash chain,
+  per-component 64-bit range check, L2 norm bound, DP epsilon, non-zero dataset
+  commitment, update hash. `circuits/src/main.nr` is retained as the
+  specification; the gnark port uses MiMC and Q32.32 fixed-point components.
+- **P1.2** — `internal/zkprover` proves it and `internal/batch` verifies it
+  fail-closed. The SDK-facing prover binary is not built.
+- **P1.3** — the aggregator verifies the weight proof before accepting a round.
+  The Multi-Krum demotion and the 30%-Byzantine chaos gate are unchanged.
+- **P1.4** — `proofs/LeanFormalization/Theorem5Cryptography.lean` models the
+  circuit relation (row 21); Groth16/q-SDH soundness remains out of scope.
+
+Measured (8 gradients, 9569 constraints): verify 0.67 ms, prove 34 ms, proof
+164 B, one-time setup 44 s — `results/zk/weight-proof-latest.json`, regenerated
+by `cmd/zkweightbench` in `.github/workflows/zk-circuit-gate.yml`. The backend
+decision (§8.1) is recorded in `docs/ZK_FINALIZATION_PLAN.md`.
+
 ### Phases
 
 **P1.1 — Circuit specification (2–3 weeks)**

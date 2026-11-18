@@ -1,0 +1,57 @@
+name: ZK Circuit Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'internal/zkweight_circuit.go'
+      - 'internal/zksnark_circuit_verifier.go'
+      - 'internal/zkprover/**'
+      - 'internal/batch/**'
+      - 'cmd/zkweightbench/**'
+      - 'test/zkweight*_test.go'
+      - 'test/batch_zk*_test.go'
+      - '.github/workflows/zk-circuit-gate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'internal/zkweight_circuit.go'
+      - 'internal/zksnark_circuit_verifier.go'
+      - 'internal/zkprover/**'
+      - 'internal/batch/**'
+      - 'cmd/zkweightbench/**'
+      - 'test/zkweight*_test.go'
+      - 'test/batch_zk*_test.go'
+      - '.github/workflows/zk-circuit-gate.yml'
+
+concurrency:
+  group: zk-circuit-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  weight-proof-benchmark:
+    name: WeightUpdateCircuit measured gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Measure prover/verifier and enforce budgets
+        run: |
+          source scripts/ensure_go_toolchain.sh
+          go run ./cmd/zkweightbench -out results/zk
+
+      - name: Upload ZK circuit artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: zk-weight-proof
+          path: results/zk/*.json

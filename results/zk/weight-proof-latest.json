@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-11-18T14:06:54Z",
+  "arity": 8,
+  "constraints": 9569,
+  "prove": {
+    "iterations": 20,
+    "total_ms": 685.577,
+    "mean_ms": 34.27885
+  },
+  "verify": {
+    "iterations": 200,
+    "total_ms": 133.938,
+    "mean_ms": 0.6696899999999999
+  },
+  "setup": {
+    "iterations": 1,
+    "total_ms": 44072.785,
+    "mean_ms": 44072.785
+  },
+  "proof_bytes": 164,
+  "encoded_bytes": 363,
+  "budgets": {
+    "verify_mean_ms": 15,
+    "prove_mean_ms": 30000,
+    "setup_ms": 120000
+  },
+  "violations": []
+}

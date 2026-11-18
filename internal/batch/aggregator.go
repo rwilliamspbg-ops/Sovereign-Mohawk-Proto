@@ -35,11 +35,19 @@ type Aggregator struct {
 	Verified      bool // Restored for simulation tracking
 	FilteredCount int  // Restored for simulation tracking
 
-	// GradientCommitment, when non-nil, makes ProcessRound verify the
-	// round's gradient proof against it via the MiMC data-commitment
-	// circuit (internal.VerifyDataCommitmentProof) instead of the legacy
-	// SHA-256-of-empty baseline check. This wires the ZK circuit verifier
-	// into the aggregation pipeline so proofs attest to real data.
+	// WeightProof, when non-nil, makes ProcessRound verify the round's
+	// WeightUpdateCircuit proof (internal.VerifyWeightProof[Against]) —
+	// a Groth16 proof bound to the model hashes, dataset commitment, norm
+	// bound, DP epsilon, update hash and the gradient/noise witness.
+	// WeightStatement, when set, additionally requires the proof's embedded
+	// public statement to equal it.
+	WeightProof     []byte
+	WeightStatement *internalpkg.WeightStatement
+
+	// GradientCommitment retains the older, single-scalar DataCommitmentCircuit
+	// path (internal.VerifyDataCommitmentProof) for backward compatibility.
+	// Prefer WeightProof: the data-commitment circuit binds one field element,
+	// not the update.
 	GradientCommitment *big.Int
 	GradientProof      []byte
 }
@@ -96,7 +104,18 @@ func (a *Aggregator) ProcessRound(mode Mode) (err error) {
 	// it using the MiMC data-commitment circuit verifier (real Groth16 over a
 	// compiled R1CS). Otherwise fall back to the legacy SHA-256-of-empty
 	// baseline check, preserving existing behavior.
-	if a.GradientCommitment != nil {
+	if a.WeightProof != nil {
+		var ok bool
+		var err error
+		if a.WeightStatement != nil {
+			ok, err = internalpkg.VerifyWeightProofAgainst(a.WeightProof, *a.WeightStatement)
+		} else {
+			ok, err = internalpkg.VerifyWeightProof(a.WeightProof)
+		}
+		if err != nil || !ok {
+			return fmt.Errorf("zk weight circuit attestation failure: %v", err)
+		}
+	} else if a.GradientCommitment != nil {
 		ok, err := internalpkg.VerifyDataCommitmentProof(a.GradientProof, a.GradientCommitment)
 		if err != nil || !ok {
 			return fmt.Errorf("zk circuit attestation failure: %v", err)

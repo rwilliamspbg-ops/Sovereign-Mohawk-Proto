@@ -77,6 +77,11 @@ results/**
 !results/go-live/evidence/distributed_systems_transport_evidence_2026-08-10.json
 !results/go-live/evidence/partition_probe_2026-08-10.json
 !results/go-live/evidence/docker_transport_topology_2026-08-10.json
+
+# ZK circuit measurement artifact (cmd/zkweightbench). The stable
+# snapshot is committed; timestamped runs stay local.
+!results/zk/
+!results/zk/weight-proof-latest.json
 !results/go-live/evidence/transport_performance_metrics_2026-08-10.json
 !results/go-live/evidence/transport_benchmark_sweep_2026-08-10.json
 !results/go-live/evidence/transport_impairment_probe_2026-08-10.json
