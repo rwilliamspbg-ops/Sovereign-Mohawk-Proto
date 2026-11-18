@@ -107,11 +107,14 @@ func (a *Aggregator) ProcessRound(mode Mode) (err error) {
 	if a.WeightProof != nil {
 		var ok bool
 		var err error
+		proofStart := time.Now()
 		if a.WeightStatement != nil {
 			ok, err = internalpkg.VerifyWeightProofAgainst(a.WeightProof, *a.WeightStatement)
 		} else {
 			ok, err = internalpkg.VerifyWeightProof(a.WeightProof)
 		}
+		metrics.ObserveProofVerification("weight-update-circuit", err == nil && ok,
+			float64(time.Since(proofStart).Microseconds())/1000.0)
 		if err != nil || !ok {
 			return fmt.Errorf("zk weight circuit attestation failure: %v", err)
 		}
