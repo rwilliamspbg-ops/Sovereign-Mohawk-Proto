@@ -17,10 +17,18 @@ gradients — and select the lowest-scoring candidate(s) as most likely
 honest. This has been empirically verified to agree exactly: see
 `internal/multikrum_lean_correspondence_test.go`, which recomputes the Go
 side of four test vectors whose Lean-side outputs were computed via
-`#eval multiKrumSelectImpl ...` and pins the expected values inline. Lean
-cannot invoke or formally verify Go source directly, so this is deliberately
-an *empirical* correspondence (matching concrete outputs on chosen inputs),
-not a machine-checked equality theorem — the same limitation applies to any
+`#eval multiKrumSelectImpl ...` and pins the expected values inline.
+`internal/multikrum_lean_differential_test.go` generalizes that from four
+hand-picked vectors to 2000 random configurations (plus a tie-heavy variant):
+it re-derives the spec side independently in Go from the definitions above and
+asserts exact agreement with the real `MultiKrumSelect`. The generator draws
+gradients from a small integer grid so squared distances and scores are exactly
+representable -- Go's `squaredL2` accumulates 4-way unrolled while the spec
+folds sequentially, so arbitrary floats would make the comparison
+rounding-sensitive rather than semantic.
+Lean cannot invoke or formally verify Go source directly, so this is deliberately
+an *empirical* correspondence (matching outputs on many inputs), not a
+machine-checked equality theorem — the same limitation applies to any
 Lean-to-non-Lean refinement claim in this repository.
 
 ## Parameter mapping: `k ↔ neighbors = n - f - 2`

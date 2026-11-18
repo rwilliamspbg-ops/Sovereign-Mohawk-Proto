@@ -181,6 +181,31 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - Randomized Go/Lean differential tests (2026-11-18)
+
+Implements W7 of `docs/MAJOR_WIN_PLAN.md`.
+
+- `internal/multikrum_lean_differential_test.go`: an independent Go transcription
+  of the Lean spec (`neighborScore` / `sqDist` / `multiKrumSelectManyImpl`) is
+  compared against the real `MultiKrumSelect` over 2000 random configurations,
+  plus a tie-heavy variant (dimension 1, coordinates in {-1,0,1}) that makes
+  exact score ties the common case. Gradients come from a small integer grid so
+  squared distances and scores are exactly representable and the comparison is
+  bit-exact rather than rounding-sensitive (Go's `squaredL2` accumulates 4-way
+  unrolled; the spec folds sequentially). `m <= 0`, `m > n` and the
+  `n > 2f+2` envelope are all exercised.
+- `test/zkweight_randomized_test.go`: the off-circuit MiMC chain is cross-checked
+  against the in-circuit one on generated witnesses -- an all-zero gradient
+  vector, an all-negative witness, and random ones. A verifying proof is the
+  cross-check, since `ProveWeightUpdate` only succeeds when the two agree.
+
+### Fixed - Nil weight-witness components panicked
+
+`internal.DeriveWeightStatement` called `new(big.Int).Add(w.Gradients[i],
+w.Noise[i])` directly, so a zero-value `WeightWitness` (nil components) crashed
+with a nil-pointer dereference. Nil now means zero; the randomized test above
+caught it.
+
 ### Added - ZK weight-circuit refinement and BN254 MiMC instantiation (2026-11-18)
 
 - `proofs/Refinement/ZKCircuit.lean`: a `WeightUpdateCircuit` refinement —

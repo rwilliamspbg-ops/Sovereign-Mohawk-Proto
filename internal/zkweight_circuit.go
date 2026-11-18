@@ -188,12 +188,21 @@ func EncodeFixedPoint(v float64) (*big.Int, error) {
 	return big.NewInt(int64(scaled)), nil
 }
 
-// fieldElement canonicalizes v into [0, p).
+// fieldElement canonicalizes v into [0, p). A nil component means zero, so a
+// zero-value WeightWitness is usable rather than a nil-pointer crash.
 func fieldElement(v *big.Int) *big.Int {
 	if v == nil {
 		return new(big.Int)
 	}
 	return new(big.Int).Mod(v, fr.Modulus())
+}
+
+// fieldOrZero returns v, or 0 when v is nil.
+func fieldOrZero(v *big.Int) *big.Int {
+	if v == nil {
+		return new(big.Int)
+	}
+	return v
 }
 
 // mimcFields hashes field elements with the MiMC parameters the circuit uses.
@@ -235,7 +244,7 @@ func DeriveWeightStatement(in WeightPublicInputs, w WeightWitness) (WeightStatem
 	updateVals := make([]*big.Int, 0, 2+len(w.Gradients)+1)
 	updateVals = append(updateVals, st.DPEpsilon, steps)
 	for i := range w.Gradients {
-		sum := fieldElement(new(big.Int).Add(w.Gradients[i], w.Noise[i]))
+		sum := fieldElement(new(big.Int).Add(fieldOrZero(w.Gradients[i]), fieldOrZero(w.Noise[i])))
 		updateVals = append(updateVals, sum)
 	}
 	updateVals = append(updateVals, st.DatasetCommitment)
