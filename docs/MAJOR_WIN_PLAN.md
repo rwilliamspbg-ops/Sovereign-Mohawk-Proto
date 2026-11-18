@@ -1,6 +1,6 @@
 # Major-Win Plan — from honest scoping to external credibility
 
-Status: **W2 + W3 + W4 + W5 + W6 + W7 implemented 2026-11-18** (W1 open; needs a human reviewer). Scope: the five
+Status: **W2–W7 implemented 2026-11-18.** W1's audit package is done; only the **external audit report** remains, which needs a human reviewer. Scope: the five
 suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ---
@@ -34,24 +34,33 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ## 1. Work packages
 
-### W1 — Refresh the audit package, then recruit (suggestion 1) · ~1 week
-- [ ] Update `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3: replace the
-      `DataCommitmentCircuit`-centric item with the weight circuit —
-      `internal/zkweight_circuit.go`, `proofs/Refinement/ZKCircuit.lean`,
-      `Theorem5Cryptography.lean` (`WeightUpdateCircuit` section).
-- [ ] Update §6 "Known limitations": the two bullets claiming per-round
-      commitments are unpopulated and that only `dataCommitmentVK` is
-      circuit-derived are now superseded; restate them accurately (the
-      aggregator verifies `WeightProof`, but `computeproof.Trace` still has no
-      production producer).
-- [ ] Add a **"review in under 30 minutes"** subsection: the one-command rebuild
-      (`cd proofs && lake build`), the `#print axioms` audit, and the three
-      artifacts a reviewer should read first.
-- [ ] Add the weight circuit to `AUDITOR_QUICK_REFERENCE.md`.
-- [ ] Recruitment: an `audit-help-wanted` issue template and a short outreach
-      message; credit policy already documented (`AUDITS.md`).
-- [ ] Deliverable: a public audit report (or arXiv note) that either confirms the
-      claims under the stated scopes or enumerates the remaining gaps.
+### W1 — Refresh the audit package, then recruit (suggestion 1) · **docs half done 2026-11-18; report BLOCKED on a human reviewer**
+- [x] `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3 already named the weight circuit
+      (`internal/zkweight_circuit.go`, `proofs/Refinement/ZKCircuit.lean`,
+      `Theorem5Cryptography.lean`, `Theorem5MiMCFormalization.lean`); verified, no
+      change needed.
+- [x] §6 "Known limitations": both superseded bullets restated against the
+      code. The aggregator **does** verify a real `WeightProof`; what is missing is
+      a production **producer** (`cmd/simulate`, `cmd/zkweightbench` and tests are
+      the only constructors; `computeproof.Trace` has none — ZK plan M2 Gap 1).
+      `genesisVK` is still a fixed identity, but **two** keys are now
+      circuit-derived (`dataCommitmentVK` and the weight circuit key).
+- [x] New **§1.1 "Review in under 30 minutes"**: rebuild + placeholder sweep +
+      a concrete `#print axioms` probe, then the three artifacts to read in order
+      (matrix → §3 → `results/zk/weight-proof-latest.json`), then one
+      refinement bridge checked by hand.
+- [x] `docs/AUDITOR_QUICK_REFERENCE.md`: added a "Formal Proof Audit Quick
+      Reference" section with the weight-circuit artifact table and the honest
+      limitations. (That file was supply-chain-only; the formal section is
+      deliberately separate and cross-linked.)
+- [x] New `docs/AUDIT_RECRUITMENT.md` (why-review, the ask, a copy-paste outreach
+      message, suggested channels) and `.github/ISSUE_TEMPLATE/audit-help-wanted.md`
+      (labelled `audit-help-wanted` + `help wanted`). Credit policy confirmed in
+      `AUDITS.md`.
+- [x] New `docs/AUDIT_REPORT_TEMPLATE.md` so a reviewer can drop in findings.
+- [ ] **Deliverable — a public audit report: BLOCKED, needs a human.** No reviewer
+      has been recruited; `AUDITS.md` still lists none. Everything a reviewer needs
+      is now in the repo; the remaining step is a person.
 
 ### W2 — Extend the Lean refinement to `WeightUpdateCircuit` (suggestion 2a) · **done 2026-11-18**
 - [ ] `proofs/Refinement/ZKCircuit.lean` currently models the **single-scalar**

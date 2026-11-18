@@ -370,6 +370,55 @@ git push origin v{VERSION}
 
 ---
 
+## Formal Proof Audit Quick Reference (Lean 4 + Go)
+
+Distinct from the supply-chain checklist above: this is the **formal-methods**
+audit surface — the Lean 4 development and its refinement bridges to the Go
+runtime.
+
+| What | Where |
+| --- | --- |
+| Audit scope, priorities, trusted base | [`docs/EXTERNAL_AUDIT_SCOPE.md`](EXTERNAL_AUDIT_SCOPE.md) §2, §3 |
+| **Review in under 30 minutes** | [`docs/EXTERNAL_AUDIT_SCOPE.md`](EXTERNAL_AUDIT_SCOPE.md) §1.1 |
+| Per-claim status (22 rows) | [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](../proofs/FORMAL_TRACEABILITY_MATRIX.md) |
+| Axiom audit and removal history | [`docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md`](LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md) |
+| Report template | [`docs/AUDIT_REPORT_TEMPLATE.md`](AUDIT_REPORT_TEMPLATE.md) |
+| Reviewer log and credit policy | [`AUDITS.md`](../AUDITS.md) |
+| Recruiting note | [`docs/AUDIT_RECRUITMENT.md`](AUDIT_RECRUITMENT.md) |
+
+### The weight circuit (highest-priority ZK target)
+
+| Artifact | Role |
+| --- | --- |
+| `internal/zkweight_circuit.go` | the gnark Groth16/BN254 circuit the aggregator verifies |
+| `proofs/Refinement/ZKCircuit.lean` | the Lean acceptance relation it refines |
+| `proofs/LeanFormalization/Theorem5Cryptography.lean` (`WeightUpdateCircuit` section) | the cost/soundness-scope model |
+| `proofs/LeanFormalization/Theorem5MiMCFormalization.lean` | MiMC round injectivity, stated at the BN254 modulus |
+| `results/zk/weight-proof-latest.json` | measured cost — **verify 0.675 ms, prove 38.0 ms, setup 41.3 s, 9 569 constraints, 164-byte proof** |
+
+Review question: does the Lean circuit model match the gnark circuit actually
+compiled? `weight_impl_accept_iff` (matrix row 22) is the exact acceptance
+condition. The soundness direction is Groth16 knowledge soundness and is
+deliberately **not** claimed.
+
+### One-command rebuild
+
+```bash
+cd proofs && lake build
+```
+
+### Known honest limitations
+
+- One `native_decide` toolchain trust (`chernoffBoundZ_deployment_scale_tiny`);
+  zero `axiom` declarations, zero `sorry`.
+- MPC trusted setup is simulated in-process, not a distributed ceremony.
+- The aggregator verifies a `WeightProof`, but no production caller constructs
+  one yet (`computeproof.Trace` has no producer at all).
+- `genesisVK` is still a fixed identity; `dataCommitmentVK` and the weight
+  circuit key are circuit-derived.
+
+---
+
 **Last Updated**: May 1, 2026  
 **Maintained By**: Sovereign Mohawk Protocol Contributors  
 **Feedback**: Open issues at https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/issues

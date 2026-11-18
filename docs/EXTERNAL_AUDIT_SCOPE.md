@@ -26,6 +26,52 @@ python3 scripts/ci/check_theorem_runtime_consistency.py
 CI reproduces the same checks on every PR (`verify-lean-formalization`,
 `verify-lean-formalizations`, `proof-traceability`, `proof-quality-checks`).
 
+### 1.1 Review in under 30 minutes
+
+If you only have half an hour, these three steps cover the highest-risk surface.
+
+**Step 1 — rebuild and audit the axioms (~10 min)**
+
+```bash
+cd proofs && lake build
+
+# no placeholders, no global axioms
+# scope to the project's own modules, not proofs/.lake/ (Mathlib and its
+# dependencies produce thousands of hits)
+grep -rn "sorry\|admit" --include=*.lean proofs/LeanFormalization proofs/Refinement proofs/Specification
+grep -rn "^axiom " --include=*.lean proofs/LeanFormalization proofs/Refinement proofs/Specification
+
+# spot-check the one documented toolchain trust
+cat > _axprobe.lean <<'EOF'
+import LeanFormalization.Theorem1BFT
+#print axioms LeanFormalization.chernoffBoundZ_deployment_scale_tiny
+EOF
+lake env lean _axprobe.lean; rm -f _axprobe.lean
+```
+
+Expect: **zero** hits from both greps (the only `admit` in the project modules
+is the word in a comment in `Refinement/MultiKrum.lean`), and `#print axioms`
+reporting only `propext`, `Classical.choice`, `Quot.sound` plus that single
+`native_decide` reduction trust (see §6). Verified at `53d4e45c1`. Full
+history: `docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md`.
+
+**Step 2 — read the three artifacts in this order (~10 min)**
+
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 22 rows.
+   Start with every row *not* marked `fully_formalized`.
+2. §3 of this document — the four highest-priority review targets.
+3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
+   (verify 0.675 ms, prove 38.0 ms, setup 41.3 s, 9 569 constraints, 164-byte
+   proof). Every zk latency claim in the repo should resolve to this file.
+
+**Step 3 — confirm one refinement bridge by hand (~10 min)**
+
+Pick a row from the traceability matrix, open the Lean spec and the Go predicate
+it maps to, and check the transcription against the pinned vectors. Report any
+row where the two disagree — that is the finding we most want.
+
+Report format: `docs/AUDIT_REPORT_TEMPLATE.md`. Credit policy: `AUDITS.md`.
+
 ## 2. Trusted base vs. proofs (read this first)
 
 - **Trusted base**: Lean 4 core, Mathlib v4.30.0-rc2, gnark-crypto, the Go
@@ -135,11 +181,19 @@ Other honest limitations:
 - The Lean model for Theorem 5 is an abstract constant-operation cost model;
   it does not formalize Groth16 succinctness/soundness or q-SDH (Mathlib
   lacks pairing machinery).
-- Per-round gradient/model commitments are not yet populated by any production
-  caller; `Aggregator.GradientCommitment` must be supplied by the caller.
-- `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity
-  with no circuit behind it; only the additive `dataCommitmentVK` path is
-  circuit-derived.
+- `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
+  caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
+  `internal/zkweight_circuit.go`), and falls back to the single-scalar
+  `DataCommitmentCircuit` path. What is still missing is a **production producer**:
+  the only constructors of a `WeightProof` are `cmd/simulate`, `cmd/zkweightbench`
+  and tests, and `internal/computeproof.Trace` has no production caller at all
+  (`docs/ZK_FINALIZATION_PLAN.md` M2, Gap 1). Read "wired" as *wired into the
+  round path, not yet produced by service code*.
+- `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity with
+  no circuit behind it. Two keys *are* circuit-derived: `dataCommitmentVK` (the
+  single-scalar `DataCommitmentCircuit`) and the key behind
+  `VerifyWeightProof` / `VerifyWeightProofAgainst` (the `WeightUpdateCircuit`).
+  Both come from the simulated in-process setup described above.
 
 ## 7. What we are NOT asking reviewers to do
 
