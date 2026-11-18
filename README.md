@@ -963,7 +963,6 @@ Latest SDK benchmark snapshot from `sdk/python/tests/test_benchmarks.py` on Marc
 
 | Benchmark | Mean | Median | Throughput |
 | --- | ---: | ---: | ---: |
-| `test_verify_proof_performance` | 10.55 ms | 10.55 ms | 94.77 ops/s |
 | `test_aggregate_nodes_performance` | 30.63 us | 25.20 us | 32,648 ops/s |
 | `test_gradient_compression_performance` | 995.70 us | 944.57 us | 1,004 ops/s |
 
@@ -1224,7 +1223,7 @@ Sovereign-Mohawk-Proto/
 * Exported Go bridge now includes proof batching, hybrid verification, bridge transfer, device info, gradient compression, and utility-ledger operations.
 * Python package version: `2.1.0`.
 * Strict CI gates: build/test, linter, performance gate, capability sync, proof audit, and pages deploy.
-* Benchmarked SDK mean latencies: 10.55 ms verify, 30.63 us aggregate, 995.70 us compression.
+* Benchmarked SDK mean latencies: 30.63 us aggregate, 995.70 us compression. (The 10.55 ms verify figure was a `time.sleep` mock and is retracted; measured zk verification is 0.675 ms — `results/zk/weight-proof-latest.json`.)
 
 📚 **Documentation:**
 
@@ -1269,7 +1268,7 @@ status.
 * [CONTRIBUTING.md](CONTRIBUTING.md) - Development guidelines
 * [sdk/python/mohawk/client.py](sdk/python/mohawk/client.py) - Python client API reference
 * [OPERATIONS_RUNBOOK.md](docs/OPERATIONS_RUNBOOK.md) - Production operations runbook
-* [HARDWARE_COMPATIBILITY.md](docs/HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and 10 ms validation criteria
+* [HARDWARE_COMPATIBILITY.md](docs/HARDWARE_COMPATIBILITY.md) - TPM/HSM compatibility matrix and proof-validation latency criteria
 * [EDGE_LITE_RESOURCE_PROFILE.md](docs/EDGE_LITE_RESOURCE_PROFILE.md) - Lite node resource floors and profiling guidance
 * [COMPLIANCE_MAPPING.md](docs/COMPLIANCE_MAPPING.md) - HIPAA/GDPR control mapping for healthcare deployments
 * [CERTIK_AUDIT_SUMMARY.md](docs/CERTIK_AUDIT_SUMMARY.md) - Redacted external-audit findings and mitigation summary

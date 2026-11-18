@@ -833,11 +833,11 @@ We measure round completion latencies across scaled container swarm configuratio
 Total aggregation latency scales smoothly from 145 ms at 500 nodes to 373 ms at 1,500 nodes. Hierarchical distribution successfully prevents central bottlenecks, keeping total round completion well under the network synchrony bound $\Delta_2 = 150\text{ s}$.
 
 ### 13.5 Runtime Component Microbenchmarks
-Table 7 reports single-core microbenchmark timings measured on a dedicated AMD EPYC 7763 core.
+Table 7 reports single-core microbenchmark timings measured on a dedicated AMD EPYC 7763 core. The Groth16 row is the exception: it is the measured cost of the real circuit from `results/zk/weight-proof-latest.json` (9 569 constraints, 164-byte proof, 200 verify iterations), not an EPYC microbenchmark.
 
 | Runtime Operation | Mean Latency | Median | Throughput |
 | :--- | :--- | :--- | :--- |
-| **Groth16 Verification (BN254)** | $10.55\text{ ms}$ | $10.55\text{ ms}$ | $94.8\text{ ops/s}$ |
+| **Groth16 Verification (BN254, 9 569 constraints)** | $0.675\text{ ms}$ | not recorded | $1{,}482\text{ ops/s}$ |
 | **Multi-Krum Aggregation ($N=100$)** | $30.63\ \mu\text{s}$ | $25.20\ \mu\text{s}$ | $32,648\text{ ops/s}$ |
 | **Gradient Compression (1MB FP32)** | $995.70\ \mu\text{s}$ | $944.57\ \mu\text{s}$ | $1,004\text{ ops/s}$ |
 | **Hybrid KEX (ML-KEM-768)** | $142.10\ \mu\text{s}$ | $138.00\ \mu\text{s}$ | $7,037\text{ ops/s}$ |

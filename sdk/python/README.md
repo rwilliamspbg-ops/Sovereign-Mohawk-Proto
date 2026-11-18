@@ -10,7 +10,6 @@
 
 ![SDK Version](https://img.shields.io/badge/SDK-2.0.1.Alpha-blue?logo=python)
 ![Python Support](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
-![Proof Verify Mean](https://img.shields.io/badge/Proof%20Verify-10.55ms-success)
 ![Compression Mean](https://img.shields.io/badge/Compression-0.996ms-informational)
 ![Async Client](https://img.shields.io/badge/SDK-Async%20Supported-6f42c1)
 ![WASM Hot Reload](https://img.shields.io/badge/WASM-Hot%20Reload-blueviolet)
@@ -20,7 +19,7 @@
 The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based MOHAWK runtime, enabling Python developers to leverage:
 
 - **10M+ node federated learning** with a logarithmic path-depth proxy for communication
-- **zk-SNARK verification** with 10ms proof verification
+- **zk-SNARK verification** — measured in Go, not in this SDK benchmark: `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38 ms). the former 10.55 ms SDK figure was a `time.sleep`, not a measurement (`docs/ZK_FINALIZATION_PLAN.md` §0.2)
 - **hybrid SNARK/STARK policy checks** with backend selection
 - **Byzantine safety guard checks** for adversarial resilience
 - **TPM attestation** for secure node identity
@@ -564,12 +563,11 @@ Benchmark snapshot from `python -m pytest tests/test_benchmarks.py --benchmark-o
 
 | Benchmark | Mean | Median | Throughput |
 | --- | ---: | ---: | ---: |
-| `test_verify_proof_performance` | 10.55 ms | 10.55 ms | 94.77 ops/s |
 | `test_aggregate_nodes_performance` | 30.63 us | 25.20 us | 32,648 ops/s |
 | `test_gradient_compression_performance` | 995.70 us | 944.57 us | 1,004 ops/s |
 
 - **Node initialization**: ~50ms
-- **zk-SNARK verification**: 10.55ms mean in the benchmark suite
+- **zk-SNARK verification**: not measured by this suite. The `test_verify_proof_performance` row was a hardcoded `time.sleep(0.0104)` and is retracted; real figures live in `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38 ms).
 - **Aggregation**: logarithmic path-depth proxy with 30.63us mean benchmark latency
 - **Gradient compression**: 995.70us mean for FP16 path in the benchmark suite
 - **Memory overhead**: 28 MB for 10M nodes

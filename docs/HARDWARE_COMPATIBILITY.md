@@ -9,7 +9,7 @@ Sovereign-Mohawk defaults to:
 - `MOHAWK_TRANSPORT_KEX_MODE=x25519-mlkem768-hybrid`
 - `MOHAWK_TPM_IDENTITY_SIG_MODE=xmss`
 
-The platform target for proof checks is near the 10 ms validation envelope. Operators need a reproducible matrix to verify that TPM/HSM-backed signing and attestation do not push validation paths beyond SLO.
+The **10 ms validation envelope** below is a target for proof-check latency, not a measured result: no zk verification latency has been measured on any of these platforms, and the previously advertised 10 ms figure was a `time.sleep` mock (retracted — see `CHANGELOG.md`). Operators need a reproducible matrix to verify that TPM/HSM-backed signing and attestation do not push validation paths beyond SLO.
 
 ## Validation Criteria
 
@@ -22,7 +22,7 @@ A platform is considered release-compatible when all checks pass:
 
 1. Latency SLO:
 
-- `mohawk_proof_verification_latency_ms` p95 <= 10 ms over 10-minute soak.
+- `mohawk_proof_verification_latency_ms` p95 <= 10 ms over 10-minute soak (target envelope; not yet measured on these platforms).
 - `mohawk_accelerator_op_latency_ms{operation="gradient_submit"}` p95 stays within environment SLO.
 
 1. Stability:
@@ -38,7 +38,7 @@ A platform is considered release-compatible when all checks pass:
 
 ## TPM / HSM Matrix
 
-| Platform | Class | XMSS Mode | 10 ms zk-SNARK Window | Status | Evidence / Notes |
+| Platform | Class | XMSS Mode | Proof Validation Window (target) | Status | Evidence / Notes |
 | --- | --- | --- | --- | --- | --- |
 | `swtpm` (containerized CI/dev) | Software TPM 2.0 | Supported in runtime config | Measured in local and CI smoke flows; use as baseline only | verified | `results/go-live/evidence/tpm_attestation_closure_validation_2026-03-28.md`, `results/go-live/evidence/tpm_attestation_local_sandbox_2026-03-29.md` |
 | Discrete TPM 2.0 (Infineon/Intel/STM class chips) | Physical TPM 2.0 | Expected supported | Must be measured per host SKU/firmware | in-progress | Track with capture templates in `results/go-live/evidence/templates/` |

@@ -148,7 +148,7 @@ SI
 SI-7
 Software, Firmware, & Information Integrity
 Verifiable aggregation
-zk-SNARK/STARK proofs (~10 ms)
+zk-SNARK/STARK proofs (latency target; measured cost in `results/zk/weight-proof-latest.json`)
 proofs/LeanFormalization/
 Strong
 Formal Lean4 proofs

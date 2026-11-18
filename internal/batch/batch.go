@@ -26,7 +26,8 @@ import (
 )
 
 // BatchVerifier manages the O(1) verification of node manifests.
-// This supports the 10ms verification target defined in Theorem 5.
+// The O(1) cost is a model, not a measurement: the measured verify latency of
+// the real circuit is 0.675 ms (results/zk/weight-proof-latest.json).
 type BatchVerifier struct {
 	maxBatchSize int
 }

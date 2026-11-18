@@ -258,5 +258,6 @@ it together.
   Go; that link stays empirical (see `proofs/FORMAL_TRACEABILITY_MATRIX.md`).
 - It does **not** turn the simulated in-process MPC into a real ceremony. The trusted
   setup is a development key (see `docs/MAJOR_WIN_PLAN.md` Appendix B).
-- It does **not** cover the advertised 10 ms figure, which is still a `time.sleep` in
-  `sdk/python/tests/test_benchmarks.py` — retraction is deferred.
+- The advertised 10 ms SDK figure was a `time.sleep`, not a measurement. It was
+  retracted on 2026-11-18, and the `zk-bench` stage's `weight-proof-latest.json` is
+  now the only zk latency source in the repository.
