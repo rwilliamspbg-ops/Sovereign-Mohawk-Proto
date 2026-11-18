@@ -12,7 +12,7 @@ and replace the unbacked zk performance figures with measured artifacts.
 | WP | State | Evidence |
 | --- | --- | --- |
 | M1 sound binding | **done** | `internal/zkweight_circuit.go`; `test/zkweight_circuit_test.go` (honest round-trip, distinct-witness binding, tampered statement, over-bound, zero dataset, tampered proof); 9569 constraints |
-| M2 production wiring | **done** | `internal/zkprover/gnark.go`; `internal/batch/aggregator.go`; `test/batch_zkweight_attestation_test.go` |
+| M2 production wiring | **done, with two honest gaps** | `internal/zkprover/gnark.go`; `internal/batch/aggregator.go`; `test/batch_zkweight_attestation_test.go`. **Gap 1:** `computeproof.Trace` has no production producer at all (only `computeproof_property_test.go` and `test/computeproof_test.go` construct it, and there is no `GradientUpdate{` construction site anywhere in the tree), so populating it would mean inventing a caller; it is left unwired and recorded here rather than faked. **Gap 2:** `zkprover.MockProver` / `CLIProver` remain placeholders; `SelectProver` can still return them, so they must not be used in a production proof path. |
 | M3 real evidence | **partial** | `cmd/zkweightbench`, `.github/workflows/zk-circuit-gate.yml`, `results/zk/weight-proof-latest.json` (verify 0.67 ms, prove 34 ms, setup 44 s). **The figure retraction is deferred** — see below |
 | M4 formal link + docs | **done** | `Theorem5Cryptography.lean` `WeightUpdateCircuit` section; matrix row 21; `circuits/README.md` corrected; `GOLD_STANDARD_PLAN.md` status |
 | M5 decision record | **done** | §1 below |
