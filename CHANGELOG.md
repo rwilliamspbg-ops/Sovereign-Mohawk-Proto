@@ -181,6 +181,29 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - Audit package refresh (W1, docs half)
+
+- `docs/EXTERNAL_AUDIT_SCOPE.md`:
+  - new **1.1 "Review in under 30 minutes"** -- rebuild + placeholder sweep + a
+    concrete `#print axioms` probe, the three artifacts to read in order
+    (traceability matrix -> section 3 -> `results/zk/weight-proof-latest.json`),
+    then one refinement bridge checked by hand.
+  - section 6 limitations restated against the code: the aggregator **does** verify a
+    real `WeightProof`; what is missing is a production **producer**
+    (`computeproof.Trace` has none). `genesisVK` is still a fixed identity, but two
+    keys are now circuit-derived.
+- `docs/AUDITOR_QUICK_REFERENCE.md`: new "Formal Proof Audit Quick Reference"
+  section with the weight-circuit artifact table and the honest limitations
+  (that file was supply-chain-only before).
+- `docs/AUDIT_RECRUITMENT.md`: why-review, the three asks, a copy-paste outreach
+  message and suggested channels.
+- `docs/AUDIT_REPORT_TEMPLATE.md`: report template for reviewers.
+- `.github/ISSUE_TEMPLATE/audit-help-wanted.md`: issue template labelled
+  `audit-help-wanted` + `help wanted`.
+
+**Still blocked:** the external audit report itself needs a human reviewer;
+`AUDITS.md` lists none yet.
+
 ### RETRACTED - the advertised "10 ms zk-SNARK verification" figure
 
 The headline zk-SNARK verification latency of **10 ms / 10.55 ms** was **not a
