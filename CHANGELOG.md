@@ -181,6 +181,23 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Added - One-script evidence package (W6)
+
+- `scripts/run_evidence_package.sh`: one entry point that runs every
+  evidence-producing stage into a single timestamped directory and then fails if
+  any stage did not produce its artifact. Stages: `zk-bench` (measured
+  prove/verify + constraint count), `zk-round` (end-to-end prove-and-verify
+  round), `scale` (Kind matrix; `--skip-kind` or `--strict`), `dp` (RDP
+  accounting output), `formal` (Lean validation report + tamper-evident bundle +
+  bundle verification), `manifest` (SHA256 every artifact, Merkle root).
+- `docs/EVIDENCE_PACKAGE.md`: full usage guide -- prerequisites per stage, every
+  option, what each artifact means, how to verify a package you did not produce,
+  a CI recipe, troubleshooting, and an explicit "what this does not establish"
+  section.
+
+Verified end to end on this host with `--skip-kind` (Kind is not installed here):
+the run produced all artifacts and the gate passed.
+
 ### Added - Randomized Go/Lean differential tests (2026-11-18)
 
 Implements W7 of `docs/MAJOR_WIN_PLAN.md`.

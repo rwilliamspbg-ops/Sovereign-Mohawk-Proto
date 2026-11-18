@@ -1,6 +1,6 @@
 # Major-Win Plan — from honest scoping to external credibility
 
-Status: **W2 + W3 + W4 + W7 implemented 2026-11-18** (W1, W5, W6 open). Scope: the five
+Status: **W2 + W3 + W4 + W6 + W7 implemented 2026-11-18** (W1, W5 open). Scope: the five
 suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ---
@@ -101,12 +101,21 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       `EXTERNAL_AUDIT_SCOPE.md` §2/§6).
 - [ ] Regenerate `docs/ACADEMIC_PAPER.pdf`.
 
-### W6 — One-script evidence package (suggestion 4) · ~1 week
-- [ ] `scripts/run_evidence_package.sh`: Kind deploy → scale matrix → a round that
-      produces and verifies a `WeightProof` → RDP accounting → formal bundle.
-- [ ] Commit the raw metrics + `results/zk/*.json` + the formal validation bundle
-      together, with exact commands and configs in the repo.
-- [ ] Gate: the script fails if any stage's artifact is missing.
+### W6 — One-script evidence package (suggestion 4) · **done 2026-11-18**
+- [x] `scripts/run_evidence_package.sh`: one entry point, stages `zk-bench`,
+      `zk-round`, `scale` (Kind, opt-in), `dp`, `formal`, `manifest`. Also
+      `make evidence-package EVIDENCE_ARGS="--skip-kind"`.
+- [x] `docs/EVIDENCE_PACKAGE.md`: prerequisites per stage, every option, what each
+      artifact means, how to verify a package you did not produce, a CI recipe,
+      troubleshooting, and an explicit "what this does not establish" section.
+- [x] Gate: the script fails if any stage's artifact is missing or empty.
+      **This caught two real bugs while being written** — the stage dispatch
+      (hyphen vs underscore) and the `formal` stage writing to the repo's canonical
+      `results/proofs/` instead of the package.
+- [ ] Commit a run directory. Deliberately not done by default: `results/**` is
+      gitignored and the bundle duplicates `proofs/`, so a run is ~550 KB. The
+      committed artifact remains `results/zk/weight-proof-latest.json`; a run
+      directory can be `git add -f`-ed when a citation-worthy snapshot is needed.
 
 ### W7 — Correspondence tightening (suggestion 5) · **done 2026-11-18**
 - [ ] Randomized differential test for Multi-Krum: N random `(n, f, m)`
