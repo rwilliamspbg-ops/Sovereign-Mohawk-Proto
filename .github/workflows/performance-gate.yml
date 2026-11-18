@@ -74,8 +74,13 @@ jobs:
               print("❌ benchmark-results.json not found.")
               sys.exit(1)
 
+          # NOTE: test_verify_proof_performance is deliberately absent. Its
+          # former 10.55 ms figure was a hardcoded time.sleep(0.0104), not a
+          # measurement, and the test is now skipped (see CHANGELOG.md,
+          # "RETRACTED"). zk verification cost is gated in
+          # .github/workflows/zk-circuit-gate.yml against
+          # results/zk/weight-proof-latest.json (verify 0.675 ms, prove 38.0 ms).
           thresholds = {
-              'test_verify_proof_performance': {'mean_max_ms': 12.0, 'p99_max_ms': 20.0},
               'test_aggregate_nodes_performance': {'mean_max_ms': 1.0, 'p99_max_ms': 3.0},
               'test_gradient_compression_performance': {'mean_max_ms': 3.0, 'p99_max_ms': 8.0},
           }

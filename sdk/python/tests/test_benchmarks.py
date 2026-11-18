@@ -16,10 +16,10 @@ def node(monkeypatch):
 
 @pytest.mark.skip(
     reason="RETRACTED: the 10.55 ms figure this test produced was a hardcoded "
-           "time.sleep(0.0104), not a measurement of verification. The real zk "
-           "verification path is measured in Go: results/zk/weight-proof-latest.json "
-           "(verify 0.675 ms, prove 38 ms) via `go run ./cmd/zkweightbench`. "
-           "See docs/ZK_FINALIZATION_PLAN.md section 0.2."
+    "time.sleep(0.0104), not a measurement of verification. The real zk "
+    "verification path is measured in Go: results/zk/weight-proof-latest.json "
+    "(verify 0.675 ms, prove 38 ms) via `go run ./cmd/zkweightbench`. "
+    "See docs/ZK_FINALIZATION_PLAN.md section 0.2."
 )
 def test_verify_proof_performance(benchmark, node):
     """Skipped: the former 11 ms gate was measuring a sleep, not verification."""
