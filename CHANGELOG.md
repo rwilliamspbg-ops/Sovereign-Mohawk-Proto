@@ -205,6 +205,15 @@ Implements W7 of `docs/MAJOR_WIN_PLAN.md`.
 w.Noise[i])` directly, so a zero-value `WeightWitness` (nil components) crashed
 with a nil-pointer dereference. Nil now means zero; the randomized test above
 caught it.
+### Fixed - `cmd/simulate` conflated the one-time trusted setup with the prove
+
+It timed from before the first `ProveWeightUpdate`, so its "Prove Time (this
+round)" line included the one-time compile + simulated MPC setup (~42 s). It now
+reports setup and prove separately. Measured split on this host: compile
+18-39 ms, setup 43.4 s (3 contributors), **prove ~30 ms**, verify ~0.5 ms. The
+prove was never the bottleneck; `docs/MAJOR_WIN_PLAN.md` Appendix B records the
+review and the levers measured (including `groth16.Setup` at 0.32 s, which is a
+security-narrative change and was not adopted).
 
 ### Added - ZK weight-circuit refinement and BN254 MiMC instantiation (2026-11-18)
 

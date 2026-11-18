@@ -28,6 +28,9 @@ func mustFixedPoint(v float64) *big.Int {
 // and the update hash over the noised gradients. ProcessRound then verifies it,
 // so the run is a real prove-and-verify round trip rather than the legacy
 // empty-proof formality.
+//
+// The call assumes the circuit has already been set up (step 2 in main); the
+// one-time compile + trusted setup is measured separately there.
 func proveSimulatedUpdate() ([]byte, *internalpkg.WeightStatement, error) {
 	gradients := []float64{0.5, -0.25, 1.0, -1.5, 2.0, -0.75, 0.125, -0.5}
 	noise := []float64{0.01, -0.02, 0.03, -0.04, 0.05, -0.06, 0.07, -0.08}
@@ -78,10 +81,25 @@ func main() {
 	}
 	fmt.Println("PASSED")
 
-	// 2. Prove the round's update. This is the real path: the proof is bound to
+	// 2. Compile the circuit and run the simulated multi-party trusted setup.
+	// This is a ONE-TIME cost per process, and it dominates: measured at
+	// ~29-43 s depending on contributor count, versus ~30 ms for the prove
+	// itself. It is reported separately so the two are never conflated -- an
+	// earlier revision of this command printed the sum as "prove time".
+	fmt.Printf("Step 2: Compiling the circuit and running the trusted setup... ")
+	setupStart := time.Now()
+	constraints, err := internalpkg.WeightCircuitConstraintCount()
+	if err != nil {
+		fmt.Printf("FAILED: %v\n", err)
+		return
+	}
+	setupMS := float64(time.Since(setupStart).Microseconds()) / 1000.0
+	fmt.Printf("PASSED (%.1f ms, %d constraints)\n", setupMS, constraints)
+
+	// 3. Prove the round's update. This is the real path: the proof is bound to
 	// the model state, dataset commitment, norm bound, DP budget and gradient
 	// witness, and ProcessRound below verifies it before accepting the round.
-	fmt.Printf("Step 2: Proving the round's update (WeightUpdateCircuit)... ")
+	fmt.Printf("Step 3: Proving the round's update (WeightUpdateCircuit)... ")
 	proveStart := time.Now()
 	proof, stmt, err := proveSimulatedUpdate()
 	if err != nil {
@@ -93,17 +111,17 @@ func main() {
 	agg.WeightStatement = stmt
 	fmt.Printf("PASSED (%.1f ms, %d-byte proof)\n", proveMS, len(proof))
 
-	// 3. Start Simulation Timer
+	// 4. Start Simulation Timer
 	start := time.Now()
 
-	fmt.Printf("Step 3: Verifying the proof and liveness (Theorem 4)... ")
+	fmt.Printf("Step 4: Verifying the proof and liveness (Theorem 4)... ")
 	if err := agg.ProcessRound(batch.ModeByzantineMix); err != nil {
 		fmt.Printf("FAILED: %v\n", err)
 		return
 	}
 	fmt.Println("PASSED (99.99%+)")
 
-	// 4. Performance Projection
+	// 5. Performance Projection
 	// Measured verify latency from the weight circuit
 	// (results/zk/weight-proof-latest.json), not the earlier 10 ms documentation
 	// figure.
@@ -121,6 +139,8 @@ func main() {
 	fmt.Printf("Total Nodes Simulated:   %d\n", cfg.TotalNodes)
 	fmt.Printf("Filtered Malicious:      %d\n", agg.FilteredCount)
 	fmt.Printf("Verification Logic:      %v\n", agg.Verified)
+	fmt.Printf("Circuit Constraints:     %d\n", constraints)
+	fmt.Printf("Setup Time (one-time):   %.1f ms\n", setupMS)
 	fmt.Printf("Prove Time (this round): %.1f ms\n", proveMS)
 	fmt.Printf("Local Compute Time:      %s\n", duration)
 	fmt.Printf("Projected Global Update: ~%s (via Hierarchical Synthesis)\n", simulatedTime)
