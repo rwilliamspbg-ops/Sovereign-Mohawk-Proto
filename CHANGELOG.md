@@ -194,10 +194,13 @@ testing.
     verify 0.675 ms, prove 38 ms, 41.4 s one-time setup) and the explicit caveats.
   - fixed the stale claim in contribution 5 that BN254 "is not instantiated".
   - `2.3` trimmed to a scope-boundary pointer so it does not duplicate section 3.
-- `docs/ACADEMIC_PAPER.pdf` **not** regenerated: no pandoc/LaTeX/HTML-to-PDF engine
-  on this host and no scripted generator in the repo. The committed PDF predates the
-  `.md` by six weeks and was already stale; regenerating it needs a toolchain
-  decision. Recorded as a blocker in `docs/MAJOR_WIN_PLAN.md`.
+- `docs/ACADEMIC_PAPER.pdf` **regenerated**: 32 pages, 556,675 bytes. Toolchain is
+  pandoc 3.14 + Typst 0.15.1 (Typst rather than LaTeX: native `$...$` math rendering,
+  ~50 MB single binary instead of a multi-GB TeX install).
+- `scripts/render_paper_pdf.sh` (+ `make paper-pdf`) makes the render reproducible and
+  resolves pandoc/typst on winget-Windows and normal PATH layouts, converting MSYS
+  paths to native ones for the Windows binaries. `--check` fails when the `.md` is
+  newer than the PDF.
 
 ### Added - One-script evidence package (W6)
 

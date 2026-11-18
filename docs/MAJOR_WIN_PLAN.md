@@ -91,7 +91,7 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       `internal/batch` inside a chaos test (30% Byzantine) and a scale test.
 - [ ] Expose proof-verification counts in metrics (`metrics.ObserveFedAvg*`).
 
-### W5 — Paper update (suggestion 3) · **done 2026-11-18** (PDF regeneration blocked — see note)
+### W5 — Paper update (suggestion 3) · **done 2026-11-18**
 - [x] New §8.4: `WeightUpdateCircuit` — the six-element statement, the four
       constrained relations (model hash chain, range+norm bound, update hash chain,
       dataset binding), the measured cost (verify 0.675 ms, prove 38 ms, 9 569
@@ -107,11 +107,14 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       list. §2.3 trimmed to a pointer so the two do not duplicate. Sections
       3–15 renumbered to 4–16 (verified sequential; no cross-references existed).
 - [x] Fixed the stale claim in §1.3 contribution 5 ("BN254 is not instantiated").
-- [ ] **Regenerate `docs/ACADEMIC_PAPER.pdf` — BLOCKED.** No pandoc, LaTeX or
-      HTML-to-PDF engine on this host (`weasyprint`/`markdown`/`reportlab` absent),
-      and the repo has no scripted generator for it. The committed PDF is dated
-      Oct 3 while the `.md` is Nov 18, so it was already stale before this work.
-      Corrected source: `docs/ACADEMIC_PAPER.md`. Needs a toolchain decision.
+- [x] Regenerate `docs/ACADEMIC_PAPER.pdf`. Toolchain installed on this host:
+      **pandoc 3.14** + **Typst 0.15.1** (chosen over LaTeX because Typst renders the
+      paper's `$...$` mathematics natively and is a single ~50 MB binary rather than a
+      multi-GB TeX install). New `scripts/render_paper_pdf.sh` (also
+      `make paper-pdf`, and `--check` for a staleness gate) resolves pandoc/typst on
+      both winget-Windows and normal PATH layouts; the MSYS-to-native path conversion
+      for native binaries is handled. Output: 32 pages, 556 675 bytes, math/tables/
+      code/ASCII-art all verified via text extraction.
 
 ### W6 — One-script evidence package (suggestion 4) · **done 2026-11-18**
 - [x] `scripts/run_evidence_package.sh`: one entry point, stages `zk-bench`,
