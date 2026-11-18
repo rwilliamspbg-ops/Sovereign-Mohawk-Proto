@@ -1,6 +1,6 @@
 # Major-Win Plan — from honest scoping to external credibility
 
-Status: **W2 + W3 + W4 implemented 2026-11-18** (W1, W5–W7 open). Scope: the five
+Status: **W2 + W3 + W4 + W7 implemented 2026-11-18** (W1, W5, W6 open). Scope: the five
 suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
 
 ---
@@ -108,7 +108,7 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       together, with exact commands and configs in the repo.
 - [ ] Gate: the script fails if any stage's artifact is missing.
 
-### W7 — Correspondence tightening (suggestion 5) · ~1 week
+### W7 — Correspondence tightening (suggestion 5) · **done 2026-11-18**
 - [ ] Randomized differential test for Multi-Krum: N random `(n, f, m)`
       configurations, Go's `MultiKrumSelect` vs the Lean-transcribed selection;
       assert exact equality. (`internal/multikrum_lean_correspondence_test.go`
