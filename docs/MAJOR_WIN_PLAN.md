@@ -223,3 +223,50 @@ claim this direction.
    specific `WeightUpdateCircuit` relation with the QAP/R1CS reduction explicit.
 3. Until then, cite Groth16's published security proof and record the assumption
    in `docs/EXTERNAL_AUDIT_SCOPE.md`.
+
+---
+
+## Appendix B — Prove-time review (2026-11-18)
+
+A review claimed the ~28 s figure was an abnormally slow Groth16 prove that
+"should finish in well under 1 s". **That premise is a misreading.** Measured on
+this host (16 cores, AMD Ryzen AI 7 350):
+
+| phase | time |
+| --- | --- |
+| compile (`frontend.Compile`) | 18–39 ms |
+| trusted setup — simulated MPC, 3 contributors (current default) | 43.4 s |
+| trusted setup — simulated MPC, 1 contributor | 29.7 s |
+| `groth16.Setup` (single-party, for comparison) | **0.32 s** |
+| **prove (warm)** | **~30 ms** |
+| verify | ~0.5–0.8 ms |
+
+`cmd/simulate` timed from before the first `ProveWeightUpdate`, so its
+"Prove Time" line included the one-time setup. It now reports setup and prove
+separately. `cmd/zkweightbench` and `results/zk/weight-proof-latest.json` already
+reported them separately (setup 44.1 s, prove 34.3 ms).
+
+So the prove was never the problem — it is already inside the reviewer's target
+range. The one-time setup is the only large cost, and it is a deliberate
+simulated ceremony rather than an accident.
+
+**Levers measured.**
+
+- `frontend.WithCompressThreshold(10)` — **counterproductive**: 9569 → 10028
+  constraints, no setup speedup. Rejected.
+- MPC contributors 3 → 1 — 43.4 s → 29.7 s (−32%). This weakens the documented
+  "no single contributor holds the toxic waste" property to one in-process
+  contributor, which is the same trust as `groth16.Setup` but slower. Rejected.
+- `groth16.Setup` — 0.32 s, a 137× setup speedup. It drops the multi-party
+  claim entirely and leaves the toxic waste in the process. **Not adopted
+  unilaterally**: it is a security-narrative change, not a performance tweak.
+  Maintainer decision.
+- ICICLE (CUDA) — not applicable: this host has a Radeon 860M iGPU (no CUDA),
+  and CI runners are CPU-only.
+- Poseidon in place of MiMC — would change the circuit relation that
+  `Theorem5Cryptography.lean`, `Refinement/ZKCircuit.lean` and the pinned MiMC
+  vectors are stated about. Rejected.
+- Caching `(pk, vk)` on disk — would make repeat runs instant but introduces a
+  serialized-key trust path. Not adopted.
+- Prove off the critical path — already the case: proving is client-side, and
+  the aggregator only verifies (0.5 ms).

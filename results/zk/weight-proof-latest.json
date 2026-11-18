@@ -1,27 +1,27 @@
 {
-  "generated_at": "2026-11-18T14:06:54Z",
+  "generated_at": "2026-11-18T17:29:20Z",
   "arity": 8,
   "constraints": 9569,
   "prove": {
     "iterations": 20,
-    "total_ms": 685.577,
-    "mean_ms": 34.27885
+    "total_ms": 760.089,
+    "mean_ms": 38.004450000000006
   },
   "verify": {
     "iterations": 200,
-    "total_ms": 133.938,
-    "mean_ms": 0.6696899999999999
+    "total_ms": 134.963,
+    "mean_ms": 0.6748149999999999
   },
   "setup": {
     "iterations": 1,
-    "total_ms": 44072.785,
-    "mean_ms": 44072.785
+    "total_ms": 41289.565,
+    "mean_ms": 41289.565
   },
   "proof_bytes": 164,
   "encoded_bytes": 363,
   "budgets": {
     "verify_mean_ms": 15,
-    "prove_mean_ms": 30000,
+    "prove_mean_ms": 5000,
     "setup_ms": 120000
   },
   "violations": []

@@ -153,7 +153,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	b := budgets{VerifyMeanMs: 15, ProveMeanMs: 30000, SetupMs: 120000}
+	// The prove budget is 5 s, not the 30 s originally written: measured prove
+	// is ~30 ms, so 30 s was 1000x loose and would not catch a regression.
+	// Setup is a deliberate simulated ceremony (~42 s at 3 contributors), so
+	// its budget stays generous.
+	b := budgets{VerifyMeanMs: 15, ProveMeanMs: 5000, SetupMs: 120000}
 	a := artifact{
 		GeneratedAt:  time.Now().UTC().Format(time.RFC3339),
 		GitSHA:       os.Getenv("GITHUB_SHA"),
