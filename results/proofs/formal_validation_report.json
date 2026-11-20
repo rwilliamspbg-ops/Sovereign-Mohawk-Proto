@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "152a71dd5c361b52d451660a526aaf5a034a17bbb51b57020c5636073bb480d9",
+  "input_merkle_root": "51214266796c95b2ab0962169af1add95d8356c6f66877f8335365a2771e869a",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "a0ca55498792cd316f9b45fe6f0f02bd3a550f67918290b94e6bfa9ce88ec108"
+      "sha256": "1c3acc6aa82097196b53a2365210a546c388208c4d7a4163b1b993b1a97b79ec"
     },
     {
       "path": "proofs/LeanFormalization.lean",

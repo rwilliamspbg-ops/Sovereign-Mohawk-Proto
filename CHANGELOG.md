@@ -386,10 +386,12 @@ Traceability: new row 30 gates the module (previously ungated), and
 Verified: `lake build LeanFormalization Specification Refinement` -> 8369
 jobs, success, no new warnings; `generate_formal_validation_report.py
 --check` passes; check_no_unsafe_placeholders, lint_formal_proof_claims,
-validate_formal_traceability (23 modules, 280 symbols),
+validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
-### Changed - Lean: MiMC and verification-key surrogates replaced with closer modelsThe two remaining ZK surrogates -- an uninterpreted MiMC hash and two
+### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
+
+The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
 verification-key magic constants -- are gone. Both are now structurally tied to
 the real circuit.
 
