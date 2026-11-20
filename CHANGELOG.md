@@ -389,8 +389,30 @@ jobs, success, no new warnings; `generate_formal_validation_report.py
 validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
-### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
+### Docs - audit: the Gaussian RDP gap is structural, now stated with its prerequisites
 
+Row 2's `gaussianRDPBound` is an existence witness (it exhibits a nonnegative
+`eps = alpha/(2*sigma^2)` and derives nothing). Previously the matrix, the
+claims file and `docs/EXTERNAL_AUDIT_SCOPE.md` all called the derivation
+simply "roadmap work". It is now stated precisely, with mechanical
+justification:
+
+* `RenyiDivergence` is declared `{α : Type*} [Fintype α] (p q : α → ℝ)` --
+  **finite support only**. The Gaussian mechanism's output distribution is
+  continuous, so its divergence cannot even be *stated* in the current
+  framework.
+* Closing it needs (i) a measure-theoretic divergence
+  `D_α(p‖q) = (1/(α-1))·log ∫ p^α q^{1-α} dμ` and (ii) the completed-square
+  Gaussian integral with a shift/change of variables. Mathlib ships
+  `integral_gaussian` (`∫ exp(-b·x²) = √(π/b)`), so the analytic ingredient
+  exists; the framework and the shift lemma do not.
+
+Updated: matrix row 2 Notes, `proofs/theorem_claims.json`
+(`theorem2_rdp.blocking_gaps`), and `docs/EXTERNAL_AUDIT_SCOPE.md` §6. No
+proof content changed; the point is that the gap is named structurally rather
+than left vague.
+
+### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
 The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
 verification-key magic constants -- are gone. Both are now structurally tied to
 the real circuit.
