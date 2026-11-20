@@ -279,3 +279,18 @@ Remaining roadmap items (not in scope here): full supermartingale
 convergence (Gap 3 capstone), floating-point refinement (Gap 4
 deepening), Kani (Unix-only, blocked on Windows host), and the
 ed25519 UF-CMA / Forking Lemma / MiMC collision axioms (separate track).
+
+### 2026-11-20 -- Row 2 (RDP composition): the Gaussian bound is a witness, not an axiom
+
+`surrogate_verified_with_gaussian_axiom; core composition closed for both independent and adaptive mechanisms` ->
+`surrogate_verified_gaussian_witness; core composition closed for both independent and adaptive mechanisms`
+
+`gaussianRDPBound` is a theorem, not an axiom: it exhibits a nonnegative
+`eps = alpha/(2*sigma^2)` and does not derive the Gaussian mechanism's RDP
+from the density. The old status, the row's Notes and the theorem's own
+docstring all described it as an axiom / as "satisfies (alpha,
+alpha/(2*sigma^2))-RDP", which misdescribed a standing gap as a settled
+fact and cut against the repo-wide "Declared axioms: 0" claim. Renamed and
+reworded; the derivation remains roadmap work.
+
+- **PR:** #363
