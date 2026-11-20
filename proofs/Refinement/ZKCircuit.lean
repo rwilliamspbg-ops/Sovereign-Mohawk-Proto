@@ -190,6 +190,16 @@ theorem zk_preimage_unique (a b : ZMod 7)
     a = b :=
   zk_mimc_real_round_injective hh
 
+/-- The same uniqueness at the real BN254 scalar modulus, conditional on the
+    primality of the field order -- an explicit hypothesis, exactly as in
+    `mimcRound_bn254_injective`. -/
+theorem zk_preimage_unique_bn254 (hp : Nat.Prime bn254Prime)
+    (a b : ZMod bn254Prime)
+    (hh : mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime) a
+        = mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime) b) :
+    a = b :=
+  mimcRound_bn254_injective hp hh
+
 /-- The BN254 MiMC block cipher is a permutation, so a digest has exactly one
     preimage under it. This is the non-trivial algebraic content the identity
     stand-in lacked. -/
@@ -198,13 +208,14 @@ theorem zk_block_cipher_preimage_unique (hp : Nat.Prime zkField) (digest : ZMod 
   mimcEncrypt_preimage_unique zkField mimcExponent hp bn254Exponent_coprime (by decide)
     (0 : ZMod zkField) zkMiMCConstants digest
 
-/-- Uniqueness of the BN254 block-cipher preimage, stated as injectivity. -/
-theorem zk_preimage_unique_bn254 (hp : Nat.Prime zkField) (a b : ZMod zkField)
+/-- Injectivity of the BN254 block cipher, the form the refinement needs. -/
+theorem zk_block_cipher_injective_bn254 (hp : Nat.Prime zkField) (a b : ZMod zkField)
     (hh : mimcEncrypt zkField mimcExponent (0 : ZMod zkField) zkMiMCConstants a
         = mimcEncrypt zkField mimcExponent (0 : ZMod zkField) zkMiMCConstants b) :
     a = b :=
   mimcEncrypt_injective zkField mimcExponent hp bn254Exponent_coprime (by decide)
     (0 : ZMod zkField) zkMiMCConstants hh
+
 
 /-! ### WeightUpdateCircuit refinement
 
