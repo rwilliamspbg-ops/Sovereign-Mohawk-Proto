@@ -13,7 +13,7 @@ Repository: [https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto](https:/
 ### Abstract
 Federated learning (FL) at scale requires aggregating model updates across multi-tier topologies while tolerating adversarial participants. A pervasive foundational assumption in hierarchical FL design is compositional safety: if every local aggregation tier enforces an honest-majority guard (e.g., Multi-Krum), the overall network inherits global Byzantine fault tolerance. In this paper, we present **Sovereign-Mohawk**, an FL architecture and Lean 4 formal development that refutes and repairs this assumption.
 
-First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 using `native_decide` for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md` and
+First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md` and
 defined by the claim-status taxonomy of §3, which separates results proved
 about a model from results measured against the runtime.
 
@@ -45,14 +45,14 @@ In this work, we demonstrate that this pervasive assumption is fundamentally fla
 To establish this result beyond mathematical doubt, we leverage interactive theorem proving in Lean 4 [19]. We construct a machine-checked counterexample demonstrating that a two-tier hierarchy enforcing strict per-tier weighted majority guards allows a 60% global Byzantine leaf population to subvert the system. This negative result disproves deterministic hierarchical composition for the credited-weight guard the system actually uses; no per-tier threshold fixes the gap, because it is structural.
 
 ### 1.2 Probabilistic Repair and Multi-Faceted Verification
-To restore provable system-wide security, we formalize a machine-checked *probabilistic repair*. Rather than permitting static or adversarial participant placement, nodes are assigned to aggregation committees via an explicit independently and identically distributed (i.i.d.) Bernoulli process. Under this random assignment model, we prove that the probability of any aggregation committee violating its local Byzantine threshold decays exponentially. While standard pen-and-paper proofs invoke continuous moment-generating functions and Kullback-Leibler (KL) divergences, such transcendental machinery introduces non-computability and floating-point soundless hazards in formal logic. We solve this by formalizing an exact rational Chernoff bound at arbitrary rational base $z \ge 1$ entirely over $\mathbb{Q}$. Using Lean 4's `native_decide` kernel reflection over 5,000-digit exact rationals, we certify that for a global system of 10 million nodes divided into $T = 200$ committees of $c = 50,000$ leaves under a 10% global Byzantine adversary, the failure probability across the entire hierarchy is strictly upper-bounded by $200 \times 10^{-1000} \approx 2 \times 10^{-998}$.
+To restore provable system-wide security, we formalize a machine-checked *probabilistic repair*. Rather than permitting static or adversarial participant placement, nodes are assigned to aggregation committees via an explicit independently and identically distributed (i.i.d.) Bernoulli process. Under this random assignment model, we prove that the probability of any aggregation committee violating its local Byzantine threshold decays exponentially. While standard pen-and-paper proofs invoke continuous moment-generating functions and Kullback-Leibler (KL) divergences, such transcendental machinery introduces non-computability and floating-point soundless hazards in formal logic. We solve this by formalizing an exact rational Chernoff bound at arbitrary rational base $z \ge 1$ entirely over $\mathbb{Q}$. Reducing the goal modulo its common $1000$th power and deciding the remaining $11^{50} \le 2^{74} \cdot 5^{49}$ by exact rational arithmetic, we certify that for a global system of 10 million nodes divided into $T = 200$ committees of $c = 50,000$ leaves under a 10% global Byzantine adversary, the failure probability across the entire hierarchy is strictly upper-bounded by $200 \times 10^{-1000} \approx 2 \times 10^{-998}$.
 
 We embody these mathematical insights within **Sovereign-Mohawk**, an industrial-grade federated learning architecture that pairs a scope-labelled Lean 4 formal development with a high-performance Go production runtime. The system integrates multi-tier Rényi Differential Privacy (RDP) accounting with verified rational logarithm bounds, flat Groth16 zero-knowledge proofs over MiMC hash commitments, Robbins-Siegmund supermartingale convergence lemmas, and post-quantum cryptographic (PQC) dual-signature migration non-hijack invariants.
 
 ### 1.3 Core Contributions
 This paper makes eight core contributions spanning formal verification, cryptographic architecture, and empirical systems evaluation:
 1. **Machine-Checked Disproof of Composition (Theorem 1):** We formalize an inductive tree structure (`HTree`) and construct a machine-checked counterexample in Lean 4 proving that *weighted* per-tier honest-majority guards do not compose deterministically (the counterexample uses the actual `HTree.safe` credited-weight predicate; it does not refute every conceivable per-tier rule), permitting a 60% Byzantine leaf fraction.
-2. **Exact Rational Chernoff Repair (Theorem 1):** We prove the binomial mean from first principles in Lean 4 and establish an exponential rational Chernoff tail bound. We formally prove why polynomial Markov bounds fail at scale ($40 > 1$) and certify via `native_decide` that the Chernoff bound bounds hierarchical failure probability below $200 \times 10^{-1000}$ **under the explicit i.i.d. Bernoulli committee-assignment model** — the scope of the result, not a guarantee about adversarial placement. We additionally attach that bound to the runtime's actual precondition: `guardThreshold c = (c-1)/2` is proved to be exactly the failure point of `n > 2f + 2`, giving a protocol-level bound on the probability that any committee refuses to run Multi-Krum.
+2. **Exact Rational Chernoff Repair (Theorem 1):** We prove the binomial mean from first principles in Lean 4 and establish an exponential rational Chernoff tail bound. We formally prove why polynomial Markov bounds fail at scale ($40 > 1$) and certify that the Chernoff bound bounds hierarchical failure probability below $200 \times 10^{-1000}$ **under the explicit i.i.d. Bernoulli committee-assignment model** — the scope of the result, not a guarantee about adversarial placement. We additionally attach that bound to the runtime's actual precondition: `guardThreshold c = (c-1)/2` is proved to be exactly the failure point of `n > 2f + 2`, giving a protocol-level bound on the probability that any committee refuses to run Multi-Krum.
 3. **Constructivist RDP Accounting (Theorem 2):** We formalize Rényi Differential Privacy tensorization over independent mechanisms and solve the constructive non-computability of $\ln(z)$ by proving a two-sided rational sandwich bound in Lean 4, enabling exact $(\epsilon, \delta)$-DP verification.
 4. **Wire-Format Refinement and Communication Depth (Theorem 3):** We prove an $O(d \log n)$ path-depth complexity bound and check a **formula-level** correspondence between the Lean 4 transport model and Go's IEEE-754 gradient serialization in CI — there is no machine-checked cross-language equivalence, because Lean cannot invoke Go source.
 5. **MiMC Permutation and zk-SNARK Verifiability (Theorem 5):** We prove that the MiMC round polynomial $x \mapsto (x + k + c)^5$ is injective under explicit `Nat.Prime` / `Nat.Coprime` hypotheses (the only concrete instantiation is a small-prime sanity check; BN254 exponent coprimality is discharged concretely, with `Nat.Prime r` left as an explicit hypothesis), and formalize an $O(1)$ scale-invariant Groth16 verifier cost **model** — a constant operation count, not a soundness proof. In addition, we give a **proper reduction for the Schnorr/Ed25519 identification protocol** (`SchnorrReduction.lean`): special soundness (two accepting transcripts with the same commitment and different challenges recover the key), honest-verifier zero-knowledge, and a forger-implies-discrete-log reduction modulo an explicit forking-lemma hypothesis. A full Groth16/q-SDH formalization remains out of reach: Mathlib has no pairing or computational-hardness machinery.
@@ -183,10 +183,9 @@ equal, and not that they agree on all inputs.
 
 ### 3.3 Axioms and hypotheses
 
-The Lean development is **axiom-free and sorry-free**: `#print axioms` over the
-development reports only Mathlib's foundation (`propext`, `Classical.choice`,
-`Quot.sound`), with one documented exception — a single `native_decide` reduction
-trust in `chernoffBoundZ_deployment_scale_tiny` (see §15). What remains are
+The Lean development is **axiom-free, sorry-free, and free of `native_decide`**:
+`#print axioms` over the development reports only Mathlib's foundation
+(`propext`, `Classical.choice`, `Quot.sound`). What remains are
 explicit hypotheses at each use site: `FloatOrderLaws` (IEEE-754 non-NaN order,
 §11), `Fact (Nat.Prime dlL)`, and `Nat.Prime bn254Prime` for the BN254 MiMC
 instantiation (§8.2). No global `axiom` is used, and no proof uses `sorry` or
@@ -407,20 +406,37 @@ theorem binomialTail_le_chernoffBoundZ (n k : ℕ) (p z : ℚ)
     binomialTail n k p ≤ chernoffBoundZ n k p z := by ...
 ```
 
-### 5.5 Deployment-Scale Certification via Native Decide
+### 5.5 Deployment-Scale Certification
 At the target deployment parameters of Sovereign-Mohawk ($T = 200$ committees, $c = 50,000$ leaves per committee, $p = 1/10$, threshold $k = 25,000$), we instantiate base $z = 2$:
 $$\text{chernoffBoundZ}\left(50000, 25000, \frac{1}{10}, 2\right) = \frac{\left(1 - \frac{1}{10} + \frac{2}{10}\right)^{50000}}{2^{25000}} = \frac{\left(\frac{11}{10}\right)^{50000}}{2^{25000}}$$
 
-Evaluating this rational fraction involves integer numerators and denominators spanning more than 5,000 decimal digits. Standard term-rewriting tactics such as `norm_num` exhaust memory and recursion limits when reducing expressions of this magnitude.
-
-We resolve this by using Lean 4's certified reflection tactic `native_decide`. The tactic compiles the decidable proposition into optimized native C machine code, evaluates the exact arithmetic relation, and returns a verified proof certificate to the Lean 4 kernel.
+Evaluating this rational fraction directly involves integer numerators and denominators spanning more than 5,000 decimal digits, and `norm_num` does not decide the resulting inequality in reasonable time. The proof avoids both that blow-up and any trusted reflection. Both sides of
+$$\frac{(11/10)^{50000}}{2^{25000}} \le \frac{1}{10^{1000}}$$
+are $1000$th powers: $\frac{(11/10)^{50000}}{2^{25000}} = \left(\frac{(11/10)^{50}}{2^{25}}\right)^{1000}$ and $\frac{1}{10^{1000}} = \left(\frac{1}{10}\right)^{1000}$. Applying `pow_le_pow_iff_left₀` reduces the goal to $\frac{(11/10)^{50}}{2^{25}} \le \frac{1}{10}$, i.e. $11^{50} \le 2^{74} \cdot 5^{49}$ — a comparison of a 53-digit and a 57-digit integer that `norm_num` decides outright. The entire development is kernel-checked, with no `native_decide`.
 
 ```lean
 theorem chernoffBoundZ_deployment_scale_tiny :
     chernoffBoundZ 50000 25000 (1/10 : ℚ) 2 ≤ 1 / 10 ^ 1000 := by
   unfold chernoffBoundZ
+  have hbase : (1 - 1/10 + (1/10 : ℚ) * 2) = 11/10 := by norm_num
+  rw [hbase]
+  rw [show (50000 : ℕ) = 50 * 1000 by norm_num,
+      show (25000 : ℕ) = 25 * 1000 by norm_num]
+  rw [pow_mul, pow_mul, ← div_pow]
+  rw [show (1 : ℚ) / 10 ^ 1000 = (1/10) ^ 1000 by norm_num [div_pow]]
+  rw [pow_le_pow_iff_left₀ (by positivity) (by positivity) (by norm_num)]
+  -- It remains to show `(11/10)^50 / 2^25 ≤ 1/10`.
+  have hkey : (11 : ℚ) ^ 50 ≤ 2 ^ 74 * 5 ^ 49 := by norm_num
+  have h1 : (11/10 : ℚ)^50 / 2^25 = 11^50 / (2^75 * 5^50) := by
+    rw [div_pow, div_div]
+    have h10 : (10 : ℚ) ^ 50 = 2^50 * 5^50 := by
+      rw [show (10 : ℚ) = 2 * 5 by norm_num, mul_pow]
+    rw [h10]
+    ring
+  rw [h1]
+  rw [div_le_iff₀ (by positivity : (0 : ℚ) < 2^75 * 5^50)]
+  ring_nf
   norm_num
-  native_decide
 
 theorem chernoff_hierarchical_bound_deployment_scale :
     1 - (1 - binomialTail 50000 25000 (1/10 : ℚ)) ^ 200

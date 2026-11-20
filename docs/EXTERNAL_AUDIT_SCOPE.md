@@ -144,20 +144,17 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
 
 **Declared axioms: 0.** No `axiom` declaration is used anywhere in `proofs/`.
 
-**One toolchain trust remains.** `LeanFormalization.chernoffBoundZ_deployment_scale_tiny`
-(`Theorem1BFT.lean`) closes with `native_decide`, which asserts
-`Lean.ofReduceBool` — that the native compiler's evaluator agrees with the kernel.
-`#print axioms` on it reports `[propext, Classical.choice, Quot.sound,
-chernoffBoundZ_deployment_scale_tiny._native.native_decide.ax_1_1]`. It is the
-single survivor of the seven `native_decide` axioms found by the axiom audit
-(`docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md` §2.2); the other six were replaced
-by `norm_num`/`simp` and verified to compile. Per that plan's own trust note this
-is a **toolchain** trust, not a mathematical axiom — but it is not zero, and a
-reviewer should know it is there. The goal is a ~5000-digit rational inequality
-that `norm_num` cannot decide in reasonable time.
+**No toolchain trust remains either.** The last `native_decide` —
+`LeanFormalization.chernoffBoundZ_deployment_scale_tiny` (`Theorem1BFT.lean`),
+which had asserted `Lean.ofReduceBool` on a ~5000-digit rational inequality —
+is gone. The goal `(11/10)^50000 / 2^25000 ≤ 1/10^1000` is an inequality
+between two `1000`th powers, so `pow_le_pow_iff_left₀` reduces it to
+`11^50 ≤ 2^74 * 5^49`, a 53- versus 57-digit integer comparison that `norm_num`
+decides directly; the exponent reduction is the whole proof.
 
-Aside from that one, `#print axioms` over the development reports only Mathlib's
-foundation (`propext`, `Classical.choice`, `Quot.sound`).
+`#print axioms` over the whole development now reports only Mathlib's
+foundation (`propext`, `Classical.choice`, `Quot.sound`): no `sorryAx`, no
+`._native.native_decide.ax_1_1`, and no `axiom` declaration.
 
 Previously-listed axioms that have since been **removed**:
 

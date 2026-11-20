@@ -563,20 +563,41 @@ theorem chernoff_hierarchical_bound
 
 /-- The Chernoff bound at base `z = 2` is astronomically small at Sovereign-
     Mohawk's committee scale (`c = 50,000`, `k = 25,000` majority threshold,
-    `p = 0.1` global Byzantine rate) — `norm_num` alone can't decide an
-    inequality between two ~5000-digit rationals in reasonable time, hence
-    `native_decide`: it compiles the (fully decidable, since `ℚ`'s `≤` is
-    decidable) proposition to native code and evaluates it directly, the
-    same technique already used elsewhere in this file
-    (`theorem1_tier_majority_checked` and siblings use plain `norm_num`
-    successfully at smaller scale; `theorem2_example_profile`/
-    `theorem5_ops_guard` in sibling files already use `native_decide` for
-    exactly this "too large for `norm_num`" reason). -/
+    `p = 0.1` global Byzantine rate).
+
+    **Proof technique — no `native_decide`.** Unfolded, the goal is
+    `(11/10)^50000 / 2^25000 ≤ 1/10^1000`. Both sides are `1000`th powers:
+    `(11/10)^50000 / 2^25000 = ((11/10)^50 / 2^25)^1000` and
+    `1/10^1000 = (1/10)^1000`, so by `pow_le_pow_iff_left₀` it suffices to
+    show `(11/10)^50 / 2^25 ≤ 1/10`. Writing `(11/10)^50 = 11^50 / 10^50` and
+    `10^50 = 2^50 * 5^50`, that is `11^50 / (2^75 * 5^50) ≤ 1/10`, i.e.
+    `11^50 ≤ 2^74 * 5^49` — a comparison of a 53-digit and a 57-digit integer
+    that `norm_num` decides outright. The previous revision closed this with
+    `native_decide` on the unfolded ~5000-digit rationals; the exponent
+    reduction below removes that toolchain trust, so the entire development
+    is kernel-checked. -/
 theorem chernoffBoundZ_deployment_scale_tiny :
     chernoffBoundZ 50000 25000 (1/10 : ℚ) 2 ≤ 1 / 10 ^ 1000 := by
   unfold chernoffBoundZ
+  have hbase : (1 - 1/10 + (1/10 : ℚ) * 2) = 11/10 := by norm_num
+  rw [hbase]
+  rw [show (50000 : ℕ) = 50 * 1000 by norm_num,
+      show (25000 : ℕ) = 25 * 1000 by norm_num]
+  rw [pow_mul, pow_mul, ← div_pow]
+  rw [show (1 : ℚ) / 10 ^ 1000 = (1/10) ^ 1000 by norm_num [div_pow]]
+  rw [pow_le_pow_iff_left₀ (by positivity) (by positivity) (by norm_num)]
+  -- It remains to show `(11/10)^50 / 2^25 ≤ 1/10`.
+  have hkey : (11 : ℚ) ^ 50 ≤ 2 ^ 74 * 5 ^ 49 := by norm_num
+  have h1 : (11/10 : ℚ)^50 / 2^25 = 11^50 / (2^75 * 5^50) := by
+    rw [div_pow, div_div]
+    have h10 : (10 : ℚ) ^ 50 = 2^50 * 5^50 := by
+      rw [show (10 : ℚ) = 2 * 5 by norm_num, mul_pow]
+    rw [h10]
+    ring
+  rw [h1]
+  rw [div_le_iff₀ (by positivity : (0 : ℚ) < 2^75 * 5^50)]
+  ring_nf
   norm_num
-  native_decide
 
 /-- **The deployment-scale gap is closed.** Contrast with
     `probabilistic_bound_too_loose_at_deployment_scale` above: the Markov
