@@ -105,6 +105,26 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      is deliberately not refuted: it is a number-theoretic assumption, not a
      condition on transcripts (dropping it makes `ZMod n` a ring in which
      inverses need not exist).
+   - **The forking core is now PROVED, not assumed (matrix row 25, 2026-11-20).**
+     `proofs/LeanFormalization/SchnorrForking.lean` replaces the deleted
+     `ForkingLemma`/`ForkingStep` material with a concrete, checkable argument:
+     * `SchnorrAdversary` is **two-stage** — `commit pk r` takes no challenge —
+       so "both transcripts share a commitment" is a property of the model, not
+       an assumption. This is the part of rewinding that is pure algebra.
+     * `exists_fork_of_card` proves the remaining content as a **pigeonhole
+       principle** over a finite set: if the adversary succeeds on more than `q`
+       of the `q²` (randomness, challenge) pairs — success probability `> 1/q`
+       — some randomness supports two distinct challenges, and
+       `forking_extractor` recovers the key. No probability library is used.
+     * `success_card_le_of_dl_hard` is the contrapositive security statement:
+       under the hardness assumption `SchnorrDLHard` (an explicit `def`, never
+       an axiom) every two-stage adversary succeeds on at most `q` pairs. The
+       only hypotheses are `Fact (Nat.Prime q)` and hardness.
+     * `exists_forger_card_eq_q` + `tightness_witness_not_forked` show the
+       threshold `q` is **tight** — it cannot be lowered.
+     - Not proved, stated openly: no probabilistic amplification (cardinality,
+       not probability), no efficiency requirement on the constructed solver,
+       and the group is still the abstract `ZMod q`.
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`
@@ -115,6 +135,25 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      docstring says a full proof needs a genuine Ed25519 verifier plus a
      discrete-log reduction. The refutable algebraic core is
      `schnorr_special_soundness`, covered by row 23.
+   - **The verification equation is now modelled and bridged (matrix row 26,
+     2026-11-20).** `proofs/LeanFormalization/Ed25519VerificationEquation.lean`
+     states the equation `S·B = R + h·A` as a structural proposition about
+     `AffinePoint`, packages the six group laws the transfer needs in
+     `Ed25519GroupLaws`, and proves `verificationEquation_iff_ModEq`: under those
+     laws the curve equation is **equivalent** to the Schnorr exponent equation
+     `s ≡ r + h·a (mod L)`. `ed25519_two_equations_recover` then transfers two
+     Ed25519 equations that share the nonce point `R` to the hypotheses of
+     `recovery_yields_secret`, so the key is recovered.
+     - **The group laws are ASSUMED, not proved** — `affineScalarMulImpl` and
+       `affineAdd` are unaudited. They are an explicit structure supplied at each
+       use site, never a global `axiom`; `constantMul_violates_oneMul` and
+       `constantMul_not_injective` are negative controls showing the hypotheses
+       are load-bearing.
+     - **This is not a UF-CMA proof.** The extractor needs the two equations to
+       share `R` (nonce reuse); an honest signer never reuses a nonce, so
+       `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing
+       that gap needs the random-oracle forking argument, which is not
+       formalized here.
 
 3. **ZK circuit ↔ Go verifier refinement** (updated 2026-11-18)
    - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5Cryptography.lean`

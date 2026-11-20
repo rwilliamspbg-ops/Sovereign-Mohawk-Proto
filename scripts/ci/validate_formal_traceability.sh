@@ -19,7 +19,7 @@ if [[ ! -f "$ENTRY_FILE" ]]; then
 fi
 
 mapfile -t expected_modules < <(
-  grep -oE 'LeanFormalization/Theorem[0-9]+[A-Za-z]*\.lean' "$MATRIX_FILE" |
+  grep -oE 'LeanFormalization/[A-Za-z0-9_]+\.lean' "$MATRIX_FILE" |
     sed -E 's|LeanFormalization/||; s|\.lean$||' |
     sort -u
 )

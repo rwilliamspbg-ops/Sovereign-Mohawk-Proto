@@ -1,3 +1,4 @@
+import LeanFormalization.Common
 import LeanFormalization.Theorem1BFT
 import LeanFormalization.Theorem2RDP
 import LeanFormalization.Theorem3Communication
@@ -27,4 +28,6 @@ import LeanFormalization.MultiKrumConvergence
 import LeanFormalization.ProtocolSafety
 import LeanFormalization.KrumSelection
 import LeanFormalization.SchnorrReduction
+import LeanFormalization.SchnorrForking
 import LeanFormalization.HypothesisNecessity
+import LeanFormalization.Ed25519VerificationEquation
