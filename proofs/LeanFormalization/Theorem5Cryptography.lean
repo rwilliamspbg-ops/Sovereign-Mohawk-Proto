@@ -355,15 +355,34 @@ def deriveWeightStatement (i : WeightPublicInputs) (w : WeightWitness) : WeightS
     update_hash := weightHash ([i.dp_epsilon, w.training_steps] ++
       List.zipWith (· + ·) w.gradients w.noise ++ [i.dataset_commitment]) }
 
-/-- The circuit relation: equal-length vectors, both hash chains reproduced,
-    a non-zero dataset commitment, and the norm bound satisfied. -/
+/-- The circuit relation, transcribed constraint-by-constraint from
+    `internal/zkweight_circuit.go`'s `WeightUpdateCircuit.Define`:
+
+    * `w.gradients.length = w.noise.length` — the fixed-arity vectors;
+    * `ModelHashAfter = MiMC(ModelHashBefore, TrainingSteps, Gradients…)`,
+      modelled by the `weightHash` surrogate fold;
+    * `UpdateHash = MiMC(DPEpsilon, TrainingSteps, Gradients+Noise…,
+      DatasetCommitment)`, same surrogate;
+    * `DatasetCommitment ≠ 0` — the circuit's `AssertIsDifferent`;
+    * `∑ Gradients[i]² ≤ GradNormBound²` — the L2 norm bound;
+    * every gradient and noise component passes the circuit's 64-bit range
+      check `ToBinary(component + 2^63, 64)`, i.e. `component < 2^63` in the
+      model's magnitude-`Nat` encoding;
+    * `GradNormBound` passes the circuit's 63-bit range check, i.e.
+      `GradNormBound < 2^63`.
+
+    The MiMC permutation itself is the `weightHash` surrogate fold, not the
+    BN254 round function — see the module docstring. -/
 def WeightRelation (stmt : WeightStatement) (w : WeightWitness) : Prop :=
   w.gradients.length = w.noise.length ∧
   stmt.model_hash_after = weightHash ([stmt.model_hash_before, w.training_steps] ++ w.gradients) ∧
   stmt.update_hash = weightHash ([stmt.dp_epsilon, w.training_steps] ++
     List.zipWith (· + ·) w.gradients w.noise ++ [stmt.dataset_commitment]) ∧
   stmt.dataset_commitment ≠ 0 ∧
-  sumSq w.gradients ≤ stmt.grad_norm_bound * stmt.grad_norm_bound
+  sumSq w.gradients ≤ stmt.grad_norm_bound * stmt.grad_norm_bound ∧
+  (∀ g ∈ w.gradients, g < 2 ^ 63) ∧
+  (∀ n ∈ w.noise, n < 2 ^ 63) ∧
+  stmt.grad_norm_bound < 2 ^ 63
 
 /-- Honest prover: binds the proof to the statement's derived hashes and to the
     circuit VK. Mirrors `internal.ProveWeightUpdate`. -/
@@ -393,10 +412,13 @@ theorem theorem_weight_derived_hashes (i : WeightPublicInputs) (w : WeightWitnes
 theorem theorem_weight_relation_of_derived (i : WeightPublicInputs) (w : WeightWitness)
     (hlen : w.gradients.length = w.noise.length)
     (hds : i.dataset_commitment ≠ 0)
-    (hnorm : sumSq w.gradients ≤ i.grad_norm_bound * i.grad_norm_bound) :
+    (hnorm : sumSq w.gradients ≤ i.grad_norm_bound * i.grad_norm_bound)
+    (hgrad : ∀ g ∈ w.gradients, g < 2 ^ 63)
+    (hnoise : ∀ n ∈ w.noise, n < 2 ^ 63)
+    (hbound : i.grad_norm_bound < 2 ^ 63) :
     WeightRelation (deriveWeightStatement i w) w := by
   unfold WeightRelation deriveWeightStatement
-  exact ⟨hlen, rfl, rfl, hds, hnorm⟩
+  exact ⟨hlen, rfl, rfl, hds, hnorm, hgrad, hnoise, hbound⟩
 
 /-- Completeness: an honestly derived statement verifies. -/
 theorem theorem_weight_completeness (i : WeightPublicInputs) (w : WeightWitness)
@@ -419,7 +441,7 @@ theorem theorem_weight_binding (stmt : WeightStatement) (p : WeightProof)
 theorem theorem_weight_norm_guard (stmt : WeightStatement) (w : WeightWitness)
     (h : WeightRelation stmt w) :
     sumSq w.gradients ≤ stmt.grad_norm_bound * stmt.grad_norm_bound := by
-  obtain ⟨-, -, -, -, hnorm⟩ := h
+  obtain ⟨-, -, -, -, hnorm, -, -, -⟩ := h
   exact hnorm
 
 /-- Negative control: an over-bound gradient vector does not satisfy the relation. -/
@@ -427,20 +449,57 @@ theorem theorem_weight_norm_violation_rejected (stmt : WeightStatement) (w : Wei
     (hviol : stmt.grad_norm_bound * stmt.grad_norm_bound < sumSq w.gradients) :
     ¬ WeightRelation stmt w := by
   intro hrel
-  obtain ⟨-, -, -, -, hnorm⟩ := hrel
+  obtain ⟨-, -, -, -, hnorm, -, -, -⟩ := hrel
   omega
 
 /-- Negative control: a zero dataset commitment does not satisfy the relation. -/
 theorem theorem_weight_zero_dataset_rejected (stmt : WeightStatement) (w : WeightWitness)
     (hrel : WeightRelation stmt w) (hzero : stmt.dataset_commitment = 0) : False := by
-  obtain ⟨-, -, -, hds, -⟩ := hrel
+  obtain ⟨-, -, -, hds, -, -, -, -⟩ := hrel
   exact hds hzero
 
 /-- Negative control: mismatched gradient/noise lengths do not satisfy the relation. -/
 theorem theorem_weight_length_mismatch_rejected (stmt : WeightStatement) (w : WeightWitness)
     (hmis : w.gradients.length ≠ w.noise.length) : ¬ WeightRelation stmt w := by
   intro hrel
-  obtain ⟨hlen, -, -, -, -⟩ := hrel
+  obtain ⟨hlen, -, -, -, -, -, -, -⟩ := hrel
   exact hmis hlen
+
+/-- The range-check conjuncts of `WeightRelation`, projected: a relation-satisfying
+    witness has every gradient and noise component inside the circuit's 64-bit
+    range check and a norm bound inside its 63-bit range check. -/
+theorem weight_relation_range_checks (stmt : WeightStatement) (w : WeightWitness)
+    (h : WeightRelation stmt w) :
+    (∀ g ∈ w.gradients, g < 2 ^ 63) ∧ (∀ n ∈ w.noise, n < 2 ^ 63) ∧
+      stmt.grad_norm_bound < 2 ^ 63 := by
+  obtain ⟨-, -, -, -, -, hg, hn, hb⟩ := h
+  exact ⟨hg, hn, hb⟩
+
+/-- Negative control: a gradient component outside the circuit's 64-bit range
+    check does not satisfy the relation. -/
+theorem theorem_weight_gradient_out_of_range_rejected (stmt : WeightStatement)
+    (w : WeightWitness) (g : Nat) (hg : g ∈ w.gradients) (hbig : 2 ^ 63 ≤ g) :
+    ¬ WeightRelation stmt w := by
+  intro hrel
+  have hlt := (weight_relation_range_checks stmt w hrel).1 g hg
+  omega
+
+/-- Negative control: a noise component outside the circuit's 64-bit range check
+    does not satisfy the relation. -/
+theorem theorem_weight_noise_out_of_range_rejected (stmt : WeightStatement)
+    (w : WeightWitness) (n : Nat) (hn : n ∈ w.noise) (hbig : 2 ^ 63 ≤ n) :
+    ¬ WeightRelation stmt w := by
+  intro hrel
+  have hlt := (weight_relation_range_checks stmt w hrel).2.1 n hn
+  omega
+
+/-- Negative control: a norm bound outside the circuit's 63-bit range check does
+    not satisfy the relation. -/
+theorem theorem_weight_norm_bound_out_of_range_rejected (stmt : WeightStatement)
+    (w : WeightWitness) (hbig : 2 ^ 63 ≤ stmt.grad_norm_bound) :
+    ¬ WeightRelation stmt w := by
+  intro hrel
+  have hlt := (weight_relation_range_checks stmt w hrel).2.2
+  omega
 
 end LeanFormalization

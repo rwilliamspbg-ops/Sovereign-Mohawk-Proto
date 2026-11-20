@@ -37,7 +37,14 @@ for mod in "${expected_modules[@]}"; do
   fi
 done
 
-declare -A module_to_theorems=()
+# Rows are grouped by their Lean-module cell, which may list ONE module
+# (`LeanFormalization/Theorem1BFT.lean`) or SEVERAL (`Refinement/MultiKrum.lean`,
+# `Specification/System.lean`). A theorem symbol is accepted if it is declared in
+# ANY module of the group. Previously only `LeanFormalization/*` cells were
+# considered and the path was hard-coded to `proofs/LeanFormalization/`, so every
+# `Refinement/` and `Specification/` row -- including the ZK-circuit row 22 --
+# silently escaped the check while the summary still reported a symbol count.
+declare -A group_to_theorems=()
 
 trim() {
   echo "$1" | xargs
@@ -46,9 +53,9 @@ trim() {
 # Parse only numbered mapping rows from the markdown table.
 while IFS='|' read -r _ row_num _ _ module_cell theorem_cell runtime_cell _ _; do
   row_num="$(trim "$row_num")"
-  module_cell="${module_cell//\`/}"
-  theorem_cell="${theorem_cell//\`/}"
-  runtime_cell="${runtime_cell//\`/}"
+  module_cell="${module_cell//\`}"
+  theorem_cell="${theorem_cell//\`}"
+  runtime_cell="${runtime_cell//\`}"
 
   module_cell="$(trim "$module_cell")"
   theorem_cell="$(trim "$theorem_cell")"
@@ -57,45 +64,42 @@ while IFS='|' read -r _ row_num _ _ module_cell theorem_cell runtime_cell _ _; d
   [[ -z "$row_num" ]] && continue
   [[ -z "$module_cell" ]] && continue
   [[ -z "$theorem_cell" ]] && fail "Row $row_num has empty theorem reference cell"
-  [[ "$module_cell" != LeanFormalization/* ]] && continue
+  [[ "$module_cell" != LeanFormalization/* && "$module_cell" != Refinement/* \
+     && "$module_cell" != Specification/* ]] && continue
 
-  IFS=',' read -r -a module_items <<< "$module_cell"
-  IFS=',' read -r -a theorem_items <<< "$theorem_cell"
-
-  if [[ ${#module_items[@]} -eq ${#theorem_items[@]} ]]; then
-    # Row maps one theorem symbol per Lean module (e.g. multi-module integration rows).
-    for idx in "${!module_items[@]}"; do
-      module_ref="$(trim "${module_items[$idx]}")"
-      theorem_ref="$(trim "${theorem_items[$idx]}")"
-      [[ -z "$module_ref" ]] && continue
-      [[ -z "$theorem_ref" ]] && fail "Row $row_num has empty theorem mapping for module $module_ref"
-      module_name="${module_ref##*/}"
-      module_name="${module_name%.lean}"
-      module_to_theorems["$module_name"]+="${theorem_ref},"
-    done
-  else
-    # Default behavior: all theorem symbols in the row belong to the same module.
-    module_name="${module_cell##*/}"
-    module_name="${module_name%.lean}"
-    module_to_theorems["$module_name"]+="${theorem_cell},"
-  fi
+  group_to_theorems["$module_cell"]+="$theorem_cell,"
 done < <(awk 'BEGIN { FS = "|" } /^\|[[:space:]]*[0-9]+[[:space:]]*\|/ { print }' "$MATRIX_FILE")
 
-if [[ ${#module_to_theorems[@]} -eq 0 ]]; then
+if [[ ${#group_to_theorems[@]} -eq 0 ]]; then
   fail "No theorem mappings parsed from traceability matrix"
 fi
 
 validated_theorems=0
-for mod in "${!module_to_theorems[@]}"; do
-  module_file="$ROOT_DIR/proofs/LeanFormalization/$mod.lean"
-  [[ -f "$module_file" ]] || fail "Lean module file missing: $mod.lean"
+for group in "${!group_to_theorems[@]}"; do
+  IFS=',' read -r -a module_items <<< "$group"
+  module_files=()
+  for module_ref in "${module_items[@]}"; do
+    module_ref="$(trim "$module_ref")"
+    [[ -z "$module_ref" ]] && continue
+    module_file="$ROOT_DIR/proofs/$module_ref"
+    [[ -f "$module_file" ]] || fail "Lean module file missing: $module_ref"
+    module_files+=("$module_file")
+  done
+  [[ ${#module_files[@]} -eq 0 ]] && continue
 
-  IFS=',' read -r -a theorem_names <<< "${module_to_theorems[$mod]}"
+  IFS=',' read -r -a theorem_names <<< "${group_to_theorems[$group]}"
   for theorem_name in "${theorem_names[@]}"; do
     theorem_name="$(echo "$theorem_name" | xargs)"
     [[ -n "$theorem_name" ]] || continue
-    if ! grep -qE "^[[:space:]]*((noncomputable|protected|private|unsafe|partial|local)[[:space:]]+)*(theorem|def|lemma|inductive|structure|class|abbrev)[[:space:]]+${theorem_name}\\b" "$module_file"; then
-      fail "Missing theorem symbol '$theorem_name' in $mod.lean"
+    found=0
+    for module_file in "${module_files[@]}"; do
+      if grep -qE "^[[:space:]]*((noncomputable|protected|private|unsafe|partial|local)[[:space:]]+)*(theorem|def|lemma|inductive|structure|class|abbrev)[[:space:]]+${theorem_name}\b" "$module_file"; then
+        found=1
+        break
+      fi
+    done
+    if [[ $found -eq 0 ]]; then
+      fail "Missing theorem symbol '$theorem_name' in $group"
     fi
     validated_theorems=$((validated_theorems + 1))
   done
