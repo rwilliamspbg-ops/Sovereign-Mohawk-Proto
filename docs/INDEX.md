@@ -217,6 +217,7 @@ Only index and quick reference files:
 3. [Byzantine Resilience Architecture](architecture/BYZANTINE_RESILIENCE.md)
 4. [Differential Privacy](architecture/DIFFERENTIAL_PRIVACY.md)
 5. [Academic Paper](ACADEMIC_PAPER.md)
+6. [Workshop Paper: Composition Counterexample + Rational Chernoff](WORKSHOP_PAPER.md)
 
 ---
 
@@ -309,6 +310,7 @@ this index referenced one that was never created.)
 
 - **GitHub Repository:** https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto
 - **Academic Paper:** [ACADEMIC_PAPER.md](ACADEMIC_PAPER.md)
+- **Workshop Paper:** [WORKSHOP_PAPER.md](WORKSHOP_PAPER.md) — machine-checked disproof of deterministic hierarchical composition, and the rational Chernoff repair.
 - **White Paper:** [WHITE_PAPER.md](WHITE_PAPER.md)
 - **Roadmap:** [ROADMAP.md](../ROADMAP.md)
 - **Gold-Standard Plan:** [GOLD_STANDARD_PLAN.md](GOLD_STANDARD_PLAN.md)

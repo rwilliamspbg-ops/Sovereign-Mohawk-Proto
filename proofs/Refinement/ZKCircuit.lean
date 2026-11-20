@@ -5,80 +5,82 @@ import LeanFormalization.Theorem5Cryptography
 /-!
 # ZK Circuit Refinement: Lean Spec ↔ Go Implementation
 
-This module documents and partially formalizes the correspondence between
-the Lean specification of the MiMC data-commitment relation
-(`ZKSpec` / `zkSpecRelation` / `zkSpecVerify` below) and Go's
-`VerifyDataCommitmentProof` in `internal/zksnark_circuit_verifier.go`.
+This module formalizes the correspondence between the Lean specification of
+the data-commitment relation (`ZKSpec` / `zkSpecRelation` / `zkSpecVerify`
+below) and Go's `VerifyDataCommitmentProof` in
+`internal/zksnark_circuit_verifier.go`, and the refinement for the
+`WeightUpdateCircuit` production in `internal/zkweight_circuit.go`.
 
 The Go side runs a real Groth16 proof against a circuit-derived verification
-key (`dataCommitmentVK`, produced by `groth16.Setup` over the compiled
-`DataCommitmentCircuit` R1CS). The Lean side abstracts the MiMC hash as an
-uninterpreted function symbol and proves the structural refinement: the
-implementation accepts a proof exactly when a witness satisfying the circuit
-relation exists.
+key (`dataCommitmentVK`, produced by the MPC setup over the compiled
+`DataCommitmentCircuit` R1CS).
 
-## Go correspondence
+## How close the model is
 
-`internal/zksnark_lean_correspondence_test.go` (to be added) performs a
-real `ProveDataCommitment` / `VerifyDataCommitmentProof` round trip and
-checks acceptance against the spec predicate evaluated on the same
-commitment, mirroring the ledger correspondence test.
+* **MiMC** is the real construction from `Theorem5MiMCFormalization`: a
+  110-round keyed block cipher (each round `m ↦ (m + key + c_i)^5`), a
+  Miyaguchi–Preneel compressor, and a Merkle–Damgård chain. The statement's
+  commitment is a BN254 scalar-field element, as in the circuit. The round
+  constants are a parameter (gnark-crypto derives them from a seed by a sha3
+  procedure this Mathlib cannot reproduce); the theorems are generic in them.
+* **The verification key** is a deterministic, injective function of the
+  circuit's structural description (public-input count, witness arity,
+  constraint count), not a magic constant — see `deriveVK`. The honest
+  derivation would hash the compiled constraint system, which needs curve
+  machinery this Mathlib lacks.
 
-## Gap pinned, and what is proved about it
-
-The Lean model abstracts MiMC as the identity function (`mimc x = x`) rather
-than the BN254 permutation, so the *existence* of a preimage is trivial:
-`zk_spec_verify_iff` below proves `zkSpecVerify stmt ↔ stmt.commitment ≠ 0`,
-i.e. under the surrogate the soundness theorem says nothing beyond the
-circuit's own non-zero check. That is stated as a theorem rather than left
-implicit. What is NOT trivial, and is proved here, is:
-
-* **binding** — two accepted proofs against one statement carry the same
-  commitment (`zk_impl_binding`);
-* **uniqueness** — under the real MiMC round function a commitment has at most
-  one preimage (`zk_preimage_unique`, using the formalized injectivity in
-  `Theorem5MiMCFormalization`);
-* **exact acceptance** — `zk_impl_accept_iff` characterizes the implementation
-  predicate precisely, with a negative control per conjunct.
+## What is deliberately not claimed
 
 The full "accepted proof ⇒ an extractable preimage" direction is Groth16
-knowledge soundness, which is out of scope for this Mathlib (no pairing or
-hardness machinery). The real MiMC round function over the BN254 scalar field
-is formalized in `Theorem5MiMCFormalization` (`mimcRound`, injectivity via
-`mimcRound_injective`); this module delegates to that result via
-`zk_mimc_real_round_injective`.
+knowledge soundness for the compiled R1CS. It is NOT proved here and is not
+provable in this Mathlib (no pairing or hardness machinery; see
+`docs/MAJOR_WIN_PLAN.md` W2/W3). It is recorded as a gap rather than hidden
+behind a surrogate hash that makes the existential trivially satisfiable.
+
+Accordingly `zk_impl_refines_spec` carries an explicit hypothesis that the
+commitment lies in the image of the one-block hash. Under the previous
+identity stand-in that hypothesis was automatic (every non-zero commitment was
+its own preimage), which is exactly why the old `zk_spec_verify_iff` was a
+triviality theorem; the closer model removes that accident rather than
+preserving it.
 -/
 
 namespace Refinement
 
-/-- Abstract MiMC hash (identity stand-in; collision resistance assumed). -/
-def mimc (x : Nat) : Nat := x
+open LeanFormalization
 
-/-- Spec statement: a public commitment plus the circuit-derived VK hash. -/
+/-! ## `DataCommitmentCircuit` (single-scalar path) -/
+
+/-- The BN254 scalar-field modulus the real circuits hash over. -/
+def zkField : Nat := bn254Prime
+
+/-- The MiMC round constants of the Lean model: a deterministic stand-in for
+    gnark-crypto's seed-derived constants (see `mimcModelConstants`). -/
+def zkMiMCConstants : List (ZMod zkField) := mimcModelConstants zkField
+
+/-- Spec statement: a public commitment (a BN254 scalar-field element) plus the
+    circuit-derived VK. -/
 structure ZKSpec where
-  commitment : Nat
+  commitment : ZMod zkField
   vk : Nat
 
-/-- Spec witness: the secret preimage. -/
+/-- Spec witness: the secret preimage (a field element). -/
 structure ZKWitness where
-  preimage : Nat
+  preimage : ZMod zkField
 
 /-- Spec proof carrier (mirrors Go's serialized proof + public commitment). -/
 structure ZKProof where
-  commitment : Nat
+  commitment : ZMod zkField
   vk_binding : Nat
 
-/-- Circuit-derived verification key hash (matches Go's dataCommitmentVK). -/
-def circuitVK : Nat := 0x4D4F4841574B2002
-
-/-- Spec relation: the witness's preimage hashes (under MiMC) to the
-    statement's commitment, and the commitment is non-zero. Mirrors
+/-- Spec relation: `Commitment = MiMC(Preimage)` under the real one-block MiMC
+    hash, and the commitment is non-zero. Mirrors
     `DataCommitmentCircuit.Define`. -/
 def zkSpecRelation (stmt : ZKSpec) (w : ZKWitness) : Prop :=
-  mimc w.preimage = stmt.commitment ∧ stmt.commitment ≠ 0
+  mimcHashOneBlock zkField mimcExponent zkMiMCConstants w.preimage = stmt.commitment ∧
+    stmt.commitment ≠ 0
 
-/-- Spec verifier: accepts iff a witness satisfying the relation exists
-    (soundness direction of the refinement). -/
+/-- Spec verifier: accepts iff a witness satisfying the relation exists. -/
 def zkSpecVerify (stmt : ZKSpec) : Prop :=
   ∃ w : ZKWitness, zkSpecRelation stmt w
 
@@ -127,41 +129,36 @@ theorem zk_impl_rejects_wrong_circuit_vk (stmt : ZKSpec) (proof : ZKProof)
 
 /-- Honest prover (mirrors `ProveDataCommitment`). -/
 def zkImplProve (stmt : ZKSpec) (w : ZKWitness) : ZKProof :=
-  ⟨mimc w.preimage, stmt.vk⟩
+  ⟨mimcHashOneBlock zkField mimcExponent zkMiMCConstants w.preimage, stmt.vk⟩
 
-/-- Refinement: the implementation accepts only proofs that witness the spec
-    relation (soundness). -/
-theorem zk_impl_refines_spec (stmt : ZKSpec) (proof : ZKProof)
-    (h : zkImplVerify stmt proof = true) :
-    zkSpecVerify stmt := by
-  unfold zkImplVerify at h
-  rw [Bool.and_eq_true, Bool.and_eq_true, Bool.and_eq_true] at h
-  obtain ⟨⟨⟨hc, hvk⟩, hvk2⟩, hne⟩ := h
-  rw [decide_eq_true_eq] at hc hvk hvk2 hne
-  refine ⟨⟨proof.commitment⟩, ?_⟩
-  unfold zkSpecRelation
-  constructor
-  · -- mimc preimage = commitment; under the identity model mimc x = x,
-    -- and hc gives proof.commitment = stmt.commitment, so we need
-    -- mimc proof.commitment = stmt.commitment, i.e. proof.commitment = stmt.commitment.
-    simpa [mimc] using hc
-  · exact hne
-
-/-- **The preimage existential is trivial under the identity stand-in.**
-    `zkSpecVerify stmt` is exactly `stmt.commitment ≠ 0`: for a non-zero
-    commitment the witness `⟨stmt.commitment⟩` works, and for a zero commitment
-    the relation's second conjunct fails. Stated as a theorem so the soundness
-    result above is read correctly — under the surrogate, acceptance adds
-    nothing beyond the circuit's own non-zero check, and the content lives in
-    `zk_impl_binding` and `zk_preimage_unique`. -/
+/-- Exact characterisation of the spec's existence claim: a statement is
+    satisfiable iff its commitment is non-zero and is in the image of the
+    one-block hash. This replaces the old identity-stand-in theorem
+    (`zkSpecVerify stmt ↔ stmt.commitment ≠ 0`), which was a triviality. -/
 theorem zk_spec_verify_iff (stmt : ZKSpec) :
-    zkSpecVerify stmt ↔ stmt.commitment ≠ 0 := by
-  unfold zkSpecVerify zkSpecRelation mimc
+    zkSpecVerify stmt ↔
+      stmt.commitment ≠ 0 ∧
+        stmt.commitment ∈ Set.range (mimcHashOneBlock zkField mimcExponent zkMiMCConstants) := by
   constructor
-  · rintro ⟨w, _, hne⟩
-    exact hne
-  · intro h
-    exact ⟨⟨stmt.commitment⟩, rfl, h⟩
+  · rintro ⟨w, h1, h2⟩
+    exact ⟨h2, w.preimage, h1⟩
+  · rintro ⟨hne, x, hx⟩
+    exact ⟨⟨x⟩, hx, hne⟩
+
+/-- Refinement (soundness): an accepted proof implies the statement is
+    satisfiable, **provided the commitment lies in the image of the one-block
+    hash**. That hypothesis is automatic for the old identity stand-in and is
+    exactly the content Groth16 knowledge soundness would supply for the real
+    circuit; it is stated, not hidden. -/
+theorem zk_impl_refines_spec (stmt : ZKSpec) (proof : ZKProof)
+    (h : zkImplVerify stmt proof = true)
+    (himg : ∃ x : ZMod zkField,
+      mimcHashOneBlock zkField mimcExponent zkMiMCConstants x = stmt.commitment) :
+    zkSpecVerify stmt := by
+  rw [zk_impl_accept_iff] at h
+  obtain ⟨-, -, -, hne⟩ := h
+  obtain ⟨x, hx⟩ := himg
+  exact ⟨⟨x⟩, hx, hne⟩
 
 /-- Completeness: an honestly-generated proof verifies. -/
 theorem zk_impl_complete (stmt : ZKSpec) (w : ZKWitness)
@@ -177,42 +174,47 @@ theorem zk_impl_complete (stmt : ZKSpec) (w : ZKWitness)
 theorem zk_impl_binding (stmt : ZKSpec) (p1 p2 : ZKProof)
     (h1 : zkImplVerify stmt p1 = true) (h2 : zkImplVerify stmt p2 = true) :
     p1.commitment = p2.commitment := by
-  unfold zkImplVerify at h1 h2
-  rw [Bool.and_eq_true, Bool.and_eq_true, Bool.and_eq_true] at h1 h2
-  obtain ⟨⟨⟨hc1, _⟩, _⟩, _⟩ := h1
-  obtain ⟨⟨⟨hc2, _⟩, _⟩, _⟩ := h2
-  rw [decide_eq_true_eq] at hc1 hc2
-  rw [hc1, hc2]
+  rw [zk_impl_accept_iff] at h1 h2
+  exact h1.1.trans h2.1.symm
 
-/-- Real MiMC bridge: the genuine MiMC round function over ZMod 7 (with
-    exponent 5) is injective, delegating to the formalized result in
-    `Theorem5MiMCFormalization`. This closes the gap where the ZK circuit
-    refinement previously treated MiMC as an uninterpreted identity. -/
+/-- Small-prime guard for the MiMC round function, delegating to the formalized
+    result in `Theorem5MiMCFormalization`. -/
 theorem zk_mimc_real_round_injective :
-    Function.Injective (LeanFormalization.mimcRound 7 5 (0 : ZMod 7)) :=
-  LeanFormalization.mimcRound_small_prime_guard
+    Function.Injective (mimcRound 7 5 (0 : ZMod 7)) :=
+  mimcRound_small_prime_guard
 
-/-- Under the real MiMC round function, a commitment has **at most one**
-    preimage: two field elements that hash to the same value are equal. This is
-    what `zk_mimc_real_round_injective` buys, and it makes that lemma
-    load-bearing rather than a decorative bridge. -/
+/-- Under the real MiMC round function, a commitment has at most one preimage
+    (small-prime guard). -/
 theorem zk_preimage_unique (a b : ZMod 7)
-    (hh : LeanFormalization.mimcRound 7 5 (0 : ZMod 7) a
-        = LeanFormalization.mimcRound 7 5 (0 : ZMod 7) b) :
+    (hh : mimcRound 7 5 (0 : ZMod 7) a = mimcRound 7 5 (0 : ZMod 7) b) :
     a = b :=
   zk_mimc_real_round_injective hh
 
 /-- The same uniqueness at the real BN254 scalar modulus, conditional on the
-    primality of the field order — an explicit hypothesis, exactly as in
+    primality of the field order -- an explicit hypothesis, exactly as in
     `mimcRound_bn254_injective`. -/
-theorem zk_preimage_unique_bn254 (hp : Nat.Prime LeanFormalization.bn254Prime)
-    (a b : ZMod LeanFormalization.bn254Prime)
-    (hh : LeanFormalization.mimcRound LeanFormalization.bn254Prime
-            LeanFormalization.mimcExponent (0 : ZMod LeanFormalization.bn254Prime) a
-        = LeanFormalization.mimcRound LeanFormalization.bn254Prime
-            LeanFormalization.mimcExponent (0 : ZMod LeanFormalization.bn254Prime) b) :
+theorem zk_preimage_unique_bn254 (hp : Nat.Prime bn254Prime)
+    (a b : ZMod bn254Prime)
+    (hh : mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime) a
+        = mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime) b) :
     a = b :=
-  LeanFormalization.mimcRound_bn254_injective hp hh
+  mimcRound_bn254_injective hp hh
+
+/-- The BN254 MiMC block cipher is a permutation, so a digest has exactly one
+    preimage under it. This is the non-trivial algebraic content the identity
+    stand-in lacked. -/
+theorem zk_block_cipher_preimage_unique (hp : Nat.Prime zkField) (digest : ZMod zkField) :
+    ∃! m, mimcEncrypt zkField mimcExponent (0 : ZMod zkField) zkMiMCConstants m = digest :=
+  mimcEncrypt_preimage_unique zkField mimcExponent hp bn254Exponent_coprime (by decide)
+    (0 : ZMod zkField) zkMiMCConstants digest
+
+/-- Injectivity of the BN254 block cipher, the form the refinement needs. -/
+theorem zk_block_cipher_injective_bn254 (hp : Nat.Prime zkField) (a b : ZMod zkField)
+    (hh : mimcEncrypt zkField mimcExponent (0 : ZMod zkField) zkMiMCConstants a
+        = mimcEncrypt zkField mimcExponent (0 : ZMod zkField) zkMiMCConstants b) :
+    a = b :=
+  mimcEncrypt_injective zkField mimcExponent hp bn254Exponent_coprime (by decide)
+    (0 : ZMod zkField) zkMiMCConstants hh
 
 
 /-! ### WeightUpdateCircuit refinement
@@ -236,11 +238,8 @@ weightImplVerify stmt p = true  ->  exists w, WeightRelation stmt w
 is **Groth16 knowledge soundness** for the compiled R1CS. It is NOT proved here,
 and it is not provable in this Mathlib (no pairing or hardness machinery; see
 `docs/MAJOR_WIN_PLAN.md` W2/W3). It is recorded as a gap rather than hidden
-behind a surrogate hash that makes the existential trivially satisfiable -- the
-mistake the `mimc` identity stand-in above risks.
+behind a surrogate hash that makes the existential trivially satisfiable.
 -/
-
-open LeanFormalization
 
 /-- Implementation predicate mirroring `internal.VerifyWeightProofAgainst`. -/
 def weightImplVerify (stmt : WeightStatement) (proof : WeightProof) : Bool :=

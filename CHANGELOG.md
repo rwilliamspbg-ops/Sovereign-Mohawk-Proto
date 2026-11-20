@@ -237,6 +237,62 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
+
+The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
+verification-key magic constants -- are gone. Both are now structurally tied to
+the real circuit.
+
+- `proofs/LeanFormalization/Theorem5MiMCFormalization.lean` (new row 24 in the
+  traceability matrix): the real MiMC over BN254, mirroring gnark-crypto's
+  `ecc/bn254/fr/mimc` -- `mimcNbRounds = 110` keyed rounds
+  `m \u21a6 (m + key + c_i)^5`, a Miyaguchi\u2013Preneel compressor
+  `E_left(right) + left + right`, and a Merkle\u2013Damg\u00e5rd chain from the zero
+  state. `mimcEncrypt_bijective` proves the block cipher is a **permutation**
+  for every key (each round is a translation plus the injective power map from
+  `mimcRound_injective`), and `mimcEncrypt_preimage_unique` gives a unique
+  preimage per digest -- the non-trivial algebraic content the identity
+  stand-in lacked. The round constants are a **parameter**: gnark-crypto derives
+  110 of them from the seed `"seed"` by a sha3 procedure this Mathlib cannot
+  reproduce, so `mimcModelConstants` is a documented deterministic stand-in and
+  every theorem is generic in the constants.
+- `proofs/LeanFormalization/Theorem5Cryptography.lean`: `MiMCRelation` now uses
+  the real one-block hash over `ZMod bn254Prime` (was `mimc x = x`), and
+  `circuitVK`/`weightCircuitVK` are `deriveVK` of a `CircuitDescription`
+  (public-input count, witness arity, and the **measured** constraint count --
+  331 for `DataCommitmentCircuit`, 9,569 for `WeightUpdateCircuit`), with
+  `deriveVK_injective` proving distinct circuits have distinct keys.
+- `proofs/Refinement/ZKCircuit.lean`: rewritten onto the field. The
+  `zkSpecVerify stmt \u2194 stmt.commitment \u2260 0` triviality theorem is **gone**;
+  `zk_spec_verify_iff` is now the honest image characterization and
+  `zk_impl_refines_spec` states its image hypothesis explicitly rather than
+  inheriting an automatic one. `zk_block_cipher_preimage_unique` and
+  `zk_preimage_unique_bn254` connect the permutation result to the refinement.
+- Honesty: Groth16 knowledge soundness for the compiled R1CS remains **not
+  claimed**; it is recorded as a gap in the module docstring and in the matrix.
+- `#print axioms` on every new declaration reports only
+  `[propext, Classical.choice, Quot.sound]`; the build is sorry-free and
+  axiom-free.
+
+## [Unreleased]
+### Added - Paper: workshop short paper on the composition counterexample and the rational Chernoff bound
+
+- `docs/WORKSHOP_PAPER.md` (+ rendered `docs/WORKSHOP_PAPER.pdf`, 9 pages) and a
+  generalized `scripts/render_paper_pdf.sh` that now accepts an arbitrary
+  `docs/<name>.md` source (`--check` still works on the default target).
+  The paper isolates the two headline results from the 33-page full paper
+  (`docs/ACADEMIC_PAPER.md`) into a standalone workshop-format submission:
+  1. the machine-checked disproof of deterministic hierarchical composition
+     (`hierarchical_composition_counterexample`, `#print axioms` -> *no axioms*),
+  2. the rational Chernoff repair (`binomialTail_le_chernoffBoundZ`,
+     `chernoffBoundZ_deployment_scale_tiny`), closed by exponent reduction with
+     no `native_decide`.
+  Section 5 states the limitations plainly: the counterexample is about
+  deterministic composition, the Chernoff bound is conditional on i.i.d.
+  Bernoulli assignment and says nothing about adversarial placement, and no
+  deployment-scale empirical validation is claimed.
+- `docs/INDEX.md` links the new paper.
+
 ### Added - Audit package refresh (W1, docs half)
 
 - `docs/EXTERNAL_AUDIT_SCOPE.md`:

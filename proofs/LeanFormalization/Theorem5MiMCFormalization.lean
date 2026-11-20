@@ -126,4 +126,110 @@ theorem mimcRound_bn254_injective (hp : Nat.Prime bn254Prime) :
     Function.Injective (mimcRound bn254Prime mimcExponent (0 : ZMod bn254Prime)) := by
   exact mimcRound_injective bn254Prime mimcExponent hp bn254Exponent_coprime (by decide) (0 : ZMod bn254Prime)
 
+
+/-! ## The full MiMC construction: block cipher, compressor, Merkle–Damgård
+
+gnark-crypto's BN254 MiMC (`ecc/bn254/fr/mimc`) is a Merkle–Damgård hasher over
+field elements whose compression function is Miyaguchi–Preneel over a 110-round
+block cipher:
+
+* block cipher `E_key(m)`: 110 rounds of `m ↦ (m + key + c_i)^5`, then `+ key`;
+* compressor `C(left, right) = E_left(right) + left + right`;
+* hash chain: `h_0 = 0`, `h_{i+1} = C(h_i, m_i)`.
+
+`mimcRound` above is the zero-key round. This section lifts it to the whole
+construction. The round constants `cs` are a **parameter**: gnark-crypto derives
+110 of them from the seed `"seed"` by a sha3-based procedure that this Mathlib
+cannot reproduce, so every theorem below is generic in `cs`. Where a concrete
+value is needed, `mimcModelConstants` supplies a deterministic stand-in and the
+docstring says so. -/
+
+/-- gnark-crypto's BN254 MiMC round count (`mimcNbRounds`). -/
+def mimcBN254Rounds : Nat := 110
+
+/-- One keyed MiMC block-cipher round: `m ↦ (m + key + c)^e`. -/
+def mimcBlockRound (p e : Nat) (key c x : ZMod p) : ZMod p :=
+  (x + key + c) ^ e
+
+/-- The MiMC block cipher `E_key(m)` (gnark-crypto's `encrypt`): the keyed rounds
+    followed by a final `+ key`. -/
+def mimcEncrypt (p e : Nat) (key : ZMod p) (cs : List (ZMod p)) (m : ZMod p) : ZMod p :=
+  (cs.foldl (fun acc c => mimcBlockRound p e key c acc) m) + key
+
+/-- Miyaguchi–Preneel compressor `C(left, right) = E_left(right) + left + right`. -/
+def mimcCompress (p e : Nat) (left : ZMod p) (cs : List (ZMod p)) (right : ZMod p) : ZMod p :=
+  mimcEncrypt p e left cs right + left + right
+
+/-- Merkle–Damgård hash chain from an initial state over a list of blocks. -/
+def mimcHashChain (p e : Nat) (cs : List (ZMod p)) (init : ZMod p)
+    (inputs : List (ZMod p)) : ZMod p :=
+  inputs.foldl (fun h m => mimcCompress p e h cs m) init
+
+/-- The one-block hash used by `DataCommitmentCircuit`
+    (`Commitment = MiMC(Preimage)`): the chain from the zero initial state over
+    the single preimage block. -/
+def mimcHashOneBlock (p e : Nat) (cs : List (ZMod p)) (x : ZMod p) : ZMod p :=
+  mimcCompress p e 0 cs x
+
+/-- A concrete deterministic constant sequence, used where the model needs a
+    value rather than a parameter. It stands in for gnark-crypto's seed-derived
+    constants; the theorems are generic in the constants, and this list is NOT
+    claimed to be gnark's. -/
+def mimcModelConstants (p : Nat) : List (ZMod p) :=
+  (List.range mimcBN254Rounds).map (fun i => (i ^ 2 + 1 : ZMod p))
+
+/-- Each keyed round is injective: a translation followed by the injective power
+    map (`mimcRound_injective`). -/
+theorem mimcBlockRound_injective (p e : Nat) (hp : Nat.Prime p)
+    (he : Nat.Coprime e (p - 1)) (hepos : 0 < e) (key c : ZMod p) :
+    Function.Injective (mimcBlockRound p e key c) := by
+  have hround : mimcBlockRound p e key c = mimcRound p e (key + c) := by
+    funext z
+    simp [mimcBlockRound, mimcRound, add_assoc]
+  rw [hround]
+  exact mimcRound_injective p e hp he hepos (key + c)
+
+/-- The keyed-round fold is injective, by induction on the constant list. -/
+theorem mimcEncryptBody_injective (p e : Nat) (hp : Nat.Prime p)
+    (he : Nat.Coprime e (p - 1)) (hepos : 0 < e) (key : ZMod p) (cs : List (ZMod p)) :
+    Function.Injective
+      (fun m : ZMod p => cs.foldl (fun acc c => mimcBlockRound p e key c acc) m) := by
+  induction cs with
+  | nil => intro a b h; simpa using h
+  | cons c cs ih =>
+      intro a b h
+      simp only [List.foldl_cons] at h
+      exact mimcBlockRound_injective p e hp he hepos key c (ih h)
+
+/-- The MiMC block cipher is injective in the message for every key. -/
+theorem mimcEncrypt_injective (p e : Nat) (hp : Nat.Prime p)
+    (he : Nat.Coprime e (p - 1)) (hepos : 0 < e) (key : ZMod p) (cs : List (ZMod p)) :
+    Function.Injective (mimcEncrypt p e key cs) := by
+  intro a b h
+  unfold mimcEncrypt at h
+  exact mimcEncryptBody_injective p e hp he hepos key cs (add_right_cancel h)
+
+/-- The MiMC block cipher is a **permutation** of the field for every key: each
+    keyed round is a translation followed by an injective power map, and the
+    final `+ key` is a translation. -/
+theorem mimcEncrypt_bijective (p e : Nat) (hp : Nat.Prime p)
+    (he : Nat.Coprime e (p - 1)) (hepos : 0 < e) (key : ZMod p) (cs : List (ZMod p)) :
+    Function.Bijective (mimcEncrypt p e key cs) := by
+  haveI : Fact (Nat.Prime p) := ⟨hp⟩
+  exact (mimcEncrypt_injective p e hp he hepos key cs).bijective_of_finite
+
+/-- A bijective block cipher has exactly one preimage per digest. -/
+theorem mimcEncrypt_preimage_unique (p e : Nat) (hp : Nat.Prime p)
+    (he : Nat.Coprime e (p - 1)) (hepos : 0 < e) (key : ZMod p) (cs : List (ZMod p))
+    (digest : ZMod p) : ∃! m, mimcEncrypt p e key cs m = digest := by
+  haveI : Fact (Nat.Prime p) := ⟨hp⟩
+  exact (mimcEncrypt_bijective p e hp he hepos key cs).existsUnique digest
+
+/-- The one-block hash is **not** the identity: a concrete field element hashes
+    to a different one (small-prime guard instance). This is the non-triviality
+    witness the identity stand-in in `Refinement.ZKCircuit` previously lacked. -/
+theorem mimcHashOneBlock_not_id :
+    mimcHashOneBlock 7 5 [1, 2, 3] (1 : ZMod 7) ≠ (1 : ZMod 7) := by
+  decide
+
 end LeanFormalization

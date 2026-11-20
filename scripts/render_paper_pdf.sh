@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# render_paper_pdf.sh -- regenerate docs/ACADEMIC_PAPER.pdf from the Markdown source.
+# render_paper_pdf.sh -- regenerate a docs/*.pdf paper from its Markdown source.
 #
 # Toolchain: pandoc (Markdown -> Typst/PDF) + the Typst CLI as the PDF engine.
 # Typst is used instead of a LaTeX distribution because it renders the paper's
@@ -12,10 +12,13 @@
 # On Linux/macOS: install pandoc and typst from your package manager.
 #
 # Usage:
-#   bash scripts/render_paper_pdf.sh                 # docs/ACADEMIC_PAPER.pdf
-#   bash scripts/render_paper_pdf.sh --check         # fail if the PDF is stale
+#   bash scripts/render_paper_pdf.sh                          # docs/ACADEMIC_PAPER.pdf
+#   bash scripts/render_paper_pdf.sh --check                  # fail if that PDF is stale
+#   bash scripts/render_paper_pdf.sh docs/WORKSHOP_PAPER.md   # render another source
+#   bash scripts/render_paper_pdf.sh docs/WORKSHOP_PAPER.md --check
 #
-# Exit code is non-zero if a tool is missing or the render fails.
+# The target is docs/<basename>.pdf next to the source. Exit code is non-zero if
+# a tool is missing or the render fails.
 
 set -euo pipefail
 
@@ -26,11 +29,24 @@ to_win() {
 }
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE="$REPO_ROOT/docs/ACADEMIC_PAPER.md"
-TARGET="$REPO_ROOT/docs/ACADEMIC_PAPER.pdf"
 
+# `--check` may appear in any position; the first other argument is the source.
 CHECK_ONLY=0
-[ "${1:-}" = "--check" ] && CHECK_ONLY=1
+ARG=""
+for a in "$@"; do
+  if [ "$a" = "--check" ]; then
+    CHECK_ONLY=1
+  elif [ -z "$ARG" ]; then
+    ARG="$a"
+  fi
+done
+if [ -n "$ARG" ]; then
+  SOURCE="$REPO_ROOT/$ARG"
+  TARGET="$REPO_ROOT/docs/$(basename "${ARG%.md}").pdf"
+else
+  SOURCE="$REPO_ROOT/docs/ACADEMIC_PAPER.md"
+  TARGET="$REPO_ROOT/docs/ACADEMIC_PAPER.pdf"
+fi
 
 find_pandoc() {
   if command -v pandoc >/dev/null 2>&1; then command -v pandoc; return; fi
@@ -60,7 +76,7 @@ if [ "$CHECK_ONLY" = 1 ]; then
   fi
   if [ "$SOURCE" -nt "$TARGET" ]; then
     echo "[paper] STALE: $SOURCE is newer than $TARGET" >&2
-    echo "        regenerate with: bash scripts/render_paper_pdf.sh" >&2
+    echo "        regenerate with: bash scripts/render_paper_pdf.sh ${ARG:-}" >&2
     exit 1
   fi
   echo "[paper] PDF is up to date: $TARGET"
