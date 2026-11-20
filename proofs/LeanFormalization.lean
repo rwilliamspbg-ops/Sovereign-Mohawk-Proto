@@ -27,3 +27,4 @@ import LeanFormalization.MultiKrumConvergence
 import LeanFormalization.ProtocolSafety
 import LeanFormalization.KrumSelection
 import LeanFormalization.SchnorrReduction
+import LeanFormalization.HypothesisNecessity

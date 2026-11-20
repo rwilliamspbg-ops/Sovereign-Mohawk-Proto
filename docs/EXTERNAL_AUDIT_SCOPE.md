@@ -41,23 +41,24 @@ cd proofs && lake build
 grep -rn "sorry\|admit" --include=*.lean proofs/LeanFormalization proofs/Refinement proofs/Specification
 grep -rn "^axiom " --include=*.lean proofs/LeanFormalization proofs/Refinement proofs/Specification
 
-# spot-check the one documented toolchain trust
+# spot-check that no declaration carries a non-kernel trust
 cat > _axprobe.lean <<'EOF'
 import LeanFormalization.Theorem1BFT
 #print axioms LeanFormalization.chernoffBoundZ_deployment_scale_tiny
+#print axioms LeanFormalization.chernoff_hierarchical_bound_deployment_scale
 EOF
 lake env lean _axprobe.lean; rm -f _axprobe.lean
 ```
 
 Expect: **zero** hits from both greps (the only `admit` in the project modules
 is the word in a comment in `Refinement/MultiKrum.lean`), and `#print axioms`
-reporting only `propext`, `Classical.choice`, `Quot.sound` plus that single
-`native_decide` reduction trust (see §6). Verified at `53d4e45c1`. Full
-history: `docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md`.
+reporting only `propext`, `Classical.choice`, `Quot.sound` — no
+`._native.native_decide.ax_1_1`, no `sorryAx` (see §6). Full history:
+`docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md`.
 
 **Step 2 — read the three artifacts in this order (~10 min)**
 
-1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 22 rows.
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 23 rows.
    Start with every row *not* marked `fully_formalized`.
 2. §3 of this document — the four highest-priority review targets.
 3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
@@ -96,11 +97,24 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      as dead (#313).
    - Question: is the reduction algebraically sound? Are the assumptions
      discharged by a real forking-lemma argument, or are they load-bearing?
+   - **Load-bearingness, now machine-checked (matrix row 23):**
+     `proofs/LeanFormalization/HypothesisNecessity.lean` exhibits, for each
+     transcript hypothesis of `recovery_yields_secret` and
+     `schnorr_special_soundness`, a concrete instance where that hypothesis
+     fails and the conclusion fails with it. The `Fact (Nat.Prime …)` instance
+     is deliberately not refuted: it is a number-theoretic assumption, not a
+     condition on transcripts (dropping it makes `ZMod n` a ring in which
+     inverses need not exist).
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`
    - Question: does the model capture the real Ed25519 verification equation,
      or does it abstract away the curve/field details that carry the security?
+   - Note: `Ed25519_uf_cma`'s `h_secure` is a hardness assumption, not a
+     refutable condition, so it has no negative control; the module's own
+     docstring says a full proof needs a genuine Ed25519 verifier plus a
+     discrete-log reduction. The refutable algebraic core is
+     `schnorr_special_soundness`, covered by row 23.
 
 3. **ZK circuit ↔ Go verifier refinement** (updated 2026-11-18)
    - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5Cryptography.lean`
