@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "51214266796c95b2ab0962169af1add95d8356c6f66877f8335365a2771e869a",
+  "input_merkle_root": "8d7dd797f972b6de52b9915540b3e2d83ae6c68c78f3ea2e2449945cca3ae224",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "1c3acc6aa82097196b53a2365210a546c388208c4d7a4163b1b993b1a97b79ec"
+      "sha256": "18aa418ec93c7883553bad616aa6871b992919aed083cacd7cceb7ae8941a140"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "43b910fe4e58458fd15ea88b44ebe1e295c08d609c6eb978214867714419de68"
+      "sha256": "787203b6c233b230014398ba8f24835b41861c707b25f82971a39d98671c4f95"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -91,6 +91,10 @@
       "sha256": "d3822574383dc90e0506416dfdd9236e18787ca1d50665179438e6e3384c8dda"
     },
     {
+      "path": "proofs/LeanFormalization/SchnorrUF_CMA.lean",
+      "sha256": "4a0b4fe02c5b309778618395186c51e5fc005328938bc9424ef4a27c9a1f8eee"
+    },
+    {
       "path": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
       "sha256": "3a3dcbf64193a145d4d1df94ae2a3f564922ae69a28604821a27c2feeb0ad0c1"
     },
@@ -136,7 +140,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
-      "sha256": "bcceffb7eccc72e55c4db4d32011003bb1469e8fbdf6a35fc3fd7af7cc47990f"
+      "sha256": "779378156d0a2fb7a135b08e2fe989c25b9564924a5545636430cad88ea37e80"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6StochasticConvergence.lean",
@@ -168,7 +172,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "ed890c2c31c915b6a6ca30826ff1f9cb07282d9fdcdcd4a28d8cd19336bde7a8"
+      "sha256": "0642345a590300c4b1475ba5ad38123553a94d3edaeb4fce2fd32affcac6db99"
     }
   ],
   "lean_modules": [
@@ -378,6 +382,22 @@
         "schnorr_hvzk_commitment_bijective",
         "schnorr_hvzk_simulation",
         "schnorr_special_soundness"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/SchnorrUF_CMA.lean",
+      "module": "LeanFormalization.SchnorrUF_CMA",
+      "symbol_count": 9,
+      "symbols": [
+        "card_zmod_pos",
+        "dl_solver_advantage_of_forger",
+        "forkEvent_of_forkProbability_pos",
+        "forkProbability_ge",
+        "fork_extraction",
+        "fork_ge_secondMoment",
+        "natCast_mul_pred",
+        "successProbability_eq_one_div_card",
+        "successProbability_le_of_dl_hard"
       ]
     },
     {
@@ -755,9 +775,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 40,
-    "module_count": 33,
-    "theorem_symbol_count": 349
+    "input_file_count": 41,
+    "module_count": 34,
+    "theorem_symbol_count": 358
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
