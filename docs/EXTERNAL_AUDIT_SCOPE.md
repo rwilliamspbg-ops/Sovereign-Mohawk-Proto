@@ -232,6 +232,17 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      hypothesis `heterogeneity = zeta^2`, which is a *configuration* fact about
      how the monitor is wired, not a theorem; and the Go floor is more
      permissive than the spec's degenerate case.
+   - **Q3 (measure-theoretic convergence) answered 2026-11-20 (matrix row
+     30).** It was **not** an envelope restatement, but it did over-claim: the
+     docstring said the model was "built on Mathlib's PMF" when there is no
+     PMF, measure or `expectation` in the file (`noiseVariance` was the
+     identity), and `convergence_rate_from_descent` proved only a
+     nonnegativity bound while its docstring claimed the `O(1/√T)` rate. Both
+     fixed: `noiseVariance` removed, docstring honest, and the rate now really
+     proved — `convergence_rate_uniform` gives
+     `g² ≤ D/(T·η) + η·L·σ²/2`, and `convergence_rate_sqrt_T` optimizes it to
+     `g² ≤ sqrt(2·L·σ²·D/T)`. The descent lemma remains an explicit hypothesis
+     (smoothness/convexity are not modelled).
 
 ## 4. Medium priority
 

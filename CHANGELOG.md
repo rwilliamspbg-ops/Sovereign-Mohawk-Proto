@@ -357,7 +357,40 @@ check_no_unsafe_placeholders, lint_formal_proof_claims,
 validate_formal_traceability (23 modules, 280 symbols), check_markdown_links
 all pass.
 
+### Fixed - Lean: measure-theoretic convergence — two over-claims corrected and the rate really proved (review issue #250 Q3)
+
+`proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean` answered
+"envelope restatement or real content?" with **two over-claims and one real
+gap**:
+
+- The module docstring said it was "built on Mathlib's PMF (probability mass
+  functions)". There is **no PMF, no probability measure and no
+  `expectation`** in the file: `noiseVariance` was the identity function and
+  every quantity is a bare `ℚ`. `noiseVariance` is removed and the docstring
+  now says the "measure-theoretic" name refers to the expectation-based shape
+  of the bound, not to measure-theoretic machinery.
+- `convergence_rate_from_descent` proved only `0 ≤ D·η + (L·σ²/2)·η` — a
+  nonnegativity statement with no `T` in it — while its docstring claimed the
+  `O(1/√T)` rate. That claim is now a theorem.
+
+New content: `TelescopedDescent` (the summed descent inequality, as an
+explicit predicate), `convergence_rate_uniform`
+(`g² ≤ D/(T·η) + η·L·σ²/2`), `convergence_rate_nonneg`, and
+`convergence_rate_sqrt_T`, which optimizes at `η = sqrt(2D/(L·σ²·T))` to give
+`g² ≤ sqrt(2·L·σ²·D/T)` over `ℝ`. Stated openly: the descent lemma itself
+remains an explicit hypothesis (it needs smoothness and convexity).
+
+Traceability: new row 30 gates the module (previously ungated), and
+`results/proofs/formal_validation_report.json` is regenerated.
+
+Verified: `lake build LeanFormalization Specification Refinement` -> 8369
+jobs, success, no new warnings; `generate_formal_validation_report.py
+--check` passes; check_no_unsafe_placeholders, lint_formal_proof_claims,
+validate_formal_traceability (24 modules, 292 symbols),
+check_markdown_links and check_claim_transitions all pass.
+
 ### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
+
 The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
 verification-key magic constants -- are gone. Both are now structurally tied to
 the real circuit.
