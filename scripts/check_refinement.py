@@ -51,8 +51,12 @@ REQUIRED_LEAN_FILES = {
         "def stragglerSpecBound",
         "def stragglerImplCorrelated",
         "theorem straggler_impl_correlated_refines_spec",
+        "theorem straggler_impl_le_spec",
+        "theorem straggler_impl_le_spec_out_of_range",
+        "theorem straggler_independent_refines_spec",
         "theorem straggler_independent_le_correlated",
-        "theorem straggler_adversarial_refines",
+        "theorem straggler_adversarial_matches_spec",
+        "theorem stragglerChernoffEnvelope_le_one",
     ],
     "Refinement/DLP.lean": [
         "def dlpSpecVerify",
@@ -63,7 +67,12 @@ REQUIRED_LEAN_FILES = {
     "Refinement/Convergence.lean": [
         "def convergenceSpecEnvelope",
         "def convergenceImplEnvelope",
+        "theorem effectiveThreshold_eq_envelope",
         "theorem convergence_impl_refines_spec",
+        "theorem convergence_impl_floor_ge_spec",
+        "theorem convergence_impl_floor_ge_zero",
+        "theorem convergence_refines_spec_hhet_needed",
+        "theorem convergence_floor_npos_needed",
         "theorem convergence_envelope_rounds_monotone",
     ],
     "Refinement/ZKCircuit.lean": [

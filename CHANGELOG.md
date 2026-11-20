@@ -288,6 +288,43 @@ Verified: `lake build LeanFormalization` -> 8349 jobs, success, no new warnings;
 claim lint, traceability (23 modules / 246 symbols) and markdown link check all
 pass.
 
+## [Unreleased]
+### Fixed - Lean: vacuous convergence / straggler refinement theorems removed (review issue #250)
+
+`proofs/Refinement/Convergence.lean` and `proofs/Refinement/Straggler.lean`
+carried three theorems that were true but said nothing. All three are removed,
+with the reasons recorded in the module docstrings, and replaced by theorems
+that carry content.
+
+- `convergence_impl_floor_ge_spec` stated `heterogeneity ≥ 0` under the
+  hypothesis `0 ≤ heterogeneity` and proved it by `exact hh`. It is now a real
+  branch inequality: when `K ≤ 0 ∨ T ≤ 0` the Go envelope is the heterogeneity
+  floor while the spec is `0`, so the runtime guard is never stricter than the
+  spec's degenerate case (uses both hypotheses).
+- `straggler_adversarial_refines` was
+  `(if d < r then 0 else 1) = stragglerAdversarialSpec r d`, proved by `rfl`
+  because the spec was *defined* as the Go expression. The definitional match
+  is now recorded against the real spec
+  (`straggler_adversarial_matches_spec` vs
+  `Theorem4StragglerResilience.adversarialFailureProb`).
+- `stragglerChernoffEnvelope_nonneg` (`0 ≤ exp _`) holds for every
+  exponential; replaced by `stragglerChernoffEnvelope_le_one`, the probability
+  sanity bound.
+
+New content: `effectiveThreshold_eq_envelope` (the runtime guard
+`Threshold + Heterogeneity` is the envelope when `Threshold = 1/(2KT)`),
+`straggler_impl_le_spec` (the Go clamp never exceeds the uncapped Lean spec —
+the runtime is never more optimistic than the theorem),
+`straggler_independent_refines_spec`, `convergence_impl_floor_ge_zero`.
+Negative controls: `convergence_refines_spec_hhet_needed`,
+`convergence_floor_npos_needed`, `straggler_impl_le_spec_out_of_range`.
+
+Traceability: new matrix row 27 gates both modules (previously ungated), and
+`scripts/check_refinement.py` checks the new declarations. Still open and
+stated in `docs/EXTERNAL_AUDIT_SCOPE.md` section 3 item 4: the envelopes agree
+only under the bridge hypothesis `heterogeneity = zeta^2`, a configuration
+fact rather than a theorem.
+
 ### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
 
 The two remaining ZK surrogates -- an uninterpreted MiMC hash and two

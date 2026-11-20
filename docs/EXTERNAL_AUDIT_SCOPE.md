@@ -199,12 +199,31 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      the compiled constraint system, which needs curve machinery this Mathlib
      lacks, and that residual gap is stated rather than hidden.
 
-4. **Convergence / straggler refinement bridges**
+4. **Convergence / straggler refinement bridges** — answered 2026-11-20 (matrix row 27)
    - `proofs/Refinement/Convergence.lean`, `proofs/Refinement/Straggler.lean`
-   - `proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean`
-   - Question: do the refinement predicates (`convergence_impl_refines_spec`,
-     `straggler_impl_refines_spec`) genuinely imply the spec properties, or
-     are the bounds vacuous?
+   - Question: do the refinement predicates genuinely imply the spec
+     properties, or are the bounds vacuous?
+   - **Answer: three of them WERE vacuous, and are removed.** A previous
+     `convergence_impl_floor_ge_spec` stated `heterogeneity ≥ 0` from the
+     hypothesis `0 ≤ heterogeneity` and proved it by `exact hh`;
+     `straggler_adversarial_refines` proved `(if d < r then 0 else 1) =
+     stragglerAdversarialSpec r d` by `rfl` with the spec *defined* as the Go
+     expression; `stragglerChernoffEnvelope_nonneg` was `0 ≤ exp _`, true of
+     every exponential. All three are gone (module docstrings record why).
+   - **Replacements that carry content:**
+     `effectiveThreshold_eq_envelope` (the runtime guard `Threshold +
+     Heterogeneity` *is* the envelope when `Threshold = 1/(2KT)`),
+     `convergence_impl_floor_ge_spec` (a real branch inequality using both
+     `K ≤ 0 ∨ T ≤ 0` and `0 ≤ heterogeneity`), `straggler_impl_le_spec` (the Go
+     clamp never exceeds the uncapped Lean spec — the runtime is never more
+     optimistic than the theorem), `straggler_independent_refines_spec`, and
+     `stragglerChernoffEnvelope_le_one`.
+   - **Negative controls:** `convergence_refines_spec_hhet_needed`,
+     `convergence_floor_npos_needed`, `straggler_impl_le_spec_out_of_range`.
+   - **Still open, and stated:** the envelopes agree only under the bridge
+     hypothesis `heterogeneity = zeta^2`, which is a *configuration* fact about
+     how the monitor is wired, not a theorem; and the Go floor is more
+     permissive than the spec's degenerate case.
 
 ## 4. Medium priority
 
