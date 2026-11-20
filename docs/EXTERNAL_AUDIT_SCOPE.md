@@ -310,6 +310,20 @@ Other honest limitations:
 - The Lean model for Theorem 5 is an abstract constant-operation cost model;
   it does not formalize Groth16 succinctness/soundness or q-SDH (Mathlib
   lacks pairing machinery).
+- **The Gaussian RDP bound is structurally out of reach of the current
+  framework, not merely unfinished** (made precise 2026-11-20). Row 2's
+  `gaussianRDPBound` is an *existence witness*: it exhibits a nonnegative
+  `eps = α/(2σ²)` and derives nothing. The reason it cannot be strengthened
+  in place is that `RenyiDivergence` is declared
+  `{α : Type*} [Fintype α] (p q : α → ℝ)` -- **finite support only** -- while
+  the Gaussian mechanism's output distribution is continuous, so its
+  divergence cannot even be *stated*. A real derivation needs (i) a
+  measure-theoretic Rényi divergence
+  `D_α(p‖q) = (1/(α-1))·log ∫ p^α q^{1-α} dμ`, and (ii) the completed-square
+  Gaussian integral with a shift/change of variables. Mathlib ships
+  `integral_gaussian` (`∫ exp(-b·x²) dx = √(π/b)`), so the analytic ingredient
+  exists, but the framework and the shift lemma do not. This is recorded as a
+  structural gap with named prerequisites rather than as open roadmap work.
 - `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
   caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
   `internal/zkweight_circuit.go`), and falls back to the single-scalar
