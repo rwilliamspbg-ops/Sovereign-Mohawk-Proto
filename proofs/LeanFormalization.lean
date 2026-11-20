@@ -31,3 +31,4 @@ import LeanFormalization.SchnorrReduction
 import LeanFormalization.SchnorrForking
 import LeanFormalization.HypothesisNecessity
 import LeanFormalization.Ed25519VerificationEquation
+import LeanFormalization.SchnorrUF_CMA

@@ -122,9 +122,21 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        only hypotheses are `Fact (Nat.Prime q)` and hardness.
      * `exists_forger_card_eq_q` + `tightness_witness_not_forked` show the
        threshold `q` is **tight** — it cannot be lowered.
-     - Not proved, stated openly: no probabilistic amplification (cardinality,
-       not probability), no efficiency requirement on the constructed solver,
-       and the group is still the abstract `ZMod q`.
+     - The **quantitative** version now exists too (matrix row 31,
+       `SchnorrUF_CMA.lean`, 2026-11-20). Row 25 gave an exact cardinality
+       threshold; row 31 proves the second-moment amplification the literature
+       states. In the two-stage RO model the tape fixes the commitment, so
+       acceptance for a fixed tape is a predicate on the challenge alone;
+       writing `ε` for the success probability and `φ` for the fork probability,
+       Cauchy–Schwarz (`Finset.sum_mul_sq_le_sq_mul_sq`) yields
+       `φ ≥ ε² - ε/N`, and `fork_extraction` turns every fork into `Extracts`,
+       so under `SchnorrDLHard`, `ε ≤ 1/N`. `successProbability_eq_one_div_card`
+       shows the `1/N` bound is tight.
+     - Not proved, stated openly: the game is **identification /
+       impersonation**, not full signature UF-CMA (no signing oracle, no
+       oracle-query bookkeeping); the random oracle is abstracted to a uniform
+       challenge rather than a function-space measure; no efficiency requirement
+       on the constructed solver; and the group is still the abstract `ZMod q`.
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`
@@ -152,8 +164,9 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      - **This is not a UF-CMA proof.** The extractor needs the two equations to
        share `R` (nonce reuse); an honest signer never reuses a nonce, so
        `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing
-       that gap needs the random-oracle forking argument, which is not
-       formalized here.
+       that gap needs the random-oracle forking argument. That argument is now
+       formalized for the identification game (matrix row 31); the residual is
+       the signing-oracle bookkeeping for full signature UF-CMA.
    - **`Refinement/DLP.lean` rebuilt from a vacuous stub (matrix row 28,
      2026-11-20).** It previously defined `dlpHard := True`, a spec and an impl
      that were the *same* guard (`pk ≠ 0 ∧ sig ≠ []`), and a toy `dlpImplSign`.

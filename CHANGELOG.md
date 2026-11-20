@@ -389,6 +389,41 @@ jobs, success, no new warnings; `generate_formal_validation_report.py
 validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
+### Added - Lean: the random-oracle forking reduction (quantitative, `ε² - ε/q`)
+
+New module `LeanFormalization/SchnorrUF_CMA.lean`, closing the gap that matrix
+row 26 left open ("closing that gap needs the random-oracle forking argument").
+
+Row 25 (`SchnorrForking.lean`) proved an **exact cardinality** threshold -- a
+forger succeeds on more than `q` of the `q^2` (randomness, challenge) pairs --
+and stated openly that the passage from probability to cardinality was prose.
+This PR proves the quantitative version the literature states:
+
+* In the two-stage RO model the tape fixes the commitment `R`, so acceptance
+  for a fixed tape is a predicate on the challenge alone; that is
+  `acceptingChallenges`, and it is a property of the model, not a hypothesis.
+* `successProbability` (`ε = (∑ #(G tape))/N²`) and `forkProbability`
+  (`φ = (∑ #(G tape)·(#(G tape)−1))/N³`).
+* `fork_ge_secondMoment` is the heart: by Cauchy–Schwarz
+  (`Finset.sum_mul_sq_le_sq_mul_sq`), `∑ #G² ≥ (∑ #G)²/N`, hence
+  `φ ≥ ε² - ε/N` (`forkProbability_ge`, `dl_solver_advantage_of_forger`) --
+  the standard forking loss.
+* `fork_extraction` turns every fork into `Extracts` (reusing
+  `forking_extractor`), so `successProbability_le_of_dl_hard` concludes
+  **`ε ≤ 1/N` under `SchnorrDLHard`**.
+* `successProbability_eq_one_div_card` is the negative control: the adversary
+  answering only challenge `0` attains exactly `1/N` and never forks, so the
+  bound cannot be improved.
+
+Matrix row 31 gates the module. **Stated openly:** this is the identification /
+impersonation game (the core of the Schnorr-signature UF-CMA proof), not full
+signature UF-CMA -- no signing oracle and no oracle-query bookkeeping; the
+random oracle is abstracted to a uniform challenge rather than a function-space
+measure; and the group is still `ZMod q` (row 26 supplies the Ed25519 bridge).
+
+`#print axioms` on all five headline theorems: only `propext`,
+`Classical.choice`, `Quot.sound`. No `sorry`, no new axioms.
+
 ### Docs - audit: the Gaussian RDP gap is structural, now stated with its prerequisites
 
 Row 2's `gaussianRDPBound` is an existence witness (it exhibits a nonnegative
