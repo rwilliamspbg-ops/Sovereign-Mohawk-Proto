@@ -325,8 +325,39 @@ stated in `docs/EXTERNAL_AUDIT_SCOPE.md` section 3 item 4: the envelopes agree
 only under the bridge hypothesis `heterogeneity = zeta^2`, a configuration
 fact rather than a theorem.
 
-### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
+### Fixed - Lean: `Refinement/DLP.lean` rebuilt from a vacuous placeholder (new matrix rows 28-29)
 
+`Refinement/DLP.lean` was a stub, and its own comments said so:
+`dlpHard (_g) (_gx) := True` ("placeholder hardness"), and a spec and an impl
+that were the **same** guard (`pk ≠ 0 ∧ sig ≠ []`), so
+`dlp_impl_refines_spec` was a tautology. Nothing referenced it but
+`scripts/check_refinement.py`, so it is rebuilt rather than patched:
+
+- `dlpSpecVerify` is now the real `Ed25519VerificationEquation`
+  (`S·B = R + h·A`), not a structural guard.
+- `dlpImplVerify` is exactly `ed25519VerifyCore`'s coordinate comparison
+  (agree on `x` and `y`, neither at infinity).
+- `dlp_impl_refines_spec` / `dlp_impl_complete` are real; the latter needs a
+  non-infinity hypothesis, and `dlp_impl_infinity_gap` is a negative control
+  showing that condition is load-bearing (both sides the point at infinity
+  satisfy the spec but are rejected).
+- `dlp_nonce_reuse_recovers` feeds two accepting witnesses into
+  `ed25519_two_equations_recover`.
+
+Stated openly: the byte-level decode is not refined, and this is not a
+UF-CMA proof (the extractor needs nonce reuse).
+
+Also: `Refinement/BFT.lean` was accurate but ungated; new matrix row 29 gates
+it (Go's `n > 2f+2` implies Lean's `2f < n`, with `bft_gap_witness` showing
+the implication is one-directional). Row 28 gates the rebuilt DLP module.
+
+Verified: `lake build LeanFormalization Specification Refinement` -> 8369
+jobs, success; check_refinement.py -> ok, lean_missing {};
+check_no_unsafe_placeholders, lint_formal_proof_claims,
+validate_formal_traceability (23 modules, 280 symbols), check_markdown_links
+all pass.
+
+### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
 The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
 verification-key magic constants -- are gone. Both are now structurally tied to
 the real circuit.

@@ -154,6 +154,14 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing
        that gap needs the random-oracle forking argument, which is not
        formalized here.
+   - **`Refinement/DLP.lean` rebuilt from a vacuous stub (matrix row 28,
+     2026-11-20).** It previously defined `dlpHard := True`, a spec and an impl
+     that were the *same* guard (`pk ≠ 0 ∧ sig ≠ []`), and a toy `dlpImplSign`.
+     The spec is now `Ed25519VerificationEquation`, the impl is
+     `ed25519VerifyCore`'s coordinate comparison, and
+     `dlp_nonce_reuse_recovers` connects two accepting witnesses to
+     `ed25519_two_equations_recover`. The byte-level decode is still not
+     refined (stated in the module docstring).
 
 3. **ZK circuit ↔ Go verifier refinement** (updated 2026-11-18)
    - `proofs/Refinement/ZKCircuit.lean`, `proofs/LeanFormalization/Theorem5Cryptography.lean`
