@@ -4,11 +4,11 @@
     "status_counts": {
       "fully_formalized": 2,
       "model_verified": 2,
-      "surrogate_verified_with_cast_bridge": 1,
-      "surrogate_verified_with_gaussian_axiom": 1
+      "surrogate_verified_gaussian_witness": 1,
+      "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "d52d6055aa4b31e2f2f403ad392605f483fdda298cc63ba854f6c44a3eeb20b6",
+  "input_merkle_root": "152a71dd5c361b52d451660a526aaf5a034a17bbb51b57020c5636073bb480d9",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -16,15 +16,19 @@
     },
     {
       "path": "go.mod",
-      "sha256": "6f0ba45339937a836bb015b73943927975c56a0bcd1cdda56e0fb10351ddd4da"
+      "sha256": "bfc153d1be47b237a5bcc46143c6fbf07bf6989850cd12f80d456e8643123fcb"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "da0fd89aae96026e8f73aa661353381f26f0376ee611dcb7e9da2082f9dc958c"
+      "sha256": "a0ca55498792cd316f9b45fe6f0f02bd3a550f67918290b94e6bfa9ce88ec108"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "d967211241080a0051096d7610fc92df8de3274f9fc6c6be181f4ec43e91292d"
+      "sha256": "43b910fe4e58458fd15ea88b44ebe1e295c08d609c6eb978214867714419de68"
+    },
+    {
+      "path": "proofs/LeanFormalization/Common.lean",
+      "sha256": "534fe3637791eeac032bc60f3203c17c50b0c8af178cd3a0a2d228c45a690179"
     },
     {
       "path": "proofs/LeanFormalization/ConditionalExpectationGradient.lean",
@@ -43,8 +47,16 @@
       "sha256": "6bc980085a3a13c1307e63c716b6d97e7d4ab5a4d1004bc9c313d2f024456ecf"
     },
     {
+      "path": "proofs/LeanFormalization/Ed25519VerificationEquation.lean",
+      "sha256": "11b81ab8ee7e9ddb707673f374596ad4161cc2690f9182321e1c25e086da4833"
+    },
+    {
       "path": "proofs/LeanFormalization/Filtration.lean",
       "sha256": "16abf170f4f9544829efb328ee165c21bdb8d5a28f53ae0ff5db39512801e907"
+    },
+    {
+      "path": "proofs/LeanFormalization/HypothesisNecessity.lean",
+      "sha256": "d4e2290ad5d91fce5b5e268fb301a08c7501a7057bedc579495ce14aa4498081"
     },
     {
       "path": "proofs/LeanFormalization/KrumSelection.lean",
@@ -71,6 +83,10 @@
       "sha256": "a3cae320cf8097be3f16c7daa59a3d663deee738b2ea84fd04f787ee2547f52c"
     },
     {
+      "path": "proofs/LeanFormalization/SchnorrForking.lean",
+      "sha256": "06df92a1b106056b6449377255f172b5dcd5adc0dd81373457b6b1d916838d3d"
+    },
+    {
       "path": "proofs/LeanFormalization/SchnorrReduction.lean",
       "sha256": "d3822574383dc90e0506416dfdd9236e18787ca1d50665179438e6e3384c8dda"
     },
@@ -80,11 +96,11 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "45679944375b1689bd8963388f84b31fb76418d6c6730964a75231320892ddfa"
+      "sha256": "8ded51a81f7d827e25d6059363ef76030ad28e9a2488d244819f1cd36e377f41"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "37912ef1cbec387b73193a17ec74ddd4b2ea716d93a49c23fee3d067c56836b6"
+      "sha256": "858907411cbe9ab26330b3cdea2ba17c0a11f9240642bdafce28de37f389cb1a"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
@@ -104,11 +120,11 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "d4eacec653162267dbf1da66a13bf18ad4d89fe156bc2943d7fa71d1174604ce"
+      "sha256": "7a52d339613f4a1b6489acad2e011d1e2e126e051e54b48342ada5b10e8748d4"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
-      "sha256": "3bbcc89d1c686286f9a4617ec6036f6371212899a2a7de048761e28e5f90bde1"
+      "sha256": "5767ede56e0c4a21f65a77f20584ef45f8691af2f99565796948f45427d815f1"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
@@ -120,7 +136,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
-      "sha256": "170cf9975edf18fe62edf3386dc52c60a4943041752492a96d23853c2975e117"
+      "sha256": "bcceffb7eccc72e55c4db4d32011003bb1469e8fbdf6a35fc3fd7af7cc47990f"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6StochasticConvergence.lean",
@@ -152,10 +168,26 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "2e4384188442c113fb9eea32056ced521fd4a1d1031a690b9b74d981a303a73d"
+      "sha256": "ed890c2c31c915b6a6ca30826ff1f9cb07282d9fdcdcd4a28d8cd19336bde7a8"
     }
   ],
   "lean_modules": [
+    {
+      "file": "proofs/LeanFormalization/Common.lean",
+      "module": "LeanFormalization.Common",
+      "symbol_count": 9,
+      "symbols": [
+        "global_scale",
+        "hijackSafe",
+        "model_dimension",
+        "postEpochAccepts",
+        "pqcUnforgeable",
+        "scale_is_large",
+        "sumN",
+        "theorem_foundation",
+        "ufCmaWins"
+      ]
+    },
     {
       "file": "proofs/LeanFormalization/ConditionalExpectationGradient.lean",
       "module": "LeanFormalization.ConditionalExpectationGradient",
@@ -198,6 +230,19 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/Ed25519VerificationEquation.lean",
+      "module": "LeanFormalization.Ed25519VerificationEquation",
+      "symbol_count": 6,
+      "symbols": [
+        "Ed25519VerificationEquation",
+        "constantMul_not_injective",
+        "constantMul_violates_oneMul",
+        "ed25519_recover_hdiff_needed",
+        "ed25519_two_equations_recover",
+        "verificationEquation_iff_ModEq"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/Filtration.lean",
       "module": "LeanFormalization.Filtration",
       "symbol_count": 4,
@@ -206,6 +251,24 @@
         "federated_filtration_le",
         "federated_filtration_monotone",
         "gradient_condExp_stronglyMeasurable"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/HypothesisNecessity.lean",
+      "module": "LeanFormalization.HypothesisNecessity",
+      "symbol_count": 11,
+      "symbols": [
+        "dlL_pos",
+        "mod_eq_zero_add_sub_mod",
+        "recoverSecret_zero_of_S_eq",
+        "recoverSecret_zero_of_challenges_eq",
+        "recovery_yields_secret_hS1_needed",
+        "recovery_yields_secret_hS2_needed",
+        "recovery_yields_secret_hdiff_needed",
+        "scalarModInv_zero",
+        "schnorr_special_soundness_h1_needed",
+        "schnorr_special_soundness_h2_needed",
+        "schnorr_special_soundness_hcne_needed"
       ]
     },
     {
@@ -278,6 +341,23 @@
         "robbins_siegmund_deterministic",
         "robbins_siegmund_limit_zero",
         "summable_of_convergent_partial_sums_nonneg"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/SchnorrForking.lean",
+      "module": "LeanFormalization.SchnorrForking",
+      "symbol_count": 10,
+      "symbols": [
+        "Extracts",
+        "Forked",
+        "SchnorrAdversary",
+        "SchnorrDLHard",
+        "exists_forger_card_eq_q",
+        "exists_fork_of_card",
+        "fork_recovers_key",
+        "forking_extractor",
+        "success_card_le_of_dl_hard",
+        "tightness_witness_not_forked"
       ]
     },
     {
@@ -453,18 +533,25 @@
     {
       "file": "proofs/LeanFormalization/Theorem5Cryptography.lean",
       "module": "LeanFormalization.Theorem5Cryptography",
-      "symbol_count": 29,
+      "symbol_count": 52,
       "symbols": [
         "CircuitBoundRelation",
         "GenesisIdentityVK",
         "MiMCRelation",
         "Relation",
+        "WeightRelation",
         "circuitVK",
-        "mimc",
+        "circuitVK_ne_weightCircuitVK",
+        "dataCommitmentCircuitDescription",
+        "deriveVK",
+        "deriveVK_injective",
+        "deriveWeightStatement",
         "proofSize",
         "prove",
         "proveCircuitBound",
         "proveMiMC",
+        "proveWeight",
+        "sumSq",
         "theorem5_circuit_bound_completeness",
         "theorem5_circuit_bound_soundness",
         "theorem5_constant_cost",
@@ -479,23 +566,56 @@
         "theorem5_verifier_completeness",
         "theorem5_verifier_soundness",
         "theorem5_verifyops_constant",
+        "theorem_weight_binding",
+        "theorem_weight_completeness",
+        "theorem_weight_derived_hashes",
+        "theorem_weight_gradient_out_of_range_rejected",
+        "theorem_weight_length_mismatch_rejected",
+        "theorem_weight_noise_out_of_range_rejected",
+        "theorem_weight_norm_bound_out_of_range_rejected",
+        "theorem_weight_norm_guard",
+        "theorem_weight_norm_violation_rejected",
+        "theorem_weight_relation_of_derived",
+        "theorem_weight_zero_dataset_rejected",
         "verify",
         "verifyCircuitBound",
         "verifyCostMicros",
         "verifyMiMC",
-        "verifyOps"
+        "verifyOps",
+        "verifyWeight",
+        "weightCircuitDescription",
+        "weightCircuitVK",
+        "weightHash",
+        "weight_relation_range_checks"
       ]
     },
     {
       "file": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
       "module": "LeanFormalization.Theorem5MiMCFormalization",
-      "symbol_count": 6,
+      "symbol_count": 23,
       "symbols": [
+        "bn254Exponent_coprime",
         "bn254Prime",
+        "bn254Prime_mod_5",
+        "mimcBN254Rounds",
+        "mimcBlockRound",
+        "mimcBlockRound_injective",
+        "mimcCompress",
+        "mimcEncrypt",
+        "mimcEncryptBody_injective",
+        "mimcEncrypt_bijective",
+        "mimcEncrypt_injective",
+        "mimcEncrypt_preimage_unique",
         "mimcExponent",
+        "mimcHashChain",
+        "mimcHashOneBlock",
+        "mimcHashOneBlock_not_id",
+        "mimcModelConstants",
         "mimcRound",
+        "mimcRound_bn254_injective",
         "mimcRound_injective",
         "mimcRound_small_prime_guard",
+        "needs",
         "pow_injective"
       ]
     },
@@ -539,15 +659,19 @@
     {
       "file": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
       "module": "LeanFormalization.Theorem6MeasureTheoreticConvergence",
-      "symbol_count": 7,
+      "symbol_count": 11,
       "symbols": [
-        "convergence_rate_from_descent",
+        "TelescopedDescent",
+        "convergence_rate_nonneg",
+        "convergence_rate_sqrt_T",
+        "convergence_rate_uniform",
         "cumulativeDescent",
         "descentStep",
         "descent_step_le_noise",
         "measure_theoretic_dominates_surrogate",
         "measure_theoretic_large_scale_guard",
-        "noiseVariance"
+        "sqrt_mul_sq",
+        "telescopedBound_real"
       ]
     },
     {
@@ -631,28 +755,32 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 36,
-    "module_count": 29,
-    "theorem_symbol_count": 269
+    "input_file_count": 40,
+    "module_count": 33,
+    "theorem_symbol_count": 349
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
     "lean_toolchain": "leanprover/lean4:v4.30.0-rc2",
     "mathlib4_ref": "v4.30.0-rc2",
-    "zk_backend_gnark_crypto": "v0.22.0"
+    "zk_backend_gnark_crypto": "v0.22.1-0.20261109214502-1b28c4e97311"
   },
   "traceability": {
     "claims_path": "proofs/theorem_claims.json",
     "matrix_path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-    "runtime_reference_count": 53,
+    "runtime_reference_count": 59,
     "runtime_references": [
       "internal/aggregator_multikrum_test.go::TestProcessGradientBatchWithMultiKrum",
+      "internal/chernoff_lean_correspondence_test.go::TestChernoffLeanCorrespondence",
+      "internal/chernoff_lean_correspondence_test.go::TestLorentzLeanCorrespondence",
       "internal/federation/async_refinement_test.go::TestAsyncRefinementEnvelopeBound",
       "internal/hbft/simulator_test.go::TestSimulator_RunRound_CallsRealMultiKrumSelect",
       "internal/hbft/statcheck_test.go::TestRunStatCheck_EmpiricalRateRoughlyMatchesTheory",
       "internal/multikrum.go::MultiKrumAggregate",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence",
       "internal/multikrum_lean_correspondence_test.go::TestMultiKrumLeanCorrespondence_GeneralM",
+      "internal/multikrum_lean_differential_test.go::TestMultiKrumSelect_DifferentialAgainstLeanSpec",
+      "internal/multikrum_lean_differential_test.go::TestMultiKrumSelect_DifferentialTieHeavy",
       "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_AboveEnvelopeSatisfiesPostconditions",
       "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_BelowEnvelopeAlwaysErrors",
       "internal/multikrum_property_test.go::TestMultiKrumSelect_Property_Deterministic",
@@ -698,7 +826,9 @@
       "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_TamperedProofRejected",
       "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_Valid",
       "test/zksnark_circuit_verifier_test.go::TestDataCommitmentProof_WrongCommitmentRejected",
-      "test/zksnark_verifier_test.go::TestVerifyProof_Valid"
+      "test/zksnark_verifier_test.go::TestVerifyProof_Valid",
+      "test/zkweight_circuit_test.go::TestWeightProof_OverBoundRejected",
+      "test/zkweight_circuit_test.go::TestWeightProof_TamperedStatementRejected"
     ]
   }
 }
