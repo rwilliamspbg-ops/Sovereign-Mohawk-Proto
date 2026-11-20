@@ -38,6 +38,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `native_decide`; the only remaining assumptions are the explicit
   `FloatOrderLaws` and `Fact (Nat.Prime dlL)` hypotheses.
 
+### Added - Lean: machine-checked hypothesis necessity for the reductions
+
+- `proofs/LeanFormalization/HypothesisNecessity.lean` (new; matrix row 23):
+  for every transcript hypothesis of `recovery_yields_secret` and
+  `schnorr_special_soundness`, a concrete witness where that hypothesis fails
+  and the conclusion fails with it — `hdiff`, `hS1`, `hS2`, `hcne`, and each
+  acceptance hypothesis. Two general lemmas
+  (`recoverSecret_zero_of_challenges_eq`, `recoverSecret_zero_of_S_eq`) show the
+  mechanism: a zero challenge difference or equal signature values force
+  `recoverSecret` to `0`, since `0⁻¹ = 0` in `ZMod dlL`. The
+  `Fact (Nat.Prime …)` instance is deliberately not refuted — it is a
+  number-theoretic assumption, not a refutable transcript condition. Wired into
+  the library root; all ten new declarations depend only on Mathlib's
+  foundation.
+
 ## [2.2.0] - 2026-11-13
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
