@@ -237,6 +237,57 @@ testing.
 - **Go toolchain info audit** (#218).
 
 ## [Unreleased]
+## [Unreleased]
+### Added - Lean: proved forking-style reduction for Schnorr, and the Ed25519 verification-equation bridge
+
+`proofs/LeanFormalization/SchnorrForking.lean` (matrix row 25) replaces
+`SchnorrReduction.ForkingStep` -- an opaque hypothesis, and previously deleted
+dead code -- with a concrete, machine-checked argument:
+
+- `SchnorrAdversary` is two-stage: `commit pk r` takes no challenge, so two
+  runs under the same randomness share a commitment automatically. That is the
+  part of rewinding that is pure algebra, and it is now a property of the model
+  rather than an assumption.
+- `exists_fork_of_card` proves the remaining forking content as a pigeonhole
+  principle over a finite set: succeeding on more than `q` of the `q^2`
+  (randomness, challenge) pairs -- success probability greater than `1/q` --
+  forces some randomness to support two distinct challenges, and
+  `forking_extractor` recovers the key. No probability library is used.
+- `success_card_le_of_dl_hard` is the contrapositive security statement: under
+  `SchnorrDLHard` (an explicit `def`, never an axiom) every two-stage adversary
+  succeeds on at most `q` pairs. Only hypotheses: `Fact (Nat.Prime q)` +
+  hardness.
+- `exists_forger_card_eq_q` and `tightness_witness_not_forked` prove the
+  threshold `q` is tight.
+- Stated openly: no probabilistic amplification, no efficiency requirement on
+  the constructed solver, and the group is still the abstract `ZMod q`.
+
+`proofs/LeanFormalization/Ed25519VerificationEquation.lean` (matrix row 26)
+connects the implemented curve arithmetic to the proved extractor:
+
+- `Ed25519VerificationEquation` states `S*B = R + h*A` structurally;
+  `Ed25519GroupLaws` packages the six group laws the transfer needs as an
+  explicit structure (never a global axiom).
+- `verificationEquation_iff_ModEq` proves the curve equation is *equivalent* to
+  the Schnorr exponent equation `s = r + h*a (mod L)` under those laws.
+- `ed25519_two_equations_recover` transfers two Ed25519 equations sharing the
+  nonce point `R` to `recovery_yields_secret`, recovering the key.
+- `constantMul_violates_oneMul` / `constantMul_not_injective` are negative
+  controls for the group laws.
+- Stated openly: the group laws are assumed (the curve arithmetic is unaudited),
+  and this is NOT a UF-CMA proof -- the extractor needs nonce reuse, which an
+  honest signer never produces.
+
+Also: `scripts/ci/validate_formal_traceability.sh` now gates every
+`LeanFormalization/*.lean` module named in the matrix (23 modules, up from the
+`Theorem[0-9]+` subset), so the new modules cannot drift unimported.
+
+Verified: `lake build LeanFormalization` -> 8349 jobs, success, no new warnings;
+`#print axioms` on the new declarations reports only
+`[propext, Classical.choice, Quot.sound]`; placeholder sweep,
+claim lint, traceability (23 modules / 246 symbols) and markdown link check all
+pass.
+
 ### Changed - Lean: MiMC and verification-key surrogates replaced with closer models
 
 The two remaining ZK surrogates -- an uninterpreted MiMC hash and two
