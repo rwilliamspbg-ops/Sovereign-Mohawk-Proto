@@ -1,5 +1,6 @@
 import Mathlib
 import LeanFormalization.Common
+import LeanFormalization.Theorem5MiMCFormalization
 
 namespace LeanFormalization
 
@@ -197,55 +198,79 @@ theorem theorem5_verifyops_constant : ∀ n : Nat, verifyOps n = 3 ∧ verifyOps
   simp [verifyOps]
 
 
-/-- MiMC hash (abstract function symbol). Models the in-circuit MiMC hasher used
-    by DataCommitmentCircuit in internal/zksnark_circuit_verifier.go. The full
-    algebraic definition of MiMC over the BN254 scalar field is out of scope;
-    `mimc` is modeled as the identity function (a surrogate for the real MiMC
-    round function over BN254).
+/-- A structural description of a compiled circuit. -/
+structure CircuitDescription where
+  publicInputCount : Nat
+  witnessArity : Nat
+  constraintCount : Nat
+  deriving Repr, DecidableEq
 
-    NOTE (audit): this module previously carried a named axiom
-    `mimc_collision_resistant` asserting MiMC's collision resistance. It had
-    zero dependents -- `theorem5_mimc_binding` below proves commitment equality
-    directly from the verifier predicate without it -- so it was removed as
-    dead. The real-MiMC collision-resistance assumption is still not
-    machine-checked here; it lives in the Go runtime's use of the real MiMC
-    permutation, not in this Lean surrogate model. -/
-def mimc : Nat → Nat := fun x => x
+/-- The verification-key identity, derived deterministically from the circuit
+    description by an injective encoding. Surrogate: the honest derivation is a
+    canonical hash of the compiled constraint system, which this Mathlib cannot
+    compute (no pairing or curve machinery). What the refinement needs is that
+    the key is a *function of the circuit*, so binding to the key is binding to
+    the circuit. -/
+def deriveVK (c : CircuitDescription) : Nat :=
+  Nat.pair (Nat.pair c.publicInputCount c.witnessArity) c.constraintCount
 
-/-- Circuit-derived verification key hash. In the Go runtime this is the
-    groth16.VerifyingKey produced by groth16.Setup over the compiled
-    DataCommitmentCircuit R1CS; it is NOT the genesis identity key. -/
-def circuitVK : Nat := 0x4D4F4841574B2002
+/-- Distinct circuit descriptions have distinct verification keys. -/
+theorem deriveVK_injective : Function.Injective deriveVK := by
+  intro a b h
+  have h1 : Nat.pair a.publicInputCount a.witnessArity =
+      Nat.pair b.publicInputCount b.witnessArity := (Nat.pair_eq_pair.mp h).1
+  have hb : a.constraintCount = b.constraintCount := (Nat.pair_eq_pair.mp h).2
+  have h2 := Nat.pair_eq_pair.mp h1
+  cases a; cases b
+  simp only [deriveVK] at h
+  rw [Nat.pair_eq_pair] at h
+  rw [Nat.pair_eq_pair] at h
+  obtain ⟨⟨hpc, hwa⟩, hcc⟩ := h
+  simp [hpc, hwa, hcc]
 
-/-- MiMC-bound statement: public commitment plus the circuit-derived VK. -/
+/-- The compiled `DataCommitmentCircuit`'s structural description: one public
+    input (the commitment), one witness (the preimage), and 331 constraints --
+    the last measured from the real compiled circuit. -/
+def dataCommitmentCircuitDescription : CircuitDescription :=
+  { publicInputCount := 1, witnessArity := 1, constraintCount := 331 }
+
+/-- The `DataCommitmentCircuit` verification key, derived from its structural
+    description. In the Go runtime this is the `groth16.VerifyingKey` produced by
+    the MPC setup over the compiled R1CS; it is NOT the genesis identity key. -/
+def circuitVK : Nat := deriveVK dataCommitmentCircuitDescription
+
+/-- MiMC-bound statement: public commitment (a BN254 scalar-field element)
+    plus the circuit-derived VK. -/
 structure MiMCStatement where
-  commitment : Nat
+  commitment : ZMod bn254Prime
   vk : Nat
 
-/-- MiMC witness: the secret preimage. -/
+/-- MiMC witness: the secret preimage (a field element). -/
 structure MiMCWitness where
-  preimage : Nat
+  preimage : ZMod bn254Prime
 
 /-- MiMC proof: carries the commitment it binds to (mirrors the Go proof's
     public commitment). -/
 structure MiMCProof where
-  commitment : Nat
+  commitment : ZMod bn254Prime
   vk_binding : Nat
 
-/-- MiMC circuit relation: the witness's preimage hashes (under MiMC) to the
-    statement's commitment, and the commitment is non-zero. Mirrors
-    DataCommitmentCircuit.Define: Commitment == MiMC(Preimage). -/
+/-- MiMC circuit relation: `Commitment = MiMC(Preimage)` under the real
+    one-block MiMC hash, and the commitment is non-zero. Mirrors
+    `DataCommitmentCircuit.Define`. -/
 def MiMCRelation (stmt : MiMCStatement) (w : MiMCWitness) : Prop :=
-  mimc w.preimage = stmt.commitment ∧ stmt.commitment ≠ 0
+  mimcHashOneBlock bn254Prime mimcExponent (mimcModelConstants bn254Prime) w.preimage =
+    stmt.commitment ∧ stmt.commitment ≠ 0
 
 /-- Honest prover: computes the commitment off-circuit (MiMC(preimage)) and
-    binds the proof to the circuit VK, mirroring ProveDataCommitment. -/
+    binds the proof to the circuit VK, mirroring `ProveDataCommitment`. -/
 def proveMiMC (stmt : MiMCStatement) (w : MiMCWitness) : MiMCProof :=
-  ⟨mimc w.preimage, stmt.vk⟩
+  ⟨mimcHashOneBlock bn254Prime mimcExponent (mimcModelConstants bn254Prime) w.preimage,
+    stmt.vk⟩
 
 /-- Verifier: accepts iff the proof's commitment matches the statement's
     commitment, the VK binding matches the statement's VK, and the statement
-    uses the circuit-derived VK. Mirrors VerifyDataCommitmentProof. -/
+    uses the circuit-derived VK. Mirrors `VerifyDataCommitmentProof`. -/
 def verifyMiMC (stmt : MiMCStatement) (proof : MiMCProof) : Bool :=
   proof.commitment = stmt.commitment &&
   proof.vk_binding = stmt.vk &&
@@ -253,24 +278,23 @@ def verifyMiMC (stmt : MiMCStatement) (proof : MiMCProof) : Bool :=
   stmt.commitment ≠ 0
 
 /-- MiMC soundness: an accepted proof implies a real witness (preimage)
-    satisfying the circuit relation. -/
+    satisfying the circuit relation, **provided the commitment lies in the
+    image of the one-block hash**. Under the old identity stand-in that
+    hypothesis was automatic; for the real hash it is exactly the content
+    Groth16 knowledge soundness would supply, so it is stated rather than
+    hidden. -/
 theorem theorem5_mimc_soundness (stmt : MiMCStatement) (proof : MiMCProof)
-    (h : verifyMiMC stmt proof = true) :
+    (h : verifyMiMC stmt proof = true)
+    (himg : ∃ x : ZMod bn254Prime,
+      mimcHashOneBlock bn254Prime mimcExponent (mimcModelConstants bn254Prime) x =
+        stmt.commitment) :
     ∃ w : MiMCWitness, MiMCRelation stmt w := by
   unfold verifyMiMC at h
   rw [Bool.and_eq_true, Bool.and_eq_true, Bool.and_eq_true] at h
   obtain ⟨⟨⟨hc, hvk⟩, hvk2⟩, hne⟩ := h
   rw [decide_eq_true_eq] at hc hvk hvk2 hne
-  refine ⟨⟨proof.commitment⟩, ?_⟩
-  unfold MiMCRelation
-  -- need mimc preimage = commitment; preimage = commitment here is a stand-in
-  -- since mimc is identity in this abstract model; in general this step
-  -- requires the concrete MiMC evaluation, which is axiomatized above.
-  constructor
-  · -- mimc (proof.commitment) = stmt.commitment. Under the identity model
-    -- mimc x = x, so this is proof.commitment = stmt.commitment = hc.
-    simpa [mimc] using hc
-  · exact hne
+  obtain ⟨x, hx⟩ := himg
+  exact ⟨⟨x⟩, hx, hne⟩
 
 /-- MiMC completeness: an honestly-generated proof from a real witness
     verifies. -/
@@ -283,7 +307,7 @@ theorem theorem5_mimc_completeness (stmt : MiMCStatement) (w : MiMCWitness)
   simp [hvk, hne]
 
 /-- MiMC binding: two proofs verifying against the same statement bind to the
-    same preimage (up to MiMC collision resistance). -/
+    same commitment. -/
 theorem theorem5_mimc_binding (stmt : MiMCStatement) (p1 p2 : MiMCProof)
     (h1 : verifyMiMC stmt p1 = true) (h2 : verifyMiMC stmt p2 = true) :
     p1.commitment = p2.commitment := by
@@ -293,7 +317,6 @@ theorem theorem5_mimc_binding (stmt : MiMCStatement) (p1 p2 : MiMCProof)
   obtain ⟨⟨⟨hc2, _⟩, _⟩, _⟩ := h2
   rw [decide_eq_true_eq] at hc1 hc2
   rw [hc1, hc2]
-
 
 /-! ### WeightUpdateCircuit (Pillar 1)
 
@@ -339,10 +362,24 @@ structure WeightProof where
   update_hash : Nat
   vk_binding : Nat
 
-/-- Circuit-derived verification key hash for WeightUpdateCircuit. Distinct from
-    `circuitVK` (the single-scalar DataCommitmentCircuit) and from the genesis
-    identity key. -/
-def weightCircuitVK : Nat := 0x4D4F4841574B3003
+/-- The compiled `WeightUpdateCircuit`'s structural description: six public
+    inputs (the statement), seventeen witness components (8 gradients + 8 noise
+    + training steps), and 9,569 constraints -- the last measured from the real
+    compiled circuit (`results/zk/weight-proof-latest.json`). -/
+def weightCircuitDescription : CircuitDescription :=
+  { publicInputCount := 6, witnessArity := 17, constraintCount := 9569 }
+
+/-- The `WeightUpdateCircuit` verification key, derived from its structural
+    description. Distinct from `circuitVK` (the single-scalar
+    `DataCommitmentCircuit`) and from the genesis identity key. -/
+def weightCircuitVK : Nat := deriveVK weightCircuitDescription
+
+/-- The two production circuits have distinct verification keys. -/
+theorem circuitVK_ne_weightCircuitVK : circuitVK ≠ weightCircuitVK := by
+  intro h
+  have hdesc : dataCommitmentCircuitDescription = weightCircuitDescription :=
+    deriveVK_injective h
+  simp [dataCommitmentCircuitDescription, weightCircuitDescription] at hdesc
 
 /-- Derive the full statement from the caller's inputs and the witness. Mirrors
     `internal.DeriveWeightStatement`. -/

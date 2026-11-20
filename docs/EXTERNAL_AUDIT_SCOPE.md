@@ -130,13 +130,22 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      per-component and 63-bit norm-bound range checks, with
      `weight_relation_range_checks` projecting them and a negative control per
      range conjunct (row 21).
-   - **MiMC spec made honest (2026-11-20):** `zk_impl_accept_iff` characterizes
-     the acceptance predicate exactly with a negative control per conjunct;
-     `zk_spec_verify_iff` proves the preimage existential is trivial under the
-     identity stand-in (`zkSpecVerify stmt ↔ stmt.commitment ≠ 0`), so the
-     content lives in binding (`zk_impl_binding`) and uniqueness
-     (`zk_preimage_unique`, which now uses the real MiMC injectivity — previously
-     a zero-dependent theorem).
+   - **MiMC/VK surrogates replaced (2026-11-20):** the commitment is a
+     `ZMod bn254Prime` element and the hash is the real MiMC construction
+     (row 24): a 110-round keyed block cipher, Miyaguchi–Preneel compressor,
+     Merkle–Damgård chain. The block cipher is proved a permutation
+     (`mimcEncrypt_bijective`) with a unique preimage per digest
+     (`mimcEncrypt_preimage_unique`); `zk_impl_accept_iff` characterizes the
+     acceptance predicate exactly. The identity stand-in and the
+     `zkSpecVerify stmt ↔ stmt.commitment ≠ 0` triviality are **gone**;
+     `zk_spec_verify_iff` is now the honest image characterization and
+     `zk_impl_refines_spec` states its image hypothesis explicitly.
+   - **Verification keys are structural now:** `circuitVK`/`weightCircuitVK`
+     are `deriveVK` of a `CircuitDescription` (public-input count, witness
+     arity, and the **measured** constraint count — 331 for
+     `DataCommitmentCircuit`, 9,569 for `WeightUpdateCircuit`), and
+     `deriveVK_injective` proves distinct circuits have distinct keys. The
+     previous magic constants are gone.
    - The MiMC round injectivity is now stated at the BN254 scalar modulus
      (`mimcRound_bn254_injective`); `Nat.Prime r` is an explicit hypothesis
      (trial-division decidability), the exponent coprimality is discharged.
@@ -145,9 +154,11 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      not a distributed ceremony. **Go-side inspection (2026-11-20):**
      `mpcSetupBN254` runs gnark's Phase1 + Phase2 `mpcsetup` flow with N=3
      chained contributions and a beacon, and `verifyWeightProofBytes` verifies
-     against the resulting `weightVK`. The Lean `weightCircuitVK` is a fixed
-     surrogate constant, not a derivation, so the refinement is conditional on
-     `stmt.vk = weightCircuitVK` — stated, not hidden.
+     against the resulting `weightVK`. The Lean `weightCircuitVK` is now a
+     structural derivation (`deriveVK`) of the measured `WeightUpdateCircuit`
+     description rather than a magic constant; the honest derivation would hash
+     the compiled constraint system, which needs curve machinery this Mathlib
+     lacks, and that residual gap is stated rather than hidden.
 
 4. **Convergence / straggler refinement bridges**
    - `proofs/Refinement/Convergence.lean`, `proofs/Refinement/Straggler.lean`
