@@ -12,8 +12,8 @@
     },
     {
       "id": "theorem2_rdp",
-      "status": "surrogate_verified_with_gaussian_axiom",
-      "formal_scope": "exact rational and integer additive composition with budget guards",
+      "status": "surrogate_verified_gaussian_witness",
+      "formal_scope": "exact rational and integer additive composition with budget guards; the Gaussian bound is an existence witness, not an axiom and not a derivation",
       "blocking_gaps": [
         "composeEps/composeEpsRat are an integer/rational additive-ledger surrogate, not a full measure-theoretic RDP accountant",
         "gaussianRDPBound asserts the Gaussian mechanism's (alpha, alpha/(2*sigma^2))-RDP bound as an existence witness, not derived from the Gaussian density's Renyi divergence from first principles",

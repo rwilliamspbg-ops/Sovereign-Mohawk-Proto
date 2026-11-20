@@ -272,6 +272,19 @@ Previously-listed axioms that have since been **removed**:
 `Submartingale.exists_ae_tendsto_of_bdd`. CI enforces no *new*
 `sorry`/`admit`/`axiom` beyond the documented set.
 
+Two further **explicit hypotheses** (not axioms) were added in #361 and are
+disclosed at each use site:
+
+- `SchnorrDLHard` (`SchnorrForking.lean`) — the discrete-logarithm hardness
+  assumption the forking security reduction consumes.
+- `Ed25519GroupLaws affineBase` (`Ed25519VerificationEquation.lean`) — six group
+  laws for the unaudited `affineScalarMulImpl`/`affineAdd`.
+
+So the full set of standing assumptions is `FloatOrderLaws`,
+`Fact (Nat.Prime dlL)`, `SchnorrDLHard` and `Ed25519GroupLaws`. None is an
+`axiom`; the first two are number/IEEE facts, the latter two are cryptographic
+and algebraic assumptions of the security statements.
+
 Other honest limitations:
 - The MPC trusted setup is simulated in-process (N=3 contributors chained in
   one goroutine), not a distributed ceremony over independent machines.

@@ -22,6 +22,14 @@
 > `fully_formalized`; compositional claim disproven; probabilistic Chernoff
 > repair proved for the i.i.d. Bernoulli model). Also note the Lean development
 > is now axiom-free and sorry-free (PRs #313, #315, #316, #318).
+>
+> **Priority 1 below is DONE, not pending** (corrected 2026-11-20). §1a
+> (`chernoff_monotone`) and §1b (`Theorem6ConvergenceReals.lean`) describe work
+> that has landed; the part that genuinely remains is the stronger non-convex
+> `O(1/sqrt(KT))` rate recorded in `proofs/theorem_claims.json`. §1c's symbol
+> names (`theorem4_chernoff_lambda`, `theorem6_convergence_ode_solution`)
+> **never existed** in the tree — they are aspirational names from the
+> 2026-04-19 draft, not pending implementation.
 
 ---
 
@@ -412,7 +420,7 @@
 
 ## Success Criteria
 
-- [ ] All Phase 3b theorems (Chernoff + convergence) formalized and proven (P1)
+- [x] All Phase 3b theorems (Chernoff + convergence) formalized and proven (P1) — landed: `Theorem4ChernoffBounds.lean` (`chernoff_monotone`) and `Theorem6ConvergenceReals.lean`; the stronger non-convex `O(1/sqrt(KT))` rate remains roadmap
 - [ ] Zero new placeholder commits merged to `main` (P2 CI gate enforced)
 - [ ] 90%+ runtime test coverage for formal proofs (P3)
 - [ ] Operators can validate formal claims against live metrics (P4)

@@ -72,7 +72,12 @@ theorem theorem2_rat_monotone_append (xs ys : List ℚ)
         simp only [composeEpsRat]; linarith
   linarith
 
-/-- The Gaussian mechanism with std σ satisfies (α, α/(2σ²))-RDP. -/
+/-- The Gaussian mechanism's `(α, α/(2σ²))`-RDP bound, as an **existence
+    witness**. This exhibits a nonnegative `eps` equal to `α/(2σ²)`; it does
+    NOT derive that bound from the Gaussian density's Rényi divergence, and it
+    is not an axiom. The derivation remains roadmap work (traceability row 2).
+    The previous docstring said "satisfies …-RDP", which overstated an
+    existential statement; corrected 2026-11-20. -/
 theorem gaussianRDPBound (alpha sigma : ℝ) (h_alpha : alpha > 1) (h_sigma : sigma > 0) :
     ∃ (eps : ℝ), eps = alpha / (2 * sigma ^ 2) ∧ eps ≥ 0 := by
   refine ⟨alpha / (2 * sigma ^ 2), rfl, ?_⟩

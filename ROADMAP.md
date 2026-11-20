@@ -337,7 +337,7 @@ We welcome contributions at every phase. Start with the [Concrete Execution Plan
 - Security hardening and audit remediation (Phase 3) — TPM, FIPS, threat-model, and WASM hardening are done; the external audit/pentest itself is the one remaining item
 - Multi-host/WAN deployment evidence at any scale (Phase 3, A4)
 - Documentation completeness for `docs/architecture/`, `docs/guides/`, `docs/api/`, `docs/security/`, `docs/performance/` (Phase 3, A6)
-- Remaining formal-verification gaps: Lean cryptography model for the Groth16 circuit, and a production trusted-setup ceremony (Phase 3, A7 — the RDP→(ε,δ) conversion and Groth16 production wiring are closed as of 2026-08-15)
+- Remaining formal-verification gaps: Groth16 succinctness/soundness (Mathlib has no pairing or hardness machinery, so this is not attackable here) and a production trusted-setup ceremony (Phase 3, A7 — the RDP→(ε,δ) conversion and Groth16 production wiring are closed as of 2026-08-15; the Lean side now models the circuit structurally, rows 21/22/24-26, rather than as an abstract cost model)
 - Blockchain incentive and verification layer work (Phase 4)
 
 ---

@@ -70,7 +70,7 @@ def lint_claims_file(path: Path) -> list[str]:
         "fully_formalized",
         "model_verified",
         "surrogate_verified",
-        "surrogate_verified_with_gaussian_axiom",
+        "surrogate_verified_gaussian_witness",
         "surrogate_verified_with_cast_bridge",
         "runtime_validated_only",
     }
