@@ -8,7 +8,15 @@ merged** (2026-11-11): Phase 0 dead-axiom deletion and Phase 2
 `native_decide` replacement (#313), Phase 1 the last `sorry` (#315), Phase 3
 `FloatOrderLaws` (#316), Phase 4 `dlL_prime` demotion (#318). The Lean
 development is now **axiom-free and sorry-free**, with two explicit hypotheses
-(`FloatOrderLaws`, `Fact (Nat.Prime dlL)`) and no `native_decide`.
+(`FloatOrderLaws`, `Fact (Nat.Prime dlL)`).
+
+**Update (2026-11-20): the last `native_decide` is gone too.** The single
+survivor, `chernoffBoundZ_deployment_scale_tiny` (§2.2), was not irreducible
+after all: its goal is an inequality between two `1000`th powers, so
+`pow_le_pow_iff_left₀` reduces it to `11^50 ≤ 2^74 * 5^49`, a 53- vs 57-digit
+integer comparison `norm_num` decides directly. `#print axioms` over the whole
+development now reports only Mathlib's foundation — no `sorryAx`, no
+`._native.native_decide.ax_1_1`, no `axiom`.
 
 ---
 
@@ -48,7 +56,7 @@ All numbers below come from that run, not from reading the source.
 |---|---|---|
 | `axiom` declarations | **12** | 3 dead (delete), 8 Float (scope decision), 1 hard |
 | `sorry` placeholders | **1** | **Yes** — Mathlib has every required lemma |
-| `native_decide`-generated axioms | **7** | **6 yes** (trivial), 1 hard |
+| `native_decide`-generated axioms | **7** | **7 yes** (6 trivial; the 7th by exponent reduction — Update below) |
 | **Total** | **20** | **10 removable with modest effort** |
 
 The three headline findings:
@@ -114,11 +122,12 @@ field only when `p` is prime (`ZMod.instField` needs `Fact (Nat.Prime p)`).
 | `theorem5_cost_guard` | `Theorem5Cryptography.lean:140` | **yes** — `simp [verifyCostMicros, verifyOps]` |
 | `theorem7_scale_bound` | `Theorem7PQCMigrationContinuity.lean:135` | **yes** — `unfold global_scale; norm_num` |
 | `theorem8_scale_non_hijack_guard` | `Theorem8DualSignatureNonHijack.lean:155` | **yes** — `simp [hijackSafe]` |
-| `chernoffBoundZ_deployment_scale_tiny` | `Theorem1BFT.lean:579` | **no** — see §4.4 |
+| `chernoffBoundZ_deployment_scale_tiny` | `Theorem1BFT.lean:579` | **yes** — exponent reduction (Update, 2026-11-20); previously judged "no" |
 
-All six "yes" rows were **verified by compiling the replacement** on this host
-(see §5.2). `theorem7_scale_guard` and
-`chernoff_hierarchical_bound_deployment_scale` inherit the fix transitively.
+All six originally-"yes" rows were **verified by compiling the replacement** on
+this host (see §5.2), and the seventh was replaced shortly after (Update,
+2026-11-20). `theorem7_scale_guard` and
+`chernoff_hierarchical_bound_deployment_scale` inherit the fixes transitively.
 
 ### 2.3 The `sorry`
 
@@ -314,7 +323,8 @@ the replacement on this host.**
 | `Theorem7PQCMigrationContinuity.lean:135` | `unfold global_scale; norm_num` |
 | `Theorem8DualSignatureNonHijack.lean:155` | `simp [hijackSafe]` (keeping the local `global_scale` fact) |
 
-**Result: 7 `native_decide` axioms → 1.**
+**Result: 7 `native_decide` axioms → 1** (→ **0** after the 2026-11-20 Update
+above, which removed the last one by exponent reduction).
 
 > **Trust note.** `native_decide` does not prove the goal; it asserts
 > `Lean.ofReduceBool`, i.e. that the native compiler's evaluator agrees with the
@@ -512,6 +522,10 @@ python3 scripts/ci/check_no_unsafe_placeholders.py
 > `Classical.choice`, `Quot.sound`). The two remaining assumptions are
 > explicit hypotheses, not axioms — `FloatOrderLaws` in the Multi-Krum
 > refinement, and `Fact (Nat.Prime dlL)` in the discrete-log reduction.
+>
+> **Update (2026-11-20):** the development is now also free of `native_decide`
+> (the last one removed by exponent reduction), so the `#print axioms` readout
+> above holds with no toolchain exception at all.
 
 Original assessment, for the record:
 

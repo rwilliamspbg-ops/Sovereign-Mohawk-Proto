@@ -92,10 +92,11 @@ At the identical deployment-scale parameters the Markov bound failed at
 (`T=200`, `c=50,000`, `p=10%`, majority threshold), `chernoff_hierarchical_bound_deployment_scale`
 (at base `z=2`) proves the union-bound failure probability is at most
 `200/10^1000` — not merely below `1`, but smaller than any probability that
-could ever matter operationally. The huge-exponent numeric check needed
-`native_decide` rather than `norm_num` (comparing ~5000-digit rationals,
-which `norm_num` could not decide in reasonable time), the same technique
-already used elsewhere in this repo for large concrete numeric checks.
+could ever matter operationally. The huge-exponent numeric check is done by
+exponent reduction rather than by `norm_num` on the unfolded rationals: both
+sides are `1000`th powers, so `pow_le_pow_iff_left₀` reduces it to
+`11^50 ≤ 2^74 * 5^49`, which `norm_num` decides directly. No `native_decide`
+(and no other toolchain trust) is used anywhere in this development.
 
 This closes the gap the previous pass left open, without needing the full
 general measure-theoretic Chernoff/Hoeffding machinery originally assumed

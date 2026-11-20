@@ -16,6 +16,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI: pytest pinned `<8` until pytest-benchmark supports pytest 8+.
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
+## [Unreleased]
+### Changed - Lean: the last `native_decide` is removed (fully kernel-checked)
+
+- `proofs/LeanFormalization/Theorem1BFT.lean`:
+  `chernoffBoundZ_deployment_scale_tiny` no longer closes with `native_decide`.
+  The goal `(11/10)^50000 / 2^25000 ≤ 1/10^1000` is an inequality between two
+  `1000`th powers, so `pow_le_pow_iff_left₀` reduces it to
+  `11^50 ≤ 2^74 * 5^49` (53- vs 57-digit integers), which `norm_num` decides
+  directly. `#print axioms` on it and on
+  `chernoff_hierarchical_bound_deployment_scale` now reports only
+  `[propext, Classical.choice, Quot.sound]`.
+- Doc drift fixed: `docs/EXTERNAL_AUDIT_SCOPE.md` §6,
+  `docs/LEAN_AXIOM_AUDIT_AND_REMOVAL_PLAN.md`, `docs/ACADEMIC_PAPER.md` (with
+  the regenerated PDF), `proofs/bft_resilience.md`, and
+  `proofs/FORMAL_TRACEABILITY_MATRIX.md` no longer describe a surviving
+  `native_decide` toolchain trust. (`proofs/FULL_FORMALIZATION_VALIDATION_REPORT.md`
+  is a dated 2026-04-19 snapshot that already predates the earlier `native_decide`
+  removals; left as the historical record.)
+- Net effect: the Lean development is axiom-free, sorry-free, and free of
+  `native_decide`; the only remaining assumptions are the explicit
+  `FloatOrderLaws` and `Fact (Nat.Prime dlL)` hypotheses.
+
 ## [2.2.0] - 2026-11-13
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
