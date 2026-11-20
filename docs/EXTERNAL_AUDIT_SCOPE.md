@@ -125,12 +125,29 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      compiled? `weight_impl_accept_iff` (row 22) is the exact acceptance
      condition; the soundness direction is Groth16 knowledge soundness and is
      deliberately not claimed.
+   - **Constraint correspondence (2026-11-20):** `WeightRelation` now transcribes
+     `WeightUpdateCircuit.Define` constraint-by-constraint, including the 64-bit
+     per-component and 63-bit norm-bound range checks, with
+     `weight_relation_range_checks` projecting them and a negative control per
+     range conjunct (row 21).
+   - **MiMC spec made honest (2026-11-20):** `zk_impl_accept_iff` characterizes
+     the acceptance predicate exactly with a negative control per conjunct;
+     `zk_spec_verify_iff` proves the preimage existential is trivial under the
+     identity stand-in (`zkSpecVerify stmt ↔ stmt.commitment ≠ 0`), so the
+     content lives in binding (`zk_impl_binding`) and uniqueness
+     (`zk_preimage_unique`, which now uses the real MiMC injectivity — previously
+     a zero-dependent theorem).
    - The MiMC round injectivity is now stated at the BN254 scalar modulus
      (`mimcRound_bn254_injective`); `Nat.Prime r` is an explicit hypothesis
      (trial-division decidability), the exponent coprimality is discharged.
    - Is the multi-party setup (MPC, N=3, beacon-sealed) correctly threaded into
      the verification key used at runtime? Note it is an in-process simulation,
-     not a distributed ceremony.
+     not a distributed ceremony. **Go-side inspection (2026-11-20):**
+     `mpcSetupBN254` runs gnark's Phase1 + Phase2 `mpcsetup` flow with N=3
+     chained contributions and a beacon, and `verifyWeightProofBytes` verifies
+     against the resulting `weightVK`. The Lean `weightCircuitVK` is a fixed
+     surrogate constant, not a derivation, so the refinement is conditional on
+     `stmt.vk = weightCircuitVK` — stated, not hidden.
 
 4. **Convergence / straggler refinement bridges**
    - `proofs/Refinement/Convergence.lean`, `proofs/Refinement/Straggler.lean`

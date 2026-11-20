@@ -53,6 +53,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the library root; all ten new declarations depend only on Mathlib's
   foundation.
 
+### Added - Lean: ZK circuit model strengthened (constraint correspondence + honest MiMC spec)
+
+- `proofs/LeanFormalization/Theorem5Cryptography.lean`: `WeightRelation` now
+  transcribes `internal/zkweight_circuit.go`'s `WeightUpdateCircuit.Define`
+  constraint-by-constraint, adding the 64-bit per-component range checks and
+  the 63-bit norm-bound check. New `weight_relation_range_checks` projects them;
+  three new negative controls reject an out-of-range gradient, noise component,
+  or norm bound. `theorem_weight_relation_of_derived` takes the range
+  hypotheses explicitly.
+- `proofs/Refinement/ZKCircuit.lean`: `zk_impl_accept_iff` gives the exact
+  acceptance characterization with a negative control per conjunct;
+  `zk_spec_verify_iff` states honestly that the preimage existential is trivial
+  under the identity stand-in (`zkSpecVerify stmt ↔ stmt.commitment ≠ 0`);
+  `zk_preimage_unique`/`zk_preimage_unique_bn254` wire the real MiMC round
+  injectivity into a uniqueness theorem (`zk_mimc_real_round_injective`
+  previously had zero dependents).
+- `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3 records the constraint correspondence and a
+  Go-side inspection of the MPC setup threading; matrix rows 21/22 updated.
+
 ## [2.2.0] - 2026-11-13
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
