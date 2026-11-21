@@ -389,6 +389,49 @@ jobs, success, no new warnings; `generate_formal_validation_report.py
 validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
+### Added - Go: production `WeightProof` producer (`zkprover.ProduceWeightProof`)
+
+Closes the weight-proof half of ZK finalization plan milestone M2, Gap 1.
+
+`internal/zkprover/produce.go` adds `ProduceWeightProof(ctx, prover, pub, priv)`:
+it runs any `Prover` on the round's public statement and private witness and
+returns exactly the `(encoded proof, WeightStatement)` pair that
+`batch.Aggregator` consumes in `ProcessRound` (`Aggregator.WeightProof` /
+`Aggregator.WeightStatement`). Before this, the only producers were
+`cmd/simulate` (which called `internal.ProveWeightUpdate` directly and assigned
+the two fields by hand) and `cmd/zkweightbench`; no runtime path produced a
+framed, self-consistent proof, so the aggregator's field could only be populated
+by a simulation command.
+
+Two deliberate design points:
+
+* The returned `WeightStatement` is the one **embedded** in the produced proof
+  (`internal.DecodeWeightProof`), not a caller-supplied one -- `WeightUpdateCircuit`
+  derives `ModelHashAfter` and `UpdateHash` from the witness, so the embedded
+  statement is the authoritative record of what was proved. (`GnarkProver`
+  likewise ignores `PublicInputs.ModelHashAfter`/`UpdateHash`; that is recorded
+  in the producer's doc comment.)
+* **Self-check**: the producer verifies the framed proof against its own embedded
+  statement before returning it, and refuses to emit one that fails. This
+  mechanically keeps `MockProver`/`CLIProver` placeholders out of a production
+  proof path (Gap 2) -- their hash-based "proof" is not a WeightUpdateCircuit
+  proof.
+
+`cmd/simulate` now uses the producer instead of calling the circuit directly.
+
+**Still open, not faked:** `computeproof.Trace` has no production producer (there
+is no `GradientUpdate{` construction site anywhere in the tree), so that linkage
+is unwired and recorded in `docs/ZK_FINALIZATION_PLAN.md` rather than invented.
+
+New tests in `test/zkweight_produce_test.go`: production round trip
+(produce -> verify -> `ProcessRound`), the derived-statement assertion, the
+placeholder-prover rejection, the nil-prover rejection, and a tampered-proof
+negative control.
+
+Verified: `go build ./...` and `go vet ./...` clean; `go test ./test/ -run
+'TestProduceWeightProof' -count=1` -> ok (43 s, includes one trusted setup);
+`CGO_ENABLED=0 go test -count=1 ./...` -> all packages ok.
+
 ### Added - Lean: crypto capstone — Ed25519 UF-CMA composed from the four proved pieces
 
 New module `LeanFormalization/Ed25519UF_CMASecurity.lean`, composing:

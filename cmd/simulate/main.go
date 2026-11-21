@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"time"
 
 	internalpkg "github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal"
 	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/batch"
+	"github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/internal/zkprover"
 )
 
 // mustFixedPoint encodes a real-valued gradient/noise component as a signed
@@ -32,26 +34,27 @@ func mustFixedPoint(v float64) *big.Int {
 // The call assumes the circuit has already been set up (step 2 in main); the
 // one-time compile + trusted setup is measured separately there.
 func proveSimulatedUpdate() ([]byte, *internalpkg.WeightStatement, error) {
-	gradients := []float64{0.5, -0.25, 1.0, -1.5, 2.0, -0.75, 0.125, -0.5}
-	noise := []float64{0.01, -0.02, 0.03, -0.04, 0.05, -0.06, 0.07, -0.08}
-
-	in := internalpkg.WeightPublicInputs{
-		ModelHashBefore:   big.NewInt(0x4D4F4841574B),
-		DatasetCommitment: big.NewInt(0xC0FFEE),
-		GradNormBound:     mustFixedPoint(3.0), // true norm^2 = 8.390625 <= 9
-		DPEpsilon:         mustFixedPoint(3),
+	// This is the node-side producer path, not a direct circuit call: the
+	// client holds a public statement and a private witness, and
+	// zkprover.ProveWeightProof runs the prover, frames the proof and
+	// self-verifies it before returning the statement to attach. The circuit
+	// derives ModelHashAfter and UpdateHash from the witness, so the
+	// placeholders below are never used.
+	pub := zkprover.PublicInputs{
+		ModelHashBefore:   "0x4d4f4841574b",
+		ModelHashAfter:    "0x0",
+		DatasetCommitment: "0xc0ffee",
+		UpdateHash:        "0x0",
+		GradNormBound:     3.0, // true norm^2 = 8.390625 <= 9
+		DPEpsilon:         3.0,
+	}
+	priv := zkprover.PrivateInputs{
+		Gradients:     []float64{0.5, -0.25, 1.0, -1.5, 2.0, -0.75, 0.125, -0.5},
+		Noise:         []float64{0.01, -0.02, 0.03, -0.04, 0.05, -0.06, 0.07, -0.08},
+		TrainingSteps: 7,
 	}
 
-	var w internalpkg.WeightWitness
-	for i, g := range gradients {
-		w.Gradients[i] = mustFixedPoint(g)
-	}
-	for i, n := range noise {
-		w.Noise[i] = mustFixedPoint(n)
-	}
-	w.TrainingSteps = 7
-
-	proof, stmt, err := internalpkg.ProveWeightUpdate(in, w)
+	proof, stmt, err := zkprover.ProduceWeightProof(context.Background(), zkprover.GnarkProver{}, pub, priv)
 	if err != nil {
 		return nil, nil, err
 	}
