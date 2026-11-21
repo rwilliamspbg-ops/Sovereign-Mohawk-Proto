@@ -137,6 +137,14 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        oracle-query bookkeeping); the random oracle is abstracted to a uniform
        challenge rather than a function-space measure; no efficiency requirement
        on the constructed solver; and the group is still the abstract `ZMod q`.
+     - The game was then lifted from identification to **signature UF-CMA**
+       (matrix row 32, `SchnorrUF_CMAWithOracle.lean`, 2026-11-20): a signing
+       oracle (`honestResponse`, with `honestResponse_accepts`) and a
+       not-queried freshness condition (`ufcmaForges`) are added, the prefix is
+       `(tape, sigs)` with a fixed number of queries, and the same
+       second-moment argument gives `φ ≥ ε² - ε/N` and `ε ≤ 1/N` under
+       `SchnorrDLHard`. The `ε²/q_H` loss of full Pointcheval–Stern is **not**
+       recovered (uniform-challenge abstraction, no adaptive query history).
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`

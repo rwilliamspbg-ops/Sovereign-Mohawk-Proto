@@ -32,3 +32,4 @@ import LeanFormalization.SchnorrForking
 import LeanFormalization.HypothesisNecessity
 import LeanFormalization.Ed25519VerificationEquation
 import LeanFormalization.SchnorrUF_CMA
+import LeanFormalization.SchnorrUF_CMAWithOracle

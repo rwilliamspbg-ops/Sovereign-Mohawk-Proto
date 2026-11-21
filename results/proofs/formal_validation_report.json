@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "8d7dd797f972b6de52b9915540b3e2d83ae6c68c78f3ea2e2449945cca3ae224",
+  "input_merkle_root": "161c3df207f9d0332dfbe27f49d0e74230171d1f464e5b93531183b55af664ac",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "18aa418ec93c7883553bad616aa6871b992919aed083cacd7cceb7ae8941a140"
+      "sha256": "99678d3bff9a9f5db9d7992156446282ac1b7f6a05a155cb974c207a5099f7f0"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "787203b6c233b230014398ba8f24835b41861c707b25f82971a39d98671c4f95"
+      "sha256": "b6f9583e47394760d9abc03972484f358fd3e0d713dda97612ae8b9dac871223"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -92,7 +92,11 @@
     },
     {
       "path": "proofs/LeanFormalization/SchnorrUF_CMA.lean",
-      "sha256": "4a0b4fe02c5b309778618395186c51e5fc005328938bc9424ef4a27c9a1f8eee"
+      "sha256": "50abed3baefb64e6070332748dfe48a5db36493f98220fdbc944515cf514ecc0"
+    },
+    {
+      "path": "proofs/LeanFormalization/SchnorrUF_CMAWithOracle.lean",
+      "sha256": "8869bd9ca807d14f4c4b92188ef397f80d27c494867ab4a555916404db53c774"
     },
     {
       "path": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
@@ -172,7 +176,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "0642345a590300c4b1475ba5ad38123553a94d3edaeb4fce2fd32affcac6db99"
+      "sha256": "bf6f96490824ef474d5197dea73e2d95a6642733b00023be510914d550c8cac7"
     }
   ],
   "lean_modules": [
@@ -398,6 +402,25 @@
         "natCast_mul_pred",
         "successProbability_eq_one_div_card",
         "successProbability_le_of_dl_hard"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/SchnorrUF_CMAWithOracle.lean",
+      "module": "LeanFormalization.SchnorrUF_CMAWithOracle",
+      "symbol_count": 12,
+      "symbols": [
+        "honestResponse",
+        "honestResponse_accepts",
+        "message",
+        "noncePoint",
+        "response",
+        "ufcmaForges",
+        "ufcmaSuccessProbability_eq_one_div_card",
+        "ufcma_dl_solver_advantage_of_forger",
+        "ufcma_forkProbability_ge",
+        "ufcma_fork_extraction",
+        "ufcma_freshness_is_load_bearing",
+        "ufcma_security_of_dl_hard"
       ]
     },
     {
@@ -775,9 +798,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 41,
-    "module_count": 34,
-    "theorem_symbol_count": 358
+    "input_file_count": 42,
+    "module_count": 35,
+    "theorem_symbol_count": 370
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
