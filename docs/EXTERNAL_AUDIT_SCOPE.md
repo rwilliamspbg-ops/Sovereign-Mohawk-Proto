@@ -1,7 +1,7 @@
 # External Audit Scope — Sovereign-Mohawk-Proto
 
 **Status**: Seeking independent review (zero-budget, open-source).
-**Last updated**: 2026-11-04
+**Last updated**: 2026-11-21
 **Audit-ready commit**: see `git rev-parse HEAD` on `main` after the latest merge.
 
 This document defines what we ask external reviewers to look at, in priority order,
@@ -332,7 +332,9 @@ Other honest limitations:
   it does not formalize Groth16 succinctness/soundness or q-SDH (Mathlib
   lacks pairing machinery).
 - **The Gaussian RDP bound is structurally out of reach of the current
-  framework, not merely unfinished** (made precise 2026-11-20). Row 2's
+  framework, not merely unfinished** (made precise 2026-11-20; **SUPERSEDED
+  2026-11-21 — the gap is CLOSED, see the update below; retained as the
+  historical record of the pre-#371 framework**). Row 2's
   `gaussianRDPBound` is an *existence witness*: it exhibits a nonnegative
   `eps = α/(2σ²)` and derives nothing. The reason it cannot be strengthened
   in place is that `RenyiDivergence` is declared

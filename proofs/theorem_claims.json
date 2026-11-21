@@ -12,11 +12,11 @@
     },
     {
       "id": "theorem2_rdp",
-      "status": "surrogate_verified_gaussian_witness",
-      "formal_scope": "exact rational and integer additive composition with budget guards; the Gaussian bound is an existence witness, not an axiom and not a derivation",
+      "status": "gaussian_rdp_derived",
+      "formal_scope": "exact rational and integer additive composition with budget guards; the scalar Gaussian RDP bound is DERIVED from the measure-theoretic divergence (RenyiDivergenceMeasure.lean, gaussianRDPBound_measure), not an existence witness and not an axiom",
       "blocking_gaps": [
         "composeEps/composeEpsRat are an integer/rational additive-ledger surrogate, not a full measure-theoretic RDP accountant",
-        "gaussianRDPBound asserts the Gaussian mechanism's (alpha, alpha/(2*sigma^2))-RDP bound as an existence witness. It is not derivable in the current framework at all: RenyiDivergence is declared as `{α : Type*} [Fintype α] (p q : α → ℝ)`, i.e. finite-support only, while the Gaussian mechanism has continuous support. Closing it needs a measure-theoretic divergence D_α(p‖q) = (1/(α-1))·log ∫ p^α q^{1-α} dμ plus the completed-square Gaussian integral (Mathlib has `integral_gaussian`, not the shift/change-of-variables step)",
+        "The scalar Gaussian mechanism's RDP bound is now DERIVED, not assumed: RenyiDivergenceMeasure.lean defines the measure-theoretic divergence, proves the finite-support RenyiDivergence is its counting-measure special case, and derives D_alpha = alpha*delta^2/(2*sigma^2) unconditionally (only sigma != 0, alpha != 1) from a PROVED completed-square integral (gaussianRDP_integral). This supersedes the existence witness Theorem2RDP.gaussianRDPBound and closes the gap this entry previously recorded as unclosable in the then-current framework. Still open: the multivariate Gaussian mechanism, composition across rounds in the measure-theoretic framework, and the (epsilon,delta)-DP conversion for the Gaussian mechanism. The accountant's CheckBudget conversion is formalized separately in Refinement/RDPLogBound.lean",
         "RDP_sequential_composition covers independent-mechanism composition only; adaptive composition is now separately covered by RDP_adaptive_composition -- NOT via the expectation-based chain rule formula this gap previously cited (that formula is a KL-divergence-specific identity, not valid for Renyi divergence at general order; a Mathlib feasibility scout confirmed no Renyi/KL/f-divergence content exists anywhere in Mathlib to build the expectation-based route on regardless). RDP_adaptive_composition instead proves the standard literature result (Mironov 2017 Prop 1): a uniform/worst-case bound over the first mechanism's realized outputs, which strictly generalizes RDP_sequential_composition (setting the second mechanism's conditional distribution constant across the first mechanism's output recovers it exactly)"
       ],
       "lean_modules": [

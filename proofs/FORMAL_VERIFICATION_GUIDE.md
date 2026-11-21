@@ -23,16 +23,25 @@ lake build LeanFormalization Mathlib
 
 ## Claim-to-Theorem Mapping
 
+> **Status of this table (2026-11-21):** this is a legacy 8-row summary of the
+> six original claim domains. The authoritative, current claim status for all
+> 34 matrix rows plus the Workstream 4 table is
+> [`FORMAL_TRACEABILITY_MATRIX.md`](FORMAL_TRACEABILITY_MATRIX.md) — rows 9-34
+> (RDP accountant refinement, Schnorr/Ed25519 reductions, ZK circuit, MiMC,
+> measure-theoretic Rényi divergence, Gaussian RDP) are not summarised here.
+> Rows 1, 6, 7 and 16 in the matrix are also more precise than the entries
+> below; where the two disagree, the matrix wins.
+
 | # | Claim | Markdown Proof | Lean Module | Key Theorem | Status |
 |---|-------|---|---|---|---|
 | 1 | ~~55.5% Byzantine resilience~~ — single-tier 5/9 guard arithmetic is `fully_formalized`; the hierarchical composition claim is **disproven** (`hierarchical_composition_counterexample`); a probabilistic Chernoff repair is proved for the i.i.d. Bernoulli model | `bft_resilience.md` | `Theorem1BFT.lean` | `theorem1_five_ninths_guard`, `theorem1_global_bound_checked`, `hierarchical_composition_counterexample`, `chernoff_hierarchical_bound_deployment_scale` | guard-dependent (single-tier); compositional claim disproven; probabilistic repair proved |
-| 2 | Integer privacy-budget composition surrogate (Gaussian RDP bound is an existence witness, not an axiom) | `differential_privacy.md` | `Theorem2RDP.lean` | `theorem2_budget_guard` | surrogate_verified_gaussian_witness |
+| 2 | Integer privacy-budget composition surrogate; the scalar Gaussian RDP bound is **derived** (matrix row 34), no longer an existence witness | `differential_privacy.md` | `Theorem2RDP.lean` | `theorem2_budget_guard` | gaussian_rdp_derived; the integer/rational additive ledger remains a surrogate |
 | 3 | O(d log n) communication | `communication.md` | `Theorem3Communication.lean` | `theorem3_hierarchical_scale_check` | fully_formalized |
 | 4 | Integer liveness guard surrogate (with Chernoff extension) | `internal/stragglers.md` | `Theorem4Liveness.lean` | `theorem4_success_gt_99_9_r12` | model_verified |
 | 5 | Constant-cost verifier model | `cryptography.md` | `Theorem5Cryptography.lean` | `theorem5_constant_cost` | model_verified |
 | 6 | ~~Surrogate convergence envelope~~ — **superseded by row 16**, which connects the descent inequality to the Multi-Krum aggregation rule and proves a.s. convergence under a Robbins–Monro schedule | `convergence.md` | `Theorem6Convergence.lean`, `RobbinsSiegmund.lean`, `DescentInequalityFull.lean`, `MultiKrumConvergence.lean` | `theorem6_large_scale_guard`, `descent_inequality_derived`, `mkAggregate_deviation_sq_le`, `mkAggregate_deviation_sq_le_split`, `multikrum_descent_inequality`, `summable_diminishingStep_sq`, `not_summable_diminishingStep`, `multikrum_convergence_ae` | measure_theoretic_verified (PR #281); row 16 adds a real a.s. convergence theorem |
 | 7 | Corrected hierarchical composition + probabilistic guard bound | `bft_resilience.md` | `ProtocolSafety.lean` | `HTree.fractionSafe`, `HTree.fractionSafe_node_of_forall`, `guardThreshold`, `guardThreshold_correct`, `multikrum_guard_failure_prob`, `multikrum_guard_failure_deployment_scale` | fully_formalized (counting); model_verified (probabilistic, i.i.d. Bernoulli model) |
-| 8 | Proper reduction for the Schnorr/Ed25519 identification protocol | `cryptography.md` | `SchnorrReduction.lean` | `schnorr_special_soundness`, `schnorr_hvzk_simulation`, `schnorr_hvzk_commitment_bijective`, `forger_implies_dlog` | fully_formalized (group algebra); the forking step is an explicit hypothesis |
+| 8 | Proper reduction for the Schnorr/Ed25519 identification protocol | `cryptography.md` | `SchnorrReduction.lean` | `schnorr_special_soundness`, `schnorr_hvzk_simulation`, `schnorr_hvzk_commitment_bijective`, `forger_implies_dlog` | fully_formalized (group algebra); the forking step is now a **proved** pigeonhole lemma (matrix row 25, `SchnorrForking.lean`), no longer an explicit hypothesis |
 
 ## Verification Steps
 
@@ -147,6 +156,14 @@ proofs/
 
 ## Proof Statistics
 
+> **Update (2026-11-21):** the figures below are the original seven-module
+> counts and are stale. The traceability validator currently reports **28 Lean
+> modules** and **342 validated theorem symbols**, plus 59 runtime test
+> references — see `FORMAL_TRACEABILITY_MATRIX.md`. `native_decide` is also no
+> longer used anywhere in the project modules: the last occurrence was
+> replaced by exponent reduction (`pow_le_pow_iff_left₀` + `norm_num`), so the
+> axiom audit reports Mathlib's foundations only, with no toolchain trust.
+
 - **Total theorem/def symbols:** 54 (machine-checked in current sources)
 - **Total theorem symbols:** 37
 - **Files:** 7 Lean modules
@@ -244,3 +261,4 @@ rm -rf .lake/build .lake/packages/mathlib/.lake/build
 
 *Formal Verification Guide - 2026-04-20*  
 *37 theorem symbols | 54 theorem/def symbols | 0 placeholders | CI-gated*
+*(counts superseded 2026-11-21 — see Proof Statistics; 0 placeholders and CI-gated still hold)*
