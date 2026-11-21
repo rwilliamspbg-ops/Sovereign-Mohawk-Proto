@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "161c3df207f9d0332dfbe27f49d0e74230171d1f464e5b93531183b55af664ac",
+  "input_merkle_root": "433ab96f3c234b87896839b3b4abef61e0e48e6d0ac06d24bf2889bcc6228b4a",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "99678d3bff9a9f5db9d7992156446282ac1b7f6a05a155cb974c207a5099f7f0"
+      "sha256": "b3082bfa344472d76512c44ee3199d06689ca7ba6beaa352365de65538bb73df"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "b6f9583e47394760d9abc03972484f358fd3e0d713dda97612ae8b9dac871223"
+      "sha256": "6939166be172f91e8a123ea6044fe5f603b0406aa36f1b5d6154f36a4786e131"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -45,6 +45,10 @@
     {
       "path": "proofs/LeanFormalization/DiscreteLogReduction.lean",
       "sha256": "6bc980085a3a13c1307e63c716b6d97e7d4ab5a4d1004bc9c313d2f024456ecf"
+    },
+    {
+      "path": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
+      "sha256": "cfa442dab463c1dad78401da6b37200e9730d5b84b4421c57d43784776562118"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519VerificationEquation.lean",
@@ -96,7 +100,7 @@
     },
     {
       "path": "proofs/LeanFormalization/SchnorrUF_CMAWithOracle.lean",
-      "sha256": "8869bd9ca807d14f4c4b92188ef397f80d27c494867ab4a555916404db53c774"
+      "sha256": "aabfda4eb0722b121768a7b5f46898bbf285b685c8437694a52854670fac8d37"
     },
     {
       "path": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
@@ -235,6 +239,21 @@
         "recovery_sanity_example",
         "recovery_yields_secret",
         "scalarModInv"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
+      "module": "LeanFormalization.Ed25519UF_CMASecurity",
+      "symbol_count": 8,
+      "symbols": [
+        "ed25519Accept",
+        "ed25519Accept_iff_schnorrAccept",
+        "ed25519Forges",
+        "ed25519Forges_iff_ufcmaForges",
+        "ed25519SuccessProbability_eq",
+        "ed25519_fork_recovers",
+        "ed25519_ufcma_security",
+        "schnorrAccept_at"
       ]
     },
     {
@@ -798,9 +817,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 42,
-    "module_count": 35,
-    "theorem_symbol_count": 370
+    "input_file_count": 43,
+    "module_count": 36,
+    "theorem_symbol_count": 378
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

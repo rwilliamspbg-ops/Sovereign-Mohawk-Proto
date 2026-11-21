@@ -389,6 +389,42 @@ jobs, success, no new warnings; `generate_formal_validation_report.py
 validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
+### Added - Lean: crypto capstone — Ed25519 UF-CMA composed from the four proved pieces
+
+New module `LeanFormalization/Ed25519UF_CMASecurity.lean`, composing:
+
+1. `Ed25519GroupLaws affineBase` (row 26),
+2. `verificationEquation_iff_ModEq` (row 26),
+3. the random-oracle forking UF-CMA reduction (row 32),
+4. `SchnorrDLHard dlL`,
+
+into a single security statement about the **real** Ed25519 verification
+equation.
+
+* `ed25519Accept` — the curve-level predicate `S·B = R + h·A` with `A = a·B`,
+  `R = r·B`.
+* `ed25519Accept_iff_schnorrAccept` — the **transfer**: that predicate is
+  *equivalent* to the exponent-model `schnorrAccept` at the residues, proved
+  from `verificationEquation_iff_ModEq` plus the `ZMod`/`Nat.ModEq` bridge
+  (`schnorrAccept_at` is the challenge-indexed form).
+* `Ed25519UFCMAAdversary` — the row-32 adversary plus the nonce exponent that
+  pins its nonce point to the curve point `r·B`.
+* `ed25519Forges_iff_ufcmaForges` / `ed25519SuccessProbability_eq` — the two
+  games are pointwise equivalent, so their success probabilities coincide.
+* `ed25519_ufcma_security` — under the group laws and `SchnorrDLHard dlL`,
+  `ed25519SuccessProbability adv a ≤ 1/dlL`.
+* `ed25519_fork_recovers` — the capstone's fork content at the curve level: two
+  accepting curve signatures sharing the nonce point and differing in the
+  challenge recover the secret key (via `ed25519_two_equations_recover`).
+
+**Stated openly:** the group laws are assumed, not proved; the random oracle is
+the uniform-challenge abstraction, so the `ε²/q_H` loss of full
+Pointcheval–Stern is **not** recovered; the signing oracle is `k` abstract
+honest signatures, not an adaptive query history.
+
+Matrix row 33 gates the module. `#print axioms` on all five headline theorems:
+only `propext`, `Classical.choice`, `Quot.sound`. No `sorry`, no new axioms.
+
 ### Added - Lean: UF-CMA game with a signing oracle (simplified random-oracle model)
 
 New module `LeanFormalization/SchnorrUF_CMAWithOracle.lean`, lifting the
