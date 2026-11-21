@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "17f40af7a408af310615db9fd5e924b66894c445066eeaa9928734488ffb1758",
+  "input_merkle_root": "e85ee518638696f3a2814b3f87060f0dc9c2a7058d43bce56895506e48065fdb",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "41456656d4d235f1cbc68ff7bc9a9673abb6eecf62a3a04c49d8cf4765deaad3"
+      "sha256": "36d0c29253d872bf86be608a0965fb57509184b46f9e69db53c9880d6d314f5c"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -80,7 +80,7 @@
     },
     {
       "path": "proofs/LeanFormalization/RenyiDivergenceMeasure.lean",
-      "sha256": "4dd676d084233cf1f3d9b4a8f28777b542d89ac8baec42378b42c87992e6dd9d"
+      "sha256": "cb2e9637a9ce9b0e3ddadcc7612e6806f64fc7563b738b1dada7aad4204f0309"
     },
     {
       "path": "proofs/LeanFormalization/RobbinsSiegmund.lean",
@@ -357,10 +357,13 @@
     {
       "file": "proofs/LeanFormalization/RenyiDivergenceMeasure.lean",
       "module": "LeanFormalization.RenyiDivergenceMeasure",
-      "symbol_count": 4,
+      "symbol_count": 7,
       "symbols": [
+        "gaussianIntegral_shift",
+        "gaussianRDPBound_measure",
         "gaussianRDPBound_nonneg",
-        "gaussianRDPBound_of_hypotheses",
+        "gaussianRDP_integral",
+        "gaussianRDP_integrand",
         "renyiDivergenceMeasure_count",
         "renyiDivergenceMeasure_count_eq_renyiDivergence"
       ]
@@ -834,7 +837,7 @@
   "summary": {
     "input_file_count": 44,
     "module_count": 37,
-    "theorem_symbol_count": 382
+    "theorem_symbol_count": 385
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

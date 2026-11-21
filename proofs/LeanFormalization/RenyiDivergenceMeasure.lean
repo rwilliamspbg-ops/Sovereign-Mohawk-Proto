@@ -28,26 +28,36 @@ it — so the gap is no longer "unspecified analysis" but exactly one lemma.
 
 ## What is here
 
-* `RenyiDivergenceMeasure` — the divergence of two non-negative densities with
-  respect to a base measure.
+* `RenyiDivergenceMeasure` — the divergence of two densities with respect to a
+  base measure.
 * `renyiDivergenceMeasure_count` — for the counting measure on a `Fintype`, the
   integral is the finite sum.
 * `renyiDivergenceMeasure_count_eq_renyiDivergence` — the finite-support
   `RenyiDivergence` of `Theorem2RDP.lean` is exactly the measure-theoretic
   divergence at the counting measure. The existing development is therefore a
   special case of the new framework, not a parallel one.
-* `gaussianDensity`, `GaussianRDPHypotheses`, `gaussianRDPBound_of_hypotheses` —
-  the Gaussian instantiation. The integral identity is an explicit hypothesis
-  bundle (the same style as `Ed25519GroupLaws`), and the bound
-  `α·Δ²/(2σ²)` is *derived* from it. Proving the identity itself is the
-  remaining work, and it is named as such.
+* `gaussianIntegral_shift` — the shifted Gaussian integral
+  `∫ exp(-b·(x−c)²) dx = √(π/b)`, derived from Mathlib's `integral_gaussian`
+  via the translation-invariance of Lebesgue measure.
+* `gaussianRDP_integrand` + `gaussianRDP_integral` — the completed-square
+  identity, **proved**: for `p = N(0,σ²)`, `q = N(Δ,σ²)`,
+  `∫ q^α / p^(α−1) dx = exp(α(α−1)·Δ²/(2σ²))`.
+* `gaussianRDPBound_measure` — the Gaussian mechanism's Rényi divergence is
+  **derived** to be `α·Δ²/(2σ²)`, unconditionally (only `σ ≠ 0` and `α ≠ 1`).
 
 ## Honesty
 
-No claim is made that the Gaussian integral has been proved. The derivation is
-conditional, and the condition is stated at the theorem. The point of this file
-is to make the gap structural rather than vague: the framework exists and the
-finite case is a special case of it, so the only missing piece is one integral.
+Both prerequisites are now met. The earlier revision of this file stated the
+Gaussian integral as an explicit hypothesis bundle; it is superseded — the
+integral is proved above, so `gaussianRDPBound_measure` takes no hypothesis
+beyond `σ ≠ 0`, `α ≠ 1`. This closes the gap recorded in row 2 and in
+`docs/EXTERNAL_AUDIT_SCOPE.md` §6: `Theorem2RDP.gaussianRDPBound` was an
+existence witness, and the bound is now derived.
+
+What is *not* claimed: this is the scalar, fixed-variance Gaussian mechanism in
+the exponent-free density model. It does not model the multivariate mechanism,
+the composition across rounds, or the `(ε,δ)`-DP conversion — those remain
+where they were, and row 2's composition claims are unaffected.
 -/
 
 namespace LeanFormalization
@@ -99,49 +109,121 @@ noncomputable def gaussianDensity (mean sigma x : ℝ) : ℝ :=
   (1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
     Real.exp (-(x - mean) ^ 2 / (2 * sigma ^ 2))
 
-/-- **The one missing integral.** Everything needed to derive the Gaussian
-    mechanism's RDP bound, packaged as an explicit hypothesis bundle in the same
-    style as `Ed25519GroupLaws`.
+/-- **The shifted Gaussian integral.** Translation does not change total mass.
+    Mathlib ships `integral_gaussian` for the centred case (`∫ exp(-b·x²) = √(π/b)`);
+    this is the change-of-variables step the Gaussian RDP derivation needs, and
+    it is what turns the "completed square" into a usable integral. -/
+theorem gaussianIntegral_shift (b c : ℝ) :
+    (∫ x : ℝ, Real.exp (-b * (x - c) ^ 2)) = Real.sqrt (Real.pi / b) := by
+  have hmp : MeasurePreserving (fun x : ℝ => x - c) volume volume :=
+    measurePreserving_add_right (μ := volume) (-c)
+  have hsm : AEStronglyMeasurable (fun y : ℝ => Real.exp (-b * y ^ 2))
+      (Measure.map (fun x : ℝ => x - c) volume) :=
+    (by fun_prop : Continuous (fun y : ℝ => Real.exp (-b * y ^ 2))).aestronglyMeasurable
+  have hmap := MeasureTheory.integral_map (μ := volume)
+    (φ := fun x : ℝ => x - c) hmp.1.aemeasurable hsm
+  rw [← hmap, hmp.2]
+  exact integral_gaussian b
 
-    For adjacent datasets differing by `delta` in one coordinate, the mechanism
-    outputs `N(0, σ²)` and `N(delta, σ²)`. The Rényi divergence of order `α`
-    reduces to the integral below, whose value is the completed square. Mathlib
-    ships `integral_gaussian` (`∫ exp(-b·x²) dx = √(π/b)`), but not the
-    shifted/completed-square form; that is the remaining lemma. -/
-structure GaussianRDPHypotheses (sigma delta alpha : ℝ) where
-  /-- The noise scale is positive. -/
-  hsigma : 0 < sigma
-  /-- The order is above 1, so the divergence is defined. -/
-  halpha : 1 < alpha
-  /-- **The completed-square Gaussian integral.** `p = N(0, σ²)`,
-      `q = N(delta, σ²)`; the integrand is `q^α / p^(α-1)`. -/
-  hintegral :
-    ∫ x, (gaussianDensity delta sigma x) ^ alpha /
-        (gaussianDensity 0 sigma x) ^ (alpha - 1) ∂volume =
-      Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2))
+/-- **The Gaussian Rényi integrand, pointwise.** The ratio `q^α / p^(α-1)` of
+    two normal densities with the same variance is a *shifted* normal density
+    times the completed-square constant. -/
+theorem gaussianRDP_integrand (sigma delta alpha x : ℝ) (hsigma : sigma ≠ 0) :
+    (gaussianDensity delta sigma x) ^ alpha / (gaussianDensity 0 sigma x) ^ (alpha - 1) =
+      (1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
+        Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2)) *
+        Real.exp (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)) := by
+  have hs2 : (0 : ℝ) < sigma ^ 2 := sq_pos_of_ne_zero hsigma
+  have hA : (0 : ℝ) < 2 * Real.pi * sigma ^ 2 := by nlinarith [Real.pi_pos]
+  have hinv : (0 : ℝ) < 1 / Real.sqrt (2 * Real.pi * sigma ^ 2) := by positivity
+  have hexp : Real.exp (-(x - delta) ^ 2 / (2 * sigma ^ 2) * alpha -
+          (-(x - 0) ^ 2 / (2 * sigma ^ 2) * (alpha - 1))) =
+      Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2) +
+        (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2))) := by
+    congr 1
+    ring
+  unfold gaussianDensity
+  rw [Real.mul_rpow (by positivity) (by positivity),
+    Real.mul_rpow (by positivity) (by positivity)]
+  rw [← Real.exp_mul, ← Real.exp_mul]
+  rw [← div_mul_div_comm]
+  rw [← Real.rpow_sub hinv]
+  have hsub : alpha - (alpha - 1) = 1 := by ring
+  rw [hsub, Real.rpow_one]
+  rw [← Real.exp_sub]
+  rw [show -(x - delta) ^ 2 / (2 * sigma ^ 2) * alpha -
+          (-(x - 0) ^ 2 / (2 * sigma ^ 2) * (alpha - 1)) =
+        alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2) +
+          (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)) by ring]
+  rw [Real.exp_add]
+  ring
 
-/-- **The Gaussian RDP bound, derived.** Under the explicit integral identity,
-    the Gaussian mechanism's Rényi divergence of order `alpha` between
-    `N(0, σ²)` and `N(delta, σ²)` is exactly `alpha * delta² / (2 σ²)` — the
-    `(α, α·Δ²/(2σ²))`-RDP bound, obtained by derivation rather than asserted as
-    a witness.
+/-- **The completed-square Gaussian integral, PROVED.** For `p = N(0, σ²)` and
+    `q = N(delta, σ²)`,
 
-    The only unproved input is `GaussianRDPHypotheses.hintegral`. -/
-theorem gaussianRDPBound_of_hypotheses (sigma delta alpha : ℝ)
-    (h : GaussianRDPHypotheses sigma delta alpha) :
+      ∫ q^α / p^(α-1) dx = exp(α(α−1)·delta² / (2σ²)).
+
+    This is the identity that `docs/EXTERNAL_AUDIT_SCOPE.md` §6 listed as the
+    unproved prerequisite for the Gaussian RDP bound. It is derived here from
+    Mathlib's `integral_gaussian` plus the shift lemma above; no hypothesis
+    bundle is involved. -/
+theorem gaussianRDP_integral (sigma delta alpha : ℝ) (hsigma : sigma ≠ 0) :
+    (∫ x : ℝ, (gaussianDensity delta sigma x) ^ alpha /
+        (gaussianDensity 0 sigma x) ^ (alpha - 1) ∂volume) =
+      Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2)) := by
+  rw [show (fun x : ℝ => (gaussianDensity delta sigma x) ^ alpha /
+        (gaussianDensity 0 sigma x) ^ (alpha - 1))
+      = (fun x : ℝ => (1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
+        Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2)) *
+        Real.exp (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)))
+    from funext (gaussianRDP_integrand sigma delta alpha · hsigma)]
+  rw [show (fun x : ℝ => (1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
+        Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2)) *
+        Real.exp (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)))
+      = (fun x : ℝ => ((1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
+        Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2))) *
+        Real.exp (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)))
+    from funext (fun x => by ring)]
+  rw [MeasureTheory.integral_const_mul (μ := volume)
+    (r := (1 / Real.sqrt (2 * Real.pi * sigma ^ 2)) *
+      Real.exp (alpha * (alpha - 1) * delta ^ 2 / (2 * sigma ^ 2)))
+    (f := fun x : ℝ => Real.exp (-(x - alpha * delta) ^ 2 / (2 * sigma ^ 2)))]
+  rw [show (fun a : ℝ => Real.exp (-(a - alpha * delta) ^ 2 / (2 * sigma ^ 2)))
+      = (fun a : ℝ => Real.exp (-(1 / (2 * sigma ^ 2)) * (a - alpha * delta) ^ 2))
+    from funext (fun a => by congr 1; ring)]
+  rw [gaussianIntegral_shift (1 / (2 * sigma ^ 2)) (alpha * delta)]
+  have hsqrt : Real.sqrt (Real.pi / (1 / (2 * sigma ^ 2))) =
+      Real.sqrt (2 * Real.pi * sigma ^ 2) := by
+    congr 1
+    field_simp
+  rw [hsqrt]
+  have hA : (0 : ℝ) < 2 * Real.pi * sigma ^ 2 := by
+    have : (0 : ℝ) < sigma ^ 2 := sq_pos_of_ne_zero hsigma
+    nlinarith [Real.pi_pos]
+  have hne : Real.sqrt (2 * Real.pi * sigma ^ 2) ≠ 0 := ne_of_gt (Real.sqrt_pos.mpr hA)
+  field_simp
+
+/-- **The Gaussian RDP bound, now unconditional.** The Rényi divergence of
+    order `alpha` between `N(0, σ²)` and `N(delta, σ²)` is exactly
+    `alpha · delta² / (2σ²)` — the `(α, α·Δ²/(2σ²))`-RDP bound, obtained by
+    derivation from a *proved* integral rather than asserted as a witness.
+
+    This supersedes the existence witness `Theorem2RDP.gaussianRDPBound`, which
+    could only exhibit the value without deriving it. -/
+theorem gaussianRDPBound_measure (sigma delta alpha : ℝ)
+    (hsigma : sigma ≠ 0) (halpha : alpha ≠ 1) :
     RenyiDivergenceMeasure (gaussianDensity 0 sigma) (gaussianDensity delta sigma)
       alpha volume = alpha * delta ^ 2 / (2 * sigma ^ 2) := by
   unfold RenyiDivergenceMeasure
-  rw [h.hintegral, Real.log_exp]
-  have hne : alpha - 1 ≠ 0 := by have := h.halpha; linarith
+  rw [gaussianRDP_integral sigma delta alpha hsigma, Real.log_exp]
+  have hne : alpha - 1 ≠ 0 := sub_ne_zero.mpr halpha
   field_simp
 
-/-- The bound is non-negative for a positive order — a sanity property that the
-    existence witness in `Theorem2RDP.lean` could only assert by `positivity`. -/
+/-- The bound is non-negative for a positive order. -/
 theorem gaussianRDPBound_nonneg (sigma delta alpha : ℝ)
-    (h : GaussianRDPHypotheses sigma delta alpha) (halpha : 0 < alpha) :
+    (hsigma : sigma ≠ 0) (halpha : 0 < alpha) :
     0 ≤ alpha * delta ^ 2 / (2 * sigma ^ 2) := by
-  have := h.hsigma
+  have : (0 : ℝ) < sigma ^ 2 := sq_pos_of_ne_zero hsigma
   positivity
 
 end LeanFormalization

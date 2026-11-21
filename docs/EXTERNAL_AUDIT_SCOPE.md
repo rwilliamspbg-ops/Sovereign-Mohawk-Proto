@@ -342,19 +342,26 @@ Other honest limitations:
   measure-theoretic Rényi divergence
   `D_α(p‖q) = (1/(α-1))·log ∫ p^α q^{1-α} dμ`, and (ii) the completed-square
   Gaussian integral with a shift/change of variables. Mathlib ships
-  `integral_gaussian` (`∫ exp(-b·x²) dx = √(π/b)`), so the analytic ingredient
-  exists, but the framework and the shift lemma do not.
-* **Update (2026-11-20, matrix row 34): prerequisite (i) is now MET.**
-  `LeanFormalization/RenyiDivergenceMeasure.lean` defines the measure-theoretic
-  divergence and proves the existing finite-support `RenyiDivergence` is exactly
-  its counting-measure special case, so the old development is subsumed.
-  Prerequisite (ii) is now pinned to one named integral: `GaussianRDPHypotheses`
-  packages the completed-square identity
-  `∫ q^α / p^(α-1) = exp(α(α−1)Δ²/(2σ²))` for `p = N(0,σ²)`, `q = N(Δ,σ²)`, and
-  `gaussianRDPBound_of_hypotheses` **derives** `D_α = α·Δ²/(2σ²)` from it. The
-  integral itself is **not** proved (Mathlib has `integral_gaussian`, not the
-  shifted form), so the bound is conditional and the condition is stated at the
-  theorem. The gap is now "exactly one integral", not "unspecified analysis".
+  `integral_gaussian` (`∫ exp(-b·x²) dx = √(π/b)`); the framework, the shift
+  lemma, and the integral itself are all now present (see the 2026-11-21 update
+  below).
+* **Update (2026-11-21, matrix row 34): BOTH prerequisites are now MET, and the
+   gap is CLOSED for the scalar fixed-variance case.**
+   `LeanFormalization/RenyiDivergenceMeasure.lean` defines the measure-theoretic
+   divergence and proves the existing finite-support `RenyiDivergence` is exactly
+   its counting-measure special case, so the old development is subsumed.
+   `gaussianIntegral_shift` derives `∫ exp(-b·(x−c)²) dx = √(π/b)` from Mathlib's
+   `integral_gaussian` via translation invariance of Lebesgue measure
+   (`measurePreserving_add_right` + `MeasureTheory.integral_map`).
+   `gaussianRDP_integrand` and `gaussianRDP_integral` then **prove** the
+   completed-square identity `∫ q^α / p^(α-1) = exp(α(α−1)Δ²/(2σ²))` for
+   `p = N(0,σ²)`, `q = N(Δ,σ²)`, and `gaussianRDPBound_measure` **derives**
+   `D_α = α·Δ²/(2σ²)` unconditionally (only `σ ≠ 0`, `α ≠ 1`).
+   The hypothesis bundle `GaussianRDPHypotheses` is removed — nothing is assumed —
+   and the existence witness `Theorem2RDP.gaussianRDPBound` is superseded.
+
+   **Not closed by this:** the multivariate mechanism, composition across rounds,
+   and the `(ε,δ)`-DP conversion. Those are unaffected and retain row 2's status.
 - `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
   caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
   `internal/zkweight_circuit.go`), and falls back to the single-scalar
