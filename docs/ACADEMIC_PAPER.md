@@ -136,10 +136,13 @@ claim-status taxonomy rather than leaving them implicit:
 2. **Assumption boundaries.** The formalization is **axiom-free** (`#print axioms`
    reports only Mathlib's foundation: `propext`, `Classical.choice`, `Quot.sound`).
    What remains are explicit hypotheses at each use site — `FloatOrderLaws`
-   (IEEE-754 non-NaN order) and `Fact (Nat.Prime dlL)` — plus one axiom bridge for the
-   Gaussian mechanism's Rényi divergence, which is assumed rather than derived from
-   Mathlib's measure theory. Groth16 succinctness is an abstract constant-operation
-   model, not a pairing-based proof. §3.3 restates this precisely.
+   (IEEE-754 non-NaN order), `Fact (Nat.Prime dlL)`, `SchnorrDLHard` (an explicit
+   discrete-log hardness `def`) and `Ed25519GroupLaws` (four explicit curve-model
+   laws). The Gaussian mechanism's Rényi divergence is **derived**, not assumed:
+   `gaussianRDPBound_measure` obtains $D_\alpha = \alpha\Delta^2/(2\sigma^2)$
+   unconditionally from a proved completed-square integral (§6.1). Groth16
+   succinctness is an abstract constant-operation model, not a pairing-based
+   proof. §3.3 restates this precisely.
 3. **Traceability.** Every claim in this paper maps to an entry in our machine-readable
    formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which records the
    Lean module, the runtime evidence and the claim's status. Not every entry is
@@ -160,7 +163,7 @@ result is, and we repeat that status per claim in
 | Status | Meaning | Example in this paper |
 | --- | --- | --- |
 | `fully_formalized` | Proved in Lean 4 from stated definitions and hypotheses; `#print axioms` reports only Mathlib's foundation | the local guard arithmetic (§4), the composition counterexample (§4), the Chernoff repair (§5) |
-| `model_verified` / `surrogate_verified` | Proved, but *about a model* that is not the runtime object | the constant-operation Groth16 cost model (§8.3); the Gaussian-mechanism RDP axiom bridge (§6) |
+| `model_verified` / `surrogate_verified` | Proved, but *about a model* that is not the runtime object | the constant-operation Groth16 cost model (§8.3); the integer/rational additive RDP ledger (§6.1) |
 | `structural` | Invariants proved about a state machine, conditional on a hardness assumption that is not itself formalized | PQC non-hijack (§10) |
 | `circuit_relation_modeled` | The proof system's accepted (statement, witness) pairs are modelled and proved; the cryptographic soundness of the proof system is not | `WeightUpdateCircuit` (§8.4) |
 | `empirical` | Measured or pinned against the runtime, not proved across it | Go↔Lean correspondences (§7, §11), the Kind scale numbers (§13) |
@@ -187,9 +190,11 @@ The Lean development is **axiom-free, sorry-free, and free of `native_decide`**:
 `#print axioms` over the development reports only Mathlib's foundation
 (`propext`, `Classical.choice`, `Quot.sound`). What remains are
 explicit hypotheses at each use site: `FloatOrderLaws` (IEEE-754 non-NaN order,
-§11), `Fact (Nat.Prime dlL)`, and `Nat.Prime bn254Prime` for the BN254 MiMC
-instantiation (§8.2). No global `axiom` is used, and no proof uses `sorry` or
-`admit`.
+§11), `Fact (Nat.Prime dlL)`, `Nat.Prime bn254Prime` for the BN254 MiMC
+instantiation (§8.2), `SchnorrDLHard` (an explicit discrete-log hardness `def`),
+and `Ed25519GroupLaws affineBase` (four explicit curve-model laws; `zeroMul` and
+`oneMul` were removed as unconsumed). No global `axiom` is used, and no proof
+uses `sorry` or `admit`.
 
 ### 3.4 What is deliberately not claimed
 
@@ -462,8 +467,15 @@ $$D_\alpha(P \parallel Q) = \frac{1}{\alpha - 1} \ln \mathbb{E}_{x \sim Q}\left[
 
 A randomized mechanism $\mathcal{M}$ satisfies $(\alpha, \epsilon)$-RDP if $D_\alpha(\mathcal{M}(D) \parallel \mathcal{M}(D')) \le \epsilon$. For a Gaussian mechanism adding noise $\mathcal{N}(0, \sigma^2 \mathbf{I})$ calibrated to $L_2$ gradient sensitivity $\Delta_2$, the privacy cost is $\epsilon_{\text{RDP}}(\alpha) = \frac{\alpha \Delta_2^2}{2 \sigma^2}$.
 
+**This bound is machine-derived, not asserted.** `gaussianRDP_integral` proves the completed-square identity $\int q^\alpha / p^{\alpha-1} = \exp(\alpha(\alpha-1)\Delta^2/(2\sigma^2))$ from Mathlib's `integral_gaussian` and a proved translation-invariance lemma, and `gaussianRDPBound_measure` derives $D_\alpha = \alpha\Delta^2/(2\sigma^2)$ unconditionally (only $\sigma \ne 0$, $\alpha \ne 1$) in the scalar case (matrix row 34). It supersedes an earlier existence witness that exhibited the value without deriving it.
+
 In Lean 4 (`Theorem2RDP.lean`), we formally prove independent mechanism composition: if mechanism $\mathcal{M}_1$ satisfies $(\alpha, \epsilon_1)$-RDP and $\mathcal{M}_2$ satisfies $(\alpha, \epsilon_2)$-RDP on independent executions, their joint output satisfies $(\alpha, \epsilon_1 + \epsilon_2)$-RDP via exact tensorization of product distributions:
 $$D_\alpha(P_1 \otimes P_2 \parallel Q_1 \otimes Q_2) = D_\alpha(P_1 \parallel Q_1) + D_\alpha(P_2 \parallel Q_2)$$
+
+This tensorization was subsequently lifted from the counting measure to an
+arbitrary **product measure** (`renyiDivergenceMeasure_prod`, matrix row 35), so it
+holds for continuous output distributions and not only finite-support ones; §6.4
+states it and its consumer.
 
 ### 6.2 Constructivist Challenge of $(\epsilon, \delta)$-DP Conversion
 To map accumulated RDP guarantees to standard $(\epsilon, \delta)$-differential privacy, the runtime applies the canonical transformation:
@@ -504,6 +516,33 @@ def epsUpperRat (k : ℕ) (r : ℚ) : ℚ := logUpperRat k r / 9
 
 Table 2 records the exact rational bounding intervals certified by Lean 4 for production $\delta$ targets. In our Go runtime, the RDP accountant embeds these literal `big.Rat` constants to gate model dissemination without floating-point drift.
 
+### 6.4 Measure-Theoretic Composition and Two-Round Gaussian Accounting
+
+`renyiDivergenceMeasure_prod` states the tensorization over an arbitrary product
+measure: for nonnegative densities $p_1, q_1$ on $(\alpha, \mu)$ and $p_2, q_2$ on
+$(\beta, \nu)$ with positive marginal integrands,
+
+$$D_\alpha(p_1 \otimes p_2 \parallel q_1 \otimes q_2) = D_\alpha(p_1 \parallel q_1) + D_\alpha(p_2 \parallel q_2)$$
+
+holds w.r.t. the product measure $\mu \cdot \nu$. The proof factors the integrand
+(`Real.mul_rpow`), applies `MeasureTheory.integral_prod_mul`, and sums the
+logarithms (`Real.log_mul`). The consumer is `gaussianRDPMeasure_two_rounds`: two
+independent rounds of the scalar Gaussian mechanism have divergence
+$2 \cdot \alpha\Delta^2/(2\sigma^2)$, obtained by composing the derived bound of
+§6.1 with the tensorization.
+
+**Scope, stated openly.** This is *independent* composition — the base measure is a
+product measure. Adaptive composition, where the second mechanism's output
+distribution depends on the first mechanism's realized output, is not covered
+here; `Theorem2RDP.RDP_adaptive_composition` covers the finite-support case with a
+worst-case bound. `renyiDivergenceMeasure_prod_positivity_needed` is the negative
+control showing the marginal-integral positivity hypotheses are load-bearing: with
+a zero marginal integral the claimed equality would read $\log 0 = \log 0 + \log 4$.
+
+A self-contained summary of the four headline results — the hierarchical negative
+result and Chernoff repair, the Ed25519 UF-CMA composition, the Gaussian RDP
+derivation, and this composition result — is in
+[`FORMAL_RESULTS_SUMMARY.md`](FORMAL_RESULTS_SUMMARY.md).
 ---
 
 ## 7. Communication Complexity and Wire-Format Refinement

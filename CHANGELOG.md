@@ -103,6 +103,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3 records the constraint correspondence and a
   Go-side inspection of the MPC setup threading; matrix rows 21/22 updated.
 
+
+### Added - docs: a self-contained formal results summary
+
+- `docs/FORMAL_RESULTS_SUMMARY.md` — the four headline machine-checked results in one
+  place (hierarchical Multi-Krum negative result + Chernoff repair; Ed25519 UF-CMA
+  composition; the Gaussian RDP derivation; product-measure composition), each with
+  its exact declarations, its hypotheses and its scope limits, plus the standing
+  assumption table and a "deliberately not claimed" list.
+- `docs/ACADEMIC_PAPER.md` corrected and extended. Two stale claims fixed: §2 said
+  the Gaussian mechanism's Rényi divergence was "assumed rather than derived from
+  Mathlib's measure theory", and §3.1 listed a "Gaussian-mechanism RDP axiom
+  bridge" as `surrogate_verified`; both were superseded by #373. §3.3 now lists
+  `SchnorrDLHard` and the four-law `Ed25519GroupLaws` among the standing
+  hypotheses. New §6.4 states the product-measure tensorization and the
+  two-round Gaussian consumer. `docs/ACADEMIC_PAPER.pdf` regenerated (32 -> 33 pages);
+  the new section verified by text extraction, not by file existence.
+- `docs/INDEX.md` links the summary.
 ### Added - Lean: Rényi divergence over a product measure (composition across rounds)
 
 - `proofs/LeanFormalization/RenyiDivergenceCompose.lean`.
