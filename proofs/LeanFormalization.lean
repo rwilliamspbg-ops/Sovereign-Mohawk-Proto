@@ -35,3 +35,4 @@ import LeanFormalization.SchnorrUF_CMA
 import LeanFormalization.SchnorrUF_CMAWithOracle
 import LeanFormalization.Ed25519UF_CMASecurity
 import LeanFormalization.RenyiDivergenceMeasure
+import LeanFormalization.RenyiDivergenceCompose
