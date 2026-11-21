@@ -103,6 +103,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3 records the constraint correspondence and a
   Go-side inspection of the MPC setup threading; matrix rows 21/22 updated.
 
+### Added - Lean: Rényi divergence over a product measure (composition across rounds)
+
+- `proofs/LeanFormalization/RenyiDivergenceCompose.lean`.
+  `renyiDivergenceMeasure_prod` lifts `Theorem2RDP.renyiDivergence_product_add`
+  from the counting measure to an arbitrary product measure: for nonnegative
+  densities with positive marginal integrands, the divergence of the product
+  densities w.r.t. `μ.prod ν` is the **sum** of the two divergences. The proof
+  factors the integrand (`Real.mul_rpow`), applies
+  `MeasureTheory.integral_prod_mul`, and sums the logs (`Real.log_mul`).
+- `gaussianRDPMeasure_two_rounds` is the consumer: composing
+  `gaussianRDPBound_measure` across two independent Gaussian rounds gives
+  `2 · α·Δ²/(2σ²)`.
+- `renyiDivergenceMeasure_prod_positivity_needed` is the negative control: on a
+  one-point space with `p1 = 0` the first marginal integral is `0`, and the
+  claimed equality would read `log 0 = log 0 + log 4`.
+- Matrix row 35; `docs/EXTERNAL_AUDIT_SCOPE.md` §6 updated. Scope, stated
+  openly: this is **independent** (product-measure) composition; adaptive
+  composition and the multivariate mechanism remain open, as does the
+  `(ε,δ)`-DP conversion.
+
 ### Changed - Lean: the Ed25519 group-law bundle is minimized to the laws actually consumed
 
 - `proofs/LeanFormalization/Ed25519VerificationEquation.lean`. `Ed25519GroupLaws`

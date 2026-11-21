@@ -365,8 +365,12 @@ Other honest limitations:
    The hypothesis bundle `GaussianRDPHypotheses` is removed — nothing is assumed —
    and the existence witness `Theorem2RDP.gaussianRDPBound` is superseded.
 
-   **Not closed by this:** the multivariate mechanism, composition across rounds,
-   and the `(ε,δ)`-DP conversion. Those are unaffected and retain row 2's status.
+   **Not closed by this:** the multivariate mechanism, the `(ε, δ)`-DP conversion,
+   and **adaptive** composition. *Independent* (product-measure) composition is
+   now closed separately — see matrix row 35 and
+   `LeanFormalization/RenyiDivergenceCompose.lean`, which tensorizes
+   `RenyiDivergenceMeasure` over a product measure and composes the Gaussian
+   bound across two rounds. Row 2's own status is unaffected.
 - `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
   caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
   `internal/zkweight_circuit.go`), and falls back to the single-scalar
