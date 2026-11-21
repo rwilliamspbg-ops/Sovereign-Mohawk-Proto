@@ -17,6 +17,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Changed - Lean: the Gaussian completed-square integral is PROVED (gap closed)
+
+- `proofs/LeanFormalization/RenyiDivergenceMeasure.lean`. The module previously
+  recorded prerequisite (ii) of the Gaussian RDP gap — the completed-square
+  Gaussian integral — as an explicit hypothesis bundle
+  (`GaussianRDPHypotheses`). It is now proved, and the bundle is removed:
+  nothing is assumed.
+  - `gaussianIntegral_shift`: `∫ exp(-b·(x−c)²) dx = √(π/b)`, derived from
+    Mathlib's `integral_gaussian` via translation invariance of Lebesgue
+    measure (`measurePreserving_add_right` + `MeasureTheory.integral_map`).
+  - `gaussianRDP_integrand`: the pointwise completed-square identity
+    `q^α/p^(α−1) = (1/√(2πσ²))·exp(α(α−1)Δ²/(2σ²))·exp(−(x−αΔ)²/(2σ²))`.
+  - `gaussianRDP_integral`: `∫ q^α/p^(α−1) dx = exp(α(α−1)·Δ²/(2σ²))` for
+    `p = N(0,σ²)`, `q = N(Δ,σ²)`.
+  - `gaussianRDPBound_measure`: `D_α = α·Δ²/(2σ²)`, **derived** unconditionally
+    (only `σ ≠ 0`, `α ≠ 1`).
+  This closes the gap recorded in matrix row 2 and `docs/EXTERNAL_AUDIT_SCOPE.md`
+  §6, and supersedes the existence witness `Theorem2RDP.gaussianRDPBound`.
+  `#print axioms` on all four new theorems: only `propext`, `Classical.choice`,
+  `Quot.sound`.
+
 ### Changed - Lean: the last `native_decide` is removed (fully kernel-checked)
 
 - `proofs/LeanFormalization/Theorem1BFT.lean`:
