@@ -389,6 +389,38 @@ jobs, success, no new warnings; `generate_formal_validation_report.py
 validate_formal_traceability (24 modules, 292 symbols),
 check_markdown_links and check_claim_transitions all pass.
 
+### Added - Lean: UF-CMA game with a signing oracle (simplified random-oracle model)
+
+New module `LeanFormalization/SchnorrUF_CMAWithOracle.lean`, lifting the
+identification-game result to the **signature UF-CMA game** by adding exactly
+the two things that distinguish them:
+
+* a **signing oracle** -- `honestResponse` (`s = r + h·sk`) with
+  `honestResponse_accepts` proving honest signatures verify; and
+* a **freshness (not-queried) condition** -- `ufcmaForges` requires the forgery
+  message to be absent from the oracle transcript.
+
+The prefix is `(tape, sigs)` with a fixed `k` signing queries, so the prefix
+space is finite and the second-moment argument of `SchnorrUF_CMA.lean` applies
+unchanged: `ufcma_forkProbability_ge` / `ufcma_dl_solver_advantage_of_forger`
+give `φ ≥ ε² - ε/N`, and `ufcma_security_of_dl_hard` gives **`ε ≤ 1/N`** under
+`SchnorrDLHard`. `ufcmaInducedAdversary` reuses `forking_extractor`, so a fork
+still recovers the key.
+
+**Negative controls:** `ufcmaSuccessProbability_eq_one_div_card` shows the `1/N`
+bound is attained at `k = 0`; `ufcma_freshness_is_load_bearing` exhibits a
+prefix where the adversary produces an accepting signature yet `ufcmaForges` is
+false because that message was queried.
+
+**Stated openly:** the random oracle is still a uniform challenge, not a
+function-space measure, so the `ε²/q_H` loss of the full Pointcheval–Stern
+argument is **not** recovered; the oracle transcript is abstracted as `k`
+independent signatures rather than an adaptive query history; and the scheme is
+exponent-model Schnorr, not Ed25519 (row 26 bridges).
+
+Matrix row 32 gates the module. `#print axioms` on all six headline theorems:
+only `propext`, `Classical.choice`, `Quot.sound`. No `sorry`, no new axioms.
+
 ### Added - Lean: the random-oracle forking reduction (quantitative, `ε² - ε/q`)
 
 New module `LeanFormalization/SchnorrUF_CMA.lean`, closing the gap that matrix
