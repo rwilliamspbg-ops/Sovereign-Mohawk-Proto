@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Security
+- Container image (`Dockerfile`): the runtime base is pinned to `alpine:3.24.4`
+  and OpenSSL is floored at `>=3.5.9-r1` via `apk add --upgrade`. Every 3.24.x
+  point release bakes in `openssl 3.5.9-r0` (`libcrypto3`/`libssl3`), which is
+  affected by CVE-2026-95691, CVE-2026-95692, CVE-2026-107496, CVE-2026-88822
+  and CVE-2026-88823 (Trivy code-scanning alerts #72-#81). The fix ships only in
+  the rolling `v3.24` package repository, so it is pulled in explicitly.
+  Verified: the rebuilt image reports `openssl`/`libcrypto3`/`libssl3`
+  3.5.9-r1 and Trivy 0.70.0 reports 0 vulnerabilities.
+
 ### Changed - Lean: the Gaussian completed-square integral is PROVED (gap closed)
 
 - `proofs/LeanFormalization/RenyiDivergenceMeasure.lean`. The module previously

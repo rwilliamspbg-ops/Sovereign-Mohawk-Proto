@@ -30,11 +30,15 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o aggregator ./cmd/aggregator/main.go
 
 # Stage 2: Final lightweight image
-# Using explicit alpine version (3.24) - latest stable
-FROM alpine:3.24
+# Pinned to the newest 3.24 point release for a reproducible base.
+# `openssl>=3.5.9-r1` is a security floor: every 3.24.x point release currently
+# bakes in 3.5.9-r0, which is affected by CVE-2026-95691, CVE-2026-95692,
+# CVE-2026-107496, CVE-2026-88822 and CVE-2026-88823. The fix ships only in
+# the rolling v3.24 package repository, so it must be pulled in explicitly.
+FROM alpine:3.24.4
 
-# Install runtime dependencies without pinning unavailable Alpine package revisions
-RUN apk add --no-cache ca-certificates tini 'zlib>=1.4-r0'
+# Install runtime dependencies; --upgrade pulls the fixed OpenSSL revision
+RUN apk add --no-cache --upgrade ca-certificates tini 'zlib>=1.4-r0' 'openssl>=3.5.9-r1'
 
 # Create non-root user for enhanced security
 RUN addgroup -S appgroup && adduser -S -G appgroup appuser
