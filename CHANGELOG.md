@@ -103,6 +103,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/EXTERNAL_AUDIT_SCOPE.md` §3.3 records the constraint correspondence and a
   Go-side inspection of the MPC setup threading; matrix rows 21/22 updated.
 
+### Changed - Lean: the Ed25519 group-law bundle is minimized to the laws actually consumed
+
+- `proofs/LeanFormalization/Ed25519VerificationEquation.lean`. `Ed25519GroupLaws`
+  carried six fields; a reverse-dependency sweep found that `zeroMul` (`0·B = O`)
+  and `oneMul` (`1·B = B`) had **zero consumers** — `verificationEquation_iff_ModEq`
+  uses only `addMul`, `mulMul`, `congMul` and `injective`. Both dead fields were
+  removed, so `verificationEquation_iff_ModEq`, `ed25519_two_equations_recover`
+  and the `Ed25519UF_CMASecurity` capstone now assume strictly less than before.
+  The `oneMul` negative control `constantMul_violates_oneMul` was removed with the
+  field it controlled, and the module docstring now carries a per-law consumer
+  table plus the list of what was removed and why.
+- Three new negative controls give every surviving law a concrete violator:
+  `nonAdditiveSmul_violates_addMul`, `paritySmul_violates_mulMul`,
+  `paritySmul_violates_congMul` (joining the existing `constantMul_not_injective`
+  for `injective`).
+- `docs/EXTERNAL_AUDIT_SCOPE.md` §6 and matrix row 26 updated (six laws -> four,
+  symbol list refreshed). `#print axioms` on the transfer, the bridge and the
+  capstone is unchanged: `[propext]` / Mathlib foundations only.
+
 ## [2.2.0] - 2026-11-13
 ### Added - Post-2.1.0 Hardening, Formalization & Verification (2026-10-25 → 2026-11-09)
 
