@@ -21,11 +21,29 @@ recovered.
 ## The group laws are hypotheses, not axioms
 
 `affineScalarMulImpl` and `affineAdd` in `Ed25519.lean` are unaudited
-implementations. The transfer needs five facts about them (`Ed25519GroupLaws`).
+implementations. The transfer needs **four** facts about them (`Ed25519GroupLaws`).
 They are packaged as a structure and supplied at each use site — never as a
 global `axiom`. `Ed25519.lean` itself flags the arithmetic as not audited
 against the full RFC 8032 test suite, so assuming these laws is a *modeling*
 choice, and it is visible in every theorem statement that needs it.
+
+#### Which law is consumed where
+
+| law | statement | consumed by |
+| --- | --- | --- |
+| `addMul` | `(k1+k2)·B = k1·B + k2·B` | `verificationEquation_iff_ModEq`, both directions |
+| `mulMul` | `k1·(k2·B) = (k1*k2)·B` | `verificationEquation_iff_ModEq`, both directions |
+| `congMul` | `k1 ≡ k2 (mod L) → k1·B = k2·B` | `verificationEquation_iff_ModEq`, `←` direction |
+| `injective` | `k1·B = k2·B → k1 ≡ k2 (mod L)` | `verificationEquation_iff_ModEq`, `→` direction |
+
+An earlier revision also carried `zeroMul` (`0·B = O`) and `oneMul` (`1·B = B`).
+Both had **zero dependents** — no theorem consumed them — and were removed
+(2026-11-21): an unconsumed field is a strictly stronger assumption than the
+development needs, so dropping it makes every theorem above assume less. The
+negative control `constantMul_violates_oneMul`, which existed only to show
+`oneMul` was load-bearing, was removed with it; `constantMul_not_injective`
+remains as the negative control for `injective`; the other three consumed laws
+(`addMul`, `mulMul`, `congMul`) each gained a concrete violator below.
 
 ## What is deliberately not claimed
 
@@ -53,10 +71,6 @@ def Ed25519VerificationEquation (B A R : AffinePoint) (S h : Nat) : Prop :=
 /-- The group-law bundle the transfer needs. Each field is a plain proposition
     about the unaudited `affineScalarMulImpl` / `affineAdd`; none is an axiom. -/
 structure Ed25519GroupLaws (B : AffinePoint) where
-  /-- `0·B` is the identity. -/
-  zeroMul : affineScalarMulImpl 0 B = affineIdentity
-  /-- `1·B = B`. -/
-  oneMul : affineScalarMulImpl 1 B = B
   /-- Scalar multiplication distributes over addition of exponents. -/
   addMul : ∀ k1 k2 : Nat, affineScalarMulImpl (k1 + k2) B =
       affineAdd (affineScalarMulImpl k1 B) (affineScalarMulImpl k2 B)
@@ -131,14 +145,6 @@ theorem ed25519_recover_hdiff_needed (hp : Fact (Nat.Prime dlL)) :
         = 7 % dlL) :=
   recovery_yields_secret_hdiff_needed hp
 
-/-- **Negative control: `oneMul` is not automatic.** The transfer assumes
-    `1·B = B`; an arbitrary scalar-multiplication function need not satisfy it.
-    The constant-`identity` function is a concrete violator. -/
-theorem constantMul_violates_oneMul :
-    (fun (_k : Nat) (_P : AffinePoint) => affineIdentity) 1 affineBase ≠ affineBase := by
-  intro h
-  simp [affineIdentity, affineBase] at h
-
 /-- **Negative control: cancellation is not automatic.** The transfer's
     injective law fails for a scalar multiplication that collapses exponents;
     concretely the constant-`identity` map sends every exponent to the same
@@ -155,5 +161,41 @@ theorem constantMul_not_injective :
     have h1 : 1 % ed25519L = 1 := Nat.mod_eq_of_lt (by unfold ed25519L; norm_num)
     rw [h0, h1] at h
     exact zero_ne_one h
+
+/-- A scalar multiplication that collapses every exponent above `1`. -/
+def nonAdditiveSmul (k : Nat) (P : AffinePoint) : AffinePoint :=
+  if k == 0 then affineIdentity else if k == 1 then P else affineIdentity
+
+/-- A scalar multiplication that keeps only the parity of the exponent. -/
+def paritySmul (k : Nat) (P : AffinePoint) : AffinePoint :=
+  if k % 2 == 0 then P else affineIdentity
+
+/-- **Negative control: `addMul` is not automatic.** `nonAdditiveSmul 3` is the
+    identity, while `nonAdditiveSmul 1 + nonAdditiveSmul 2` is `B + O = B`. -/
+theorem nonAdditiveSmul_violates_addMul :
+    nonAdditiveSmul 3 affineBase ≠
+      affineAdd (nonAdditiveSmul 1 affineBase) (nonAdditiveSmul 2 affineBase) := by
+  intro h
+  simp [nonAdditiveSmul, affineAdd, affineBase, affineIdentity] at h
+
+/-- **Negative control: `mulMul` is not automatic.** `paritySmul 1 (paritySmul 2 B)`
+    is `O`, while `paritySmul (1*2) B` is `B`. -/
+theorem paritySmul_violates_mulMul :
+    paritySmul 1 (paritySmul 2 affineBase) ≠ paritySmul (1 * 2) affineBase := by
+  intro h
+  simp [paritySmul, affineIdentity, affineBase] at h
+
+/-- **Negative control: `congMul` is not automatic.** `paritySmul` distinguishes
+    `L` from `0` even though `L ≡ 0 (mod L)`. -/
+theorem paritySmul_violates_congMul :
+    ¬ (Nat.ModEq ed25519L ed25519L 0 →
+        paritySmul ed25519L affineBase = paritySmul 0 affineBase) := by
+  intro h
+  have hL : ed25519L % 2 = 1 := by unfold ed25519L; norm_num
+  have hmod : Nat.ModEq ed25519L ed25519L 0 := by
+    unfold Nat.ModEq
+    rw [Nat.mod_self, Nat.mod_eq_of_lt (by unfold ed25519L; norm_num)]
+  have heq := h hmod
+  simp [paritySmul, hL, affineIdentity, affineBase] at heq
 
 end LeanFormalization

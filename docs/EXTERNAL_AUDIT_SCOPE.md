@@ -317,8 +317,11 @@ disclosed at each use site:
 
 - `SchnorrDLHard` (`SchnorrForking.lean`) — the discrete-logarithm hardness
   assumption the forking security reduction consumes.
-- `Ed25519GroupLaws affineBase` (`Ed25519VerificationEquation.lean`) — six group
-  laws for the unaudited `affineScalarMulImpl`/`affineAdd`.
+- `Ed25519GroupLaws affineBase` (`Ed25519VerificationEquation.lean`) — **four**
+  group laws for the unaudited `affineScalarMulImpl`/`affineAdd`, reduced from
+  six on 2026-11-21: `zeroMul` and `oneMul` had zero dependents and were removed,
+  so the security theorems now assume strictly less. Each surviving law has a
+  concrete violator (see the module docstring's consumer table).
 
 So the full set of standing assumptions is `FloatOrderLaws`,
 `Fact (Nat.Prime dlL)`, `SchnorrDLHard` and `Ed25519GroupLaws`. None is an
