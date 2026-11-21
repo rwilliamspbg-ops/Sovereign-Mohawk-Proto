@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "433ab96f3c234b87896839b3b4abef61e0e48e6d0ac06d24bf2889bcc6228b4a",
+  "input_merkle_root": "17f40af7a408af310615db9fd5e924b66894c445066eeaa9928734488ffb1758",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "b3082bfa344472d76512c44ee3199d06689ca7ba6beaa352365de65538bb73df"
+      "sha256": "41456656d4d235f1cbc68ff7bc9a9673abb6eecf62a3a04c49d8cf4765deaad3"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "6939166be172f91e8a123ea6044fe5f603b0406aa36f1b5d6154f36a4786e131"
+      "sha256": "8fade49c7074ed7e2e0936fbd279f6ed5139bbf05a0a80169a76dc39290ff2b1"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -77,6 +77,10 @@
     {
       "path": "proofs/LeanFormalization/ProtocolSafety.lean",
       "sha256": "e58e8b93713ed1bb836d73a49d4e223b6f0149262d4d663f001c6c0b57071b67"
+    },
+    {
+      "path": "proofs/LeanFormalization/RenyiDivergenceMeasure.lean",
+      "sha256": "4dd676d084233cf1f3d9b4a8f28777b542d89ac8baec42378b42c87992e6dd9d"
     },
     {
       "path": "proofs/LeanFormalization/RobbinsSiegmund.lean",
@@ -348,6 +352,17 @@
         "hierarchical_counterexample_safeButFractionUnsafe",
         "multikrum_guard_failure_deployment_scale",
         "multikrum_guard_failure_prob"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceMeasure.lean",
+      "module": "LeanFormalization.RenyiDivergenceMeasure",
+      "symbol_count": 4,
+      "symbols": [
+        "gaussianRDPBound_nonneg",
+        "gaussianRDPBound_of_hypotheses",
+        "renyiDivergenceMeasure_count",
+        "renyiDivergenceMeasure_count_eq_renyiDivergence"
       ]
     },
     {
@@ -817,9 +832,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 43,
-    "module_count": 36,
-    "theorem_symbol_count": 378
+    "input_file_count": 44,
+    "module_count": 37,
+    "theorem_symbol_count": 382
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

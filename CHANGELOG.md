@@ -432,6 +432,39 @@ Verified: `go build ./...` and `go vet ./...` clean; `go test ./test/ -run
 'TestProduceWeightProof' -count=1` -> ok (43 s, includes one trusted setup);
 `CGO_ENABLED=0 go test -count=1 ./...` -> all packages ok.
 
+### Added - Lean: measure-theoretic Rényi divergence (Gaussian gap prerequisite (i))
+
+New module `LeanFormalization/RenyiDivergenceMeasure.lean`.
+
+Row 2 and `docs/EXTERNAL_AUDIT_SCOPE.md` §6 name two prerequisites for the
+Gaussian RDP gap: (i) a measure-theoretic divergence, (ii) the completed-square
+Gaussian integral. This delivers (i) and pins (ii) to one named lemma.
+
+* `RenyiDivergenceMeasure` — the Rényi divergence of two densities with respect
+  to a base measure, `D_α(p‖q) = (1/(α−1))·log ∫ q^α / p^(α−1) dμ`, using the
+  same numerator/denominator convention as the existing finite-support
+  `Theorem2RDP.RenyiDivergence`.
+* `renyiDivergenceMeasure_count` + `renyiDivergenceMeasure_count_eq_renyiDivergence`
+  — for the counting measure on a `Fintype`, the integral is the finite sum, and
+  the existing `RenyiDivergence` (for `1 < α`) is **exactly** that. The old
+  development is a special case of the new framework, not a parallel one.
+* `GaussianRDPHypotheses` + `gaussianRDPBound_of_hypotheses` — the Gaussian
+  instantiation. The single missing completed-square integral
+  (`∫ q^α / p^(α−1) = exp(α(α−1)Δ²/(2σ²))` for `p = N(0,σ²)`, `q = N(Δ,σ²)`)
+  is packaged as an explicit hypothesis bundle in the style of
+  `Ed25519GroupLaws`, and the bound `D_α = α·Δ²/(2σ²)` is **derived** from it.
+* `gaussianRDPBound_nonneg` — the derived bound is non-negative.
+
+**Stated openly:** the Gaussian integral identity is **not** proved here —
+Mathlib ships `integral_gaussian` (`∫ exp(-b·x²) = √(π/b)`) but not the
+shifted/completed-square form. The bound is therefore conditional, and the
+condition is stated at the theorem. The gap is now structural rather than
+vague: the framework exists, the finite case is subsumed, and exactly one
+integral remains.
+
+Matrix row 34 gates the module. `#print axioms` on all three headline theorems:
+only `propext`, `Classical.choice`, `Quot.sound`. No `sorry`, no new axioms.
+
 ### Added - Lean: crypto capstone — Ed25519 UF-CMA composed from the four proved pieces
 
 New module `LeanFormalization/Ed25519UF_CMASecurity.lean`, composing:

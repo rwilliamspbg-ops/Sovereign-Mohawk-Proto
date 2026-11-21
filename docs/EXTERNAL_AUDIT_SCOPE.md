@@ -343,8 +343,18 @@ Other honest limitations:
   `D_α(p‖q) = (1/(α-1))·log ∫ p^α q^{1-α} dμ`, and (ii) the completed-square
   Gaussian integral with a shift/change of variables. Mathlib ships
   `integral_gaussian` (`∫ exp(-b·x²) dx = √(π/b)`), so the analytic ingredient
-  exists, but the framework and the shift lemma do not. This is recorded as a
-  structural gap with named prerequisites rather than as open roadmap work.
+  exists, but the framework and the shift lemma do not.
+* **Update (2026-11-20, matrix row 34): prerequisite (i) is now MET.**
+  `LeanFormalization/RenyiDivergenceMeasure.lean` defines the measure-theoretic
+  divergence and proves the existing finite-support `RenyiDivergence` is exactly
+  its counting-measure special case, so the old development is subsumed.
+  Prerequisite (ii) is now pinned to one named integral: `GaussianRDPHypotheses`
+  packages the completed-square identity
+  `∫ q^α / p^(α-1) = exp(α(α−1)Δ²/(2σ²))` for `p = N(0,σ²)`, `q = N(Δ,σ²)`, and
+  `gaussianRDPBound_of_hypotheses` **derives** `D_α = α·Δ²/(2σ²)` from it. The
+  integral itself is **not** proved (Mathlib has `integral_gaussian`, not the
+  shifted form), so the bound is conditional and the condition is stated at the
+  theorem. The gap is now "exactly one integral", not "unspecified analysis".
 - `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
   caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
   `internal/zkweight_circuit.go`), and falls back to the single-scalar
@@ -352,7 +362,11 @@ Other honest limitations:
   the only constructors of a `WeightProof` are `cmd/simulate`, `cmd/zkweightbench`
   and tests, and `internal/computeproof.Trace` has no production caller at all
   (`docs/ZK_FINALIZATION_PLAN.md` M2, Gap 1). Read "wired" as *wired into the
-  round path, not yet produced by service code*.
+  round path, not yet produced by service code*. **Update (2026-11-20, #370):**
+  `zkprover.ProduceWeightProof` is now the production producer — it runs any
+  `Prover`, returns the `(encoded proof, WeightStatement)` pair the aggregator
+  consumes, and self-verifies before returning. `cmd/simulate` uses it. Still
+  unwired: `computeproof.Trace`, which has no production caller at all.
 - `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity with
   no circuit behind it. Two keys *are* circuit-derived: `dataCommitmentVK` (the
   single-scalar `DataCommitmentCircuit`) and the key behind
