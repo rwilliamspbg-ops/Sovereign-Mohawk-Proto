@@ -28,7 +28,9 @@ from pathlib import Path
 MATRIX_PATH = "proofs/FORMAL_TRACEABILITY_MATRIX.md"
 TRANSITIONS_PATH = Path("proofs/CLAIM_TRANSITIONS.md")
 
-ROW_RE = re.compile(r"^\|(.+)\|\s*$")
+ROW_RE = re.compile(r"^\|(.+)\|\s*$", re.DOTALL)
+# A matrix row may be wrapped across physical lines (long Notes cells);
+# `logical_table_rows` rejoins those before this pattern is applied.
 SEP_RE = re.compile(r"^\|[\s:|-]+\|\s*$")
 # Matches a markdown heading of any level starting with a real YYYY-MM-DD
 # date, followed somewhere on the same line by "Row <id>". Requiring a real
@@ -55,33 +57,74 @@ TRANSITION_HEADING_RE = re.compile(
 )
 
 
+def logical_table_rows(text: str) -> list[str]:
+    """Rejoin wrapped markdown table rows into one logical row each.
+
+    A matrix row is not necessarily one physical line: long Notes cells are
+    wrapped, so a row can continue over several lines that do not start with
+    `|`. Parsing physical lines instead of logical rows silently stops a
+    table at its first wrapped row -- which is exactly how row 2 of the main
+    table (wrapped since #366) made this checker see only row 1 plus the
+    Workstream 4 table, i.e. Status changes on rows 2-34 went unenforced.
+    """
+    rows: list[str] = []
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        if lines[i].lstrip().startswith("|"):
+            parts = [lines[i]]
+            j = i
+            while j + 1 < len(lines) and not "\n".join(parts).rstrip().endswith("|"):
+                j += 1
+                parts.append(lines[j])
+            rows.append("\n".join(parts))
+            i = j + 1
+        else:
+            i += 1
+    return rows
+
+
 def parse_tables(text: str) -> dict[str, str]:
     """Return {"<table_idx>:<row_key>": status_value} for every data row of
     every pipe-table in the matrix that has a 'Status' column. row_key is
     that row's first-column value (the claim/theorem id), which the matrix
     itself already treats as a stable identifier."""
     statuses: dict[str, str] = {}
-    lines = text.splitlines()
+    rows = logical_table_rows(text)
+    n = len(rows)
+
+    def is_header(idx: int) -> bool:
+        """A header row is a row immediately followed by a separator row.
+
+        Lookahead is required because `logical_table_rows` drops the blank
+        lines and headings between tables: without it the data-row loop runs
+        straight into the next table's header and files that table's rows
+        under the previous table's index.
+        """
+        return (
+            ROW_RE.match(rows[idx]) is not None
+            and idx + 1 < n
+            and SEP_RE.match(rows[idx + 1]) is not None
+        )
+
     table_idx = -1
     i = 0
-    while i < len(lines):
-        header_match = ROW_RE.match(lines[i])
-        if header_match and i + 1 < len(lines) and SEP_RE.match(lines[i + 1]):
+    while i < n:
+        if is_header(i):
             table_idx += 1
+            header_match = ROW_RE.match(rows[i])
+            assert header_match is not None
             headers = [c.strip() for c in header_match.group(1).split("|")]
-            j = i + 2
-            if "Status" not in headers:
-                while j < len(lines) and ROW_RE.match(lines[j]):
-                    j += 1
-                i = j
-                continue
-            status_col = headers.index("Status")
-            while j < len(lines) and ROW_RE.match(lines[j]):
-                cells = [c.strip() for c in ROW_RE.match(lines[j]).group(1).split("|")]
-                if len(cells) > status_col:
-                    statuses[f"{table_idx}:{cells[0]}"] = cells[status_col]
-                j += 1
-            i = j
+            status_col = headers.index("Status") if "Status" in headers else None
+            i += 2
+            while i < n and not is_header(i) and ROW_RE.match(rows[i]):
+                if status_col is not None:
+                    row_match = ROW_RE.match(rows[i])
+                    assert row_match is not None
+                    cells = [c.strip() for c in row_match.group(1).split("|")]
+                    if len(cells) > status_col:
+                        statuses[f"{table_idx}:{cells[0]}"] = cells[status_col]
+                i += 1
             continue
         i += 1
     return statuses

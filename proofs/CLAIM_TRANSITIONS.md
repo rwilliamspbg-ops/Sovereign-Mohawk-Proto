@@ -294,3 +294,14 @@ fact and cut against the repo-wide "Declared axioms: 0" claim. Renamed and
 reworded; the derivation remains roadmap work.
 
 - **PR:** #363
+
+### 2026-11-21 -- Row 2 (RDP composition): the Gaussian RDP bound is derived, closing the existence-witness gap
+
+`surrogate_verified_gaussian_witness; core composition closed for both independent and adaptive mechanisms` ->
+`gaussian_rdp_derived; the integer/rational additive ledger remains a surrogate; core composition closed for both independent and adaptive mechanisms`
+
+#373 (`LeanFormalization/RenyiDivergenceMeasure.lean`) defines the measure-theoretic Rényi divergence, proves the finite-support `RenyiDivergence` is exactly its counting-measure special case, and derives `D_α = α·Δ²/(2σ²)` unconditionally (only `σ ≠ 0`, `α ≠ 1`) from the **proved** completed-square integral `gaussianRDP_integral`. The existence witness `Theorem2RDP.gaussianRDPBound` is superseded, and `theorem_claims.json`'s `blocking_gaps` entry that called the derivation impossible in the then-current framework is rewritten to record what is actually still open: the multivariate mechanism, composition across rounds in the measure-theoretic framework, and the `(ε,δ)`-DP conversion.
+
+This transition was previously **invisible to the gate**. Row 2 has been wrapped across physical lines since #366, and `check_claim_transitions.py` parsed physical lines, so the main table's parse stopped at its first wrapped row and only row 1 plus the Workstream 4 table were checked -- a Status change on rows 2-34 required no transition entry. The parser now rejoins wrapped rows (`logical_table_rows`), and `tests/scripts/ci/test_claim_transitions.py` pins that behaviour against the real matrix and against synthetic wrapped rows.
+
+- **PR:** #375

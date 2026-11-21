@@ -71,6 +71,7 @@ def lint_claims_file(path: Path) -> list[str]:
         "model_verified",
         "surrogate_verified",
         "surrogate_verified_gaussian_witness",
+        "gaussian_rdp_derived",
         "surrogate_verified_with_cast_bridge",
         "runtime_validated_only",
     }
