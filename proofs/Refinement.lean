@@ -7,4 +7,5 @@ import Refinement.ZKCircuit
 import Refinement.Convergence
 import Refinement.AsyncConvergence
 import Refinement.DLP
+import Refinement.GaussianApproxDP
 import Refinement.BFT

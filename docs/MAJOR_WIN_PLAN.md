@@ -327,8 +327,11 @@ increment. Items 1, 2 and 4 are available or straightforward.
 **singular** `Σ`, where `Σ⁻¹` does not exist. State that control explicitly
 rather than letting the density degenerate silently.
 
-**Not covered by this plan:** the `(ε,δ)`-DP conversion for the Gaussian
-mechanism (the accountant's `CheckBudget` conversion is formalized separately in
+**The `(ε,δ)`-DP conversion for the Gaussian mechanism is now delivered**
+(matrix row 39, `Refinement/GaussianApproxDP.lean`) as an explicit two-sided
+rational bracket at `α = 10`, via the row-13 log-sandwich. **Not covered by
+this plan:** an *exact* measure-theoretic `(ε,δ)` theorem, the **correlated**
+multivariate Gaussian, or adaptive composition (the accountant's `CheckBudget` conversion is formalized separately in
 `Refinement/RDPLogBound.lean`), and adaptive composition in the measure-theoretic
 framework (`Theorem2RDP.RDP_adaptive_composition` covers finite support only).
 ### A.4 Bounded-query programmed random oracle (Pointcheval–Stern rewind)

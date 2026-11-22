@@ -164,6 +164,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   correlated case is **not** implied.
 
 
+### Added - Lean: Gaussian mechanism `(ε,δ)`-DP conversion (row 39)
+
+`Refinement/GaussianApproxDP.lean`: the Gaussian `(ε,δ)`-DP guarantee is an
+explicit two-sided rational bracket at the production order `α = 10`.
+
+- `gaussianRDPValue`: the RDP value `α·Δ²/(2σ²)`; `gaussianRDPValue_eq_divergence`
+  identifies it with `RenyiDivergenceMeasure ... volume` via the proved
+  `gaussianRDPBound_measure`, so the conversion's input is the divergence, not a
+  restatement.
+- `gaussian_approxDP_bound` / `gaussian_approxDP_upper`: instantiate
+  `Refinement.rdpToApproxDP_bound`, bracketing `ε(δ) = ε_RDP + log(1/δ)/9`.
+- `gaussian_approxDP_typical_upper`: production instance `σ = 1`, `Δ = 1`,
+  `α = 10`, `δ = 10⁻⁵` (`k = 16`, `r = 10⁵/2¹⁶`).
+- **Negative controls** `rdpToApproxDP_delta_zero` (`δ = 0` silently returns
+  `ε_RDP`: `1/0 = 0` and `Real.log 0 = 0`) and `gaussian_approxDP_delta_monotone`.
+
+**Scope:** this is the repo's established rational-sandwich route for a
+noncomputable `Real.log`, not an exact `(ε,δ)` theorem. Still open: the general
+correlated multivariate Gaussian, adaptive composition, and the exact
+measure-theoretic conversion via Hölder + change of measure.
 ### Added - Lean: `fInv` bridged; the Ed25519 field layer is complete
 
 - `Ed25519FieldBridge.lean`: `card_units_zmod` proves
