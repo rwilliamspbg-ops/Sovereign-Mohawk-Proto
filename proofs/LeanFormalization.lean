@@ -38,3 +38,4 @@ import LeanFormalization.RenyiDivergenceMeasure
 import LeanFormalization.RenyiDivergenceCompose
 import LeanFormalization.RenyiDivergenceBoundedRO
 import LeanFormalization.RenyiDivergenceMultivariate
+import LeanFormalization.Ed25519FieldBridge
