@@ -162,6 +162,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Σ` needs a multivariate density and an affine change-of-variables lemma for
   Lebesgue measure on `ℝⁿ` (the `det` factor); neither is formalized and the
   correlated case is **not** implied.
+
+### Added - Lean: Ed25519 field-arithmetic bridge (Win A, field layer)
+
+- `proofs/LeanFormalization/Ed25519FieldBridge.lean` (matrix row 38).
+  `Ed25519.lean` defined `fadd`/`fsub`/`fmul`/`fPow` with **zero** correctness
+  lemmas; the bridge proves `fadd_zmod`/`fsub_zmod`/`fmul_zmod` (they are the
+  `ZMod (2^255 - 19)` operations), the ring laws (`fadd_comm`/`assoc`/`mod`,
+  `fmul_comm`/`assoc`/`mod`, `fmul_add`, `add_mul`), and `fPow_eq_pow_mod`
+  (`fPow a e = (a ^ e) % p` for `e < 2 ^ 256`), via a generic fold invariant
+  (`list_foldl_invariant`).
+- **Named limitation:** `fInv` is NOT bridged. It needs
+  `Fintype.card (ZMod p)ˣ = p - 1` for prime `p`; the pinned Mathlib has
+  `pow_card_eq_one` but no `ZMod` cardinality / Euler-totient lemma. Not
+  asserted, not faked.
+- Negative control `fPowState_exp_ge`: at `e = 2 ^ 256` the loop's exponent
+  component is still `1`, so the 256-step unrolling has not terminated.
+- **Scope:** this is the *field layer* of the group-law work. The group law on
+  the curve (twisted-Edwards completeness, double-and-add recursion) remains
+  the open multi-week item.
 ### Added - docs: bounded-query RO residual pinned, premise verified
 
 - `docs/MAJOR_WIN_PLAN.md` Appendix A.4. Win B (Pointcheval–Stern `eps^2/q_H`)

@@ -3,7 +3,7 @@
 **Status:** archival summary of the machine-checked results in this repository.
 **Last updated:** 2026-11-21.
 **Authoritative per-claim status:** [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
-(37 main rows + the Workstream 4 table). This document is a reading guide, not a
+(38 main rows + the Workstream 4 table). This document is a reading guide, not a
 claim registry — where the two disagree, the matrix wins.
 
 Every theorem named below was checked with `#print axioms` on the pinned
@@ -163,6 +163,7 @@ the Ed25519 UF-CMA game.
 
 | Result | Declaration |
 | --- | --- |
+| Ed25519 field arithmetic bridged to `ZMod p` | `fadd_zmod`, `fmul_add`, `fPow_eq_pow_mod` (`fInv` **not** bridged) |
 | Schnorr special soundness / HVZK / forking | `schnorr_special_soundness`, `schnorr_hvzk_simulation`, `exists_fork_of_card`, `success_card_le_of_dl_hard` |
 | MiMC round injectivity at BN254 | `mimcRound_bn254_injective` |
 | RDP → $(\epsilon,\delta)$-DP conversion bound | `Refinement.rdpToApproxDP_bound`, `rdpLog_sandwich` |
@@ -193,6 +194,9 @@ None is an `axiom`; each is an explicit argument at the use site.
   measure-theoretic framework, and the Gaussian `(ε,δ)`-DP conversion.
 - **Adaptive** random-oracle query histories in the bounded-query model: the
   proved forking bound is for a fixed, non-adaptive query schedule.
+- `fInv` (the Ed25519 field inverse): the bridge covers `fadd`/`fsub`/`fmul` and
+  `fPow`, but proving `fInv a * a = 1` needs `Fintype.card (ZMod p)\u02e3 = p - 1`,
+  which the pinned Mathlib does not provide.
 - Byte-level Ed25519 decode (`decodePoint`, `sha512`, the 64-byte layout) is not
   refined; `Refinement/DLP.lean` refines the coordinate comparison only.
 - The trusted setup is an in-process simulated ceremony (a development key).

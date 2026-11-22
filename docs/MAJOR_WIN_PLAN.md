@@ -401,6 +401,34 @@ only obstruction.
 (non-adaptive) query model: the adversary's queries do not depend on earlier
 answers. Full adaptive query histories are not modelled, and that limitation
 must appear in the docstring and the matrix row.
+### A.5 Ed25519 field-arithmetic bridge
+
+**Status: the field layer is CLOSED 2026-11-21** (matrix row 38,
+`LeanFormalization/Ed25519FieldBridge.lean`). `Ed25519.lean` defines
+`fadd`/`fsub`/`fmul`/`fPow`/`fInv` and had **zero** correctness lemmas; the
+bridge proves the first four are what they claim:
+
+* `fadd_zmod`, `fsub_zmod`, `fmul_zmod` identify them with `ZMod (2^255 - 19)`.
+* The ring laws (`fadd_comm`/`assoc`/`mod`, `fmul_comm`/`assoc`/`mod`,
+  `fmul_add`, `add_mul`) are derived in `ZMod p` and transported back by
+  `nat_eq_of_zmod_eq`.
+* `fPow` is proved correct by a generic fold invariant
+  (`list_foldl_invariant`): the square-and-multiply state satisfies
+  `result * base ^ exp = a ^ e` and its exponent component is `e / 2 ^ fuel`,
+  so at `fuel = 256` and `e < 2 ^ 256`, `fPow a e = (a ^ e) % p`.
+
+**Remaining, named:** `fInv`. `fInv a * a = 1` for `a ≠ 0 (mod p)` needs
+`a ^ (p-1) = 1`, i.e. `Fintype.card (ZMod p)ˣ = p - 1`; the pinned Mathlib has
+`pow_card_eq_one` for a general finite group but no `ZMod` cardinality or
+Euler-totient lemma. Not asserted, not faked.
+
+**Still the multi-week item:** the group law on the curve itself
+(twisted-Edwards completeness of `affineAdd`, and the double-and-add recursion
+of `affineScalarMulImpl`). The field bridge removes the field layer from that
+assumption; it does not prove the group law.
+
+---
+
 ## Appendix B — Prove-time review (2026-11-18)
 
 A review claimed the ~28 s figure was an abnormally slow Groth16 prove that

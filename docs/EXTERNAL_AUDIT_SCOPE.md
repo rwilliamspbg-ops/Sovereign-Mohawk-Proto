@@ -383,6 +383,19 @@ Other honest limitations:
   was a SHA-256 challenge-response with no circuit behind it — was **removed**.
   `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is closed by deletion, not by an
   invented caller. `WeightStatement` is the single wired path.
+- **The Ed25519 field arithmetic is now bridged to `ZMod p`**
+  (`LeanFormalization/Ed25519FieldBridge.lean`, matrix row 38). `fadd`, `fsub`,
+  `fmul` — the `Nat`-valued operations the curve arithmetic uses — are proved
+  to be the operations of `ZMod (2^255 - 19)`, with the ring laws
+  (`fadd_comm`/`assoc`, `fmul_comm`/`assoc`, `fmul_add`, `add_mul`, `*_mod`)
+  derived in `ZMod p` and transported back. `fPow` is proved correct by a
+  generic fold invariant: `fPow a e = (a ^ e) % p` for `e < 2 ^ 256`. **This is
+  the field layer of the group-law work**: after it, the assumption is that the
+  *group law on the curve* holds, not the field arithmetic beneath it.
+  **Named limitation:** `fInv` is not bridged — it needs
+  `Fintype.card (ZMod p)ˣ = p - 1` for prime `p`, which the pinned Mathlib does
+  not provide. Not asserted. Negative control `fPowState_exp_ge` shows the
+  `e < 2 ^ 256` bound is load-bearing.
 - **The Gaussian RDP bound is now extended to a diagonal multivariate
   covariance** (`LeanFormalization/RenyiDivergenceMultivariate.lean`, matrix row
   37): `gaussianRDPMeasure_diagonal` proves
