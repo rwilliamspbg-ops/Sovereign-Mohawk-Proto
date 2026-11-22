@@ -3,7 +3,7 @@
 **Status:** archival summary of the machine-checked results in this repository.
 **Last updated:** 2026-11-21.
 **Authoritative per-claim status:** [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
-(34 main rows + the Workstream 4 table). This document is a reading guide, not a
+(36 main rows + the Workstream 4 table). This document is a reading guide, not a
 claim registry — where the two disagree, the matrix wins.
 
 Every theorem named below was checked with `#print axioms` on the pinned
@@ -73,9 +73,10 @@ $S \cdot B = R + h \cdot A$. It composes:
 
 **Two scope limits, load-bearing:** the group laws are **assumed**, not proved
 from the curve arithmetic; and the random oracle is a **uniform-challenge**
-abstraction, so the Pointcheval–Stern $\epsilon^2/q_H$ loss is **not** recovered.
-The forking *content* is a proved pigeonhole argument
-(`exists_fork_of_card`), not an opaque hypothesis.
+abstraction, so the classic Pointcheval–Stern $\epsilon^2/q_H$ loss is **not**
+recovered *by that theorem*. The forking *content* is a proved pigeonhole
+argument (`exists_fork_of_card`), not an opaque hypothesis. A **separate,
+stronger** rewind bound in a bounded-query model is now proved — see §5.
 
 ## 3. Measure-theoretic Rényi divergence, and the Gaussian bound derived
 
@@ -112,7 +113,40 @@ support by `Theorem2RDP.RDP_adaptive_composition` (worst-case bound), not here.
 The negative control `renyiDivergenceMeasure_prod_positivity_needed` shows the
 marginal-integral positivity is load-bearing.
 
-## 5. Supporting results
+## 5. The bounded-query random oracle: a proved rewind bound
+
+**Module:** `LeanFormalization/RenyiDivergenceBoundedRO.lean` (matrix row 36).
+
+`roForkProb_ge` proves
+
+$$\phi \;=\; \mathrm{roForkProb}\, q_H\, Q \;\ge\; \bigl(\mathrm{roAcceptProb}\, q_H\, Q\bigr)^2 \;=\; \epsilon^2.$$
+
+The model is a $q_H$-query programmed random oracle on a **fixed schedule**: an
+answer vector is $a : \mathrm{Fin}\, q_H \to C$, $Q_t$ is the accepting set for
+tape $t$, and the fork probability picks a query index $j$ uniformly and then
+averages the fraction of ordered pairs that share the tape and the answers
+**before** $j$. That rewind is exactly the structure the Pointcheval–Stern loss
+comes from, and in this abstraction the bound is **stronger** than
+$\epsilon^2 - \epsilon/q_H$: after two Cauchy–Schwarz applications each
+$P(E_j) \ge \epsilon^2$.
+
+The proof rests on a partition identity (`roCount_sum`, via
+`Finset.sum_card_fiberwise_eq_card_filter`) and one reusable Cauchy–Schwarz
+lemma (`sum_sq_div_card_le`, via `Finset.sum_mul_sq_le_sq_mul_sq`).
+
+**Negative control.** `naiveRewind_agrees_off_count` makes the rewind direction
+load-bearing: with $q_H = 3$, $C = \mathrm{Bool}$, one tape and
+$Q = \{000, 011, 101\}$, $\epsilon = 3/8$, but the naive "agree everywhere
+**except** $j$" model has **zero** agreeing pairs, so $\phi = 0 < \epsilon^2 =
+9/64$. (The control must also require $a'_j \ne a_j$; without that conjunct the
+count is $1$, not $0$ — `decide` caught this in the draft.)
+
+**Scope, stated openly.** The query schedule is **fixed / non-adaptive**;
+adaptive query histories, where the queries depend on earlier answers, are
+**not** modelled. This is a statement about a finite abstraction, not yet about
+the Ed25519 UF-CMA game.
+
+## 6. Supporting results
 
 | Result | Declaration |
 | --- | --- |
@@ -135,6 +169,7 @@ None is an `axiom`; each is an explicit argument at the use site.
 | `Fact (Nat.Prime bn254Prime)` | number fact | MiMC at BN254 |
 | `SchnorrDLHard` | cryptographic hardness (`def`) | Schnorr / Ed25519 security |
 | `Ed25519GroupLaws affineBase` | four curve-model laws (structure) | Ed25519 verification-equation bridge |
+| `[Nonempty Tape]`, `[Nonempty C]`, `qH ≠ 0` | non-degeneracy of the RO model | bounded-query forking bound |
 
 ## Deliberately not claimed
 
@@ -143,6 +178,8 @@ None is an `axiom`; each is an explicit argument at the use site.
 - MiMC collision resistance (only round injectivity is proved).
 - The multivariate Gaussian mechanism, adaptive composition in the
   measure-theoretic framework, and the Gaussian `(ε,δ)`-DP conversion.
+- **Adaptive** random-oracle query histories in the bounded-query model: the
+  proved forking bound is for a fixed, non-adaptive query schedule.
 - Byte-level Ed25519 decode (`decodePoint`, `sha512`, the 64-byte layout) is not
   refined; `Refinement/DLP.lean` refines the coordinate comparison only.
 - The trusted setup is an in-process simulated ceremony (a development key).

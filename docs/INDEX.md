@@ -22,7 +22,7 @@
 
 ### Phase 1: Foundation & Formal Verification
 - [Formal Verification Guide](FORMAL_VERIFICATION_GUIDE.md) - Lean proofs, traceability matrix
-- [Formal Results Summary](FORMAL_RESULTS_SUMMARY.md) - the four headline machine-checked results, their hypotheses and their scope limits
+- [Formal Results Summary](FORMAL_RESULTS_SUMMARY.md) - the five headline machine-checked results, their hypotheses and their scope limits
 - [Byzantine Resilience Architecture](architecture/BYZANTINE_RESILIENCE.md) - Multi-Krum filtering
 - [Differential Privacy](architecture/DIFFERENTIAL_PRIVACY.md) - RDP accounting
 
