@@ -383,6 +383,17 @@ Other honest limitations:
   was a SHA-256 challenge-response with no circuit behind it — was **removed**.
   `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is closed by deletion, not by an
   invented caller. `WeightStatement` is the single wired path.
+- **The Gaussian RDP bound is now extended to a diagonal multivariate
+  covariance** (`LeanFormalization/RenyiDivergenceMultivariate.lean`, matrix row
+  37): `gaussianRDPMeasure_diagonal` proves
+  `D_α(∏ᵢ N(Δᵢ,σᵢ²) ‖ ∏ᵢ N(0,σᵢ²)) = ∑ᵢ α·Δᵢ²/(2σᵢ²)` for any finite index
+  type, by `n`-variable Fubini (`integral_fintype_prod_volume_eq_prod`) plus the
+  already-proved scalar integral. **The covariance is diagonal** — independent
+  coordinates. A general positive-definite `Σ` still needs a multivariate
+  density and an affine change-of-variables lemma for Lebesgue measure on `ℝⁿ`
+  (the `det` factor), which is **not** formalized; the correlated case is not
+  implied. The negative control `gaussianDensity_zero_sigma` shows `σ ≠ 0` is
+  load-bearing (at `σ = 0` the density integrates to `0`, not `1`).
 - **The bounded-query programmed random oracle is now formalized**
   (`LeanFormalization/RenyiDivergenceBoundedRO.lean`, matrix row 36):
   `roForkProb_ge` proves `roForkProb qH Q ≥ (roAcceptProb qH Q)²`, which is
