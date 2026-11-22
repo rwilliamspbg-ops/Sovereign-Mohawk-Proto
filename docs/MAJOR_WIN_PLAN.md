@@ -319,6 +319,73 @@ rather than letting the density degenerate silently.
 mechanism (the accountant's `CheckBudget` conversion is formalized separately in
 `Refinement/RDPLogBound.lean`), and adaptive composition in the measure-theoretic
 framework (`Theorem2RDP.RDP_adaptive_composition` covers finite support only).
+### A.4 Bounded-query programmed random oracle (Pointcheval–Stern rewind)
+
+**Status:** not attempted. The premise was verified numerically and the one
+remaining lemma is pinned exactly, so this is a named residual rather than vague
+roadmap.
+
+**The gap.** `SchnorrUF_CMAWithOracle.lean` and `Ed25519UF_CMASecurity.lean` model
+the random oracle as a **uniform challenge**: the prefix fixes the forgery
+message and nonce point, and the challenge is drawn independently. The
+Pointcheval–Stern `\epsilon^2/q_H` loss is therefore not recovered.
+
+**The model.** `qH` RO queries with a fixed (non-adaptive) schedule; an answer
+vector is `a : Fin qH → C`; the accepting set is `Q ⊆ Tape × (Fin qH → C)`;
+`ε = |Q| / (|Tape|·|C|^qH)`. A fork rewinds at a uniformly chosen query index `j`:
+the two runs share the tape and the answers at queries **before** `j`, and may
+differ from `j` onward.
+
+**Verified numerically (2026-11-21).** Over 150 random accepting sets per
+(`qH`, `|C|`) for `qH ∈ {1,2,3,4}` and `|C| ∈ {2,3,4}`, with acceptance bias
+`p ∈ {0.05, 0.1, 0.25, 0.5, 0.75, 0.9}`, the inequality
+`φ ≥ ε² − ε/qH` held in **every** trial. The Cauchy–Schwarz derivation below
+in fact gives the stronger `φ ≥ ε²`.
+
+**Derivation.** Group the agreeing pairs by `(t, p)` where `p = a|<j`:
+
+    n t p = #{a | a|<j = p ∧ (t,a) ∈ Q}
+
+so `∑ t ∑ p n²` counts exactly the agreeing pairs, `∑ t ∑ p n = |Q|`, and
+Cauchy–Schwarz gives `∑ n² ≥ |Q|² / (|Tape|·|C|^j)`. Hence
+`P(E_j) ≥ |Q|²/(|Tape|²·|C|^{2qH}) = ε²`.
+
+**Modeling trap (found by simulation, not by inspection).** If "agree before `j`"
+is replaced by the naive "agree everywhere **except** `j`", the bound **fails**:
+with `qH = 3`, `|C| = 2`, `Tape` a single point and `Q = {000, 011, 101}`,
+`ε = 3/8`, `φ = 0`, while `ε² − ε/qH = 1/64 > 0`. Any formalization must use
+rewind semantics (agree on `< j`), not differ-only-at-`j` semantics.
+
+**Named residual — the one lemma left.** The Cauchy–Schwarz step needs the
+partition identity
+
+    ∑ t, ∑ p, (n t p)^2  =  ∑ ta, [ta ∈ Q] · n (ta.1) (ta.2 |< j)
+
+i.e. with the definitions that compile on the pinned toolchain (`roPrefix`,
+`roCount`, `roAcceptProb`, `roForkProb` in `LeanFormalization`),
+
+    ∑ t, ∑ p, (roCount qH j Q t p)^2
+      = ∑ ta, (if ta ∈ Q then roCount qH j Q ta.1 (roPrefix qH j ta.2) else 0)
+
+This is a standard sum-over-a-partition identity (`Finset.sum_comm` plus a
+`∑ p, if pre a = p then c else 0 = c` step), not an open problem. It is the
+only obstruction.
+
+**Concrete staged plan.**
+
+1. Prove the linear partition identity `∑ t, ∑ p, roCount = |Q|` first — the
+   same plumbing without the squares, and it is checkable independently.
+2. Prove the squared identity via `Finset.sum_mul_sum` and `Finset.sum_comm`.
+3. Apply `Finset.sum_mul_sq_le_sq_mul_sq` to conclude
+   `roForkProb qH Q ≥ (roAcceptProb qH Q)^2`.
+4. Instantiate at the UF-CMA game: a `UFCMAROAdversary` whose forgery challenge
+   is read from the transcript rather than drawn, and derive `ε ≤ 1/N` under
+   `SchnorrDLHard`.
+
+**Scope, stated openly.** Even at step 4 this is a **fixed-schedule**
+(non-adaptive) query model: the adversary's queries do not depend on earlier
+answers. Full adaptive query histories are not modelled, and that limitation
+must appear in the docstring and the matrix row.
 ## Appendix B — Prove-time review (2026-11-18)
 
 A review claimed the ~28 s figure was an abnormally slow Groth16 prove that
