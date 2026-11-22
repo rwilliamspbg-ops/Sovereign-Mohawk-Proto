@@ -3,7 +3,7 @@
 **Status:** archival summary of the machine-checked results in this repository.
 **Last updated:** 2026-11-21.
 **Authoritative per-claim status:** [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](../proofs/FORMAL_TRACEABILITY_MATRIX.md)
-(36 main rows + the Workstream 4 table). This document is a reading guide, not a
+(37 main rows + the Workstream 4 table). This document is a reading guide, not a
 claim registry — where the two disagree, the matrix wins.
 
 Every theorem named below was checked with `#print axioms` on the pinned
@@ -96,6 +96,19 @@ then **derives** $D_\alpha = \alpha \Delta^2 / (2\sigma^2)$ **unconditionally**
 bundle and the `Theorem2RDP.gaussianRDPBound` existence witness are both
 superseded.
 
+**Diagonal multivariate extension** (`RenyiDivergenceMultivariate.lean`,
+matrix row 37): `gaussianRDPMeasure_diagonal` proves
+$D_\alpha(\prod_i N(\Delta_i,\sigma_i^2) \,\|\, \prod_i N(0,\sigma_i^2))
+= \sum_i \alpha \Delta_i^2/(2\sigma_i^2)$ for any finite index type — the
+`(\alpha, \sum_i \alpha\Delta_i^2/(2\sigma_i^2))`-RDP guarantee for a Gaussian
+mechanism with a **diagonal** covariance. The joint integrand factorizes and
+`n`-variable Fubini (`MeasureTheory.integral_fintype_prod_volume_eq_prod`)
+reduces it to the scalar integrals. **Scope:** independent coordinates only;
+the general correlated `Σ` still needs a multivariate density and an affine
+change-of-variables lemma, and is **not** implied. The negative control
+`gaussianDensity_zero_sigma` shows `σ ≠ 0` is load-bearing (at `σ = 0` the
+density integrates to `0`, not `1`).
+
 ## 4. Composition across rounds, over a product measure
 
 **Module:** `LeanFormalization/RenyiDivergenceCompose.lean`.
@@ -176,7 +189,7 @@ None is an `axiom`; each is an explicit argument at the use site.
 - Full Groth16 / q-SDH soundness (Mathlib has no pairing or hardness
   machinery).
 - MiMC collision resistance (only round injectivity is proved).
-- The multivariate Gaussian mechanism, adaptive composition in the
+- The general (correlated) multivariate Gaussian mechanism, adaptive composition in the
   measure-theoretic framework, and the Gaussian `(ε,δ)`-DP conversion.
 - **Adaptive** random-oracle query histories in the bounded-query model: the
   proved forking bound is for a fixed, non-adaptive query schedule.

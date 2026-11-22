@@ -272,6 +272,18 @@ claim this direction.
 **Target.** For `Σ` positive definite and `p = N(0,Σ)`, `q = N(μ,Σ)` on `ℝⁿ`,
 `D_α(q‖p) = (α/2) · μᵀ Σ⁻¹ μ`.
 
+**Update 2026-11-21 — step 2 (the diagonal case) is now PROVED** (matrix row 37,
+`LeanFormalization/RenyiDivergenceMultivariate.lean`).
+`gaussianRDPMeasure_diagonal` gives
+`D_α(∏ᵢ N(Δᵢ,σᵢ²) ‖ ∏ᵢ N(0,σᵢ²)) = ∑ᵢ α·Δᵢ²/(2σᵢ²)` for any finite index type,
+derived from `gaussianRDP_integral` plus `n`-variable Fubini
+(`MeasureTheory.integral_fintype_prod_volume_eq_prod`). This lands step 2 of the
+staged plan without needing items 1–3. **Steps 1, 3 and 4 remain open**: the
+general (correlated) `Σ` still needs the multivariate density and the affine
+change-of-variables lemma, and the spectral/diagonalization prerequisite for
+step 4 was not found in the pinned Mathlib. The diagonal restriction is stated
+openly in the theorem docstring and in `docs/EXTERNAL_AUDIT_SCOPE.md`.
+
 **What is missing.**
 
 1. A multivariate normal density on `Fin m → ℝ`, with the quadratic form
