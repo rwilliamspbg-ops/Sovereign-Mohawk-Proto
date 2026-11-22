@@ -383,6 +383,16 @@ Other honest limitations:
   was a SHA-256 challenge-response with no circuit behind it — was **removed**.
   `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is closed by deletion, not by an
   invented caller. `WeightStatement` is the single wired path.
+- **The bounded-query programmed random oracle is now formalized**
+  (`LeanFormalization/RenyiDivergenceBoundedRO.lean`, matrix row 36):
+  `roForkProb_ge` proves `roForkProb qH Q ≥ (roAcceptProb qH Q)²`, which is
+  **stronger** than the Pointcheval–Stern `ε² − ε/q_H` loss, because in
+  this abstraction each agreeing-pair count is at least `ε²·|Tape|`. The model
+  is a **fixed-schedule (non-adaptive)** query schedule; adaptive query
+  histories are NOT modelled. A machine-checked negative control shows the
+  rewind direction is load-bearing: with `qH = 3`, `|C| = 2` and
+  `Q = {000, 011, 101}` the naive “agree everywhere except `j`” model gives
+  `φ = 0 < ε² = 9/64`.
 - `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity with
   no circuit behind it. Two keys *are* circuit-derived: `dataCommitmentVK` (the
   single-scalar `DataCommitmentCircuit`) and the key behind

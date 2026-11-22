@@ -321,9 +321,12 @@ mechanism (the accountant's `CheckBudget` conversion is formalized separately in
 framework (`Theorem2RDP.RDP_adaptive_composition` covers finite support only).
 ### A.4 Bounded-query programmed random oracle (Pointcheval–Stern rewind)
 
-**Status:** not attempted. The premise was verified numerically and the one
-remaining lemma is pinned exactly, so this is a named residual rather than vague
-roadmap.
+**Status: CLOSED 2026-11-21.** `LeanFormalization/RenyiDivergenceBoundedRO.lean`
+proves `roForkProb qH Q ≥ (roAcceptProb qH Q)²` (matrix row 36), and the machine-checked
+negative control `naiveRewind_agrees_off_count` shows the rewind direction is
+load-bearing. The premise was verified numerically first, then the derivation
+below was formalized directly. Remaining scope limit, stated openly: the query
+schedule is fixed / non-adaptive.
 
 **The gap.** `SchnorrUF_CMAWithOracle.lean` and `Ed25519UF_CMASecurity.lean` model
 the random oracle as a **uniform challenge**: the prefix fixes the forgery
