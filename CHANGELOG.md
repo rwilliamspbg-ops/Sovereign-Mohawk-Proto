@@ -163,6 +163,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Lebesgue measure on `ℝⁿ` (the `det` factor); neither is formalized and the
   correlated case is **not** implied.
 
+
+### Added - Lean: `fInv` bridged; the Ed25519 field layer is complete
+
+- `Ed25519FieldBridge.lean`: `card_units_zmod` proves
+  `Fintype.card (ZMod p)ˣ = p - 1` for prime `p` (from `Fintype.card_units` +
+  `ZMod.card`), `zmod_pow_sub_one` derives `a ^ (p-1) = 1` via Lagrange
+  (`pow_card_eq_one`), and `fmul_fInv` concludes `fInv a * a = 1` for `a` not
+  divisible by `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly.
+- Local `units_val_pow`: `a`(u^n) = (u)^n -- Mathlib has `Units.val_mul` but not
+  the power form, which is needed to move the unit-group statement to the ring.
+- Negative control `fmul_fInv_zero`: at `a = 0` the product is `0`, not `1`.
+- **Scope:** all five field operations (`fadd`, `fsub`, `fmul`, `fPow`, `fInv`)
+  are now bridged. The remaining Ed25519 gap is the **curve group law**
+  (twisted-Edwards completeness of `affineAdd`, double-and-add recursion of
+  `affineScalarMulImpl`) -- not a field question.
 ### Added - Lean: Ed25519 field-arithmetic bridge (Win A, field layer)
 
 - `proofs/LeanFormalization/Ed25519FieldBridge.lean` (matrix row 38).
