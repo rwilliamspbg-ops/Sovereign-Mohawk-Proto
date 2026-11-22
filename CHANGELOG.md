@@ -127,6 +127,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   invented caller; `docs/EXTERNAL_AUDIT_SCOPE.md` §6, `docs/AUDITOR_QUICK_REFERENCE.md`,
   `docs/MAJOR_WIN_PLAN.md` (W1/W4) and matrix row 5 updated to say so.
 
+
+### Added - Lean: bounded-query programmed RO forking bound (Win B)
+
+- `proofs/LeanFormalization/RenyiDivergenceBoundedRO.lean` (matrix row 36).
+  `roForkProb_ge` proves `roForkProb qH Q ≥ (roAcceptProb qH Q)²`. The model is a `qH`-query
+  programmed random oracle on a fixed schedule; `roForkProb` is the rewind
+  probability — pick a query index `j` uniformly, then average the fraction of
+  ordered answer pairs that share the tape and the answers **before** `j`.
+  `roCount_sum` is the partition identity, and two Cauchy–Schwarz applications
+  give the bound. The result is **stronger** than the Pointcheval–Stern
+  `ε² − ε/q_H` loss in this abstraction.
+- `naiveRewind_agrees_off_count` is the machine-checked negative control: with
+  `qH = 3`, `|C| = 2` and `Q = {000, 011, 101}`, `ε = 3/8` but the naive
+  “agree everywhere except `j`” model has zero agreeing pairs, so `φ = 0 < ε² = 9/64`.
+- Appendix A.4 of `docs/MAJOR_WIN_PLAN.md` is marked CLOSED; the residual it
+  pinned is now a theorem. Scope limit, stated openly: fixed-schedule
+  (non-adaptive) queries; adaptive query histories are not modelled.
 ### Added - docs: bounded-query RO residual pinned, premise verified
 
 - `docs/MAJOR_WIN_PLAN.md` Appendix A.4. Win B (Pointcheval–Stern `eps^2/q_H`)
