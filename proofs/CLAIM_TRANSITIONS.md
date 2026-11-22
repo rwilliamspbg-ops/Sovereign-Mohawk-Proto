@@ -318,4 +318,4 @@ via Lagrange (`pow_card_eq_one`); and `fmul_fInv` concludes `fInv a * a = 1` for
 `Units.val_mul`). The remaining Ed25519 gap is the **curve group law**, which is not a
 field question; see the row's Notes for the full reasoning.
 
-- **PR:** #TBD
+- **PR:** #388
