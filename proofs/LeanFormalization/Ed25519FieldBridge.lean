@@ -30,14 +30,18 @@ of `affineScalarMulImpl`) is **not** proved here and remains the open part.
   invariant `result * base ^ exp ≡ a ^ e (mod p)` for every fuel, with
   `exp = e / 2 ^ fuel`. At `fuel = 256` and `e < 2 ^ 256` the exponent is
   exhausted, so `fPow a e = (a ^ e) % p`.
-## Not proved here — a named limitation, not a vague TODO
+* `fInv` is the field inverse. `card_units_zmod` proves
+  `Fintype.card (ZMod p)ˣ = p - 1` for prime `p` (from `Fintype.card_units` and
+  `ZMod.card`), `zmod_pow_sub_one` derives `a ^ (p-1) = 1` from Lagrange's
+  theorem, and `fmul_fInv` concludes `fInv a * a = 1` for `a` not divisible by
+  `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly.
 
-`fInv` is **not** bridged. `fInv a = fPow a (p - 2)` is Fermat inversion, and
-proving `fInv a * a ≡ 1 (mod p)` for `a ≢ 0 (mod p)` needs `a ^ (p-1) ≡ 1`,
-i.e. the multiplicative-group cardinality `Fintype.card (ZMod p)ˣ = p - 1` for
-prime `p`. The pinned Mathlib has `pow_card_eq_one` for a general finite group
-but **no** `ZMod`-specific cardinality lemma, and no Euler-totient lemma for
-`ZMod`. That is the next increment; it is not asserted and not faked.
+## Scope
+
+All five field operations are now bridged. What remains is **not** a field
+question: it is the **group law on the curve** — twisted-Edwards completeness of
+`affineAdd`, and the double-and-add recursion of `affineScalarMulImpl`. That is
+the multi-week item, and this module does not touch it.
 
 ## Negative control
 
@@ -45,7 +49,8 @@ but **no** `ZMod`-specific cardinality lemma, and no Euler-totient lemma for
 unrolled a fixed number of times. `fPowState_exp_ge` shows that at
 `e = 2 ^ 256` the exponent component of the state is still `1` — the loop has
 **not** terminated — so the `e < 2 ^ 256` hypothesis is load-bearing rather
-than decorative.
+than decorative. `fmul_fInv_zero` shows the inverse's own hypothesis is
+load-bearing too: at `a = 0` the product is `0`, not `1`.
 -/
 import Mathlib
 import LeanFormalization.Ed25519
@@ -338,5 +343,68 @@ theorem fPow_eq_pow_mod (a e : ℕ) (he : e < 2 ^ 256) :
 theorem fPowState_exp_ge (a : ℕ) : (fPowState 256 a (2 ^ 256)).2.2 = 1 := by
   rw [fPowState_exp]
   norm_num
+
+/-! ### `fInv`
+
+`fInv a = fPow a (p - 2)` is Fermat inversion. Proving `fInv a * a = 1` for
+`a not equiv 0 (mod p)` needs `a ^ (p-1) = 1`, which is Lagrange's theorem on
+the unit group; the cardinality of that group is the one ingredient the pinned
+Mathlib does not state for `ZMod`, so it is proved here from
+`Fintype.card_units` and `ZMod.card`. -/
+
+/-- **The unit group of `ZMod p` has `p - 1` elements, for prime `p`.** -/
+theorem card_units_zmod (p : ℕ) [Fact (Nat.Prime p)] :
+    Fintype.card (ZMod p)ˣ = p - 1 := by
+  rw [Fintype.card_units (α := ZMod p), ZMod.card]
+
+/-- `↑(u ^ n) = ↑u ^ n` for a unit. Mathlib has `Units.val_mul` but not the
+    power version, and it is needed to move the unit-group Lagrange statement
+    back to the ring. -/
+theorem units_val_pow {α : Type*} [Monoid α] (u : αˣ) (n : ℕ) :
+    (↑(u ^ n) : α) = (u : α) ^ n := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [pow_succ, pow_succ, Units.val_mul, ih]
+
+/-- **`a ^ (p-1) = 1` in `ZMod p` for `a ≠ 0`, prime `p`.** Lagrange's theorem
+    (`pow_card_eq_one`) applied to the unit group. -/
+theorem zmod_pow_sub_one (p : ℕ) [Fact (Nat.Prime p)] {a : ZMod p} (ha : a ≠ 0) :
+    a ^ (p - 1) = 1 := by
+  have h := pow_card_eq_one (G := (ZMod p)ˣ) (x := Units.mk0 a ha)
+  rw [card_units_zmod] at h
+  simpa [units_val_pow, Units.val_mk0 ha] using
+    congrArg (Units.val : (ZMod p)ˣ → ZMod p) h
+
+/-- **`fInv` is the field inverse**: `fInv a * a = 1`, for `a` not divisible by
+    `p`. Carries `Fact (Nat.Prime ed25519P)` explicitly, the same convention the
+    repository uses for `Fact (Nat.Prime dlL)`. -/
+theorem fmul_fInv (hp : Fact (Nat.Prime ed25519P)) {a : ℕ} (ha : a % ed25519P ≠ 0) :
+    fmul (fInv a) a = 1 := by
+  have hne : (a : ZMod ed25519P) ≠ 0 := by
+    intro h
+    apply ha
+    simpa using (ZMod.natCast_eq_natCast_iff a 0 ed25519P |>.mp h)
+  have hbound : ed25519P - 2 < 2 ^ 256 := by
+    unfold ed25519P
+    norm_num
+  have hinv : fInv a = (a ^ (ed25519P - 2)) % ed25519P := by
+    unfold fInv
+    exact fPow_eq_pow_mod a (ed25519P - 2) hbound
+  refine nat_eq_of_zmod_eq ?_ (fmul_lt _ _) ?_
+  · rw [fmul_zmod, hinv, ZMod.natCast_mod, Nat.cast_pow]
+    have hpow : (a : ZMod ed25519P) ^ (ed25519P - 2) * (a : ZMod ed25519P)
+        = (a : ZMod ed25519P) ^ (ed25519P - 1) := by
+      have hp2 : (2 : ℕ) ≤ ed25519P := by unfold ed25519P; norm_num
+      rw [show ed25519P - 1 = (ed25519P - 2) + 1 by omega, pow_add, pow_one]
+    rw [hpow]
+    exact zmod_pow_sub_one (p := ed25519P) hne
+  · unfold ed25519P
+    norm_num
+
+/-- **Negative control: `a not equiv 0 (mod p)` is load-bearing.** At `a = 0`
+    the inverse is `0` and the product is `0`, not `1`. -/
+theorem fmul_fInv_zero : fmul (fInv 0) 0 = 0 := by
+  unfold fmul
+  simp
 
 end LeanFormalization

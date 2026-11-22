@@ -163,7 +163,7 @@ the Ed25519 UF-CMA game.
 
 | Result | Declaration |
 | --- | --- |
-| Ed25519 field arithmetic bridged to `ZMod p` | `fadd_zmod`, `fmul_add`, `fPow_eq_pow_mod` (`fInv` **not** bridged) |
+| Ed25519 field arithmetic bridged to `ZMod p` | `fadd_zmod`, `fmul_add`, `fPow_eq_pow_mod`, `card_units_zmod`, `fmul_fInv` |
 | Schnorr special soundness / HVZK / forking | `schnorr_special_soundness`, `schnorr_hvzk_simulation`, `exists_fork_of_card`, `success_card_le_of_dl_hard` |
 | MiMC round injectivity at BN254 | `mimcRound_bn254_injective` |
 | RDP → $(\epsilon,\delta)$-DP conversion bound | `Refinement.rdpToApproxDP_bound`, `rdpLog_sandwich` |
@@ -192,6 +192,9 @@ None is an `axiom`; each is an explicit argument at the use site.
 - MiMC collision resistance (only round injectivity is proved).
 - The general (correlated) multivariate Gaussian mechanism, adaptive composition in the
   measure-theoretic framework, and the Gaussian `(ε,δ)`-DP conversion.
+- The Ed25519 **curve group law** (twisted-Edwards completeness of `affineAdd`,
+  the double-and-add recursion of `affineScalarMulImpl`). The field arithmetic
+  beneath it is fully bridged; the group law is not.
 - **Adaptive** random-oracle query histories in the bounded-query model: the
   proved forking bound is for a fixed, non-adaptive query schedule.
 - `fInv` (the Ed25519 field inverse): the bridge covers `fadd`/`fsub`/`fmul` and

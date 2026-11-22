@@ -305,3 +305,17 @@ reworded; the derivation remains roadmap work.
 This transition was previously **invisible to the gate**. Row 2 has been wrapped across physical lines since #366, and `check_claim_transitions.py` parsed physical lines, so the main table's parse stopped at its first wrapped row and only row 1 plus the Workstream 4 table were checked -- a Status change on rows 2-34 required no transition entry. The parser now rejoins wrapped rows (`logical_table_rows`), and `tests/scripts/ci/test_claim_transitions.py` pins that behaviour against the real matrix and against synthetic wrapped rows.
 
 - **PR:** #375
+
+### 2026-11-22 -- Row 38 (Ed25519 field bridge): `fInv` bridged; all five field operations closed
+
+"fully_formalized for `fadd`/`fsub`/`fmul` and `fPow`; **`fInv` NOT bridged** (see notes)" -> "fully_formalized - all five field operations; the curve group law remains open"
+
+`card_units_zmod` proves `Fintype.card (ZMod p)ˣ = p - 1` for prime `p` from
+`Fintype.card_units` and `ZMod.card`; `zmod_pow_sub_one` derives `a ^ (p-1) = 1`
+via Lagrange (`pow_card_eq_one`); and `fmul_fInv` concludes `fInv a * a = 1` for
+`a` not divisible by `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly. A local
+`units_val_pow` supplies the power form of `Units.val` that Mathlib omits (it has
+`Units.val_mul`). The remaining Ed25519 gap is the **curve group law**, which is not a
+field question; see the row's Notes for the full reasoning.
+
+- **PR:** #388

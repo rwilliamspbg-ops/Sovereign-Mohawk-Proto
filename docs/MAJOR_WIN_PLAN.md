@@ -417,10 +417,12 @@ bridge proves the first four are what they claim:
   `result * base ^ exp = a ^ e` and its exponent component is `e / 2 ^ fuel`,
   so at `fuel = 256` and `e < 2 ^ 256`, `fPow a e = (a ^ e) % p`.
 
-**Remaining, named:** `fInv`. `fInv a * a = 1` for `a ≠ 0 (mod p)` needs
-`a ^ (p-1) = 1`, i.e. `Fintype.card (ZMod p)ˣ = p - 1`; the pinned Mathlib has
-`pow_card_eq_one` for a general finite group but no `ZMod` cardinality or
-Euler-totient lemma. Not asserted, not faked.
+**`fInv` is now bridged too.** `card_units_zmod` proves
+`Fintype.card (ZMod p)ˣ = p - 1` for prime `p` from `Fintype.card_units` and
+`ZMod.card`; `zmod_pow_sub_one` derives `a ^ (p-1) = 1` via Lagrange
+(`pow_card_eq_one`); and `fmul_fInv` concludes `fInv a * a = 1` for `a` not
+divisible by `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly. A local
+`units_val_pow` supplies the power form of `Units.val` that Mathlib omits.
 
 **Still the multi-week item:** the group law on the curve itself
 (twisted-Edwards completeness of `affineAdd`, and the double-and-add recursion

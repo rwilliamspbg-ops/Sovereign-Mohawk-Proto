@@ -392,10 +392,13 @@ Other honest limitations:
   generic fold invariant: `fPow a e = (a ^ e) % p` for `e < 2 ^ 256`. **This is
   the field layer of the group-law work**: after it, the assumption is that the
   *group law on the curve* holds, not the field arithmetic beneath it.
-  **Named limitation:** `fInv` is not bridged — it needs
-  `Fintype.card (ZMod p)ˣ = p - 1` for prime `p`, which the pinned Mathlib does
-  not provide. Not asserted. Negative control `fPowState_exp_ge` shows the
-  `e < 2 ^ 256` bound is load-bearing.
+  **All five field operations are bridged**, including `fInv`:
+  `card_units_zmod` proves `Fintype.card (ZMod p)ˣ = p - 1` for prime `p`
+  (from `Fintype.card_units` + `ZMod.card`), `zmod_pow_sub_one` derives
+  `a ^ (p-1) = 1` via Lagrange, and `fmul_fInv` gives `fInv a * a = 1` for
+  `a` not divisible by `p`. Negative controls `fPowState_exp_ge` (the
+  `e < 2 ^ 256` bound) and `fmul_fInv_zero` (`a = 0` gives `0`, not `1`).
+  What remains open is the **curve group law**, not the field layer.
 - **The Gaussian RDP bound is now extended to a diagonal multivariate
   covariance** (`LeanFormalization/RenyiDivergenceMultivariate.lean`, matrix row
   37): `gaussianRDPMeasure_diagonal` proves
