@@ -126,6 +126,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is **closed by deletion**, not by an
   invented caller; `docs/EXTERNAL_AUDIT_SCOPE.md` §6, `docs/AUDITOR_QUICK_REFERENCE.md`,
   `docs/MAJOR_WIN_PLAN.md` (W1/W4) and matrix row 5 updated to say so.
+
+### Added - docs: bounded-query RO residual pinned, premise verified
+
+- `docs/MAJOR_WIN_PLAN.md` Appendix A.4. Win B (Pointcheval–Stern `eps^2/q_H`)
+  is **not** attempted; instead the model, the bound and the one remaining
+  lemma are pinned exactly. The target `phi >= eps^2 - eps/qH` was **verified
+  numerically** over 150 random accepting sets for each `qH in {1,2,3,4}` and
+  `|C| in {2,3,4}` — no violations — and the Cauchy-Schwarz derivation gives the
+  stronger `phi >= eps^2`.
+- Records a **modeling trap found by simulation**: replacing "agree before j"
+  with the naive "agree everywhere except j" makes the bound **false`
+  (`qH=3`, `|C|=2`, `Q = {000,011,101}`: `eps=3/8`, `phi=0`, bound `1/64`).
+- The named residual is the partition identity
+  `sum_{t,p} roCount^2 = sum_{ta} [ta in Q] * roCount(...)`, a standard
+  sum-over-a-partition step; the definitions compile on the pinned toolchain.
+  Scope stated openly: fixed-schedule (non-adaptive) queries only.
 ### Added - docs: written plan for multivariate Gaussian RDP
 
 - `docs/MAJOR_WIN_PLAN.md` Appendix A.3. States the target
