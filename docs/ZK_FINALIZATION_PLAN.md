@@ -12,7 +12,7 @@ and replace the unbacked zk performance figures with measured artifacts.
 | WP | State | Evidence |
 | --- | --- | --- |
 | M1 sound binding | **done** | `internal/zkweight_circuit.go`; `test/zkweight_circuit_test.go` (honest round-trip, distinct-witness binding, tampered statement, over-bound, zero dataset, tampered proof); 9569 constraints |
-| M2 production wiring | **done, one honest gap remaining** | `internal/zkprover/gnark.go`; **`internal/zkprover/produce.go` (`ProduceWeightProof`, added 2026-11-20)**; `internal/batch/aggregator.go`; `test/batch_zkweight_attestation_test.go`; `test/zkweight_produce_test.go`. **Gap 1 (weight proof: closed; trace linkage: still open):** there is now a node-side production producer — `zkprover.ProduceWeightProof` runs any `Prover`, returns the `(encoded proof, WeightStatement)` pair the aggregator consumes, and self-verifies the proof against its own embedded statement before returning it. `cmd/simulate` uses it. What remains open is the part that would mean inventing a caller: `computeproof.Trace` still has no production producer (no `GradientUpdate{` construction site exists anywhere in the tree), so that linkage is not wired and is not faked. **Gap 2 (now mechanically guarded):** because `ProduceWeightProof` refuses any produced proof that does not verify against its embedded statement, `MockProver` / `CLIProver` placeholders cannot reach a production proof path through it. `SelectProver` can still return them, so callers must still not select them. |
+| M2 production wiring | **done** | `internal/zkprover/gnark.go`; **`internal/zkprover/produce.go` (`ProduceWeightProof`, added 2026-11-20)**; `internal/batch/aggregator.go`; `test/batch_zkweight_attestation_test.go`; `test/zkweight_produce_test.go`. **Gap 1 (CLOSED 2026-11-21 by deletion):** `zkprover.ProduceWeightProof` is the node-side production producer — it runs any `Prover`, returns the `(encoded proof, WeightStatement)` pair the aggregator consumes, and self-verifies the proof against its own embedded statement before returning it. `cmd/simulate` uses it. The other half of this gap, `computeproof.Trace`, was **removed** rather than wired: a sweep found no production caller (no `GradientUpdate{` construction site exists anywhere in the tree), its commitment fields duplicated `WeightStatement`'s, and its `Verifier` was a SHA-256 challenge-response with no circuit behind it. Wiring it would have meant inventing the caller and the data, which this plan refuses to do. **Gap 2 (now mechanically guarded):** because `ProduceWeightProof` refuses any produced proof that does not verify against its embedded statement, `MockProver` / `CLIProver` placeholders cannot reach a production proof path through it. `SelectProver` can still return them, so callers must still not select them. |
 | M3 real evidence | **done** | `cmd/zkweightbench`, `.github/workflows/zk-circuit-gate.yml`, `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38.0 ms, setup 41.3 s, 9 569 constraints). **Figure retraction done 2026-11-18** — see §0.2 |
 | M4 formal link + docs | **done** | `Theorem5Cryptography.lean` `WeightUpdateCircuit` section; matrix row 21; `circuits/README.md` corrected; `GOLD_STANDARD_PLAN.md` status |
 | M5 decision record | **done** | §1 below |
@@ -60,10 +60,12 @@ fold to the same preimage), so the "binding" is not collision-resistant. Worse,
 asserted. A valid proof therefore says nothing about the model update it
 accompanies.
 
-`internal/computeproof.Trace` already carries the right fields
-(`DatasetCommitment`, `ModelCommitmentBefore`, `ModelCommitmentAfter`,
-`types.go:17-19`) but **no production caller populates them** — only
-`computeproof_property_test.go` and `test/computeproof_test.go` do.
+`WeightStatement` already carries the corresponding fields (`ModelHashBefore`,
+`ModelHashAfter`, `DatasetCommitment`, plus `UpdateHash`, `GradNormBound` and
+`DPEpsilon`), and it is the object the production producer and the aggregator
+actually exchange. The formerly separate `internal/computeproof.Trace` type —
+whose commitment fields duplicated `WeightStatement` and which no production
+caller ever populated — was **removed** on 2026-11-21.
 
 ### 0.2 Evidence gap — the advertised 10 ms figure is a `time.sleep`
 
@@ -181,10 +183,12 @@ used in- and off-circuit.
 the binding is collision-resistant by construction, not by assertion.
 
 ### M2 — Production wiring · ~1 week
-- [ ] Populate `computeproof.Trace` from the real round/update producer
-      (find the `GradientUpdate` construction site; today only tests set it).
-- [ ] Thread `Trace` → circuit public inputs → `Aggregator.GradientProof` /
-      `GradientCommitment`; keep the aggregator **fail-closed**.
+- [x] ~~Populate `computeproof.Trace` from the real round/update producer~~ —
+      **resolved by deletion (2026-11-21):** no `GradientUpdate{` construction site
+      exists, `Trace` duplicated `WeightStatement`, and its verifier had no circuit.
+- [x] ~~Thread `Trace` → circuit public inputs~~ — superseded: the circuit path is
+      `WeightStatement` → `WeightUpdateCircuit` → `ProduceWeightProof` →
+      `Aggregator.ProcessRound`, and the aggregator stays **fail-closed**.
 - [ ] Put `MOHAWK_ALLOW_LEGACY_ATTESTATION` on a deprecation timeline and
       document it in `docs/ROADMAP.md:18`; default stays closed.
 - [ ] Deprecate `genesisVK`/`VerifyProof` with a removal date; fix the stale

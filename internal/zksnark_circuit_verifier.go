@@ -52,12 +52,14 @@
 //     path: when Aggregator.GradientCommitment is non-nil, ProcessRound
 //     verifies via VerifyDataCommitmentProof instead of the legacy
 //     SHA-256-of-empty baseline check (see test/batch_zk_attestation_test.go).
-//     Connecting a real per-round gradient/model commitment (e.g.
-//     internal/computeproof.Trace's DatasetCommitment/
-//     ModelCommitmentBefore/After fields, still unpopulated by any
-//     production caller as of this writing) into this circuit's Preimage
-//     remains separate follow-up work, not attempted here — today's
-//     callers must supply the commitment themselves.
+//     Connecting a real per-round gradient/model commitment into this
+//     circuit's Preimage remains separate follow-up work, not attempted
+//     here — today's callers must supply the commitment themselves.
+//     (The formerly separate internal/computeproof.Trace type, whose
+//     commitment fields duplicated WeightStatement and which had no
+//     production producer, was removed on 2026-11-21. WeightStatement,
+//     produced by zkprover.ProduceWeightProof and consumed by
+//     Aggregator.ProcessRound, is the single wired path.)
 package internal
 
 import (
