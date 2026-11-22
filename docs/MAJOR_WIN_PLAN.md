@@ -259,6 +259,64 @@ claim this direction.
 
 ---
 
+### A.3 Multivariate Gaussian RDP
+
+**Proved today** (`LeanFormalization/RenyiDivergenceMeasure.lean`, matrix row
+34): the **scalar** Gaussian mechanism's Rényi divergence,
+`gaussianRDPBound_measure`:
+`D_α(N(Δ,σ²) ‖ N(0,σ²)) = α·Δ²/(2σ²)`, unconditional apart from `σ ≠ 0` and
+`α ≠ 1`, derived from a proved completed-square integral.
+
+**Target.** For `Σ` positive definite and `p = N(0,Σ)`, `q = N(μ,Σ)` on `ℝⁿ`,
+`D_α(q‖p) = (α/2) · μᵀ Σ⁻¹ μ`.
+
+**What is missing.**
+
+1. A multivariate normal density on `Fin m → ℝ`, with the quadratic form
+   `exp(-½ (x-μ)ᵀ Σ⁻¹ (x-μ))` and normalizing constant `det(2πΣ)^(-1/2)`. Not in
+   Mathlib (a grep for `matrixGaussian`/`MultivariateNormal` finds nothing).
+2. `Σ` positive definite and invertible. `Mathlib/LinearAlgebra/Matrix/PosDef.lean`
+   provides `Matrix.PosSemidef` and `Matrix.PosDef`; no determinant-positivity
+   lemma is wired to them yet.
+3. A **multivariate** affine change of variables for Lebesgue measure — the
+   Jacobian/`det` factor. The scalar `gaussianIntegral_shift` is a
+   one-dimensional translation-invariance lemma and does not generalize
+   pointwise; `MeasureTheory.integral_map` is the right entry point but the
+   linear-map case is a real formalization.
+4. The base measure on `ℝⁿ`: `MeasureTheory.volume_pi` supplies it, so no new
+   measure infrastructure is needed.
+
+**Why it is not attempted here.** Item 3 is the obstruction: a multivariate
+linear change of variables is a multi-week formalization, not a bounded
+increment. Items 1, 2 and 4 are available or straightforward.
+
+**Concrete staged plan.**
+
+1. Define `mvGaussianDensity (μ : Fin m → ℝ) (Σ : Matrix (Fin m) (Fin m) ℝ) (x)`,
+   taking `Σ` positive definite as an explicit hypothesis built from
+   `Matrix.PosDef` — not an opaque predicate, and not an axiom.
+2. Prove the **diagonal** case first (`Σ = diag σ²`), reducing to `m` independent
+   scalar integrations via `MeasureTheory.volume_pi` and reusing the already
+   proved scalar bound. Bounded, checkable, and it exercises the density
+   definition.
+3. Prove the affine change-of-variables lemma for Lebesgue measure on `ℝⁿ`
+   (`∫ f (L x + c) dx = |det L|⁻¹ ∫ f y dy` for `det L ≠ 0`), with the `m = 1`
+   case checked against `gaussianIntegral_shift`.
+4. Diagonalize `Σ` and transport the diagonal result. **Prerequisite gap:** no
+   spectral/diagonalization development for symmetric matrices was found in the
+   pinned Mathlib. If it is not added, stop at step 2, ship the diagonal-`Σ`
+   result, and pin the general case as a named hypothesis rather than implying
+   coverage.
+
+**Negative control to carry.** The scalar result's `σ ≠ 0` is load-bearing
+(`gaussianRDP_integral` degenerates at `σ = 0`); the multivariate analogue is a
+**singular** `Σ`, where `Σ⁻¹` does not exist. State that control explicitly
+rather than letting the density degenerate silently.
+
+**Not covered by this plan:** the `(ε,δ)`-DP conversion for the Gaussian
+mechanism (the accountant's `CheckBudget` conversion is formalized separately in
+`Refinement/RDPLogBound.lean`), and adaptive composition in the measure-theoretic
+framework (`Theorem2RDP.RDP_adaptive_composition` covers finite support only).
 ## Appendix B — Prove-time review (2026-11-18)
 
 A review claimed the ~28 s figure was an abnormally slow Groth16 prove that

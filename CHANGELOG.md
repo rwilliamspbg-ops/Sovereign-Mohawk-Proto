@@ -104,6 +104,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Go-side inspection of the MPC setup threading; matrix rows 21/22 updated.
 
 
+
+### Added - docs: written plan for multivariate Gaussian RDP
+
+- `docs/MAJOR_WIN_PLAN.md` Appendix A.3. States the target
+  `D_α(N(μ,Σ) ‖ N(0,Σ)) = (α/2)·μᵀΣ⁻¹μ`, inventories what Mathlib has
+  (`Matrix.PosDef`, `MeasureTheory.volume_pi`, `MeasureTheory.integral_map`) and
+  what it lacks (no multivariate normal density; no spectral/diagonalization for
+  symmetric matrices), and gives a four-step staged plan whose first deliverable
+  is the diagonal-`Σ` case. Records why it is not attempted here: the multivariate
+  affine change of variables (Jacobian/`det`) is a multi-week formalization, not
+  a bounded increment. The singular-`Σ` negative control is named explicitly.
 ### Added - docs: a self-contained formal results summary
 
 - `docs/FORMAL_RESULTS_SUMMARY.md` — the four headline machine-checked results in one
