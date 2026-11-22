@@ -412,8 +412,9 @@ cd proofs && lake build
 - One `native_decide` toolchain trust (`chernoffBoundZ_deployment_scale_tiny`);
   zero `axiom` declarations, zero `sorry`.
 - MPC trusted setup is simulated in-process, not a distributed ceremony.
-- The aggregator verifies a `WeightProof`, but no production caller constructs
-  one yet (`computeproof.Trace` has no producer at all).
+- The aggregator verifies a `WeightProof` produced by
+  `zkprover.ProduceWeightProof`; the formerly separate `computeproof.Trace` type
+  was removed on 2026-11-21 (no producer, duplicate commitment fields).
 - `genesisVK` is still a fixed identity; `dataCommitmentVK` and the weight
   circuit key are circuit-derived.
 

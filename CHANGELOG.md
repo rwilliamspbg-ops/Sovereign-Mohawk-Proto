@@ -105,6 +105,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+
+### Removed - `internal/computeproof` (dead proof-of-compute scaffolding)
+
+- Deleted `internal/computeproof/{types,verifier}.go` and
+  `internal/computeproof/computeproof_property_test.go`, plus
+  `test/computeproof_test.go`. A full reference sweep found **no production
+  consumer** of `Trace`, `Proof`, `BuildProof` or `Verifier` — only the package's
+  own methods, the two test files, and one comment.
+- Why deletion rather than wiring: `Trace`'s `DatasetCommitment` /
+  `ModelCommitmentBefore` / `ModelCommitmentAfter` are a strict subset of
+  `WeightStatement`, which is already produced by `zkprover.ProduceWeightProof`
+  and consumed by `Aggregator.ProcessRound` under a real gnark circuit. The only
+  candidate call site, `cmd/node-agent`'s `sendGradientUpdate`, sends
+  `mockGradients` and holds no commitments, so populating `Trace` there would have
+  meant inventing both the caller and the data. `Verifier.Verify` was a SHA-256
+  challenge-response over the trace hash with an in-process replay map — no circuit
+  and no soundness claim — so wiring it would have added a second, weaker
+  attestation path and review surface without strengthening any formal claim.
+- `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is **closed by deletion**, not by an
+  invented caller; `docs/EXTERNAL_AUDIT_SCOPE.md` §6, `docs/AUDITOR_QUICK_REFERENCE.md`,
+  `docs/MAJOR_WIN_PLAN.md` (W1/W4) and matrix row 5 updated to say so.
 ### Added - docs: written plan for multivariate Gaussian RDP
 
 - `docs/MAJOR_WIN_PLAN.md` Appendix A.3. States the target

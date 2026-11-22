@@ -40,9 +40,10 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       `Theorem5Cryptography.lean`, `Theorem5MiMCFormalization.lean`); verified, no
       change needed.
 - [x] §6 "Known limitations": both superseded bullets restated against the
-      code. The aggregator **does** verify a real `WeightProof`; what is missing is
-      a production **producer** (`cmd/simulate`, `cmd/zkweightbench` and tests are
-      the only constructors; `computeproof.Trace` has none — ZK plan M2 Gap 1).
+      code. The aggregator **does** verify a real `WeightProof;
+      `zkprover.ProduceWeightProof` is the production producer. The formerly
+      separate `computeproof.Trace` (no producer, duplicate commitment fields) was
+      **removed** on 2026-11-21, closing ZK plan M2 Gap 1 by deletion.
       `genesisVK` is still a fixed identity, but **two** keys are now
       circuit-derived (`dataCommitmentVK` and the weight circuit key).
 - [x] New **§1.1 "Review in under 30 minutes"**: rebuild + placeholder sweep +
@@ -92,10 +93,11 @@ suggested next steps, reviewed against the tree as of 2026-11-18 (post PR #348).
       what stays assumed.
 
 ### W4 — End-to-end FL round with a bound proof (suggestion 2c) · **done 2026-11-18**
-- [ ] Populate `computeproof.Trace` at a real producer. **Blocker found earlier:**
-      no production caller constructs `computeproof.Trace` at all, and there is no
-      `GradientUpdate{` construction site — so this needs a design decision
-      (populate `Trace`, or delete it and wire `WeightStatement` directly).
+- [x] ~~Populate `computeproof.Trace` at a real producer.~~ **Resolved 2026-11-21
+      by deletion:** no production caller ever constructed it and there was no
+      `GradientUpdate{` construction site; `Trace` duplicated `WeightStatement`'s
+      commitment fields and its verifier had no circuit behind it. `WeightStatement`
+      is the single wired path.
 - [ ] Produce a `WeightProof` next to a real update and verify it in
       `internal/batch` inside a chaos test (30% Byzantine) and a scale test.
 - [ ] Expose proof-verification counts in metrics (`metrics.ObserveFedAvg*`).

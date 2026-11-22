@@ -374,15 +374,15 @@ Other honest limitations:
 - `Aggregator.ProcessRound` **does** verify a real `WeightProof` against the
   caller's `WeightStatement` when one is supplied (`internal/batch/aggregator.go`,
   `internal/zkweight_circuit.go`), and falls back to the single-scalar
-  `DataCommitmentCircuit` path. What is still missing is a **production producer**:
-  the only constructors of a `WeightProof` are `cmd/simulate`, `cmd/zkweightbench`
-  and tests, and `internal/computeproof.Trace` has no production caller at all
-  (`docs/ZK_FINALIZATION_PLAN.md` M2, Gap 1). Read "wired" as *wired into the
-  round path, not yet produced by service code*. **Update (2026-11-20, #370):**
+  `DataCommitmentCircuit` path. **Update (2026-11-20, #370):**
   `zkprover.ProduceWeightProof` is now the production producer — it runs any
   `Prover`, returns the `(encoded proof, WeightStatement)` pair the aggregator
-  consumes, and self-verifies before returning. `cmd/simulate` uses it. Still
-  unwired: `computeproof.Trace`, which has no production caller at all.
+  consumes, and self-verifies before returning. `cmd/simulate` uses it.
+  **Update (2026-11-21):** `internal/computeproof.Trace` — whose commitment fields
+  duplicated `WeightStatement`, which had no production caller, and whose verifier
+  was a SHA-256 challenge-response with no circuit behind it — was **removed**.
+  `docs/ZK_FINALIZATION_PLAN.md` M2 Gap 1 is closed by deletion, not by an
+  invented caller. `WeightStatement` is the single wired path.
 - `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity with
   no circuit behind it. Two keys *are* circuit-derived: `dataCommitmentVK` (the
   single-scalar `DataCommitmentCircuit`) and the key behind
