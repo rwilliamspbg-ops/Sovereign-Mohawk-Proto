@@ -144,6 +144,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Appendix A.4 of `docs/MAJOR_WIN_PLAN.md` is marked CLOSED; the residual it
   pinned is now a theorem. Scope limit, stated openly: fixed-schedule
   (non-adaptive) queries; adaptive query histories are not modelled.
+
+### Added - Lean: diagonal multivariate Gaussian RDP (Win D / plan A.3 step 2)
+
+- `proofs/LeanFormalization/RenyiDivergenceMultivariate.lean` (matrix row 37).
+  `gaussianRDPMeasure_diagonal` proves
+  `D_α(∏ᵢ N(Δᵢ,σᵢ²) ∥ ∏ᵢ N(0,σᵢ²)) = ∑ᵢ α·Δᵢ²/(2σᵢ²)`
+  for any finite index type: the `(α, ∑ᵢ αΔᵢ²/(2σᵢ²))`-RDP guarantee for a
+  Gaussian mechanism with a **diagonal** covariance. Derived from the proved
+  scalar `gaussianRDP_integral` plus `n`-variable Fubini
+  (`MeasureTheory.integral_fintype_prod_volume_eq_prod`), with a reusable
+  `finset_prod_rpow_real` (`ℝ` version of Mathlib's `ℝ≥0` lemma).
+- Negative control `gaussianDensity_zero_sigma` /
+  `integral_gaussianDensity_zero_sigma`: at `σ = 0` the density is identically
+  `0` and integrates to `0`, not `1`, so `hσ : ∀ i, σ i ≠ 0` is load-bearing.
+- **Scope, stated openly:** diagonal covariance only. The general correlated
+  `Σ` needs a multivariate density and an affine change-of-variables lemma for
+  Lebesgue measure on `ℝⁿ` (the `det` factor); neither is formalized and the
+  correlated case is **not** implied.
 ### Added - docs: bounded-query RO residual pinned, premise verified
 
 - `docs/MAJOR_WIN_PLAN.md` Appendix A.4. Win B (Pointcheval–Stern `eps^2/q_H`)
