@@ -103,7 +103,7 @@ Adoption execution tracker (30/60/90): [docs/ADOPTION_ACCELERATION_PLAN.md](docs
 
 - Lean source of truth: [proofs/LeanFormalization.lean](proofs/LeanFormalization.lean)
 - Theorem modules: [proofs/LeanFormalization/](proofs/LeanFormalization/)
-- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 42 rows covering the 6 top-level claims in [proofs/theorem_claims.json](proofs/theorem_claims.json), each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._ <!-- matrix-rows: 42 -->
+- **Traceability matrix** (theorem claim → Lean module → runtime test evidence → status): [proofs/FORMAL_TRACEABILITY_MATRIX.md](proofs/FORMAL_TRACEABILITY_MATRIX.md) — _start here first; it tracks 43 rows covering the 6 top-level claims in [proofs/theorem_claims.json](proofs/theorem_claims.json), each with its own status (`fully_formalized`, `surrogate_verified_*`, `model_verified`, or `Phase 4 model`) and, where relevant, an explicit note on what is **not** yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status._ <!-- matrix-rows: 43 -->
 
 ### What the status labels actually mean
 

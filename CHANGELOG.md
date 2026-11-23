@@ -17,6 +17,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Multi-Krum convergence without exact unbiasedness
+
+- New `proofs/LeanFormalization/MultiKrumConvergenceBias.lean` (400 lines,
+  sha256 `a29fb106...`), matrix row 43.
+- `sgd_step_condexp_expand`: the per-step conditional-expectation expansion,
+  extracted from `DescentInequalityFull.descent_inequality_derived` as an
+  explicit **unbiasedness-free** lemma.
+- `biased_descent_inequality`: under `||E[g_hat|F] - grad(theta)||^2 <= beta^2`,
+  `E||theta' - theta*||^2 | F <= (1 - eta*mu_sc/2)||theta - theta*||^2
+  + eta^2 sigma^2 + (2 eta / mu_sc) beta^2`. The contraction weakens from
+  `1 - eta*mu_sc` to `1 - eta*mu_sc/2`; that is the price of the generality.
+- `biased_multikrum_convergence_ae`: `V_t -> 0` almost surely whenever
+  `sum eta_t beta_t^2 < infinity`, instantiating
+  `supermartingale_convergence_ae`. Exact unbiasedness is the case `beta = 0`, so
+  this strictly generalises `multikrum_convergence_ae`.
+- `constant_bias_not_summable`: machine-checked negative control -- a constant
+  nonzero bias makes `sum eta_t beta^2` diverge, so the hypothesis is
+  load-bearing.
+- Residual gap, stated openly: a constant nonzero bias gives convergence only to
+  a neighbourhood of the optimum; its radius is not quantified.
+- `#print axioms` on all four results reports only
+  `[propext, Classical.choice, Quot.sound]`; 0 `sorry`/`admit`.
+
+
 ### Fixed - Docs: the correlated-Gaussian blocker was stale
 
 - `RenyiDivergenceMultivariate.lean` (matrix row 37),
