@@ -35,17 +35,21 @@ func TestConnectedPeersReturnsCopy(t *testing.T) {
 		t.Errorf("nil receiver: PeerCount = %d, want 0", got)
 	}
 
+	// Empty discovery: a non-nil empty slice, not nil.
 	d := &Discovery{connectedPeers: map[peer.ID]time.Time{}}
+	if got := d.ConnectedPeers(); got == nil || len(got) != 0 {
+		t.Fatalf("empty discovery: ConnectedPeers = %v, want a non-nil empty slice", got)
+	}
+
+	// Non-empty: mutating the returned slice must not change the discovery.
+	d = &Discovery{connectedPeers: map[peer.ID]time.Time{"peer-a": time.Now()}}
 	got := d.ConnectedPeers()
-	if got == nil {
-		t.Fatal("empty discovery: ConnectedPeers = nil, want a non-nil empty slice")
+	if len(got) != 1 || got[0] != "peer-a" {
+		t.Fatalf("ConnectedPeers = %v, want [peer-a]", got)
 	}
-	if len(got) != 0 {
-		t.Fatalf("len = %d, want 0", len(got))
-	}
-	got = append(got, peer.ID("mutated"))
-	if d.PeerCount() != 0 {
-		t.Error("mutating the returned slice changed the discovery's peer set")
+	got[0] = peer.ID("mutated")
+	if again := d.ConnectedPeers(); len(again) != 1 || again[0] != "peer-a" {
+		t.Fatalf("after mutating the returned slice, ConnectedPeers = %v, want [peer-a]", again)
 	}
 }
 
