@@ -17,6 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Lean: Multi-Krum under adversarial clustering (matrix row 42)
+
+- `proofs/LeanFormalization/KrumSelectionAdversarial.lean`. `krum_selection_safe` is
+  generalised from `forall j not in H` to an explicit separated subset `Far`, with the
+  Byzantine set split as `Far \u222a Near = univ \ H`. `krum_selection_infiltration`
+  proves every separated candidate is beaten by some honest candidate;
+  `krum_minimizer_in_honest_or_near` concludes a global minimizer is honest or a
+  `Near` infiltrator, so **Byzantine winners are bounded by the number of
+  infiltrators** — the rule degrades gracefully rather than collapsing.
+- `krum_selection_separation_necessary` is the machine-checked negative control: with
+  `n = 5`, `f = 1`, `r = 0`, `D = 1` and all gradients equal, the cluster and margin
+  hypotheses hold yet every Krum score is `0`, so the strict conclusion is false.
+- `krum_separation_margin` rearranges the sufficient condition into the explicit
+  threshold `D^2 > (n-f-2)*4r^2/(n-2f-1)`.
+
+**Not claimed:** `Near` is arbitrary, so this bounds the damage rather than the size
+of the infiltration, and nothing here says real gradients form the cluster.
+
 ### Added - Lean: adaptive random-oracle queries (matrix row 41)
 
 - `proofs/LeanFormalization/RenyiDivergenceAdaptiveRO.lean` models a

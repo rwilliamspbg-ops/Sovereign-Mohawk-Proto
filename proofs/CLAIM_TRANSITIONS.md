@@ -336,3 +336,13 @@ accepting set lives on row 36's sample space and `roForkProb >= epsilon^2` carri
 unchanged. The classical `epsilon^2 - epsilon/N` loss is not recovered and is recorded as
 the residual (it needs the forgery's own query index and a bad-event bound). Also corrects
 the loss form previously quoted in row 36 and in `RenyiDivergenceBoundedRO.lean`'s docstring.
+
+### 2026-11-23 -- Row 42 (Multi-Krum under adversarial clustering): new row
+
+`(new row)` -> `fully_formalized for the split-Byzantine model; the clustering assumption remains`
+
+Adds `LeanFormalization/KrumSelectionAdversarial.lean`. `krum_selection_safe` is generalised to an
+explicit separated subset `Far`, and the infiltrators `Near` are bounded: a Krum minimizer is honest
+or in `Near`, so Byzantine winners <= infiltrators. The separation hypothesis is machine-checked as
+load-bearing by `krum_selection_separation_necessary`, and `krum_separation_margin` makes the
+sufficient condition an explicit threshold.

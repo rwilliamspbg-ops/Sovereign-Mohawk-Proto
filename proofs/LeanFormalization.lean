@@ -27,6 +27,7 @@ import LeanFormalization.DescentInequalityFull
 import LeanFormalization.MultiKrumConvergence
 import LeanFormalization.ProtocolSafety
 import LeanFormalization.KrumSelection
+import LeanFormalization.KrumSelectionAdversarial
 import LeanFormalization.SchnorrReduction
 import LeanFormalization.SchnorrForking
 import LeanFormalization.HypothesisNecessity

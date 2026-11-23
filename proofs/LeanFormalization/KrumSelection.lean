@@ -120,15 +120,16 @@ Byzantine candidate's, provided the separation is large enough:
     (n - f - 2) · 4r²  <  (n - 2f - 1) · D²
 
 Consequently any minimizer of the Krum score is honest. -/
-theorem krum_selection_safe (g : α → E) (H : Finset α) (n f : ℕ) (r D : ℝ)
+theorem krum_selection_safe (g : α → E) (H Far : Finset α) (n f : ℕ) (r D : ℝ)
     (hn : Finset.card (Finset.univ : Finset α) = n)
     (hHcard : H.card = n - f)
+    (hFar_sub : Far ⊆ Finset.univ \ H)
     (hne : n > 2 * f + 2)
     (hcluster : ∀ i ∈ H, ∀ j ∈ H, distSq g i j ≤ 4 * r ^ 2)
-    (hsep : ∀ i ∉ H, ∀ j ∈ H, D ^ 2 ≤ distSq g i j)
+    (hsep : ∀ i ∈ Far, ∀ j ∈ H, D ^ 2 ≤ distSq g i j)
     (hsep_strong : (↑(n - f - 2) : ℝ) * (4 * r ^ 2)
         < (↑(n - 2 * f - 1) : ℝ) * D ^ 2) :
-    ∀ i ∈ H, ∀ j ∉ H, krumScore g j (n - f - 2) > krumScore g i (n - f - 2) := by
+    ∀ i ∈ H, ∀ j ∈ Far, krumScore g j (n - f - 2) > krumScore g i (n - f - 2) := by
   intro i hiH j hjH
   have hUniv : Finset.card (Finset.univ : Finset α) = n := hn
   -- The number of Byzantine candidates is exactly `f`.
@@ -139,9 +140,7 @@ theorem krum_selection_safe (g : α → E) (H : Finset α) (n f : ℕ) (r D : �
       simp
     rw [hUniv, hHcard] at h2
     omega
-  have hjH' : j ∈ (Finset.univ : Finset α) \ H := by
-    simp
-    exact hjH
+  have hjH' : j ∈ (Finset.univ : Finset α) \ H := hFar_sub hjH
   have hf1 : 1 ≤ f := by
     have hpos : 0 < ((Finset.univ : Finset α) \ H).card := Finset.card_pos.mpr ⟨j, hjH'⟩
     omega
