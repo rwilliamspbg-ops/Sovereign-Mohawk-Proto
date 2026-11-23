@@ -99,6 +99,16 @@ var allowedExternalVerifierBinaries = map[string]struct{}{
 	"winterfell-verify": {},
 }
 
+// shellMetacharacters is the set rejected in an externally configured command.
+// It is written as separate one-character literals rather than one escaped
+// string so escape drift cannot silently change the set. An earlier revision
+// wrote the newline/CR escapes with doubled backslashes inside a single
+// literal; Go decoded that to backslash + 'n' + backslash + 'r', so the check
+// rejected the letters 'n' and 'r' and every allowlisted binary above (all of
+// python, python3, node, stark-verify, snark-verify, winterfell-verify contain
+// one) was refused, making the external-command paths unreachable.
+const shellMetacharacters = "|&;<>`" + "\\" + "\n" + "\r"
+
 func init() {
 	RegisterSTARKBackend(friVerifier{})
 	RegisterSTARKBackend(winterfellVerifier{})
@@ -357,7 +367,7 @@ func parseExternalCommand(raw string) (string, []string, error) {
 	if raw == "" {
 		return "", nil, fmt.Errorf("external command is not configured")
 	}
-	if strings.ContainsAny(raw, "|&;<>`\\n\\r") {
+	if strings.ContainsAny(raw, shellMetacharacters) {
 		return "", nil, fmt.Errorf("external command contains shell metacharacters")
 	}
 	parts := strings.FieldsFunc(raw, unicode.IsSpace)

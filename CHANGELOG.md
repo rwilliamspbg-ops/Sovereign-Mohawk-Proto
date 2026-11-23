@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Fixed - Hybrid: the external-STARK command denylist was over-escaped
+
+- `internal/hybrid/verifier.go`: `parseExternalCommand` rejected any command
+  containing the **letters `n` or `r`**. The metacharacter literal wrote the
+  newline/CR escapes with doubled backslashes, which Go decoded to
+  backslash + `n` + backslash + `r` instead of backslash + LF + CR. Every
+  allowlisted verifier binary (`python`, `python3`, `node`, `stark-verify`,
+  `snark-verify`, `winterfell-verify`) contains one, so the external-command
+  STARK/acceleration paths were unreachable.
+- The denylist is now a named `shellMetacharacters` constant built from
+  separate one-character literals, so escape drift cannot silently change it,
+  and `TestShellMetacharactersSet` pins the decoded set. New positive cases
+  assert the allowlisted binaries parse; the newline/CR cases now expect
+  rejection by the metacharacter check rather than by the allowlist.
+
 ### Removed - Dead code: `internal/thresholdagg`
 
 - Deleted `internal/thresholdagg` (5 files) and its two test files
