@@ -17,6 +17,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Lean: adaptive random-oracle queries (matrix row 41)
+
+- `proofs/LeanFormalization/RenyiDivergenceAdaptiveRO.lean` models a
+  deterministic **adaptive** query schedule (the query at step `i` depends only
+  on the answers to steps `< i`) and proves the **prefix lemma**: two answer
+  vectors agreeing before `j` induce the same queries up to and including `j`.
+  Their accepting set lives on the same finite sample space row 36 uses, so
+  `roForkProb >= epsilon^2` carries over **unchanged** — adaptivity alone does
+  not degrade the forking bound.
+- Negative control `nonprefix_queries_break_fork`: a non-causal schedule that
+  reads a later answer index breaks the rewind, so prefix-dependence is
+  load-bearing.
+- **The classical loss is not recovered**, and the reason is now pinned: the
+  `1/q_H`-type factor comes from the simulator guessing which query is the
+  forgery's own hash query, plus a bad-event bound for forgeries whose message
+  was never queried. Neither is modelled.
+
+### Fixed - Docs: the forking-loss form quoted for row 36
+
+- Row 36 and `RenyiDivergenceBoundedRO.lean`'s docstring cited the loss as
+  `epsilon^2 - epsilon/q_H`, conflating the **number of oracle queries** with the
+  **challenge-space size**. The classical form (used correctly by rows 31-32) is
+  `epsilon^2 - epsilon/N` with `N` the challenge-space size; Bellare-Neven's
+  generalised form is `epsilon*(epsilon/Q - 1/h)`. Corrected in the matrix, the
+  module docstring and `docs/EXTERNAL_AUDIT_SCOPE.md`.
+
 ### Added - Lean: the Ed25519 affine addition law, first increment
 
 - `proofs/LeanFormalization/Ed25519CurveGroupLaw.lean` (matrix row 40) proves, about
