@@ -52,3 +52,8 @@ jobs:
       - name: Flake8 Style Check
         # Adjusted to ignore formatting warnings so the badge stays green
         run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # 3. Docs: the gRPC reference must be the generated output, not a
+      # hand-edited copy that has drifted from api/federation/federation.proto.
+      - name: Check gRPC reference is in sync with the proto
+        run: python3 scripts/generate_grpc_api_doc.py --check

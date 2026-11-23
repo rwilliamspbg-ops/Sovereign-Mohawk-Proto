@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Changed - Docs/CI: `make docs-api` generates the gRPC reference
+
+- `make docs-api` was a stub that only echoed "edit it by hand"
+  (`Makefile`). It now runs `scripts/generate_grpc_api_doc.py`, a
+  stdlib-only parser for `api/federation/federation.proto`, and rewrites
+  `docs/api/GRPC_FEDERATION.md`.
+- New `make docs-api-check` (and `--check` on the generator) fails when the
+  committed document differs from the generated output; wired into the
+  required `lint` job so proto and reference cannot drift apart.
+- The generator validates the proto `go_package` option against a pinned
+  expected value and refuses to render on a mismatch.
+
 ### Security
 - Container image (`Dockerfile`): the runtime base is pinned to `alpine:3.24.4`
   and OpenSSL is floored at `>=3.5.9-r1` via `apk add --upgrade`. Every 3.24.x
