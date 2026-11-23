@@ -58,7 +58,7 @@ reporting only `propext`, `Classical.choice`, `Quot.sound` — no
 
 **Step 2 — read the three artifacts in this order (~10 min)**
 
-1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 40 rows. <!-- matrix-rows: 40 -->
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 41 rows. <!-- matrix-rows: 41 -->
    Start with every row *not* marked `fully_formalized`.
 2. §3 of this document — the four highest-priority review targets.
 3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
@@ -143,8 +143,10 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        not-queried freshness condition (`ufcmaForges`) are added, the prefix is
        `(tape, sigs)` with a fixed number of queries, and the same
        second-moment argument gives `φ ≥ ε² - ε/N` and `ε ≤ 1/N` under
-       `SchnorrDLHard`. The `ε²/q_H` loss of full Pointcheval–Stern is **not**
-       recovered (uniform-challenge abstraction, no adaptive query history).
+       `SchnorrDLHard`. The classical forking loss `ε² − ε/N` (`N` the
+       challenge-space size) is **not** recovered: the abstraction is a uniform
+       challenge, and adaptive query histories (row 41) are modelled without
+       changing that.
 
 2. **Ed25519 UF-CMA model soundness**
    - `proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean`
@@ -427,13 +429,15 @@ Other honest limitations:
 - **The bounded-query programmed random oracle is now formalized**
   (`LeanFormalization/RenyiDivergenceBoundedRO.lean`, matrix row 36):
   `roForkProb_ge` proves `roForkProb qH Q ≥ (roAcceptProb qH Q)²`, which is
-  **stronger** than the Pointcheval–Stern `ε² − ε/q_H` loss, because in
-  this abstraction each agreeing-pair count is at least `ε²·|Tape|`. The model
-  is a **fixed-schedule (non-adaptive)** query schedule; adaptive query
-  histories are NOT modelled. A machine-checked negative control shows the
-  rewind direction is load-bearing: with `qH = 3`, `|C| = 2` and
-  `Q = {000, 011, 101}` the naive “agree everywhere except `j`” model gives
-  `φ = 0 < ε² = 9/64`.
+  **stronger** than the classical forking loss `ε² − ε/N` (`N` the
+  challenge-space size, as in rows 31-32), because in this abstraction each
+  agreeing-pair count is at least `ε²·|Tape|`. The model is a
+  **fixed-schedule (non-adaptive)** query schedule. A machine-checked negative
+  control shows the rewind direction is load-bearing: with `qH = 3`, `|C| = 2`
+  and `Q = {000, 011, 101}` the naive “agree everywhere except `j`” model gives
+  `φ = 0 < ε² = 9/64`. Adaptive query histories are modelled in row 41
+  (`RenyiDivergenceAdaptiveRO.lean`), where the bound is shown to be unchanged;
+  the classical loss itself is still not recovered.
 - `genesisVK` (in `internal/zksnark_verifier.go`) is still a fixed identity with
   no circuit behind it. Two keys *are* circuit-derived: `dataCommitmentVK` (the
   single-scalar `DataCommitmentCircuit`) and the key behind

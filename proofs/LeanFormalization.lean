@@ -37,6 +37,7 @@ import LeanFormalization.Ed25519UF_CMASecurity
 import LeanFormalization.RenyiDivergenceMeasure
 import LeanFormalization.RenyiDivergenceCompose
 import LeanFormalization.RenyiDivergenceBoundedRO
+import LeanFormalization.RenyiDivergenceAdaptiveRO
 import LeanFormalization.RenyiDivergenceMultivariate
 import LeanFormalization.Ed25519FieldBridge
 import LeanFormalization.Ed25519CurveGroupLaw

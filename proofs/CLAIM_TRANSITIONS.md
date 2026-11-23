@@ -325,3 +325,14 @@ field question; see the row's Notes for the full reasoning.
 `(new row)` -> `group_law_partially_formalized`
 
 Adds `LeanFormalization/Ed25519CurveGroupLaw.lean`, the first increment on row 26's assumed group laws. `affineAdd_comm`, `affineAdd_identity`, `affineAdd_identity_left` and `affineAdd_canonical` are proved about the real implementation; associativity and the four consumed scalar-multiplication laws remain open, so row 26's assumption bundle is unchanged. Both new hypotheses (`IsConsistent`, reduced coordinates) carry machine-checked counterexamples.
+
+### 2026-11-23 -- Row 41 (adaptive random-oracle queries): new row, bound shown unchanged
+
+`(new row)` -> `fully_formalized for adaptive query schedules; classical loss NOT recovered`
+
+Adds `LeanFormalization/RenyiDivergenceAdaptiveRO.lean`. The prefix lemma shows an adaptive
+adversary's queries up to the fork index depend only on the answer prefix, so its induced
+accepting set lives on row 36's sample space and `roForkProb >= epsilon^2` carries over
+unchanged. The classical `epsilon^2 - epsilon/N` loss is not recovered and is recorded as
+the residual (it needs the forgery's own query index and a bad-event bound). Also corrects
+the loss form previously quoted in row 36 and in `RenyiDivergenceBoundedRO.lean`'s docstring.

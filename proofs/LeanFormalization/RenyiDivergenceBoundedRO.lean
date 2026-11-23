@@ -32,9 +32,12 @@ recovered. This module introduces the structure that loss comes from.
 
 `roForkProb_ge`: `roForkProb qH Q ≥ (roAcceptProb qH Q)²`.
 
-The Pointcheval–Stern loss is `ε² − ε/q_H`; this bound is **stronger**, because
-the rewind semantics makes each agreeing-pair count at least `ε²·|Tape|` after
-Cauchy–Schwarz. The `-ε/q_H` term is not needed in this abstraction.
+The classical forking loss is `ε² − ε/N`, where `N` is the **challenge-space
+size** (rows 31-32 use the same form). This bound is **stronger**, because the
+rewind semantics makes each agreeing-pair count at least `ε²·|Tape|` after
+Cauchy–Schwarz. The `-ε/N` term is not needed in this abstraction. An earlier
+revision of this docstring wrote `-ε/q_H`, which conflated the number of oracle
+queries with the challenge-space size.
 
 ## Derivation
 
@@ -58,7 +61,8 @@ first over the prefix index, then over the tape index — give
   "agree everywhere except `j`" makes the bound **false**; a concrete
   counterexample is recorded in `docs/MAJOR_WIN_PLAN.md` Appendix A.4.
 * The query schedule is **fixed / non-adaptive**. Adaptive query histories,
-  where the queries depend on earlier answers, are NOT modelled.
+  where the queries depend on earlier answers, are modelled in
+  `RenyiDivergenceAdaptiveRO.lean`, which shows the bound is unchanged.
 * This is a statement about a finite abstraction, not yet about the Ed25519
   UF-CMA game. `SchnorrUF_CMAWithOracle` and `Ed25519UF_CMASecurity` remain the
   signature-level statements.
