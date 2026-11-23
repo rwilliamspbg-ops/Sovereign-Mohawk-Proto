@@ -1,7 +1,11 @@
+> **Historical snapshot.** The authoritative, current claim status is
+> [`proofs/FORMAL_TRACEABILITY_MATRIX.md`](proofs/FORMAL_TRACEABILITY_MATRIX.md);
+> the counts below are from an earlier revision and are kept as history.
+
 Formal Verification Status
 Lean source of truth: proofs/LeanFormalization.lean
 Theorem modules: proofs/LeanFormalization/
-Traceability matrix (theorem claim → Lean module → runtime test evidence → status): proofs/FORMAL_TRACEABILITY_MATRIX.md — start here first; it tracks 15 claims, each with its own status (fully_formalized, surrogate_verified_*, model_verified, or Phase 4 model) and, where relevant, an explicit note on what is not yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status.
+Traceability matrix (theorem claim → Lean module → runtime test evidence → status): proofs/FORMAL_TRACEABILITY_MATRIX.md — start here first; it tracks 39 rows, each with its own status (fully_formalized, surrogate_verified_*, model_verified, or Phase 4 model) and, where relevant, an explicit note on what is not yet proven. Read the Notes column, not just the Status column — several entries carry caveats that qualify the headline status.
 Machine-checkable formal validation report: results/proofs/formal_validation_report.json
 Verification bundle manifest + archive: results/proofs/formal-verification-bundle/bundle_manifest.json, results/proofs/formal-verification-bundle.tar.gz
 Independent verifier guide: docs/FORMAL_VERIFICATION_GUIDE.md

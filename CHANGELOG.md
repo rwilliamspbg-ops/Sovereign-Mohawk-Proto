@@ -17,6 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Changed - Docs/CI: claim-count drift fixed and gated
+
+- `README.md` said the traceability matrix "tracks 27 rows" and
+  `docs/EXTERNAL_AUDIT_SCOPE.md` said "all 23 rows"; the matrix has **39**.
+  Both now carry a machine-readable `<!-- matrix-rows: N -->` marker.
+- Both documents also said `Ed25519GroupLaws` carries **six** group laws and
+  the scope doc cited the deleted `constantMul_violates_oneMul`; the structure
+  has carried **four** since 2026-11-21, when `zeroMul`/`oneMul` were removed
+  for having zero dependents. Text and the negative-control list corrected.
+- `README.md` still said "these **two** assumptions are still assumed" after
+  #361 added `SchnorrDLHard` and `Ed25519GroupLaws`; now four, with a
+  `<!-- standing-assumptions: N -->` marker.
+- New gate `scripts/ci/check_claim_counts.py` derives the row count from
+  `proofs/FORMAL_TRACEABILITY_MATRIX.md` and cross-checks both documents'
+  markers and assumption-name sets. Wired into the required
+  `full-validation-fast` job and `make validate-formal-tooling-tests`, with
+  regression tests in `tests/scripts/ci/test_claim_counts.py` including a
+  negative control proving a stale count fails the gate.
+
 ### Security
 - Container image (`Dockerfile`): the runtime base is pinned to `alpine:3.24.4`
   and OpenSSL is floored at `>=3.5.9-r1` via `apk add --upgrade`. Every 3.24.x

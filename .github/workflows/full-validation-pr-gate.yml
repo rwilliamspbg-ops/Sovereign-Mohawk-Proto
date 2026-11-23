@@ -31,6 +31,13 @@ jobs:
       - name: Check formal claim Status transitions are logged
         run: python3 scripts/ci/check_claim_transitions.py
 
+      # Fails the PR if README / EXTERNAL_AUDIT_SCOPE's hand-written
+      # matrix-row or standing-assumption counts drift from the tree. Both
+      # numbers drifted silently before this gate existed (15 -> 27 -> 39 rows;
+      # two -> four assumptions). See scripts/ci/check_claim_counts.py.
+      - name: Check hand-written claim counts match the tree
+        run: python3 scripts/ci/check_claim_counts.py
+
       - name: Setup Go
         uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5
         with:

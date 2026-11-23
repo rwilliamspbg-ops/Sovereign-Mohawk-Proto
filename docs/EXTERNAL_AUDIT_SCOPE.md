@@ -58,7 +58,7 @@ reporting only `propext`, `Classical.choice`, `Quot.sound` — no
 
 **Step 2 — read the three artifacts in this order (~10 min)**
 
-1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 23 rows.
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 39 rows. <!-- matrix-rows: 39 -->
    Start with every row *not* marked `fully_formalized`.
 2. §3 of this document — the four highest-priority review targets.
 3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
@@ -158,7 +158,7 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
    - **The verification equation is now modelled and bridged (matrix row 26,
      2026-11-20).** `proofs/LeanFormalization/Ed25519VerificationEquation.lean`
      states the equation `S·B = R + h·A` as a structural proposition about
-     `AffinePoint`, packages the six group laws the transfer needs in
+     `AffinePoint`, packages the four group laws the transfer needs in
      `Ed25519GroupLaws`, and proves `verificationEquation_iff_ModEq`: under those
      laws the curve equation is **equivalent** to the Schnorr exponent equation
      `s ≡ r + h·a (mod L)`. `ed25519_two_equations_recover` then transfers two
@@ -166,9 +166,10 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
      `recovery_yields_secret`, so the key is recovered.
      - **The group laws are ASSUMED, not proved** — `affineScalarMulImpl` and
        `affineAdd` are unaudited. They are an explicit structure supplied at each
-       use site, never a global `axiom`; `constantMul_violates_oneMul` and
-       `constantMul_not_injective` are negative controls showing the hypotheses
-       are load-bearing.
+       use site, never a global `axiom`; `nonAdditiveSmul_violates_addMul`,
+       `paritySmul_violates_mulMul`, `paritySmul_violates_congMul` and
+       `constantMul_not_injective` are negative controls showing the
+       hypotheses are load-bearing.
      - **This is not a UF-CMA proof.** The extractor needs the two equations to
        share `R` (nonce reuse); an honest signer never reuses a nonce, so
        `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing
@@ -326,7 +327,7 @@ disclosed at each use site:
 So the full set of standing assumptions is `FloatOrderLaws`,
 `Fact (Nat.Prime dlL)`, `SchnorrDLHard` and `Ed25519GroupLaws`. None is an
 `axiom`; the first two are number/IEEE facts, the latter two are cryptographic
-and algebraic assumptions of the security statements.
+and algebraic assumptions of the security statements. <!-- standing-assumptions: 4 -->
 
 Other honest limitations:
 - The MPC trusted setup is simulated in-process (N=3 contributors chained in
