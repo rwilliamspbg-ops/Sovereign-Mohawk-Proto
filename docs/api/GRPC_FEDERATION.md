@@ -1,7 +1,6 @@
 # gRPC Federation Service Reference
 
-**Status**: Real content as of 2026-11-04; verified against
-`api/federation/federation.proto`.
+**Status**: Generated from `api/federation/federation.proto`; do not edit by hand.
 **Package**: `federation`
 **Go package**: `github.com/sovereign-mohawk/proto-gen/federation;federationpb`
 
@@ -36,6 +35,8 @@ Single gradient forwarded to parent tier.
 
 ### BatchRequest
 
+Batch of gradients forwarded together.
+
 | Field | Number | Type | Description |
 |---|---|---|---|
 | gradients | 1 | repeated GradientRequest | Gradients to forward |
@@ -43,6 +44,8 @@ Single gradient forwarded to parent tier.
 | batch_size | 3 | int32 | Number of gradients |
 
 ### ForwardResponse
+
+Acknowledgement returned by ForwardGradient/ForwardBatch.
 
 | Field | Number | Type | Description |
 |---|---|---|---|
@@ -64,6 +67,8 @@ Sent by child nodes to parent (stream client to server).
 | timestamp | 5 | google.protobuf.Timestamp | Creation time |
 
 ### SingleGradient
+
+One gradient inside a GradientStreamMessage.
 
 | Field | Number | Type | Description |
 |---|---|---|---|
@@ -88,6 +93,8 @@ Sent by parent to children (stream server to client).
 
 ### AggregationResult
 
+Aggregated gradient result for one round.
+
 | Field | Number | Type | Description |
 |---|---|---|---|
 | round_id | 1 | uint64 | Round identifier |
@@ -99,20 +106,30 @@ Sent by parent to children (stream server to client).
 | aggregation_time_ms | 7 | int64 | Aggregation duration |
 | aggregation_method | 8 | string | "mean" / "median" / "multikrum" / etc. |
 
-### HealthCheckRequest / HealthCheckResponse
+### HealthCheckRequest
 
-| Message | Field | Number | Type |
+Periodic health probe payload.
+
+| Field | Number | Type | Description |
 |---|---|---|---|
-| HealthCheckRequest | tier_node_id | 1 | string |
-| HealthCheckResponse | healthy | 1 | bool |
-| HealthCheckResponse | latency_ms | 2 | double |
-| HealthCheckResponse | packet_loss | 3 | double |
-| HealthCheckResponse | gradients_forwarded | 4 | int64 |
-| HealthCheckResponse | gradients_received | 5 | int64 |
-| HealthCheckResponse | last_check | 6 | google.protobuf.Timestamp |
+| tier_node_id | 1 | string | Tier node id |
+
+### HealthCheckResponse
+
+Tier link health snapshot.
+
+| Field | Number | Type | Description |
+|---|---|---|---|
+| healthy | 1 | bool | Whether the tier link is healthy |
+| latency_ms | 2 | double | Round-trip latency in milliseconds |
+| packet_loss | 3 | double | Observed packet loss fraction |
+| gradients_forwarded | 4 | int64 | Gradients forwarded so far |
+| gradients_received | 5 | int64 | Gradients received so far |
+| last_check | 6 | google.protobuf.Timestamp | Time of the last health check |
 
 ## Regeneration
 
-This document is hand-maintained from `api/federation/federation.proto`.
-When the proto changes, update this file in the same PR. A future
-`make docs-api` target will regenerate it automatically (open item).
+This document is generated from `api/federation/federation.proto` by
+`make docs-api` (`scripts/generate_grpc_api_doc.py`); do not edit it by hand.
+`make docs-api-check` regenerates it into a temporary file and fails if the
+committed copy differs, so proto and document cannot drift apart.

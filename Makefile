@@ -5,7 +5,7 @@
 .PHONY: help validate setup start stop status logs restart clean test build lint black format push
 .PHONY: artifact-summary build-python-lib audit verify evidence-package paper-pdf
 .PHONY: sandbox-up sandbox-down forensics-drill forensics-drill-down forensics-rehearsal validate-formal-tooling-tests
-.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check audit-bundle docs-check docs-api
+.PHONY: verify-formal-proofs refresh-formal-validation validate-formal validate-formal-container package-formal-verification-artifacts audit-ready-check audit-bundle docs-check docs-api docs-api-check
 .PHONY: go-live-gate go-live-gate-strict go-live-gate-advisory golden-path-e2e failure-injection-latency-check
 .PHONY: tpm-attestation-closure-check tpm-closure-summary ga-tag-ready-check release-performance-evidence
 .PHONY: openapi-spec capability-dashboard-matrix mainnet-one-click local-validation-scripts
@@ -322,9 +322,13 @@ audit-bundle:
 docs-check:
 	@if grep -rl "Scaffold document created to preserve canonical documentation links" docs/architecture docs/guides docs/api docs/security docs/performance 2>/dev/null; then echo "ERROR: scaffold placeholders found"; exit 1; else echo "docs-check: PASS (no scaffolds)"; fi
 
-# Regenerate the gRPC reference from the proto (manual today; see docs/api/GRPC_FEDERATION.md).
+# Regenerate the gRPC reference from the proto, and fail if the committed copy
+# has drifted. The generator is stdlib-only, so it runs in CI with no installs.
 docs-api:
-	@echo "docs-api: manual regeneration not yet automated; edit docs/api/GRPC_FEDERATION.md by hand."
+	@python3 scripts/generate_grpc_api_doc.py
+
+docs-api-check:
+	@python3 scripts/generate_grpc_api_doc.py --check
 
 fuzz:
 	@echo "Running Go fuzz targets (30s each)..."
