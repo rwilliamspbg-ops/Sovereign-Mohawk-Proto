@@ -169,7 +169,11 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        use site, never a global `axiom`; `nonAdditiveSmul_violates_addMul`,
        `paritySmul_violates_mulMul`, `paritySmul_violates_congMul` and
        `constantMul_not_injective` are negative controls showing the
-       hypotheses are load-bearing.
+       hypotheses are load-bearing. A first increment is now **proved** about the
+       real `affineAdd` (matrix row 40): commutativity on reduced representatives,
+       the two-sided identity for points with an honest `inf` flag, and
+       canonicity preservation. **Associativity is not proved**, and it is the
+       law these four consumed hypotheses need, so the bundle above is unchanged.
      - **This is not a UF-CMA proof.** The extractor needs the two equations to
        share `R` (nonce reuse); an honest signer never reuses a nonce, so
        `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing

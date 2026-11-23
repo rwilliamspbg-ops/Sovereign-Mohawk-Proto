@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Lean: the Ed25519 affine addition law, first increment
+
+- `proofs/LeanFormalization/Ed25519CurveGroupLaw.lean` (matrix row 40) proves, about
+  the real `Nat`-valued `affineAdd`: `affineAdd_comm` (commutative on reduced
+  representatives), `affineAdd_identity` / `affineAdd_identity_left`
+  (`affineIdentity` is a two-sided identity for points with an honest `inf` flag),
+  and `affineAdd_canonical` (the reduced-representative invariant is preserved).
+- Two hypotheses, both with machine-checked counterexamples: `IsConsistent`
+  (`affineAdd_identity_false_infinity`) and reduced coordinates
+  (`isNegation_noncanonical_counterexample`).
+- **Associativity is NOT proved** and is the law row 26's four consumed
+  hypotheses need; row 26's assumption bundle is unchanged. `#print axioms` on all
+  ten new theorems reports only `propext`, `Classical.choice`, `Quot.sound`.
+
 ### Fixed - Hybrid: the external-STARK command denylist was over-escaped
 
 - `internal/hybrid/verifier.go`: `parseExternalCommand` rejected any command

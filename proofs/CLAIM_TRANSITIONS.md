@@ -319,3 +319,9 @@ via Lagrange (`pow_card_eq_one`); and `fmul_fInv` concludes `fInv a * a = 1` for
 field question; see the row's Notes for the full reasoning.
 
 - **PR:** #388
+
+### 2026-11-23 -- Row 40 (Ed25519 affine addition law): new row, commutativity and identity proved
+
+`(new row)` -> `group_law_partially_formalized`
+
+Adds `LeanFormalization/Ed25519CurveGroupLaw.lean`, the first increment on row 26's assumed group laws. `affineAdd_comm`, `affineAdd_identity`, `affineAdd_identity_left` and `affineAdd_canonical` are proved about the real implementation; associativity and the four consumed scalar-multiplication laws remain open, so row 26's assumption bundle is unchanged. Both new hypotheses (`IsConsistent`, reduced coordinates) carry machine-checked counterexamples.
