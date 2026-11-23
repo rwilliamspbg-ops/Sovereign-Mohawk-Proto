@@ -478,8 +478,12 @@ func TestParseExternalCommand(t *testing.T) {
 		{"greater than", "sed>out", "", nil, "shell metacharacters"},
 		{"backtick", "sed`id`", "", nil, "shell metacharacters"},
 		{"backslash", "sed\\ls", "", nil, "shell metacharacters"},
-		{"newline splits fields", "sed\nls", "", nil, "not allowlisted"},
-		{"carriage return splits fields", "sed\rls", "", nil, "not allowlisted"},
+		{"newline is a metacharacter", "sed\nls", "", nil, "shell metacharacters"},
+		{"carriage return is a metacharacter", "sed\rls", "", nil, "shell metacharacters"},
+		{"allowlisted binary", "python3", "python3", nil, ""},
+		{"allowlisted binary with args", "python3 x.py", "python3", []string{"x.py"}, ""},
+		{"allowlisted node", "node", "node", nil, ""},
+		{"allowlisted stark-verify", "stark-verify", "stark-verify", nil, ""},
 		{"unallowlisted binary", "sed", "", nil, "not allowlisted"},
 		{"unallowlisted with path", "/opt/sed", "", nil, "not allowlisted"},
 	}
@@ -508,23 +512,26 @@ func TestParseExternalCommand(t *testing.T) {
 	}
 }
 
-// The metacharacter denylist in parseExternalCommand is over-escaped: its
-// source literal "...`\\\\n\\\\r" decodes to a set containing backslash and
-// the letters 'n' and 'r' (the intended newline and CR escapes were escaped
-// away). Every allowlisted binary (python, python3, node, stark-verify,
-// snark-verify, winterfell-verify) contains 'n' or 'r', so no allowlisted
-// command can currently pass the check and the allowlist branch is only
-// reachable for non-allowlisted names. This pins that behaviour; if the
-// escaping is fixed, these cases must be updated.
-func TestParseExternalCommandOverEscapedDenylist(t *testing.T) {
-	for _, raw := range []string{"node", "python3 x.py", "stark-verify"} {
-		_, _, err := parseExternalCommand(raw)
-		if err == nil {
-			t.Errorf("parseExternalCommand(%q) succeeded, want the over-escaped denylist to reject it", raw)
-			continue
+// Regression guard on the denylist literal itself. It must decode to exactly
+// | & ; < > ` backslash LF CR. An earlier revision wrote the newline/CR escapes
+// with doubled backslashes, so Go decoded the set to backslash + 'n' + backslash
+// + 'r'; that rejected the letters 'n' and 'r' and therefore refused every
+// allowlisted binary (python, python3, node, stark-verify, snark-verify,
+// winterfell-verify all contain one), leaving the external-command paths
+// unreachable.
+func TestShellMetacharactersSet(t *testing.T) {
+	want := "|&;<>`" + "\\" + "\n" + "\r"
+	if shellMetacharacters != want {
+		t.Fatalf("shellMetacharacters = %q, want %q", shellMetacharacters, want)
+	}
+	for _, allowed := range []string{"node", "python3", "python3 x.py", "stark-verify"} {
+		if strings.ContainsAny(allowed, shellMetacharacters) {
+			t.Errorf("shellMetacharacters rejects allowlisted command %q", allowed)
 		}
-		if !strings.Contains(err.Error(), "shell metacharacters") {
-			t.Errorf("parseExternalCommand(%q) error = %q, want shell metacharacters", raw, err)
+	}
+	for _, denied := range []string{"sed|ls", "sed&ls", "sed;ls", "sed<ls", "sed>ls", "sed`id`", "sed\\ls", "sed\nls", "sed\rls"} {
+		if !strings.ContainsAny(denied, shellMetacharacters) {
+			t.Errorf("shellMetacharacters does not reject %q", denied)
 		}
 	}
 }
