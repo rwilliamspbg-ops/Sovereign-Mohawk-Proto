@@ -17,12 +17,22 @@ The general multivariate Gaussian with covariance `Σ` needs
 3. an affine change-of-variables lemma for Lebesgue measure on `ℝⁿ`
    (the Jacobian/`det` factor).
 
-Item 3 is the obstruction called out in `docs/MAJOR_WIN_PLAN.md` A.3 and is
-**not** attempted here. What *is* proved is the **diagonal** case, where the
-density factorizes into a product of scalars and Mathlib's `n`-variable Fubini
-(`MeasureTheory.integral_fintype_prod_volume_eq_prod`) does the work. The result
-is therefore a statement about **independent coordinates** — a diagonal `Σ` —
-and the general (correlated) case remains open and is not implied.
+Item 3 is **available in Mathlib**; an earlier revision of this docstring named
+it the obstruction, and that is now known to be wrong.
+`Real.map_matrix_volume_pi_eq_smul_volume_pi`
+(`Mathlib/MeasureTheory/Measure/Lebesgue/Basic.lean:411`) rescales Lebesgue
+measure on `ι → ℝ` by `|det M|⁻¹` when `det M ≠ 0`,
+`MeasureTheory.Measure.map_linearMap_addHaar_eq_smul_addHaar`
+(`.../Lebesgue/EqHaar.lean:234`) is the Haar form, the Jacobian integral lemmas
+in `Mathlib/MeasureTheory/Function/Jacobian.lean` transport integrals, and
+`Matrix.PosDef.det_pos` (`Mathlib/Analysis/Matrix/PosDef.lean:85`) covers item 2.
+What *is* proved here is only the **diagonal** case, where the density
+factorizes into a product of scalars and Mathlib's `n`-variable Fubini
+(`MeasureTheory.integral_fintype_prod_volume_eq_prod`) does the work. The
+correlated case still needs the item-1 density and a packaged
+general-quadratic-form Gaussian integral. The result is therefore a statement
+about **independent coordinates** — a diagonal `Σ` — and the general
+(correlated) case remains open and is not implied.
 
 ## Proof route
 
@@ -82,8 +92,10 @@ theorem finset_prod_rpow_real (s : Finset ι) (f : ι → ℝ) (a : ℝ)
 
     **Scope, stated openly.** The covariance is **diagonal** — the coordinates
     are independent. A general positive-definite `Σ` requires an affine change
-    of variables for Lebesgue measure on `ℝⁿ` (the `det` factor), which is not
-    formalized here; nothing below implies the correlated case. -/
+    of variables for Lebesgue measure on `ℝⁿ` (the `det` factor), which
+    Mathlib provides — see the module docstring; what is still missing is the
+    multivariate density and the packaged `Σ`-integral. Nothing below implies
+    the correlated case. -/
 theorem gaussianRDPMeasure_diagonal (σ Δ : ι → ℝ) (alpha : ℝ)
     (hσ : ∀ i, σ i ≠ 0) (hα : alpha ≠ 1) :
     RenyiDivergenceMeasure

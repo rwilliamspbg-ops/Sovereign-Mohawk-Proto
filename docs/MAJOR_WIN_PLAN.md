@@ -278,31 +278,42 @@ claim this direction.
 `D_α(∏ᵢ N(Δᵢ,σᵢ²) ‖ ∏ᵢ N(0,σᵢ²)) = ∑ᵢ α·Δᵢ²/(2σᵢ²)` for any finite index type,
 derived from `gaussianRDP_integral` plus `n`-variable Fubini
 (`MeasureTheory.integral_fintype_prod_volume_eq_prod`). This lands step 2 of the
-staged plan without needing items 1–3. **Steps 1, 3 and 4 remain open**: the
-general (correlated) `Σ` still needs the multivariate density and the affine
-change-of-variables lemma, and the spectral/diagonalization prerequisite for
-step 4 was not found in the pinned Mathlib. The diagonal restriction is stated
-openly in the theorem docstring and in `docs/EXTERNAL_AUDIT_SCOPE.md`.
+staged plan without needing items 1–3. **The correlated case remains open**, but
+**not** because of the change of variables: a 2026-11-23 scout confirmed the
+`det` layer is in Mathlib (verified 2026-11-23 by `#check` and compiled
+demos). What remains open is item 1 below plus packaging the general
+quadratic-form integral; the spectral/diagonalization prerequisite for
+step 4 was not found in the pinned Mathlib. The diagonal restriction is
+stated openly in the theorem docstring and in
+`docs/EXTERNAL_AUDIT_SCOPE.md`.
 
 **What is missing.**
 
 1. A multivariate normal density on `Fin m → ℝ`, with the quadratic form
    `exp(-½ (x-μ)ᵀ Σ⁻¹ (x-μ))` and normalizing constant `det(2πΣ)^(-1/2)`. Not in
    Mathlib (a grep for `matrixGaussian`/`MultivariateNormal` finds nothing).
-2. `Σ` positive definite and invertible. `Mathlib/LinearAlgebra/Matrix/PosDef.lean`
-   provides `Matrix.PosSemidef` and `Matrix.PosDef`; no determinant-positivity
-   lemma is wired to them yet.
+2. `Σ` positive definite and invertible. `Matrix.PosSemidef` / `Matrix.PosDef`
+   exist, and `Matrix.PosDef.det_pos` (`Mathlib/Analysis/Matrix/PosDef.lean:85`)
+   already gives `0 < det Σ`. Available.
 3. A **multivariate** affine change of variables for Lebesgue measure — the
-   Jacobian/`det` factor. The scalar `gaussianIntegral_shift` is a
-   one-dimensional translation-invariance lemma and does not generalize
-   pointwise; `MeasureTheory.integral_map` is the right entry point but the
-   linear-map case is a real formalization.
+   Jacobian/`det` factor. **Available in Mathlib**:
+   `Real.map_matrix_volume_pi_eq_smul_volume_pi`
+   (`Mathlib/MeasureTheory/Measure/Lebesgue/Basic.lean:411`) rescales Lebesgue
+   measure on `ι → ℝ` by `|det M|⁻¹` when `det M ≠ 0`,
+   `MeasureTheory.Measure.map_linearMap_addHaar_eq_smul_addHaar`
+   (`.../Lebesgue/EqHaar.lean:234`) is the Haar form, and the Jacobian integral
+   lemmas in `Mathlib/MeasureTheory/Function/Jacobian.lean` transport integrals.
 4. The base measure on `ℝⁿ`: `MeasureTheory.volume_pi` supplies it, so no new
    measure infrastructure is needed.
 
-**Why it is not attempted here.** Item 3 is the obstruction: a multivariate
-linear change of variables is a multi-week formalization, not a bounded
-increment. Items 1, 2 and 4 are available or straightforward.
+**Why it is not attempted here.** An earlier revision of this plan called item 3
+the obstruction; that is **stale** — the `det` change-of-variables layer is in
+Mathlib (verified by `#check` and compiled demos, 2026-11-23). What remains is
+item 1 (a multivariate Gaussian density / Radon–Nikodym lemma; only the 1-D
+`rnDeriv_gaussianReal` exists) plus packaging the general quadratic-form
+Gaussian integral from the existing isotropic one. Both are derivable from
+current Mathlib primitives, so the correlated case is a bounded-but-real
+formalization rather than a deferral.
 
 **Concrete staged plan.**
 

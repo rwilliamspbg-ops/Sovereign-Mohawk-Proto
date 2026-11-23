@@ -422,8 +422,12 @@ Other honest limitations:
   type, by `n`-variable Fubini (`integral_fintype_prod_volume_eq_prod`) plus the
   already-proved scalar integral. **The covariance is diagonal** — independent
   coordinates. A general positive-definite `Σ` still needs a multivariate
-  density and an affine change-of-variables lemma for Lebesgue measure on `ℝⁿ`
-  (the `det` factor), which is **not** formalized; the correlated case is not
+  density. The affine change-of-variables layer (the `det` factor) **is** in
+  Mathlib — `Real.map_matrix_volume_pi_eq_smul_volume_pi`
+  (`Mathlib/MeasureTheory/Measure/Lebesgue/Basic.lean:411`) and
+  `MeasureTheory.Measure.map_linearMap_addHaar_eq_smul_addHaar`
+  (`.../Lebesgue/EqHaar.lean:234`), verified 2026-11-23; an earlier revision of
+  this bullet called it the obstruction, which was stale. The correlated case is not
   implied. The negative control `gaussianDensity_zero_sigma` shows `σ ≠ 0` is
   load-bearing (at `σ = 0` the density integrates to `0`, not `1`).
 - **The bounded-query programmed random oracle is now formalized**
