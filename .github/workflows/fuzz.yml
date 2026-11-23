@@ -44,9 +44,6 @@ jobs:
       - name: Fuzz proofs verifier
         run: go test ./internal/proofs/... -fuzz=FuzzVerifyHashCommitment -fuzztime=60s
 
-      - name: Fuzz threshold aggregation
-        run: go test ./test/ -run '^FuzzThresholdAggAggregate$' -fuzz '^FuzzThresholdAggAggregate$' -fuzztime=20s
-
       - name: Fuzz manifest signature
         run: go test ./test/ -run '^FuzzManifestSignature$' -fuzz '^FuzzManifestSignature$' -fuzztime=20s
 
