@@ -58,7 +58,7 @@ reporting only `propext`, `Classical.choice`, `Quot.sound` — no
 
 **Step 2 — read the three artifacts in this order (~10 min)**
 
-1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 39 rows. <!-- matrix-rows: 39 -->
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 40 rows. <!-- matrix-rows: 40 -->
    Start with every row *not* marked `fully_formalized`.
 2. §3 of this document — the four highest-priority review targets.
 3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
@@ -169,7 +169,11 @@ standing in for unproven lemmas, and (c) `sorry` placeholders.
        use site, never a global `axiom`; `nonAdditiveSmul_violates_addMul`,
        `paritySmul_violates_mulMul`, `paritySmul_violates_congMul` and
        `constantMul_not_injective` are negative controls showing the
-       hypotheses are load-bearing.
+       hypotheses are load-bearing. A first increment is now **proved** about the
+       real `affineAdd` (matrix row 40): commutativity on reduced representatives,
+       the two-sided identity for points with an honest `inf` flag, and
+       canonicity preservation. **Associativity is not proved**, and it is the
+       law these four consumed hypotheses need, so the bundle above is unchanged.
      - **This is not a UF-CMA proof.** The extractor needs the two equations to
        share `R` (nonce reuse); an honest signer never reuses a nonce, so
        `Ed25519_uf_cma` still requires its caller-supplied `h_secure`. Closing
