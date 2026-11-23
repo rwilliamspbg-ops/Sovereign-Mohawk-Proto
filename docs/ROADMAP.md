@@ -20,7 +20,7 @@ This roadmap tracks the gap between documented claims and runtime implementation
   (`TestProcessRound_RequiresGradientCommitmentByDefault`).
 - ✅ Clarified `TESTING_AND_PERFORMANCE_VALIDATION_COMPLETE.md` zero-placeholder
   claim (L1 only).
-- ✅ `internal/thresholdagg` documented as plaintext, not FHE.
+- ✅ `internal/thresholdagg` documented as plaintext, not FHE, then **deleted** as dead code (zero production importers).
 - ⏳ Correct stale scaffold references in `docs/INDEX.md` (still marked
   "Last Updated: May 9, 2026" and references placeholder scaffolds).
 

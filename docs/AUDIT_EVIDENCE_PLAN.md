@@ -1,11 +1,10 @@
 # Plan: Elevate Tests to High-Value Audit Evidence
 
 ## Phase 1 — Strengthen fuzz oracles (no panics → correctness)
-1. thresholdagg: assert round-trip equality (Marshal→Unmarshal deep-equal), reject negative/empty values where invalid, length invariants.
-2. manifest: assert invalid JSON rejected, required fields enforced, signature round-trip.
-3. zkproof: assert tampered proofData rejected, wrong salt rejected, valid commitment accepted (seeded).
-4. rdp: assert RecordShardStep monotonic epsilon, no NaN/Inf, budget enforcement.
-5. scheduler: assert total allocation ≤ sum available, winner has min price, failure on no eligible bids.
+1. manifest: assert invalid JSON rejected, required fields enforced, signature round-trip.
+2. zkproof: assert tampered proofData rejected, wrong salt rejected, valid commitment accepted (seeded).
+3. rdp: assert RecordShardStep monotonic epsilon, no NaN/Inf, budget enforcement.
+4. scheduler: assert total allocation ≤ sum available, winner has min price, failure on no eligible bids.
 
 ## Phase 2 — Expand property suite (gopter)
 - Multi-bid auctions (2-5 bids), random ordering invariance.
@@ -14,7 +13,7 @@
 - Determinism: same inputs → same allocation.
 
 ## Phase 3 — Stress race hardening
-- Scope to concurrency-sensitive packages only (router, thresholdagg, tpm, transport).
+- Scope to concurrency-sensitive packages only (router, tpm, transport).
 - Use go test -c + stress tool with focused -test.run.
 - Upload race report + failing test name artifact.
 - Quarantine/fix TestGetVerifiedQuoteLeaseCache separately.

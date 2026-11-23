@@ -17,6 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Removed - Dead code: `internal/thresholdagg`
+
+- Deleted `internal/thresholdagg` (5 files) and its two test files
+  (`test/threshold_aggregation_test.go`, `test/thresholdagg_fuzz_test.go`). The
+  package sums **plaintext `int64`** and says so in its own doc comment, but
+  compiles into no binary: it had **zero production importers**, only its own
+  tests, and 100% coverage made it look load-bearing in a security protocol
+  while providing no confidentiality. This is the S3.5 maintainer decision
+  recorded in `ROADMAP.md`.
+- Removed the now-dangling CI references in the same change: the
+  `Fuzz threshold aggregation` step in `.github/workflows/fuzz.yml`, the
+  `FuzzThresholdAggUnmarshal` entry in the `.github/workflows/deep-fuzz.yml`
+  matrix, and `./internal/thresholdagg/...` from the `stress-race` package
+  list. Updated `docs/AUDIT_EVIDENCE_PLAN.md`,
+  `docs/CERTIFICATE_SECURITY_INFRA.md` (fuzz target count 5 -> 4) and the two
+  roadmaps.
+
 ### Changed - Docs/CI: claim-count drift fixed and gated
 
 - `README.md` said the traceability matrix "tracks 27 rows" and

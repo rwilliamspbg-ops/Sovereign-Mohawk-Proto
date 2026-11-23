@@ -11,8 +11,8 @@
 | Go test suite (`go test ./...`) | All packages pass, 0 failures |
 | MRC transport (spraying, reassembly, adaptive scoring, context cancel) | PASS |
 | Security tests (auth-gated handlers, fail-closed admin, mint auth) | PASS |
-| Stress-race (scoped to router/thresholdagg/tpm/transport) | informational (continue-on-error) |
-| Fuzz targets (manifest, thresholdagg, zkproof, rdp_shard, scheduler) | 5 targets, semantic oracles |
+| Stress-race (scoped to router/tpm/transport) | informational (continue-on-error) |
+| Fuzz targets (manifest, zkproof, rdp_shard, scheduler) | 4 targets, semantic oracles |
 | Property tests (scheduler single + multi-bid gopter) | PASS |
 | Benchmarks (VerifyHashCommitment) | 4,345,923 ops, 609 ns/op (<5ms) |
 | Mutation score tracking | scripts/mutation_score.py (informational) |
