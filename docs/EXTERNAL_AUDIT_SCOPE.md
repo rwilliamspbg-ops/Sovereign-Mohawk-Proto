@@ -58,7 +58,7 @@ reporting only `propext`, `Classical.choice`, `Quot.sound` — no
 
 **Step 2 — read the three artifacts in this order (~10 min)**
 
-1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 41 rows. <!-- matrix-rows: 41 -->
+1. `proofs/FORMAL_TRACEABILITY_MATRIX.md` — per-claim status of all 42 rows. <!-- matrix-rows: 42 -->
    Start with every row *not* marked `fully_formalized`.
 2. §3 of this document — the four highest-priority review targets.
 3. `results/zk/weight-proof-latest.json` — measured cost of the real circuit
