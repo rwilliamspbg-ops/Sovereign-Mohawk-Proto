@@ -276,6 +276,7 @@ forensics-drill-down:
 
 validate-formal-tooling-tests:
 	@python3 tests/scripts/ci/test_claim_transitions.py
+	@python3 tests/scripts/ci/test_claim_counts.py
 	@python3 tests/scripts/ci/test_formal_validation_container_runner.py
 	@python3 tests/scripts/ci/test_formal_validation_report_e2e.py
 	@python3 tests/scripts/ci/test_formal_verification_bundle_e2e.py
