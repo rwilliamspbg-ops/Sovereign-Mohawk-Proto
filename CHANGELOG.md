@@ -17,6 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Fixed - Docs: the correlated-Gaussian blocker was stale
+
+- `RenyiDivergenceMultivariate.lean` (matrix row 37),
+  `docs/MAJOR_WIN_PLAN.md` A.3 and `docs/EXTERNAL_AUDIT_SCOPE.md` all named an
+  affine change-of-variables lemma for Lebesgue measure on `R^n` as the
+  obstruction to the correlated multivariate Gaussian case. It is **in Mathlib**:
+  `Real.map_matrix_volume_pi_eq_smul_volume_pi`
+  (`Mathlib/MeasureTheory/Measure/Lebesgue/Basic.lean:411`) rescales Lebesgue
+  measure on `iota -> R` by `|det M|^-1`, and
+  `MeasureTheory.Measure.map_linearMap_addHaar_eq_smul_addHaar`
+  (`.../Lebesgue/EqHaar.lean:234`) gives the Haar form; `Matrix.PosDef.det_pos`
+  (`Analysis/Matrix/PosDef.lean:85`) covers determinant positivity. Verified
+  first-hand by `#check`, then independently by two read-only scouts.
+- What genuinely remains for the correlated case is a **multivariate Gaussian
+  density / Radon-Nikodym lemma** (only the 1-D `rnDeriv_gaussianReal` exists)
+  and a packaged **general quadratic-form Gaussian integral**. Both are
+  derivable from current Mathlib primitives, so the correlated case is now a
+  bounded-but-real formalization rather than a deferral.
+
 ### Added - Lean: Multi-Krum under adversarial clustering (matrix row 42)
 
 - `proofs/LeanFormalization/KrumSelectionAdversarial.lean`. `krum_selection_safe` is
