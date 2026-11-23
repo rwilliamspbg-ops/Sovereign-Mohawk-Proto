@@ -191,7 +191,10 @@ None is an `axiom`; each is an explicit argument at the use site.
   machinery).
 - MiMC collision resistance (only round injectivity is proved).
 - The general (correlated) multivariate Gaussian mechanism, adaptive composition in the
-  measure-theoretic framework, and the Gaussian `(ε,δ)`-DP conversion.
+  measure-theoretic framework, and an *exact* measure-theoretic `(ε,δ)` theorem.
+  (The Gaussian `(ε,δ)`-DP conversion is now delivered as an explicit two-sided
+  rational bracket — matrix row 39; `Real.log` is noncomputable, so an exact
+  equality is not claimed.)
 - The Ed25519 **curve group law** (twisted-Edwards completeness of `affineAdd`,
   the double-and-add recursion of `affineScalarMulImpl`). The field arithmetic
   beneath it is fully bridged; the group law is not.

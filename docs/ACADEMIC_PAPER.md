@@ -929,7 +929,7 @@ Zero-knowledge FL systems typically employ recursive proof composition (e.g., Ha
 | **TensorFlow Federated** [1] | $10^4$ | None | Moments Accountant | None |
 | **PySyft** [14] | $10^3$ | None | $(\epsilon,\delta)$-DP | None |
 | **Flower** [31] | $10^5$ | None | Heuristic DP | None |
-| **Sovereign-Mohawk** | $\mathbf{10^7}$ (target) | **Single-tier guard + machine-checked disproof of deterministic composition**; probabilistic repair conditional on i.i.d. sampling | **Rational RDP** (list surrogate; Gaussian bound axiomatized) | **Structural invariant**, conditional on UF-CMA + witnessed acceptance |
+| **Sovereign-Mohawk** | $\mathbf{10^7}$ (target) | **Single-tier guard + machine-checked disproof of deterministic composition**; probabilistic repair conditional on i.i.d. sampling | **Rational RDP** (list surrogate; Gaussian bound **derived**, and its $(ε,δ)$ conversion bracketed) | **Structural invariant**, conditional on UF-CMA + witnessed acceptance |
 
 *Table 8: Comparative Architectural and Verification Feature Matrix.*
 
@@ -938,7 +938,7 @@ Zero-knowledge FL systems typically employ recursive proof composition (e.g., Ha
 ## 15. Limitations, Open Gaps, and Threats to Validity
 
 We explicitly record technical limitations and open gaps:
-1. **Axiomatized Gaussian RDP:** the Gaussian mechanism's Rényi divergence bound is carried as an axiom bridge (`RenyiDivergence` for the Gaussian mechanism is assumed), not derived from Mathlib's measure theory. The additive rational ledger and the `(ε,δ)` conversion *are* proved.
+1. **Gaussian RDP and its `(ε,δ)` conversion:** the Gaussian mechanism's Rényi divergence bound is **derived** from Mathlib's measure theory (`RenyiDivergenceMeasure.lean`: $D_\alpha(\mathcal{N}(\Delta,\sigma^2) \,\|\, \mathcal{N}(0,\sigma^2)) = \alpha\Delta^2/(2\sigma^2)$, unconditionally in $\sigma \neq 0$ and $\alpha \neq 1$), and the $(ε,δ)$ conversion is applied to it as an explicit two-sided **rational** bracket at the production order $\alpha = 10$ (`GaussianApproxDP.lean`). What is proved is the *bracket*, not an exact equality: $\log$ is noncomputable in Lean, so the conversion is sandwiched by rationals rather than evaluated. The general **correlated** multivariate Gaussian, **adaptive** composition, and an exact measure-theoretic conversion remain open.
 2. **Groth16 Trusted Setup:** Groth16 pairing verification depends on an initial structured reference string (SRS). Migrating to transparent STARK or Halo2 schemes would eliminate trusted setup dependencies.
 3. **Sampling Distribution Assumptions:** The probabilistic repair strictly presumes independent Bernoulli committee sampling. Non-uniform or geographically correlated adversarial node concentration remains an open theoretical direction.
 4. **Physical WAN Scaling:** While multi-node container benchmarks up to 1,500 pods confirm microsecond aggregation efficiency, real-world planetary deployments across high-jitter wireless WANs remain future empirical work.

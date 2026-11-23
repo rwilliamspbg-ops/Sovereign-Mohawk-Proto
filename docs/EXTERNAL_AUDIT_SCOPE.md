@@ -365,9 +365,18 @@ Other honest limitations:
    The hypothesis bundle `GaussianRDPHypotheses` is removed — nothing is assumed —
    and the existence witness `Theorem2RDP.gaussianRDPBound` is superseded.
 
-   **Not closed by this:** the multivariate mechanism, the `(ε, δ)`-DP conversion,
-   and **adaptive** composition. *Independent* (product-measure) composition is
-   now closed separately — see matrix row 35 and
+   **The `(ε, δ)`-DP conversion is now closed too** — see matrix row 39 and
+   `Refinement/GaussianApproxDP.lean`: `gaussianRDPValue_eq_divergence`
+   identifies the conversion's input with the proved divergence
+   (`gaussianRDPBound_measure`), and `gaussian_approxDP_bound` brackets the
+   converted `ε(δ) = ε_RDP + log(1/δ)/9` by an explicit two-sided rational
+   interval at the production order `α = 10` (via `Refinement.rdpToApproxDP_bound`).
+   **Not closed by any of this:** the general **correlated** multivariate
+   mechanism, **adaptive** composition, and an *exact* measure-theoretic
+   `(ε, δ)` theorem (Hölder + change of measure on an infinite base measure) —
+   the row-39 bracket is a rational sandwich around a noncomputable logarithm,
+   not an equality. *Independent* (product-measure) composition is closed
+   separately — see matrix row 35 and
    `LeanFormalization/RenyiDivergenceCompose.lean`, which tensorizes
    `RenyiDivergenceMeasure` over a product measure and composes the Gaussian
    bound across two rounds. Row 2's own status is unaffected.
