@@ -335,7 +335,11 @@ This is a real instantiation of `supermartingale_convergence_ae`, not a
 surrogate: it requires the descent inequality, the strong-convexity and
 smoothness hypotheses, the unbiasedness and variance hypotheses, and the
 summability facts of `summable_diminishingStep_sq` /
-`not_summable_diminishingStep`. The constant-step-size case is **not** covered:
+`not_summable_diminishingStep`. The unbiasedness hypothesis is *removed* — in
+favour of a quantitative bias bound — by
+`MultiKrumConvergenceBias.biased_multikrum_convergence_ae`, which strictly
+generalises this theorem (`beta = 0` recovers it). The constant-step-size case
+is **not** covered:
 a constant `η` makes `∑ η_t²` diverge, which is exactly why the Robbins–Monro
 schedule is needed.
 

@@ -14,6 +14,11 @@ This roadmap tracks the gap between documented claims and runtime implementation
 - ✅ L1 supermartingale convergence proof completed (PR #286); the almost-sure
   strengthening `supermartingale_convergence_ae` was closed in #315. The Lean
   development is now axiom-free and sorry-free (#313, #315, #316, #318).
+- ✅ Multi-Krum convergence with the exact-unbiasedness hypothesis **removed**:
+  `MultiKrumConvergenceBias.biased_multikrum_convergence_ae` proves `V_t -> 0`
+  a.s. under the strictly weaker `sum eta_t beta_t^2 < infinity`, with
+  `constant_bias_not_summable` as the machine-checked negative control (matrix
+  row 43). A neighbourhood radius for the constant-bias regime remains open.
 - ✅ Legacy empty-proof attestation fallback disabled by default
   (`MOHAWK_ALLOW_LEGACY_ATTESTATION=1` to opt in).
 - ✅ Added secure-default regression test
