@@ -9,7 +9,7 @@ The Ed25519 group law is the unified twisted-Edwards addition with `a = -1`:
 
 `affineAdd` implements it (`LeanFormalization/Ed25519ScalarMulStructure.lean`), and its
 **associativity** is the open law blocking the four group laws consumed by
-`Ed25519VerificationEquation.lean`. This file is the **first leg** of the route to
+`Ed25519VerificationEquation.lean`. This file is one step on the route to
 that proof: Mathlib proves associativity for a cubic model
 (`WeierstrassCurve.Affine.Point.instAddCommGroup`, transported through the class
 group of the coordinate ring), so Edwards associativity has to be reached by a
@@ -28,10 +28,16 @@ birational change of variables followed by an addition-law compatibility argumen
   axiom-free.
 
 * `montgomeryToEdwards_edwards`: the converse direction -- a Montgomery point
-  `(u, v)` with `u + 1 ≠ 0` and `Q(u) ≠ 0` maps back onto `E_d`. Together with
-  `edwardsToMont_montgomery` this makes `edwardsToMont` / `montgomeryToEdwards` a
-  birational equivalence between the admissible loci (the round-trip composite
-  itself is still unproved).
+  `(u, v)` with `u + 1 ≠ 0` and `Q(u) ≠ 0` maps back onto `E_d`.
+
+* The two **round-trip composites** are proved, so the maps are mutually inverse on
+  their admissible loci: `edwardsToMont_roundtrip` (`montgomeryToEdwards` undoes
+  `edwardsToMont`, needing `y ≠ 1`, `1 + d ≠ 0`, `1 + d·y² ≠ 0` and `2 ≠ 0`) and
+  `montgomeryToEdwards_roundtrip` (`edwardsToMont` undoes `montgomeryToEdwards`,
+  needing only `u + 1 ≠ 0`, `Q(u) ≠ 0` and `2 ≠ 0` -- it does not even use the
+  curve equation). `2 ≠ 0` is characteristic-agnostic bookkeeping: in
+  characteristic two `u = (1+y)/(1-y) = 1` identically, so there is nothing to
+  recover.
 
 ## What is NOT proved here (stated openly)
 
@@ -43,7 +49,6 @@ birational change of variables followed by an addition-law compatibility argumen
   is where the two maps are undefined; showing the implementation never divides
   by zero additionally needs `d` to be a non-square modulo `p`, which is
   number-theoretic and separate.
-  `Q(u) = 0` -- both directions state these hypotheses explicitly rather than
   hiding them.
 -/
 
@@ -106,39 +111,45 @@ lemma montgomeryToEdwards_fst (d u v : K) :
 lemma montgomeryToEdwards_snd (d u v : K) :
     (montgomeryToEdwards d u v).2 = (u - 1) / (u + 1) := rfl
 
+/-- On-curve points satisfy `1 + d·y² ≠ 0`, given `y ≠ 1` and `d ≠ -1`.
+    This is the hypothesis that makes both directions of the bridge total on the
+    admissible locus. -/
+lemma edwards_one_add_dy_ne_zero {d x y : K} (hE : edwardsEq d x y)
+    (hy : 1 - y ≠ 0) (hd : 1 + d ≠ 0) : 1 + d * y ^ 2 ≠ 0 := by
+  unfold edwardsEq at hE
+  intro h0
+  have hx0 : x ^ 2 * (1 + d * y ^ 2) = 0 := by rw [h0]; ring
+  have hx0' : x ^ 2 + d * x ^ 2 * y ^ 2 = 0 := by
+    calc x ^ 2 + d * x ^ 2 * y ^ 2 = x ^ 2 * (1 + d * y ^ 2) := by ring
+      _ = 0 := hx0
+  have hsum : (-x ^ 2 + y ^ 2) + (x ^ 2 + d * x ^ 2 * y ^ 2)
+      = (1 + d * x ^ 2 * y ^ 2) + 0 := by rw [hE, hx0']
+  have hy2 : y ^ 2 = 1 := by
+    have h := hsum
+    ring_nf at h
+    linear_combination h
+  have hy_ne_one : y ≠ 1 := fun h => hy (by simp [h])
+  have hy_eq_neg_one : y = -1 := by
+    have hfac : (y - 1) * (y + 1) = 0 := by
+      rw [show (y - 1) * (y + 1) = y ^ 2 - 1 by ring, hy2]; ring
+    have hp : y + 1 = 0 := by
+      rcases mul_eq_zero.mp hfac with h | h
+      · exact (hy_ne_one (eq_of_sub_eq_zero h)).elim
+      · exact h
+    have hz : y + 1 = -1 + 1 := by rw [hp]; ring
+    exact add_right_cancel hz
+  have hd0 : (1 + d : K) = 0 := by
+    have := h0
+    rw [hy_eq_neg_one] at this
+    simpa using this
+  exact hd hd0
+
 /-- **Every Edwards point (with `y ≠ 1`) maps to the Montgomery model.** -/
 theorem edwardsToMont_montgomery {d x y : K} (hE : edwardsEq d x y)
     (hy : 1 - y ≠ 0) (hd : 1 + d ≠ 0) :
     montgomeryEq d (edwardsToMont d x y).1 (edwardsToMont d x y).2 := by
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
   unfold edwardsEq at hE
-  -- `1 + d·y²` cannot vanish: otherwise `y = -1` and then `d = -1`.
-  have hdy : 1 + d * y ^ 2 ≠ 0 := by
-    intro h0
-    have hx0 : x ^ 2 * (1 + d * y ^ 2) = 0 := by rw [h0]; ring
-    have hx0' : x ^ 2 + d * x ^ 2 * y ^ 2 = 0 := by
-      calc x ^ 2 + d * x ^ 2 * y ^ 2 = x ^ 2 * (1 + d * y ^ 2) := by ring
-        _ = 0 := hx0
-    have hsum : (-x ^ 2 + y ^ 2) + (x ^ 2 + d * x ^ 2 * y ^ 2)
-        = (1 + d * x ^ 2 * y ^ 2) + 0 := by rw [hE, hx0']
-    have hy2 : y ^ 2 = 1 := by
-      have h := hsum
-      ring_nf at h
-      linear_combination h
-    have hy_ne_one : y ≠ 1 := fun h => hy (by simp [h])
-    have hy_eq_neg_one : y = -1 := by
-      have hfac : (y - 1) * (y + 1) = 0 := by
-        rw [show (y - 1) * (y + 1) = y ^ 2 - 1 by ring, hy2]; ring
-      have hp : y + 1 = 0 := by
-        rcases mul_eq_zero.mp hfac with h | h
-        · exact (hy_ne_one (eq_of_sub_eq_zero h)).elim
-        · exact h
-      have hz : y + 1 = -1 + 1 := by rw [hp]; ring
-      exact add_right_cancel hz
-    have hd0 : (1 + d : K) = 0 := by
-      have := h0
-      rw [hy_eq_neg_one] at this
-      simpa using this
-    exact hd hd0
   -- Solve the curve equation for `x²`.
   have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
     rw [eq_div_iff hdy]
@@ -181,6 +192,95 @@ theorem montgomeryToEdwards_edwards {d u v : K} (hM : montgomeryEq d u v)
 example : montgomeryEq (0 : ℚ) 0 0 ∧ montQ (0 : ℚ) 0 ≠ 0 := by
   unfold montgomeryEq montA montB montQ
   constructor <;> norm_num
+/-- `Q((1+y)/(1-y))` collapses to the scaled form used by `edwardsToMont`. -/
+lemma montQ_of_edwards (d y : K) (hy : 1 - y ≠ 0) :
+    montQ d ((1 + y) / (1 - y)) = 4 * (1 + d * y ^ 2) / (1 - y) ^ 2 := by
+  unfold montQ
+  field_simp
+  ring
+
+/-- The first coordinate of `montgomeryToEdwards (edwardsToMont (x,y))` is `x` again.
+    Needs `1 + d·y² ≠ 0` -- without it the formula degenerates and the statement is
+    false, since Lean's `a / 0 = 0` convention would give `0 ≠ x`. -/
+lemma edwards_x_recover {d x y : K} (hy : 1 - y ≠ 0) (hdy : 1 + d * y ^ 2 ≠ 0)
+    (h2 : (2 : K) ≠ 0) :
+    2 * (edwardsToMont d x y).2 / montQ d ((edwardsToMont d x y).1) = x := by
+  rw [edwardsToMont_fst, edwardsToMont_snd, montQ_of_edwards d y hy]
+  have hQ : 4 * (1 + d * y ^ 2) / (1 - y) ^ 2 ≠ 0 := by
+    have h4 : (4 : K) ≠ 0 := by
+      rw [show (4 : K) = 2 * 2 by norm_num]
+      exact mul_ne_zero h2 h2
+    exact div_ne_zero (mul_ne_zero h4 hdy) (pow_ne_zero 2 hy)
+  have key : 2 * (2 * x * (1 + d * y ^ 2) / (1 - y) ^ 2) =
+      x * (4 * (1 + d * y ^ 2) / (1 - y) ^ 2) := by
+    field_simp [hy, hdy, mul_ne_zero h2 h2]
+    ring
+  rw [div_eq_iff hQ]
+  exact key
+
+/-- The second coordinate of `montgomeryToEdwards (edwardsToMont (x,y))` is `y` again.
+    Requires `2 ≠ 0`, i.e. the field not of characteristic two -- in characteristic two
+    `u = (1+y)/(1-y) = 1` identically, so the recovery has no content. -/
+lemma edwards_y_recover {d x y : K} (hy : 1 - y ≠ 0) (h2 : (2 : K) ≠ 0) :
+    ((edwardsToMont d x y).1 - 1) / ((edwardsToMont d x y).1 + 1) = y := by
+  rw [edwardsToMont_fst]
+  have hn : (1 + y) / (1 - y) - 1 = 2 * y / (1 - y) := by
+    field_simp [hy]
+    ring
+  have he : (1 + y) / (1 - y) + 1 = 2 / (1 - y) := by
+    field_simp [hy]
+    ring
+  rw [hn, he]
+  field_simp [hy, h2]
+
+/-- **Round trip, forward.** On the admissible locus, `montgomeryToEdwards` undoes
+    `edwardsToMont`. -/
+theorem edwardsToMont_roundtrip {d x y : K} (hE : edwardsEq d x y)
+    (hy : 1 - y ≠ 0) (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) :
+    montgomeryToEdwards d (edwardsToMont d x y).1 (edwardsToMont d x y).2 = (x, y) := by
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  simp only [montgomeryToEdwards, Prod.mk.injEq]
+  rw [edwards_x_recover hy hdy h2, edwards_y_recover hy h2]
+  exact ⟨rfl, rfl⟩
+
+/-- The first coordinate of `edwardsToMont (montgomeryToEdwards (u,v))` is `u`
+    again -- the exact inverse of `montgomeryToEdwards_fst`. -/
+lemma montgomery_u_recover {u : K} (hu : u + 1 ≠ 0) (h2 : (2 : K) ≠ 0) :
+    (1 + (u - 1) / (u + 1)) / (1 - (u - 1) / (u + 1)) = u := by
+  field_simp [hu, h2]
+  rw [show (u + 1 + (u - 1)) = 2 * u by ring,
+      show (u + 1 - (u - 1)) = 2 by ring]
+  rw [div_eq_iff h2]
+  ring
+
+/-- The second coordinate of `edwardsToMont (montgomeryToEdwards (u,v))` is `v`
+    again, using `Q(u) = (u+1)² + d(u-1)²` and `(1-y)² = 4/(u+1)²`. -/
+lemma montgomery_v_recover {d u v : K} (hu : u + 1 ≠ 0)
+    (hq : montQ d u ≠ 0) (h2 : (2 : K) ≠ 0) :
+    2 * (2 * v / montQ d u) * (1 + d * ((u - 1) / (u + 1)) ^ 2) /
+      (1 - (u - 1) / (u + 1)) ^ 2 = v := by
+  have hy'e : (1 : K) - (u - 1) / (u + 1) = 2 / (u + 1) := by
+    field_simp [hu]
+    ring
+  have hy' : (1 : K) - (u - 1) / (u + 1) ≠ 0 := by
+    rw [hy'e]
+    exact div_ne_zero h2 hu
+  have hden : (1 - (u - 1) / (u + 1)) ^ 2 ≠ 0 := pow_ne_zero 2 hy'
+  rw [div_eq_iff hden]
+  field_simp [hu, hq, h2]
+  unfold montQ
+  ring
+
+/-- **Round trip, backward.** On the admissible locus, `edwardsToMont` undoes
+    `montgomeryToEdwards`. Together with `edwardsToMont_roundtrip` this exhibits
+    the two maps as mutually inverse on their admissible loci. -/
+theorem montgomeryToEdwards_roundtrip {d u v : K}
+    (hu : u + 1 ≠ 0) (hq : montQ d u ≠ 0) (h2 : (2 : K) ≠ 0) :
+    edwardsToMont d (montgomeryToEdwards d u v).1 (montgomeryToEdwards d u v).2 = (u, v) := by
+  simp only [montgomeryToEdwards, edwardsToMont, Prod.mk.injEq]
+  rw [montgomery_u_recover hu h2, montgomery_v_recover hu hq h2]
+  exact ⟨rfl, rfl⟩
+
 end
 
 end LeanFormalization
