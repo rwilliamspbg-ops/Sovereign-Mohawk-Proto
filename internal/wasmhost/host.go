@@ -76,6 +76,13 @@ func NewHost(ctx context.Context, wasmBin []byte) (*Host, error) {
 
 	r := wazero.NewRuntimeWithConfig(ctx, cfg)
 
+	// verifier.wasm imports env.log and env.submit_gradients; register the
+	// host module before instantiating guest modules that depend on it.
+	if _, err := instantiateEnvModule(ctx, r); err != nil {
+		r.Close(ctx)
+		return nil, fmt.Errorf("failed to instantiate env host module: %w", err)
+	}
+
 	mod, err := r.Instantiate(ctx, wasmBin)
 	if err != nil {
 		r.Close(ctx)
