@@ -89,8 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Edwards -> Montgomery birational bridge (row 46)
 
 - New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (140 lines,
-- New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (187 lines,
-  sha256 `7cf62e70...`).
+- New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (287 lines,
+  sha256 `2d022ded...`).
 - `edwardsToMont_montgomery`: every point `(x, y)` of the twisted-Edwards curve
   `-x^2 + y^2 = 1 + d*x^2*y^2` with `y != 1` maps to the Montgomery model
   `B*v^2 = u^3 + A*u^2 + u`, with `u = (1+y)/(1-y)`, `v = 2*x*(1+d*y^2)/(1-y)^2`,
@@ -117,8 +117,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `Q(u) = (1+d)u^2 + 2(1-d)u + (1+d)` factored out as `montQ` and shown equal to
   the completing-square form `(u+1)^2 + d(u-1)^2`. Each lemma carries an explicit
   non-vacuity witness (`(d,x,y) = (0,0,-1)` forward, `(d,u,v) = (0,0,0)` backward).
-  Still unproved: the round-trip composites, addition-law compatibility, and
+  Still unproved: addition-law compatibility (so no group law is inherited), and
   denominator completeness at the exceptional loci.
+- Both **round-trip composites** are proved, so the maps are mutually inverse on their
+  admissible loci. `edwardsToMont_roundtrip`: `montgomeryToEdwards` undoes `edwardsToMont`,
+  needing `y != 1`, `1 + d != 0`, `1 + d*y^2 != 0` and `2 != 0`.
+  `montgomeryToEdwards_roundtrip`: `edwardsToMont` undoes `montgomeryToEdwards`, needing
+  only `u + 1 != 0`, `Q(u) != 0` and `2 != 0` -- it does not even use the curve equation.
+  The characteristic-two exclusion is not cosmetic: there `(1+y)/(1-y) = 1` identically,
+  so the recovery has no content. `1 + d*y^2 != 0` is derived once as
+  `edwards_one_add_dy_ne_zero` and reused by both directions.
 - Matrix and README/audit markers updated 45 -> 46 rows; all claim-count,
   traceability, lint and placeholder gates re-run locally and passing.
 
