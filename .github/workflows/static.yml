@@ -86,12 +86,48 @@ jobs:
             count="$(jq -r '.total_count // 0' "${body}")"
             if [ "${count}" -gt 0 ]; then
               echo "github-pages artifact visible to the Actions API after ${attempt} attempt(s)"
+              # The artifact record can be listed by the generic Actions API
+              # while the Pages deployment API still reports zero artifacts
+              # (observed 2026-11-24: listed after 1 poll, deploy-pages failed
+              # ~1s later). Give the record time to propagate before deploying.
+              sleep "${PAGES_ARTIFACT_SETTLE_SECONDS:-10}"
               exit 0
             fi
             sleep 2
           done
           echo "::error::github-pages artifact never became visible; deploy-pages would abort with 'No artifacts named github-pages were found'"
           exit 1
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - name: Deploy to GitHub Pages (attempt 1)
+        id: deploy_first
+        continue-on-error: true
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+
+      - name: Deploy to GitHub Pages (retry)
+        id: deploy_retry
+        if: steps.deploy_first.outcome == 'failure'
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+
+      # Collapse the two attempts into the single `deployment` step output the
+      # job-level `environment.url` refers to, and fail loudly if neither
+      # attempt produced a Pages URL.
+      - name: Record Pages deployment URL
+        id: deployment
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          first="${{ steps.deploy_first.outcome }}"
+          echo "deploy attempt 1 outcome: ${first}"
+          if [ "${first}" = "success" ]; then
+            url="${{ steps.deploy_first.outputs.page_url }}"
+          elif [ "${{ steps.deploy_retry.outcome }}" = "success" ]; then
+            echo "deploy attempt 1 failed; attempt 2 succeeded"
+            url="${{ steps.deploy_retry.outputs.page_url }}"
+          else
+            url=""
+          fi
+          if [ -z "${url}" ]; then
+            echo "::error::GitHub Pages deployment failed on every attempt (no page_url)"
+            exit 1
+          fi
+          echo "page_url=${url}" >> "${GITHUB_OUTPUT}"
