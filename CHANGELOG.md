@@ -86,6 +86,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `#print axioms` on all four results reports only
   `[propext, Classical.choice, Quot.sound]`; 0 `sorry`/`admit`.
 
+### Added - Edwards -> Montgomery birational bridge (row 46)
+
+- New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (140 lines,
+  sha256 `8d46913a...`).
+- `edwardsToMont_montgomery`: every point `(x, y)` of the twisted-Edwards curve
+  `-x^2 + y^2 = 1 + d*x^2*y^2` with `y != 1` maps to the Montgomery model
+  `B*v^2 = u^3 + A*u^2 + u`, with `u = (1+y)/(1-y)`, `v = 2*x*(1+d*y^2)/(1-y)^2`,
+  `A = 2(1-d)/(1+d)`, `B = -1/(1+d)`, assuming only `1 + d != 0`.
+- Stated over an arbitrary `Field`; `#print axioms` reports only
+  `[propext, Classical.choice, Quot.sound]`. Non-vacuity is exhibited by
+  `(d,x,y) = (0,0,-1)` rather than left implicit.
+- This is the change-of-variables leg toward `affineAdd` associativity: Mathlib
+  proves a group law for cubic Weierstrass models
+  (`WeierstrassCurve.Affine.Point.instAddCommGroup`), so the Edwards law must be
+  reached through this map plus an addition-law compatibility argument.
+- Residual gaps, stated openly: addition-law compatibility (nothing yet shows
+  `affineAdd` corresponds to the Montgomery/Weierstrass addition under this map,
+  so no group law -- not associativity -- is inherited); denominator completeness
+  (`1 - y = 0`, `1 + d = 0`); the inverse direction `montgomeryToEdwards` is
+  defined but its round-trip is unproved.
+- Associativity was characterised before formalising: it is **not** an
+  unconditional rational identity (off-curve counterexamples exist), it **does**
+  hold on-curve (verified over `F_101` with 200k random triples, zero failures),
+  and `polyrith` -- the natural ideal-membership tool -- is retired in this
+  Mathlib revision, while `linear_combination` requires explicit coefficients.
+- Matrix and README/audit markers updated 45 -> 46 rows; all claim-count,
+  traceability, lint and placeholder gates re-run locally and passing.
+
 
 ### Fixed - Docs: the correlated-Gaussian blocker was stale
 
