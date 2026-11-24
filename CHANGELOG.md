@@ -17,6 +17,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Multivariate Gaussian quadratic-form integral (WP6)
+
+- New `proofs/LeanFormalization/RenyiDivergenceMultivariateCovariance.lean`
+  (142 lines, sha256 `9810d81f...`), matrix row 44.
+- `gaussian_integral_half_sq_1d`: `int exp(-x^2/2) dx = sqrt (2*pi)`, from Mathlib's
+  `GaussianFourier.integral_rexp_neg_mul_sq_norm`.
+- `gaussian_integral_isotropic_sum`: the isotropic integral on `iota -> R`,
+  `int exp(-1/2 * sum_i x_i^2) dx = (2*pi)^(card iota / 2)`, by n-variable Fubini.
+- `gaussian_quadratic_integral_matrix`: for invertible `B : Matrix iota iota R`,
+  `int exp(-1/2 * sum_i (B *v x)_i^2) dx = (2*pi)^(card iota / 2) / abs (det B)`,
+  via `Real.map_matrix_volume_pi_eq_smul_volume_pi`. This is the packaged
+  general-quadratic-form Gaussian integral that row 37's docstring named as
+  missing.
+- `integral_gaussian_density_covariance`: the normalized density integrates to 1.
+- Residual gap, stated openly: the exponent is the Gram form `Q = B^T * B`;
+  rewriting it as `x <Q x>` and constructing a factorisation `Sigma -> B` are
+  NOT done, so the correlated Renyi divergence is still not claimed. No
+  multivariate Gaussian Radon-Nikodym derivative exists in this Mathlib.
+- `#print axioms` on all four results reports only
+  `[propext, Classical.choice, Quot.sound]`; 0 `sorry`/`admit`.
+
+
 ### Added - Multi-Krum convergence without exact unbiasedness
 
 - New `proofs/LeanFormalization/MultiKrumConvergenceBias.lean` (400 lines,

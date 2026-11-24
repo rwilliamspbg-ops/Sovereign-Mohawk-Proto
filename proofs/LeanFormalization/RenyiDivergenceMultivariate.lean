@@ -29,8 +29,9 @@ in `Mathlib/MeasureTheory/Function/Jacobian.lean` transport integrals, and
 What *is* proved here is only the **diagonal** case, where the density
 factorizes into a product of scalars and Mathlib's `n`-variable Fubini
 (`MeasureTheory.integral_fintype_prod_volume_eq_prod`) does the work. The
-correlated case still needs the item-1 density and a packaged
-general-quadratic-form Gaussian integral. The result is therefore a statement
+correlated case still needs the item-1 density; the packaged
+general-quadratic-form Gaussian integral it also names is now **supplied** by
+`RenyiDivergenceMultivariateCovariance.lean` (matrix row 44). The result here is therefore a statement
 about **independent coordinates** — a diagonal `Σ` — and the general
 (correlated) case remains open and is not implied.
 

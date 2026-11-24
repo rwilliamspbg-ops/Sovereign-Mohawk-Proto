@@ -287,6 +287,21 @@ step 4 was not found in the pinned Mathlib. The diagonal restriction is
 stated openly in the theorem docstring and in
 `docs/EXTERNAL_AUDIT_SCOPE.md`.
 
+**Update 2026-11-24 — items 3 and 4 are now DONE; item 1 remains open.**
+Matrix row 44, `LeanFormalization/RenyiDivergenceMultivariateCovariance.lean`:
+
+* `gaussian_integral_isotropic_sum` — the isotropic `n`-dimensional integral on
+  `ι → ℝ`: `∫ exp(-½ ∑ᵢ xᵢ²) dx = (2π)^(card ι / 2)` (`n`-variable Fubini from
+  the 1-D `gaussian_integral_half_sq_1d`).
+* `gaussian_quadratic_integral_matrix` — for invertible `B`,
+  `∫ exp(-½ ∑ᵢ ((B *ᵥ x)ᵢ)²) dx = (2π)^(card ι / 2) / abs (det B)`, via
+  `Real.map_matrix_volume_pi_eq_smul_volume_pi`.
+* `integral_gaussian_density_covariance` — the normalized density integrates to 1.
+
+Stated openly: the exponent is the Gram form `Q = Bᵀ * B`; rewriting it as
+`x ⬝ᵥ Q *ᵥ x` and constructing a factorisation `Σ ↦ B` are **not** done, so the
+correlated Rényi divergence itself is still not claimed.
+
 **What is missing.**
 
 1. A multivariate normal density on `Fin m → ℝ`, with the quadratic form
