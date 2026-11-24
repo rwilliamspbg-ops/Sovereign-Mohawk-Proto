@@ -69,10 +69,12 @@ def edwardsEq (d : K) (x y : K) : Prop :=
 def edwardsToMont (d x y : K) : K × K :=
   ((1 + y) / (1 - y), 2 * x * (1 + d * y ^ 2) / (1 - y) ^ 2)
 
-@[simp] lemma edwardsToMont_fst (d x y : K) :
+@[simp]
+lemma edwardsToMont_fst (d x y : K) :
     (edwardsToMont d x y).1 = (1 + y) / (1 - y) := rfl
 
-@[simp] lemma edwardsToMont_snd (d x y : K) :
+@[simp]
+lemma edwardsToMont_snd (d x y : K) :
     (edwardsToMont d x y).2 = 2 * x * (1 + d * y ^ 2) / (1 - y) ^ 2 := rfl
 
 /-- **Montgomery → Edwards.** Inverse of `edwardsToMont` on the admissible locus:
