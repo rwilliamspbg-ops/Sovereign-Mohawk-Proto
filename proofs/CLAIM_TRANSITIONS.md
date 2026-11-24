@@ -346,3 +346,15 @@ explicit separated subset `Far`, and the infiltrators `Near` are bounded: a Krum
 or in `Near`, so Byzantine winners <= infiltrators. The separation hypothesis is machine-checked as
 load-bearing by `krum_selection_separation_necessary`, and `krum_separation_margin` makes the
 sufficient condition an explicit threshold.
+
+### 2026-11-24 -- Row 46 (Ed25519 birational bridge): Montgomery -> Edwards direction proved
+
+`bridge_partial` (change of variables proved; no group law inherited) -> `bridge_partial` (change of variables both ways proved; no group law inherited)
+
+Adds `montgomeryToEdwards_edwards`: a Montgomery point `(u, v)` with `u + 1 != 0` and `Q(u) != 0`
+maps back onto `-x^2 + y^2 = 1 + d*x^2*y^2`, where `Q(u) = (1+d)u^2 + 2(1-d)u + (1+d)`. Together
+with #404's forward lemma this makes the two maps mutually inverse between the admissible loci.
+No group law is inherited yet, so the headline status remains `bridge_partial`; the round-trip
+composites, addition-law compatibility and denominator completeness stay explicitly unproved.
+
+- **PR:** #405
