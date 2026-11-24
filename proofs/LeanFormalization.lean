@@ -41,5 +41,6 @@ import LeanFormalization.RenyiDivergenceCompose
 import LeanFormalization.RenyiDivergenceBoundedRO
 import LeanFormalization.RenyiDivergenceAdaptiveRO
 import LeanFormalization.RenyiDivergenceMultivariate
+import LeanFormalization.RenyiDivergenceMultivariateCovariance
 import LeanFormalization.Ed25519FieldBridge
 import LeanFormalization.Ed25519CurveGroupLaw
