@@ -17,6 +17,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trace validators (RDPAccountant, HierarchicalBFT) verified on real traces.
 
 ## [Unreleased]
+### Added - Ed25519 scalar-multiplication base cases and invariants (row 45)
+
+- New `proofs/LeanFormalization/Ed25519ScalarMulStructure.lean` (253 lines,
+  sha256 `2e0daa1d...`).
+- The double-and-add loop is factored out as `smulStep`/`smulFold`, with
+  `affineScalarMulImpl_eq_smulFold` identifying the implementation with the fold.
+- `affineScalarMulImpl_zero` -- `0 * P = affineIdentity`. This is `zeroMul`,
+  previously **assumed** in `Ed25519VerificationEquation.lean` before #361 removed
+  it; here it is derived.
+- `affineScalarMulImpl_one` -- `1 * P = P` for consistent `P`. Likewise a former
+  assumption (`oneMul`), now proved.
+- `affineAdd_consistent` -- `affineAdd` maps consistent inputs to a consistent
+  output, so it never manufactures a false infinity.
+- `affineScalarMulImpl_consistent` / `affineScalarMulImpl_canonical` -- every point
+  the loop produces satisfies both invariants the group-law theorems need.
+- Residual gap, stated openly: associativity of `affineAdd` remains unproved. It
+  needs twisted-Edwards completeness (the denominators `1 +/- d*x1*x2*y1*y2` must be
+  non-zero for on-curve points), which rests on `d` being a non-square mod `p`.
+  Neither the closure nor the associativity identity closes with `ring`,
+  `field_simp` or `linear_combination` on the pinned Mathlib.
+- `#print axioms` on all results reports only `[propext, Classical.choice,
+  Quot.sound]`; 0 `sorry`/`admit`.
+
+
 ### Added - Multivariate Gaussian quadratic-form integral (WP6)
 
 - New `proofs/LeanFormalization/RenyiDivergenceMultivariateCovariance.lean`

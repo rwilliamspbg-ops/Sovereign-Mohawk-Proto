@@ -454,9 +454,25 @@ divisible by `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly. A local
 `units_val_pow` supplies the power form of `Units.val` that Mathlib omits.
 
 **Still the multi-week item:** the group law on the curve itself
-(twisted-Edwards completeness of `affineAdd`, and the double-and-add recursion
-of `affineScalarMulImpl`). The field bridge removes the field layer from that
-assumption; it does not prove the group law.
+(twisted-Edwards completeness of `affineAdd`, and full double-and-add
+correctness of `affineScalarMulImpl`). The field bridge removes the field layer
+from that assumption; it does not prove the group law.
+
+**Increment 2026-11-24 (matrix row 45).** The double-and-add loop is factored out
+as `smulStep`/`smulFold` and audited directly
+(`Ed25519ScalarMulStructure.lean`): `0 · P = identity` and `1 · P = P` are
+**derived** (they were previously *assumed* as `zeroMul`/`oneMul` before #361
+removed them for having no dependents); `affineAdd_consistent` shows `affineAdd`
+never manufactures a false infinity; and the loop preserves both `IsConsistent`
+and `IsCanonical`, so its outputs need no extra hypotheses downstream.
+
+**Still open, stated plainly:** associativity of `affineAdd`. It requires the
+denominators `1 ± d·x1·x2·y1·y2` to be non-zero for on-curve points, i.e.
+twisted-Edwards completeness, which rests on `d` being a non-square mod `p`. That
+is a curve/number-theoretic result, not a case bash, and neither the closure
+identity nor the associativity identity closes with `ring`, `field_simp` or
+`linear_combination` on this Mathlib. It remains the blocker for the four
+consumed group laws.
 
 ---
 
