@@ -27,17 +27,24 @@ birational change of variables followed by an addition-law compatibility argumen
   curve equation `edwardsEq d x y`; it is stated over an arbitrary `Field K` and is
   axiom-free.
 
+* `montgomeryToEdwards_edwards`: the converse direction -- a Montgomery point
+  `(u, v)` with `u + 1 ≠ 0` and `Q(u) ≠ 0` maps back onto `E_d`. Together with
+  `edwardsToMont_montgomery` this makes `edwardsToMont` / `montgomeryToEdwards` a
+  birational equivalence between the admissible loci (the round-trip composite
+  itself is still unproved).
+
 ## What is NOT proved here (stated openly)
 
 * **Addition-law compatibility.** Nothing here shows that `affineAdd` corresponds to
   the Montgomery (or Weierstrass) addition under this map. Without that, no group
   law — not associativity — can be inherited. This is the next step.
-* **Denominator completeness.** Both directions exclude exceptional points
-  explicitly (`1 - y = 0`, i.e. the Edwards identity `(0,1)`, and `1 + d = 0`).
-  Showing the implementation never divides by zero needs `d` to be a non-square
-  modulo `p`, which is number-theoretic and separate.
-* The inverse direction `montgomeryToEdwards` is defined but **not yet proved**
-  to land back on `E_d`.
+* **Exceptional loci / denominator completeness.** Both directions state their
+  non-vanishing hypotheses explicitly (`1 - y = 0`, `1 + d = 0`, `Q(u) = 0`). This
+  is where the two maps are undefined; showing the implementation never divides
+  by zero additionally needs `d` to be a non-square modulo `p`, which is
+  number-theoretic and separate.
+  `Q(u) = 0` -- both directions state these hypotheses explicitly rather than
+  hiding them.
 -/
 
 namespace LeanFormalization
@@ -77,12 +84,27 @@ lemma edwardsToMont_fst (d x y : K) :
 lemma edwardsToMont_snd (d x y : K) :
     (edwardsToMont d x y).2 = 2 * x * (1 + d * y ^ 2) / (1 - y) ^ 2 := rfl
 
+/-- The auxiliary quadratic `Q(u) = (1+d)u² + 2(1-d)u + (1+d)`. -/
+def montQ (d u : K) : K := (1 + d) * u ^ 2 + 2 * (1 - d) * u + (1 + d)
+
+/-- `Q(u)` is the completing-square form `(u+1)² + d(u-1)²`. -/
+lemma montQ_completes_square (d u : K) :
+    montQ d u = (u + 1) ^ 2 + d * (u - 1) ^ 2 := by
+  unfold montQ
+  ring
+
 /-- **Montgomery → Edwards.** Inverse of `edwardsToMont` on the admissible locus:
     recover `y = (u-1)/(u+1)` and `x = 2v / Q(u)`. -/
 def montgomeryToEdwards (d : K) (u v : K) : K × K :=
-  let y := (u - 1) / (u + 1)
-  let q := (1 + d) * u ^ 2 + 2 * (1 - d) * u + (1 + d)
-  (2 * v / q, y)
+  ((2 * v) / montQ d u, (u - 1) / (u + 1))
+
+@[simp]
+lemma montgomeryToEdwards_fst (d u v : K) :
+    (montgomeryToEdwards d u v).1 = 2 * v / montQ d u := rfl
+
+@[simp]
+lemma montgomeryToEdwards_snd (d u v : K) :
+    (montgomeryToEdwards d u v).2 = (u - 1) / (u + 1) := rfl
 
 /-- **Every Edwards point (with `y ≠ 1`) maps to the Montgomery model.** -/
 theorem edwardsToMont_montgomery {d x y : K} (hE : edwardsEq d x y)
@@ -134,6 +156,31 @@ example : edwardsEq (0 : ℚ) 0 (-1) ∧ (1 - (-1 : ℚ)) ≠ 0 ∧ (1 + (0 : �
   unfold edwardsEq
   norm_num
 
+/-- **Montgomery points map back to the Edwards curve** (the inverse direction),
+    wherever `Q(u)` does not vanish. -/
+theorem montgomeryToEdwards_edwards {d u v : K} (hM : montgomeryEq d u v)
+    (hu : u + 1 ≠ 0) (hd : 1 + d ≠ 0) (hq : montQ d u ≠ 0) :
+    edwardsEq d (montgomeryToEdwards d u v).1 (montgomeryToEdwards d u v).2 := by
+  -- The Montgomery equation is exactly `-v² = u·Q(u)`.
+  have hmul : v ^ 2 = -(u * montQ d u) := by
+    unfold montQ
+    have h := hM
+    unfold montgomeryEq montA montB at h
+    field_simp [hd] at h
+    linear_combination -h
+  unfold edwardsEq montgomeryToEdwards
+  field_simp [hu, hd, hq]
+  rw [hmul]
+  unfold montQ
+  ring
+
+
+/-- **Non-vacuity.** `(d,u,v) = (0,0,0)` satisfies every hypothesis of
+    `montgomeryToEdwards_edwards` (`Q(0) = 1 ≠ 0`); its image is `(0,-1)`, which
+    lies on `E_0 : -x² + y² = 1`. -/
+example : montgomeryEq (0 : ℚ) 0 0 ∧ montQ (0 : ℚ) 0 ≠ 0 := by
+  unfold montgomeryEq montA montB montQ
+  constructor <;> norm_num
 end
 
 end LeanFormalization

@@ -89,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Edwards -> Montgomery birational bridge (row 46)
 
 - New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (140 lines,
-  sha256 `8d46913a...`).
+- New `proofs/LeanFormalization/EdwardsWeierstrassBridge.lean` (187 lines,
+  sha256 `7cf62e70...`).
 - `edwardsToMont_montgomery`: every point `(x, y)` of the twisted-Edwards curve
   `-x^2 + y^2 = 1 + d*x^2*y^2` with `y != 1` maps to the Montgomery model
   `B*v^2 = u^3 + A*u^2 + u`, with `u = (1+y)/(1-y)`, `v = 2*x*(1+d*y^2)/(1-y)^2`,
@@ -111,6 +112,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hold on-curve (verified over `F_101` with 200k random triples, zero failures),
   and `polyrith` -- the natural ideal-membership tool -- is retired in this
   Mathlib revision, while `linear_combination` requires explicit coefficients.
+- The converse direction is also proved: `montgomeryToEdwards_edwards` maps a
+  Montgomery point `(u, v)` back onto `E_d` whenever `u + 1 != 0` and `Q(u) != 0`,
+  with `Q(u) = (1+d)u^2 + 2(1-d)u + (1+d)` factored out as `montQ` and shown equal to
+  the completing-square form `(u+1)^2 + d(u-1)^2`. Each lemma carries an explicit
+  non-vacuity witness (`(d,x,y) = (0,0,-1)` forward, `(d,u,v) = (0,0,0)` backward).
+  Still unproved: the round-trip composites, addition-law compatibility, and
+  denominator completeness at the exceptional loci.
 - Matrix and README/audit markers updated 45 -> 46 rows; all claim-count,
   traceability, lint and placeholder gates re-run locally and passing.
 
