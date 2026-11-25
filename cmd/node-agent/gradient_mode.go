@@ -16,7 +16,7 @@ func generateGradientVector(nodeID string, round int, mode string) []float64 {
 	}
 
 	h := fnv.New64a()
-	_, _ = h.Write([]byte(fmt.Sprintf("%s:%d", nodeID, round)))
+	_, _ = fmt.Fprintf(h, "%s:%d", nodeID, round)
 	state := h.Sum64()
 	for i := range vector {
 		state = state*6364136223846793005 + 1442695040888963407
