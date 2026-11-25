@@ -122,6 +122,7 @@ func main() {
 	network.RegisterGradientHandlerWithKEX(transportHost, kexMode, func(msg *network.GradientMessage) *network.GradientAck {
 		log.Printf("gradient received: round=%d len=%d node=%s task=%s",
 			msg.Round, len(msg.Gradients), sanitizeLogValue(msg.NodeID), sanitizeLogValue(msg.TaskID))
+		metrics.ObserveGradientReceived(msg.NodeID, msg.TaskID, msg.Round)
 		return &network.GradientAck{Accepted: true, NegotiatedKEX: string(kexMode), KEXPublicKeyLen: kexMode.ExpectedPublicKeyBytes()}
 	})
 
