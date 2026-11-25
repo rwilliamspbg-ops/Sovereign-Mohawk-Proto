@@ -58,7 +58,15 @@ func TestObserveGradientReceivedIncrementsCounter(t *testing.T) {
 
 func TestObserveGradientReceivedSetsLastRound(t *testing.T) {
 	ObserveGradientReceived("live-metrics-round-node", "live-metrics-round-task", 4242)
-	if got := liveMetricValue(t, "mohawk_orchestrator_last_round", nil); got != 4242 {
-		t.Fatalf("last round = %v, want 4242", got)
+	if got := liveMetricValue(t, "mohawk_orchestrator_last_round", nil); got < 4242 {
+		t.Fatalf("last round = %v, want at least 4242", got)
+	}
+}
+
+func TestObserveGradientReceivedDoesNotLowerLastRound(t *testing.T) {
+	ObserveGradientReceived("live-metrics-max-node", "live-metrics-max-task", 999999)
+	ObserveGradientReceived("live-metrics-max-node", "live-metrics-max-task", 1)
+	if got := liveMetricValue(t, "mohawk_orchestrator_last_round", nil); got != 999999 {
+		t.Fatalf("last round regressed to %v, want 999999", got)
 	}
 }

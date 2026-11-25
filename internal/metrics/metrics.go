@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"strings"
+	"sync/atomic"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -426,6 +427,7 @@ var (
 		Name: "mohawk_orchestrator_last_round",
 		Help: "Highest FL round observed by the live orchestrator p2p gradient handler.",
 	})
+	liveLastRound atomic.Int64 // highest round observed across all agent round counters
 )
 
 func init() {
@@ -731,7 +733,15 @@ func ObserveGradientReceived(node, task string, round int) {
 		sanitizeLabel(node, "unknown"),
 		sanitizeLabel(task, "unknown"),
 	).Inc()
-	liveGradientLastRound.Set(float64(round))
+	// Agent round counters are independent, so keep the global maximum rather
+	// than letting a late-arriving lower round regress the gauge.
+	for current := liveLastRound.Load(); int64(round) > current; {
+		if liveLastRound.CompareAndSwap(current, int64(round)) {
+			break
+		}
+		current = liveLastRound.Load()
+	}
+	liveGradientLastRound.Set(float64(liveLastRound.Load()))
 }
 
 func resultLabel(success bool) string {
