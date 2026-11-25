@@ -252,3 +252,49 @@ groups:
           summary: "Aggregation worker count is oscillating"
           description: "Worker-count standard deviation exceeded 2 over a 5m window, indicating unstable adaptive scheduling under mixed load."
           runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+  - name: mohawk_multikrum_alerts
+    interval: 30s
+    rules:
+      - alert: MohawkMultiKrumAllGradientsFiltered
+        expr: |
+          (
+            sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator",result="filtered"}[10m]))
+            / clamp_min(sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator"}[10m])), 1e-9)
+          ) > 0.99
+          and sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator"}[10m])) > 10
+        for: 10m
+        labels:
+          severity: critical
+          domain: resilience
+        annotations:
+          summary: "Multi-Krum is filtering effectively every gradient"
+          description: "More than 99% of per-node Multi-Krum decisions were 'filtered' for at least 10m with active gradient traffic. Check f/m configuration, gradient modes, and per-node decision counters."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkMultiKrumHighFilterRatio
+        expr: |
+          (
+            sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator",result="filtered"}[15m]))
+            / clamp_min(sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator"}[15m])), 1e-9)
+          ) > 0.5
+          and sum(increase(mohawk_orchestrator_multikrum_node_decisions_total{job="orchestrator"}[15m])) > 10
+        for: 15m
+        labels:
+          severity: warning
+          domain: resilience
+        annotations:
+          summary: "Multi-Krum filter ratio is elevated"
+          description: "More than half of all per-node Multi-Krum decisions were 'filtered' for 15m. Investigate Byzantine gradient modes, separation assumptions, and node-level decisions."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
+
+      - alert: MohawkOrchestratorScrapesMissing
+        expr: (up{job="orchestrator"} == 0) or absent(up{job="orchestrator"})
+        for: 5m
+        labels:
+          severity: critical
+          domain: liveness
+        annotations:
+          summary: "Orchestrator Prometheus scrapes are missing"
+          description: "The orchestrator target has been down or absent from Prometheus discovery for at least 5m; live Multi-Krum and gradient metrics are not being collected."
+          runbook_url: "https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/blob/main/OPERATIONS_RUNBOOK.md"
