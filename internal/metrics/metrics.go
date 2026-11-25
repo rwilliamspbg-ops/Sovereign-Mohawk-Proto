@@ -444,6 +444,13 @@ var (
 		Name: "mohawk_orchestrator_multikrum_selected",
 		Help: "Number of gradients selected in the most recent live Multi-Krum batch.",
 	})
+	liveMultiKrumNodeDecisions = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_orchestrator_multikrum_node_decisions_total",
+			Help: "Per-node live Multi-Krum decisions by result.",
+		},
+		[]string{"node", "result"},
+	)
 )
 
 func init() {
@@ -489,6 +496,7 @@ func init() {
 		liveMultiKrumBatches,
 		liveMultiKrumFiltered,
 		liveMultiKrumSelected,
+		liveMultiKrumNodeDecisions,
 		// FedAvg scaling metrics
 		fedavgRoundDurationSeconds,
 		fedavgParticipationRatio,
@@ -743,6 +751,15 @@ func ObserveRouterProvenanceRecords(count int) {
 		return
 	}
 	routerProvenanceRecords.Set(float64(count))
+}
+
+// ObserveMultiKrumNodeDecision records whether one node survived Multi-Krum.
+func ObserveMultiKrumNodeDecision(node string, selected bool) {
+	result := "filtered"
+	if selected {
+		result = "selected"
+	}
+	liveMultiKrumNodeDecisions.WithLabelValues(sanitizeLabel(node, "unknown"), result).Inc()
 }
 
 // ObserveMultiKrumDecision records a live per-batch Multi-Krum decision.

@@ -29,3 +29,13 @@ func TestObserveMultiKrumDecisionError(t *testing.T) {
 		t.Fatalf("error counter delta = %v, want 1", got)
 	}
 }
+
+func TestObserveMultiKrumNodeDecision(t *testing.T) {
+	labels := map[string]string{"node": "byzantine-probe", "result": "filtered"}
+	ObserveMultiKrumNodeDecision(labels["node"], false)
+	before := liveMetricValue(t, "mohawk_orchestrator_multikrum_node_decisions_total", labels)
+	ObserveMultiKrumNodeDecision(labels["node"], false)
+	if got := liveMetricValue(t, "mohawk_orchestrator_multikrum_node_decisions_total", labels) - before; got != 1 {
+		t.Fatalf("node decision counter delta = %v, want 1", got)
+	}
+}
