@@ -31,6 +31,9 @@ func StartAttestationWorkers(count int) {
 			for job := range JobQueue {
 				// verify the hardware quote
 				err := tpm.Verify(job.NodeID, job.Quote)
+				if err != nil {
+					log.Printf("Attestation verification failed for node %s: %v", job.NodeID, err)
+				}
 				job.Resp <- err
 			}
 		}()

@@ -94,6 +94,7 @@ func main() {
 	metrics.ObservePQCPolicyMode("transport_kex", string(kexMode))
 	transportCfg.KEXMode = kexMode
 	transportCfg.RelayAddrs = splitRelayAddrs(os.Getenv("MOHAWK_RELAY_ADDRS"))
+	transportCfg.AnnounceAddrs = splitRelayAddrs(os.Getenv("MOHAWK_LIBP2P_ANNOUNCE_ADDRS"))
 	transportHost, err := network.NewHost(context.Background(), transportCfg)
 	if err != nil {
 		log.Fatalf("failed to initialize libp2p host: %v", err)

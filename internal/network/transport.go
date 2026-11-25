@@ -72,6 +72,7 @@ func (mode KEXMode) ExpectedPublicKeyBytes() int {
 
 type Config struct {
 	ListenAddrs        []string
+	AnnounceAddrs      []string
 	RelayAddrs         []string
 	EnableRelayService bool
 	EnableHolePunching bool
@@ -144,6 +145,19 @@ func NewHost(ctx context.Context, cfg Config) (corehost.Host, error) {
 	options := []libp2p.Option{}
 	if len(cfg.ListenAddrs) > 0 {
 		options = append(options, libp2p.ListenAddrStrings(cfg.ListenAddrs...))
+	}
+	if len(cfg.AnnounceAddrs) > 0 {
+		announce := make([]ma.Multiaddr, 0, len(cfg.AnnounceAddrs))
+		for _, raw := range cfg.AnnounceAddrs {
+			maddr, err := ma.NewMultiaddr(raw)
+			if err != nil {
+				return nil, fmt.Errorf("invalid announce address %q: %w", raw, err)
+			}
+			announce = append(announce, maddr)
+		}
+		options = append(options, libp2p.AddrsFactory(func([]ma.Multiaddr) []ma.Multiaddr {
+			return announce
+		}))
 	}
 	if cfg.EnableNATPortMap {
 		options = append(options, libp2p.NATPortMap())

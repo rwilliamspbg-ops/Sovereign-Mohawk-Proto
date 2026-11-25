@@ -358,3 +358,28 @@ func TestParseRelays(t *testing.T) {
 		}
 	})
 }
+
+func TestNewHostAnnounceAddrsOverrideAdvertisedAddrs(t *testing.T) {
+	cfg := DefaultConfig(0)
+	cfg.ListenAddrs = []string{"/ip4/127.0.0.1/tcp/0"}
+	cfg.AnnounceAddrs = []string{"/ip4/203.0.113.10/tcp/4101"}
+	h, err := NewHost(context.Background(), cfg)
+	if err != nil {
+		t.Fatalf("NewHost: %v", err)
+	}
+	t.Cleanup(func() { _ = h.Close() })
+
+	addrs := h.Addrs()
+	if len(addrs) != 1 || addrs[0].String() != "/ip4/203.0.113.10/tcp/4101" {
+		t.Fatalf("advertised addrs = %v, want [/ip4/203.0.113.10/tcp/4101]", addrs)
+	}
+}
+
+func TestNewHostRejectsInvalidAnnounceAddr(t *testing.T) {
+	cfg := DefaultConfig(0)
+	cfg.ListenAddrs = []string{"/ip4/127.0.0.1/tcp/0"}
+	cfg.AnnounceAddrs = []string{"not-a-multiaddr"}
+	if _, err := NewHost(context.Background(), cfg); err == nil {
+		t.Fatal("NewHost accepted an invalid announce address")
+	}
+}
