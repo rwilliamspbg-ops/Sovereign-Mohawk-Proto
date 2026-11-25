@@ -118,9 +118,10 @@ func main() {
 	observeThinkerClausesFromCapabilities(defaultString(os.Getenv("MOHAWK_CAPABILITIES_PATH"), "capabilities.json"))
 	liveF, _ := strconv.Atoi(defaultString(os.Getenv("MOHAWK_LIVE_MULTIKRUM_F"), "0"))
 	liveBatchSize, _ := strconv.Atoi(defaultString(os.Getenv("MOHAWK_LIVE_BATCH_SIZE"), "0"))
-	collector := newGradientBatchCollector(liveBatchSize, liveF)
+	liveM, _ := strconv.Atoi(defaultString(os.Getenv("MOHAWK_LIVE_MULTIKRUM_M"), "0"))
+	collector := newGradientBatchCollector(liveBatchSize, liveF, liveM)
 	if liveF > 0 {
-		log.Printf("live Multi-Krum enabled: f=%d batch_size=%d", liveF, collector.size)
+		log.Printf("live Multi-Krum enabled: f=%d m=%d batch_size=%d", liveF, liveM, collector.size)
 	}
 	server.UtilityLedger = utilityLedger
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver

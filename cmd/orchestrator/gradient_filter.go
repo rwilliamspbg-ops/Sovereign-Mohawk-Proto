@@ -11,13 +11,13 @@ import (
 
 // processLiveMultiKrumIndices runs the real Multi-Krum aggregator and returns
 // the indices of surviving gradients.
-func processLiveMultiKrumIndices(batch [][]float64, f int) ([]int, error) {
-	_, indices, _, err := internal.MultiKrumAggregate(batch, f, 0)
+func processLiveMultiKrumIndices(batch [][]float64, f, m int) ([]int, error) {
+	_, indices, _, err := internal.MultiKrumAggregate(batch, f, m)
 	return indices, err
 }
 
-func processLiveMultiKrum(batch [][]float64, f int) (selected int, filtered int, err error) {
-	indices, err := processLiveMultiKrumIndices(batch, f)
+func processLiveMultiKrum(batch [][]float64, f, m int) (selected int, filtered int, err error) {
+	indices, err := processLiveMultiKrumIndices(batch, f, m)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -38,16 +38,17 @@ type gradientBatchCollector struct {
 	pending []liveGradientEntry
 	size    int
 	f       int
+	m       int
 }
 
-func newGradientBatchCollector(size, f int) *gradientBatchCollector {
+func newGradientBatchCollector(size, f, m int) *gradientBatchCollector {
 	if size <= 0 {
 		size = 2*f + 4
 	}
 	if size < 1 {
 		size = 1
 	}
-	return &gradientBatchCollector{size: size, f: f}
+	return &gradientBatchCollector{size: size, f: f, m: m}
 }
 
 func (c *gradientBatchCollector) add(node, task string, round int, vector []float64) {
@@ -68,7 +69,7 @@ func (c *gradientBatchCollector) add(node, task string, round int, vector []floa
 	for i, e := range entries {
 		vectors[i] = e.vector
 	}
-	indices, err := processLiveMultiKrumIndices(vectors, c.f)
+	indices, err := processLiveMultiKrumIndices(vectors, c.f, c.m)
 	selectedSet := make(map[int]bool, len(indices))
 	for _, idx := range indices {
 		selectedSet[idx] = true
@@ -85,11 +86,11 @@ func (c *gradientBatchCollector) add(node, task string, round int, vector []floa
 	}
 	metrics.ObserveMultiKrumDecision(len(entries), len(indices), len(filteredNodes), err == nil)
 	if err != nil {
-		log.Printf("multikrum decision: batch=%d f=%d selected=0 filtered=0 result=error err=%v", len(entries), c.f, err)
+		log.Printf("multikrum decision: batch=%d f=%d m=%d selected=0 filtered=0 result=error err=%v", len(entries), c.f, c.m, err)
 		return
 	}
-	log.Printf("multikrum decision: batch=%d f=%d selected=%d filtered=%d selected_nodes=%s filtered_nodes=%s result=success",
-		len(entries), c.f, len(indices), len(filteredNodes),
+	log.Printf("multikrum decision: batch=%d f=%d m=%d selected=%d filtered=%d selected_nodes=%s filtered_nodes=%s result=success",
+		len(entries), c.f, c.m, len(indices), len(filteredNodes),
 		strings.Join(selectedNodes, ","), strings.Join(filteredNodes, ","))
 }
 
