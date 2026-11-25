@@ -116,6 +116,12 @@ func main() {
 	}
 	observePQCPolicyMetrics()
 	observeThinkerClausesFromCapabilities(defaultString(os.Getenv("MOHAWK_CAPABILITIES_PATH"), "capabilities.json"))
+	liveF, _ := strconv.Atoi(defaultString(os.Getenv("MOHAWK_LIVE_MULTIKRUM_F"), "0"))
+	liveBatchSize, _ := strconv.Atoi(defaultString(os.Getenv("MOHAWK_LIVE_BATCH_SIZE"), "0"))
+	collector := newGradientBatchCollector(liveBatchSize, liveF)
+	if liveF > 0 {
+		log.Printf("live Multi-Krum enabled: f=%d batch_size=%d", liveF, collector.size)
+	}
 	server.UtilityLedger = utilityLedger
 	// Register the libp2p gradient-submission protocol so edge nodes can deliver
 	// gradient updates directly over the encrypted p2p transport.
@@ -123,6 +129,7 @@ func main() {
 		log.Printf("gradient received: round=%d len=%d node=%s task=%s",
 			msg.Round, len(msg.Gradients), sanitizeLogValue(msg.NodeID), sanitizeLogValue(msg.TaskID))
 		metrics.ObserveGradientReceived(msg.NodeID, msg.TaskID, msg.Round)
+		collector.add(msg.NodeID, msg.TaskID, msg.Round, msg.Gradients)
 		return &network.GradientAck{Accepted: true, NegotiatedKEX: string(kexMode), KEXPublicKeyLen: kexMode.ExpectedPublicKeyBytes()}
 	})
 
