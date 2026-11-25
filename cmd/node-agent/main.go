@@ -65,6 +65,7 @@ type Config struct {
 	IPFSEndpoint              string
 	TotalNodes                int
 	MeshDimensions            int
+	GradientMode              string
 }
 
 //go:embed verifier.wasm
@@ -398,12 +399,12 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 		}
 		orchAddrs = append(orchAddrs, ma)
 	}
-	mockGradients := make([]float64, 128)
+	gradients := generateGradientVector(conf.NodeID, round, conf.GradientMode)
 	msg := &network.GradientMessage{
 		NodeID:    conf.NodeID,
 		TaskID:    "task-init",
 		Round:     round,
-		Gradients: mockGradients,
+		Gradients: gradients,
 	}
 	ack, err := network.SendGradientWithKEX(ctx, peerHost, orchPeerID, orchAddrs, msg, conf.TransportKEXMode)
 	if err != nil {
@@ -467,6 +468,7 @@ func loadConfig() (Config, error) {
 		IPFSEndpoint:              os.Getenv("IPFS_API_ENDPOINT"),
 		TotalNodes:                defaultInt(os.Getenv("MOHAWK_TOTAL_NODES"), 10000000),
 		MeshDimensions:            defaultInt(os.Getenv("MOHAWK_MESH_DIMENSIONS"), 1024),
+		GradientMode:              defaultString(strings.TrimSpace(os.Getenv("MOHAWK_GRADIENT_MODE")), "zero"),
 	}, nil
 }
 

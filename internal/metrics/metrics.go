@@ -428,6 +428,22 @@ var (
 		Help: "Highest FL round observed by the live orchestrator p2p gradient handler.",
 	})
 	liveLastRound atomic.Int64 // highest round observed across all agent round counters
+	// Live Multi-Krum decisions on the orchestrator gradient path.
+	liveMultiKrumBatches = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_orchestrator_multikrum_batches_total",
+			Help: "Total live Multi-Krum batch decisions by outcome.",
+		},
+		[]string{"result"},
+	)
+	liveMultiKrumFiltered = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "mohawk_orchestrator_multikrum_filtered_total",
+		Help: "Total live gradients rejected by Multi-Krum filtering.",
+	})
+	liveMultiKrumSelected = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "mohawk_orchestrator_multikrum_selected",
+		Help: "Number of gradients selected in the most recent live Multi-Krum batch.",
+	})
 )
 
 func init() {
@@ -470,6 +486,9 @@ func init() {
 		routerProvenanceRecords,
 		liveGradientReceivedTotal,
 		liveGradientLastRound,
+		liveMultiKrumBatches,
+		liveMultiKrumFiltered,
+		liveMultiKrumSelected,
 		// FedAvg scaling metrics
 		fedavgRoundDurationSeconds,
 		fedavgParticipationRatio,
@@ -724,6 +743,21 @@ func ObserveRouterProvenanceRecords(count int) {
 		return
 	}
 	routerProvenanceRecords.Set(float64(count))
+}
+
+// ObserveMultiKrumDecision records a live per-batch Multi-Krum decision.
+func ObserveMultiKrumDecision(input, selected, filtered int, success bool) {
+	result := "error"
+	if success {
+		result = "success"
+	}
+	liveMultiKrumBatches.WithLabelValues(result).Inc()
+	if filtered > 0 {
+		liveMultiKrumFiltered.Add(float64(filtered))
+	}
+	if success {
+		liveMultiKrumSelected.Set(float64(selected))
+	}
 }
 
 // ObserveGradientReceived records a gradient accepted by the live orchestrator
