@@ -414,6 +414,18 @@ var (
 		},
 		[]string{"scenario", "tier", "round"},
 	)
+	// Live orchestrator gradient metrics (p2p submission path).
+	liveGradientReceivedTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "mohawk_orchestrator_gradients_received_total",
+			Help: "Total gradient submissions accepted by the live orchestrator p2p handler.",
+		},
+		[]string{"node", "task"},
+	)
+	liveGradientLastRound = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "mohawk_orchestrator_last_round",
+		Help: "Highest FL round observed by the live orchestrator p2p gradient handler.",
+	})
 )
 
 func init() {
@@ -454,6 +466,8 @@ func init() {
 		authzDenialsTotal,
 		routerRequestsTotal,
 		routerProvenanceRecords,
+		liveGradientReceivedTotal,
+		liveGradientLastRound,
 		// FedAvg scaling metrics
 		fedavgRoundDurationSeconds,
 		fedavgParticipationRatio,
@@ -708,6 +722,16 @@ func ObserveRouterProvenanceRecords(count int) {
 		return
 	}
 	routerProvenanceRecords.Set(float64(count))
+}
+
+// ObserveGradientReceived records a gradient accepted by the live orchestrator
+// p2p handler and the highest round observed so far.
+func ObserveGradientReceived(node, task string, round int) {
+	liveGradientReceivedTotal.WithLabelValues(
+		sanitizeLabel(node, "unknown"),
+		sanitizeLabel(task, "unknown"),
+	).Inc()
+	liveGradientLastRound.Set(float64(round))
 }
 
 func resultLabel(success bool) string {
