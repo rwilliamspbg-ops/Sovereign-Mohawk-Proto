@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"hash/fnv"
+	"os"
 )
 
 // generateGradientVector produces a deterministic synthetic gradient vector.
@@ -13,6 +14,15 @@ func generateGradientVector(nodeID string, round int, mode string) []float64 {
 	vector := make([]float64, 128)
 	if mode == "" || mode == "zero" {
 		return vector
+	}
+	if mode == "file" {
+		if path := os.Getenv("MOHAWK_GRADIENT_FILE"); path != "" {
+			if trained, err := parseGradientFile(path); err == nil {
+				return trained
+			}
+		}
+		// Fall through to deterministic synthetic values if the trained
+		// gradient file is unavailable, so the agent keeps making progress.
 	}
 
 	h := fnv.New64a()

@@ -66,6 +66,7 @@ type Config struct {
 	TotalNodes                int
 	MeshDimensions            int
 	GradientMode              string
+	FederationParent          string
 }
 
 //go:embed verifier.wasm
@@ -420,6 +421,13 @@ func sendGradientUpdate(ctx context.Context, conf Config, plan hva.Plan, peerHos
 		return
 	}
 	log.Printf("Gradient: sent round=%d len=%d -> accepted=%v negotiated_kex=%q kex_pubkey_len=%d", msg.Round, len(msg.Gradients), ack.Accepted, sanitizeLogValue(ack.NegotiatedKEX), ack.KEXPublicKeyLen)
+	if conf.FederationParent != "" {
+		if err := forwardGradientToFederation(ctx, conf.NodeID, round, gradients, conf.FederationParent); err != nil {
+			log.Printf("Gradient: federation forward failed: %v", err)
+		} else {
+			log.Printf("Gradient: forwarded round=%d to federation parent=%s", round, sanitizeLogValue(conf.FederationParent))
+		}
+	}
 }
 
 func startMetricsServer(nodeID string) {
@@ -469,6 +477,7 @@ func loadConfig() (Config, error) {
 		TotalNodes:                defaultInt(os.Getenv("MOHAWK_TOTAL_NODES"), 10000000),
 		MeshDimensions:            defaultInt(os.Getenv("MOHAWK_MESH_DIMENSIONS"), 1024),
 		GradientMode:              defaultString(strings.TrimSpace(os.Getenv("MOHAWK_GRADIENT_MODE")), "zero"),
+		FederationParent:          strings.TrimSpace(os.Getenv("MOHAWK_FEDERATION_PARENT")),
 	}, nil
 }
 
