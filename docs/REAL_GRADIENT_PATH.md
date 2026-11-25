@@ -36,3 +36,20 @@ seeded/poisoned vectors with genuinely trained gradients while keeping the
 zero-dependency property of the testbed. Byzantine mode is still available via
 `MOHAWK_GRADIENT_MODE=byzantine` for adversarial comparisons. Both paths are
 transport-accurate; neither claims model-accuracy results under attack.
+
+## Flower-client export (research step)
+
+`scripts/export_flower_gradient.py` replaces the stdlib trainer with a genuine
+`flwr.client.NumPyClient` that trains a small linear model through Flower's
+`fit()` interface and exports the resulting gradient in the same JSON schema:
+
+```bash
+uv venv --python 3.14 .venv-flower
+uv pip install --python .venv-flower/Scripts/python.exe 'flwr[simulation]>=1.17,<2' numpy
+.venv-flower/Scripts/python.exe scripts/export_flower_gradient.py   --node-id deskmini-node-1 --seed 11 --dims 128 --out gradients/node-1.json
+```
+
+`flwr` and `numpy` are optional: without them the script exits with a clear
+message and its tests skip. The claim is now "Flower client trained gradient",
+not merely "SGD vector"; it still uses synthetic training data and does not
+claim model-accuracy resilience under attack.
