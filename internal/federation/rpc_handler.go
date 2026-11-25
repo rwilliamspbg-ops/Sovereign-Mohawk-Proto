@@ -43,6 +43,16 @@ type RPCHandler struct {
 	connMu sync.Mutex
 	conns  map[net.Conn]struct{}
 	connWg sync.WaitGroup
+
+	// aggregationCallback, when set, receives each completed aggregate so a
+	// coordinator can forward it to its parent tier.
+	aggregationCallback func(*GradientMessage)
+}
+
+// SetAggregationCallback installs a sink for completed aggregates. It is safe
+// to call before Start; the callback runs on the aggregation loop goroutine.
+func (h *RPCHandler) SetAggregationCallback(fn func(*GradientMessage)) {
+	h.aggregationCallback = fn
 }
 
 // NewRPCHandler creates a handler for child tier gradient streams
@@ -417,6 +427,9 @@ func (h *RPCHandler) flushPendingAggregations(ctx context.Context) {
 		)
 
 		atomic.AddInt64(&h.gradientsAggregated, 1)
+		if h.aggregationCallback != nil {
+			h.aggregationCallback(aggregated)
+		}
 		delete(h.childBuffers, round)
 	}
 }
@@ -475,6 +488,9 @@ func (h *RPCHandler) flushAsync(ctx context.Context) {
 		aggregated.Norm,
 	)
 	atomic.AddInt64(&h.gradientsAggregated, 1)
+	if h.aggregationCallback != nil {
+		h.aggregationCallback(aggregated)
+	}
 
 	// Clear flushed rounds within the window.
 	for round := range h.childBuffers {

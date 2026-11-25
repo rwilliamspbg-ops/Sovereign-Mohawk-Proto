@@ -50,6 +50,15 @@ func (c *Coordinator) Start(ctx context.Context, listenAddr string) error {
 		return err
 	}
 
+	// Completed aggregates flow upward when this tier has a parent.
+	if c.rpcClient != nil {
+		c.rpcServer.SetAggregationCallback(func(aggregate *GradientMessage) {
+			if err := c.rpcClient.ForwardGradient(ctx, aggregate); err != nil {
+				log.Printf("WARN: [%s] forwarding aggregate to parent: %v", c.config.TierID, err)
+			}
+		})
+	}
+
 	// Launch aggregation loop
 	go c.rpcServer.AggregateLoop(ctx)
 
