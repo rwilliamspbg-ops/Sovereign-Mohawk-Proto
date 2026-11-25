@@ -35,3 +35,16 @@ func TestProcessLiveMultiKrumRequiresEnoughUpdates(t *testing.T) {
 		t.Fatal("expected precondition error for n=2 f=1")
 	}
 }
+
+func TestProcessLiveMultiKrumIndicesIdentifiesPoison(t *testing.T) {
+	batch := poisonedBatch()
+	indices, err := processLiveMultiKrumIndices(batch, 1)
+	if err != nil {
+		t.Fatalf("Multi-Krum failed: %v", err)
+	}
+	for _, idx := range indices {
+		if idx == len(batch)-1 {
+			t.Fatal("poisoned gradient was selected by Multi-Krum")
+		}
+	}
+}
