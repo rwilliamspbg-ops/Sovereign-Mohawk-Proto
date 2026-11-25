@@ -18,7 +18,7 @@ func poisonedBatch() [][]float64 {
 }
 
 func TestProcessLiveMultiKrumFiltersPoison(t *testing.T) {
-	selected, filtered, err := processLiveMultiKrum(poisonedBatch(), 1)
+	selected, filtered, err := processLiveMultiKrum(poisonedBatch(), 1, 0)
 	if err != nil {
 		t.Fatalf("Multi-Krum failed: %v", err)
 	}
@@ -31,20 +31,36 @@ func TestProcessLiveMultiKrumFiltersPoison(t *testing.T) {
 }
 
 func TestProcessLiveMultiKrumRequiresEnoughUpdates(t *testing.T) {
-	if _, _, err := processLiveMultiKrum(poisonedBatch()[:2], 1); err == nil {
+	if _, _, err := processLiveMultiKrum(poisonedBatch()[:2], 1, 0); err == nil {
 		t.Fatal("expected precondition error for n=2 f=1")
 	}
 }
 
 func TestProcessLiveMultiKrumIndicesIdentifiesPoison(t *testing.T) {
 	batch := poisonedBatch()
-	indices, err := processLiveMultiKrumIndices(batch, 1)
+	indices, err := processLiveMultiKrumIndices(batch, 1, 0)
 	if err != nil {
 		t.Fatalf("Multi-Krum failed: %v", err)
 	}
 	for _, idx := range indices {
 		if idx == len(batch)-1 {
 			t.Fatal("poisoned gradient was selected by Multi-Krum")
+		}
+	}
+}
+
+func TestProcessLiveMultiKrumM5FiltersOnlyPoison(t *testing.T) {
+	batch := poisonedBatch()
+	indices, err := processLiveMultiKrumIndices(batch, 1, 5)
+	if err != nil {
+		t.Fatalf("Multi-Krum failed: %v", err)
+	}
+	if len(indices) != 5 {
+		t.Fatalf("selected = %d, want 5", len(indices))
+	}
+	for _, idx := range indices {
+		if idx == len(batch)-1 {
+			t.Fatal("poisoned gradient was selected with m=5")
 		}
 	}
 }
