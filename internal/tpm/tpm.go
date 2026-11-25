@@ -16,6 +16,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -81,6 +82,7 @@ type Attestor struct {
 	sigMode   AttestationSignatureMode
 	hashSeed  [32]byte
 	hashKeyID string
+	statePath string
 	sigIndex  uint64
 	sigMu     sync.Mutex
 }
@@ -691,6 +693,12 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 	if mode == "" {
 		return nil, fmt.Errorf("unsupported MOHAWK_TPM_IDENTITY_SIG_MODE %q", os.Getenv("MOHAWK_TPM_IDENTITY_SIG_MODE"))
 	}
+	statePath := xmssStateFilePath(nodeID)
+	nextIndex, err := loadXMSSIndex(statePath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Attestor{
 		nodeID:    nodeID,
 		authority: authority,
@@ -703,6 +711,8 @@ func newAttestor(nodeID string, authority *Authority) (*Attestor, error) {
 		sigMode:   mode,
 		hashSeed:  hashSeed,
 		hashKeyID: hashKeyID,
+		statePath: statePath,
+		sigIndex:  nextIndex,
 	}, nil
 }
 
@@ -760,6 +770,12 @@ func newAttestorFromFiles(nodeID string, authority *Authority, certPath string, 
 		return nil, err
 	}
 
+	statePath := xmssStateFilePath(nodeID)
+	nextIndex, err := loadXMSSIndex(statePath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Attestor{
 		nodeID:    nodeID,
 		authority: authority,
@@ -772,7 +788,81 @@ func newAttestorFromFiles(nodeID string, authority *Authority, certPath string, 
 		sigMode:   mode,
 		hashSeed:  hashSeed,
 		hashKeyID: hashKeyID,
+		statePath: statePath,
+		sigIndex:  nextIndex,
 	}, nil
+}
+
+
+// xmssStateFilePath returns the on-disk location of the node's next XMSS
+// signature index, or "" when MOHAWK_TPM_XMSS_STATE_DIR is unset (in-memory
+// counter, i.e. the pre-fix behaviour).
+func xmssStateFilePath(nodeID string) string {
+	dir := strings.TrimSpace(os.Getenv("MOHAWK_TPM_XMSS_STATE_DIR"))
+	if dir == "" {
+		return ""
+	}
+	return filepath.Join(dir, hex.EncodeToString([]byte(nodeID))+".xmss-index")
+}
+
+// loadXMSSIndex reads the persisted next index; a missing file means 0.
+func loadXMSSIndex(path string) (uint64, error) {
+	if path == "" {
+		return 0, nil
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return 0, nil
+		}
+		return 0, err
+	}
+	next, err := strconv.ParseUint(strings.TrimSpace(string(raw)), 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parse xmss index file %q: %w", path, err)
+	}
+	return next, nil
+}
+
+// saveXMSSIndex atomically persists the next index so a restarted agent never
+// reuses a one-time-signature index (which the verifier rejects as a replay).
+func saveXMSSIndex(path string, next uint64) error {
+	if path == "" {
+		return nil
+	}
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(dir, ".xmss-index-*")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	defer func() {
+		if tmpName != "" {
+			_ = os.Remove(tmpName)
+		}
+	}()
+	if _, err := tmp.WriteString(strconv.FormatUint(next, 10)); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Chmod(tmpName, 0o600); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpName, path); err != nil {
+		return err
+	}
+	tmpName = ""
+	return nil
 }
 
 func (a *Attestor) GenerateQuote() ([]byte, error) {
@@ -804,6 +894,12 @@ func (a *Attestor) GenerateQuote() ([]byte, error) {
 		a.sigMu.Lock()
 		index := a.sigIndex
 		a.sigIndex++
+		if err := saveXMSSIndex(a.statePath, a.sigIndex); err != nil {
+			// Roll back so a failed persist can never lead to a reused index.
+			a.sigIndex = index
+			a.sigMu.Unlock()
+			return nil, fmt.Errorf("persist xmss signature index: %w", err)
+		}
 		a.sigMu.Unlock()
 		envelope.SignatureIndex = index
 		digest, digestErr := envelope.payloadDigest()
