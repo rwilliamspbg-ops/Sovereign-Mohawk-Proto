@@ -3,12 +3,12 @@
     "claim_count": 6,
     "status_counts": {
       "fully_formalized": 2,
+      "gaussian_rdp_derived": 1,
       "model_verified": 2,
-      "surrogate_verified_gaussian_witness": 1,
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "e85ee518638696f3a2814b3f87060f0dc9c2a7058d43bce56895506e48065fdb",
+  "input_merkle_root": "b6b0ac9ef421235e9b7d1f1afa92bca08de2664e68445fbac1ef73833850f7b6",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -16,19 +16,19 @@
     },
     {
       "path": "go.mod",
-      "sha256": "bfc153d1be47b237a5bcc46143c6fbf07bf6989850cd12f80d456e8643123fcb"
+      "sha256": "40ecd770ec1edb89554a36b1c82612db7e6604ac29e416b8d0d23933e0bd70ab"
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "36d0c29253d872bf86be608a0965fb57509184b46f9e69db53c9880d6d314f5c"
+      "sha256": "6b9523e267439d10e6e34600476a48bf02f3fae18580b9dc733f402ebc9f2026"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "8fade49c7074ed7e2e0936fbd279f6ed5139bbf05a0a80169a76dc39290ff2b1"
+      "sha256": "60ba55df3c0d9ffddf5dc12b19b81dd9913266d2b966a19350351be386ffb104"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
-      "sha256": "534fe3637791eeac032bc60f3203c17c50b0c8af178cd3a0a2d228c45a690179"
+      "sha256": "d74a408fa7b89fc6dcbc0d931279f643e053548751496ed96956ff107cc87e4b"
     },
     {
       "path": "proofs/LeanFormalization/ConditionalExpectationGradient.lean",
@@ -40,83 +40,131 @@
     },
     {
       "path": "proofs/LeanFormalization/DescentInequalityFull.lean",
-      "sha256": "ad320613b113a6b133d987d1e222f224c19bc279d3047d60a7b27eed9b46df2f"
+      "sha256": "88b3f9094a3f369879ae2a0ef21e078f1776c687484a275214b4cb34703cb06b"
     },
     {
       "path": "proofs/LeanFormalization/DiscreteLogReduction.lean",
-      "sha256": "6bc980085a3a13c1307e63c716b6d97e7d4ab5a4d1004bc9c313d2f024456ecf"
+      "sha256": "c96afcb55137e2be176a09703cd88985bdc8688af004e6b0fef68e594f03ffc3"
+    },
+    {
+      "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
+      "sha256": "fcf57cd53db7989b8753545095523337c1c263d3f44052fb715e8b414b6ba2c6"
+    },
+    {
+      "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
+      "sha256": "7354b890b124c8c8a013b5835e9d7db5b81c321cf69d40feef8ca3120c54d6d0"
+    },
+    {
+      "path": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
+      "sha256": "2e0daa1d8296b26523fe31b718f0e0e744a8bccade745dfefadd852ac3305361"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
-      "sha256": "cfa442dab463c1dad78401da6b37200e9730d5b84b4421c57d43784776562118"
+      "sha256": "bc1d23ed938abb64518fbd2a22ff1789298c41e07b350a91b81eb28c592575d6"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519VerificationEquation.lean",
-      "sha256": "11b81ab8ee7e9ddb707673f374596ad4161cc2690f9182321e1c25e086da4833"
+      "sha256": "6303d90af7ca10e612a35402500fabf87579c63bbc5e91b8a83fc66e9cd45390"
+    },
+    {
+      "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
+      "sha256": "bf536156284cefc02e22dcb8cfa3d58ed256a44761c69a6ba6e8bce0b3601d7b"
     },
     {
       "path": "proofs/LeanFormalization/Filtration.lean",
-      "sha256": "16abf170f4f9544829efb328ee165c21bdb8d5a28f53ae0ff5db39512801e907"
+      "sha256": "bb6ddd2490a7307cf08e36d7472b8e939896bf85b462b1fe7c752a33d92fe7ea"
     },
     {
       "path": "proofs/LeanFormalization/HypothesisNecessity.lean",
-      "sha256": "d4e2290ad5d91fce5b5e268fb301a08c7501a7057bedc579495ce14aa4498081"
+      "sha256": "ab893ac7f02c9df964f9e368212e9101698b9732bd9bcbe95e8dd80ad0ceb00c"
     },
     {
       "path": "proofs/LeanFormalization/KrumSelection.lean",
-      "sha256": "af5b2eef858b8b41ec3bc6c25188a6de4fe36c069215da7b60adad124b737c4a"
+      "sha256": "639310525e70d6b9682060e181f9a2ffa6f1921b3980ad4ffa1b0da90fbd5c83"
+    },
+    {
+      "path": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
+      "sha256": "b4445272125fbd21c3fb414a1f7fcc42329d2138abfba61b3a71c26df580c0e2"
     },
     {
       "path": "proofs/LeanFormalization/Measurability.lean",
-      "sha256": "c30874a07688d9b675b5d15018208e214b9a2412961d56507f413b2f93d2c95a"
+      "sha256": "90ca52667ecc50c08c97e4500e8b1fdf3ab646cc51661c11e95535998aae78dc"
+    },
+    {
+      "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
+      "sha256": "e2e88105f95031a328d004b0e68205d06b7102a478b25de9e2f07d720ad3a47f"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
-      "sha256": "45c37bb50dead7bfcbd711aa1ce214859be3eabd9d68e2b83eb72a9649fbbd94"
+      "sha256": "44400a1c776ae1e2ab2b23d6e1265f39b99cb1e234945c06c56c0c635b23bf73"
+    },
+    {
+      "path": "proofs/LeanFormalization/MultiKrumConvergenceBias.lean",
+      "sha256": "a29fb106e67346f7b6e51c3de7bf009b2862a54f85b5c993f90c0dead301a167"
     },
     {
       "path": "proofs/LeanFormalization/ProtocolSafety.lean",
-      "sha256": "e58e8b93713ed1bb836d73a49d4e223b6f0149262d4d663f001c6c0b57071b67"
+      "sha256": "85193b31730b90a167639ad586318eb41b1bee2e12732fca4a5ab4c2080b49cf"
+    },
+    {
+      "path": "proofs/LeanFormalization/RenyiDivergenceAdaptiveRO.lean",
+      "sha256": "9355de8e7a35317e7474261ff247140211e227be3dbc070616f5bdd7ce5a31d9"
+    },
+    {
+      "path": "proofs/LeanFormalization/RenyiDivergenceBoundedRO.lean",
+      "sha256": "85b1b3ad2759b208fb616f874741c26d0db4df1855dd6d14e88d4544cea62913"
+    },
+    {
+      "path": "proofs/LeanFormalization/RenyiDivergenceCompose.lean",
+      "sha256": "5fa6346009523e2612e0f5aa72ba133e918031dc2993441cdc6b1f495b3a4a90"
     },
     {
       "path": "proofs/LeanFormalization/RenyiDivergenceMeasure.lean",
       "sha256": "cb2e9637a9ce9b0e3ddadcc7612e6806f64fc7563b738b1dada7aad4204f0309"
     },
     {
+      "path": "proofs/LeanFormalization/RenyiDivergenceMultivariate.lean",
+      "sha256": "13136ca0f99e53840f34859cc78453b7c554b4041c29c367bb3018233eceb3a5"
+    },
+    {
+      "path": "proofs/LeanFormalization/RenyiDivergenceMultivariateCovariance.lean",
+      "sha256": "9810d81fb0a79ebcd51795288a910276b09dbd49b446fe223da783b4947ddb3d"
+    },
+    {
       "path": "proofs/LeanFormalization/RobbinsSiegmund.lean",
-      "sha256": "97e3f81ba53c971c8c3ecd182c7e5eb65a663d363a2868e5d6cd12d54766cbc2"
+      "sha256": "6086ac74ccceb2381c36d82d9c8e2e324a4c7af7705fba09c4a48eb0ca247cb2"
     },
     {
       "path": "proofs/LeanFormalization/RobbinsSiegmundDeterministic.lean",
-      "sha256": "a3cae320cf8097be3f16c7daa59a3d663deee738b2ea84fd04f787ee2547f52c"
+      "sha256": "1e33cdf7ce5ced963ae21f6d6994ca86f405366e9792434d22ef1cc1c6140b1c"
     },
     {
       "path": "proofs/LeanFormalization/SchnorrForking.lean",
-      "sha256": "06df92a1b106056b6449377255f172b5dcd5adc0dd81373457b6b1d916838d3d"
+      "sha256": "255bd94af65d7efdf0c7ba2b22cb03ec796df96e08ea92d6daf5e719b1a67253"
     },
     {
       "path": "proofs/LeanFormalization/SchnorrReduction.lean",
-      "sha256": "d3822574383dc90e0506416dfdd9236e18787ca1d50665179438e6e3384c8dda"
+      "sha256": "b009509fa2304e6d40134d3065c6a5ea78430ae49fc40dab59fbcd6bf5b3133b"
     },
     {
       "path": "proofs/LeanFormalization/SchnorrUF_CMA.lean",
-      "sha256": "50abed3baefb64e6070332748dfe48a5db36493f98220fdbc944515cf514ecc0"
+      "sha256": "4a0b4fe02c5b309778618395186c51e5fc005328938bc9424ef4a27c9a1f8eee"
     },
     {
       "path": "proofs/LeanFormalization/SchnorrUF_CMAWithOracle.lean",
-      "sha256": "aabfda4eb0722b121768a7b5f46898bbf285b685c8437694a52854670fac8d37"
+      "sha256": "8869bd9ca807d14f4c4b92188ef397f80d27c494867ab4a555916404db53c774"
     },
     {
       "path": "proofs/LeanFormalization/SupermartingaleConvergence.lean",
-      "sha256": "3a3dcbf64193a145d4d1df94ae2a3f564922ae69a28604821a27c2feeb0ad0c1"
+      "sha256": "17a4c3dfc4979ab94e56fb69564253515c42c99f0ef32c797cd2474e4217147a"
     },
     {
       "path": "proofs/LeanFormalization/Theorem1BFT.lean",
-      "sha256": "8ded51a81f7d827e25d6059363ef76030ad28e9a2488d244819f1cd36e377f41"
+      "sha256": "6663fc4b7ddcf55b0a6ea89d5318b39f406103d437181d7a8a8e848e02d46d64"
     },
     {
       "path": "proofs/LeanFormalization/Theorem2RDP.lean",
-      "sha256": "858907411cbe9ab26330b3cdea2ba17c0a11f9240642bdafce28de37f389cb1a"
+      "sha256": "e59834bd4c87188b65e41cc07ca136b6603293fb4afc8767604df5e37ad84008"
     },
     {
       "path": "proofs/LeanFormalization/Theorem3Communication.lean",
@@ -132,15 +180,15 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem4StragglerResilience.lean",
-      "sha256": "4249f0cc7a0fa6920440321e0b723e044be0038cbebe51ce0eaa78f28343724e"
+      "sha256": "391e921497400f0897d4d592a9dc96df0b160b74df241ed1336bb83bc5f7b334"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "7a52d339613f4a1b6489acad2e011d1e2e126e051e54b48342ada5b10e8748d4"
+      "sha256": "abc510cc7b4a1ed795b7fe22d40320f34fbd6abbd8b99a0e2e7d72d3181904b3"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
-      "sha256": "5767ede56e0c4a21f65a77f20584ef45f8691af2f99565796948f45427d815f1"
+      "sha256": "95877006a3309087efd1aa106f8bf97b3f247d0f27539fab66efa7649da071cd"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6Convergence.lean",
@@ -152,27 +200,27 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem6MeasureTheoreticConvergence.lean",
-      "sha256": "779378156d0a2fb7a135b08e2fe989c25b9564924a5545636430cad88ea37e80"
+      "sha256": "bcceffb7eccc72e55c4db4d32011003bb1469e8fbdf6a35fc3fd7af7cc47990f"
     },
     {
       "path": "proofs/LeanFormalization/Theorem6StochasticConvergence.lean",
-      "sha256": "aca2d1231430f8eaeb93c9d7442c6c86fd796351cf4e7f8625eff74445c1b8fa"
+      "sha256": "805e5f3930e0657ceb56e72482829b61aec27341bd25680f45c71e1ee9037385"
     },
     {
       "path": "proofs/LeanFormalization/Theorem7PQCMigrationContinuity.lean",
-      "sha256": "8c16265297c31d013a9b361785df5d18798665bcee23085f71b8401ecdd0850f"
+      "sha256": "ddf1d1a24242e2a39e708d51a8aed91930ccc864365651dd2d280ca0c1394844"
     },
     {
       "path": "proofs/LeanFormalization/Theorem8DualSignatureNonHijack.lean",
-      "sha256": "03b4d1c6b230c686db8088074cd5291d2c59107fca09f74e0289265de1dba3d5"
+      "sha256": "36b0ceddf915d3be4247dbc2f7cc465512811c9ca196a1b8c2288d5f3d4a59dd"
     },
     {
       "path": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519.lean",
-      "sha256": "832bc7114a3e593af7219269902eb6b2ffdc80de8d089ab87338ccfc619175ae"
+      "sha256": "d2540e2903db1cf5ce631914862459ea0aa9045a3ff9dbba7f32b1de1f4178cd"
     },
     {
       "path": "proofs/LeanFormalization/TheoremUF_CMA_Ed25519_example.lean",
-      "sha256": "5360993c4566df468f3c589a7318b62c5ee3f6e0eb1b4549e6d56ca7343416b5"
+      "sha256": "6306b976e493b7388c600820d9dc1a8074ed28d8cd825dff3de5e2b1211c4314"
     },
     {
       "path": "proofs/lakefile.lean",
@@ -184,7 +232,7 @@
     },
     {
       "path": "proofs/theorem_claims.json",
-      "sha256": "bf6f96490824ef474d5197dea73e2d95a6642733b00023be510914d550c8cac7"
+      "sha256": "7b0fbf969b15a1bf5d46e924cf135f4d15be17ea4a1f8f20f522e8de006d17cf"
     }
   ],
   "lean_modules": [
@@ -246,6 +294,96 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
+      "module": "LeanFormalization.Ed25519CurveGroupLaw",
+      "symbol_count": 15,
+      "symbols": [
+        "IsCanonical",
+        "IsConsistent",
+        "IsNegation",
+        "affineAddFormula",
+        "affineAddFormula_comm",
+        "affineAdd_canonical",
+        "affineAdd_comm",
+        "affineAdd_eq_formula",
+        "affineAdd_identity",
+        "affineAdd_identity_false_infinity",
+        "affineAdd_identity_left",
+        "beq_mod_sub_symm",
+        "isNegation_comm",
+        "isNegation_noncanonical_counterexample",
+        "mod_sub_self_eq"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
+      "module": "LeanFormalization.Ed25519FieldBridge",
+      "symbol_count": 38,
+      "symbols": [
+        "add_mul",
+        "card_units_zmod",
+        "ed25519P_ne_zero",
+        "ed25519P_pos",
+        "fPowState",
+        "fPowState_exp",
+        "fPowState_exp_ge",
+        "fPowState_lt",
+        "fPowState_result_eq",
+        "fPowState_succ",
+        "fPowState_zmod",
+        "fPowStep",
+        "fPowStep_exp",
+        "fPow_eq_fPowState",
+        "fPow_eq_pow_mod",
+        "fadd_assoc",
+        "fadd_comm",
+        "fadd_lt",
+        "fadd_mod",
+        "fadd_zero",
+        "fadd_zmod",
+        "fmul_add",
+        "fmul_assoc",
+        "fmul_comm",
+        "fmul_fInv",
+        "fmul_fInv_zero",
+        "fmul_lt",
+        "fmul_mod",
+        "fmul_one",
+        "fmul_zero",
+        "fmul_zmod",
+        "fsub_lt",
+        "fsub_zmod",
+        "list_foldl_invariant",
+        "nat_eq_of_modEq",
+        "nat_eq_of_zmod_eq",
+        "units_val_pow",
+        "zmod_pow_sub_one"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
+      "module": "LeanFormalization.Ed25519ScalarMulStructure",
+      "symbol_count": 16,
+      "symbols": [
+        "affineAdd_consistent",
+        "affineScalarMulImpl_canonical",
+        "affineScalarMulImpl_consistent",
+        "affineScalarMulImpl_eq_smulFold",
+        "affineScalarMulImpl_one",
+        "affineScalarMulImpl_zero",
+        "foldl_smulStep_canonical",
+        "foldl_smulStep_consistent",
+        "foldl_zero_bits_eq_identity",
+        "smulFold_bitZero",
+        "smulFold_range_succ",
+        "smulFold_stable_below",
+        "smulStep",
+        "smulStep_canonical",
+        "smulStep_consistent",
+        "smulStep_zero_identity"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
       "module": "LeanFormalization.Ed25519UF_CMASecurity",
       "symbol_count": 8,
@@ -263,14 +401,47 @@
     {
       "file": "proofs/LeanFormalization/Ed25519VerificationEquation.lean",
       "module": "LeanFormalization.Ed25519VerificationEquation",
-      "symbol_count": 6,
+      "symbol_count": 10,
       "symbols": [
         "Ed25519VerificationEquation",
         "constantMul_not_injective",
-        "constantMul_violates_oneMul",
         "ed25519_recover_hdiff_needed",
         "ed25519_two_equations_recover",
+        "nonAdditiveSmul",
+        "nonAdditiveSmul_violates_addMul",
+        "paritySmul",
+        "paritySmul_violates_congMul",
+        "paritySmul_violates_mulMul",
         "verificationEquation_iff_ModEq"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
+      "module": "LeanFormalization.EdwardsWeierstrassBridge",
+      "symbol_count": 22,
+      "symbols": [
+        "edwardsEq",
+        "edwardsToMont",
+        "edwardsToMont_fst",
+        "edwardsToMont_montgomery",
+        "edwardsToMont_roundtrip",
+        "edwardsToMont_snd",
+        "edwards_one_add_dy_ne_zero",
+        "edwards_x_recover",
+        "edwards_y_recover",
+        "montA",
+        "montB",
+        "montQ",
+        "montQ_completes_square",
+        "montQ_of_edwards",
+        "montgomeryEq",
+        "montgomeryToEdwards",
+        "montgomeryToEdwards_edwards",
+        "montgomeryToEdwards_fst",
+        "montgomeryToEdwards_roundtrip",
+        "montgomeryToEdwards_snd",
+        "montgomery_u_recover",
+        "montgomery_v_recover"
       ]
     },
     {
@@ -314,6 +485,17 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
+      "module": "LeanFormalization.KrumSelectionAdversarial",
+      "symbol_count": 4,
+      "symbols": [
+        "krum_minimizer_in_honest_or_near",
+        "krum_selection_infiltration",
+        "krum_selection_separation_necessary",
+        "krum_separation_margin"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/Measurability.lean",
       "module": "LeanFormalization.Measurability",
       "symbol_count": 7,
@@ -325,6 +507,26 @@
         "masked_gradient_measurable_fixed",
         "stochastic_gradient_jointly_measurable",
         "stochastic_gradient_measurable_fixed"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
+      "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
+      "symbol_count": 13,
+      "symbols": [
+        "edAddField",
+        "edAddField_associative_of_compat",
+        "edAdd_mont_u",
+        "edAdd_toMont_eq_montAdd",
+        "montAdd",
+        "montAdd_associative_of_weierstrass",
+        "montB_ne_zero",
+        "montToWeier",
+        "montToWeier_addCoord",
+        "montWeier",
+        "mont_nonsingular",
+        "montgomeryToWeier_equation",
+        "montgomery_v_sq"
       ]
     },
     {
@@ -342,6 +544,18 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/MultiKrumConvergenceBias.lean",
+      "module": "LeanFormalization.MultiKrumConvergenceBias",
+      "symbol_count": 5,
+      "symbols": [
+        "biased_descent_inequality",
+        "biased_multikrum_convergence_ae",
+        "constant_bias_not_summable",
+        "sgd_step_condexp_expand",
+        "young_eta_norm_sq"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/ProtocolSafety.lean",
       "module": "LeanFormalization.ProtocolSafety",
       "symbol_count": 6,
@@ -352,6 +566,46 @@
         "hierarchical_counterexample_safeButFractionUnsafe",
         "multikrum_guard_failure_deployment_scale",
         "multikrum_guard_failure_prob"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceAdaptiveRO.lean",
+      "module": "LeanFormalization.RenyiDivergenceAdaptiveRO",
+      "symbol_count": 8,
+      "symbols": [
+        "AdaptiveSchedule",
+        "NonCausalSchedule",
+        "adaptiveQueries",
+        "adaptiveQueries_prefix",
+        "adaptive_roForkProb_ge",
+        "nonCausalQueries",
+        "nonprefix_queries_break_fork",
+        "roPrefix_eq_of_roPrefix_eq"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceBoundedRO.lean",
+      "module": "LeanFormalization.RenyiDivergenceBoundedRO",
+      "symbol_count": 8,
+      "symbols": [
+        "naiveRewind_agrees_off_count",
+        "roAcceptProb_three_eighths",
+        "roCount_sum",
+        "roForkProb_ge",
+        "roForkProb_ge_card",
+        "roPrefix",
+        "sum_card_fiber",
+        "sum_sq_div_card_le"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceCompose.lean",
+      "module": "LeanFormalization.RenyiDivergenceCompose",
+      "symbol_count": 3,
+      "symbols": [
+        "gaussianRDPMeasure_two_rounds",
+        "renyiDivergenceMeasure_prod",
+        "renyiDivergenceMeasure_prod_positivity_needed"
       ]
     },
     {
@@ -366,6 +620,29 @@
         "gaussianRDP_integrand",
         "renyiDivergenceMeasure_count",
         "renyiDivergenceMeasure_count_eq_renyiDivergence"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceMultivariate.lean",
+      "module": "LeanFormalization.RenyiDivergenceMultivariate",
+      "symbol_count": 5,
+      "symbols": [
+        "finset_prod_rpow_real",
+        "gaussianDensity_nonneg",
+        "gaussianDensity_zero_sigma",
+        "gaussianRDPMeasure_diagonal",
+        "integral_gaussianDensity_zero_sigma"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/RenyiDivergenceMultivariateCovariance.lean",
+      "module": "LeanFormalization.RenyiDivergenceMultivariateCovariance",
+      "symbol_count": 4,
+      "symbols": [
+        "gaussian_integral_half_sq_1d",
+        "gaussian_integral_isotropic_sum",
+        "gaussian_quadratic_integral_matrix",
+        "integral_gaussian_density_covariance"
       ]
     },
     {
@@ -835,9 +1112,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 44,
-    "module_count": 37,
-    "theorem_symbol_count": 385
+    "input_file_count": 56,
+    "module_count": 49,
+    "theorem_symbol_count": 530
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
