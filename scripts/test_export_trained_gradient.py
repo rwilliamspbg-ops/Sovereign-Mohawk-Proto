@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Tests for scripts/export_trained_gradient.py (stdlib only)."""
+
 import json
 import subprocess
 import sys
@@ -18,9 +19,22 @@ class TrainedGradientTest(unittest.TestCase):
             second = Path(directory) / "b.json"
             for path in (first, second):
                 subprocess.run(
-                    [sys.executable, str(SCRIPT), "--node-id", "n1", "--seed", "7",
-                     "--dims", "16", "--steps", "20", "--out", str(path)],
-                    check=True, capture_output=True,
+                    [
+                        sys.executable,
+                        str(SCRIPT),
+                        "--node-id",
+                        "n1",
+                        "--seed",
+                        "7",
+                        "--dims",
+                        "16",
+                        "--steps",
+                        "20",
+                        "--out",
+                        str(path),
+                    ],
+                    check=True,
+                    capture_output=True,
                 )
             a = json.loads(first.read_text())
             b = json.loads(second.read_text())
@@ -35,9 +49,22 @@ class TrainedGradientTest(unittest.TestCase):
             for seed in (1, 2):
                 path = Path(directory) / f"{seed}.json"
                 subprocess.run(
-                    [sys.executable, str(SCRIPT), "--node-id", "n1", "--seed", str(seed),
-                     "--dims", "16", "--steps", "20", "--out", str(path)],
-                    check=True, capture_output=True,
+                    [
+                        sys.executable,
+                        str(SCRIPT),
+                        "--node-id",
+                        "n1",
+                        "--seed",
+                        str(seed),
+                        "--dims",
+                        "16",
+                        "--steps",
+                        "20",
+                        "--out",
+                        str(path),
+                    ],
+                    check=True,
+                    capture_output=True,
                 )
                 paths.append(json.loads(path.read_text())["gradient"])
             self.assertNotEqual(paths[0], paths[1])

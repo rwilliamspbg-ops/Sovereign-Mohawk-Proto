@@ -5,6 +5,7 @@ Uses only the Python standard library: a small linear model trained with SGD on
 deterministic synthetic data. Each seed yields a different honest gradient,
 so Multi-Krum sees real distances rather than synthetic noise.
 """
+
 from __future__ import annotations
 
 import argparse
