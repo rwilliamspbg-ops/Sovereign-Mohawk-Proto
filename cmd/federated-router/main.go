@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -269,22 +270,71 @@ func provenanceHandler(r *router.Router) http.HandlerFunc {
 	})
 }
 
-// Simple in-memory rate limiter (per IP, bursty, not production-grade)
-var rateLimiters = make(map[string]int)
-var rateLimiterMu sync.Mutex
+// windowRateLimiter is a per-client-IP sliding-window limiter. The previous
+// implementation keyed on r.RemoteAddr (which includes the client's ephemeral
+// port), capped a connection at 21 requests for the process lifetime and never
+// decayed, so a keep-alive client was locked out permanently after ~10 rounds.
+type windowRateLimiter struct {
+	mu     sync.Mutex
+	window time.Duration
+	limit  int
+	hits   map[string][]time.Time
+}
+
+func newWindowRateLimiter(window time.Duration, limit int) *windowRateLimiter {
+	if limit <= 0 {
+		limit = 1
+	}
+	return &windowRateLimiter{window: window, limit: limit, hits: make(map[string][]time.Time)}
+}
+
+func (l *windowRateLimiter) allow(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		host = addr
+	}
+	now := time.Now()
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	recent := l.hits[host][:0]
+	for _, t := range l.hits[host] {
+		if now.Sub(t) < l.window {
+			recent = append(recent, t)
+		}
+	}
+	if len(recent) >= l.limit {
+		l.hits[host] = recent
+		return false
+	}
+	l.hits[host] = append(recent, now)
+	return true
+}
+
+var routerRateLimiter = newWindowRateLimiter(time.Minute, routerRateLimitPerMin())
+
+func routerRateLimitPerMin() int {
+	raw := strings.TrimSpace(os.Getenv("MOHAWK_ROUTER_RATE_LIMIT_PER_MIN"))
+	if raw == "" {
+		return 240
+	}
+	parsed, err := strconv.Atoi(raw)
+	if err != nil || parsed <= 0 {
+		return 240
+	}
+	return parsed
+}
 
 func rateLimitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
-		rateLimiterMu.Lock()
-		count := rateLimiters[ip]
-		if count > 20 {
-			rateLimiterMu.Unlock()
+		if !routerRateLimiter.allow(r.RemoteAddr) {
+			endpoint := strings.TrimPrefix(r.URL.Path, "/router/")
+			if endpoint == "" {
+				endpoint = "unknown"
+			}
+			metrics.ObserveRouterRequest(endpoint, false, "rate_limited")
 			http.Error(w, "rate limit exceeded", http.StatusTooManyRequests)
 			return
 		}
-		rateLimiters[ip] = count + 1
-		rateLimiterMu.Unlock()
 		next(w, r)
 	}
 }
