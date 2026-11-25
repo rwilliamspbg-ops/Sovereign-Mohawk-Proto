@@ -1,8 +1,8 @@
 # Sovereign-Mohawk-Proto — LAN multi-node testbed final report
 
-**Testbed commit:** `d35ee0537d606a1d25f0efb171b93d3d88e83862` (identical on both hosts; includes PR #411/#412)
+**Testbed commit:** `a4c55549edb8019d7f3055b52ae1e47610c1a27f` (identical on both hosts; includes PR #411/#412/#415/#416/#417–#420)
 **Hosts:** A = `10.0.0.87` Windows 11 (orchestrator + router + Prometheus + Grafana); B = `10.0.0.29` Ubuntu Desk-Mini (2 live node-agents + IPFS)
-**Artifact root:** `C:/Users/rwill/lan-multinode-artifacts/20261124-2230/` (mirrored to `~/lan-multinode-artifacts/20261124-2230/` on B)
+**Artifact root:** `~/lan-multinode-artifacts/20261124-2230/` on both hosts (all artifact paths below are relative to this root)
 **Machine-readable companion:** `final-report.json`
 
 ## Phase 0–5 (previously reported)
@@ -168,3 +168,34 @@ leaf cert (`CN=node-agent-3`) and its own compose override (`lan-compose-b-agent
 
 The sudo credential supplied was for Desk-Mini (Linux); the Windows firewall rule still requires
 an elevated PowerShell session on A. B→A ICMP remains 100 % loss; TCP/mTLS data plane unaffected.
+
+## Live Multi-Krum + adversarial agent — #4 (PRs #417–#419)
+
+Six real p2p agents (3 Windows, 3 Desk-Mini) submit 128-float gradients every ~30 s.
+`deskmini-node-3` runs `MOHAWK_GRADIENT_MODE=byzantine`; the other five use seeded
+deterministic vectors. The orchestrator batches six submissions and runs the real
+`internal.MultiKrumAggregate` filter with per-batch and per-node Prometheus metrics.
+
+| Config (5-min window, 11 decisions) | Byzantine filtered | Byzantine selected | Honest filtered |
+|---|---:|---:|---:|
+| `f=1, m=0` (default n−f−2=3) | **11/11** | 0 | 22 (40 % of honest submissions) |
+| `f=1, m=5` | **11/11** | 0 | **0** |
+
+With `m=5`, per-node counters show 12 selected for each honest node and 12 filtered
+for `deskmini-node-3` in every decision. Evidence: `phase6/multikrum-live/`
+(`evaluation-summary.md/.json`, `attributed-decisions*.txt`, `metrics*.txt`).
+
+Caveat: gradient values are synthetic (deterministic seed + injected poison), not
+trained model updates; this validates the live decision path and observability,
+not accuracy under attack.
+
+## Two-level federation demo — #7 (PR #420)
+
+Real `internal/federation` coordinators on both hosts: global container on A (RPC :9125, stats :9130) and native regional process on B (RPC :9126, stats :9131, parent `10.0.0.87:9125`). PR #420 added the aggregation→parent forwarding callback that made the hierarchy functional.
+
+| Tier | received | aggregated | method | parent latency |
+|---|---:|---:|---|---:|
+| regional-1 (B) | 18 | 2 (7 + 6 child gradients) | multi-krum | 15 ms |
+| global-1 (A) | 2 | 2 | mean-fallback (single child) | n/a |
+
+Both stats endpoints and logs corroborate the upward flow with matching norms (2.0400). Evidence: `phase7/federation-demo/` (`evaluation.md/.json`, stats, logs, Dockerfile). Caveats: synthetic gradients over the real RPC protocol; global has one child so Multi-Krum correctly falls back to mean.
