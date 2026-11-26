@@ -407,7 +407,6 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
     (hcP : IsCanonical P) (hcQ : IsCanonical Q) (hcR : IsCanonical R)
     (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hR : ¬ R.inf)
     (hnegPQ : IsNegation P Q = false) (hnegQR : IsNegation Q R = false)
-    (hS1inf : ¬ (affineAdd P Q).inf) (hS2inf : ¬ (affineAdd Q R).inf)
     (hnegS1R : IsNegation (affineAdd P Q) R = false)
     (hnegPS2 : IsNegation P (affineAdd Q R) = false)
     (hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P))
@@ -457,6 +456,12 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
           (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).2 ≠ 0) :
     affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) := by
   letI := hp
+  have hS1inf : ¬ (affineAdd P Q).inf := by
+    rw [affineAdd_eq_formula P Q hP hQ hnegPQ]
+    simp [affineAddFormula]
+  have hS2inf : ¬ (affineAdd Q R).inf := by
+    rw [affineAdd_eq_formula Q R hQ hR hnegQR]
+    simp [affineAddFormula]
   let dZ : ZMod ed25519P := (ed25519D : ZMod ed25519P)
   have hsq : IsSquare (-1 : ZMod ed25519P) := ed25519_isSquare_neg_one hp
   have hd : 1 + dZ ≠ 0 := by
@@ -555,5 +560,22 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
   subst ry
   subst ri
   rfl
+
+/-- `decodePoint`'s Nat on-curve test lifts to `edwardsEq` on `ZMod ed25519P`.
+    This lets callers supply the concrete Bool/Nat test instead of a separate
+    field-level hypothesis. -/
+lemma edwardsEq_of_nat_curve_eq (hp : Fact (Nat.Prime ed25519P)) {x y : ℕ}
+    (h : fsub (fPow2 y) (fPow2 x) =
+      fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y)))) :
+    edwardsEq (ed25519D : ZMod ed25519P) (x : ZMod ed25519P) (y : ZMod ed25519P) := by
+  letI := hp
+  unfold edwardsEq
+  have hz : ((fsub (fPow2 y) (fPow2 x) : ℕ) : ZMod ed25519P) =
+      ((fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y))) : ℕ) : ZMod ed25519P) := by
+    rw [h]
+  rw [fsub_zmod, fadd_zmod] at hz
+  simp only [fPow2, fmul_zmod] at hz
+  ring_nf at hz ⊢
+  exact hz
 
 end LeanFormalization
