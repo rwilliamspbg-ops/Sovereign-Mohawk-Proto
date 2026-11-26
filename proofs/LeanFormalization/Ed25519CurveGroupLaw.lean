@@ -578,4 +578,46 @@ lemma edwardsEq_of_nat_curve_eq (hp : Fact (Nat.Prime ed25519P)) {x y : ℕ}
   ring_nf at hz ⊢
   exact hz
 
+set_option maxRecDepth 200000
+set_option maxHeartbeats 1000000
+
+/-- The concrete constant `ed25519D` is `-121665/121666` in `ZMod ed25519P`.
+    This identifies the implementation's `d` with the mathematical constant;
+    proving it nonsquare would still need a Legendre computation that is not
+    available under this Mathlib pin. -/
+lemma ed25519D_zmod (hp : Fact (Nat.Prime ed25519P)) :
+    (ed25519D : ZMod ed25519P) =
+      -(121665 : ZMod ed25519P) * (121666 : ZMod ed25519P)⁻¹ := by
+  letI := hp
+  unfold ed25519D
+  rw [ZMod.natCast_mod, Nat.cast_mul]
+  have hsub : ((ed25519P - 121665 : ℕ) : ZMod ed25519P) = -(121665 : ZMod ed25519P) := by
+    rw [Nat.cast_sub (by unfold ed25519P; norm_num)]
+    simp
+  rw [hsub]
+  have hbound : ed25519P - 2 < 2 ^ 256 := by unfold ed25519P; norm_num
+  have hinv_nat : fPow 121666 (ed25519P - 2) = (121666 ^ (ed25519P - 2)) % ed25519P :=
+    fPow_eq_pow_mod 121666 (ed25519P - 2) hbound
+  rw [hinv_nat, ZMod.natCast_mod, Nat.cast_pow]
+  have hne : (121666 : ZMod ed25519P) ≠ 0 := by
+    intro h
+    have hdvd : ed25519P ∣ 121666 := (ZMod.natCast_eq_zero_iff 121666 ed25519P).mp h
+    have hle : ed25519P ≤ 121666 := Nat.le_of_dvd (by norm_num) hdvd
+    have hgt : 121666 < ed25519P := by unfold ed25519P; norm_num
+    omega
+  have hpoweq : (121666 : ZMod ed25519P) ^ (ed25519P - 2) * (121666 : ZMod ed25519P) =
+      (121666 : ZMod ed25519P) ^ (ed25519P - 1) := by
+    rw [show ed25519P - 1 = (ed25519P - 2) + 1 by
+      have : 2 ≤ ed25519P := by unfold ed25519P; norm_num
+      omega, pow_add, pow_one]
+  have hpown : (121666 : ZMod ed25519P) ^ (ed25519P - 2) * (121666 : ZMod ed25519P) = 1 := by
+    rw [hpoweq]
+    exact zmod_pow_sub_one (p := ed25519P) hne
+  have hinvfac : (121666 : ZMod ed25519P) ^ (ed25519P - 2) =
+      (121666 : ZMod ed25519P)⁻¹ := by
+    apply (mul_right_cancel₀ hne)
+    rw [inv_mul_cancel₀ hne]
+    exact hpown
+  exact congrArg (fun z : ZMod ed25519P => -(121665 : ZMod ed25519P) * z) hinvfac
+
 end LeanFormalization
