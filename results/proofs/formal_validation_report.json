@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "0064eb2ce600149db78e6cb25f970108befefef1e58ce71d4938daa1b96a543b",
+  "input_merkle_root": "9a3bce58930765b1b625ea937cbce9ec46822e9237b2257cc76765822c113807",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "8b0678812aca5ec18055547ac37ea7553be75d25063439372621d5f22f456934"
+      "sha256": "e37bb079766855c3f9b59814a4f69c2d76492f8646ae2a2af98367bc8ef7d2ec"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "16ab845bd63ebddd9a64ecb40a5dd30670db75d8a40f9b5d0022317faec17d05"
+      "sha256": "cfe030f3f622e40c6c78d74783997eb3339cb4cbeb003a9ee352c9fc683dd6c8"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -296,14 +296,16 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 18,
+      "symbol_count": 23,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
         "IsNegation",
+        "above",
         "affineAddFormula",
         "affineAddFormula_comm",
         "affineAddFormula_zmod_eq_edAddField",
+        "affineAdd_associative_of_complete",
         "affineAdd_canonical",
         "affineAdd_comm",
         "affineAdd_eq_formula",
@@ -313,6 +315,9 @@
         "affineAdd_zmod_eq_edAddField",
         "affineAdd_zmod_eq_edAddField_of_onCurve",
         "beq_mod_sub_symm",
+        "ed25519_isSquare_neg_one",
+        "ed25519_mod_four_eq_one",
+        "ed25519_two_ne_zero",
         "isNegation_comm",
         "isNegation_noncanonical_counterexample",
         "mod_sub_self_eq"
@@ -1130,7 +1135,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 546
+    "theorem_symbol_count": 551
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
