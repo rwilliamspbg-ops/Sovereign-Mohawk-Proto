@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "9a3bce58930765b1b625ea937cbce9ec46822e9237b2257cc76765822c113807",
+  "input_merkle_root": "96dfb947a7092bbc1abd1ac4c896a26d0cee9f20b1abf46b2c6b39b912b8920e",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "e37bb079766855c3f9b59814a4f69c2d76492f8646ae2a2af98367bc8ef7d2ec"
+      "sha256": "72dcead09af8afc6e914e1de1b1aa8121e9f6b5e4166e4fd25358e27ecb185f1"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -92,7 +92,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "74a688ba9e33fda76076f9f1ce7f7b57e8d2afb55e4c39259baa01e5bf88e705"
+      "sha256": "9c68e3328cd9925a2f305f4d703203bd0ad2e503636ea79f9fbb9b5b07eb6748"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -520,7 +520,7 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 26,
+      "symbol_count": 36,
       "symbols": [
         "edAddClosure_aux",
         "edAddField",
@@ -534,6 +534,9 @@
         "edwardsAddCompat_of_complete",
         "edwardsToMont_eq_montAdd_of_complete",
         "edwardsToMont_u_add_one_ne_zero",
+        "edwards_denoms_completeness_counterexample_combined",
+        "edwards_denoms_completeness_counterexample_minus",
+        "edwards_denoms_completeness_counterexample_plus",
         "edwards_denoms_ne_zero",
         "edwards_of_montgomery_aux",
         "montAdd",
@@ -547,7 +550,14 @@
         "mont_nonsingular",
         "montgomeryToWeier_equation",
         "montgomery_v_sq",
-        "x3_mul_vadd_aux"
+        "neg_one_not_square_zmod11",
+        "two_not_square_zmod11",
+        "x3_mul_vadd_aux",
+        "zmod11_curve_1_3",
+        "zmod11_curve_4_5",
+        "zmod11_curve_4_6",
+        "zmod11_den_minus_zero",
+        "zmod11_den_plus_zero"
       ]
     },
     {
@@ -1135,7 +1145,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 551
+    "theorem_symbol_count": 561
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

@@ -336,8 +336,11 @@ lemma edAdd_mont_u {d u1 v1 u2 v2 : K}
     and `d` is not a square, then both denominators of the unified law are
     nonzero for every pair of on-curve points. This is the standard completeness
     condition (the `a = -1` special case uses `IsSquare (-1)`; for Ed25519
-    `p = 2^255 - 19 ≡ 1 mod 4`, so `-1` is a square). No division, no `2 ≠ 0`
-    and no coordinate-nonzero hypotheses are needed.
+    `p = 2^255 - 19 ≡ 1 mod 4`, so `-1` is a square). The `IsSquare (-1)`
+    hypothesis is load-bearing: the `CompletenessNegativeControl` section below
+    proves explicit on-curve counterexamples over `F_11` where `d = 2` is a
+    nonsquare but `-1` is not. No division, no `2 ≠ 0` and no coordinate-nonzero
+    hypotheses are needed.
 
     Proof shape: a vanishing denominator forces `(d·x₁·x₂·y₁·y₂)² = 1`. Combining
     that with the two curve equations by one explicit `linear_combination`
@@ -436,6 +439,61 @@ lemma edwards_denoms_ne_zero {d x1 y1 x2 y2 : K}
           _ = (i * i) * ((d * y1 * y2) * (d * y1 * y2)) := by rw [← hi]; ring
           _ = (i * (d * y1 * y2)) * (i * (d * y1 * y2)) := by ring
       exact hnd ⟨i * (d * y1 * y2), hsqrt⟩
+
+section CompletenessNegativeControl
+
+/-! ### Negative control: nonsquareness of `d` alone is NOT enough
+
+    Machine-checked witnesses over `F_11`, where `d = 2` is a nonsquare and
+    `-1` is also a nonsquare: both unified-law denominators vanish for explicit
+    on-curve pairs. This makes the extra `IsSquare (-1)` hypothesis of
+    `edwards_denoms_ne_zero` load-bearing rather than an artifact of the proof. -/
+local instance : Fact (Nat.Prime 11) := ⟨by norm_num⟩
+
+lemma neg_one_not_square_zmod11 : ¬ IsSquare (-1 : ZMod 11) := by
+  rw [ZMod.exists_sq_eq_neg_one_iff]
+  norm_num
+
+lemma two_not_square_zmod11 : ¬ IsSquare (2 : ZMod 11) := by
+  decide
+
+lemma zmod11_curve_1_3 : edwardsEq (2 : ZMod 11) 1 3 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 8 19 11).2 (by norm_num)
+lemma zmod11_curve_4_5 : edwardsEq (2 : ZMod 11) 4 5 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 9 801 11).2 (by norm_num)
+lemma zmod11_curve_4_6 : edwardsEq (2 : ZMod 11) 4 6 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 20 1153 11).2 (by norm_num)
+
+lemma zmod11_den_plus_zero : 1 + (2 : ZMod 11) * 1 * 4 * 3 * 5 = 0 := by decide
+lemma zmod11_den_minus_zero : 1 - (2 : ZMod 11) * 1 * 4 * 3 * 6 = 0 := by decide
+
+lemma edwards_denoms_completeness_counterexample_plus :
+    ¬ (∀ {x1 y1 x2 y2 : ZMod 11},
+      edwardsEq 2 x1 y1 → edwardsEq 2 x2 y2 → 1 + 2 * x1 * x2 * y1 * y2 ≠ 0) := by
+  intro h
+  exact h (x1 := 1) (y1 := 3) (x2 := 4) (y2 := 5) zmod11_curve_1_3 zmod11_curve_4_5 zmod11_den_plus_zero
+
+lemma edwards_denoms_completeness_counterexample_minus :
+    ¬ (∀ {x1 y1 x2 y2 : ZMod 11},
+      edwardsEq 2 x1 y1 → edwardsEq 2 x2 y2 → 1 - 2 * x1 * x2 * y1 * y2 ≠ 0) := by
+  intro h
+  exact h (x1 := 1) (y1 := 3) (x2 := 4) (y2 := 6) zmod11_curve_1_3 zmod11_curve_4_6 zmod11_den_minus_zero
+
+lemma edwards_denoms_completeness_counterexample_combined :
+    ¬ (∀ {x1 y1 x2 y2 : ZMod 11},
+      edwardsEq 2 x1 y1 → edwardsEq 2 x2 y2 →
+        (1 + 2 * x1 * x2 * y1 * y2 ≠ 0 ∧ 1 - 2 * x1 * x2 * y1 * y2 ≠ 0)) := by
+  intro h
+  exact (h (x1 := 1) (y1 := 3) (x2 := 4) (y2 := 5)
+    zmod11_curve_1_3 zmod11_curve_4_5).1 zmod11_den_plus_zero
+
+end CompletenessNegativeControl
 
 /-- Edwards addition closes on the twisted-Edwards curve (explicit denominators). -/
 lemma edAddClosure_aux {d x1 y1 x2 y2 : K}
