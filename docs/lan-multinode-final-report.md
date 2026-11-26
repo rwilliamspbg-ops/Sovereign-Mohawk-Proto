@@ -1,6 +1,6 @@
 # Sovereign-Mohawk-Proto — LAN multi-node testbed final report
 
-**Testbed commit:** `072ba001eb46897c4eb5a7b39d560e8d49e6f8d2` (identical on both hosts; includes PR #411/#412/#415/#416/#417–#419)
+**Testbed commit:** `cdd88c5c4c6bec56c438b9d9d39928495f52e6b2` (identical on both hosts; includes PR #411/#412/#415/#416/#417–#419)
 **Hosts:** A = `10.0.0.87` Windows 11 (orchestrator + router + Prometheus + Grafana); B = `10.0.0.29` Ubuntu Desk-Mini (2 live node-agents + IPFS)
 **Artifact root:** `C:/Users/rwill/lan-multinode-artifacts/20261124-2230/` (mirrored to `~/lan-multinode-artifacts/20261124-2230/` on B)
 **Machine-readable companion:** `final-report.json`
@@ -231,3 +231,9 @@ Privilege gaps now **resolved and verified**: Windows inbound ICMPv4 Echo rule e
 ## BFT recovery at 11 nodes
 
 Added `deskmini-node-agent-6` (5 A + 6 B = 11). Real `MultiKrumSelect` at n=11: f=4 now valid (11 > 10), f=5 fails (needs 13). Live `f=4, batch=11, m=10`: two successful decisions, 10 selected / 1 filtered, zero errors; baseline restored to `f=1, batch=11, m=10`. Evidence: `phase7/bft-scale/bft-threshold-probe-n11.txt`, `live-f4-observed.txt`.
+
+## Lean v-coordinate residual closed — PR #427 (`cdd88c5c`)
+
+The #415 pinned residual `MontgomeryEdwardsAddCompat.v_compat` is now a machine-checked theorem: `edAdd_mont_v` proves the generic-field v-coordinate identity, and `edAdd_toMont_eq_montAdd` no longer carries a compatibility assumption. Independently re-verified after merge: `lake build LeanFormalization` exit 0 (8365 jobs); `#print axioms` on `edAdd_mont_v`, `edAdd_toMont_eq_montAdd` and `edAddField_associative_of_compat` returns only `[propext, Classical.choice, Quot.sound]`, no `sorryAx`. CI: 37 pass / 2 skip / 0 fail.
+
+Remaining open (explicit): the proof requires cleared-denominator hypotheses and a nonzero x₃ (the x₃=0 torsion case is not claimed); `EdwardsAddCompatForAssociativity` denominator completeness (twisted-Edwards, `d` non-square mod p) and the lift to concrete `Nat`/`ZMod` `Ed25519.affineAdd` are still open. F_101 was not re-run and is not new evidence.
