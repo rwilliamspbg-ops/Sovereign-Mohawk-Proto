@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "2c495ec2883615d5237c63a58b16a5fe0e16c95daa6b21f806c67fec22a2b304",
+  "input_merkle_root": "3fd44941e05cfd39522886f1470bdb1e432a9afa96d886aaaea4864ca685b090",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "20641318949f76b4be77077be9aaa9ccdc9db9afb45384362b3c208d930087d2"
+      "sha256": "10064ad4fc0ed95e462397146e90581ccad7d3388704e846b58a625ac553414c"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "e92a1bc3aa8899c8eca333712d115b804173e6f2abcbe2b9c992461a67e1c4de"
+      "sha256": "0532e0cbf98b60592bf398119a0ff1aa192a18a867b9e3d947ee0cd324c47dd1"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -296,7 +296,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 25,
+      "symbol_count": 27,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
@@ -321,8 +321,10 @@
         "ed25519_two_ne_zero",
         "edwardsEq_of_nat_curve_eq",
         "isNegation_comm",
+        "isNegation_false_of_mont_u_ne",
         "isNegation_noncanonical_counterexample",
-        "mod_sub_self_eq"
+        "mod_sub_self_eq",
+        "negation_has_same_mont_u"
       ]
     },
     {
@@ -1151,7 +1153,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 567
+    "theorem_symbol_count": 569
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
