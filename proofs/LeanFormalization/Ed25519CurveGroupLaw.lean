@@ -23,18 +23,20 @@ geometry of the curve, and pins the rest:
   `ZMod ed25519P`, once the two denominators are nonzero. The on-curve variant
   discharges them from `edwards_denoms_ne_zero`, so the remaining hypotheses are
   exactly listed in its statement.
+* `ed25519_isSquare_neg_one` — `-1` is a square in `ZMod ed25519P`, derived from
+  `p % 4 = 1` via Mathlib's `ZMod.exists_sq_eq_neg_one_iff`.
+* `affineAdd_associative_of_complete` — associativity of the concrete law,
+  transported through the bridge under an explicit list of residual conditions.
 
 ## What is still open, deliberately
 
-**Associativity of `affineAdd` is NOT proved.** The field-level bridge is now
-complete (`edAddField_associative_of_complete`), but transporting it to the Nat
-implementation additionally needs: `Fact (Nat.Prime ed25519P)`,
-`IsSquare (-1 : ZMod ed25519P)`, `¬ IsSquare (ed25519D : ZMod ed25519P)`, the
-on-curve equations for all three inputs, and the distinctness/admissibility
-conditions of the field theorem. None of these is supplied by the concrete
-model, so the associativity claim stays a gap rather than being asserted. Note
-also that the completeness hypothesis `IsSquare (-1)` is load-bearing: for
-`a = -1`, nonsquareness of `d` alone does not imply completeness.
+**Unconditional associativity of `affineAdd` is NOT proved.** The conditional
+theorem above is honest about its hypotheses; the concrete model does not
+supply primality of `p`, nonsquareness of `d`, the on-curve equations, canonical
+representatives, the branch exclusions, or the distinctness/admissibility
+conditions of the field theorem. None is asserted away. Note also that
+`IsSquare (-1)` is load-bearing for completeness: for `a = -1`, nonsquareness
+of `d` alone does not imply it (counterexample over `F_11`).
 
 ## Two hypotheses, both load-bearing
 
@@ -357,5 +359,201 @@ theorem affineAdd_zmod_eq_edAddField_of_onCurve (hp : Fact (Nat.Prime ed25519P))
     simp only [fsub_zmod, fmul_zmod] at hz
     exact hden2Z (by simpa [den, fmul_zmod, mul_assoc] using hz)
   exact affineAdd_zmod_eq_edAddField hp P Q hP hQ hneg hden1nat hden2nat
+
+/-- `p = 2^255 - 19` is `1 mod 4`, hence `-1` is a square in `ZMod p`.
+    Proved algebraically (`p = 4*(2^253 - 5) + 1`) rather than by a slow
+    `norm_num` on the 77-digit modulus. -/
+lemma ed25519_mod_four_eq_one : ed25519P % 4 = 1 := by
+  rw [show ed25519P = 4 * (2 ^ 253 - 5) + 1 by
+    unfold ed25519P
+    rw [show 2 ^ 255 = 4 * 2 ^ 253 by
+      rw [show (255 : ℕ) = 2 + 253 by norm_num, pow_add]
+      norm_num]
+    have hbig : 5 ≤ 2 ^ 253 := by norm_num
+    omega]
+  omega
+
+lemma ed25519_isSquare_neg_one (hp : Fact (Nat.Prime ed25519P)) :
+    IsSquare (-1 : ZMod ed25519P) := by
+  rw [ZMod.exists_sq_eq_neg_one_iff]
+  rw [ed25519_mod_four_eq_one]
+  norm_num
+
+lemma ed25519_two_ne_zero (hp : Fact (Nat.Prime ed25519P)) :
+    (2 : ZMod ed25519P) ≠ 0 := by
+  intro h
+  have hdvd : ed25519P ∣ 2 := (ZMod.natCast_eq_zero_iff 2 ed25519P).mp h
+  have hpos : 0 < 2 := by norm_num
+  have hle : ed25519P ≤ 2 := Nat.le_of_dvd hpos hdvd
+  have hpgt : 2 < ed25519P := by norm_num [ed25519P]
+  omega
+
+/-- Associativity of the concrete `affineAdd`, transported from
+    `edAddField_associative_of_complete` through the Nat/ZMod coercion bridge.
+
+    This does NOT close the group law unconditionally. The residual hypotheses
+    are exactly: primality of `p`; nonsquareness of `d`; the on-curve equations
+    for P, Q, R; canonical representatives; exclusion of all four branch
+    conditions (identity and negation at each addition); `x != 0` and `y != 1`
+    for the three inputs; three Montgomery-u distinctness conditions and four
+    intermediate `y != 1` conditions. Note `IsSquare (-1)` is derived here from
+    `p % 4 = 1`, so it is not an assumption.
+
+    If any of these is unavailable the theorem makes no claim -- in particular
+    no associativity is asserted for the exceptional identity/doubling cases. -/
+theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
+    (hnd : ¬ IsSquare (ed25519D : ZMod ed25519P))
+    (P Q R : AffinePoint)
+    (hcP : IsCanonical P) (hcQ : IsCanonical Q) (hcR : IsCanonical R)
+    (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hR : ¬ R.inf)
+    (hnegPQ : IsNegation P Q = false) (hnegQR : IsNegation Q R = false)
+    (hS1inf : ¬ (affineAdd P Q).inf) (hS2inf : ¬ (affineAdd Q R).inf)
+    (hnegS1R : IsNegation (affineAdd P Q) R = false)
+    (hnegPS2 : IsNegation P (affineAdd Q R) = false)
+    (hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P))
+    (hEQ : edwardsEq (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P))
+    (hER : edwardsEq (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P))
+    (hxP : (P.x : ZMod ed25519P) ≠ 0) (hxQ : (Q.x : ZMod ed25519P) ≠ 0)
+    (hxR : (R.x : ZMod ed25519P) ≠ 0)
+    (hyP : (P.y : ZMod ed25519P) ≠ 1) (hyQ : (Q.y : ZMod ed25519P) ≠ 1)
+    (hyR : (R.y : ZMod ed25519P) ≠ 1)
+    (hu12 : ((edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1) ≠
+        (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1)
+    (hu23 : (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1 ≠
+        (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1)
+    (hu12_3 : (montAdd (ed25519D : ZMod ed25519P)
+        (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1
+        (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).2
+        (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+        (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2).1 ≠
+        (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1)
+    (hu1_23 : (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1 ≠
+        (montAdd (ed25519D : ZMod ed25519P)
+          (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+          (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2
+          (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+          (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).1)
+    (hy12 : 1 - (edAddField (ed25519D : ZMod ed25519P)
+        (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+        (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2 ≠ 0)
+    (hy23 : 1 - (edAddField (ed25519D : ZMod ed25519P)
+        (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+        (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 ≠ 0)
+    (hy12L : 1 - (edAddField (ed25519D : ZMod ed25519P)
+        (edAddField (ed25519D : ZMod ed25519P)
+          (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+          (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+        (edAddField (ed25519D : ZMod ed25519P)
+          (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+          (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2
+        (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 ≠ 0)
+    (hy1R : 1 - (edAddField (ed25519D : ZMod ed25519P)
+        (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+        (edAddField (ed25519D : ZMod ed25519P)
+          (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+          (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+        (edAddField (ed25519D : ZMod ed25519P)
+          (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+          (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).2 ≠ 0) :
+    affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) := by
+  letI := hp
+  let dZ : ZMod ed25519P := (ed25519D : ZMod ed25519P)
+  have hsq : IsSquare (-1 : ZMod ed25519P) := ed25519_isSquare_neg_one hp
+  have hd : 1 + dZ ≠ 0 := by
+    rcases hsq with ⟨i, hi⟩
+    intro h
+    have hdeq : dZ = -1 := by linear_combination h
+    exact hnd ⟨i, hdeq.trans hi⟩
+  have h2 : (2 : ZMod ed25519P) ≠ 0 := ed25519_two_ne_zero hp
+  have hS1 := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd P Q hP hQ hnegPQ hEP hEQ
+  have hS2 := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd Q R hQ hR hnegQR hEQ hER
+  have hyP' : 1 - (P.y : ZMod ed25519P) ≠ 0 := by intro h; apply hyP; linear_combination -h
+  have hyQ' : 1 - (Q.y : ZMod ed25519P) ≠ 0 := by intro h; apply hyQ; linear_combination -h
+  have hyR' : 1 - (R.y : ZMod ed25519P) ≠ 0 := by intro h; apply hyR; linear_combination -h
+  have hDyP := edwards_one_add_dy_ne_zero hEP hyP' hd
+  have hDyQ := edwards_one_add_dy_ne_zero hEQ hyQ' hd
+  have hDyR := edwards_one_add_dy_ne_zero hER hyR' hd
+  have hD12 := edwards_denoms_ne_zero hEP hEQ hsq hnd
+  have hD23 := edwards_denoms_ne_zero hEQ hER hsq hnd
+  have hD12p : 1 + dZ * (P.x : ZMod ed25519P) * (P.y : ZMod ed25519P) *
+      (Q.x : ZMod ed25519P) * (Q.y : ZMod ed25519P) ≠ 0 := by
+    simpa [dZ, mul_assoc, mul_left_comm, mul_comm] using hD12.1
+  have hD12m : 1 - dZ * (P.x : ZMod ed25519P) * (P.y : ZMod ed25519P) *
+      (Q.x : ZMod ed25519P) * (Q.y : ZMod ed25519P) ≠ 0 := by
+    simpa [dZ, mul_assoc, mul_left_comm, mul_comm] using hD12.2
+  have hD23p : 1 + dZ * (Q.x : ZMod ed25519P) * (Q.y : ZMod ed25519P) *
+      (R.x : ZMod ed25519P) * (R.y : ZMod ed25519P) ≠ 0 := by
+    simpa [dZ, mul_assoc, mul_left_comm, mul_comm] using hD23.1
+  have hD23m : 1 - dZ * (Q.x : ZMod ed25519P) * (Q.y : ZMod ed25519P) *
+      (R.x : ZMod ed25519P) * (R.y : ZMod ed25519P) ≠ 0 := by
+    simpa [dZ, mul_assoc, mul_left_comm, mul_comm] using hD23.2
+  have hE12 : edwardsEq dZ (edAddField dZ (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+      (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+      (edAddField dZ (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+      (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2 :=
+    edAddClosure_aux hEP hEQ hDyP hDyQ hD12p hD12m
+  have hE23 : edwardsEq dZ (edAddField dZ (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+      (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+      (edAddField dZ (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+      (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 :=
+    edAddClosure_aux hEQ hER hDyQ hDyR hD23p hD23m
+  have hS1x : ((affineAdd P Q).x : ZMod ed25519P) =
+      (edAddField dZ (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+        (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1 := by
+    simpa [dZ] using congrArg Prod.fst hS1
+  have hS1y : ((affineAdd P Q).y : ZMod ed25519P) =
+      (edAddField dZ (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+        (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2 := by
+    simpa [dZ] using congrArg Prod.snd hS1
+  have hS2x : ((affineAdd Q R).x : ZMod ed25519P) =
+      (edAddField dZ (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+        (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1 := by
+    simpa [dZ] using congrArg Prod.fst hS2
+  have hS2y : ((affineAdd Q R).y : ZMod ed25519P) =
+      (edAddField dZ (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+        (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 := by
+    simpa [dZ] using congrArg Prod.snd hS2
+  have hS1on : edwardsEq dZ ((affineAdd P Q).x : ZMod ed25519P) ((affineAdd P Q).y : ZMod ed25519P) := by
+    rw [hS1x, hS1y]
+    exact hE12
+  have hS2on : edwardsEq dZ ((affineAdd Q R).x : ZMod ed25519P) ((affineAdd Q R).y : ZMod ed25519P) := by
+    rw [hS2x, hS2y]
+    exact hE23
+  have hL := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd (affineAdd P Q) R
+      hS1inf hR hnegS1R hS1on hER
+  have hRr := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd P (affineAdd Q R)
+      hP hS2inf hnegPS2 hEP hS2on
+  have hFassoc := edAddField_associative_of_complete hsq hnd h2 hEP hEQ hER
+      hyP' hyQ' hyR' hxP hxQ hxR hu12 hu23 hu12_3 hu1_23 hy12 hy23 hy12L hy1R
+  have hzEq : (((affineAdd (affineAdd P Q) R).x : ZMod ed25519P),
+        ((affineAdd (affineAdd P Q) R).y : ZMod ed25519P)) =
+      (((affineAdd P (affineAdd Q R)).x : ZMod ed25519P),
+        ((affineAdd P (affineAdd Q R)).y : ZMod ed25519P)) := by
+    rw [hL, hRr]
+    rw [hS1x, hS1y, hS2x, hS2y]
+    exact hFassoc
+  have hcL := affineAdd_canonical (affineAdd P Q) R (affineAdd_canonical P Q hcP hcQ) hcR
+  have hcRr := affineAdd_canonical P (affineAdd Q R) hcP (affineAdd_canonical Q R hcQ hcR)
+  have hinfL : (affineAdd (affineAdd P Q) R).inf = false := by
+    rw [affineAdd_eq_formula (affineAdd P Q) R hS1inf hR hnegS1R]
+    rfl
+  have hinfR : (affineAdd P (affineAdd Q R)).inf = false := by
+    rw [affineAdd_eq_formula P (affineAdd Q R) hP hS2inf hnegPS2]
+    rfl
+  have hxEq : (affineAdd (affineAdd P Q) R).x = (affineAdd P (affineAdd Q R)).x :=
+    nat_eq_of_zmod_eq (congrArg Prod.fst hzEq) hcL.1 hcRr.1
+  have hyEq : (affineAdd (affineAdd P Q) R).y = (affineAdd P (affineAdd Q R)).y :=
+    nat_eq_of_zmod_eq (congrArg Prod.snd hzEq) hcL.2 hcRr.2
+  have hiEq : (affineAdd (affineAdd P Q) R).inf = (affineAdd P (affineAdd Q R)).inf := by
+    rw [hinfL, hinfR]
+  rcases hleft : affineAdd (affineAdd P Q) R with ⟨lx, ly, li⟩
+  rcases hright : affineAdd P (affineAdd Q R) with ⟨rx, ry, ri⟩
+  rw [hleft] at hxEq hyEq hiEq
+  rw [hright] at hxEq hyEq hiEq
+  simp only at hxEq hyEq hiEq
+  subst rx
+  subst ry
+  subst ri
+  rfl
 
 end LeanFormalization
