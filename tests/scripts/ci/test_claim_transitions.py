@@ -47,10 +47,10 @@ def test_real_matrix_parses_every_row() -> None:
     main_rows = {k: v for k, v in statuses.items() if k.startswith("0:")}
     ws4_rows = {k: v for k, v in statuses.items() if k.startswith("1:")}
 
-    check(len(main_rows) == 46, f"main table yields 46 rows (got {len(main_rows)})")
+    check(len(main_rows) == 47, f"main table yields 47 rows (got {len(main_rows)})")
     check(
-        sorted(int(k.split(":", 1)[1]) for k in main_rows) == list(range(1, 47)),
-        "main table row ids are exactly 1..46",
+        sorted(int(k.split(":", 1)[1]) for k in main_rows) == list(range(1, 48)),
+        "main table row ids are exactly 1..47",
     )
     check(
         sorted(ws4_rows) == ["1:Theorem7", "1:Theorem8"],

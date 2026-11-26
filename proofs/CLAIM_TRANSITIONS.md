@@ -358,3 +358,19 @@ No group law is inherited yet, so the headline status remains `bridge_partial`; 
 composites, addition-law compatibility and denominator completeness stay explicitly unproved.
 
 - **PR:** #405
+
+### 2026-11-26 -- Row 46 (Ed25519 birational bridge): addition-law compatibility proved in row 47
+
+`bridge_partial` (change of variables both ways proved; no group law inherited) -> `bridge_partial` (change of variables both ways proved; addition-law compatibility now proved in row 47; associativity conditional)
+
+PR #429 proves the Edwards to Montgomery addition-law compatibility over an arbitrary field, including the x3 = 0 torsion case, and proves twisted-Edwards completeness under IsSquare (-1) plus nonsquare d. Row 46 itself still claims only the change of variables; its Status parenthetical now points at row 47 rather than denying the compatibility.
+
+- **PR:** #429
+
+### 2026-11-26 -- Row 47 (Edwards-Montgomery addition bridge): new row
+
+`(new row)` -> `group_law_partially_formalized` (field-level compatibility, completeness and conditional associativity proved; concrete affineAdd associativity NOT proved)
+
+Adds row 47 for the machine-checked Edwards to Montgomery addition bridge, twisted-Edwards completeness, the derived compatibility bundle, the conditional associativity theorem and the exact Nat/ZMod lifting statement for the concrete affineAdd. All nine changed theorems are axiom-free under #print axioms; concretely, affineAdd associativity remains an explicit gap.
+
+- **PR:** #429
