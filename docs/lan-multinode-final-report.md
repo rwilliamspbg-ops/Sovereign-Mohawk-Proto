@@ -227,3 +227,7 @@ Relaunched the A monitoring stack and verified: Grafana `/api/health` 200, **14 
 PR #424 (`072ba001`) added `scripts/export_flower_gradient.py`: a real `flwr.client.NumPyClient` trainer exporting gradients in the `MOHAWK_GRADIENT_FILE` schema. Generated 128-dim vectors with flwr 1.44.0 / numpy 2.5.5 and ran node-agent-1/2 in `MOHAWK_GRADIENT_MODE=file`; both submitted and the orchestrator accepted them. Evidence: `phase7/flower-client/`.
 
 Privilege gaps now **resolved and verified**: Windows inbound ICMPv4 Echo rule enabled (B→A 4/4 packets, 0 % loss, mean 24.5 ms); Desk-Mini `/etc/sudoers.d/tpm-pcr-read` (0440 root:root) permits non-interactive `sudo -n tpm2_pcrread`. The real PCR gate matched policy (exit 0) and started `deskmini-node-agent-1`; a tampered policy exited 3 and did **not** start `node-agent-2` (only agent-1 running).
+
+## BFT recovery at 11 nodes
+
+Added `deskmini-node-agent-6` (5 A + 6 B = 11). Real `MultiKrumSelect` at n=11: f=4 now valid (11 > 10), f=5 fails (needs 13). Live `f=4, batch=11, m=10`: two successful decisions, 10 selected / 1 filtered, zero errors; baseline restored to `f=1, batch=11, m=10`. Evidence: `phase7/bft-scale/bft-threshold-probe-n11.txt`, `live-f4-observed.txt`.
