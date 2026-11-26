@@ -394,8 +394,9 @@ lemma ed25519_two_ne_zero (hp : Fact (Nat.Prime ed25519P)) :
     This does NOT close the group law unconditionally. The residual hypotheses
     are exactly: primality of `p`; nonsquareness of `d`; the on-curve equations
     for P, Q, R; canonical representatives; exclusion of all four branch
-    conditions (identity and negation at each addition); `x != 0` and `y != 1`
-    for the three inputs; three Montgomery-u distinctness conditions and four
+    conditions (identity and negation at each addition); `x != 0` for the three
+    inputs (`y != 1` follows from it by `edwards_y_ne_one_of_x_ne_zero`); three
+    Montgomery-u distinctness conditions and four
     intermediate `y != 1` conditions. Note `IsSquare (-1)` is derived here from
     `p % 4 = 1`, so it is not an assumption.
 
@@ -414,8 +415,6 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
     (hER : edwardsEq (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P))
     (hxP : (P.x : ZMod ed25519P) ≠ 0) (hxQ : (Q.x : ZMod ed25519P) ≠ 0)
     (hxR : (R.x : ZMod ed25519P) ≠ 0)
-    (hyP : (P.y : ZMod ed25519P) ≠ 1) (hyQ : (Q.y : ZMod ed25519P) ≠ 1)
-    (hyR : (R.y : ZMod ed25519P) ≠ 1)
     (hu12 : ((edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1) ≠
         (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1)
     (hu23 : (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1 ≠
@@ -470,6 +469,9 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
     have hdeq : dZ = -1 := by linear_combination h
     exact hnd ⟨i, hdeq.trans hi⟩
   have h2 : (2 : ZMod ed25519P) ≠ 0 := ed25519_two_ne_zero hp
+  have hyP : (P.y : ZMod ed25519P) ≠ 1 := edwards_y_ne_one_of_x_ne_zero hEP hd hxP
+  have hyQ : (Q.y : ZMod ed25519P) ≠ 1 := edwards_y_ne_one_of_x_ne_zero hEQ hd hxQ
+  have hyR : (R.y : ZMod ed25519P) ≠ 1 := edwards_y_ne_one_of_x_ne_zero hER hd hxR
   have hS1 := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd P Q hP hQ hnegPQ hEP hEQ
   have hS2 := affineAdd_zmod_eq_edAddField_of_onCurve hp hsq hnd Q R hQ hR hnegQR hEQ hER
   have hyP' : 1 - (P.y : ZMod ed25519P) ≠ 0 := by intro h; apply hyP; linear_combination -h

@@ -281,6 +281,31 @@ theorem montgomeryToEdwards_roundtrip {d u v : K}
   rw [montgomery_u_recover hu h2, montgomery_v_recover hu hq h2]
   exact ⟨rfl, rfl⟩
 
+/-- On the twisted-Edwards curve with `1 + d ≠ 0`, an on-curve point with
+    `x ≠ 0` cannot have `y = 1`: substituting `y = 1` gives `x²(1+d) = 0`.
+    This discharges the `y ≠ 1` admissibility hypotheses of the affine
+    associativity theorem from its `x ≠ 0` hypotheses. -/
+lemma edwards_y_ne_one_of_x_ne_zero {d x y : K}
+    (hE : edwardsEq d x y) (hd : 1 + d ≠ 0) (hx : x ≠ 0) : y ≠ 1 := by
+  intro h
+  subst y
+  unfold edwardsEq at hE
+  have hx2 : x ^ 2 * (1 + d) = 0 := by
+    linear_combination -hE
+  have hxzero : x ^ 2 = 0 := (mul_eq_zero.mp hx2).resolve_right hd
+  have hxx : x * x = 0 := by simpa [pow_two] using hxzero
+  rcases mul_eq_zero.mp hxx with hzero | hzero <;> exact hx hzero
+
+/-- Negative control: the hypothesis `1 + d ≠ 0` is load-bearing. At `d = -1`
+    every `(x, 1)` is on the curve, so `x ≠ 0` alone does not imply `y ≠ 1`. -/
+lemma edwards_y_ne_one_of_x_ne_zero_requires_hd :
+    ¬ (∀ {d x y : K}, edwardsEq d x y → x ≠ 0 → y ≠ 1) := by
+  intro h
+  have hE : edwardsEq (-1 : K) (1 : K) 1 := by
+    unfold edwardsEq
+    ring
+  exact (h hE one_ne_zero) rfl
+
 end
 
 end LeanFormalization
