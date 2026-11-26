@@ -37,10 +37,11 @@ is and is not machine-checked.
 ## Residual assumptions and scope limits (explicit, not hidden)
 
 The proved compatibility still takes explicit non-vanishing hypotheses:
-`hDenP` (cleared denominator of the Edwards sum's `x`-coordinate), `hPnumHyp`
-(its divided form, used to clear nested denominators), and `hx3` (that same
-`x`-coordinate is nonzero, so `x₃·(v₃-v_add)=0` cancels). When `x₃ = 0` the
-identity requires a separate torsion case, which is not claimed here.
+`hDenP` (cleared denominator of the Edwards sum's `x`-coordinate) and
+`hPnumHyp` (its divided form, used to clear nested denominators). The former
+`hx3` hypothesis is no longer needed: when the Edwards sum has `x₃ = 0`, both
+sides map to `(0, 0)` on the Montgomery curve, discharged by
+`montAdd_v_eq_zero_of_u_eq_zero`.
 
 Transporting Mathlib's associativity back to the Edwards law still needs
 `EdwardsAddCompatForAssociativity`: full compatibility in Edwards coordinates,
@@ -223,6 +224,64 @@ lemma montgomery_v_sq {d u v : K} (hM : montgomeryEq d u v) (hd : 1 + d ≠ 0) :
   unfold montQ
   field_simp [hd] at hM
   linear_combination -hM
+
+/-- If the Montgomery secant sum has `u`-coordinate zero, its `v`-coordinate is
+    also zero. Uses only the two Montgomery curve equations and `u₁ ≠ u₂`.
+    This is the torsion case that removes `x₃ ≠ 0` from the v-coordinate
+    compatibility: when the Edwards sum has `x₃ = 0`, both sides map to `(0, 0)`. -/
+lemma montAdd_v_eq_zero_of_u_eq_zero {d u1 v1 u2 v2 : K}
+    (hM1 : montgomeryEq d u1 v1) (hM2 : montgomeryEq d u2 v2)
+    (hd : 1 + d ≠ 0) (hu12 : u1 ≠ u2)
+    (hmu : (montAdd d u1 v1 u2 v2).1 = 0) :
+    (montAdd d u1 v1 u2 v2).2 = 0 := by
+  let l := (v1 - v2) / (u1 - u2)
+  let nu := (montAdd d u1 v1 u2 v2).2
+  have hsub : u1 - u2 ≠ 0 := sub_ne_zero.mpr hu12
+  have hl_mul : l * (u1 - u2) = v1 - v2 := by
+    dsimp [l]
+    field_simp [hsub]
+  have hmu0 : montB d * l ^ 2 - montA d - u1 - u2 = 0 := by
+    simpa [montAdd, l] using hmu
+  have hl2 : l ^ 2 = -2 * (1 - d) - (1 + d) * (u1 + u2) := by
+    have h := hmu0
+    unfold montA montB at h
+    field_simp [hd] at h
+    ring_nf at h ⊢
+    linear_combination -h
+  have hv1 := montgomery_v_sq hM1 hd
+  have hv2 := montgomery_v_sq hM2 hd
+  have hv1' : v1 ^ 2 = -((1 + d) * u1 ^ 3 + 2 * (1 - d) * u1 ^ 2 + (1 + d) * u1) := by
+    rw [hv1]
+    unfold montQ
+    ring
+  have hv2' : v2 ^ 2 = -((1 + d) * u2 ^ 3 + 2 * (1 - d) * u2 ^ 2 + (1 + d) * u2) := by
+    rw [hv2]
+    unfold montQ
+    ring
+  have hnu1 : nu = l * u1 - v1 := by
+    dsimp [nu, montAdd]
+    rw [show montB d * ((v1 - v2) / (u1 - u2)) ^ 2 - montA d - u1 - u2 = 0 by
+      simpa [l] using hmu0]
+    ring
+  have hnu2 : nu = l * u2 - v2 := by
+    rw [hnu1]
+    linear_combination hl_mul
+  have htmp : (u1 - u2) * ((l * u1 - v1) * (l * u2 - v2)) =
+      (u1 * u2) * (u1 - u2) * l ^ 2 + u1 * v2 ^ 2 - u2 * v1 ^ 2 := by
+    linear_combination -(u1 * v2 + u2 * v1) * hl_mul
+  have hsq_mul : (u1 - u2) * nu ^ 2 = 0 := by
+    rw [show nu ^ 2 = (l * u1 - v1) * (l * u2 - v2) by
+      rw [← hnu1, ← hnu2]
+      ring]
+    rw [htmp]
+    rw [hl2, hv1', hv2']
+    ring
+  have hsq : nu ^ 2 = 0 := by
+    exact (mul_eq_zero.mp hsq_mul).resolve_left hsub
+  have hnu : nu = 0 := by
+    have h' : nu * nu = 0 := by simpa [pow_two] using hsq
+    rcases mul_eq_zero.mp h' with h | h <;> exact h
+  exact hnu
 
 /-- The `u`-coordinate half of Edwards → Montgomery addition compatibility. -/
 lemma edAdd_mont_u {d u1 v1 u2 v2 : K}
@@ -444,10 +503,7 @@ lemma edAdd_mont_v {d u1 v1 u2 v2 : K}
     (hDenP : (u1 + 1) * montQ d u2 * montQ d u1 * (u2 + 1) +
       2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d ≠ 0)
     (hPnumHyp : 1 + 2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d /
-      (montQ d u1 * (u2 + 1) * (u1 + 1) * montQ d u2) ≠ 0)
-    (hx3 : (edAddField d
-        (2 * v1 / montQ d u1) ((u1 - 1) / (u1 + 1))
-        (2 * v2 / montQ d u2) ((u2 - 1) / (u2 + 1))).1 ≠ 0) :
+      (montQ d u1 * (u2 + 1) * (u1 + 1) * montQ d u2) ≠ 0) :
     (edwardsToMont d
         (edAddField d
           (2 * v1 / montQ d u1) ((u1 - 1) / (u1 + 1))
@@ -492,11 +548,16 @@ lemma edAdd_mont_v {d u1 v1 u2 v2 : K}
     simpa [E, x1, y1, x2, y2] using hy3
   have hxE : E.1 * (edwardsToMont d E.1 E.2).2 = -2 * (edwardsToMont d E.1 E.2).1 :=
     edAddMont_v_mul_aux hE12 hy3'
-  have hx3' : E.1 ≠ 0 := by
-    simpa [E, x1, y1, x2, y2] using hx3
-  apply mul_left_cancel₀ hx3'
-  rw [hxE, huEq]
-  exact hxnu.symm
+  by_cases hx3' : E.1 = 0
+  · have hneg : (-2 : K) * mu = 0 := by
+      rw [hx3'] at hxnu
+      simpa using hxnu.symm
+    have hmu : mu = 0 := (mul_eq_zero.mp hneg).resolve_left (neg_ne_zero.mpr h2)
+    have hnu : nu = 0 := montAdd_v_eq_zero_of_u_eq_zero hM1 hM2 hd hu12 hmu
+    rw [show (edwardsToMont d E.1 E.2).2 = 0 by simp [edwardsToMont, hx3'], hnu]
+  · apply mul_left_cancel₀ hx3'
+    rw [hxE, huEq]
+    exact hxnu.symm
 
 /-- Full map compatibility, now unconditional on any compatibility assumption. -/
 theorem edAdd_toMont_eq_montAdd {u1 v1 u2 v2 : K}
@@ -521,10 +582,7 @@ theorem edAdd_toMont_eq_montAdd {u1 v1 u2 v2 : K}
     (hDenP : (u1 + 1) * montQ d u2 * montQ d u1 * (u2 + 1) +
       2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d ≠ 0)
     (hPnumHyp : 1 + 2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d /
-      (montQ d u1 * (u2 + 1) * (u1 + 1) * montQ d u2) ≠ 0)
-    (hx3 : (edAddField d
-        (2 * v1 / montQ d u1) ((u1 - 1) / (u1 + 1))
-        (2 * v2 / montQ d u2) ((u2 - 1) / (u2 + 1))).1 ≠ 0) :
+      (montQ d u1 * (u2 + 1) * (u1 + 1) * montQ d u2) ≠ 0) :
     edwardsToMont d
         (edAddField d
           (2 * v1 / montQ d u1) ((u1 - 1) / (u1 + 1))
@@ -536,7 +594,7 @@ theorem edAdd_toMont_eq_montAdd {u1 v1 u2 v2 : K}
   apply Prod.ext
   · exact edAdd_mont_u hM1 hM2 hd h2 hu1 hu2 hq1 hq2 hu12 hD1 hD2 hy3 hDenQ hNumQ
   · exact edAdd_mont_v hM1 hM2 hd h2 hu1 hu2 hq1 hq2 hu12 hD1 hD2 hy3
-      hDenQ hNumQ hDenP hPnumHyp hx3
+      hDenQ hNumQ hDenP hPnumHyp
 
 
 /-- The residual needed to transport Mathlib's associativity back to the Edwards law:
