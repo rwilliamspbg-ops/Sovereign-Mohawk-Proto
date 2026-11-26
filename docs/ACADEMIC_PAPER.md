@@ -13,7 +13,7 @@ Repository: [https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto](https:/
 ### Abstract
 Federated learning (FL) at scale requires aggregating model updates across multi-tier topologies while tolerating adversarial participants. A pervasive foundational assumption in hierarchical FL design is compositional safety: if every local aggregation tier enforces an honest-majority guard (e.g., Multi-Krum), the overall network inherits global Byzantine fault tolerance. In this paper, we present **Sovereign-Mohawk**, an FL architecture and Lean 4 formal development that refutes and repairs this assumption.
 
-First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md` and
+First, we present a machine-checked negative result: a concrete counterexample in Lean 4 showing that naive deterministic composition of per-tier Multi-Krum guards fails, allowing a 60% global Byzantine leaf fraction to pass local filters under concentrated placement. Second, we formalize a probabilistic repair proving that under explicit i.i.d. Bernoulli committee sampling, the probability of any tier exceeding its Byzantine filtering threshold is strictly bounded by a Chernoff bound over rationals, verified in Lean 4 for $T = 200$ committees and $c = 50,000$ leaves per committee ($P_{\text{fail}} \le 200 \times 10^{-1000} \approx 2 \times 10^{-998}$). Third, we formalize eight core theoretical developments, including Rényi Differential Privacy (RDP) with constructivist rational logarithmic bounds, logarithmic path-depth routing, MiMC permutation polynomials over BN254 scalar fields, Robbins-Siegmund supermartingale convergence, and post-quantum cryptographic (PQC) dual-signature migration non-hijack guarantees. We further machine-check the Edwards–Montgomery–Weierstrass addition-law bridge (including the $x_3=0$ torsion case and twisted-Edwards completeness), and prove associativity of the concrete Ed25519 affine law **conditionally**, with every remaining hypothesis stated explicitly. Fourth, we couple these formal artifacts with an industrial Go production runtime and evaluate the system across multi-node Kubernetes-in-Docker (Kind) clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) adversarial regimes, demonstrating microsecond aggregation overhead ($30.63\ \mu\text{s}$), sub-400ms round latency (373 ms at 1,500 nodes), and minimal accuracy impact (1.8% gap vs. clean baseline). **Scope caveat:** the Lean development is axiom-free and sorry-free, but its results are machine-checked *about stated models and hypotheses*; the Go↔Lean correspondence is checked empirically (pinned `#eval` vectors, replayed traces), never by a machine-checked cross-language equality, because Lean cannot invoke Go source. Per-claim status is recorded in `proofs/FORMAL_TRACEABILITY_MATRIX.md` and
 defined by the claim-status taxonomy of §3, which separates results proved
 about a model from results measured against the runtime.
 
@@ -55,7 +55,7 @@ This paper makes eight core contributions spanning formal verification, cryptogr
 2. **Exact Rational Chernoff Repair (Theorem 1):** We prove the binomial mean from first principles in Lean 4 and establish an exponential rational Chernoff tail bound. We formally prove why polynomial Markov bounds fail at scale ($40 > 1$) and certify that the Chernoff bound bounds hierarchical failure probability below $200 \times 10^{-1000}$ **under the explicit i.i.d. Bernoulli committee-assignment model** — the scope of the result, not a guarantee about adversarial placement. We additionally attach that bound to the runtime's actual precondition: `guardThreshold c = (c-1)/2` is proved to be exactly the failure point of `n > 2f + 2`, giving a protocol-level bound on the probability that any committee refuses to run Multi-Krum.
 3. **Constructivist RDP Accounting (Theorem 2):** We formalize Rényi Differential Privacy tensorization over independent mechanisms and solve the constructive non-computability of $\ln(z)$ by proving a two-sided rational sandwich bound in Lean 4, enabling exact $(\epsilon, \delta)$-DP verification.
 4. **Wire-Format Refinement and Communication Depth (Theorem 3):** We prove an $O(d \log n)$ path-depth complexity bound and check a **formula-level** correspondence between the Lean 4 transport model and Go's IEEE-754 gradient serialization in CI — there is no machine-checked cross-language equivalence, because Lean cannot invoke Go source.
-5. **MiMC Permutation and zk-SNARK Verifiability (Theorem 5):** We prove that the MiMC round polynomial $x \mapsto (x + k + c)^5$ is injective under explicit `Nat.Prime` / `Nat.Coprime` hypotheses (the only concrete instantiation is a small-prime sanity check; BN254 exponent coprimality is discharged concretely, with `Nat.Prime r` left as an explicit hypothesis), and formalize an $O(1)$ scale-invariant Groth16 verifier cost **model** — a constant operation count, not a soundness proof. In addition, we give a **proper reduction for the Schnorr/Ed25519 identification protocol** (`SchnorrReduction.lean`): special soundness (two accepting transcripts with the same commitment and different challenges recover the key), honest-verifier zero-knowledge, and a forger-implies-discrete-log reduction modulo an explicit forking-lemma hypothesis. A full Groth16/q-SDH formalization remains out of reach: Mathlib has no pairing or computational-hardness machinery.
+5. **MiMC Permutation and zk-SNARK Verifiability (Theorem 5):** We prove that the MiMC round polynomial $x \mapsto (x + k + c)^5$ is injective under explicit `Nat.Prime` / `Nat.Coprime` hypotheses (the only concrete instantiation is a small-prime sanity check; BN254 exponent coprimality is discharged concretely, with `Nat.Prime r` left as an explicit hypothesis), and formalize an $O(1)$ scale-invariant Groth16 verifier cost **model** — a constant operation count, not a soundness proof. In addition, we give a **proper reduction for the Schnorr/Ed25519 identification protocol** (`SchnorrReduction.lean`): special soundness (two accepting transcripts with the same commitment and different challenges recover the key), honest-verifier zero-knowledge, and a forger-implies-discrete-log reduction modulo an explicit forking-lemma hypothesis. A full Groth16/q-SDH formalization remains out of reach: Mathlib has no pairing or computational-hardness machinery. Separately, we prove the Edwards→Montgomery→Weierstrass addition-law bridge over an arbitrary field (§12, matrix row 47): the $x_3=0$ torsion case, twisted-Edwards completeness under `IsSquare (-1)` and nonsquare $d$, and a conditional associativity theorem for the concrete `affineAdd`.
 6. **Robbins-Siegmund Stochastic Convergence (Theorem 6):** We formalize non-IID SGD descent inequalities and machine-check the Robbins-Siegmund almost-supermartingale lemma, as a **deterministic** limit statement about nonnegative almost-supermartingales; stochastic convergence is a corollary under the model's conditions, not a theorem about the deployed optimizer.
 7. **PQC Migration Non-Hijack Invariants (Theorems 7 & 8):** We formalize a UF-CMA adversarial game and verify *structural* invariants of state ledger transitions across cutover epochs; the named theorems are conditional on UF-CMA hardness and on witnessed acceptance.
 8. **Grounded Swarm Evaluation & Traceability:** We evaluate the Go runtime across single-host Kind Kubernetes clusters (up to 500 pods), CI swarm matrices (500–1,500 nodes), and a 1,000-node simulator target under safe (10% Byzantine) and edge (35% Byzantine) attacks, demonstrating $30.63\ \mu\text{s}$ Multi-Krum execution, 86.4% CIFAR-10 accuracy (1.8% gap vs. clean), and sub-400ms round latencies. Claims are tracked in an automated CI traceability matrix that records each claim's status — including those that are surrogates or empirical rather than fully formalized.
@@ -138,7 +138,10 @@ claim-status taxonomy rather than leaving them implicit:
    What remains are explicit hypotheses at each use site — `FloatOrderLaws`
    (IEEE-754 non-NaN order), `Fact (Nat.Prime dlL)`, `SchnorrDLHard` (an explicit
    discrete-log hardness `def`) and `Ed25519GroupLaws` (four explicit curve-model
-   laws). The Gaussian mechanism's Rényi divergence is **derived**, not assumed:
+   laws). The Edwards↔Montgomery↔Weierstrass bridge is now proved over an
+   arbitrary field, including the torsion case and completeness under
+   `IsSquare (-1)` and `¬ IsSquare d`; the concrete `affineAdd` is associative
+   only conditionally. The Gaussian mechanism's Rényi divergence is **derived**, not assumed:
    `gaussianRDPBound_measure` obtains $D_\alpha = \alpha\Delta^2/(2\sigma^2)$
    unconditionally from a proved completed-square integral (§6.1). Groth16
    succinctness is an abstract constant-operation model, not a pairing-based
@@ -166,6 +169,7 @@ result is, and we repeat that status per claim in
 | `model_verified` / `surrogate_verified` | Proved, but *about a model* that is not the runtime object | the constant-operation Groth16 cost model (§8.3); the integer/rational additive RDP ledger (§6.1) |
 | `structural` | Invariants proved about a state machine, conditional on a hardness assumption that is not itself formalized | PQC non-hijack (§10) |
 | `circuit_relation_modeled` | The proof system's accepted (statement, witness) pairs are modelled and proved; the cryptographic soundness of the proof system is not | `WeightUpdateCircuit` (§8.4) |
+| `group_law_partially_formalized` | Field-level compatibility, completeness and conditional associativity are proved; an unconditional group law for the concrete implementation is not | Edwards↔Montgomery bridge and conditional `affineAdd` associativity (§12, matrix row 47) |
 | `empirical` | Measured or pinned against the runtime, not proved across it | Go↔Lean correspondences (§7, §11), the Kind scale numbers (§13) |
 
 ### 3.2 Model vs. runtime
@@ -193,7 +197,10 @@ explicit hypotheses at each use site: `FloatOrderLaws` (IEEE-754 non-NaN order,
 §11), `Fact (Nat.Prime dlL)`, `Nat.Prime bn254Prime` for the BN254 MiMC
 instantiation (§8.2), `SchnorrDLHard` (an explicit discrete-log hardness `def`),
 and `Ed25519GroupLaws affineBase` (four explicit curve-model laws; `zeroMul` and
-`oneMul` were removed as unconsumed). No global `axiom` is used, and no proof
+`oneMul` were removed as unconsumed). For the Edwards bridge (§12), `IsSquare (-1)`
+is proved from $p \equiv 1 \pmod 4$, but `Nat.Prime ed25519P`, nonsquareness of
+`ed25519D`, and the admissibility/distinctness conditions of the field
+associativity theorem remain explicit hypotheses. No global `axiom` is used, and no proof
 uses `sorry` or `admit`.
 
 ### 3.4 What is deliberately not claimed
@@ -210,6 +217,13 @@ uses `sorry` or `admit`.
 - **The SDK benchmark's advertised 10 ms figure is a `time.sleep`.** The measured
   verification cost is 0.675 ms and proving is 38 ms (§8.4). Retraction of the
   stale figure across the documentation is pending.
+- **Unconditional Ed25519 group associativity is not claimed.**
+  `affineAdd_associative_of_complete` is conditional on primality of $p$,
+  nonsquareness of $d$, on-curve equations, canonical coordinates, branch
+  exclusions, and admissibility/distinctness conditions. Neither
+  `Nat.Prime ed25519P` nor `¬ IsSquare (ed25519D : ZMod ed25519P)` is proved in
+  the repository. Nonsquareness of $d$ alone is insufficient for completeness:
+  the machine-checked negative control over $\mathbb{F}_{11}$ uses $d=2$.
 
 ---
 
@@ -802,7 +816,7 @@ longer axioms.
 
 ## 12. Master Formal Traceability Matrix
 
-Every theoretical claim presented in this paper is tracked in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which is the **authoritative** registry (37 main rows, each with its scope notes and negative controls). Table 4 presents the headline inventory connecting each claim to its Lean 4 module, core machine-checked theorems, Go implementation, runtime test evidence, and epistemic status; where a summary row and the matrix differ, the matrix wins.
+Every theoretical claim presented in this paper is tracked in our machine-readable formal traceability matrix (`FORMAL_TRACEABILITY_MATRIX.md`), which is the **authoritative** registry (47 main rows, each with its scope notes and negative controls). Table 4 presents the headline inventory connecting each claim to its Lean 4 module, core machine-checked theorems, Go implementation, runtime test evidence, and epistemic status; where a summary row and the matrix differ, the matrix wins.
 
 | # | Claim Description | Lean Module | Key Machine-Checked Theorems | Go Implementation / Test Suite | Epistemic Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -830,8 +844,9 @@ Every theoretical claim presented in this paper is tracked in our machine-readab
 | **21** | Rényi divergence over a product measure | `RenyiDivergenceCompose.lean` | `renyiDivergenceMeasure_prod`, `gaussianRDPMeasure_two_rounds` | `test/rdp_accountant_property_test.go` | `fully_formalized` (independent / product-measure composition); adaptive composition **not** covered |
 | **22** | Bounded-query programmed random oracle: rewind bound | `RenyiDivergenceBoundedRO.lean` | `roForkProb_ge`, `roCount_sum`, `sum_sq_div_card_le` | — (no runtime caller; a finite abstraction) | `fully_formalized` for a **fixed / non-adaptive** query schedule; adaptive query histories **not** modelled; not yet a statement about the Ed25519 UF-CMA game |
 | **23** | Diagonal multivariate Gaussian RDP | `RenyiDivergenceMultivariate.lean` | `gaussianRDPMeasure_diagonal` | `internal/rdp_accountant.go` | `fully_formalized` for **diagonal** `Σ` (independent coordinates); the general correlated case needs an affine change-of-variables lemma and is **not** implied |
+| **24** | Edwards→Montgomery→Weierstrass addition-law bridge and the concrete Ed25519 affine law | `EdwardsWeierstrassBridge.lean`, `MontgomeryEdwardsAdditionCompat.lean`, `Ed25519CurveGroupLaw.lean` | `edAdd_toMont_eq_montAdd`, `montAdd_v_eq_zero_of_u_eq_zero`, `edwards_denoms_ne_zero`, `edwardsAddCompat_of_complete`, `edAddField_associative_of_complete`, `affineAdd_zmod_eq_edAddField_of_onCurve`, `affineAdd_associative_of_complete` | `proofs/Ed25519Test.lean` (RFC 8032 vectors) | `group_law_partially_formalized`: field-level compatibility, completeness, conditional associativity and the negative control are proved axiom-free; concrete associativity is conditional, **not** unconditional (§3.4, matrix row 47) |
 
-*Table 4: Headline Formal Traceability Matrix. The authoritative registry is `FORMAL_TRACEABILITY_MATRIX.md` (37 main rows), which carries the per-claim scope notes and negative controls.*
+*Table 4: Headline Formal Traceability Matrix. The authoritative registry is `FORMAL_TRACEABILITY_MATRIX.md` (47 main rows), which carries the per-claim scope notes and negative controls.*
 
 ---
 
@@ -943,6 +958,13 @@ We explicitly record technical limitations and open gaps:
 3. **Sampling Distribution Assumptions:** The probabilistic repair strictly presumes independent Bernoulli committee sampling. Non-uniform or geographically correlated adversarial node concentration remains an open theoretical direction.
 4. **Physical WAN Scaling:** While multi-node container benchmarks up to 1,500 pods confirm microsecond aggregation efficiency, real-world planetary deployments across high-jitter wireless WANs remain future empirical work.
 5. **253-Bit Primality Hypothesis:** In `DiscreteLogReduction.lean`, the primality of the Ed25519 subgroup order $L = 2^{252} + 27742317777372353535851937790883648493$ is carried as the explicit hypothesis $\texttt{Fact (Nat.Prime dlL)}$ on the four declarations that need it, as 253-bit primality certificates exceed Lean's native decidability timeout. It is not a global `axiom`; every consumer sees the assumption in the statement.
+6. **Ed25519 group-law hypotheses:** `Nat.Prime ed25519P` and the nonsquareness
+   of `ed25519D : ZMod ed25519P` are not proved in the repository; both remain
+   explicit hypotheses. Under this Mathlib pin, `norm_num` times out on the
+   77-digit primality check and neither `norm_num` nor `decide` evaluates the
+   Legendre/Jacobi symbols needed for nonsquareness. The field-level bridge and
+   the concrete associativity theorem are therefore conditional, not a full
+   group law for the implementation.
 
 ---
 
