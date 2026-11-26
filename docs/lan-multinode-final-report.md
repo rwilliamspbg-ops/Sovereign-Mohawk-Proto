@@ -1,8 +1,8 @@
 # Sovereign-Mohawk-Proto — LAN multi-node testbed final report
 
-**Testbed commit:** `a4c55549edb8019d7f3055b52ae1e47610c1a27f` (identical on both hosts; includes PR #411/#412/#415/#416/#417–#420)
+**Testbed commit:** `072ba001eb46897c4eb5a7b39d560e8d49e6f8d2` (identical on both hosts; includes PR #411/#412/#415/#416/#417–#419)
 **Hosts:** A = `10.0.0.87` Windows 11 (orchestrator + router + Prometheus + Grafana); B = `10.0.0.29` Ubuntu Desk-Mini (2 live node-agents + IPFS)
-**Artifact root:** `~/lan-multinode-artifacts/20261124-2230/` on both hosts (all artifact paths below are relative to this root)
+**Artifact root:** `C:/Users/rwill/lan-multinode-artifacts/20261124-2230/` (mirrored to `~/lan-multinode-artifacts/20261124-2230/` on B)
 **Machine-readable companion:** `final-report.json`
 
 ## Phase 0–5 (previously reported)
@@ -199,3 +199,31 @@ Real `internal/federation` coordinators on both hosts: global container on A (RP
 | global-1 (A) | 2 | 2 | mean-fallback (single child) | n/a |
 
 Both stats endpoints and logs corroborate the upward flow with matching norms (2.0400). Evidence: `phase7/federation-demo/` (`evaluation.md/.json`, stats, logs, Dockerfile). Caveats: synthetic gradients over the real RPC protocol; global has one child so Multi-Krum correctly falls back to mean.
+
+## Trained gradients + joined paths — #2/#4 follow-up (PR #423)
+
+Node-agents can load genuinely trained 128-dimension vectors from
+`scripts/export_trained_gradient.py` (stdlib SGD, distinct seed per honest node)
+and additionally forward the same vector to a federation parent. Desk-Mini agents
+1/2 use trained vectors, agent 3 remains Byzantine. Live results:
+
+- libp2p path: Multi-Krum `f=1 m=5` selects all five honest agents and filters only `deskmini-node-3` (212 filtered decisions); per-node counters 211–213 selected for honest nodes.
+- federation path: regional tier 54 received / 18 aggregated with 20 ms parent latency; global tier 26 received / 21 aggregated.
+
+Evidence: `phase7/real-gradient-path/`. Caveat: small SGD trainer, not a Flower client; transport/filtering are validated, not model accuracy under attack.
+
+## 10-agent BFT scale / breaking point (no code change)
+
+Five agents per host (10 total) fit comfortably: A's Docker VM ~1 GB actual of 3.87 GiB (router 457/512 MiB is the tightest cap), B has 11 GiB available, all agents healthy, 0 HTTP 429s, 48 gradient submissions in 180 s.
+
+Real `internal.MultiKrumSelect` at n=10: f=0→8 selected, f=1→7, f=2→6, **f=3→5 (last valid)**, f=4 and f=5 error (`n > 2f+2`). Live with batch=10/m=9: f=3 succeeded (9 selected / 1 filtered); f=4 errored and incremented `mohawk_orchestrator_multikrum_batches_total{result="error"}`. Configuration restored to f=1/m=5/batch=6 afterwards.
+
+Evidence: `phase7/bft-scale/` (evaluation, threshold probe, observed/live logs, resource snapshot, overrides). Caveat: with batch=6 at 10 agents, an honest node can be filtered simply because only 6 of 10 are in the batch — use batch=10/m=9 for clean BFT evidence.
+
+## Grafana verification + Flower-client gradients (post-teardown relaunch)
+
+Relaunched the A monitoring stack and verified: Grafana `/api/health` 200, **14 dashboards** including the new 12-panel `Sovereign Mohawk | Live Multi-Krum & Federated Learning`, **8 rule groups / 58 rules** with `MohawkMultiKrumAllGradientsFiltered` and `MohawkMultiKrumHighFilterRatio`, 0 firing alerts, **9/9 Prometheus targets up**. Exported dashboard JSON in `observability/grafana-post422/`.
+
+PR #424 (`072ba001`) added `scripts/export_flower_gradient.py`: a real `flwr.client.NumPyClient` trainer exporting gradients in the `MOHAWK_GRADIENT_FILE` schema. Generated 128-dim vectors with flwr 1.44.0 / numpy 2.5.5 and ran node-agent-1/2 in `MOHAWK_GRADIENT_MODE=file`; both submitted and the orchestrator accepted them. Evidence: `phase7/flower-client/`.
+
+Privilege gaps now **resolved and verified**: Windows inbound ICMPv4 Echo rule enabled (B→A 4/4 packets, 0 % loss, mean 24.5 ms); Desk-Mini `/etc/sudoers.d/tpm-pcr-read` (0440 root:root) permits non-interactive `sudo -n tpm2_pcrread`. The real PCR gate matched policy (exit 0) and started `deskmini-node-agent-1`; a tampered policy exited 3 and did **not** start `node-agent-2` (only agent-1 running).
