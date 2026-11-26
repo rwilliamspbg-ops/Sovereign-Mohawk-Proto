@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "b6b0ac9ef421235e9b7d1f1afa92bca08de2664e68445fbac1ef73833850f7b6",
+  "input_merkle_root": "ca7912bb4a759405454ca2cdfdf6d3b9a86a924a3ab855c989158d37892cc307",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -92,7 +92,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "e2e88105f95031a328d004b0e68205d06b7102a478b25de9e2f07d720ad3a47f"
+      "sha256": "fef19115872f0b9254e5e3290a09d142f15d14a50235ce34c5cee86ae1aa598d"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -512,12 +512,17 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 13,
+      "symbol_count": 19,
       "symbols": [
+        "edAddClosure_aux",
         "edAddField",
         "edAddField_associative_of_compat",
+        "edAddMont_v_mul_aux",
         "edAdd_mont_u",
+        "edAdd_mont_v",
         "edAdd_toMont_eq_montAdd",
+        "ed_dy_ne_zero_aux",
+        "edwards_of_montgomery_aux",
         "montAdd",
         "montAdd_associative_of_weierstrass",
         "montB_ne_zero",
@@ -526,7 +531,8 @@
         "montWeier",
         "mont_nonsingular",
         "montgomeryToWeier_equation",
-        "montgomery_v_sq"
+        "montgomery_v_sq",
+        "x3_mul_vadd_aux"
       ]
     },
     {
@@ -1114,7 +1120,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 530
+    "theorem_symbol_count": 536
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
