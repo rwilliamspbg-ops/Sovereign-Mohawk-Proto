@@ -374,3 +374,11 @@ PR #429 proves the Edwards to Montgomery addition-law compatibility over an arbi
 Adds row 47 for the machine-checked Edwards to Montgomery addition bridge, twisted-Edwards completeness, the derived compatibility bundle, the conditional associativity theorem and the exact Nat/ZMod lifting statement for the concrete affineAdd. All nine changed theorems are axiom-free under #print axioms; concretely, affineAdd associativity remains an explicit gap.
 
 - **PR:** #429
+
+### 2026-11-26 -- Row 47 (Edwards-Montgomery addition bridge): concrete affineAdd associativity now conditional theorem
+
+`group_law_partially_formalized` (field-level compatibility, completeness and conditional associativity proved; concrete affineAdd associativity NOT proved) -> `group_law_partially_formalized` (field-level compatibility, completeness and conditional associativity proved; concrete affineAdd associativity proved conditionally, not unconditionally)
+
+PR #430 adds `affineAdd_associative_of_complete`, transporting the field associativity theorem through the Nat/ZMod coercion bridge. It also proves `IsSquare (-1)` from p % 4 = 1, removing one hypothesis. Unconditional associativity is still not claimed: the residual hypotheses are listed in the theorem statement.
+
+- **PR:** #430
