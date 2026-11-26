@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "cd6951f5e697f00783b7ba13ba998aff3d441373e8006327bf6498981270e710",
+  "input_merkle_root": "2c495ec2883615d5237c63a58b16a5fe0e16c95daa6b21f806c67fec22a2b304",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "7b2a903171fc901ddfef9a7008672ca732506ec6d97fdef3be99edc5faa43283"
+      "sha256": "20641318949f76b4be77077be9aaa9ccdc9db9afb45384362b3c208d930087d2"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "a54ac947f4a032a01311491dbb103f16c95b33caca86c9b46c611d559cf2aba6"
+      "sha256": "e92a1bc3aa8899c8eca333712d115b804173e6f2abcbe2b9c992461a67e1c4de"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -68,7 +68,7 @@
     },
     {
       "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
-      "sha256": "bf536156284cefc02e22dcb8cfa3d58ed256a44761c69a6ba6e8bce0b3601d7b"
+      "sha256": "10f634e3627ac66e511bacf5bfc37db5157249bdc53e1ebb4b5fcf51b22ea83d"
     },
     {
       "path": "proofs/LeanFormalization/Filtration.lean",
@@ -184,7 +184,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "abc510cc7b4a1ed795b7fe22d40320f34fbd6abbd8b99a0e2e7d72d3181904b3"
+      "sha256": "56a9c9c0881f2ff2da9b1dcff38abe4ce711bb8b18dd5b389bbb36e702c73b3b"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
@@ -428,7 +428,7 @@
     {
       "file": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
       "module": "LeanFormalization.EdwardsWeierstrassBridge",
-      "symbol_count": 22,
+      "symbol_count": 24,
       "symbols": [
         "edwardsEq",
         "edwardsToMont",
@@ -438,6 +438,8 @@
         "edwardsToMont_snd",
         "edwards_one_add_dy_ne_zero",
         "edwards_x_recover",
+        "edwards_y_ne_one_of_x_ne_zero",
+        "edwards_y_ne_one_of_x_ne_zero_requires_hd",
         "edwards_y_recover",
         "montA",
         "montB",
@@ -923,7 +925,7 @@
     {
       "file": "proofs/LeanFormalization/Theorem5Cryptography.lean",
       "module": "LeanFormalization.Theorem5Cryptography",
-      "symbol_count": 52,
+      "symbol_count": 54,
       "symbols": [
         "CircuitBoundRelation",
         "GenesisIdentityVK",
@@ -956,6 +958,8 @@
         "theorem5_verifier_completeness",
         "theorem5_verifier_soundness",
         "theorem5_verifyops_constant",
+        "theorem_weight_acceptance_ignores_norm_bound",
+        "theorem_weight_acceptance_no_witness",
         "theorem_weight_binding",
         "theorem_weight_completeness",
         "theorem_weight_derived_hashes",
@@ -1147,7 +1151,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 563
+    "theorem_symbol_count": 567
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

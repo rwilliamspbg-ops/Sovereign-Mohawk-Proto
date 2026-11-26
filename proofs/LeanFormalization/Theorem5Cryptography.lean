@@ -539,4 +539,42 @@ theorem theorem_weight_norm_bound_out_of_range_rejected (stmt : WeightStatement)
   have hlt := (weight_relation_range_checks stmt w hrel).2.2
   omega
 
+
+/-- ### Negative control: what `verifyWeight` does NOT guarantee
+
+`verifyWeight` is only a syntax/debinding check: it confirms that the proof
+echoes the statement's two hashes, carries `weightCircuitVK`, and that the
+statement's dataset commitment is non-zero. It never inspects `grad_norm_bound`,
+the gradient or noise vectors, their lengths, or the hash-derivation equations
+of `WeightRelation`. Consequently acceptance certifies none of the relation's
+norm/range conjuncts: every `WeightStatement` whose `grad_norm_bound` violates
+the circuit's 63-bit range check is still accepted by the honest-echo proof,
+even though **no** witness can satisfy `WeightRelation` for it. This is the
+precise sense in which the toy verifier is not knowledge-sound on its own --
+the gap that full Groth16/q-SDH knowledge soundness would fill (module
+docstring above). -/
+theorem theorem_weight_acceptance_ignores_norm_bound (stmt : WeightStatement)
+    (hds : stmt.dataset_commitment ≠ 0) (hbig : 2 ^ 63 ≤ stmt.grad_norm_bound) :
+    verifyWeight stmt (proveWeight stmt) = true ∧ ∀ w : WeightWitness, ¬ WeightRelation stmt w := by
+  constructor
+  · simp [verifyWeight, proveWeight, hds]
+  · intro w hrel
+    have hb := (weight_relation_range_checks stmt w hrel).2.2
+    omega
+
+/-- Concrete instance of the negative control: an accepted statement/proof pair
+    for which the witness relation is uninhabited. -/
+theorem theorem_weight_acceptance_no_witness :
+    ∃ stmt : WeightStatement, ∃ p : WeightProof,
+      verifyWeight stmt p = true ∧ ∀ w : WeightWitness, ¬ WeightRelation stmt w := by
+  let stmt : WeightStatement :=
+    { model_hash_before := 0
+      model_hash_after := 0
+      dataset_commitment := 1
+      grad_norm_bound := 2 ^ 63
+      dp_epsilon := 0
+      update_hash := 0 }
+  exact ⟨stmt, proveWeight stmt,
+    theorem_weight_acceptance_ignores_norm_bound stmt (by norm_num [stmt]) (by norm_num [stmt])⟩
+
 end LeanFormalization

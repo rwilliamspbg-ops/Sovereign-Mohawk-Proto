@@ -1,5 +1,6 @@
 import Mathlib
 import Specification.System
+import LeanFormalization.KrumSelection
 
 /-!
 # Multi-Krum / Krum Refinement: Lean Spec ↔ Go Implementation
@@ -614,4 +615,215 @@ theorem multiKrumSelectManyImpl_one_eq_multiKrumSelectImpl (L : FloatOrderLaws) 
   simp only [List.isEmpty_iff]
   rw [if_neg hgradne, hidx]
 
+/-! ## Theory ↔ implementation bridge at the score level (Tier 2 item 4)
+
+`krumScore_eq_sum_k_nearest` is the theory-side half of the correspondence
+between the refined implementation's selection predicate and the abstract
+KrumSelection predicate. It proves, with no new axiom, that the abstract score
+`LeanFormalization.krumScore` (the minimum, over k-subsets of the other
+candidates, of the sum of squared distances) is exactly the sum of the `k`
+smallest squared distances to the other candidates — the same quantity the
+refined `Specification.neighborScore` computes, before Float rounding.
+
+The implementation side already selects minimizers of `neighborScore`
+(`argmin?_isMinIdx`, `minFoldPair_spec`, `isMinScorePairVal_to_isMinIdx`), and
+the abstract safety theorem `krum_selection_safe` concludes honesty of
+minimizers of `krumScore`. This lemma closes the *score-level* gap between
+those two predicates.
+
+The remaining gap is not machine-checkable here: `neighborScore` operates on
+`FloatArray` gradients with opaque Float arithmetic/order, whereas `krumScore`
+operates on `α → E` over a real inner-product space. An exact Float-to-Real
+and `FloatArray`-to-normed-space bridge tied to `sqDist` does not exist in this
+Mathlib, so the full implementation↔theory equality remains a stated residual
+rather than a proved theorem. -/
+
+variable {α : Type*} [DecidableEq α]
+
+/-- If `l` is sorted ascending by `d` and has no duplicates, then for any
+    finset `T ⊆ l.toFinset` of card `k`, the sum of the `k` smallest
+    `d`-values in `l` is at most the sum of `d` over `T`. -/
+private theorem sum_take_le_sum_subset (d : α → ℝ) (l : List α)
+    (hpw : l.Pairwise (fun a b => d a ≤ d b)) (hnd : l.Nodup)
+    (T : Finset α) (hTsub : T ⊆ l.toFinset) (k : ℕ) (hk : T.card = k) :
+    ((List.map d l).take k).sum ≤ ∑ j ∈ T, d j := by
+  induction l generalizing k T with
+  | nil =>
+      simp only [List.map_nil, List.take_nil, List.sum_nil]
+      have hTempty : T = ∅ := by
+        apply Finset.not_nonempty_iff_eq_empty.mp
+        intro h
+        rcases h with ⟨x, hx⟩
+        exact absurd (hTsub hx) (by simp)
+      simp [hTempty]
+  | cons a l ih =>
+      rcases List.pairwise_cons.mp hpw with ⟨hpw_head, hpw_tail⟩
+      rcases List.pairwise_cons.mp hnd with ⟨ha_notin, hnd_tail⟩
+      by_cases haT : a ∈ T
+      · have hkpos : 0 < k := by
+          have : 0 < T.card := Finset.card_pos.mpr ⟨a, haT⟩
+          omega
+        let T' : Finset α := T.erase a
+        have hT'card : T'.card = k - 1 := by
+          dsimp [T']
+          rw [Finset.card_erase_of_mem haT, hk]
+        have hT'sub : T' ⊆ l.toFinset := by
+          intro x hx
+          have hxT : x ∈ T := (Finset.mem_erase.mp hx).2
+          have hxne : x ≠ a := (Finset.mem_erase.mp hx).1
+          have hxins : x ∈ insert a l.toFinset := by
+            rw [← List.toFinset_cons]
+            exact hTsub hxT
+          rcases Finset.mem_insert.mp hxins with hxa | hxl
+          · exact (hxne hxa).elim
+          · exact hxl
+        have hih := ih hpw_tail hnd_tail T' hT'sub (k - 1) hT'card
+        have htake : ((List.map d (a :: l)).take k).sum =
+            d a + ((List.map d l).take (k - 1)).sum := by
+          have hk1 : k - 1 + 1 = k := by omega
+          calc
+            ((List.map d (a :: l)).take k).sum =
+                ((List.map d (a :: l)).take (k - 1 + 1)).sum := by rw [hk1]
+            _ = (d a :: (List.map d l).take (k - 1)).sum := by
+                  rw [List.map_cons, List.take_succ_cons]
+            _ = d a + ((List.map d l).take (k - 1)).sum := by simp
+        have hsumT : (∑ j ∈ T, d j) = d a + ∑ j ∈ T', d j := by
+          dsimp [T']
+          rw [← Finset.sum_erase_add _ _ haT]
+          abel
+        rw [htake, hsumT]
+        linarith
+      · have hT'sub : T ⊆ l.toFinset := by
+          intro x hx
+          have hxins : x ∈ insert a l.toFinset := by
+            rw [← List.toFinset_cons]
+            exact hTsub hx
+          rcases Finset.mem_insert.mp hxins with hxa | hxl
+          · exfalso
+            rw [hxa] at hx
+            exact haT hx
+          · exact hxl
+        have hih := ih hpw_tail hnd_tail T hT'sub k hk
+        have hle_take : ((List.map d (a :: l)).take k).sum ≤
+            ((List.map d l).take k).sum := by
+          by_cases hk0 : k = 0
+          · rw [hk0]
+            simp
+          · have hkle : k ≤ l.length := by
+              have hcardle : T.card ≤ l.toFinset.card := Finset.card_le_card hT'sub
+              rw [List.toFinset_card_of_nodup hnd_tail, hk] at hcardle
+              exact hcardle
+            have hkm1lt : k - 1 < l.length := by omega
+            have hp : k - 1 < (List.map d l).length := by simpa using hkm1lt
+            have hsumk : ((List.map d l).take k).sum =
+                ((List.map d l).take (k - 1)).sum + (List.map d l)[k - 1] := by
+              have h := List.sum_take_succ (List.map d l) (k - 1) hp
+              have hk1 : k - 1 + 1 = k := by omega
+              simpa [hk1] using h
+            have hlast : (List.map d l)[k - 1] = d (l[k - 1]) := by
+              exact List.getElem_map d (i := k - 1) (h := hp)
+            have hsumc : ((List.map d (a :: l)).take k).sum =
+                d a + ((List.map d l).take (k - 1)).sum := by
+              have hk1 : k - 1 + 1 = k := by omega
+              calc
+                ((List.map d (a :: l)).take k).sum =
+                    ((List.map d (a :: l)).take (k - 1 + 1)).sum := by rw [hk1]
+                _ = (d a :: (List.map d l).take (k - 1)).sum := by
+                      rw [List.map_cons, List.take_succ_cons]
+                _ = d a + ((List.map d l).take (k - 1)).sum := by simp
+            rw [hsumc, hsumk, hlast]
+            have hgetmem : l[k - 1] ∈ l := by
+              exact List.get_mem l ⟨k - 1, hkm1lt⟩
+            have hadle : d a ≤ d (l[k - 1]) := hpw_head _ hgetmem
+            linarith
+        exact hle_take.trans hih
+
+theorem krumScore_eq_sum_k_nearest
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {α : Type*} [DecidableEq α] [Fintype α]
+    (g : α → E) (i : α) (k : ℕ) (hk : k ≤ (Finset.univ.erase i).card) :
+    LeanFormalization.krumScore g i k =
+      let s : Finset α := Finset.univ.erase i
+      let d : α → ℝ := fun j => LeanFormalization.distSq g i j
+      let le (a b : α) : Bool := decide (d a ≤ d b)
+      let l : List α := s.toList.mergeSort le
+      ((List.map d l).take k).sum := by
+  classical
+  let s : Finset α := Finset.univ.erase i
+  let d : α → ℝ := fun j => LeanFormalization.distSq g i j
+  let le (a b : α) : Bool := decide (d a ≤ d b)
+  let l : List α := s.toList.mergeSort le
+  change LeanFormalization.krumScore g i k = ((List.map d l).take k).sum
+  have htrans : ∀ a b c : α, le a b = true → le b c = true → le a c = true := by
+    intro a b c hab hbc
+    simp only [le, decide_eq_true_eq] at hab hbc ⊢
+    exact le_trans hab hbc
+  have htot : ∀ a b : α, (le a b || le b a) = true := by
+    intro a b
+    simp only [le]
+    by_cases h : d a ≤ d b
+    · simp [h]
+    · have hba : d b ≤ d a := le_of_not_ge h
+      simp [h, hba]
+  have hpw_bool : l.Pairwise (fun a b => le a b = true) := by
+    simpa [l] using List.pairwise_mergeSort htrans htot s.toList
+  have hpw : l.Pairwise (fun a b => d a ≤ d b) := by
+    simpa only [le, decide_eq_true_eq] using hpw_bool
+  have hperm : l.Perm s.toList := by
+    simpa [l] using List.mergeSort_perm s.toList le
+  have hnodup : l.Nodup := by
+    exact hperm.symm.nodup s.nodup_toList
+  have hlfin : l.toFinset = s := by
+    ext x
+    simp only [List.mem_toFinset]
+    constructor
+    · intro hx
+      have hx' : x ∈ s.toList := hperm.mem_iff.mp hx
+      exact Finset.mem_toList.mp hx'
+    · intro hx
+      have hx' : x ∈ s.toList := Finset.mem_toList.mpr hx
+      exact hperm.mem_iff.mpr hx'
+  have hllen : l.length = s.card := by
+    have := hperm.length_eq
+    simpa using this
+  have hk_s : k ≤ s.card := by simpa [s] using hk
+  have hkl : k ≤ l.length := by rw [hllen]; exact hk_s
+  -- Upper bound
+  have hupper : LeanFormalization.krumScore g i k ≤ ((List.map d l).take k).sum := by
+    let T : Finset α := (l.take k).toFinset
+    have hTnodup : (l.take k).Nodup := List.Pairwise.take hnodup
+    have hTcard : T.card = k := by
+      dsimp [T]
+      rw [List.toFinset_card_of_nodup hTnodup, List.length_take]
+      exact Nat.min_eq_left hkl
+    have hTsub : T ⊆ Finset.univ.erase i := by
+      intro x hx
+      have hx' : x ∈ l := List.take_subset k l (by
+        dsimp [T] at hx
+        exact List.mem_toFinset.mp hx)
+      have hxfin : x ∈ l.toFinset := List.mem_toFinset.mpr hx'
+      rw [hlfin] at hxfin
+      exact hxfin
+    have hTsum : (∑ j ∈ T, d j) = ((List.map d l).take k).sum := by
+      dsimp [T]
+      rw [List.sum_toFinset d hTnodup, List.map_take]
+    have hle := LeanFormalization.krumScore_le_of_exists_subset g i k hk hTsub hTcard
+      (show (∑ j ∈ T, LeanFormalization.distSq g i j) ≤ ((List.map d l).take k).sum by
+        dsimp [d] at hTsum
+        exact le_of_eq hTsum)
+    exact hle
+  -- Lower bound
+  have hlower : ((List.map d l).take k).sum ≤ LeanFormalization.krumScore g i k := by
+    unfold LeanFormalization.krumScore
+    rw [dif_pos hk]
+    refine Finset.le_min' _ _ _ ?_
+    intro x hx
+    rw [Finset.mem_image] at hx
+    rcases hx with ⟨S, hS, rfl⟩
+    rw [Finset.mem_powersetCard] at hS
+    exact sum_take_le_sum_subset d l hpw hnodup S
+      (by intro y hy; rw [hlfin]; exact hS.1 hy) k hS.2
+  exact le_antisymm hupper hlower
 end Refinement
+
+#print axioms Refinement.krumScore_eq_sum_k_nearest
