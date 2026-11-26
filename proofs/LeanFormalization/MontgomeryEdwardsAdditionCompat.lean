@@ -46,13 +46,14 @@ The proved compatibility still takes explicit non-vanishing hypotheses:
 sides map to `(0, 0)` on the Montgomery curve, discharged by
 `montAdd_v_eq_zero_of_u_eq_zero`.
 
-Transporting Mathlib's associativity back to the Edwards law still needs
-`EdwardsAddCompatForAssociativity`: full compatibility in Edwards coordinates,
-closure of the Edwards law, and the auxiliary non-vanishing conditions are
-carried as one explicit bundle. Denominator completeness itself is now proved
-by `edwards_denoms_ne_zero` under `IsSquare (-1)` and `¬ IsSquare d`; what remains
-is packaging that proof into the bundle and handling the `y = 1` exceptional
-point, where the birational map itself is undefined.
+Transporting Mathlib's associativity back to the Edwards law is now a theorem:
+`edAddField_associative_of_complete` derives the formerly assumed bundle
+(`edwardsAddCompat_of_complete`), `1 + d ≠ 0`, and closure of all four
+intermediate sums from `edwards_denoms_ne_zero`. What remains explicit is the
+admissibility of the three inputs (`y ≠ 1`, `x ≠ 0`), three pairwise distinctness
+conditions on the Montgomery u-coordinates, and four `y ≠ 1` conditions on the
+intermediate sums -- the latter are genuine exceptional cases where the sum is
+the affine identity, handled by the branch in the concrete `affineAdd`.
 
 The concrete Edwards implementation `Ed25519.affineAdd` is `Nat`-based modulo
 `2^255 - 19`; transporting these field-level results to it additionally needs a
@@ -708,6 +709,144 @@ theorem edAdd_toMont_eq_montAdd {u1 v1 u2 v2 : K}
       hDenQ hNumQ hDenP hPnumHyp
 
 
+/-- `(u+1)` of the image of an Edwards point is `2/(1-y)`, nonzero in characteristic != 2. -/
+lemma edwardsToMont_u_add_one_ne_zero {d x y : K} (hy : 1 - y ≠ 0) (h2 : (2 : K) ≠ 0) :
+    (edwardsToMont d x y).1 + 1 ≠ 0 := by
+  rw [edwardsToMont_fst]
+  have heq : (1 + y) / (1 - y) + 1 = 2 / (1 - y) := by
+    field_simp [hy]
+    ring
+  rw [heq]
+  exact div_ne_zero h2 hy
+
+/-- `Q(u)` of the image is `4(1+d·y²)/(1-y)²`, nonzero on the admissible locus. -/
+lemma montQ_edwardsToMont_ne_zero {d x y : K} (hE : edwardsEq d x y)
+    (hy : 1 - y ≠ 0) (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) :
+    montQ d (edwardsToMont d x y).1 ≠ 0 := by
+  rw [edwardsToMont_fst]
+  rw [montQ_of_edwards d y hy]
+  apply div_ne_zero
+  · apply mul_ne_zero
+    · rw [show (4 : K) = 2 * 2 by norm_num]
+      exact mul_ne_zero h2 h2
+    · exact edwards_one_add_dy_ne_zero hE hy hd
+  · exact pow_ne_zero 2 hy
+
+/-- Addition compatibility stated directly in Edwards coordinates, derived from
+    `edAdd_toMont_eq_montAdd` plus `edwards_denoms_ne_zero`. All four auxiliary
+    Montgomery-side non-vanishing hypotheses of the field-level theorem are
+    cleared here: they are exactly `1 ± d·x₁·x₂·y₁·y₂ ≠ 0` and `1 - y₃ ≠ 0`
+    multiplied by the nonzero factor `Q₁·Q₂·(u₁+1)·(u₂+1)`. -/
+lemma edwardsToMont_eq_montAdd_of_complete {d x1 y1 x2 y2 : K}
+    (hi : IsSquare (-1 : K)) (hnd : ¬ IsSquare d) (h2 : (2 : K) ≠ 0)
+    (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2)
+    (hy1 : 1 - y1 ≠ 0) (hy2 : 1 - y2 ≠ 0)
+    (hu12 : (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d x2 y2).1)
+    (hE12 : edwardsEq d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2)
+    (hy12 : 1 - (edAddField d x1 y1 x2 y2).2 ≠ 0) :
+    edwardsToMont d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 =
+      montAdd d (edwardsToMont d x1 y1).1 (edwardsToMont d x1 y1).2
+               (edwardsToMont d x2 y2).1 (edwardsToMont d x2 y2).2 := by
+  have hd : 1 + d ≠ 0 := by
+    rcases hi with ⟨i, hi⟩
+    intro h
+    have hd_eq : d = -1 := by linear_combination h
+    exact hnd ⟨i, by rw [hd_eq, hi]⟩
+  have hD12 := edwards_denoms_ne_zero hE1 hE2 hi hnd
+  have hD1 := hD12.1
+  have hD2 := hD12.2
+  let u1 := (edwardsToMont d x1 y1).1
+  let v1 := (edwardsToMont d x1 y1).2
+  let u2 := (edwardsToMont d x2 y2).1
+  let v2 := (edwardsToMont d x2 y2).2
+  let Q1 := montQ d u1
+  let Q2 := montQ d u2
+  have hM1 : montgomeryEq d u1 v1 := by
+    change montgomeryEq d (edwardsToMont d x1 y1).1 (edwardsToMont d x1 y1).2
+    exact edwardsToMont_montgomery hE1 hy1 hd
+  have hM2 : montgomeryEq d u2 v2 := by
+    change montgomeryEq d (edwardsToMont d x2 y2).1 (edwardsToMont d x2 y2).2
+    exact edwardsToMont_montgomery hE2 hy2 hd
+  have hu1 : u1 + 1 ≠ 0 := by
+    change (edwardsToMont d x1 y1).1 + 1 ≠ 0
+    exact edwardsToMont_u_add_one_ne_zero hy1 h2
+  have hu2 : u2 + 1 ≠ 0 := by
+    change (edwardsToMont d x2 y2).1 + 1 ≠ 0
+    exact edwardsToMont_u_add_one_ne_zero hy2 h2
+  have hq1 : Q1 ≠ 0 := by
+    change montQ d (edwardsToMont d x1 y1).1 ≠ 0
+    exact montQ_edwardsToMont_ne_zero hE1 hy1 hd h2
+  have hq2 : Q2 ≠ 0 := by
+    change montQ d (edwardsToMont d x2 y2).1 ≠ 0
+    exact montQ_edwardsToMont_ne_zero hE2 hy2 hd h2
+  have hx1' : 2 * v1 / Q1 = x1 := by
+    change 2 * (edwardsToMont d x1 y1).2 / montQ d (edwardsToMont d x1 y1).1 = x1
+    exact edwards_x_recover hy1 (edwards_one_add_dy_ne_zero hE1 hy1 hd) h2
+  have hx2' : 2 * v2 / Q2 = x2 := by
+    change 2 * (edwardsToMont d x2 y2).2 / montQ d (edwardsToMont d x2 y2).1 = x2
+    exact edwards_x_recover hy2 (edwards_one_add_dy_ne_zero hE2 hy2 hd) h2
+  have hy1' : (u1 - 1) / (u1 + 1) = y1 := by
+    change ((edwardsToMont d x1 y1).1 - 1) / ((edwardsToMont d x1 y1).1 + 1) = y1
+    exact edwards_y_recover hy1 h2
+  have hy2' : (u2 - 1) / (u2 + 1) = y2 := by
+    change ((edwardsToMont d x2 y2).1 - 1) / ((edwardsToMont d x2 y2).1 + 1) = y2
+    exact edwards_y_recover hy2 h2
+  have hD1' : 1 + d * (2 * v1 / Q1) * (2 * v2 / Q2) *
+      ((u1 - 1) / (u1 + 1)) * ((u2 - 1) / (u2 + 1)) ≠ 0 := by
+    simpa [hx1', hx2', hy1', hy2'] using hD1
+  have hD2' : 1 - d * (2 * v1 / Q1) * (2 * v2 / Q2) *
+      ((u1 - 1) / (u1 + 1)) * ((u2 - 1) / (u2 + 1)) ≠ 0 := by
+    simpa [hx1', hx2', hy1', hy2'] using hD2
+  have hy3' : 1 - (edAddField d (2 * v1 / Q1) ((u1 - 1) / (u1 + 1))
+      (2 * v2 / Q2) ((u2 - 1) / (u2 + 1))).2 ≠ 0 := by
+    simpa [hx1', hx2', hy1', hy2'] using hy12
+  have hDfac : Q1 * Q2 * (u1 + 1) * (u2 + 1) ≠ 0 :=
+    mul_ne_zero (mul_ne_zero (mul_ne_zero hq1 hq2) hu1) hu2
+  have hDenP_eq : (u1 + 1) * Q2 * Q1 * (u2 + 1) +
+      2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d =
+      (1 + d * x1 * x2 * y1 * y2) * (Q1 * Q2 * (u1 + 1) * (u2 + 1)) := by
+    rw [← hx1', ← hx2', ← hy1', ← hy2']
+    field_simp [hu1, hu2, hq1, hq2]
+  have hDenP : (u1 + 1) * Q2 * Q1 * (u2 + 1) +
+      2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d ≠ 0 := by
+    rw [hDenP_eq]
+    exact mul_ne_zero hD1 hDfac
+  have hfrac : 2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d /
+      (Q1 * (u2 + 1) * (u1 + 1) * Q2) = d * x1 * x2 * y1 * y2 := by
+    rw [← hx1', ← hx2', ← hy1', ← hy2']
+    field_simp [hu1, hu2, hq1, hq2]
+  have hPnumHyp : 1 + 2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * d /
+      (Q1 * (u2 + 1) * (u1 + 1) * Q2) ≠ 0 := by
+    rw [hfrac]
+    exact hD1
+  have hDenQ_eq : (u1 + 1) * (u2 + 1) * Q1 * Q2 -
+      (u1 - 1) * (u2 - 1) * (2 : K) ^ 2 * v1 * v2 * d =
+      (1 - d * x1 * x2 * y1 * y2) * (Q1 * Q2 * (u1 + 1) * (u2 + 1)) := by
+    rw [← hx1', ← hx2', ← hy1', ← hy2']
+    field_simp [hu1, hu2, hq1, hq2]
+  have hDenQ : (u1 + 1) * (u2 + 1) * Q1 * Q2 -
+      (u1 - 1) * (u2 - 1) * (2 : K) ^ 2 * v1 * v2 * d ≠ 0 := by
+    rw [hDenQ_eq]
+    exact mul_ne_zero hD2 hDfac
+  have hNumQ_eq : (u1 + 1) * (u2 + 1) * Q1 * Q2 -
+      (u1 - 1) * (u2 - 1) * (2 : K) ^ 2 * v1 * v2 * d -
+      ((u1 - 1) * (u2 - 1) * Q1 * Q2 + (u1 + 1) * (u2 + 1) * (2 : K) ^ 2 * v1 * v2) =
+      (1 - (edAddField d x1 y1 x2 y2).2) * (1 - d * x1 * x2 * y1 * y2) *
+        (Q1 * Q2 * (u1 + 1) * (u2 + 1)) := by
+    rw [← hx1', ← hx2', ← hy1', ← hy2']
+    unfold edAddField
+    field_simp [hu1, hu2, hq1, hq2, hD2']
+  have hNumQ : (u1 + 1) * (u2 + 1) * Q1 * Q2 -
+      (u1 - 1) * (u2 - 1) * (2 : K) ^ 2 * v1 * v2 * d -
+      ((u1 - 1) * (u2 - 1) * Q1 * Q2 + (u1 + 1) * (u2 + 1) * (2 : K) ^ 2 * v1 * v2) ≠ 0 := by
+    rw [hNumQ_eq]
+    exact mul_ne_zero (mul_ne_zero hy12 hD2) hDfac
+  change edwardsToMont d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 =
+    montAdd d u1 v1 u2 v2
+  rw [← hx1', ← hx2', ← hy1', ← hy2']
+  exact edAdd_toMont_eq_montAdd hM1 hM2 hd h2 hu1 hu2 hq1 hq2 hu12
+    hD1' hD2' hy3' hDenQ hNumQ hDenP hPnumHyp
+
 /-- The residual needed to transport Mathlib's associativity back to the Edwards law:
     full addition compatibility stated directly in Edwards coordinates. It follows
     from the machine-checked `edAdd_mont_u` and `edAdd_mont_v`, together with closure
@@ -718,11 +857,21 @@ structure EdwardsAddCompatForAssociativity (d : K) : Prop where
   compat : ∀ {x1 y1 x2 y2 : K},
     edwardsEq d x1 y1 → edwardsEq d x2 y2 →
     1 - y1 ≠ 0 → 1 - y2 ≠ 0 → 1 + d ≠ 0 → (2 : K) ≠ 0 →
+    (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d x2 y2).1 →
     edwardsEq d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 →
     1 - (edAddField d x1 y1 x2 y2).2 ≠ 0 →
     edwardsToMont d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 =
       montAdd d (edwardsToMont d x1 y1).1 (edwardsToMont d x1 y1).2
                (edwardsToMont d x2 y2).1 (edwardsToMont d x2 y2).2
+
+/-- The compatibility bundle is now **proved**, not assumed: completeness supplies
+    every denominator the field-level compatibility theorem needs. -/
+theorem edwardsAddCompat_of_complete {d : K} (hi : IsSquare (-1 : K)) (hnd : ¬ IsSquare d)
+    (h2 : (2 : K) ≠ 0) : EdwardsAddCompatForAssociativity d := by
+  refine ⟨?_⟩
+  intro x1 y1 x2 y2 hE1 hE2 hy1 hy2 hd _hu2 hu12 hE12 hy12
+  exact edwardsToMont_eq_montAdd_of_complete hi hnd h2 hE1 hE2 hy1 hy2 hu12 hE12 hy12
+
 /-- Associativity of the Edwards field law, inherited from Mathlib's Weierstrass
     `AddCommGroup` conditional on the compatibility bundle above. All other
     ingredients (the Montgomery law, its associativity, and injectivity of the
@@ -785,16 +934,26 @@ theorem edAddField_associative_of_compat (hA : EdwardsAddCompatForAssociativity 
       hv1 hv2 hv3 hu12 hu23 hu12_3 hu1_23
   have hcomp12 : M12 = montAdd d M1.1 M1.2 M2.1 M2.2 := by
     dsimp [M12, P12, M1, M2]
-    exact hA.compat hE1 hE2 hy1 hy2 hd h2 hE12 hy12
+    exact hA.compat hE1 hE2 hy1 hy2 hd h2 hu12 hE12 hy12
   have hcomp23 : M23 = montAdd d M2.1 M2.2 M3.1 M3.2 := by
     dsimp [M23, P23, M2, M3]
-    exact hA.compat hE2 hE3 hy2 hy3 hd h2 hE23 hy23
+    exact hA.compat hE2 hE3 hy2 hy3 hd h2 hu23 hE23 hy23
+  have hcomp12' := hcomp12
+  dsimp [M12, P12, M1, M2] at hcomp12'
+  have hu12L : (edwardsToMont d P12.1 P12.2).1 ≠ (edwardsToMont d x3 y3).1 := by
+    rw [hcomp12']
+    exact hu12_3
+  have hcomp23' := hcomp23
+  dsimp [M23, P23, M2, M3] at hcomp23'
+  have hu1R : (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d P23.1 P23.2).1 := by
+    rw [hcomp23']
+    exact hu1_23
   have hcompL : edwardsToMont d L.1 L.2 = montAdd d M12.1 M12.2 M3.1 M3.2 := by
     dsimp [L, M12, M3, P12]
-    exact hA.compat hE12 hE3 hy12 hy3 hd h2 hE12L hy12L
+    exact hA.compat hE12 hE3 hy12 hy3 hd h2 hu12L hE12L hy12L
   have hcompR : edwardsToMont d R.1 R.2 = montAdd d M1.1 M1.2 M23.1 M23.2 := by
     dsimp [R, M23, M1, P23]
-    exact hA.compat hE1 hE23 hy1 hy23 hd h2 hE1R hy1R
+    exact hA.compat hE1 hE23 hy1 hy23 hd h2 hu1R hE1R hy1R
   have hmap : edwardsToMont d L.1 L.2 = edwardsToMont d R.1 R.2 := by
     rw [hcompL, hcompR, hcomp12, hcomp23]
     exact hassoc
@@ -810,6 +969,82 @@ theorem edAddField_associative_of_compat (hA : EdwardsAddCompatForAssociativity 
     exact hbackR'
   change L = R
   exact hbackL.symm.trans ((congrArg (fun p : K × K => montgomeryToEdwards d p.1 p.2) hmap).trans hbackR)
+
+/-- Associativity of the Edwards field law under twisted-Edwards completeness.
+    Compared with `edAddField_associative_of_compat`, the compatibility bundle,
+    `1 + d ≠ 0`, and the four on-curve hypotheses for the intermediate sums are
+    **derived** rather than assumed; only the curve equations, completeness,
+    `2 ≠ 0`, the `y ≠ 1` / `x ≠ 0` admissibility conditions, the three pairwise
+    distinctness conditions, and the four `y ≠ 1` conditions on the intermediate
+    sums remain explicit. The latter are genuine exceptional cases (a sum may be
+    the affine identity), handled by the branch in the concrete `affineAdd`. -/
+theorem edAddField_associative_of_complete {d : K} (hi : IsSquare (-1 : K))
+    (hnd : ¬ IsSquare d) (h2 : (2 : K) ≠ 0)
+    {x1 y1 x2 y2 x3 y3 : K}
+    (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2) (hE3 : edwardsEq d x3 y3)
+    (hy1 : 1 - y1 ≠ 0) (hy2 : 1 - y2 ≠ 0) (hy3 : 1 - y3 ≠ 0)
+    (hx1 : x1 ≠ 0) (hx2 : x2 ≠ 0) (hx3 : x3 ≠ 0)
+    (hu12 : (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d x2 y2).1)
+    (hu23 : (edwardsToMont d x2 y2).1 ≠ (edwardsToMont d x3 y3).1)
+    (hu12_3 : (montAdd d (edwardsToMont d x1 y1).1 (edwardsToMont d x1 y1).2
+        (edwardsToMont d x2 y2).1 (edwardsToMont d x2 y2).2).1 ≠
+        (edwardsToMont d x3 y3).1)
+    (hu1_23 : (edwardsToMont d x1 y1).1 ≠
+        (montAdd d (edwardsToMont d x2 y2).1 (edwardsToMont d x2 y2).2
+          (edwardsToMont d x3 y3).1 (edwardsToMont d x3 y3).2).1)
+    (hy12 : 1 - (edAddField d x1 y1 x2 y2).2 ≠ 0)
+    (hy23 : 1 - (edAddField d x2 y2 x3 y3).2 ≠ 0)
+    (hy12L : 1 - (edAddField d
+        (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 x3 y3).2 ≠ 0)
+    (hy1R : 1 - (edAddField d x1 y1
+        (edAddField d x2 y2 x3 y3).1 (edAddField d x2 y2 x3 y3).2).2 ≠ 0) :
+    edAddField d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 x3 y3 =
+      edAddField d x1 y1 (edAddField d x2 y2 x3 y3).1 (edAddField d x2 y2 x3 y3).2 := by
+  have hd : 1 + d ≠ 0 := by
+    rcases hi with ⟨i, hi⟩
+    intro h
+    have hd_eq : d = -1 := by linear_combination h
+    exact hnd ⟨i, by rw [hd_eq, hi]⟩
+  have hDy1 := edwards_one_add_dy_ne_zero hE1 hy1 hd
+  have hDy2 := edwards_one_add_dy_ne_zero hE2 hy2 hd
+  have hDy3 := edwards_one_add_dy_ne_zero hE3 hy3 hd
+  have hD12 := edwards_denoms_ne_zero hE1 hE2 hi hnd
+  have hD23 := edwards_denoms_ne_zero hE2 hE3 hi hnd
+  have hD12p : 1 + d * x1 * y1 * x2 * y2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12.1
+  have hD12m : 1 - d * x1 * y1 * x2 * y2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12.2
+  have hD23p : 1 + d * x2 * y2 * x3 * y3 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD23.1
+  have hD23m : 1 - d * x2 * y2 * x3 * y3 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD23.2
+  have hE12 : edwardsEq d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 :=
+    edAddClosure_aux hE1 hE2 hDy1 hDy2 hD12p hD12m
+  have hE23 : edwardsEq d (edAddField d x2 y2 x3 y3).1 (edAddField d x2 y2 x3 y3).2 :=
+    edAddClosure_aux hE2 hE3 hDy2 hDy3 hD23p hD23m
+  have hDy12 := edwards_one_add_dy_ne_zero hE12 hy12 hd
+  have hDy23 := edwards_one_add_dy_ne_zero hE23 hy23 hd
+  have hD12L := edwards_denoms_ne_zero hE12 hE3 hi hnd
+  have hD1R := edwards_denoms_ne_zero hE1 hE23 hi hnd
+  have hD12Lp : 1 + d * (edAddField d x1 y1 x2 y2).1 * (edAddField d x1 y1 x2 y2).2 * x3 * y3 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12L.1
+  have hD12Lm : 1 - d * (edAddField d x1 y1 x2 y2).1 * (edAddField d x1 y1 x2 y2).2 * x3 * y3 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12L.2
+  have hD1Rp : 1 + d * x1 * y1 * (edAddField d x2 y2 x3 y3).1 * (edAddField d x2 y2 x3 y3).2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD1R.1
+  have hD1Rm : 1 - d * x1 * y1 * (edAddField d x2 y2 x3 y3).1 * (edAddField d x2 y2 x3 y3).2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD1R.2
+  have hE12L : edwardsEq d
+      (edAddField d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 x3 y3).1
+      (edAddField d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 x3 y3).2 :=
+    edAddClosure_aux hE12 hE3 hDy12 hDy3 hD12Lp hD12Lm
+  have hE1R : edwardsEq d
+      (edAddField d x1 y1 (edAddField d x2 y2 x3 y3).1 (edAddField d x2 y2 x3 y3).2).1
+      (edAddField d x1 y1 (edAddField d x2 y2 x3 y3).1 (edAddField d x2 y2 x3 y3).2).2 :=
+    edAddClosure_aux hE1 hE23 hDy1 hDy23 hD1Rp hD1Rm
+  exact edAddField_associative_of_compat (edwardsAddCompat_of_complete hi hnd h2)
+    hE1 hE2 hE3 hy1 hy2 hy3 hx1 hx2 hx3 hd h2 hu12 hu23 hu12_3 hu1_23
+    hE12 hE23 hy12 hy23 hE12L hE1R hy12L hy1R
 
 end
 end LeanFormalization
