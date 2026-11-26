@@ -1,5 +1,7 @@
 import Mathlib
 import LeanFormalization.Ed25519FieldBridge
+import LeanFormalization.MontgomeryEdwardsAdditionCompat
+set_option maxRecDepth 100000
 
 /-!
 # The Ed25519 affine addition law: what is proved and what stays open
@@ -16,16 +18,23 @@ geometry of the curve, and pins the rest:
   two-sided identity for points whose `inf` flag is honest;
 * `affineAdd_comm` — `affineAdd` is commutative on reduced representatives;
 * `affineAdd_canonical` — the reduced-representative invariant is preserved.
+* `affineAddFormula_zmod_eq_edAddField` and its `affineAdd` wrapper — the
+  concrete Nat formula IS the abstract field law after casting to
+  `ZMod ed25519P`, once the two denominators are nonzero. The on-curve variant
+  discharges them from `edwards_denoms_ne_zero`, so the remaining hypotheses are
+  exactly listed in its statement.
 
 ## What is still open, deliberately
 
-**Associativity of `affineAdd` is NOT proved.** It is the load-bearing law for
-the four consumed hypotheses: `addMul`, `mulMul` and the scalar-multiplication
-theorems all require rewriting a nested `affineAdd`, which needs associativity.
-Proving it needs the completeness of the unified twisted-Edwards formula (the
-denominators `1 ± d·x1·x2·y1·y2` are non-zero for points on the curve), which is
-a statement about the curve equation rather than a case bash. It is recorded as
-a gap, not claimed.
+**Associativity of `affineAdd` is NOT proved.** The field-level bridge is now
+complete (`edAddField_associative_of_complete`), but transporting it to the Nat
+implementation additionally needs: `Fact (Nat.Prime ed25519P)`,
+`IsSquare (-1 : ZMod ed25519P)`, `¬ IsSquare (ed25519D : ZMod ed25519P)`, the
+on-curve equations for all three inputs, and the distinctness/admissibility
+conditions of the field theorem. None of these is supplied by the concrete
+model, so the associativity claim stays a gap rather than being asserted. Note
+also that the completeness hypothesis `IsSquare (-1)` is load-bearing: for
+`a = -1`, nonsquareness of `d` alone does not imply completeness.
 
 ## Two hypotheses, both load-bearing
 
@@ -255,5 +264,98 @@ theorem affineAdd_canonical (P Q : AffinePoint) (hP : IsCanonical P) (hQ : IsCan
                 affineAdd_eq_formula P Q hPi' hQi' hb
               rw [h, affineAddFormula]
               exact ⟨Nat.mod_lt _ hp, Nat.mod_lt _ hp⟩
+
+/-- The concrete Nat-based `affineAddFormula` is exactly the abstract field law
+    `edAddField` after coercion to `ZMod ed25519P`, provided the two unified-law
+    denominators are nonzero (needed to identify Nat `fInv` with the field
+    inverse; `fmul_fInv_zero` is the negative control). -/
+theorem affineAddFormula_zmod_eq_edAddField (hp : Fact (Nat.Prime ed25519P))
+    (x1 y1 x2 y2 : ℕ)
+    (hden1 : fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) % ed25519P ≠ 0)
+    (hden2 : fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) % ed25519P ≠ 0) :
+    (((affineAddFormula x1 y1 x2 y2).x : ZMod ed25519P),
+     ((affineAddFormula x1 y1 x2 y2).y : ZMod ed25519P)) =
+    edAddField (ed25519D : ZMod ed25519P) (x1 : ZMod ed25519P) (y1 : ZMod ed25519P)
+      (x2 : ZMod ed25519P) (y2 : ZMod ed25519P) := by
+  letI := hp
+  have hinv1 : (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ZMod ed25519P) =
+      ((fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) : ℕ) : ZMod ed25519P)⁻¹ := by
+    have hmul : fmul (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
+        (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hp hden1
+    have hmulz : ((fmul (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
+        (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ℕ) : ZMod ed25519P) = 1 := by
+      rw [hmul]
+      norm_num
+    rw [fmul_zmod] at hmulz
+    exact eq_inv_of_mul_eq_one_left hmulz
+  have hinv2 : (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ZMod ed25519P) =
+      ((fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) : ℕ) : ZMod ed25519P)⁻¹ := by
+    have hmul : fmul (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
+        (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hp hden2
+    have hmulz : ((fmul (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
+        (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ℕ) : ZMod ed25519P) = 1 := by
+      rw [hmul]
+      norm_num
+    rw [fmul_zmod] at hmulz
+    exact eq_inv_of_mul_eq_one_left hmulz
+  simp only [affineAddFormula, fadd_zmod, fsub_zmod, fmul_zmod, hinv1, hinv2, edAddField]
+  ring_nf
+
+/-- Wrapper for the four-branch `affineAdd`: the identity and negation branches
+    are excluded explicitly because `edAddField` has no infinity flag or
+    exceptional case. -/
+theorem affineAdd_zmod_eq_edAddField (hp : Fact (Nat.Prime ed25519P)) (P Q : AffinePoint)
+    (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hneg : IsNegation P Q = false)
+    (hden1 : fadd 1 (fmul ed25519D (fmul (fmul P.x Q.x) (fmul P.y Q.y))) % ed25519P ≠ 0)
+    (hden2 : fsub 1 (fmul ed25519D (fmul (fmul P.x Q.x) (fmul P.y Q.y))) % ed25519P ≠ 0) :
+    (((affineAdd P Q).x : ZMod ed25519P), ((affineAdd P Q).y : ZMod ed25519P)) =
+    edAddField (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+      (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P) := by
+  rw [affineAdd_eq_formula P Q hP hQ hneg]
+  exact affineAddFormula_zmod_eq_edAddField hp P.x P.y Q.x Q.y hden1 hden2
+
+/-- Full bridge: on-curve points plus twisted-Edwards completeness discharge the
+    two denominator hypotheses, so the concrete `affineAdd` really computes the
+    field-level Edwards sum. What remains explicit: primality of `p`,
+    `IsSquare (-1)` and nonsquareness of `d` in `ZMod p`, the on-curve equations,
+    and exclusion of the infinity/negation branches. -/
+theorem affineAdd_zmod_eq_edAddField_of_onCurve (hp : Fact (Nat.Prime ed25519P))
+    (hsq : IsSquare (-1 : ZMod ed25519P)) (hnd : ¬ IsSquare (ed25519D : ZMod ed25519P))
+    (P Q : AffinePoint) (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hneg : IsNegation P Q = false)
+    (hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P))
+    (hEQ : edwardsEq (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)) :
+    (((affineAdd P Q).x : ZMod ed25519P), ((affineAdd P Q).y : ZMod ed25519P)) =
+    edAddField (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+      (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P) := by
+  letI := hp
+  have hD := edwards_denoms_ne_zero hEP hEQ hsq hnd
+  let den := fmul (fmul P.x Q.x) (fmul P.y Q.y)
+  have hden1Z : (1 : ZMod ed25519P) + (ed25519D : ZMod ed25519P) * (P.x : ZMod ed25519P) *
+      (Q.x : ZMod ed25519P) * (P.y : ZMod ed25519P) * (Q.y : ZMod ed25519P) ≠ 0 := by
+    simpa [mul_assoc] using hD.1
+  have hden2Z : (1 : ZMod ed25519P) - (ed25519D : ZMod ed25519P) * (P.x : ZMod ed25519P) *
+      (Q.x : ZMod ed25519P) * (P.y : ZMod ed25519P) * (Q.y : ZMod ed25519P) ≠ 0 := by
+    simpa [mul_assoc] using hD.2
+  have hden1nat : fadd 1 (fmul ed25519D den) % ed25519P ≠ 0 := by
+    intro h
+    have hv : fadd 1 (fmul ed25519D den) = 0 := by
+      have h' : fadd 1 (fmul ed25519D den) % ed25519P = 0 := h
+      rwa [Nat.mod_eq_of_lt (fadd_lt _ _)] at h'
+    have hz : ((fadd 1 (fmul ed25519D den) : ℕ) : ZMod ed25519P) = 0 := by
+      rw [hv]
+      norm_num
+    simp only [fadd_zmod, fmul_zmod] at hz
+    exact hden1Z (by simpa [den, fmul_zmod, mul_assoc] using hz)
+  have hden2nat : fsub 1 (fmul ed25519D den) % ed25519P ≠ 0 := by
+    intro h
+    have hv : fsub 1 (fmul ed25519D den) = 0 := by
+      have h' : fsub 1 (fmul ed25519D den) % ed25519P = 0 := h
+      rwa [Nat.mod_eq_of_lt (fsub_lt _ _)] at h'
+    have hz : ((fsub 1 (fmul ed25519D den) : ℕ) : ZMod ed25519P) = 0 := by
+      rw [hv]
+      norm_num
+    simp only [fsub_zmod, fmul_zmod] at hz
+    exact hden2Z (by simpa [den, fmul_zmod, mul_assoc] using hz)
+  exact affineAdd_zmod_eq_edAddField hp P Q hP hQ hneg hden1nat hden2nat
 
 end LeanFormalization
