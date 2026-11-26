@@ -33,6 +33,9 @@ is and is not machine-checked.
   degree-4 and degree-16 pieces that the pinned toolchain discharges.
 * `edAdd_toMont_eq_montAdd` is therefore **unconditional on any compatibility
   assumption**: both coordinates are proved.
+* `edwards_denoms_ne_zero`: twisted-Edwards completeness for `a = -1` under the
+  standard hypothesis `IsSquare (-1)` and `¬ IsSquare d`; both unified-law
+  denominators are nonzero for every on-curve pair.
 
 ## Residual assumptions and scope limits (explicit, not hidden)
 
@@ -45,8 +48,11 @@ sides map to `(0, 0)` on the Montgomery curve, discharged by
 
 Transporting Mathlib's associativity back to the Edwards law still needs
 `EdwardsAddCompatForAssociativity`: full compatibility in Edwards coordinates,
-closure of the Edwards law, and denominator completeness (twisted-Edwards
-completeness, `d` a non-square mod p) are carried as one explicit bundle.
+closure of the Edwards law, and the auxiliary non-vanishing conditions are
+carried as one explicit bundle. Denominator completeness itself is now proved
+by `edwards_denoms_ne_zero` under `IsSquare (-1)` and `¬ IsSquare d`; what remains
+is packaging that proof into the bundle and handling the `y = 1` exceptional
+point, where the birational map itself is undefined.
 
 The concrete Edwards implementation `Ed25519.affineAdd` is `Nat`-based modulo
 `2^255 - 19`; transporting these field-level results to it additionally needs a
@@ -324,6 +330,111 @@ lemma edAdd_mont_u {d u1 v1 u2 v2 : K}
   rw [hv1, hv2, hv1c, hv2c]
   unfold montQ
   ring
+
+/-- **Twisted-Edwards completeness.** For `a = -1`, if `-1` is a square in `K`
+    and `d` is not a square, then both denominators of the unified law are
+    nonzero for every pair of on-curve points. This is the standard completeness
+    condition (the `a = -1` special case uses `IsSquare (-1)`; for Ed25519
+    `p = 2^255 - 19 ≡ 1 mod 4`, so `-1` is a square). No division, no `2 ≠ 0`
+    and no coordinate-nonzero hypotheses are needed.
+
+    Proof shape: a vanishing denominator forces `(d·x₁·x₂·y₁·y₂)² = 1`. Combining
+    that with the two curve equations by one explicit `linear_combination`
+    certificate yields `(1 + d·y₁²)·((d·x₁²·y₂² - 1)·(d·y₁²·y₂² + 1)) = 0`;
+    cancelling `1 + d·y₁²` leaves either `d = (d·x₁·y₂)²` or
+    `d = (i·d·y₁·y₂)²`, each contradicting `¬ IsSquare d`. -/
+lemma edwards_denoms_ne_zero {d x1 y1 x2 y2 : K}
+    (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2)
+    (hi : IsSquare (-1 : K)) (hnd : ¬ IsSquare d) :
+    1 + d * x1 * x2 * y1 * y2 ≠ 0 ∧ 1 - d * x1 * x2 * y1 * y2 ≠ 0 := by
+  rcases hi with ⟨i, hi⟩
+  have h1d : 1 + d ≠ 0 := by
+    intro h
+    have hd_eq : d = -1 := by linear_combination h
+    have hd_sq : d = i * i := by rw [hd_eq, hi]
+    exact hnd ⟨i, hd_sq⟩
+  have hcurve1 : x1 ^ 2 * (1 + d * y1 ^ 2) = y1 ^ 2 - 1 := by
+    unfold edwardsEq at hE1
+    linear_combination -hE1
+  have hcurve2 : x2 ^ 2 * (1 + d * y2 ^ 2) = y2 ^ 2 - 1 := by
+    unfold edwardsEq at hE2
+    linear_combination -hE2
+  have hdy1 : 1 + d * y1 ^ 2 ≠ 0 := by
+    intro h
+    have hc := hcurve1
+    rw [h] at hc
+    have hy2 : y1 ^ 2 = 1 := by linear_combination -hc
+    have hdy : d * y1 ^ 2 = -1 := by linear_combination h
+    have hd_eq_neg : d = -1 := by
+      calc d = d * 1 := by ring
+        _ = d * y1 ^ 2 := by rw [hy2]
+        _ = -1 := hdy
+    exact h1d (by rw [hd_eq_neg]; ring)
+  have hDsq_plus (hD : 1 + d * x1 * x2 * y1 * y2 = 0) :
+      d ^ 2 * x1 ^ 2 * x2 ^ 2 * y1 ^ 2 * y2 ^ 2 - 1 = 0 := by
+    have ht : d * x1 * x2 * y1 * y2 = -1 := by linear_combination hD
+    calc d ^ 2 * x1 ^ 2 * x2 ^ 2 * y1 ^ 2 * y2 ^ 2 - 1 =
+        (d * x1 * x2 * y1 * y2) ^ 2 - 1 := by ring
+      _ = 0 := by rw [ht]; ring
+  have hDsq_minus (hD : 1 - d * x1 * x2 * y1 * y2 = 0) :
+      d ^ 2 * x1 ^ 2 * x2 ^ 2 * y1 ^ 2 * y2 ^ 2 - 1 = 0 := by
+    have ht : d * x1 * x2 * y1 * y2 = 1 := by linear_combination -hD
+    calc d ^ 2 * x1 ^ 2 * x2 ^ 2 * y1 ^ 2 * y2 ^ 2 - 1 =
+        (d * x1 * x2 * y1 * y2) ^ 2 - 1 := by ring
+      _ = 0 := by rw [ht]; ring
+  constructor
+  · intro hD
+    have hDsq := hDsq_plus hD
+    have hmaster : (1 + d * y1 ^ 2) *
+        ((d * x1 ^ 2 * y2 ^ 2 - 1) * (d * y1 ^ 2 * y2 ^ 2 + 1)) = 0 := by
+      linear_combination ((1 + d * y1 ^ 2) * (1 + d * y2 ^ 2)) * hDsq -
+        ((1 + d * y1 ^ 2) * d ^ 2 * x1 ^ 2 * y1 ^ 2 * y2 ^ 2) * hcurve2 +
+        (d * y2 ^ 2 * (1 + d * y1 ^ 2)) * hcurve1
+    have hfactor : (d * x1 ^ 2 * y2 ^ 2 - 1) * (d * y1 ^ 2 * y2 ^ 2 + 1) = 0 :=
+      (mul_eq_zero.mp hmaster).resolve_left hdy1
+    rcases mul_eq_zero.mp hfactor with hA | hB
+    · have hA' : d * x1 ^ 2 * y2 ^ 2 = 1 := by linear_combination hA
+      have hsqrt : d = (d * x1 * y2) * (d * x1 * y2) := by
+        calc d = d * 1 := by ring
+          _ = d * (d * x1 ^ 2 * y2 ^ 2) := by rw [hA']
+          _ = (d * x1 * y2) * (d * x1 * y2) := by ring
+      exact hnd ⟨d * x1 * y2, hsqrt⟩
+    · have hB' : d * y1 ^ 2 * y2 ^ 2 = -1 := by linear_combination hB
+      have hnegd : -d = (d * y1 * y2) * (d * y1 * y2) := by
+        calc -d = d * (d * y1 ^ 2 * y2 ^ 2) := by rw [hB']; ring
+          _ = (d * y1 * y2) * (d * y1 * y2) := by ring
+      have hsqrt : d = (i * (d * y1 * y2)) * (i * (d * y1 * y2)) := by
+        calc d = -(-d) := by ring
+          _ = -((d * y1 * y2) * (d * y1 * y2)) := by rw [hnegd]
+          _ = (i * i) * ((d * y1 * y2) * (d * y1 * y2)) := by rw [← hi]; ring
+          _ = (i * (d * y1 * y2)) * (i * (d * y1 * y2)) := by ring
+      exact hnd ⟨i * (d * y1 * y2), hsqrt⟩
+  · intro hD
+    have hDsq := hDsq_minus hD
+    have hmaster : (1 + d * y1 ^ 2) *
+        ((d * x1 ^ 2 * y2 ^ 2 - 1) * (d * y1 ^ 2 * y2 ^ 2 + 1)) = 0 := by
+      linear_combination ((1 + d * y1 ^ 2) * (1 + d * y2 ^ 2)) * hDsq -
+        ((1 + d * y1 ^ 2) * d ^ 2 * x1 ^ 2 * y1 ^ 2 * y2 ^ 2) * hcurve2 +
+        (d * y2 ^ 2 * (1 + d * y1 ^ 2)) * hcurve1
+    have hfactor : (d * x1 ^ 2 * y2 ^ 2 - 1) * (d * y1 ^ 2 * y2 ^ 2 + 1) = 0 :=
+      (mul_eq_zero.mp hmaster).resolve_left hdy1
+    rcases mul_eq_zero.mp hfactor with hA | hB
+    · have hA' : d * x1 ^ 2 * y2 ^ 2 = 1 := by linear_combination hA
+      have hsqrt : d = (d * x1 * y2) * (d * x1 * y2) := by
+        calc d = d * 1 := by ring
+          _ = d * (d * x1 ^ 2 * y2 ^ 2) := by rw [hA']
+          _ = (d * x1 * y2) * (d * x1 * y2) := by ring
+      exact hnd ⟨d * x1 * y2, hsqrt⟩
+    · have hB' : d * y1 ^ 2 * y2 ^ 2 = -1 := by linear_combination hB
+      have hnegd : -d = (d * y1 * y2) * (d * y1 * y2) := by
+        calc -d = d * (d * y1 ^ 2 * y2 ^ 2) := by rw [hB']; ring
+          _ = (d * y1 * y2) * (d * y1 * y2) := by ring
+      have hsqrt : d = (i * (d * y1 * y2)) * (i * (d * y1 * y2)) := by
+        calc d = -(-d) := by ring
+          _ = -((d * y1 * y2) * (d * y1 * y2)) := by rw [hnegd]
+          _ = (i * i) * ((d * y1 * y2) * (d * y1 * y2)) := by rw [← hi]; ring
+          _ = (i * (d * y1 * y2)) * (i * (d * y1 * y2)) := by ring
+      exact hnd ⟨i * (d * y1 * y2), hsqrt⟩
 
 /-- Edwards addition closes on the twisted-Edwards curve (explicit denominators). -/
 lemma edAddClosure_aux {d x1 y1 x2 y2 : K}
