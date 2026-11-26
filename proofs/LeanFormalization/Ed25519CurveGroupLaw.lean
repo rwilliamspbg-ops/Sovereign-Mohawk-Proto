@@ -407,7 +407,6 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
     (hcP : IsCanonical P) (hcQ : IsCanonical Q) (hcR : IsCanonical R)
     (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hR : ¬ R.inf)
     (hnegPQ : IsNegation P Q = false) (hnegQR : IsNegation Q R = false)
-    (hS1inf : ¬ (affineAdd P Q).inf) (hS2inf : ¬ (affineAdd Q R).inf)
     (hnegS1R : IsNegation (affineAdd P Q) R = false)
     (hnegPS2 : IsNegation P (affineAdd Q R) = false)
     (hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P))
@@ -457,6 +456,12 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
           (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).2 ≠ 0) :
     affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) := by
   letI := hp
+  have hS1inf : ¬ (affineAdd P Q).inf := by
+    rw [affineAdd_eq_formula P Q hP hQ hnegPQ]
+    simp [affineAddFormula]
+  have hS2inf : ¬ (affineAdd Q R).inf := by
+    rw [affineAdd_eq_formula Q R hQ hR hnegQR]
+    simp [affineAddFormula]
   let dZ : ZMod ed25519P := (ed25519D : ZMod ed25519P)
   have hsq : IsSquare (-1 : ZMod ed25519P) := ed25519_isSquare_neg_one hp
   have hd : 1 + dZ ≠ 0 := by
@@ -555,5 +560,64 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
   subst ry
   subst ri
   rfl
+
+/-- `decodePoint`'s Nat on-curve test lifts to `edwardsEq` on `ZMod ed25519P`.
+    This lets callers supply the concrete Bool/Nat test instead of a separate
+    field-level hypothesis. -/
+lemma edwardsEq_of_nat_curve_eq (hp : Fact (Nat.Prime ed25519P)) {x y : ℕ}
+    (h : fsub (fPow2 y) (fPow2 x) =
+      fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y)))) :
+    edwardsEq (ed25519D : ZMod ed25519P) (x : ZMod ed25519P) (y : ZMod ed25519P) := by
+  letI := hp
+  unfold edwardsEq
+  have hz : ((fsub (fPow2 y) (fPow2 x) : ℕ) : ZMod ed25519P) =
+      ((fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y))) : ℕ) : ZMod ed25519P) := by
+    rw [h]
+  rw [fsub_zmod, fadd_zmod] at hz
+  simp only [fPow2, fmul_zmod] at hz
+  ring_nf at hz ⊢
+  exact hz
+
+set_option maxRecDepth 200000
+set_option maxHeartbeats 1000000
+
+/-- The concrete constant `ed25519D` is `-121665/121666` in `ZMod ed25519P`.
+    This identifies the implementation's `d` with the mathematical constant;
+    proving it nonsquare would still need a Legendre computation that is not
+    available under this Mathlib pin. -/
+lemma ed25519D_zmod (hp : Fact (Nat.Prime ed25519P)) :
+    (ed25519D : ZMod ed25519P) =
+      -(121665 : ZMod ed25519P) * (121666 : ZMod ed25519P)⁻¹ := by
+  letI := hp
+  unfold ed25519D
+  rw [ZMod.natCast_mod, Nat.cast_mul]
+  have hsub : ((ed25519P - 121665 : ℕ) : ZMod ed25519P) = -(121665 : ZMod ed25519P) := by
+    rw [Nat.cast_sub (by unfold ed25519P; norm_num)]
+    simp
+  rw [hsub]
+  have hbound : ed25519P - 2 < 2 ^ 256 := by unfold ed25519P; norm_num
+  have hinv_nat : fPow 121666 (ed25519P - 2) = (121666 ^ (ed25519P - 2)) % ed25519P :=
+    fPow_eq_pow_mod 121666 (ed25519P - 2) hbound
+  rw [hinv_nat, ZMod.natCast_mod, Nat.cast_pow]
+  have hne : (121666 : ZMod ed25519P) ≠ 0 := by
+    intro h
+    have hdvd : ed25519P ∣ 121666 := (ZMod.natCast_eq_zero_iff 121666 ed25519P).mp h
+    have hle : ed25519P ≤ 121666 := Nat.le_of_dvd (by norm_num) hdvd
+    have hgt : 121666 < ed25519P := by unfold ed25519P; norm_num
+    omega
+  have hpoweq : (121666 : ZMod ed25519P) ^ (ed25519P - 2) * (121666 : ZMod ed25519P) =
+      (121666 : ZMod ed25519P) ^ (ed25519P - 1) := by
+    rw [show ed25519P - 1 = (ed25519P - 2) + 1 by
+      have : 2 ≤ ed25519P := by unfold ed25519P; norm_num
+      omega, pow_add, pow_one]
+  have hpown : (121666 : ZMod ed25519P) ^ (ed25519P - 2) * (121666 : ZMod ed25519P) = 1 := by
+    rw [hpoweq]
+    exact zmod_pow_sub_one (p := ed25519P) hne
+  have hinvfac : (121666 : ZMod ed25519P) ^ (ed25519P - 2) =
+      (121666 : ZMod ed25519P)⁻¹ := by
+    apply (mul_right_cancel₀ hne)
+    rw [inv_mul_cancel₀ hne]
+    exact hpown
+  exact congrArg (fun z : ZMod ed25519P => -(121665 : ZMod ed25519P) * z) hinvfac
 
 end LeanFormalization

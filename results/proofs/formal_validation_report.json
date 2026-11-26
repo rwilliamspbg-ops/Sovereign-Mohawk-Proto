@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "96dfb947a7092bbc1abd1ac4c896a26d0cee9f20b1abf46b2c6b39b912b8920e",
+  "input_merkle_root": "cd6951f5e697f00783b7ba13ba998aff3d441373e8006327bf6498981270e710",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "72dcead09af8afc6e914e1de1b1aa8121e9f6b5e4166e4fd25358e27ecb185f1"
+      "sha256": "7b2a903171fc901ddfef9a7008672ca732506ec6d97fdef3be99edc5faa43283"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "cfe030f3f622e40c6c78d74783997eb3339cb4cbeb003a9ee352c9fc683dd6c8"
+      "sha256": "a54ac947f4a032a01311491dbb103f16c95b33caca86c9b46c611d559cf2aba6"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -92,7 +92,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "9c68e3328cd9925a2f305f4d703203bd0ad2e503636ea79f9fbb9b5b07eb6748"
+      "sha256": "15cbcedb4de26344b97ddd20db308c2404b14c218adbcb479ab18fb5d8574e65"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -296,7 +296,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 23,
+      "symbol_count": 25,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
@@ -315,9 +315,11 @@
         "affineAdd_zmod_eq_edAddField",
         "affineAdd_zmod_eq_edAddField_of_onCurve",
         "beq_mod_sub_symm",
+        "ed25519D_zmod",
         "ed25519_isSquare_neg_one",
         "ed25519_mod_four_eq_one",
         "ed25519_two_ne_zero",
+        "edwardsEq_of_nat_curve_eq",
         "isNegation_comm",
         "isNegation_noncanonical_counterexample",
         "mod_sub_self_eq"
@@ -1145,7 +1147,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 561
+    "theorem_symbol_count": 563
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

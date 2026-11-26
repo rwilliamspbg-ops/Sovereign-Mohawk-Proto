@@ -800,7 +800,6 @@ lemma edwardsToMont_eq_montAdd_of_complete {d x1 y1 x2 y2 : K}
     (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2)
     (hy1 : 1 - y1 ≠ 0) (hy2 : 1 - y2 ≠ 0)
     (hu12 : (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d x2 y2).1)
-    (hE12 : edwardsEq d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2)
     (hy12 : 1 - (edAddField d x1 y1 x2 y2).2 ≠ 0) :
     edwardsToMont d (edAddField d x1 y1 x2 y2).1 (edAddField d x1 y1 x2 y2).2 =
       montAdd d (edwardsToMont d x1 y1).1 (edwardsToMont d x1 y1).2
@@ -928,7 +927,7 @@ theorem edwardsAddCompat_of_complete {d : K} (hi : IsSquare (-1 : K)) (hnd : ¬ 
     (h2 : (2 : K) ≠ 0) : EdwardsAddCompatForAssociativity d := by
   refine ⟨?_⟩
   intro x1 y1 x2 y2 hE1 hE2 hy1 hy2 hd _hu2 hu12 hE12 hy12
-  exact edwardsToMont_eq_montAdd_of_complete hi hnd h2 hE1 hE2 hy1 hy2 hu12 hE12 hy12
+  exact edwardsToMont_eq_montAdd_of_complete hi hnd h2 hE1 hE2 hy1 hy2 hu12 hy12
 
 /-- Associativity of the Edwards field law, inherited from Mathlib's Weierstrass
     `AddCommGroup` conditional on the compatibility bundle above. All other
