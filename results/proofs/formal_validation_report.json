@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "ca7912bb4a759405454ca2cdfdf6d3b9a86a924a3ab855c989158d37892cc307",
+  "input_merkle_root": "0064eb2ce600149db78e6cb25f970108befefef1e58ce71d4938daa1b96a543b",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "6b9523e267439d10e6e34600476a48bf02f3fae18580b9dc733f402ebc9f2026"
+      "sha256": "8b0678812aca5ec18055547ac37ea7553be75d25063439372621d5f22f456934"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "fcf57cd53db7989b8753545095523337c1c263d3f44052fb715e8b414b6ba2c6"
+      "sha256": "16ab845bd63ebddd9a64ecb40a5dd30670db75d8a40f9b5d0022317faec17d05"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -92,7 +92,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "fef19115872f0b9254e5e3290a09d142f15d14a50235ce34c5cee86ae1aa598d"
+      "sha256": "74a688ba9e33fda76076f9f1ce7f7b57e8d2afb55e4c39259baa01e5bf88e705"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -296,19 +296,22 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 15,
+      "symbol_count": 18,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
         "IsNegation",
         "affineAddFormula",
         "affineAddFormula_comm",
+        "affineAddFormula_zmod_eq_edAddField",
         "affineAdd_canonical",
         "affineAdd_comm",
         "affineAdd_eq_formula",
         "affineAdd_identity",
         "affineAdd_identity_false_infinity",
         "affineAdd_identity_left",
+        "affineAdd_zmod_eq_edAddField",
+        "affineAdd_zmod_eq_edAddField_of_onCurve",
         "beq_mod_sub_symm",
         "isNegation_comm",
         "isNegation_noncanonical_counterexample",
@@ -512,20 +515,27 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 19,
+      "symbol_count": 26,
       "symbols": [
         "edAddClosure_aux",
         "edAddField",
         "edAddField_associative_of_compat",
+        "edAddField_associative_of_complete",
         "edAddMont_v_mul_aux",
         "edAdd_mont_u",
         "edAdd_mont_v",
         "edAdd_toMont_eq_montAdd",
         "ed_dy_ne_zero_aux",
+        "edwardsAddCompat_of_complete",
+        "edwardsToMont_eq_montAdd_of_complete",
+        "edwardsToMont_u_add_one_ne_zero",
+        "edwards_denoms_ne_zero",
         "edwards_of_montgomery_aux",
         "montAdd",
         "montAdd_associative_of_weierstrass",
+        "montAdd_v_eq_zero_of_u_eq_zero",
         "montB_ne_zero",
+        "montQ_edwardsToMont_ne_zero",
         "montToWeier",
         "montToWeier_addCoord",
         "montWeier",
@@ -1120,7 +1130,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 536
+    "theorem_symbol_count": 546
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
