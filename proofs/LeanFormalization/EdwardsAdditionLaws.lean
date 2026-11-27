@@ -66,6 +66,14 @@ lemma edAddField_neg_self_eq_identity {d x y : K}
     ring_nf at hnum ⊢
     exact hnum
 
+
+/-- The symmetric negation law, obtained from commutativity of the formula. -/
+lemma edAddField_neg_self_eq_identity_right {d x y : K}
+    (hE : edwardsEq d x y) (hden : 1 + d * x ^ 2 * y ^ 2 ≠ 0) :
+    edAddField d (-x) y x y = (0, 1) := by
+  rw [edAddField_comm]
+  exact edAddField_neg_self_eq_identity hE hden
+
 /-- The denominator hypothesis of `edAddField_neg_self_eq_identity` is
     load-bearing: over `ZMod 11` with `d = 2`, the on-curve point `(2, 2)` has
     `1 + d·x²·y² = 0`, and the unified formula returns `(0, 0)`, not the

@@ -73,6 +73,17 @@ closed-form lemmas `dbl_ed_u_formula`, `dbl_mont_u_formula`,
 proof's `edAdd_mont_v` factorisation. The concrete `F_11` agreement
 (`montDouble_matches_edAddField_zmod11`) remains as a positive control.
 
+`edAddField_associative_double_of_complete` now covers the **doubling exceptional
+case** `P = Q` of field-level associativity: over an arbitrary field with
+twisted-Edwards completeness, the first addition is transported through
+`montDouble` (via `montToWeier_doubleCoord` and
+`montDouble_add_associative_of_weierstrass`), while the two outer secant sums
+use `edwardsToMont_eq_montAdd_of_complete`. Its explicit residuals are the
+admissibility of the two inputs (`x, x' ≠ 0`, `y, y' ≠ 1`), three u-coordinate
+distinctness conditions (`u ≠ u₃`, `montDouble(u,v).1 ≠ u₃`,
+`u ≠ montAdd(u,v,u₃,v₃).1`), and the three `y ≠ 1` conditions on the sums
+`P+R`, `(P+P)+R` and `P+(P+R)`.
+
 The concrete Edwards implementation `Ed25519.affineAdd` is `Nat`-based modulo
 `2^255 - 19`; transporting these field-level results to it additionally needs a
 `ZMod`-lifting argument, which remains separate.
@@ -1704,5 +1715,273 @@ theorem edwardsToMont_eq_montDouble {d x y : K}
     · apply mul_left_cancel₀ hx3
       rw [hxE, huEq]
       exact hxnu.symm
+lemma mont_slope_double {d u v : K} (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) :
+    let W := (montWeier d).toAffine
+    W.slope (montB d * u) (montB d * u) (montB d ^ 2 * v) (montB d ^ 2 * v) =
+      montB d * montTangentSlope d u v := by
+  dsimp
+  have hB := montB_ne_zero hd
+  have hyneg0 : montB d ^ 2 * v ≠ -(montB d ^ 2 * v) := by
+    intro h
+    have hz : (2 : K) * (montB d ^ 2 * v) = 0 := by linear_combination h
+    exact (mul_ne_zero h2 (mul_ne_zero (pow_ne_zero 2 hB) hv)) hz
+  rw [WeierstrassCurve.Affine.slope_of_Y_ne rfl (by simpa [montWeier] using hyneg0)]
+  unfold montWeier
+  dsimp
+  unfold montTangentSlope
+  let N : K := 3 * u ^ 2 + 2 * montA d * u + 1
+  have hnum : 3 * (montB d * u) ^ 2 + 2 * (montA d * montB d) * (montB d * u) +
+      montB d ^ 2 - 0 * (montB d ^ 2 * v) = montB d ^ 2 * N := by
+    dsimp [N]
+    ring
+  have hden : montB d ^ 2 * v - (-(montB d ^ 2 * v) - 0 * (montB d * u) - 0) =
+      2 * montB d ^ 2 * v := by ring
+  rw [hnum, hden]
+  have hdenL : 2 * montB d ^ 2 * v ≠ 0 :=
+    mul_ne_zero (mul_ne_zero h2 (pow_ne_zero 2 hB)) hv
+  rw [div_eq_iff hdenL]
+  have hdenR : 2 * montB d * v ≠ 0 := mul_ne_zero (mul_ne_zero h2 hB) hv
+  rw [show montB d * (N / (2 * montB d * v)) = (montB d * N) / (2 * montB d * v) by
+    rw [mul_div_assoc]]
+  rw [show 2 * montB d ^ 2 * v = (2 * montB d * v) * montB d by ring]
+  rw [← mul_assoc]
+  rw [div_mul_cancel₀ (montB d * N) hdenR]
+  dsimp [N]
+  ring
+
+lemma montToWeier_doubleCoord {d u v : K} (hM : montgomeryEq d u v)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) :
+    montToWeier d (montDouble d u v).1 (montDouble d u v).2 =
+      let W := (montWeier d).toAffine
+      let X := montB d * u
+      let Y := montB d ^ 2 * v
+      let ℓ := W.slope X X Y Y
+      (W.addX X X ℓ, W.addY X X Y ℓ) := by
+  dsimp
+  rw [mont_slope_double hd h2 hv]
+  unfold montToWeier montDouble
+  dsimp
+  simp only [montWeier, WeierstrassCurve.Affine.addX, WeierstrassCurve.Affine.addY,
+    WeierstrassCurve.Affine.negAddY, WeierstrassCurve.Affine.negY]
+  unfold montA montB
+  ring
+
+lemma montDouble_add_associative_of_weierstrass {d u v u3 v3 : K}
+    (hM : montgomeryEq d u v) (hM3 : montgomeryEq d u3 v3)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) (hv3 : v3 ≠ 0)
+    (hu13 : u ≠ u3) (huD3 : (montDouble d u v).1 ≠ u3)
+    (hu1D3 : u ≠ (montAdd d u v u3 v3).1) :
+    montAdd d (montDouble d u v).1 (montDouble d u v).2 u3 v3 =
+    montAdd d u v (montAdd d u v u3 v3).1 (montAdd d u v u3 v3).2 := by
+  let W := (montWeier d).toAffine
+  let X := montB d * u; let Y := montB d ^ 2 * v
+  let X3 := montB d * u3; let Y3 := montB d ^ 2 * v3
+  let D := montDouble d u v
+  let M23 := montAdd d u v u3 v3
+  have hB := montB_ne_zero hd
+  have hn := mont_nonsingular hM hd h2 hv
+  have hn3 := mont_nonsingular hM3 hd h2 hv3
+  have hYneg0 : Y ≠ -Y := by
+    dsimp [Y]
+    intro h
+    have hz : (2 : K) * (montB d ^ 2 * v) = 0 := by linear_combination h
+    exact (mul_ne_zero h2 (mul_ne_zero (pow_ne_zero 2 hB) hv)) hz
+  have hYneg : Y ≠ W.negY X Y := by
+    dsimp [W, montWeier]
+    simpa using hYneg0
+  have hX3 : X ≠ X3 := fun h => hu13 (mul_left_cancel₀ hB h)
+  let ℓ := W.slope X X Y Y
+  let ℓ23 := W.slope X X3 Y Y3
+  have hnD0 := WeierstrassCurve.Affine.nonsingular_add hn hn (fun hxy => hYneg hxy.2)
+  have hn23_0 := WeierstrassCurve.Affine.nonsingular_add hn hn3 (fun hxy => hX3 hxy.1)
+  have hnD : W.Nonsingular (W.addX X X ℓ) (W.addY X X Y ℓ) := by
+    simpa [W, X, Y, ℓ] using hnD0
+  have hn23 : W.Nonsingular (W.addX X X3 ℓ23) (W.addY X X3 Y ℓ23) := by
+    simpa [W, X, X3, Y, Y3, ℓ23] using hn23_0
+  let P := WeierstrassCurve.Affine.Point.some X Y hn
+  let P3 := WeierstrassCurve.Affine.Point.some X3 Y3 hn3
+  have hPD0 : P + P = WeierstrassCurve.Affine.Point.some (W.addX X X ℓ) (W.addY X X Y ℓ) hnD := by
+    simpa [P, ℓ] using (WeierstrassCurve.Affine.Point.add_self_of_Y_ne (W := W) (h₁ := hn) hYneg)
+  have h23 : P + P3 = WeierstrassCurve.Affine.Point.some (W.addX X X3 ℓ23) (W.addY X X3 Y ℓ23) hn23 := by
+    simpa [P, P3, ℓ23] using (WeierstrassCurve.Affine.Point.add_of_X_ne (h₁ := hn) (h₂ := hn3) hX3)
+  have hcD := montToWeier_doubleCoord (d := d) (u := u) (v := v) hM hd h2 hv
+  have hc23 := montToWeier_addCoord (d := d) (u1 := u) (v1 := v) (u2 := u3) (v2 := v3) hd hu13
+  have hcDx : montB d * D.1 = W.addX X X ℓ := by
+    have := congrArg Prod.fst hcD
+    simpa [W, X, Y, ℓ, D, montToWeier] using this
+  have hcDy : montB d ^ 2 * D.2 = W.addY X X Y ℓ := by
+    have := congrArg Prod.snd hcD
+    simpa [W, X, Y, ℓ, D, montToWeier] using this
+  have hc23x : montB d * M23.1 = W.addX X X3 ℓ23 := by
+    have := congrArg Prod.fst hc23
+    simpa [W, X, Y, X3, Y3, ℓ23, M23, montToWeier] using this
+  have hc23y : montB d ^ 2 * M23.2 = W.addY X X3 Y ℓ23 := by
+    have := congrArg Prod.snd hc23
+    simpa [W, X, Y, X3, Y3, ℓ23, M23, montToWeier] using this
+  have hnD' : W.Nonsingular (montB d * D.1) (montB d ^ 2 * D.2) := by
+    rw [hcDx, hcDy]; exact hnD
+  have hn23' : W.Nonsingular (montB d * M23.1) (montB d ^ 2 * M23.2) := by
+    rw [hc23x, hc23y]; exact hn23
+  let PD := WeierstrassCurve.Affine.Point.some (montB d * D.1) (montB d ^ 2 * D.2) hnD'
+  let P23 := WeierstrassCurve.Affine.Point.some (montB d * M23.1) (montB d ^ 2 * M23.2) hn23'
+  have hPD : P + P = PD := by
+    rw [hPD0]
+    dsimp [PD]
+    rw [WeierstrassCurve.Affine.Point.some.injEq]
+    exact ⟨hcDx.symm, hcDy.symm⟩
+  have hP23 : P + P3 = P23 := by
+    rw [h23]
+    dsimp [P23]
+    rw [WeierstrassCurve.Affine.Point.some.injEq]
+    exact ⟨hc23x.symm, hc23y.symm⟩
+  have hassoc := add_assoc P P P3
+  rw [hPD, hP23] at hassoc
+  have hXD3 : montB d * D.1 ≠ X3 := fun h => huD3 (mul_left_cancel₀ hB h)
+  have hX1_23 : X ≠ montB d * M23.1 := fun h => hu1D3 (mul_left_cancel₀ hB h)
+  rw [WeierstrassCurve.Affine.Point.add_of_X_ne hXD3] at hassoc
+  rw [WeierstrassCurve.Affine.Point.add_of_X_ne hX1_23] at hassoc
+  rw [WeierstrassCurve.Affine.Point.some.injEq] at hassoc
+  rcases hassoc with ⟨hxeq, hyeq⟩
+  let Lres := montAdd d D.1 D.2 u3 v3
+  let Rres := montAdd d u v M23.1 M23.2
+  have hcL := montToWeier_addCoord (d := d) (u1 := D.1) (v1 := D.2) (u2 := u3) (v2 := v3) hd huD3
+  have hcR := montToWeier_addCoord (d := d) (u1 := u) (v1 := v) (u2 := M23.1) (v2 := M23.2) hd hu1D3
+  have hcLx : montB d * Lres.1 = W.addX (montB d * D.1) X3
+      (W.slope (montB d * D.1) X3 (montB d ^ 2 * D.2) Y3) := by
+    have := congrArg Prod.fst hcL
+    simpa [W, Lres, X3, Y3, D, montToWeier] using this
+  have hcRx : montB d * Rres.1 = W.addX X (montB d * M23.1)
+      (W.slope X (montB d * M23.1) Y (montB d ^ 2 * M23.2)) := by
+    have := congrArg Prod.fst hcR
+    simpa [W, Rres, X, Y, M23, montToWeier] using this
+  have hcLy : montB d ^ 2 * Lres.2 = W.addY (montB d * D.1) X3 (montB d ^ 2 * D.2)
+      (W.slope (montB d * D.1) X3 (montB d ^ 2 * D.2) Y3) := by
+    have := congrArg Prod.snd hcL
+    simpa [W, Lres, X3, Y3, D, montToWeier] using this
+  have hcRy : montB d ^ 2 * Rres.2 = W.addY X (montB d * M23.1) Y
+      (W.slope X (montB d * M23.1) Y (montB d ^ 2 * M23.2)) := by
+    have := congrArg Prod.snd hcR
+    simpa [W, Rres, X, Y, M23, montToWeier] using this
+  have hx' : montB d * Lres.1 = montB d * Rres.1 := by
+    rw [hcLx, hcRx]
+    simpa [W, ℓ, ℓ23, D, M23] using hxeq
+  have hy' : montB d ^ 2 * Lres.2 = montB d ^ 2 * Rres.2 := by
+    rw [hcLy, hcRy]
+    simpa [W, ℓ, ℓ23, D, M23] using hyeq
+  apply Prod.ext
+  · exact mul_left_cancel₀ hB hx'
+  · exact mul_left_cancel₀ (pow_ne_zero 2 hB) hy'
+
+/-- Field-level associativity in the doubling case `P = Q`, under twisted-Edwards
+    completeness. The first addition `P + P` is transported through
+    `edwardsToMont_eq_montDouble`, the two outer secant additions through
+    `edwardsToMont_eq_montAdd_of_complete`, and associativity is inherited from
+    Mathlib's Weierstrass group law by `montDouble_add_associative_of_weierstrass`. -/
+theorem edAddField_associative_double_of_complete {d x y x' y' : K}
+    (hi : IsSquare (-1 : K)) (hnd : ¬ IsSquare d) (h2 : (2 : K) ≠ 0)
+    (hE : edwardsEq d x y) (hE' : edwardsEq d x' y')
+    (hy : 1 - y ≠ 0) (hy' : 1 - y' ≠ 0)
+    (hx : x ≠ 0) (hx' : x' ≠ 0)
+    (hu13 : (edwardsToMont d x y).1 ≠ (edwardsToMont d x' y').1)
+    (huD3 : (montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2).1 ≠
+        (edwardsToMont d x' y').1)
+    (hu1S : (edwardsToMont d x y).1 ≠
+        (montAdd d (edwardsToMont d x y).1 (edwardsToMont d x y).2
+          (edwardsToMont d x' y').1 (edwardsToMont d x' y').2).1)
+    (hyS : 1 - (edAddField d x y x' y').2 ≠ 0)
+    (hyL : 1 - (edAddField d (edAddField d x y x y).1 (edAddField d x y x y).2 x' y').2 ≠ 0)
+    (hyR : 1 - (edAddField d x y (edAddField d x y x' y').1 (edAddField d x y x' y').2).2 ≠ 0) :
+    edAddField d (edAddField d x y x y).1 (edAddField d x y x y).2 x' y' =
+      edAddField d x y (edAddField d x y x' y').1 (edAddField d x y x' y').2 := by
+  let D := edAddField d x y x y
+  let S := edAddField d x y x' y'
+  let L := edAddField d D.1 D.2 x' y'
+  let R := edAddField d x y S.1 S.2
+  let u := (edwardsToMont d x y).1; let v := (edwardsToMont d x y).2
+  let u3 := (edwardsToMont d x' y').1; let v3 := (edwardsToMont d x' y').2
+  have hd : 1 + d ≠ 0 := by
+    rcases hi with ⟨i, hi'⟩
+    intro h
+    have hd_eq : d = -1 := by linear_combination h
+    exact hnd ⟨i, by rw [hd_eq, hi']⟩
+  have hdy := edwards_one_add_dy_ne_zero hE hy hd
+  have hdy' := edwards_one_add_dy_ne_zero hE' hy' hd
+  have hD12 := edwards_denoms_ne_zero hE hE hi hnd
+  have hDp : 1 + d * x * y * x * y ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12.1
+  have hDm : 1 - d * x * y * x * y ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12.2
+  have hED : edwardsEq d D.1 D.2 := by
+    dsimp [D]
+    exact edAddClosure_aux hE hE hdy hdy hDp hDm
+  have hyD : 1 - D.2 ≠ 0 := by
+    dsimp [D]
+    exact dbl_y_ne_one hE hy hx hd h2 hDm
+  have hDmap : edwardsToMont d D.1 D.2 = montDouble d u v := by
+    dsimp [D, u, v]
+    exact edwardsToMont_eq_montDouble hE hy hx hd h2 hDp hDm
+  have hES : edwardsEq d S.1 S.2 := by
+    dsimp [S]
+    have hDS := edwards_denoms_ne_zero hE hE' hi hnd
+    exact edAddClosure_aux hE hE' hdy hdy'
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDS.1)
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDS.2)
+  have hEL : edwardsEq d L.1 L.2 := by
+    dsimp [L, D]
+    have hDL := edwards_denoms_ne_zero hED hE' hi hnd
+    have hyDL := edwards_one_add_dy_ne_zero hED hyD hd
+    exact edAddClosure_aux hED hE' hyDL hdy'
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDL.1)
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDL.2)
+  have hER : edwardsEq d R.1 R.2 := by
+    dsimp [R, S]
+    have hDR := edwards_denoms_ne_zero hE hES hi hnd
+    have hyDS := edwards_one_add_dy_ne_zero hES hyS hd
+    exact edAddClosure_aux hE hES hdy hyDS
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDR.1)
+      (by simpa [mul_assoc, mul_left_comm, mul_comm] using hDR.2)
+  have hSmap : edwardsToMont d S.1 S.2 = montAdd d u v u3 v3 := by
+    dsimp [S, u, v, u3, v3]
+    exact edwardsToMont_eq_montAdd_of_complete hi hnd h2 hE hE' hy hy' hu13 hyS
+  have hu1S' : (edwardsToMont d x y).1 ≠ (edwardsToMont d S.1 S.2).1 := by
+    rw [hSmap]
+    exact hu1S
+  have huD3' : (edwardsToMont d D.1 D.2).1 ≠ (edwardsToMont d x' y').1 := by
+    rw [hDmap]
+    exact huD3
+  have hLmap : edwardsToMont d L.1 L.2 =
+      montAdd d (montDouble d u v).1 (montDouble d u v).2 u3 v3 := by
+    change edwardsToMont d (edAddField d D.1 D.2 x' y').1
+        (edAddField d D.1 D.2 x' y').2 =
+      montAdd d (montDouble d u v).1 (montDouble d u v).2 u3 v3
+    have h := edwardsToMont_eq_montAdd_of_complete hi hnd h2 hED hE' hyD hy' huD3' hyL
+    rw [h, hDmap]
+  have hRmap : edwardsToMont d R.1 R.2 =
+      montAdd d u v (montAdd d u v u3 v3).1 (montAdd d u v u3 v3).2 := by
+    change edwardsToMont d (edAddField d x y S.1 S.2).1 (edAddField d x y S.1 S.2).2 =
+      montAdd d u v (montAdd d u v u3 v3).1 (montAdd d u v u3 v3).2
+    have h := edwardsToMont_eq_montAdd_of_complete hi hnd h2 hE hES hy hyS hu1S' hyR
+    rw [h, hSmap]
+  have hM : montgomeryEq d u v := by
+    dsimp [u, v]
+    exact edwardsToMont_montgomery hE hy hd
+  have hM3 : montgomeryEq d u3 v3 := by
+    dsimp [u3, v3]
+    exact edwardsToMont_montgomery hE' hy' hd
+  have hv : v ≠ 0 := by
+    dsimp [v]
+    exact div_ne_zero (mul_ne_zero (mul_ne_zero h2 hx) hdy) (pow_ne_zero 2 hy)
+  have hv3 : v3 ≠ 0 := by
+    dsimp [v3]
+    exact div_ne_zero (mul_ne_zero (mul_ne_zero h2 hx') hdy') (pow_ne_zero 2 hy')
+  have hassoc := montDouble_add_associative_of_weierstrass hM hM3 hd h2 hv hv3 hu13 huD3 hu1S
+  have hmap : edwardsToMont d L.1 L.2 = edwardsToMont d R.1 R.2 := by
+    rw [hLmap, hRmap]
+    exact hassoc
+  have hbackL := edwardsToMont_roundtrip hEL hyL hd h2
+  have hbackR := edwardsToMont_roundtrip hER hyR hd h2
+  change L = R
+  exact hbackL.symm.trans ((congrArg (fun p : K × K => montgomeryToEdwards d p.1 p.2) hmap).trans hbackR)
+
 end
 end LeanFormalization

@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "29b0bbe1b58886a63eadeffb242ce6efd87ed39d768ec5583023716394748719",
+  "input_merkle_root": "608979870d6237f79f4877b71c3a5f990fedc22f198eb26c0a708d6912ee60e1",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "77412d1f5ecdfdbd1422b82bdc666547e8fad13100aad58579f5a456ef7f5f68"
+      "sha256": "67b72f4af6aab9e139d858d4e4fa06e9a4a22b80d7b7f49c7ec2b072772208f7"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -68,7 +68,7 @@
     },
     {
       "path": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
-      "sha256": "0035c54eb86eb026302d65936ceb38aa5e8e8c19dd26ec9517b38362630adf5d"
+      "sha256": "452e27b48a8e40a553c1cd030b73cdb8b171e064e9acaa0b5aad2c264eba0b41"
     },
     {
       "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
@@ -88,7 +88,7 @@
     },
     {
       "path": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
-      "sha256": "30f3bdc8549b199712d9e6c838b240956a129be8597d32d0432b82903790e23e"
+      "sha256": "12a274af16c1c7f579faa0a45495f9805e45679447b917cfd062826516fc5452"
     },
     {
       "path": "proofs/LeanFormalization/Measurability.lean",
@@ -96,7 +96,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "fcc743c0d1d87c52c7b44f682aa541bcd49e21860a37ef9638c3342c201a8188"
+      "sha256": "ad276fa6e16ba89a310e513dbbe2259a1d502c5c08b04ef663c8aa11695d623c"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -437,12 +437,13 @@
     {
       "file": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
       "module": "LeanFormalization.EdwardsAdditionLaws",
-      "symbol_count": 5,
+      "symbol_count": 6,
       "symbols": [
         "edAddField_comm",
         "edAddField_identity_left",
         "edAddField_identity_right",
         "edAddField_neg_self_eq_identity",
+        "edAddField_neg_self_eq_identity_right",
         "edAddField_neg_self_requires_hden"
       ]
     },
@@ -528,13 +529,14 @@
     {
       "file": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
       "module": "LeanFormalization.KrumSelectionAdversarial",
-      "symbol_count": 5,
+      "symbol_count": 6,
       "symbols": [
         "krum_minimizer_in_honest_or_near",
         "krum_selection_infiltration",
         "krum_selection_separation_necessary",
         "krum_separation_margin",
-        "neighborScoreReal_minimizer_in_honest_or_near"
+        "neighborScoreReal_minimizer_in_honest_or_near",
+        "neighborScoreReal_minimizer_separation_necessary"
       ]
     },
     {
@@ -554,7 +556,7 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 73,
+      "symbol_count": 77,
       "symbols": [
         "dbl_ed_u_formula",
         "dbl_mont_u_formula",
@@ -564,6 +566,7 @@
         "dbl_y_ne_one",
         "edAddClosure_aux",
         "edAddField",
+        "edAddField_associative_double_of_complete",
         "edAddField_associative_of_compat",
         "edAddField_associative_of_complete",
         "edAddMont_v_mul_aux",
@@ -592,6 +595,7 @@
         "montAdd_v_eq_zero_of_u_eq_zero",
         "montB_ne_zero",
         "montDouble",
+        "montDouble_add_associative_of_weierstrass",
         "montDouble_matches_edAddField_zmod11",
         "montDouble_montgomery",
         "montDouble_ne_degenerate_zmod11",
@@ -604,8 +608,10 @@
         "montTangentSlope_spec",
         "montToWeier",
         "montToWeier_addCoord",
+        "montToWeier_doubleCoord",
         "montWeier",
         "mont_nonsingular",
+        "mont_slope_double",
         "montgomeryToWeier_equation",
         "montgomery_tangent_double_v",
         "montgomery_v_sq",
@@ -1231,7 +1237,7 @@
   "summary": {
     "input_file_count": 57,
     "module_count": 50,
-    "theorem_symbol_count": 636
+    "theorem_symbol_count": 642
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
