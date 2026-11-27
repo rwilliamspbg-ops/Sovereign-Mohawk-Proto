@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "8fed2043100852f439280c1fa805f703d71c17c9f40b6730af1a5a153174fda9",
+  "input_merkle_root": "c7b959e73e0cef583873ab9ab5bfa63cd612bbca60aba86ddea45348f01b9fc0",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "16d3dd697bc17e4e37cc08e9a50777a8443856461f929e41d59df836d40610b2"
+      "sha256": "f1fdc5909ef3308eb48695317330ace23f92c88e50e8fe45ef1a337b402ebaa9"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "356d41c709a4b12601f2c2880b21edccb7e2e000142d4e96d269a2d659d697e7"
+      "sha256": "bec9ddde8185bb1628300572e90fe2cab3ef76d370eb6473605845f03c886486"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -296,7 +296,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 27,
+      "symbol_count": 29,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
@@ -305,6 +305,8 @@
         "affineAddFormula",
         "affineAddFormula_comm",
         "affineAddFormula_zmod_eq_edAddField",
+        "affineAdd_assoc_identity_left",
+        "affineAdd_assoc_identity_right",
         "affineAdd_associative_of_complete",
         "affineAdd_canonical",
         "affineAdd_comm",
@@ -1174,7 +1176,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 590
+    "theorem_symbol_count": 592
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
