@@ -40,6 +40,10 @@ jobs:
 
       - name: Build doc-gen4 API documentation
         working-directory: proofs
+        env:
+          # doc-gen4 analyses every imported Mathlib module; on the default
+          # 7 GB runner the parallel worker pool exhausts memory.
+          LEAN_NUM_THREADS: '1'
         run: lake -R -Kenv=dev build LeanFormalization:docs
 
       - name: Assemble GitHub Pages artifact
