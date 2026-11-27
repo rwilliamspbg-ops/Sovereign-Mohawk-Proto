@@ -382,3 +382,11 @@ Adds row 47 for the machine-checked Edwards to Montgomery addition bridge, twist
 PR #430 adds `affineAdd_associative_of_complete`, transporting the field associativity theorem through the Nat/ZMod coercion bridge. It also proves `IsSquare (-1)` from p % 4 = 1, removing one hypothesis. Unconditional associativity is still not claimed: the residual hypotheses are listed in the theorem statement.
 
 - **PR:** #430
+
+### 2026-11-27 -- Row 47 (Edwards-Montgomery addition bridge): base-field facts proved
+
+`group_law_partially_formalized` (field-level compatibility, completeness and conditional associativity proved; concrete `affineAdd` associativity proved conditionally, not unconditionally) -> `group_law_partially_formalized` (base-field primality and nonsquareness now proved; concrete `affineAdd` associativity still conditionally proved)
+
+`ed25519P_prime` is proved from a machine-checked Lucas/Pratt certificate over `ZMod ed25519P`, and `ed25519D_not_isSquare` from a kernel-checked Jacobi-symbol computation. Both are axiom-free. `affineAdd_associative_of_complete` no longer takes `Fact (Nat.Prime ed25519P)` or `¬ IsSquare ed25519D` as hypotheses. All other admissibility, on-curve, branch and distinctness hypotheses remain explicit; no unconditional group law is claimed.
+
+- **PR:** #445

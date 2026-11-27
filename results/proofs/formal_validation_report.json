@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "608979870d6237f79f4877b71c3a5f990fedc22f198eb26c0a708d6912ee60e1",
+  "input_merkle_root": "73b99f22d1ccf2a0ae96aedd398d07bbcf79e50e7b3904817eca81f1f99c4a0a",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "67b72f4af6aab9e139d858d4e4fa06e9a4a22b80d7b7f49c7ec2b072772208f7"
+      "sha256": "86d0f4fa9d49eb989bb8c2dfe76ef8df368871dc726e6da9d4b7da35bb5942ef"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "0ebbd00df777b09bc0be309f6f6f0a330e26c8410fcecf70f6f3483e689066df"
+      "sha256": "a64c13c2e8e90f01e23668070b2ccf640fd3537fe57a1b3cd4211f5a76412d96"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -48,11 +48,15 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "bec9ddde8185bb1628300572e90fe2cab3ef76d370eb6473605845f03c886486"
+      "sha256": "98ca9b3a061880651d539c8073adbc9c57d41f5ea8e525b86352f58bbc11db92"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
       "sha256": "7354b890b124c8c8a013b5835e9d7db5b81c321cf69d40feef8ca3120c54d6d0"
+    },
+    {
+      "path": "proofs/LeanFormalization/Ed25519PrimeCert.lean",
+      "sha256": "acb7770647c5c3957084c45f7182255d0b1edfcd4dc2ccd7f50a020fb04551d5"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
@@ -300,7 +304,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 29,
+      "symbol_count": 31,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
@@ -321,7 +325,9 @@
         "affineAdd_zmod_eq_edAddField",
         "affineAdd_zmod_eq_edAddField_of_onCurve",
         "beq_mod_sub_symm",
+        "ed25519D_not_isSquare",
         "ed25519D_zmod",
+        "ed25519P_prime",
         "ed25519_isSquare_neg_one",
         "ed25519_mod_four_eq_one",
         "ed25519_two_ne_zero",
@@ -376,6 +382,17 @@
         "nat_eq_of_zmod_eq",
         "units_val_pow",
         "zmod_pow_sub_one"
+      ]
+    },
+    {
+      "file": "proofs/LeanFormalization/Ed25519PrimeCert.lean",
+      "module": "LeanFormalization.Ed25519PrimeCert",
+      "symbol_count": 4,
+      "symbols": [
+        "ed25519P",
+        "ed25519P_prime",
+        "eq_prime_of_dvd_prime",
+        "pow_table_succ"
       ]
     },
     {
@@ -1235,9 +1252,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 57,
-    "module_count": 50,
-    "theorem_symbol_count": 642
+    "input_file_count": 58,
+    "module_count": 51,
+    "theorem_symbol_count": 648
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
