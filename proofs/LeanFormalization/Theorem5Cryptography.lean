@@ -577,4 +577,115 @@ theorem theorem_weight_acceptance_no_witness :
   exact ⟨stmt, proveWeight stmt,
     theorem_weight_acceptance_ignores_norm_bound stmt (by norm_num [stmt]) (by norm_num [stmt])⟩
 
+/- ### External-soundness composition (abstract proof system)
+
+The toy `verifyWeight` is a debinding check, not a knowledge-sound verifier:
+`theorem_weight_acceptance_no_witness` exhibits an accepted statement for which
+`WeightRelation` is uninhabited. Hence an external accept predicate cannot both
+be sound for `WeightRelation` and agree with `verifyWeight` on *all* statements;
+`theorem_weight_agreement_unrestricted_inconsistent` below refutes that
+combination using the negative control. The agreement hypothesis of the
+composition theorem is therefore restricted to `WeightHonestStatement`, the
+image of `deriveWeightStatement` under inputs satisfying the circuit relation's
+side conditions, where a witness is independently reconstructible by
+`theorem_weight_relation_of_derived`. The external proof system's accept
+predicate and its soundness are explicit arguments of the theorem: no axiom is
+introduced, and Groth16/q-SDH knowledge soundness is not claimed to be proved
+here. -/
+
+/-- The subset of statements on which agreement between an external accept
+    predicate and the toy `verifyWeight` can consistently hold: the statement is
+    honestly derived from public inputs whose witness satisfies every
+    non-hash conjunct of `WeightRelation`. -/
+def WeightHonestStatement (stmt : WeightStatement) : Prop :=
+  ∃ (i : WeightPublicInputs) (w : WeightWitness),
+    stmt = deriveWeightStatement i w ∧
+    w.gradients.length = w.noise.length ∧
+    i.dataset_commitment ≠ 0 ∧
+    sumSq w.gradients ≤ i.grad_norm_bound * i.grad_norm_bound ∧
+    (∀ g ∈ w.gradients, g < 2 ^ 63) ∧
+    (∀ n ∈ w.noise, n < 2 ^ 63) ∧
+    i.grad_norm_bound < 2 ^ 63
+
+/-- Every statement in the honest locus really has a `WeightRelation` witness. -/
+theorem WeightHonestStatement_has_witness (stmt : WeightStatement)
+    (h : WeightHonestStatement stmt) :
+    ∃ w : WeightWitness, WeightRelation stmt w := by
+  obtain ⟨i, w, rfl, hlen, hds, hnorm, hgrad, hnoise, hbound⟩ := h
+  exact ⟨w, theorem_weight_relation_of_derived i w hlen hds hnorm hgrad hnoise hbound⟩
+
+/-- The honest locus is nonempty, so the composition theorem has real inputs. -/
+theorem WeightHonestStatement_inhabited : ∃ stmt, WeightHonestStatement stmt := by
+  let i : WeightPublicInputs :=
+    { model_hash_before := 0, dataset_commitment := 1, grad_norm_bound := 0, dp_epsilon := 0 }
+  let w : WeightWitness := { gradients := [], noise := [], training_steps := 0 }
+  refine ⟨deriveWeightStatement i w, ?_⟩
+  refine ⟨i, w, rfl, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;> simp [i, w, sumSq]
+
+/-- External-soundness composition. `Accept` is any verifier predicate on
+    (statement, proof) pairs and `hSound` is its soundness for `WeightRelation`,
+    both supplied as ordinary arguments (not axioms). `hAgree` relates `Accept`
+    to the machine-checked toy verifier only on the honest locus; outside that
+    locus agreement is refutable by the negative control. From toy-verifier
+    acceptance on an honest statement we obtain `Accept`, hence a witness. -/
+theorem theorem_weight_external_soundness_composition
+    (Accept : WeightStatement → WeightProof → Prop)
+    (hSound : ∀ stmt p, Accept stmt p → ∃ w : WeightWitness, WeightRelation stmt w)
+    (hAgree : ∀ stmt p, WeightHonestStatement stmt →
+      (Accept stmt p ↔ verifyWeight stmt p = true))
+    (stmt : WeightStatement) (p : WeightProof)
+    (hHonest : WeightHonestStatement stmt)
+    (hVerify : verifyWeight stmt p = true) :
+    ∃ w : WeightWitness, WeightRelation stmt w := by
+  exact hSound stmt p ((hAgree stmt p hHonest).2 hVerify)
+
+/-- The agreement restriction is load-bearing: if agreement held for *every*
+    statement, the existing negative control would refute soundness. -/
+theorem theorem_weight_agreement_unrestricted_inconsistent
+    (Accept : WeightStatement → WeightProof → Prop)
+    (hSound : ∀ stmt p, Accept stmt p → ∃ w : WeightWitness, WeightRelation stmt w)
+    (hAgree : ∀ stmt p, (Accept stmt p ↔ verifyWeight stmt p = true)) : False := by
+  obtain ⟨stmt, p, hverify, hno⟩ := theorem_weight_acceptance_no_witness
+  obtain ⟨w, hw⟩ := hSound stmt p ((hAgree stmt p).2 hverify)
+  exact hno w hw
+
+/-- The negative-control statement lies outside the honest locus. -/
+theorem theorem_weight_no_witness_not_honest (stmt : WeightStatement)
+    (hno : ∀ w : WeightWitness, ¬ WeightRelation stmt w) :
+    ¬ WeightHonestStatement stmt := by
+  intro hhon
+  obtain ⟨w, hw⟩ := WeightHonestStatement_has_witness stmt hhon
+  exact hno w hw
+
+/-- Consistency of the remaining hypothesis bundle: `WeightLocusAccept` is
+    globally sound and agrees with `verifyWeight` exactly on the honest locus.
+    This witnesses that the residual is the agreement restriction itself, not
+    an hidden contradiction in the composition theorem's assumptions. -/
+def WeightLocusAccept (stmt : WeightStatement) (p : WeightProof) : Prop :=
+  verifyWeight stmt p = true ∧ ∃ w : WeightWitness, WeightRelation stmt w
+
+theorem WeightLocusAccept_sound :
+    ∀ stmt p, WeightLocusAccept stmt p → ∃ w : WeightWitness, WeightRelation stmt w := by
+  intro stmt p h
+  exact h.2
+
+theorem WeightLocusAccept_agrees_on_honest :
+    ∀ stmt p, WeightHonestStatement stmt →
+      (WeightLocusAccept stmt p ↔ verifyWeight stmt p = true) := by
+  intro stmt p hhon
+  constructor
+  · intro h
+    exact h.1
+  · intro h
+    exact ⟨h, WeightHonestStatement_has_witness stmt hhon⟩
+
+theorem theorem_weight_external_soundness_composition_consistent
+    (stmt : WeightStatement) (p : WeightProof)
+    (hHonest : WeightHonestStatement stmt)
+    (hVerify : verifyWeight stmt p = true) :
+    ∃ w : WeightWitness, WeightRelation stmt w := by
+  exact theorem_weight_external_soundness_composition WeightLocusAccept
+    WeightLocusAccept_sound WeightLocusAccept_agrees_on_honest
+    stmt p hHonest hVerify
+
 end LeanFormalization

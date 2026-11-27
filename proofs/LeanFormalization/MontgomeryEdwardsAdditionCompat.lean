@@ -61,6 +61,14 @@ conditions on the Montgomery u-coordinates, and four `y ≠ 1` conditions on the
 intermediate sums -- the latter are genuine exceptional cases where the sum is
 the affine identity, handled by the branch in the concrete `affineAdd`.
 
+The tangent/doubling law (`montgomery_tangent_double_v`) is proved over an
+arbitrary field and closes on `M_{A,B}`; the general field-level compatibility
+`edwardsToMont (edAddField d x y x y) = montDouble d u v` is NOT proved here: only
+the concrete `F_11` agreement (`montDouble_matches_edAddField_zmod11`) is checked.
+The obstruction is the nested-denominator rational identity on the doubling
+diagonal; the secant proof `edAdd_toMont_eq_montAdd` needs `u₁ ≠ u₂` and cannot
+be specialised.
+
 The concrete Edwards implementation `Ed25519.affineAdd` is `Nat`-based modulo
 `2^255 - 19`; transporting these field-level results to it additionally needs a
 `ZMod`-lifting argument, which remains separate.
@@ -1280,6 +1288,121 @@ lemma secant_map_self_add_zero_zmod11 :
   decide
 
 end SecantMapNegativeControl
+
+
+/-! ## Tangent / doubling law: the correct replacement for the degenerate secant
+
+On the diagonal `u₁ = u₂` the secant slope of `montAdd` is `0 / 0 = 0` (see
+`montAdd_self_eq_degenerate`). The group-law double replaces it with the *tangent*
+slope, which is forced by the Montgomery equation: implicitly differentiating
+`B·v² = u³ + A·u² + u` gives `2·B·v·v' = 3u² + 2A·u + 1`. Everything below is
+over an arbitrary field; only `1 + d ≠ 0`, `2 ≠ 0` and `v ≠ 0` are assumed.
+The last of these already forces `Q(u) ≠ 0` on the curve (`montQ_ne_zero_of_montgomery`),
+so the doubling law needs no separate nondegeneracy hypothesis on `Q`. -/
+
+/-- The tangent slope of `M_{A,B}` at `(u,v)`, obtained from `montgomeryEq d u v`
+    by implicit differentiation of `B·v² = u³ + A·u² + u`. -/
+def montTangentSlope (d u v : K) : K :=
+  (3 * u ^ 2 + 2 * montA d * u + 1) / (2 * montB d * v)
+
+/-- The implicit-differentiation identity characterising `montTangentSlope`:
+    `2·B·v·l = 3u² + 2A·u + 1`, the derivative of the defining equation. -/
+lemma montTangentSlope_spec {d u v : K} (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hv : v ≠ 0) :
+    2 * montB d * v * montTangentSlope d u v = 3 * u ^ 2 + 2 * montA d * u + 1 := by
+  unfold montTangentSlope
+  have hB : montB d ≠ 0 := montB_ne_zero hd
+  field_simp [hB, hv, h2]
+
+omit [DecidableEq K] in
+/-- The same slope in the `Q`-normalised form obtained from `montgomeryEq d u v`
+    and `montgomery_v_sq`: `l = -(Q(u) + u·Q'(u)) / (2v)`. -/
+lemma montTangentSlope_q_form {d u v : K}
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) :
+    montTangentSlope d u v =
+      -(montQ d u + u * (2 * (1 + d) * u + 2 * (1 - d))) / (2 * v) := by
+  unfold montTangentSlope montA montB montQ
+  have hB : -(1 : K) / (1 + d) ≠ 0 := div_ne_zero (by norm_num) hd
+  field_simp [hB, hv, hd, h2]
+  ring
+
+/-- On the curve, `v ≠ 0` already forces the nondegeneracy `Q(u) ≠ 0`. -/
+lemma montQ_ne_zero_of_montgomery {d u v : K}
+    (hM : montgomeryEq d u v) (hd : 1 + d ≠ 0) (hv : v ≠ 0) :
+    montQ d u ≠ 0 := by
+  have hv2 := montgomery_v_sq hM hd
+  intro hq
+  have hz : v * v = 0 := by
+    simpa [pow_two, hq] using hv2
+  rcases mul_eq_zero.mp hz with h | h <;> exact hv h
+
+/-- The tangent/doubling point: `montAdd`'s coordinate update with the tangent
+    slope in place of the degenerate secant slope. -/
+def montDouble (d u v : K) : K × K :=
+  let l := montTangentSlope d u v
+  let mu := montB d * l ^ 2 - montA d - 2 * u
+  (mu, l * (u - mu) - v)
+
+omit [DecidableEq K] in
+/-- The doubled point's v-coordinate is the tangent formula `l·(u - u₂) - v`
+    with `l = montTangentSlope d u v`. -/
+lemma montDouble_v_eq (d u v : K) :
+    (montDouble d u v).2 =
+      montTangentSlope d u v * (u - (montDouble d u v).1) - v := by
+  rfl
+
+/-- Closure (the main algebraic obligation): the tangent double of an on-curve
+    point with `v ≠ 0` stays on the same Montgomery curve. The single
+    `linear_combination` certificate consumes `montgomeryEq d u v`. -/
+lemma montDouble_montgomery {d u v : K}
+    (hM : montgomeryEq d u v) (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) :
+    montgomeryEq d (montDouble d u v).1 (montDouble d u v).2 := by
+  unfold montDouble montTangentSlope
+  unfold montgomeryEq at hM ⊢
+  have hB : montB d ≠ 0 := montB_ne_zero hd
+  field_simp [hB, hv, h2] at hM ⊢
+  ring_nf at hM ⊢
+  linear_combination (64 * (montB d)^3 * v^6) * hM
+
+/-- **Headline tangent law.** For `u₁ = u₂ = u`, `v₁ = v₂ = v` on `M_{A,B}`, the
+    doubled point's v-coordinate is the tangent formula and the doubled point
+    stays on the curve. No distinctness hypothesis is needed; `v ≠ 0` already
+    gives `Q(u) ≠ 0`. -/
+theorem montgomery_tangent_double_v {d u v : K}
+    (hM : montgomeryEq d u v) (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) (hv : v ≠ 0) :
+    montgomeryEq d (montDouble d u v).1 (montDouble d u v).2 ∧
+    (montDouble d u v).2 =
+      (3 * u ^ 2 + 2 * montA d * u + 1) / (2 * montB d * v) *
+        (u - (montB d * ((3 * u ^ 2 + 2 * montA d * u + 1) / (2 * montB d * v)) ^ 2
+              - montA d - 2 * u)) - v := by
+  exact ⟨montDouble_montgomery hM hd h2 hv, rfl⟩
+
+/-! Positive control: over `F_11` at `d = 2`, the tangent double of the on-curve
+    point `(3,4)` is `(8,8)`, exactly the Edwards double of its image `(4,6)`
+    mapped back to Montgomery, and it differs from the degenerate secant `(2,7)`. -/
+section TangentMapPositiveControl
+
+local instance : Fact (Nat.Prime 11) := ⟨by norm_num⟩
+
+lemma montDouble_zmod11 : montDouble (2 : ZMod 11) 3 4 = (8, 8) := by
+  decide
+
+/-- Concrete agreement with Edwards doubling: `montDouble 2 (3,4)` equals the
+    Montgomery image of `edAddField 2 (4,6) (4,6)`. The general field-level
+    version remains an explicit residual (see the module scope notes). -/
+lemma montDouble_matches_edAddField_zmod11 :
+    montDouble (2 : ZMod 11) 3 4 =
+      edwardsToMont (2 : ZMod 11)
+        (edAddField (2 : ZMod 11) 4 6 4 6).1
+        (edAddField (2 : ZMod 11) 4 6 4 6).2 := by
+  decide
+
+/-- The tangent double is not the degenerate secant result. -/
+lemma montDouble_ne_degenerate_zmod11 :
+    montDouble (2 : ZMod 11) 3 4 ≠ montAdd (2 : ZMod 11) 3 4 3 4 := by
+  decide
+
+end TangentMapPositiveControl
 
 end
 end LeanFormalization
