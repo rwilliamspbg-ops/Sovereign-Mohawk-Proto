@@ -84,7 +84,7 @@ Rows with an assumed or conditional guarantee:
 - Row 38 — **Ed25519 field-arithmetic bridge**: the `Nat`-valued field operations `fadd`/`fsub`/`fmul` use… — Fact (Nat.Prime ...); assumed
 - Row 39 — **Gaussian mechanism `(ε,δ)`-DP conversion**: the RDP-to-`(ε,δ)` conversion applied to the Gaus… — scope limit (not claimed/formalized/refined/recovered)
 - Row 40 — **Ed25519 affine addition law, first increment**: `affineAdd` is **commutative** on reduced rep… — assumed; assumption; not proved / not unconditional
-- Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — assumption; clustering/separation model
+- Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — assumption; clustering/separation model; scope limit (not claimed/formalized/refined/recovered)
 - Row 43 — **Multi-Krum convergence without exact unbiasedness**: `V_t = ‖θ_t − θ*‖²` converges to `0` alm… — unbiasedness; conditional on invariants
 - Row 45 — **Ed25519 `affineScalarMulImpl`: base cases and produced-point invariants.** The double-and-add… — assumed; not proved / not unconditional
 - Row 46 — **Ed25519 `affineAdd`: birational bridge to a Montgomery model.** `affineAdd`'s group law lives… — assumed; conditional on invariants

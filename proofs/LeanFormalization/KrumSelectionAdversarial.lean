@@ -101,6 +101,39 @@ theorem krum_minimizer_in_honest_or_near (g : α → E) (H Far Near : Finset α)
   have := hmin i
   linarith
 
+set_option maxRecDepth 100000
+set_option maxHeartbeats 1000000
+
+/-- Top-level composition for the pure ℝ model: a minimizer of the
+    implementation-shaped `neighborScoreReal` is honest or a `Near`
+    infiltrator under the same clustering/separation hypotheses as
+    `krum_minimizer_in_honest_or_near`. The Float↔Real bridge is not claimed:
+    `neighborScoreReal` is the ℝ model, not the Go binary's Float score. -/
+lemma neighborScoreReal_minimizer_in_honest_or_near {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {α : Type*} [DecidableEq α] [Fintype α]
+    (g : α → E) (H Far Near : Finset α) (n f : ℕ) (r D : ℝ)
+    (hn : Finset.card (Finset.univ : Finset α) = n)
+    (hHcard : H.card = n - f)
+    (hByz : Far ∪ Near = Finset.univ \ H)
+    (hne : n > 2 * f + 2)
+    (hcluster : ∀ i ∈ H, ∀ j ∈ H, distSq g i j ≤ 4 * r ^ 2)
+    (hsep : ∀ i ∈ Far, ∀ j ∈ H, D ^ 2 ≤ distSq g i j)
+    (hsep_strong : (↑(n - f - 2) : ℝ) * (4 * r ^ 2)
+        < (↑(n - 2 * f - 1) : ℝ) * D ^ 2) :
+    ∀ j : α,
+      (∀ i : α, neighborScoreReal g j (n - f - 2) ≤ neighborScoreReal g i (n - f - 2)) →
+      j ∈ H ∨ j ∈ Near := by
+  have hk : ∀ i : α, n - f - 2 ≤ (Finset.univ.erase i).card := by
+    intro i
+    rw [Finset.card_erase_of_mem (Finset.mem_univ i), hn]
+    omega
+  intro j hmin
+  apply krum_minimizer_in_honest_or_near g H Far Near n f r D
+    hn hHcard hByz hne hcluster hsep hsep_strong j
+  intro i
+  rw [← neighborScoreReal_eq_krumScore g j (n - f - 2) (hk j),
+      ← neighborScoreReal_eq_krumScore g i (n - f - 2) (hk i)]
+  exact hmin i
 /-- **The separation hypothesis is load-bearing.** With `n = 5`, `f = 1`, the
     honest set `{0,1,2,3}`, `Far = {4}`, radius `r = 0` and separation `D = 1`,
     place the Byzantine candidate exactly on the honest cluster (all gradients
