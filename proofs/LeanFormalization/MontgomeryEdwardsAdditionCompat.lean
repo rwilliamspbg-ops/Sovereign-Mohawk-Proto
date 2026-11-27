@@ -493,6 +493,74 @@ lemma edwards_denoms_completeness_counterexample_combined :
   exact (h (x1 := 1) (y1 := 3) (x2 := 4) (y2 := 5)
     zmod11_curve_1_3 zmod11_curve_4_5).1 zmod11_den_plus_zero
 
+/-! ### Negative control: squareness of `d` is load-bearing
+
+    Two machine-checked refutations of the completeness conclusion when the
+    `¬ IsSquare d` hypothesis of `edwards_denoms_ne_zero` is dropped.
+
+    * Over `F_7` with `d = 4 = 2^2` (a square), the on-curve points `(1,2)` and
+      `(2,3)` make `1 + d·x₁·x₂·y₁·y₂ = 0`. Here `-1` is NOT a square
+      (`neg_one_not_square_zmod7`), so this control cannot also keep the
+      `IsSquare (-1)` hypothesis; it refutes completeness for square `d` in
+      the requested smallest field.
+    * Over `F_13`, `-1` IS a square and `d = 3 = 4^2` IS a square, yet the
+      on-curve points `(1,5)` and `(2,3)` again make the plus denominator
+      vanish. This is the strict control: `edwards_denoms_ne_zero_requires_`
+      `d_nonsquare_strict` drops ONLY `¬ IsSquare d` from `edwards_denoms_ne_zero`.
+-/
+local instance : Fact (Nat.Prime 7) := ⟨by norm_num⟩
+local instance : Fact (Nat.Prime 13) := ⟨by norm_num⟩
+
+lemma neg_one_not_square_zmod7 : ¬ IsSquare (-1 : ZMod 7) := by decide
+lemma four_square_zmod7 : IsSquare (4 : ZMod 7) := by decide
+
+lemma zmod7_curve_1_2 : edwardsEq (4 : ZMod 7) 1 2 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 3 17 7).2 (by norm_num)
+
+lemma zmod7_curve_2_3 : edwardsEq (4 : ZMod 7) 2 3 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 5 145 7).2 (by norm_num)
+
+lemma zmod7_den_plus_zero : 1 + (4 : ZMod 7) * 1 * 2 * 2 * 3 = 0 := by decide
+
+/-- Over `F_7`, `d = 4` is a square and completeness fails: the universal
+    plus-denominator statement is refuted by `(1,2)`, `(2,3)`. -/
+lemma edwards_denoms_ne_zero_requires_d_nonsquare :
+    ¬ (∀ {d x1 y1 x2 y2 : ZMod 7},
+      edwardsEq d x1 y1 → edwardsEq d x2 y2 → 1 + d * x1 * x2 * y1 * y2 ≠ 0) := by
+  intro h
+  exact h (d := 4) (x1 := 1) (y1 := 2) (x2 := 2) (y2 := 3)
+    zmod7_curve_1_2 zmod7_curve_2_3 zmod7_den_plus_zero
+
+lemma neg_one_square_zmod13 : IsSquare (-1 : ZMod 13) := by decide
+lemma three_square_zmod13 : IsSquare (3 : ZMod 13) := by decide
+
+lemma zmod13_curve_1_5 : edwardsEq (3 : ZMod 13) 1 5 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 24 76 13).2 (by norm_num)
+
+lemma zmod13_curve_2_3 : edwardsEq (3 : ZMod 13) 2 3 := by
+  unfold edwardsEq
+  norm_num
+  exact (ZMod.natCast_eq_natCast_iff 5 109 13).2 (by norm_num)
+
+lemma zmod13_den_plus_zero : 1 + (3 : ZMod 13) * 1 * 2 * 5 * 3 = 0 := by decide
+
+/-- Strict load-bearing control: over `F_13`, `-1` is a square but `d = 3` is
+    also a square, and the plus denominator vanishes. Hence the `¬ IsSquare d`
+    hypothesis of `edwards_denoms_ne_zero` cannot be removed even keeping
+    `IsSquare (-1)`. -/
+lemma edwards_denoms_ne_zero_requires_d_nonsquare_strict :
+    ¬ (∀ {d x1 y1 x2 y2 : ZMod 13},
+      edwardsEq d x1 y1 → edwardsEq d x2 y2 → IsSquare (-1 : ZMod 13) →
+        1 + d * x1 * x2 * y1 * y2 ≠ 0) := by
+  intro h
+  exact h (d := 3) (x1 := 1) (y1 := 5) (x2 := 2) (y2 := 3)
+    zmod13_curve_1_5 zmod13_curve_2_3 neg_one_square_zmod13 zmod13_den_plus_zero
 end CompletenessNegativeControl
 
 /-- Edwards addition closes on the twisted-Edwards curve (explicit denominators). -/
