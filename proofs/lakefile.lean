@@ -6,6 +6,13 @@ package lean_formalization where
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @ "v4.30.0-rc2"
 
+-- Blueprint tooling: `checkdecls` verifies every \lean{...} tag in the
+-- LaTeX blueprint against compiled declarations; `doc-gen4` renders the
+-- interactive API pages linked from the blueprint's dependency graph.
+-- Both are pinned to this project's exact Lean toolchain.
+require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git"
+require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "v4.30.0-rc2"
+
 -- Marked `@[default_target]` so the documented verification command
 -- (`cd proofs && lake build`, see FORMAL_TRACEABILITY_MATRIX.md) actually
 -- builds these libraries instead of silently building 0 jobs. Previously
