@@ -36,6 +36,12 @@ is and is not machine-checked.
 * `edwards_denoms_ne_zero`: twisted-Edwards completeness for `a = -1` under the
   standard hypothesis `IsSquare (-1)` and `¬ IsSquare d`; both unified-law
   denominators are nonzero for every on-curve pair.
+* **Negative control for `hu12`** (section `SecantMapNegativeControl`):
+  `montAdd`'s slope divides by zero when `u₁ = u₂`.
+  `montAdd_self_eq_degenerate` proves the collapse over an arbitrary
+  field; concrete `F_11` witnesses show `montAdd` landing off-curve and
+  the compatibility conclusion failing with `hu12` as the *only* dropped
+  hypothesis (all other hypotheses of `edAdd_toMont_eq_montAdd` hold).
 
 ## Residual assumptions and scope limits (explicit, not hidden)
 
@@ -1170,6 +1176,110 @@ theorem edAddField_associative_of_complete {d : K} (hi : IsSquare (-1 : K))
   exact edAddField_associative_of_compat (edwardsAddCompat_of_complete hi hnd h2)
     hE1 hE2 hE3 hy1 hy2 hy3 hx1 hx2 hx3 hd h2 hu12 hu23 hu12_3 hu1_23
     hE12 hE23 hy12 hy23 hE12L hE1R hy12L hy1R
+
+
+/-! ## Negative control: `hu12 : u₁ ≠ u₂` is load-bearing for the secant map
+
+`montAdd` clears the slope `l = (v₁ - v₂) / (u₁ - u₂)`. On the diagonal `u₁ = u₂`
+its denominator is zero, so Lean's total division makes `l = 0` regardless of the
+points: the "secant" is neither the tangent nor the negation case that the group
+law needs. We formalise the mechanism over an arbitrary field, then exhibit a
+concrete `F_11` witness at `d = 2` where every hypothesis of
+`edAdd_toMont_eq_montAdd` except `hu12` holds at `(u₁,v₁) = (u₂,v₂) = (3,4)`, yet
+`montAdd` lands off the curve and the compatibility conclusion is false. This
+makes `hu12` an isolated, load-bearing hypothesis rather than a proof artifact. -/
+
+/-! The mechanism: on the diagonal `u₁ = u₂` the slope is `0 / 0 = 0`, so
+    `montAdd d u v u v` collapses to `(-montA d - 2·u, -v)`, independently of any
+    curve equation. Without `hu12` the secant has no slope at all. -/
+omit [DecidableEq K] in
+lemma montAdd_self_eq_degenerate (d u v : K) :
+    montAdd d u v u v = (-montA d - 2 * u, -v) := by
+  apply Prod.ext
+  · simp [montAdd]
+    ring
+  · simp [montAdd]
+
+section SecantMapNegativeControl
+
+local instance : Fact (Nat.Prime 11) := ⟨by norm_num⟩
+
+/-- At `d = 2` over `F_11`, the on-curve point `(3,4)` self-added by the degenerate
+    secant law lands at `(2,7)`, which is OFF `M_{A,B}`. A group-law sum of on-curve
+    points must be on the curve, so `montAdd` is not a group law on the equal-`u`
+    diagonal. -/
+lemma secant_map_degenerate_off_curve_zmod11 :
+    montgomeryEq (2 : ZMod 11) 3 4 ∧
+    montAdd (2 : ZMod 11) 3 4 3 4 = (2, 7) ∧
+    ¬ montgomeryEq (2 : ZMod 11) 2 7 := by
+  refine ⟨?_, ?_, ?_⟩
+  · unfold montgomeryEq montA montB
+    decide
+  · decide
+  · unfold montgomeryEq montA montB
+    decide
+
+/-- Direct refutation of the compatibility conclusion with `u₁ = u₂`: the Edwards
+    image `(3,4) ↦ (4,6)` doubles to a point mapping back to `(8,8)`, but
+    `montAdd (2) 3 4 3 4 = (2,7)`. -/
+lemma secant_map_compatibility_fails_zmod11 :
+    edwardsToMont (2 : ZMod 11)
+      (edAddField (2 : ZMod 11) 4 6 4 6).1
+      (edAddField (2 : ZMod 11) 4 6 4 6).2 ≠
+    montAdd (2 : ZMod 11) 3 4 3 4 := by
+  decide
+
+/-- **Headline negative control.** Over `F_11` at `d = 2`, with
+    `(u₁,v₁) = (u₂,v₂) = (3,4)`, every hypothesis of `edAdd_toMont_eq_montAdd`
+    other than `hu12` is satisfied (both points on-curve, `1 + d ≠ 0`, `2 ≠ 0`,
+    `uᵢ + 1 ≠ 0`, `montQ 2 uᵢ ≠ 0`, and all six denominator non-vanishing
+    hypotheses), while `u₁ = u₂` -- so `hu12` is the *only* failed hypothesis --
+    yet the conclusion `edwardsToMont (edAddField E E) = montAdd P P` is FALSE.
+    Hence `hu12` is load-bearing and cannot be dropped. -/
+theorem montAdd_hu12_load_bearing_zmod11 :
+    let u1 : ZMod 11 := 3
+    let v1 : ZMod 11 := 4
+    let u2 : ZMod 11 := 3
+    let v2 : ZMod 11 := 4
+    montgomeryEq 2 u1 v1 ∧ montgomeryEq 2 u2 v2 ∧
+    (1 + (2 : ZMod 11) ≠ 0) ∧ ((2 : ZMod 11) ≠ 0) ∧
+    (u1 + 1 ≠ 0) ∧ (u2 + 1 ≠ 0) ∧
+    montQ 2 u1 ≠ 0 ∧ montQ 2 u2 ≠ 0 ∧
+    (1 + 2 * (2 * v1 / montQ 2 u1) * (2 * v2 / montQ 2 u2) *
+          ((u1 - 1) / (u1 + 1)) * ((u2 - 1) / (u2 + 1)) ≠ 0) ∧
+    (1 - 2 * (2 * v1 / montQ 2 u1) * (2 * v2 / montQ 2 u2) *
+          ((u1 - 1) / (u1 + 1)) * ((u2 - 1) / (u2 + 1)) ≠ 0) ∧
+    (1 - (edAddField 2 (2 * v1 / montQ 2 u1) ((u1 - 1) / (u1 + 1))
+                        (2 * v2 / montQ 2 u2) ((u2 - 1) / (u2 + 1))).2 ≠ 0) ∧
+    ((u1 + 1) * (u2 + 1) * montQ 2 u1 * montQ 2 u2 -
+          (u1 - 1) * (u2 - 1) * (2 : ZMod 11) ^ 2 * v1 * v2 * 2 ≠ 0) ∧
+    ((u1 + 1) * (u2 + 1) * montQ 2 u1 * montQ 2 u2 -
+          (u1 - 1) * (u2 - 1) * (2 : ZMod 11) ^ 2 * v1 * v2 * 2 -
+          ((u1 - 1) * (u2 - 1) * montQ 2 u1 * montQ 2 u2 +
+           (u1 + 1) * (u2 + 1) * (2 : ZMod 11) ^ 2 * v1 * v2) ≠ 0) ∧
+    ((u1 + 1) * montQ 2 u2 * montQ 2 u1 * (u2 + 1) +
+          2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * 2 ≠ 0) ∧
+    (1 + 2 ^ 2 * v1 * (u2 - 1) * (u1 - 1) * v2 * 2 /
+          (montQ 2 u1 * (u2 + 1) * (u1 + 1) * montQ 2 u2) ≠ 0) ∧
+    u1 = u2 ∧
+    ¬ (edwardsToMont 2
+          (edAddField 2 (2 * v1 / montQ 2 u1) ((u1 - 1) / (u1 + 1))
+                        (2 * v2 / montQ 2 u2) ((u2 - 1) / (u2 + 1))).1
+          (edAddField 2 (2 * v1 / montQ 2 u1) ((u1 - 1) / (u1 + 1))
+                        (2 * v2 / montQ 2 u2) ((u2 - 1) / (u2 + 1))).2 =
+        montAdd 2 u1 v1 u2 v2) := by
+  unfold montgomeryEq montA montB montQ edAddField edwardsToMont montAdd
+  decide
+
+/-- The review's simpler concrete target: with `d = 1` the self-`montAdd` of the
+    2-torsion point `(0,0)` is `(0,0)`, contrasting with the non-degenerate
+    (`u₁ ≠ u₂`) compatibility proved above. -/
+lemma secant_map_self_add_zero_zmod11 :
+    montAdd (1 : ZMod 11) 0 0 0 0 = (0, 0) := by
+  rw [montAdd_self_eq_degenerate]
+  decide
+
+end SecantMapNegativeControl
 
 end
 end LeanFormalization

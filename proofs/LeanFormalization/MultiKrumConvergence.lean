@@ -318,6 +318,53 @@ theorem not_summable_diminishingStep (c : ℝ) (hc : c ≠ 0) (t₀ : ℕ) :
   rw [hfun]
   exact hcmul
 
+/-- The Robbins–Monro step-size conditions, bundled into one explicit
+conjunction. For a **nonzero** step constant `c` the schedule `η_t = c/(t + t₀)`
+satisfies both halves at once:
+
+* `¬ Summable η` — the total step budget diverges (`∑ η_t = ∞`), so the
+  iterate can reach the optimum;
+* `Summable (η²)` — the squared steps are summable (`∑ η_t² < ∞`), so the
+  accumulated variance terms stay finite.
+
+These are exactly the two facts consumed by `multikrum_convergence_ae`
+(through `supermartingale_convergence_ae`). Both are *proved* here from
+Mathlib's `p`-series results — `not_summable_diminishingStep` and
+`summable_diminishingStep_sq` — not assumed. The only step-size hypothesis
+needed for this bundle is `hc : c ≠ 0`; no positivity of `t₀` is required
+for the two summability facts themselves (the capstone adds `0 < c`,
+`0 < t₀` and `c * μsc ≤ t₀` for the contraction bound). That `hc` is
+load-bearing is witnessed by `diminishingStep_zero_summable` and
+`robbinsMonro_step_conditions_requires_c_ne_zero` below. -/
+theorem robbinsMonro_step_conditions (c : ℝ) (hc : c ≠ 0) (t₀ : ℕ) :
+    (¬ Summable (fun t : ℕ => diminishingStep c t₀ t)) ∧
+      Summable (fun t : ℕ => diminishingStep c t₀ t ^ 2) := by
+  exact ⟨not_summable_diminishingStep c hc t₀, summable_diminishingStep_sq c t₀⟩
+
+/-- Negative control for the divergence half (hence for `hc : c ≠ 0`): at
+`c = 0` the step sequence is identically zero, therefore summable. Dropping
+`c ≠ 0` makes `not_summable_diminishingStep` false, so the hypothesis is
+load-bearing rather than decoration. -/
+theorem diminishingStep_zero_summable (t₀ : ℕ) :
+    Summable (fun t : ℕ => diminishingStep 0 t₀ t) := by
+  have hzero : (fun t : ℕ => diminishingStep 0 t₀ t) = (fun _ : ℕ => (0 : ℝ)) := by
+    funext t
+    rw [diminishingStep]
+    simp
+  rw [hzero]
+  exact summable_zero
+
+/-- Negative control phrased as a contradiction: at `c = 0` the bundled
+Robbins–Monro conjunction is unsatisfiable, because its divergence conjunct
+would demand that the (now summable) zero step be non-summable. This is the
+machine-checked witness that `c ≠ 0` is load-bearing in
+`robbinsMonro_step_conditions`. -/
+theorem robbinsMonro_step_conditions_requires_c_ne_zero (t₀ : ℕ) :
+    ¬ ((¬ Summable (fun t : ℕ => diminishingStep 0 t₀ t)) ∧
+        Summable (fun t : ℕ => diminishingStep 0 t₀ t ^ 2)) := by
+  intro h
+  exact h.1 (diminishingStep_zero_summable t₀)
+
 end DiminishingStep
 
 section Capstone

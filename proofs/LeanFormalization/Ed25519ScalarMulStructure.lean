@@ -102,6 +102,19 @@ theorem smulStep_zero_identity (P : AffinePoint) :
   simp
   exact affineAdd_identity_left affineIdentity (Or.inr rfl)
 
+/-- A `1` bit applied to the identity accumulator yields `P` exactly. This is
+    unconditional: `affineAdd affineIdentity P = P` holds by the implementation's
+    first branch, so no `IsConsistent` hypothesis is needed. It is the step-level
+    counterpart of the already-derived `oneMul` law. -/
+lemma smulStep_one_identity (P : AffinePoint) :
+    smulStep 1 affineIdentity P = P := by
+  unfold smulStep
+  have hb : ((1 : Nat) == 1) = true := by decide
+  rw [if_pos hb]
+  change affineAdd (affineAdd affineIdentity affineIdentity) P = P
+  rw [show affineAdd affineIdentity affineIdentity = affineIdentity by rfl]
+  rfl
+
 /-- Folding a run of zero-valued bits starting from the identity leaves the
     identity unchanged. -/
 theorem foldl_zero_bits_eq_identity {l : List Nat} {f : Nat → Nat} {P : AffinePoint}
