@@ -44,6 +44,7 @@ import LeanFormalization.RenyiDivergenceMultivariate
 import LeanFormalization.RenyiDivergenceMultivariateCovariance
 import LeanFormalization.Ed25519FieldBridge
 import LeanFormalization.Ed25519CurveGroupLaw
+import LeanFormalization.Ed25519PrimeCert
 import LeanFormalization.Ed25519ScalarMulStructure
 import LeanFormalization.EdwardsWeierstrassBridge
 import LeanFormalization.EdwardsAdditionLaws

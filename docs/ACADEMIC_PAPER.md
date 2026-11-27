@@ -200,9 +200,9 @@ and `Ed25519GroupLaws affineBase` (four explicit curve-model laws; `zeroMul` and
 `oneMul` were removed as unconsumed). For the Edwards bridge (§12), `IsSquare (-1)`
 is proved from $p \equiv 1 \pmod 4$, and the secant, doubling, negation and
 completeness lemmas are proved axiom-free with load-bearing negative controls;
-`Nat.Prime ed25519P`, nonsquareness of `ed25519D`, and the
-admissibility/distinctness conditions of the field associativity theorem remain
-explicit hypotheses. No global `axiom` is used, and no proof
+primality of `ed25519P` and nonsquareness of `ed25519D` are now proved as
+theorems, while the admissibility/distinctness conditions of the concrete
+associativity theorem remain explicit hypotheses. No global `axiom` is used, and no proof
 uses `sorry` or `admit`.
 
 ### 3.4 What is deliberately not claimed
@@ -220,12 +220,12 @@ uses `sorry` or `admit`.
   verification cost is 0.675 ms and proving is 38 ms (§8.4). Retraction of the
   stale figure across the documentation is pending.
 - **Unconditional Ed25519 group associativity is not claimed.**
-  `affineAdd_associative_of_complete` is conditional on primality of $p$,
-  nonsquareness of $d$, on-curve equations, canonical coordinates, branch
-  exclusions, and admissibility/distinctness conditions. Neither
-  `Nat.Prime ed25519P` nor `¬ IsSquare (ed25519D : ZMod ed25519P)` is proved in
-  the repository. Nonsquareness of $d$ alone is insufficient for completeness:
-  the machine-checked negative control over $\mathbb{F}_{11}$ uses $d=2$.
+  `affineAdd_associative_of_complete` is conditional on on-curve equations,
+  canonical coordinates, branch exclusions, and admissibility/distinctness
+  conditions. `Nat.Prime ed25519P` and `¬ IsSquare (ed25519D : ZMod ed25519P)`
+  are now machine-checked theorems. Nonsquareness of $d$ alone is insufficient
+  for completeness: the machine-checked negative control over
+  $\mathbb{F}_{11}$ uses $d=2$.
 
 ---
 
@@ -961,11 +961,11 @@ We explicitly record technical limitations and open gaps:
 4. **Physical WAN Scaling:** While multi-node container benchmarks up to 1,500 pods confirm microsecond aggregation efficiency, real-world planetary deployments across high-jitter wireless WANs remain future empirical work.
 5. **253-Bit Primality Hypothesis:** In `DiscreteLogReduction.lean`, the primality of the Ed25519 subgroup order $L = 2^{252} + 27742317777372353535851937790883648493$ is carried as the explicit hypothesis $\texttt{Fact (Nat.Prime dlL)}$ on the four declarations that need it, as 253-bit primality certificates exceed Lean's native decidability timeout. It is not a global `axiom`; every consumer sees the assumption in the statement.
 6. **Ed25519 group-law hypotheses:** `Nat.Prime ed25519P` and the nonsquareness
-   of `ed25519D : ZMod ed25519P` are not proved in the repository; both remain
-   explicit hypotheses. Under this Mathlib pin, `norm_num` times out on the
-   77-digit primality check and neither `norm_num` nor `decide` evaluates the
-   Legendre/Jacobi symbols needed for nonsquareness. The field-level bridge and
-   the concrete associativity theorem are therefore conditional, not a full
+   of `ed25519D : ZMod ed25519P` are proved in the repository: the former by a
+   generated Lucas/Pratt certificate verified with `lucas_primality`, the latter
+   by a kernel-checked Jacobi-symbol computation (`norm_num` on `fastJacobiSym`).
+   The concrete associativity theorem remains conditional on on-curve,
+   canonical, branch and distinctness hypotheses, not a full
    group law for the implementation.
 
 ---

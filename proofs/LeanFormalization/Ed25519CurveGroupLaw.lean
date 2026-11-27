@@ -1,8 +1,9 @@
 import Mathlib
 import LeanFormalization.Ed25519FieldBridge
+import LeanFormalization.Ed25519PrimeCert
 import LeanFormalization.MontgomeryEdwardsAdditionCompat
 set_option maxRecDepth 100000
-set_option maxHeartbeats 1000000
+set_option maxHeartbeats 2000000
 
 /-!
 # The Ed25519 affine addition law: what is proved and what stays open
@@ -306,7 +307,6 @@ theorem affineAddFormula_zmod_eq_edAddField (hp : Fact (Nat.Prime ed25519P))
      ((affineAddFormula x1 y1 x2 y2).y : ZMod ed25519P)) =
     edAddField (ed25519D : ZMod ed25519P) (x1 : ZMod ed25519P) (y1 : ZMod ed25519P)
       (x2 : ZMod ed25519P) (y2 : ZMod ed25519P) := by
-  letI := hp
   have hinv1 : (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ZMod ed25519P) =
       ((fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) : ℕ) : ZMod ed25519P)⁻¹ := by
     have hmul : fmul (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
@@ -356,7 +356,6 @@ theorem affineAdd_zmod_eq_edAddField_of_onCurve (hp : Fact (Nat.Prime ed25519P))
     (((affineAdd P Q).x : ZMod ed25519P), ((affineAdd P Q).y : ZMod ed25519P)) =
     edAddField (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
       (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P) := by
-  letI := hp
   have hD := edwards_denoms_ne_zero hEP hEQ hsq hnd
   let den := fmul (fmul P.x Q.x) (fmul P.y Q.y)
   have hden1Z : (1 : ZMod ed25519P) + (ed25519D : ZMod ed25519P) * (P.x : ZMod ed25519P) *
@@ -433,14 +432,35 @@ lemma affineAdd_assoc_identity_left (P Q : AffinePoint)
       affineAdd (affineAdd affineIdentity P) Q := by
   rw [affineAdd_identity_left (affineAdd P Q) hPQ, affineAdd_identity_left P hPc]
 
+/-- Primality of the Ed25519 field modulus, from the machine-checked
+    Lucas/Pratt certificate in `Ed25519PrimeCert.lean`. -/
+theorem ed25519P_prime : Nat.Prime ed25519P := by
+  simpa [ed25519P, Ed25519PrimeCert.ed25519P] using
+    Ed25519PrimeCert.ed25519P_prime
+
+/-- The same primality result packaged as a `Fact`. -/
+local instance ed25519P_prime_fact : Fact (Nat.Prime ed25519P) := ⟨ed25519P_prime⟩
+
+/-- `ed25519D` is a nonsquare in `ZMod ed25519P`, unconditionally. The proof
+    uses Mathlib's kernel-checked fast Jacobi-symbol computation: the Jacobi
+    symbol of `-121665·121666⁻¹` modulo `2^255-19` is `-1`, which suffices for
+    nonsquareness over a prime-power modulus without a primality hypothesis.
+    Residual: none; this discharges the previously explicit `hnd` hypothesis. -/
+theorem ed25519D_not_isSquare : ¬ IsSquare (ed25519D : ZMod ed25519P) := by
+  change ¬ IsSquare ((ed25519D : ℤ) : ZMod ed25519P)
+  apply ZMod.nonsquare_of_jacobiSym_eq_neg_one
+  rw [show ed25519D =
+      37095705934669439343138083508754565189542113879843219016388785533085940283555 by rfl]
+  norm_num [ed25519P]
+
 /-- Associativity of the concrete `affineAdd`, transported from
     `edAddField_associative_of_complete` through the Nat/ZMod coercion bridge.
 
-    This does NOT close the group law unconditionally. The residual hypotheses
-    are exactly: primality of `p`; nonsquareness of `d`; the on-curve equations
+    This does NOT close the group law unconditionally. Primality of `p` (`ed25519P_prime`) and nonsquareness of `d`
+    (`ed25519D_not_isSquare`) are proved in this module. The residual hypotheses
+    are exactly: the on-curve equations
     for P, Q, R; canonical representatives; the three `inf = false` branch
-    conditions (the two negation-branch exclusions are derived from Montgomery-u
-    distinctness via `isNegation_false_of_mont_u_ne`); `x != 0` for the three
+    conditions; `x != 0` for the three
     inputs (`y != 1` follows from it by `edwards_y_ne_one_of_x_ne_zero`); three
     Montgomery-u distinctness conditions and four
     intermediate `y != 1` conditions. Note `IsSquare (-1)` is derived here from
@@ -448,9 +468,7 @@ lemma affineAdd_assoc_identity_left (P Q : AffinePoint)
 
     If any of these is unavailable the theorem makes no claim -- in particular
     no associativity is asserted for the exceptional identity/doubling cases. -/
-theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
-    (hnd : ¬ IsSquare (ed25519D : ZMod ed25519P))
-    (P Q R : AffinePoint)
+theorem affineAdd_associative_of_complete (P Q R : AffinePoint)
     (hcP : IsCanonical P) (hcQ : IsCanonical Q) (hcR : IsCanonical R)
     (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hR : ¬ R.inf)
     (hnegPQ : IsNegation P Q = false) (hnegQR : IsNegation Q R = false)
@@ -498,7 +516,8 @@ theorem affineAdd_associative_of_complete (hp : Fact (Nat.Prime ed25519P))
           (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
           (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).2 ≠ 0) :
     affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) := by
-  letI := hp
+  have hnd : ¬ IsSquare (ed25519D : ZMod ed25519P) := ed25519D_not_isSquare
+  have hp : Fact (Nat.Prime ed25519P) := ed25519P_prime_fact
   have hS1inf : ¬ (affineAdd P Q).inf := by
     rw [affineAdd_eq_formula P Q hP hQ hnegPQ]
     simp [affineAddFormula]
@@ -699,7 +718,6 @@ lemma edwardsEq_of_nat_curve_eq (hp : Fact (Nat.Prime ed25519P)) {x y : ℕ}
     (h : fsub (fPow2 y) (fPow2 x) =
       fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y)))) :
     edwardsEq (ed25519D : ZMod ed25519P) (x : ZMod ed25519P) (y : ZMod ed25519P) := by
-  letI := hp
   unfold edwardsEq
   have hz : ((fsub (fPow2 y) (fPow2 x) : ℕ) : ZMod ed25519P) =
       ((fadd 1 (fmul ed25519D (fmul (fPow2 x) (fPow2 y))) : ℕ) : ZMod ed25519P) := by
@@ -719,7 +737,6 @@ set_option maxHeartbeats 1000000
 lemma ed25519D_zmod (hp : Fact (Nat.Prime ed25519P)) :
     (ed25519D : ZMod ed25519P) =
       -(121665 : ZMod ed25519P) * (121666 : ZMod ed25519P)⁻¹ := by
-  letI := hp
   unfold ed25519D
   rw [ZMod.natCast_mod, Nat.cast_mul]
   have hsub : ((ed25519P - 121665 : ℕ) : ZMod ed25519P) = -(121665 : ZMod ed25519P) := by
