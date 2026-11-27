@@ -98,8 +98,10 @@ ASSUMPTION_RULES: list[tuple[str, str]] = [
     ("witnessed acceptance", r"\bwitnessed\b"),
     ("conditional on invariants", r"\bconditional\b"),
     ("not proved / not unconditional", r"NOT proved|not unconditional"),
-    ("scope limit (not claimed/formalized/refined/recovered)",
-     r"NOT claimed|NOT formalized|NOT refined|NOT recovered"),
+    (
+        "scope limit (not claimed/formalized/refined/recovered)",
+        r"NOT claimed|NOT formalized|NOT refined|NOT recovered",
+    ),
 ]
 
 # Named standing assumptions: derived from the matrix text, reported in the
@@ -221,8 +223,14 @@ def code(text: str, limit: int = 72) -> str:
     return f"`{cleaned}`"
 
 
-def render(rows: list[dict], buckets: dict[str, list[dict]], claims_count: int,
-           residuals: list[str], matrix_rel: str, claims_rel: str) -> str:
+def render(
+    rows: list[dict],
+    buckets: dict[str, list[dict]],
+    claims_count: int,
+    residuals: list[str],
+    matrix_rel: str,
+    claims_rel: str,
+) -> str:
     n = len(rows)
     lines: list[str] = []
     lines.append("# Formal Claim Boundary")
@@ -265,8 +273,11 @@ def render(rows: list[dict], buckets: dict[str, list[dict]], claims_count: int,
     )
     lines.append("")
     for name in residuals:
-        consuming = [r["id"] for r in rows if re.search(
-            dict(STANDING_ASSUMPTIONS)[name], r["text"], re.IGNORECASE)]
+        consuming = [
+            r["id"]
+            for r in rows
+            if re.search(dict(STANDING_ASSUMPTIONS)[name], r["text"], re.IGNORECASE)
+        ]
         lines.append(f"- `{name}` — matrix row(s) {', '.join(str(i) for i in consuming)}")
     lines.append("")
     lines.append("Rows with an assumed or conditional guarantee:")
@@ -315,7 +326,8 @@ def main() -> int:
         "--output", default=OUTPUT_REL, help="Output path (relative to repo root unless absolute)"
     )
     parser.add_argument(
-        "--check", action="store_true",
+        "--check",
+        action="store_true",
         help="Fail if the output file differs from the regenerated content",
     )
     args = parser.parse_args()
