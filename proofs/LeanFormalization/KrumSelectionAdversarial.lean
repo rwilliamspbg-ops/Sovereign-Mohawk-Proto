@@ -194,6 +194,82 @@ theorem krum_selection_separation_necessary :
     rw [hscore 4, hscore 0] at hgt
     norm_num at hgt
 
+/-- **The separation hypothesis is load-bearing for the ℝ-model composition.**
+    Keep every hypothesis of `neighborScoreReal_minimizer_in_honest_or_near`
+    except separation, in a concrete `Fin 5` model: honest cluster `{0,1,2,3}`
+    tight at `r = 0`, `Far = {4}`, `Near = ∅`, margin `D = 1`, and all gradients
+    equal to `0`. The cardinality, guard, cluster and margin conditions all
+    hold, separation **fails** (`D ^ 2 = 1 > 0 = distSq`), yet every
+    `neighborScoreReal` is `0`. Hence the separated Byzantine candidate `4`
+    is a minimizer that is neither honest nor `Near`, and the theorem's
+    conclusion fails exactly when separation is dropped. This is the ℝ model,
+    not the Go binary's Float score. -/
+theorem neighborScoreReal_minimizer_separation_necessary :
+    ∃ (g : Fin 5 → ℝ) (H Far Near : Finset (Fin 5)),
+      Finset.card (Finset.univ : Finset (Fin 5)) = 5 ∧
+      H.card = 5 - 1 ∧
+      Far ∪ Near = Finset.univ \ H ∧
+      Far.Nonempty ∧
+      5 > 2 * 1 + 2 ∧
+      (∀ i ∈ H, ∀ j ∈ H, distSq g i j ≤ 4 * (0 : ℝ) ^ 2) ∧
+      (((5 - 1 - 2 : ℕ) : ℝ) * (4 * (0 : ℝ) ^ 2)
+        < ((5 - 2 * 1 - 1 : ℕ) : ℝ) * (1 : ℝ) ^ 2) ∧
+      ¬ (∀ i ∈ Far, ∀ j ∈ H, (1 : ℝ) ^ 2 ≤ distSq g i j) ∧
+      ∃ b : Fin 5, b ∈ Far ∧ b ∉ H ∧ b ∉ Near ∧
+        (∀ i : Fin 5,
+          neighborScoreReal g b (5 - 1 - 2) ≤ neighborScoreReal g i (5 - 1 - 2)) := by
+  let g : Fin 5 → ℝ := fun _ => 0
+  let H : Finset (Fin 5) := Finset.univ.filter (· < 4)
+  let Far : Finset (Fin 5) := {4}
+  let Near : Finset (Fin 5) := ∅
+  refine ⟨g, H, Far, Near, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · show (Finset.univ : Finset (Fin 5)).card = 5
+    simp
+  · show H.card = 4
+    decide
+  · ext x
+    fin_cases x <;> simp [H, Far, Near]
+  · show Far.Nonempty
+    simp [Far]
+  · norm_num
+  · intro i _ j _
+    simp [g, distSq]
+  · norm_num
+  · intro hsep
+    have h4F : (4 : Fin 5) ∈ Far := by simp [Far]
+    have h0H : (0 : Fin 5) ∈ H := by simp [H]
+    have hbad := hsep 4 h4F 0 h0H
+    norm_num [g, distSq] at hbad
+  · have hkOK : ∀ i : Fin 5, (2 : ℕ) ≤ (Finset.univ.erase i).card := by
+      intro i
+      rw [Finset.card_erase_of_mem (Finset.mem_univ i)]
+      norm_num
+    have hscore : ∀ i : Fin 5, krumScore g i 2 = 0 := by
+      intro i
+      have hk := hkOK i
+      have hle : krumScore g i 2 ≤ 0 := by
+        obtain ⟨S, hSsub, hScard⟩ := exists_subset_card_eq_of_le hk
+        refine krumScore_le_of_exists_subset g i 2 hk hSsub hScard ?_
+        have hzero : ∑ l ∈ S, distSq g i l = 0 := by
+          apply Finset.sum_eq_zero
+          intro l _
+          simp [g, distSq]
+        rw [hzero]
+      have hge : (0 : ℝ) ≤ krumScore g i 2 := by
+        refine le_krumScore_of_forall_subset g i 2 hk ?_
+        intro S _ _
+        exact Finset.sum_nonneg (fun l _ => by simp [g, distSq])
+      linarith
+    have hns : ∀ i : Fin 5, neighborScoreReal g i 2 = 0 := by
+      intro i
+      rw [neighborScoreReal_eq_krumScore g i 2 (hkOK i), hscore i]
+    refine ⟨(4 : Fin 5), ?_, ?_, ?_, ?_⟩
+    · simp [Far]
+    · simp [H]
+    · simp [Near]
+    · intro i
+      rw [hns 4, hns i]
+
 /-- The explicit separation threshold implied by `krum_selection_safe`'s
     sufficient condition: `D ^ 2` must exceed
     `(n - f - 2) * 4 r ^ 2 / (n - 2 f - 1)`, whose denominator is positive
