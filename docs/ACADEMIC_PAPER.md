@@ -198,9 +198,11 @@ explicit hypotheses at each use site: `FloatOrderLaws` (IEEE-754 non-NaN order,
 instantiation (§8.2), `SchnorrDLHard` (an explicit discrete-log hardness `def`),
 and `Ed25519GroupLaws affineBase` (four explicit curve-model laws; `zeroMul` and
 `oneMul` were removed as unconsumed). For the Edwards bridge (§12), `IsSquare (-1)`
-is proved from $p \equiv 1 \pmod 4$, but `Nat.Prime ed25519P`, nonsquareness of
-`ed25519D`, and the admissibility/distinctness conditions of the field
-associativity theorem remain explicit hypotheses. No global `axiom` is used, and no proof
+is proved from $p \equiv 1 \pmod 4$, and the secant, doubling, negation and
+completeness lemmas are proved axiom-free with load-bearing negative controls;
+`Nat.Prime ed25519P`, nonsquareness of `ed25519D`, and the
+admissibility/distinctness conditions of the field associativity theorem remain
+explicit hypotheses. No global `axiom` is used, and no proof
 uses `sorry` or `admit`.
 
 ### 3.4 What is deliberately not claimed
@@ -844,7 +846,7 @@ Every theoretical claim presented in this paper is tracked in our machine-readab
 | **21** | Rényi divergence over a product measure | `RenyiDivergenceCompose.lean` | `renyiDivergenceMeasure_prod`, `gaussianRDPMeasure_two_rounds` | `test/rdp_accountant_property_test.go` | `fully_formalized` (independent / product-measure composition); adaptive composition **not** covered |
 | **22** | Bounded-query programmed random oracle: rewind bound | `RenyiDivergenceBoundedRO.lean` | `roForkProb_ge`, `roCount_sum`, `sum_sq_div_card_le` | — (no runtime caller; a finite abstraction) | `fully_formalized` for a **fixed / non-adaptive** query schedule; adaptive query histories **not** modelled; not yet a statement about the Ed25519 UF-CMA game |
 | **23** | Diagonal multivariate Gaussian RDP | `RenyiDivergenceMultivariate.lean` | `gaussianRDPMeasure_diagonal` | `internal/rdp_accountant.go` | `fully_formalized` for **diagonal** `Σ` (independent coordinates); the general correlated case needs an affine change-of-variables lemma and is **not** implied |
-| **24** | Edwards→Montgomery→Weierstrass addition-law bridge and the concrete Ed25519 affine law | `EdwardsWeierstrassBridge.lean`, `MontgomeryEdwardsAdditionCompat.lean`, `Ed25519CurveGroupLaw.lean` | `edAdd_toMont_eq_montAdd`, `montAdd_v_eq_zero_of_u_eq_zero`, `edwards_denoms_ne_zero`, `edwardsAddCompat_of_complete`, `edAddField_associative_of_complete`, `affineAdd_zmod_eq_edAddField_of_onCurve`, `affineAdd_associative_of_complete` | `proofs/Ed25519Test.lean` (RFC 8032 vectors) | `group_law_partially_formalized`: field-level compatibility, completeness, conditional associativity and the negative control are proved axiom-free; concrete associativity is conditional, **not** unconditional (§3.4, matrix row 47) |
+| **24** | Edwards→Montgomery→Weierstrass addition-law bridge and the concrete Ed25519 affine law | `EdwardsWeierstrassBridge.lean`, `EdwardsAdditionLaws.lean`, `MontgomeryEdwardsAdditionCompat.lean`, `Ed25519CurveGroupLaw.lean` | `edAdd_toMont_eq_montAdd`, `edwardsToMont_eq_montDouble`, `montgomery_tangent_double_v`, `montAdd_v_eq_zero_of_u_eq_zero`, `edwards_denoms_ne_zero`, `edwardsAddCompat_of_complete`, `edAddField_associative_of_complete`, `edAddField_associative_double_of_complete`, `affineAdd_assoc_identity_right`, `affineAdd_zmod_eq_edAddField_of_onCurve`, `affineAdd_associative_of_complete` | `proofs/Ed25519Test.lean` (RFC 8032 vectors) | `group_law_partially_formalized`: field-level secant/doubling compatibility, completeness, and conditional associativity (including the doubling and identity exceptional cases) are proved axiom-free; concrete associativity is conditional, **not** unconditional (§3.4, matrix row 47) |
 
 *Table 4: Headline Formal Traceability Matrix. The authoritative registry is `FORMAL_TRACEABILITY_MATRIX.md` (47 main rows), which carries the per-claim scope notes and negative controls.*
 
