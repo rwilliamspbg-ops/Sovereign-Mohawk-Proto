@@ -1,18 +1,9 @@
 name: Build and Deploy Lean Blueprint
 
+# This repository's default Pages site is deployed by static.yml, which uses
+# the same `pages` concurrency group. To avoid two workflows fighting over one
+# environment, blueprint publication is an explicit manual deployment.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'proofs/blueprint/**'
-      - 'proofs/LeanFormalization/**'
-      - 'proofs/Refinement/**'
-      - 'proofs/lakefile.*'
-      - 'proofs/lake-manifest.json'
-      - 'proofs/lean-toolchain'
-      - 'scripts/ci/build_blueprint.sh'
-      - 'scripts/ci/generate_blueprint_decls.py'
-      - '.github/workflows/blueprint.yml'
   workflow_dispatch:
 
 permissions:
@@ -21,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: "pages-blueprint"
   cancel-in-progress: false
 
 jobs:
