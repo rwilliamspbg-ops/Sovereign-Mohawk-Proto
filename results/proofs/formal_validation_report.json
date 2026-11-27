@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "3fd44941e05cfd39522886f1470bdb1e432a9afa96d886aaaea4864ca685b090",
+  "input_merkle_root": "94b109a5a7202428046786718676cb0485007fab3dee7fff4842a48d8a23919e",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "10064ad4fc0ed95e462397146e90581ccad7d3388704e846b58a625ac553414c"
+      "sha256": "abfc5371dafa2279b83d9259819eb0a97a8451a4966c84e0891dbf6f7911bd4c"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "0532e0cbf98b60592bf398119a0ff1aa192a18a867b9e3d947ee0cd324c47dd1"
+      "sha256": "356d41c709a4b12601f2c2880b21edccb7e2e000142d4e96d269a2d659d697e7"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -80,7 +80,7 @@
     },
     {
       "path": "proofs/LeanFormalization/KrumSelection.lean",
-      "sha256": "639310525e70d6b9682060e181f9a2ffa6f1921b3980ad4ffa1b0da90fbd5c83"
+      "sha256": "d530841950f6fccef4a8d7b94f20459e3fd9e8b1298b19aa5515ab9618a546c7"
     },
     {
       "path": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
@@ -92,7 +92,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "15cbcedb4de26344b97ddd20db308c2404b14c218adbcb479ab18fb5d8574e65"
+      "sha256": "8ff39ae94d4344136f39775a9db2cfd953a8e90768bbd6c6045786870aac1ff5"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -490,12 +490,19 @@
     {
       "file": "proofs/LeanFormalization/KrumSelection.lean",
       "module": "LeanFormalization.KrumSelection",
-      "symbol_count": 4,
+      "symbol_count": 11,
       "symbols": [
         "exists_subset_card_eq_of_le",
         "krumScore_le_of_exists_subset",
         "krum_selection_safe",
-        "le_krumScore_of_forall_subset"
+        "le_krumScore_of_forall_subset",
+        "neighborScoreRealInsert_mem",
+        "neighborScoreRealInsert_nodup",
+        "neighborScoreRealInsert_pairwise",
+        "neighborScoreRealSort_mem",
+        "neighborScoreRealSort_nodup",
+        "neighborScoreRealSort_pairwise",
+        "neighborScoreReal_eq_krumScore"
       ]
     },
     {
@@ -526,7 +533,7 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 36,
+      "symbol_count": 48,
       "symbols": [
         "edAddClosure_aux",
         "edAddField",
@@ -544,7 +551,10 @@
         "edwards_denoms_completeness_counterexample_minus",
         "edwards_denoms_completeness_counterexample_plus",
         "edwards_denoms_ne_zero",
+        "edwards_denoms_ne_zero_requires_d_nonsquare",
+        "edwards_denoms_ne_zero_requires_d_nonsquare_strict",
         "edwards_of_montgomery_aux",
+        "four_square_zmod7",
         "montAdd",
         "montAdd_associative_of_weierstrass",
         "montAdd_v_eq_zero_of_u_eq_zero",
@@ -557,13 +567,22 @@
         "montgomeryToWeier_equation",
         "montgomery_v_sq",
         "neg_one_not_square_zmod11",
+        "neg_one_not_square_zmod7",
+        "neg_one_square_zmod13",
+        "three_square_zmod13",
         "two_not_square_zmod11",
         "x3_mul_vadd_aux",
         "zmod11_curve_1_3",
         "zmod11_curve_4_5",
         "zmod11_curve_4_6",
         "zmod11_den_minus_zero",
-        "zmod11_den_plus_zero"
+        "zmod11_den_plus_zero",
+        "zmod13_curve_1_5",
+        "zmod13_curve_2_3",
+        "zmod13_den_plus_zero",
+        "zmod7_curve_1_2",
+        "zmod7_curve_2_3",
+        "zmod7_den_plus_zero"
       ]
     },
     {
@@ -1153,7 +1172,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 569
+    "theorem_symbol_count": 588
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
