@@ -62,12 +62,16 @@ intermediate sums -- the latter are genuine exceptional cases where the sum is
 the affine identity, handled by the branch in the concrete `affineAdd`.
 
 The tangent/doubling law (`montgomery_tangent_double_v`) is proved over an
-arbitrary field and closes on `M_{A,B}`; the general field-level compatibility
-`edwardsToMont (edAddField d x y x y) = montDouble d u v` is NOT proved here: only
-the concrete `F_11` agreement (`montDouble_matches_edAddField_zmod11`) is checked.
-The obstruction is the nested-denominator rational identity on the doubling
-diagonal; the secant proof `edAdd_toMont_eq_montAdd` needs `u₁ ≠ u₂` and cannot
-be specialised.
+arbitrary field and closes on `M_{A,B}`. The general field-level doubling
+compatibility is now a theorem: `edwardsToMont_eq_montDouble` proves
+`edwardsToMont d (edAddField d x y x y) = montDouble d u v` over an arbitrary
+field from `edwardsEq d x y`, `1 - y ≠ 0`, `x ≠ 0`, `1 + d ≠ 0`, `2 ≠ 0` and
+the two unified-law denominators `1 ± d·x²·y² ≠ 0`; `1 - y₃ ≠ 0` and
+`1 + d·y² ≠ 0` are derived. The nested denominators are factored into the
+closed-form lemmas `dbl_ed_u_formula`, `dbl_mont_u_formula`,
+`dbl_tangent_slope_formula` and `dbl_x_mul_v_aux`, mirroring the secant
+proof's `edAdd_mont_v` factorisation. The concrete `F_11` agreement
+(`montDouble_matches_edAddField_zmod11`) remains as a positive control.
 
 The concrete Edwards implementation `Ed25519.affineAdd` is `Nat`-based modulo
 `2^255 - 19`; transporting these field-level results to it additionally needs a
@@ -1404,5 +1408,301 @@ lemma montDouble_ne_degenerate_zmod11 :
 
 end TangentMapPositiveControl
 
+/-! ## General Edwards-to-Montgomery doubling compatibility
+
+The secant compatibility `edAdd_toMont_eq_montAdd` needs `u₁ ≠ u₂` and cannot be
+specialised to the diagonal. Here the doubling case is proved directly over an
+arbitrary field. The nested rational identity is factored, as in the secant
+proof's `edAdd_mont_v`, into small closed-form lemmas:
+
+* `hyp1_aux`, `hy_sq_ne_aux`: `1 + y ≠ 0` and `1 - y² ≠ 0` from the curve
+  equation, `x ≠ 0` and `1 + d ≠ 0`;
+* `dbl_ed_u_formula`, `dbl_mont_u_formula`: closed forms for the two
+  u-coordinates (`y²(1 - d·x²)/(1 - y²)` and
+  `y²(1 + d)/((1 - y²)·(1 + d·y²))`), whose equality follows from the curve
+  equation;
+* `dbl_tangent_slope_formula`, `dbl_x_mul_v_aux`: the tangent slope in terms of
+  `x, y`, and the doubling analogue of `x₃·v_add = -2·u_add`;
+* `dbl_y_ne_one`: the second unified-law denominator is nonzero on this locus.
+
+`edwardsToMont_eq_montDouble` then cancels the Edwards double's x-coordinate,
+with the `x₃ = 0` branch discharged by on-curve closure of `montDouble`. The only
+residual hypotheses are the two unified-law denominators `1 ± d·x²·y² ≠ 0`
+(plus the standing admissibility conditions); completeness would discharge them.
+-/
+
+omit [DecidableEq K] in
+lemma hyp1_aux {d x y : K} (hE : edwardsEq d x y) (hx : x ≠ 0) (hd : 1 + d ≠ 0) :
+    1 + y ≠ 0 := by
+  intro h
+  have hy_eq : y = -1 := by linear_combination h
+  have hc := hE
+  unfold edwardsEq at hc
+  rw [hy_eq] at hc
+  ring_nf at hc
+  have hfac : x ^ 2 * (1 + d) = 0 := by linear_combination -hc
+  have hxc : x ^ 2 = 0 := (mul_eq_zero.mp hfac).resolve_right hd
+  have hx0 : x = 0 := by
+    have h' : x * x = 0 := by simpa [pow_two] using hxc
+    rcases mul_eq_zero.mp h' with h' | h' <;> exact h'
+  exact hx hx0
+
+omit [DecidableEq K] in
+lemma hy_sq_ne_aux {y : K} (hy : 1 - y ≠ 0) (hyp1 : 1 + y ≠ 0) : 1 - y ^ 2 ≠ 0 := by
+  rw [show 1 - y ^ 2 = (1 - y) * (1 + y) by ring]
+  exact mul_ne_zero hy hyp1
+
+
+omit [DecidableEq K] in
+lemma dbl_ed_u_formula {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hDm : 1 - d * x * y * x * y ≠ 0)
+    (hy3 : 1 - (edAddField d x y x y).2 ≠ 0) :
+    (edwardsToMont d (edAddField d x y x y).1 (edAddField d x y x y).2).1 =
+      y ^ 2 * (1 - d * x ^ 2) / (1 - y ^ 2) := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hy2 : 1 - y ^ 2 ≠ 0 := hy_sq_ne_aux hy hyp1
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+  have hDmn : 1 - y ^ 2 * x ^ 2 * d ≠ 0 := by ring_nf at hDm ⊢; exact hDm
+  have hy3' : 1 - y ^ 2 * (1 - y ^ 2 * x ^ 2 * d)⁻¹ - x ^ 2 * (1 - y ^ 2 * x ^ 2 * d)⁻¹ ≠ 0 := by
+    have h := hy3
+    unfold edAddField at h
+    dsimp at h
+    ring_nf at h ⊢
+    exact h
+  have hcurve : (1 + d * y ^ 2) * x ^ 2 = y ^ 2 - 1 := by
+    unfold edwardsEq at hE
+    linear_combination -hE
+  have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
+    rw [eq_div_iff hdy]
+    simpa [mul_comm] using hcurve
+  have hx4 : x ^ 4 = ((y ^ 2 - 1) / (1 + d * y ^ 2)) ^ 2 := by
+    calc x ^ 4 = (x ^ 2) ^ 2 := by ring
+      _ = ((y ^ 2 - 1) / (1 + d * y ^ 2)) ^ 2 := by rw [hx2]
+  unfold edAddField edwardsToMont
+  dsimp
+  field_simp [hDmn, hDm, hy3', hy, hyp1, hy2]
+  ring_nf
+  have hy3'' : 1 - y ^ 2 - y ^ 2 * ((y ^ 2 - 1) / (1 + d * y ^ 2)) * d -
+      (y ^ 2 - 1) / (1 + d * y ^ 2) ≠ 0 := by
+    have heq : 1 - y ^ 2 - y ^ 2 * ((y ^ 2 - 1) / (1 + d * y ^ 2)) * d -
+        (y ^ 2 - 1) / (1 + d * y ^ 2) = 2 * (1 - y ^ 2) := by
+      field_simp [hdy, hdy']
+      ring
+    rw [heq]
+    exact mul_ne_zero h2 hy2
+  have hden2 : 2 - y ^ 2 * 2 + y ^ 2 * d * 2 - y ^ 4 * d * 2 ≠ 0 := by
+    have heq : 2 - y ^ 2 * 2 + y ^ 2 * d * 2 - y ^ 4 * d * 2 =
+        2 * (1 - y ^ 2) * (1 + y ^ 2 * d) := by ring
+    rw [heq]
+    exact mul_ne_zero (mul_ne_zero h2 hy2) hdy'
+  have hden2c : -2 * y ^ 4 * d + 2 * d * y ^ 2 - 2 * y ^ 2 + 2 ≠ 0 := by
+    ring_nf at hden2 ⊢
+    exact hden2
+  rw [hx2]
+  have hden2d : (1 + y ^ 2 * d) * (1 - y ^ 2) - y ^ 2 * (y ^ 2 - 1) * d -
+      (y ^ 2 - 1) ≠ 0 := by
+    have heq : (1 + y ^ 2 * d) * (1 - y ^ 2) - y ^ 2 * (y ^ 2 - 1) * d -
+        (y ^ 2 - 1) = 2 * (1 - y ^ 2) * (1 + y ^ 2 * d) := by ring
+    rw [heq]
+    exact mul_ne_zero (mul_ne_zero h2 hy2) hdy'
+  field_simp [hdy, hdy', hDmn, hy3', hy3'', hden2, hden2c, hden2d]
+  ring
+
+omit [DecidableEq K] in
+lemma dbl_mont_u_formula {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hdy : 1 + d * y ^ 2 ≠ 0) :
+    (montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2).1 =
+      y ^ 2 * (1 + d) / ((1 - y ^ 2) * (1 + d * y ^ 2)) := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hy2 : 1 - y ^ 2 ≠ 0 := hy_sq_ne_aux hy hyp1
+  have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+  have hcomp : (1 - y ^ 2) * (1 + d * y ^ 2) ≠ 0 := mul_ne_zero hy2 hdy
+  have hcurve : (1 + d * y ^ 2) * x ^ 2 = y ^ 2 - 1 := by
+    unfold edwardsEq at hE
+    linear_combination -hE
+  have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
+    rw [eq_div_iff hdy]
+    simpa [mul_comm] using hcurve
+  unfold montDouble montTangentSlope edwardsToMont montA montB
+  dsimp
+  field_simp [hy, hyp1, hy2, hx, hdy, hd, h2, hcomp]
+  ring_nf
+  rw [hx2]
+  field_simp [hdy, hdy']
+  ring
+
+omit [DecidableEq K] in
+lemma dbl_tangent_slope_formula {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0) :
+    montTangentSlope d (edwardsToMont d x y).1 (edwardsToMont d x y).2 =
+      -(2 + (1 + d) * y + 2 * d * y ^ 2) / (x * (1 + d * y ^ 2)) := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+  unfold montTangentSlope edwardsToMont montA montB
+  dsimp
+  field_simp [hy, hyp1, hx, hdy, hdy', hd, h2]
+  ring
+
+omit [DecidableEq K] in
+lemma dbl_x_mul_v_aux {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hDp : 1 + d * x * y * x * y ≠ 0)
+    (hDm : 1 - d * x * y * x * y ≠ 0) :
+    (edAddField d x y x y).1 *
+        (montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2).2 +
+      2 * (montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2).1 = 0 := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hy2 : 1 - y ^ 2 ≠ 0 := hy_sq_ne_aux hy hyp1
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+  have hDpn : 1 + y ^ 2 * x ^ 2 * d ≠ 0 := by ring_nf at hDp ⊢; exact hDp
+  have hDmn : 1 - y ^ 2 * x ^ 2 * d ≠ 0 := by ring_nf at hDm ⊢; exact hDm
+  have hcurve : (1 + d * y ^ 2) * x ^ 2 = y ^ 2 - 1 := by
+    unfold edwardsEq at hE
+    linear_combination -hE
+  have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
+    rw [eq_div_iff hdy]
+    simpa [mul_comm] using hcurve
+  have hDpn2 : 1 + x ^ 2 * y ^ 2 * d ≠ 0 := by ring_nf at hDp ⊢; exact hDp
+  have hDp4 : 1 + y ^ 4 * d ≠ 0 := by
+    have heq : 1 + y ^ 4 * d = (1 + x ^ 2 * y ^ 2 * d) * (1 + d * y ^ 2) := by
+      rw [hx2]
+      field_simp [hdy, hdy']
+      ring
+    rw [heq]
+    exact mul_ne_zero hDpn2 hdy
+  have hmu := dbl_mont_u_formula hE hy hx hd h2 hdy
+  have hl := dbl_tangent_slope_formula hE hy hx hd h2
+  rw [montDouble_v_eq, hmu, hl]
+  unfold edAddField edwardsToMont
+  dsimp
+  field_simp [hy, hyp1, hy2, hx, hdy, hdy', hd, h2, hDp, hDpn, hDmn]
+  ring_nf
+  rw [hx2]
+  field_simp [hdy, hdy', hDp, hDpn, hDpn2, hDmn, hDp4]
+  ring
+
+
+
+omit [DecidableEq K] in
+lemma dbl_y_ne_one {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hDm : 1 - d * x * y * x * y ≠ 0) :
+    1 - (edAddField d x y x y).2 ≠ 0 := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hy2 : 1 - y ^ 2 ≠ 0 := hy_sq_ne_aux hy hyp1
+  have hDmn : 1 - y ^ 2 * x ^ 2 * d ≠ 0 := by ring_nf at hDm ⊢; exact hDm
+  have hcurve : (1 + d * y ^ 2) * x ^ 2 = y ^ 2 - 1 := by
+    unfold edwardsEq at hE
+    linear_combination -hE
+  have heq : 1 - (edAddField d x y x y).2 =
+      (2 * (1 - y ^ 2)) / (1 - d * x * y * x * y) := by
+    have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+    have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+    have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
+      rw [eq_div_iff hdy]
+      simpa [mul_comm] using hcurve
+    unfold edAddField
+    dsimp
+    field_simp [hDm, hDmn]
+    rw [hx2]
+    field_simp [hdy, hdy']
+    ring
+  rw [heq]
+  exact div_ne_zero (mul_ne_zero h2 hy2) hDm
+
+omit [DecidableEq K] in
+lemma dbl_u_compat {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hDm : 1 - d * x * y * x * y ≠ 0) :
+    (edwardsToMont d (edAddField d x y x y).1 (edAddField d x y x y).2).1 =
+      (montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2).1 := by
+  have hyp1 : 1 + y ≠ 0 := hyp1_aux hE hx hd
+  have hy2 : 1 - y ^ 2 ≠ 0 := hy_sq_ne_aux hy hyp1
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  have hdy' : 1 + y ^ 2 * d ≠ 0 := by ring_nf at hdy ⊢; exact hdy
+  have hy3 := dbl_y_ne_one hE hy hx hd h2 hDm
+  have hcurve : (1 + d * y ^ 2) * x ^ 2 = y ^ 2 - 1 := by
+    unfold edwardsEq at hE
+    linear_combination -hE
+  have hx2 : x ^ 2 = (y ^ 2 - 1) / (1 + d * y ^ 2) := by
+    rw [eq_div_iff hdy]
+    simpa [mul_comm] using hcurve
+  rw [dbl_ed_u_formula hE hy hx hd h2 hDm hy3,
+      dbl_mont_u_formula hE hy hx hd h2 hdy]
+  field_simp [hy2, hdy, hdy']
+  rw [hx2]
+  field_simp [hdy, hdy']
+  ring
+
+theorem edwardsToMont_eq_montDouble {d x y : K}
+    (hE : edwardsEq d x y) (hy : 1 - y ≠ 0) (hx : x ≠ 0)
+    (hd : 1 + d ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hDp : 1 + d * x * y * x * y ≠ 0)
+    (hDm : 1 - d * x * y * x * y ≠ 0) :
+    edwardsToMont d (edAddField d x y x y).1 (edAddField d x y x y).2 =
+      montDouble d (edwardsToMont d x y).1 (edwardsToMont d x y).2 := by
+  let E := edAddField d x y x y
+  let u := (edwardsToMont d x y).1
+  let v := (edwardsToMont d x y).2
+  let mu := (montDouble d u v).1
+  let nu := (montDouble d u v).2
+  change edwardsToMont d E.1 E.2 = montDouble d u v
+  have hdy : 1 + d * y ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE hy hd
+  have hy3 : 1 - E.2 ≠ 0 := by
+    dsimp [E]
+    exact dbl_y_ne_one hE hy hx hd h2 hDm
+  have huEq : (edwardsToMont d E.1 E.2).1 = mu := by
+    dsimp [E, mu, u, v]
+    exact dbl_u_compat hE hy hx hd h2 hDm
+  have hxnu : E.1 * nu = -2 * mu := by
+    have h := dbl_x_mul_v_aux hE hy hx hd h2 hDp hDm
+    change (edAddField d x y x y).1 * (montDouble d u v).2 +
+        2 * (montDouble d u v).1 = 0 at h
+    dsimp [E, mu, nu]
+    linear_combination h
+  have hE12 : edwardsEq d E.1 E.2 := by
+    dsimp [E]
+    exact edAddClosure_aux hE hE hdy hdy hDp hDm
+  have hxE : E.1 * (edwardsToMont d E.1 E.2).2 =
+      -2 * (edwardsToMont d E.1 E.2).1 := edAddMont_v_mul_aux hE12 hy3
+  have hM : montgomeryEq d u v := by
+    dsimp [u, v]
+    exact edwardsToMont_montgomery hE hy hd
+  have hv : v ≠ 0 := by
+    dsimp [v]
+    exact div_ne_zero (mul_ne_zero (mul_ne_zero h2 hx) hdy) (pow_ne_zero 2 hy)
+  by_cases hx3 : E.1 = 0
+  · have hneg : (-2 : K) * mu = 0 := by
+      rw [hx3] at hxnu
+      simpa using hxnu.symm
+    have hmu : mu = 0 := (mul_eq_zero.mp hneg).resolve_left (neg_ne_zero.mpr h2)
+    have hM2 : montgomeryEq d (montDouble d u v).1 (montDouble d u v).2 :=
+      montDouble_montgomery hM hd h2 hv
+    have hsq := montgomery_v_sq hM2 hd
+    rw [show (montDouble d u v).1 = mu by rfl, hmu] at hsq
+    have hnu : nu = 0 := by
+      have hsq0 : nu ^ 2 = 0 := by simpa using hsq
+      have hmul : nu * nu = 0 := by simpa [pow_two] using hsq0
+      rcases mul_eq_zero.mp hmul with h' | h' <;> exact h'
+    apply Prod.ext
+    · rw [huEq, show (montDouble d u v).1 = mu by rfl, hmu]
+    · rw [show (montDouble d u v).2 = nu by rfl, hnu]
+      simp [edwardsToMont, hx3]
+  · apply Prod.ext
+    · rw [huEq, show (montDouble d u v).1 = mu by rfl]
+    · apply mul_left_cancel₀ hx3
+      rw [hxE, huEq]
+      exact hxnu.symm
 end
 end LeanFormalization
