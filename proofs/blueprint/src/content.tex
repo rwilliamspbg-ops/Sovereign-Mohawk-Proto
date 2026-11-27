@@ -1,0 +1,148 @@
+% Blueprint content: machine-checked declarations from LeanFormalization.
+% \lean{...} tags are verified against compiled .olean files by
+% `lake exe checkdecls blueprint/lean_decls` (see scripts/ci/build_blueprint.sh).
+
+\section{Ed25519 base field and curve facts}
+
+\begin{definition}[Ed25519 base field]
+  \label{def:ed25519P}
+  \lean{LeanFormalization.ed25519P}
+  \leanok
+  The prime field modulus is $p = 2^{255} - 19$.
+\end{definition}
+
+\begin{lemma}[Primality of $2^{255} - 19$]
+  \label{lem:ed25519P_prime}
+  \lean{LeanFormalization.ed25519P_prime}
+  \uses{def:ed25519P}
+  \leanok
+  The integer $p$ is prime, certified by a machine-checked Lucas/Pratt
+  certificate verified through \texttt{lucas\_primality} over \texttt{ZMod p}.
+\end{lemma}
+
+\begin{lemma}[Nonsquareness of the Edwards parameter]
+  \label{lem:ed25519D_not_isSquare}
+  \lean{LeanFormalization.ed25519D_not_isSquare}
+  \uses{def:ed25519P}
+  \leanok
+  The Edwards parameter $d = -121665/121666$ is not a square in $\mathbb{F}_p$.
+  The proof uses the kernel-checked fast Jacobi-symbol computation.
+\end{lemma}
+
+\section{Edwards--Montgomery addition-law bridge}
+
+\begin{definition}[Twisted Edwards equation]
+  \label{def:edwardsEq}
+  \lean{LeanFormalization.edwardsEq}
+  \leanok
+  The curve is $-x^2 + y^2 = 1 + d x^2 y^2$ over an arbitrary field.
+\end{definition}
+
+\begin{definition}[Unified Edwards addition law]
+  \label{def:edAddField}
+  \lean{LeanFormalization.edAddField}
+  \uses{def:edwardsEq}
+  \leanok
+  The unified addition formula $(x_3, y_3)$ with denominators
+  $1 \pm d x_1 x_2 y_1 y_2$.
+\end{definition}
+
+\begin{lemma}[Completeness of the unified denominators]
+  \label{lem:edwards_denoms_ne_zero}
+  \lean{LeanFormalization.edwards_denoms_ne_zero}
+  \uses{def:edwardsEq}
+  \leanok
+  For $a = -1$, if $-1$ is a square and $d$ is not a square, both denominators
+  of the unified law are nonzero for every pair of on-curve points.
+\end{lemma}
+
+\begin{lemma}[Secant compatibility]
+  \label{thm:secant_compat}
+  \lean{LeanFormalization.edAdd_toMont_eq_montAdd}
+  \uses{def:edAddField}
+  \leanok
+  The Edwards sum maps to the Montgomery sum when the Montgomery $u$-coordinates
+  are distinct; the $x_3 = 0$ torsion case is handled separately.
+\end{lemma}
+
+\begin{theorem}[Associativity of the field law]
+  \label{thm:field_assoc}
+  \lean{LeanFormalization.edAddField_associative_of_complete}
+  \uses{thm:secant_compat, lem:edwards_denoms_ne_zero}
+  \leanok
+  Under the completeness hypotheses and explicit non-degeneracy conditions on
+  the three operands and intermediate sums, \texttt{edAddField} is associative.
+\end{theorem}
+
+\begin{theorem}[Doubling exceptional case]
+  \label{thm:field_assoc_double}
+  \lean{LeanFormalization.edAddField_associative_double_of_complete}
+  \uses{thm:field_assoc, lem:edwards_denoms_ne_zero}
+  \leanok
+  Associativity also holds in the doubling case $P = Q$, via the Montgomery
+  tangent law, under the analogous explicit side conditions.
+\end{theorem}
+
+\begin{lemma}[Edwards negation]
+  \label{lem:edwards_neg}
+  \lean{LeanFormalization.edAddField_neg_self_eq_identity}
+  \uses{def:edAddField, def:edwardsEq}
+  \leanok
+  Adding an Edwards point to its negation yields the identity when
+  $1 + d x^2 y^2 \neq 0$.
+\end{lemma}
+
+\section{Concrete Ed25519 affine law}
+
+\begin{definition}[Concrete affine addition]
+  \label{def:affineAdd}
+  \lean{LeanFormalization.affineAdd}
+  \uses{def:ed25519P}
+  \leanok
+  The \texttt{Nat}-level affine addition law modulo $p$ used by the verifier.
+\end{definition}
+
+\begin{theorem}[Conditional concrete associativity]
+  \label{thm:affine_add_assoc}
+  \lean{LeanFormalization.affineAdd_associative_of_complete}
+  \uses{lem:ed25519P_prime, lem:ed25519D_not_isSquare, thm:field_assoc, def:affineAdd}
+  \leanok
+  The concrete law is associative on on-curve, canonical, non-infinite points
+  satisfying the explicit branch, $x \neq 0$, Montgomery-$u$ distinctness and
+  intermediate $y \neq 1$ hypotheses. The primality and nonsquareness facts
+  above are discharged. No unconditional group law is claimed.
+\end{theorem}
+
+\section{Multi-Krum theory correspondence}
+
+\begin{theorem}[Krum score as $k$-nearest sum]
+  \label{thm:krum_score_knn}
+  \lean{Refinement.krumScore_eq_sum_k_nearest}
+  \leanok
+  The abstract Krum score equals the sum of squared distances to the $k$
+  nearest neighbours.
+\end{theorem}
+
+\begin{theorem}[Real implementation model]
+  \label{thm:neighbor_real}
+  \lean{LeanFormalization.neighborScoreReal_eq_krumScore}
+  \uses{thm:krum_score_knn}
+  \leanok
+  The pure $\mathbb{R}$ model of the neighbour score agrees with the abstract
+  Krum score under the cardinality hypothesis.
+\end{theorem}
+
+\begin{theorem}[Real-model selection safety]
+  \label{thm:real_selection_safe}
+  \lean{LeanFormalization.neighborScoreReal_minimizer_in_honest_or_near}
+  \uses{thm:neighbor_real, thm:krum_score_knn}
+  \leanok
+  Under honest clustering and Byzantine separation, a minimizer of the
+  $\mathbb{R}$ neighbour score is honest or a near infiltrate.
+\end{theorem}
+
+\paragraph*{Not claimed in this blueprint.}
+An unconditional group law for the concrete implementation, the Float-to-$\mathbb{R}$
+bridge for arbitrary (non-testbed) inputs, and Groth16/q-SDH knowledge soundness
+remain outside the machine-checked development and are therefore absent from
+this dependency graph.

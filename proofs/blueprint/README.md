@@ -1,0 +1,40 @@
+# Lean blueprint
+
+This directory is an interactive [leanblueprint](https://pypi.org/project/leanblueprint/)
+dependency graph linking LaTeX theorem statements to compiled Lean declarations.
+It lives under `proofs/` because that is this monorepo's Lake project root.
+
+## Files
+
+- `src/content.tex` — mathematical content. Each `\lean{Full.Name}` tag is checked
+  against the compiled `.olean` files; `\uses{label}` draws dependency edges and
+  `\leanok` marks a node as proved.
+- `lean_decls` — generated list of declaration names. Regenerate with
+  `python3 scripts/ci/generate_blueprint_decls.py`.
+- `src/plastex.cfg`, `src/web.tex`, `src/print.tex`, `src/macros/` — standard
+  leanblueprint scaffolding, rendered from its templates with doc-gen4 URLs
+  pointing at the published API docs.
+
+## Local commands
+
+From the repository root:
+
+```bash
+bash scripts/ci/build_blueprint.sh
+```
+
+This runs `lake exe checkdecls blueprint/lean_decls` from `proofs/` and then,
+when a TeX installation is available, the plasTeX HTML build. Because the Lake
+project is in a subdirectory while `leanblueprint` resolves paths from the Git
+root, use the script rather than bare `leanblueprint web` here.
+
+## CI and publication
+
+`.github/workflows/blueprint.yml` builds on pushes to `main`, verifies all
+`\lean{}` tags, builds the plasTeX web pages and the `doc-gen4` API pages, and
+deploys the combined site to GitHub Pages. Pages must be configured with
+**Source: GitHub Actions** in repository settings.
+
+The graph intentionally omits claims that are not machine-checked: an
+unconditional group law for the concrete implementation, a general Float↔ℝ
+Krum bridge, and Groth16/q-SDH knowledge soundness.
