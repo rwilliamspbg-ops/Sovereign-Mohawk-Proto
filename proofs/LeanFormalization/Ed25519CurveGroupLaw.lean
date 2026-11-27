@@ -415,6 +415,24 @@ lemma ed25519_two_ne_zero (hp : Fact (Nat.Prime ed25519P)) :
   have hpgt : 2 < ed25519P := by norm_num [ed25519P]
   omega
 
+/-- Associativity in the right-identity exceptional case. Both sides reduce to
+    `affineAdd P Q`; `IsConsistent` is load-bearing, as the negative control
+    `affineAdd_identity_false_infinity` shows. -/
+lemma affineAdd_assoc_identity_right (P Q : AffinePoint)
+    (hPc : IsConsistent P) (hQc : IsConsistent Q) :
+    affineAdd (affineAdd P affineIdentity) Q =
+      affineAdd P (affineAdd affineIdentity Q) := by
+  rw [affineAdd_identity P hPc, affineAdd_identity_left Q hQc]
+
+/-- Associativity in the left-identity exceptional case. The consistency of the
+    intermediate sum is explicit rather than derived from the (still
+    conditional) associativity theorem. -/
+lemma affineAdd_assoc_identity_left (P Q : AffinePoint)
+    (hPc : IsConsistent P) (hPQ : IsConsistent (affineAdd P Q)) :
+    affineAdd affineIdentity (affineAdd P Q) =
+      affineAdd (affineAdd affineIdentity P) Q := by
+  rw [affineAdd_identity_left (affineAdd P Q) hPQ, affineAdd_identity_left P hPc]
+
 /-- Associativity of the concrete `affineAdd`, transported from
     `edAddField_associative_of_complete` through the Nat/ZMod coercion bridge.
 
