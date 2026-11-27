@@ -267,6 +267,32 @@ theorem affineAdd_canonical (P Q : AffinePoint) (hP : IsCanonical P) (hQ : IsCan
               rw [h, affineAddFormula]
               exact ⟨Nat.mod_lt _ hp, Nat.mod_lt _ hp⟩
 
+/-- The exceptional-case test says `Q` is the negation of `P` only when their
+    `y` coordinates agree; the birational map's `u` coordinate depends only on
+    `y`, so such a pair has equal Montgomery `u` coordinates. -/
+lemma negation_has_same_mont_u (hp : Fact (Nat.Prime ed25519P)) (P Q : AffinePoint)
+    (hneg : IsNegation P Q = true) :
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1 =
+    (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1 := by
+  unfold IsNegation at hneg
+  simp only [Bool.and_eq_true] at hneg
+  obtain ⟨hxeq, hyeq⟩ := hneg
+  have hyeqNat : Q.y = P.y := by simpa using hyeq
+  have hyeqZ : (Q.y : ZMod ed25519P) = (P.y : ZMod ed25519P) := by rw [hyeqNat]
+  rw [edwardsToMont_fst, edwardsToMont_fst, hyeqZ]
+
+/-- Distinct Montgomery `u` coordinates exclude the negation branch. This is the
+    reusable form callers need to discharge `hnegS1R` / `hnegPS2` once they have
+    the u-coordinate compatibility of the intermediate sums. -/
+lemma isNegation_false_of_mont_u_ne (hp : Fact (Nat.Prime ed25519P)) (P Q : AffinePoint)
+    (hu : (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1 ≠
+      (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1) :
+    IsNegation P Q = false := by
+  by_contra hb
+  have ht : IsNegation P Q = true := by
+    cases h' : IsNegation P Q <;> simp_all
+  exact hu (negation_has_same_mont_u hp P Q ht).symm
+
 /-- The concrete Nat-based `affineAddFormula` is exactly the abstract field law
     `edAddField` after coercion to `ZMod ed25519P`, provided the two unified-law
     denominators are nonzero (needed to identify Nat `fInv` with the field

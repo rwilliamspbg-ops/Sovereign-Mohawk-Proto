@@ -824,6 +824,68 @@ theorem krumScore_eq_sum_k_nearest
     exact sum_take_le_sum_subset d l hpw hnodup S
       (by intro y hy; rw [hlfin]; exact hS.1 hy) k hS.2
   exact le_antisymm hupper hlower
+/-- The ℝ-valued quantity the refined implementation's `neighborScore`
+    computes before Float rounding: the sum of the `k` smallest squared
+    distances from `i` to the other candidates. This is exactly the right-hand
+    side of `krumScore_eq_sum_k_nearest`, named so the score-level minimizer
+    transfer can be stated without repeating the merge-sort expression. -/
+noncomputable def kNearestSqDistSum
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {α : Type*} [DecidableEq α] [Fintype α]
+    (g : α → E) (i : α) (k : ℕ) : ℝ := by
+  classical
+  let s : Finset α := Finset.univ.erase i
+  let d : α → ℝ := fun j => LeanFormalization.distSq g i j
+  let le (a b : α) : Bool := decide (d a ≤ d b)
+  let l : List α := s.toList.mergeSort le
+  exact ((List.map d l).take k).sum
+
+/-- `krumScore` equals `kNearestSqDistSum`: the already-proved
+    `krumScore_eq_sum_k_nearest` with its right-hand side given a name. -/
+theorem krumScore_eq_kNearestSqDistSum
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {α : Type*} [DecidableEq α] [Fintype α]
+    (g : α → E) (i : α) (k : ℕ) (hk : k ≤ (Finset.univ.erase i).card) :
+    LeanFormalization.krumScore g i k = kNearestSqDistSum g i k := by
+  simpa [kNearestSqDistSum] using krumScore_eq_sum_k_nearest g i k hk
+
+/-- Every candidate has the same erased-universe cardinality, so one `hk`
+    bound at `i` is also a valid bound at any other candidate `j`. -/
+private theorem erase_card_eq [Fintype α] (i j : α) :
+    (Finset.univ.erase j).card = (Finset.univ.erase i).card := by
+  rw [Finset.card_erase_of_mem (Finset.mem_univ j),
+      Finset.card_erase_of_mem (Finset.mem_univ i)]
+
+/-- Score-level minimizer transfer (Tier 2 item 4). `i` minimizes the abstract
+    `LeanFormalization.krumScore g · k` iff it minimizes the sum of its `k`
+    nearest squared distances — the ℝ-valued quantity the refined
+    `Specification.neighborScore` computes before Float rounding. Since the
+    abstract safety theorem `krum_selection_safe` concludes honesty of
+    `krumScore` minimizers, this lets a nearest-sum minimizer be fed to it.
+    Both sides are ℝ-valued: no Float↔Real bridge is used. -/
+theorem krumScore_minimizer_iff_kNearestSqDistSum
+    {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    {α : Type*} [DecidableEq α] [Fintype α]
+    (g : α → E) (i : α) (k : ℕ) (hk : k ≤ (Finset.univ.erase i).card) :
+    (∀ j : α, LeanFormalization.krumScore g i k ≤ LeanFormalization.krumScore g j k) ↔
+    (∀ j : α, kNearestSqDistSum g i k ≤ kNearestSqDistSum g j k) := by
+  constructor
+  · intro h j
+    have hkj : k ≤ (Finset.univ.erase j).card := by
+      rw [erase_card_eq i j]
+      exact hk
+    rw [← krumScore_eq_kNearestSqDistSum g j k hkj,
+        ← krumScore_eq_kNearestSqDistSum g i k hk]
+    exact h j
+  · intro h j
+    have hkj : k ≤ (Finset.univ.erase j).card := by
+      rw [erase_card_eq i j]
+      exact hk
+    rw [krumScore_eq_kNearestSqDistSum g j k hkj,
+        krumScore_eq_kNearestSqDistSum g i k hk]
+    exact h j
+
 end Refinement
 
 #print axioms Refinement.krumScore_eq_sum_k_nearest
+#print axioms Refinement.krumScore_minimizer_iff_kNearestSqDistSum
