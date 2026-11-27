@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "94b109a5a7202428046786718676cb0485007fab3dee7fff4842a48d8a23919e",
+  "input_merkle_root": "4529b3257e8f63cfd136990222eae9c94908a9a11ad5d874e22f404bd86f3061",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "abfc5371dafa2279b83d9259819eb0a97a8451a4966c84e0891dbf6f7911bd4c"
+      "sha256": "063ed0399b73e615e2b1768dd314e6b141d78434741eb28cce42578986ae8d94"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -68,7 +68,7 @@
     },
     {
       "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
-      "sha256": "10f634e3627ac66e511bacf5bfc37db5157249bdc53e1ebb4b5fcf51b22ea83d"
+      "sha256": "3624ab881c52f03e96161113a9fc1192e1bec83544251ed20ee08e8273d17b5b"
     },
     {
       "path": "proofs/LeanFormalization/Filtration.lean",
@@ -430,11 +430,12 @@
     {
       "file": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
       "module": "LeanFormalization.EdwardsWeierstrassBridge",
-      "symbol_count": 24,
+      "symbol_count": 25,
       "symbols": [
         "edwardsEq",
         "edwardsToMont",
         "edwardsToMont_fst",
+        "edwardsToMont_fst_ne_of_ne_of_not_neg",
         "edwardsToMont_montgomery",
         "edwardsToMont_roundtrip",
         "edwardsToMont_snd",
@@ -1172,7 +1173,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 588
+    "theorem_symbol_count": 589
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

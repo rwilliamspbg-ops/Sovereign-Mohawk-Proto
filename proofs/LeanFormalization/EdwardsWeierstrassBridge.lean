@@ -306,6 +306,40 @@ lemma edwards_y_ne_one_of_x_ne_zero_requires_hd :
     ring
   exact (h hE one_ne_zero) rfl
 
+set_option maxRecDepth 100000
+set_option maxHeartbeats 1000000
+
+/-- Distinct Montgomery `u` coordinates for distinct non-negation Edwards
+    points. Equal `u` forces equal `y` (in characteristic != 2), and the curve
+    equation then forces `x₂ = ±x₁`; the two possibilities are exactly the
+    same point and the negation. This is the remaining algebraic obligation
+    named in the review for the associativity bridge. -/
+lemma edwardsToMont_fst_ne_of_ne_of_not_neg {K : Type*} [Field K] {d x1 y1 x2 y2 : K}
+    (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2)
+    (hd : 1 + d ≠ 0) (hy1 : 1 - y1 ≠ 0) (hy2 : 1 - y2 ≠ 0) (h2 : (2 : K) ≠ 0)
+    (hne : (x1, y1) ≠ (x2, y2))
+    (hneg : ¬ (x2 = -x1 ∧ y2 = y1)) :
+    (edwardsToMont d x1 y1).1 ≠ (edwardsToMont d x2 y2).1 := by
+  intro hu
+  rw [edwardsToMont_fst, edwardsToMont_fst] at hu
+  field_simp [hy1, hy2] at hu
+  ring_nf at hu
+  have hy : y1 = y2 := by
+    have htwo : (2 : K) * y1 = 2 * y2 := by linear_combination hu
+    exact (mul_left_cancel₀ h2 htwo)
+  subst y2
+  have hdy : 1 + d * y1 ^ 2 ≠ 0 := edwards_one_add_dy_ne_zero hE1 hy1 hd
+  have hsquares : x1 ^ 2 = x2 ^ 2 := by
+    unfold edwardsEq at hE1 hE2
+    have hc1 : x1 ^ 2 * (1 + d * y1 ^ 2) = y1 ^ 2 - 1 := by linear_combination -hE1
+    have hc2 : x2 ^ 2 * (1 + d * y1 ^ 2) = y1 ^ 2 - 1 := by linear_combination -hE2
+    rw [← hc1] at hc2
+    exact (mul_right_cancel₀ hdy hc2.symm)
+  rcases (sq_eq_sq_iff_eq_or_eq_neg.mp hsquares) with hx | hx
+  · exact hne (by simp [hx])
+  · have hx' : x2 = -x1 := by linear_combination hx
+    exact hneg ⟨hx', rfl⟩
+
 end
 
 end LeanFormalization
