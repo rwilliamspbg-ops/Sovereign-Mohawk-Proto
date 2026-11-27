@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "52508f777047419a61900bded2cc5364c26e2ca9c55e17258aaae4474967c7fe",
+  "input_merkle_root": "72513e4977a02a7f3b856b706642ef0b9cd54c5313cebde53b87f074435d0037",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "ad70812f8d73f0ccf56189b699f27e7f35ed05c1abfb49f89a880951ca292a9a"
+      "sha256": "bb0dee88a22f9560671a6d0b9f98e0fad0d66ccbc6f7dde1f7fed74b0e1b5f95"
     },
     {
       "path": "proofs/LeanFormalization.lean",
-      "sha256": "60ba55df3c0d9ffddf5dc12b19b81dd9913266d2b966a19350351be386ffb104"
+      "sha256": "0ebbd00df777b09bc0be309f6f6f0a330e26c8410fcecf70f6f3483e689066df"
     },
     {
       "path": "proofs/LeanFormalization/Common.lean",
@@ -67,6 +67,10 @@
       "sha256": "6303d90af7ca10e612a35402500fabf87579c63bbc5e91b8a83fc66e9cd45390"
     },
     {
+      "path": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
+      "sha256": "ce75c7e33f6e2504e2fd80dcf6d685d9e42b1f5e0382f9d34e40dd7877370b30"
+    },
+    {
       "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
       "sha256": "3624ab881c52f03e96161113a9fc1192e1bec83544251ed20ee08e8273d17b5b"
     },
@@ -92,7 +96,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "59c57dff2d6fe1f5e9706f127ce90ec7ad1dfd03330bc49b48f78e0ae0d5d002"
+      "sha256": "6abf64136183632a0552e3cda7f2ea1b0e4b00e9d1627bf7b859f56d471ce18f"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -184,7 +188,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Theorem5Cryptography.lean",
-      "sha256": "56a9c9c0881f2ff2da9b1dcff38abe4ce711bb8b18dd5b389bbb36e702c73b3b"
+      "sha256": "200bed9c6e97165172c2397be419fd3e91aa92f0c0fbb836b16a5fb1b52180a5"
     },
     {
       "path": "proofs/LeanFormalization/Theorem5MiMCFormalization.lean",
@@ -431,6 +435,16 @@
       ]
     },
     {
+      "file": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
+      "module": "LeanFormalization.EdwardsAdditionLaws",
+      "symbol_count": 3,
+      "symbols": [
+        "edAddField_comm",
+        "edAddField_identity_left",
+        "edAddField_identity_right"
+      ]
+    },
+    {
       "file": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
       "module": "LeanFormalization.EdwardsWeierstrassBridge",
       "symbol_count": 25,
@@ -538,7 +552,7 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 53,
+      "symbol_count": 64,
       "symbols": [
         "edAddClosure_aux",
         "edAddField",
@@ -566,12 +580,23 @@
         "montAdd_self_eq_degenerate",
         "montAdd_v_eq_zero_of_u_eq_zero",
         "montB_ne_zero",
+        "montDouble",
+        "montDouble_matches_edAddField_zmod11",
+        "montDouble_montgomery",
+        "montDouble_ne_degenerate_zmod11",
+        "montDouble_v_eq",
+        "montDouble_zmod11",
         "montQ_edwardsToMont_ne_zero",
+        "montQ_ne_zero_of_montgomery",
+        "montTangentSlope",
+        "montTangentSlope_q_form",
+        "montTangentSlope_spec",
         "montToWeier",
         "montToWeier_addCoord",
         "montWeier",
         "mont_nonsingular",
         "montgomeryToWeier_equation",
+        "montgomery_tangent_double_v",
         "montgomery_v_sq",
         "neg_one_not_square_zmod11",
         "neg_one_not_square_zmod7",
@@ -959,12 +984,18 @@
     {
       "file": "proofs/LeanFormalization/Theorem5Cryptography.lean",
       "module": "LeanFormalization.Theorem5Cryptography",
-      "symbol_count": 54,
+      "symbol_count": 64,
       "symbols": [
         "CircuitBoundRelation",
         "GenesisIdentityVK",
         "MiMCRelation",
         "Relation",
+        "WeightHonestStatement",
+        "WeightHonestStatement_has_witness",
+        "WeightHonestStatement_inhabited",
+        "WeightLocusAccept",
+        "WeightLocusAccept_agrees_on_honest",
+        "WeightLocusAccept_sound",
         "WeightRelation",
         "circuitVK",
         "circuitVK_ne_weightCircuitVK",
@@ -994,11 +1025,15 @@
         "theorem5_verifyops_constant",
         "theorem_weight_acceptance_ignores_norm_bound",
         "theorem_weight_acceptance_no_witness",
+        "theorem_weight_agreement_unrestricted_inconsistent",
         "theorem_weight_binding",
         "theorem_weight_completeness",
         "theorem_weight_derived_hashes",
+        "theorem_weight_external_soundness_composition",
+        "theorem_weight_external_soundness_composition_consistent",
         "theorem_weight_gradient_out_of_range_rejected",
         "theorem_weight_length_mismatch_rejected",
+        "theorem_weight_no_witness_not_honest",
         "theorem_weight_noise_out_of_range_rejected",
         "theorem_weight_norm_bound_out_of_range_rejected",
         "theorem_weight_norm_guard",
@@ -1183,9 +1218,9 @@
   ],
   "schema_version": "formal_validation_report.v1",
   "summary": {
-    "input_file_count": 56,
-    "module_count": 49,
-    "theorem_symbol_count": 601
+    "input_file_count": 57,
+    "module_count": 50,
+    "theorem_symbol_count": 625
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
