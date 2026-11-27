@@ -75,6 +75,7 @@ tests, or proofs.
 namespace Refinement
 
 open Specification
+open LeanFormalization
 
 /-- Go's `MultiKrumSelect` (`internal/multikrum.go`) derives its neighbor
     count as `n - f - 2` from the Byzantine bound `f`, and requires
@@ -884,6 +885,238 @@ theorem krumScore_minimizer_iff_kNearestSqDistSum
     rw [krumScore_eq_kNearestSqDistSum g j k hkj,
         krumScore_eq_kNearestSqDistSum g i k hk]
     exact h j
+
+/-! ## Finite Float↔Real Krum score bridge on a concrete testbed
+
+### Verdict
+
+An **unconditional** machine-checked bridge is infeasible under the pinned
+Mathlib (v4.30.0-rc2). A **conditional** bridge is proved below: on the
+concrete testbed `[0,1,2,3]` with `k = 2`, the four Float scores have the ℝ
+values `5,2,2,5` and the Float argmin agrees with the ℝ minimizer, modulo one
+explicitly packaged residual (`FloatTestbedBridge`) of IEEE-754 exactness facts
+that the kernel cannot verify. No `axiom`, no `native_decide`, no `sorry`.
+
+### Exact obstruction (all verified with `lake env lean` on this pin)
+
+Lean core defines `Float` as an opaque structure over `floatSpec : FloatSpec`
+whose model type is `Unit`, and every Float primitive used by the Go path is
+an `@[extern ...] opaque` constant:
+
+```
+@[extern "lean_float_add"] opaque Float.add : Float → Float → Float
+@[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
+@[extern "lean_float_mul"] opaque Float.mul : Float → Float → Float
+@[extern "lean_float_beq"] opaque Float.beq (a b : Float) : Bool
+@[extern "lean_float_decLt"] opaque Float.decLt (a b : Float) : Decidable (a < b)
+protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float
+```
+
+Consequently `#eval` computes (VM/runtime only) but the kernel does not.
+The concrete failing attempts, reproduced verbatim:
+
+```
+#eval (1.0 : Float) + 2.0                    -- 3.000000  (VM, not a proof)
+example : (1.0 : Float) + 2.0 = 3.0 := by rfl
+  -- error: Tactic `rfl` failed: 1.0 + 2.0 is not definitionally equal to 3.0
+example : (1.0 : Float) < 2.0 := by decide
+  -- error: `decide` failed ... instance Float.decLt 1.0 2.0 did not reduce to
+  --        isTrue/isFalse; reduction got stuck at Float.decLt 1.0 2.0
+example : (1.0 : Float) + 2.0 = 3.0 := by decide
+  -- error: failed to synthesize Decidable (1.0 + 2.0 = 3.0)  [no DecidableEq Float]
+example : (1.0 : Float) + 2.0 = 3.0 := by norm_num
+  -- error: unsolved goals ⊢ 1.0 + 2.0 = 3.0
+example : (1.0 : Float) + 2.0 = 3.0 := by grind
+  -- error: `grind` failed, case grind h : ¬1.0 + 2.0 = 3.0 ⊢ False
+example : (1.0 : Float) + 2.0 = 3.0 := by simp [Float.add]
+  -- error: simp made no progress
+example : True := by unfold floatSpec; trivial
+  -- error: Tactic `unfold` failed to unfold `floatSpec`
+example : Float.beq (1.0 : Float) 1.0 = true := by decide
+  -- error: `decide` failed ... reduction got stuck at Float.beq 1.0 1.0
+```
+
+`native_decide` does close such goals via the VM, but it introduces the
+`Lean.ofReduceBool` axiom (`…_native.native_decide.ax_1_1`) and is explicitly
+out of scope here. Mathlib additionally exposes **no** `Float → ℝ` coercion and
+**no** `LinearOrder`/`PartialOrder`/`Preorder Float` instance (the latter is
+false once `NaN` is admitted: `NaN ≤ NaN` is `false`), so there is no
+off-the-shelf semantic map to reason through either.
+
+### What is nevertheless machine-checked
+
+The ℝ half is unconditional: `neighborScoreReal_eq_krumScore` +
+`Finset.min'`/`Finset.le_min'` pin the four scores exactly (`realScore0` …
+`realScore3`). The Float half is stated conditionally on `FloatTestbedBridge`:
+the four semantic score values and the order-reflection law for `<`. Both are
+true of IEEE-754 binary64 on these integers but unprovable in the kernel for
+the opacity reason above, so they are passed explicitly as an argument — never
+declared as a global axiom — and the score equality/argmin agreement are
+derived from them by ordinary reasoning. -/
+
+/-- One-dimensional Float gradient (a single coordinate), mirroring the Go
+    path's `squaredL2` on a length-1 vector: `d * d` where `d = a - b`. -/
+def floatSqDist (a b : Float) : Float :=
+  let d := a - b
+  d * d
+
+/-- Float-based score model mirroring `Specification.neighborScore` (and hence
+    Go's `MultiKrumSelect`): squared distances to the other candidates,
+    insertion sort ascending by Float `≤`, take `k`, fold-add. -/
+def neighborScoreFloat (grads : List Float) (idx k : Nat) : Float :=
+  match getAt? grads idx with
+  | none => 0.0
+  | some g =>
+      let dists := (List.range grads.length).foldl
+        (fun acc j =>
+          if j = idx then acc
+          else match getAt? grads j with
+               | none => acc
+               | some h => floatSqDist g h :: acc)
+        []
+      let smallest := (sortAsc dists).take k
+      smallest.foldl (fun acc x => acc + x) 0.0
+
+/-- The concrete finite testbed of small rational Floats. -/
+abbrev Testbed := [0.0, 1.0, 2.0, 3.0]
+
+private lemma realScore_fin4 (i : Fin 4) (S : Finset (Fin 4)) (v : ℝ)
+    (hScard : S.card = 2) (hSsub : S ⊆ Finset.univ.erase i)
+    (hsum : (∑ j ∈ S, distSq (fun j : Fin 4 => (j:ℝ)) i j) = v)
+    (hlower : ∀ T : Finset (Fin 4), T.card = 2 → T ⊆ Finset.univ.erase i →
+              v ≤ ∑ j ∈ T, distSq (fun j : Fin 4 => (j:ℝ)) i j) :
+    neighborScoreReal (fun j : Fin 4 => (j:ℝ)) i 2 = v := by
+  have hk : 2 ≤ (Finset.univ.erase i).card := by
+    rw [Finset.card_erase_of_mem (Finset.mem_univ i)]
+    simp
+  rw [neighborScoreReal_eq_krumScore _ _ _ hk]
+  unfold krumScore
+  rw [dif_pos hk]
+  apply le_antisymm
+  · apply Finset.min'_le
+    rw [Finset.mem_image]
+    exact ⟨S, by rw [Finset.mem_powersetCard]; exact ⟨hSsub, hScard⟩, hsum⟩
+  · apply Finset.le_min'
+    intro w hw
+    rw [Finset.mem_image] at hw
+    rcases hw with ⟨T, hT, rfl⟩
+    rw [Finset.mem_powersetCard] at hT
+    exact hlower T hT.2 hT.1
+
+/-- ℝ score at testbed index 0: squared distances `1,4,9`, two smallest sum to 5. -/
+lemma realScore0 : neighborScoreReal (fun j : Fin 4 => (j:ℝ)) 0 2 = 5 := by
+  apply realScore_fin4 (i := 0) (S := ({1,2} : Finset (Fin 4))) (v := 5)
+  · simp
+  · intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl <;> simp
+  · simp [distSq]; norm_num
+  · intro T hc hs
+    obtain ⟨a,b,hab,rfl⟩ := Finset.card_eq_two.mp hc
+    fin_cases a <;> fin_cases b <;> simp [distSq] at hs ⊢ <;> norm_num at *
+    all_goals contradiction
+
+/-- ℝ score at testbed index 1: squared distances `1,1,4`, two smallest sum to 2. -/
+lemma realScore1 : neighborScoreReal (fun j : Fin 4 => (j:ℝ)) 1 2 = 2 := by
+  apply realScore_fin4 (i := 1) (S := ({0,2} : Finset (Fin 4))) (v := 2)
+  · simp
+  · intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl <;> simp
+  · simp [distSq]; norm_num
+  · intro T hc hs
+    obtain ⟨a,b,hab,rfl⟩ := Finset.card_eq_two.mp hc
+    fin_cases a <;> fin_cases b <;> simp [distSq] at hs ⊢ <;> norm_num at *
+    all_goals contradiction
+
+/-- ℝ score at testbed index 2: squared distances `4,1,1`, two smallest sum to 2. -/
+lemma realScore2 : neighborScoreReal (fun j : Fin 4 => (j:ℝ)) 2 2 = 2 := by
+  apply realScore_fin4 (i := 2) (S := ({1,3} : Finset (Fin 4))) (v := 2)
+  · simp
+  · intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl <;> simp
+  · simp [distSq]; norm_num
+  · intro T hc hs
+    obtain ⟨a,b,hab,rfl⟩ := Finset.card_eq_two.mp hc
+    fin_cases a <;> fin_cases b <;> simp [distSq] at hs ⊢ <;> norm_num at *
+    all_goals contradiction
+
+/-- ℝ score at testbed index 3: squared distances `9,4,1`, two smallest sum to 5. -/
+lemma realScore3 : neighborScoreReal (fun j : Fin 4 => (j:ℝ)) 3 2 = 5 := by
+  apply realScore_fin4 (i := 3) (S := ({1,2} : Finset (Fin 4))) (v := 5)
+  · simp
+  · intro x hx
+    simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+    rcases hx with rfl | rfl <;> simp
+  · simp [distSq]; norm_num
+  · intro T hc hs
+    obtain ⟨a,b,hab,rfl⟩ := Finset.card_eq_two.mp hc
+    fin_cases a <;> fin_cases b <;> simp [distSq] at hs ⊢ <;> norm_num at *
+    all_goals contradiction
+
+/-- Uninterpreted semantic map `Float → ℝ`. Mathlib has no Float→ℝ coercion and
+    `Float.toBits` is `@[extern] opaque`, so no reducible definition exists. -/
+abbrev FloatSem := Float → ℝ
+
+/-- Residual IEEE-754 exactness facts for the finite testbed, passed explicitly
+    (NOT a global axiom). Each field is true of binary64 on these values but
+    none is kernel-provable: Float arithmetic and `Float.decLt` are opaque
+    `@[extern]` primitives, so `rfl`/`decide`/`norm_num`/`grind` all get stuck. -/
+structure FloatTestbedBridge (sem : FloatSem) where
+  score0 : sem (neighborScoreFloat Testbed 0 2) = 5
+  score1 : sem (neighborScoreFloat Testbed 1 2) = 2
+  score2 : sem (neighborScoreFloat Testbed 2 2) = 2
+  score3 : sem (neighborScoreFloat Testbed 3 2) = 5
+  lt_iff : ∀ a b : Float, (a < b ↔ sem a < sem b)
+
+/-- CONDITIONAL finite Float↔Real score bridge: on `[0,1,2,3]` with `k = 2`,
+    the semantic value of each Float score equals the corresponding pure-ℝ
+    `neighborScoreReal`. The ℝ half is proved unconditionally; the Float half
+    is exactly the residual `FloatTestbedBridge`. -/
+theorem neighborScoreFloat_four_score_eq_real (sem : FloatSem)
+    (B : FloatTestbedBridge sem) :
+    ∀ i : Fin 4,
+      sem (neighborScoreFloat Testbed i.1 2) =
+        neighborScoreReal (fun j : Fin 4 => (j : ℝ)) i 2 := by
+  intro i
+  fin_cases i
+  · rw [B.score0]; simpa using realScore0.symm
+  · rw [B.score1]; simpa using realScore1.symm
+  · rw [B.score2]; simpa using realScore2.symm
+  · rw [B.score3]; simpa using realScore3.symm
+
+/-- The Float argmin on the finite testbed is index 1 (first minimum, matching
+    `argmin?`'s strict-improvement tie break). -/
+theorem neighborScoreFloat_four_argmin_eq (sem : FloatSem)
+    (B : FloatTestbedBridge sem) :
+    argmin? ((List.range 4).map (fun i => neighborScoreFloat Testbed i 2)) = some 1 := by
+  change argmin? [neighborScoreFloat Testbed 0 2, neighborScoreFloat Testbed 1 2,
+    neighborScoreFloat Testbed 2 2, neighborScoreFloat Testbed 3 2] = some 1
+  simp [argmin?, argminAux, B.lt_iff, B.score0, B.score1, B.score2, B.score3]
+  norm_num
+
+/-- The ℝ minimizer on the same testbed is also index 1, with the same tie break. -/
+theorem realScore_four_minimizer :
+    ∀ j : Fin 4,
+      neighborScoreReal (fun k : Fin 4 => (k : ℝ)) 1 2 ≤
+          neighborScoreReal (fun k : Fin 4 => (k : ℝ)) j 2 ∧
+      (neighborScoreReal (fun k : Fin 4 => (k : ℝ)) j 2 =
+          neighborScoreReal (fun k : Fin 4 => (k : ℝ)) 1 2 → 1 ≤ j.1) := by
+  intro j
+  fin_cases j <;> simp [realScore0, realScore1, realScore2, realScore3] <;> norm_num
+
+/-- CONDITIONAL argmin agreement on the finite testbed: the Go-path Float
+    selector and the pure-ℝ `neighborScoreReal` model both pick index 1. -/
+theorem neighborScoreFloat_four_argmins_agree (sem : FloatSem)
+    (B : FloatTestbedBridge sem) :
+    (argmin? ((List.range 4).map (fun i => neighborScoreFloat Testbed i 2)) = some 1) ∧
+    (∀ j : Fin 4,
+      neighborScoreReal (fun k : Fin 4 => (k : ℝ)) 1 2 ≤
+          neighborScoreReal (fun k : Fin 4 => (k : ℝ)) j 2 ∧
+      (neighborScoreReal (fun k : Fin 4 => (k : ℝ)) j 2 =
+          neighborScoreReal (fun k : Fin 4 => (k : ℝ)) 1 2 → 1 ≤ j.1)) :=
+  ⟨neighborScoreFloat_four_argmin_eq sem B, realScore_four_minimizer⟩
 
 end Refinement
 

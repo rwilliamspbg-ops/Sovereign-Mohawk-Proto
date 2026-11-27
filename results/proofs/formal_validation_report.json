@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "72513e4977a02a7f3b856b706642ef0b9cd54c5313cebde53b87f074435d0037",
+  "input_merkle_root": "29b0bbe1b58886a63eadeffb242ce6efd87ed39d768ec5583023716394748719",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "bb0dee88a22f9560671a6d0b9f98e0fad0d66ccbc6f7dde1f7fed74b0e1b5f95"
+      "sha256": "77412d1f5ecdfdbd1422b82bdc666547e8fad13100aad58579f5a456ef7f5f68"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -68,7 +68,7 @@
     },
     {
       "path": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
-      "sha256": "ce75c7e33f6e2504e2fd80dcf6d685d9e42b1f5e0382f9d34e40dd7877370b30"
+      "sha256": "0035c54eb86eb026302d65936ceb38aa5e8e8c19dd26ec9517b38362630adf5d"
     },
     {
       "path": "proofs/LeanFormalization/EdwardsWeierstrassBridge.lean",
@@ -96,7 +96,7 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "6abf64136183632a0552e3cda7f2ea1b0e4b00e9d1627bf7b859f56d471ce18f"
+      "sha256": "fcc743c0d1d87c52c7b44f682aa541bcd49e21860a37ef9638c3342c201a8188"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
@@ -437,11 +437,13 @@
     {
       "file": "proofs/LeanFormalization/EdwardsAdditionLaws.lean",
       "module": "LeanFormalization.EdwardsAdditionLaws",
-      "symbol_count": 3,
+      "symbol_count": 5,
       "symbols": [
         "edAddField_comm",
         "edAddField_identity_left",
-        "edAddField_identity_right"
+        "edAddField_identity_right",
+        "edAddField_neg_self_eq_identity",
+        "edAddField_neg_self_requires_hden"
       ]
     },
     {
@@ -552,8 +554,14 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 64,
+      "symbol_count": 73,
       "symbols": [
+        "dbl_ed_u_formula",
+        "dbl_mont_u_formula",
+        "dbl_tangent_slope_formula",
+        "dbl_u_compat",
+        "dbl_x_mul_v_aux",
+        "dbl_y_ne_one",
         "edAddClosure_aux",
         "edAddField",
         "edAddField_associative_of_compat",
@@ -565,6 +573,7 @@
         "ed_dy_ne_zero_aux",
         "edwardsAddCompat_of_complete",
         "edwardsToMont_eq_montAdd_of_complete",
+        "edwardsToMont_eq_montDouble",
         "edwardsToMont_u_add_one_ne_zero",
         "edwards_denoms_completeness_counterexample_combined",
         "edwards_denoms_completeness_counterexample_minus",
@@ -574,6 +583,8 @@
         "edwards_denoms_ne_zero_requires_d_nonsquare_strict",
         "edwards_of_montgomery_aux",
         "four_square_zmod7",
+        "hy_sq_ne_aux",
+        "hyp1_aux",
         "montAdd",
         "montAdd_associative_of_weierstrass",
         "montAdd_hu12_load_bearing_zmod11",
@@ -1220,7 +1231,7 @@
   "summary": {
     "input_file_count": 57,
     "module_count": 50,
-    "theorem_symbol_count": 625
+    "theorem_symbol_count": 636
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
