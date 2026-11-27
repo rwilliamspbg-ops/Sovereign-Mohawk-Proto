@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "4529b3257e8f63cfd136990222eae9c94908a9a11ad5d874e22f404bd86f3061",
+  "input_merkle_root": "8fed2043100852f439280c1fa805f703d71c17c9f40b6730af1a5a153174fda9",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "063ed0399b73e615e2b1768dd314e6b141d78434741eb28cce42578986ae8d94"
+      "sha256": "16d3dd697bc17e4e37cc08e9a50777a8443856461f929e41d59df836d40610b2"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -84,7 +84,7 @@
     },
     {
       "path": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
-      "sha256": "b4445272125fbd21c3fb414a1f7fcc42329d2138abfba61b3a71c26df580c0e2"
+      "sha256": "30f3bdc8549b199712d9e6c838b240956a129be8597d32d0432b82903790e23e"
     },
     {
       "path": "proofs/LeanFormalization/Measurability.lean",
@@ -509,12 +509,13 @@
     {
       "file": "proofs/LeanFormalization/KrumSelectionAdversarial.lean",
       "module": "LeanFormalization.KrumSelectionAdversarial",
-      "symbol_count": 4,
+      "symbol_count": 5,
       "symbols": [
         "krum_minimizer_in_honest_or_near",
         "krum_selection_infiltration",
         "krum_selection_separation_necessary",
-        "krum_separation_margin"
+        "krum_separation_margin",
+        "neighborScoreReal_minimizer_in_honest_or_near"
       ]
     },
     {
@@ -1173,7 +1174,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 589
+    "theorem_symbol_count": 590
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
