@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "c7b959e73e0cef583873ab9ab5bfa63cd612bbca60aba86ddea45348f01b9fc0",
+  "input_merkle_root": "52508f777047419a61900bded2cc5364c26e2ca9c55e17258aaae4474967c7fe",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "f1fdc5909ef3308eb48695317330ace23f92c88e50e8fe45ef1a337b402ebaa9"
+      "sha256": "ad70812f8d73f0ccf56189b699f27e7f35ed05c1abfb49f89a880951ca292a9a"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -56,7 +56,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
-      "sha256": "2e0daa1d8296b26523fe31b718f0e0e744a8bccade745dfefadd852ac3305361"
+      "sha256": "8172400ea37bf2c4b984b2a9672e8a694179ac2a394f5650037b2891d416eaa3"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
@@ -92,11 +92,11 @@
     },
     {
       "path": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
-      "sha256": "8ff39ae94d4344136f39775a9db2cfd953a8e90768bbd6c6045786870aac1ff5"
+      "sha256": "59c57dff2d6fe1f5e9706f127ce90ec7ad1dfd03330bc49b48f78e0ae0d5d002"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergence.lean",
-      "sha256": "44400a1c776ae1e2ab2b23d6e1265f39b99cb1e234945c06c56c0c635b23bf73"
+      "sha256": "6c14b4388c28bdd7e4f7c86251ef2a5db180aa4b60b1e2dd0054b03138751b72"
     },
     {
       "path": "proofs/LeanFormalization/MultiKrumConvergenceBias.lean",
@@ -377,7 +377,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
       "module": "LeanFormalization.Ed25519ScalarMulStructure",
-      "symbol_count": 16,
+      "symbol_count": 17,
       "symbols": [
         "affineAdd_consistent",
         "affineScalarMulImpl_canonical",
@@ -394,6 +394,7 @@
         "smulStep",
         "smulStep_canonical",
         "smulStep_consistent",
+        "smulStep_one_identity",
         "smulStep_zero_identity"
       ]
     },
@@ -537,7 +538,7 @@
     {
       "file": "proofs/LeanFormalization/MontgomeryEdwardsAdditionCompat.lean",
       "module": "LeanFormalization.MontgomeryEdwardsAdditionCompat",
-      "symbol_count": 48,
+      "symbol_count": 53,
       "symbols": [
         "edAddClosure_aux",
         "edAddField",
@@ -561,6 +562,8 @@
         "four_square_zmod7",
         "montAdd",
         "montAdd_associative_of_weierstrass",
+        "montAdd_hu12_load_bearing_zmod11",
+        "montAdd_self_eq_degenerate",
         "montAdd_v_eq_zero_of_u_eq_zero",
         "montB_ne_zero",
         "montQ_edwardsToMont_ne_zero",
@@ -573,6 +576,9 @@
         "neg_one_not_square_zmod11",
         "neg_one_not_square_zmod7",
         "neg_one_square_zmod13",
+        "secant_map_compatibility_fails_zmod11",
+        "secant_map_degenerate_off_curve_zmod11",
+        "secant_map_self_add_zero_zmod11",
         "three_square_zmod13",
         "two_not_square_zmod11",
         "x3_mul_vadd_aux",
@@ -592,14 +598,17 @@
     {
       "file": "proofs/LeanFormalization/MultiKrumConvergence.lean",
       "module": "LeanFormalization.MultiKrumConvergence",
-      "symbol_count": 7,
+      "symbol_count": 10,
       "symbols": [
+        "diminishingStep_zero_summable",
         "mkAggregate_deviation_sq_le",
         "mkAggregate_deviation_sq_le_split",
         "mkAggregate_sub",
         "multikrum_convergence_ae",
         "multikrum_descent_inequality",
         "not_summable_diminishingStep",
+        "robbinsMonro_step_conditions",
+        "robbinsMonro_step_conditions_requires_c_ne_zero",
         "summable_diminishingStep_sq"
       ]
     },
@@ -1176,7 +1185,7 @@
   "summary": {
     "input_file_count": 56,
     "module_count": 49,
-    "theorem_symbol_count": 592
+    "theorem_symbol_count": 601
   },
   "toolchain_lock": {
     "go_version": "1.27.4",
