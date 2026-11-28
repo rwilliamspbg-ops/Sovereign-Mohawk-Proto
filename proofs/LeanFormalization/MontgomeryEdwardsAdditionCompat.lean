@@ -1128,7 +1128,7 @@ theorem edAddField_associative_of_compat (hA : EdwardsAddCompatForAssociativity 
     Compared with `edAddField_associative_of_compat`, the compatibility bundle,
     `1 + d ≠ 0`, and the four on-curve hypotheses for the intermediate sums are
     **derived** rather than assumed; only the curve equations, completeness,
-    `2 ≠ 0`, the `y ≠ 1` / `x ≠ 0` admissibility conditions, the three pairwise
+    `2 ≠ 0`, the `y ≠ 1` / `x ≠ 0` admissibility conditions, the four pairwise
     distinctness conditions, and the four `y ≠ 1` conditions on the intermediate
     sums remain explicit. The latter are genuine exceptional cases (a sum may be
     the affine identity), handled by the branch in the concrete `affineAdd`. -/

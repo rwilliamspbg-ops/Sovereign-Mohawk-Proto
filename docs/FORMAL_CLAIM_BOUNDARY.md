@@ -53,7 +53,7 @@ One-page reviewer map of what the formalization actually establishes. Every bull
 30 rows rest on an explicit hypothesis or model assumption the proof consumes rather than discharges. The named standing assumptions visible in the matrix are:
 
 - `FloatOrderLaws` — matrix row(s) 12
-- `Fact (Nat.Prime q)` — matrix row(s) 23, 25, 38, 47
+- `Fact (Nat.Prime q)` — matrix row(s) 23, 25, 38
 - `SchnorrDLHard` — matrix row(s) 25, 31, 32, 33
 - `Ed25519GroupLaws` — matrix row(s) 26, 33, 45
 
@@ -88,7 +88,7 @@ Rows with an assumed or conditional guarantee:
 - Row 43 — **Multi-Krum convergence without exact unbiasedness**: `V_t = ‖θ_t − θ*‖²` converges to `0` alm… — unbiasedness; conditional on invariants
 - Row 45 — **Ed25519 `affineScalarMulImpl`: base cases and produced-point invariants.** The double-and-add… — Ed25519GroupLaws; assumed; conditional on invariants; not proved / not unconditional
 - Row 46 — **Ed25519 `affineAdd`: birational bridge to a Montgomery model.** `affineAdd`'s group law lives… — assumed; conditional on invariants
-- Row 47 — **Ed25519 affine addition law, field-level bridge**: the Edwards to Montgomery addition-law com… — Fact (Nat.Prime ...); assumed; conditional on invariants; not proved / not unconditional; scope…
+- Row 47 — **Ed25519 affine addition law, field-level bridge**: the Edwards to Montgomery addition-law com… — assumed; conditional on invariants; not proved / not unconditional; scope limit (not claimed/fo…
 
 ## What is only tested
 
@@ -101,3 +101,14 @@ Rows with an assumed or conditional guarantee:
 - Row 19 — Multi-Krum **selection** safety under a stated clustering/separation model: every honest candid… — `fully_formalized under the stated model; not unconditional`
 - Row 20 — Go-side cross-check of the sibling `CausalMohawkBridge` project's Chernoff tail bound and Loren… — `empirically_pinned_external; adds no claim to this repo`
 - Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — `fully_formalized for the split-Byzantine model; the honest-cluster/se…`
+
+## Reviewer evidence index
+
+Checked-in artifacts behind the empirical and cost claims above. These are repository files, not live measurements: the ZK costs come from the real circuit, knowledge soundness is external, and setup is an in-process simulated MPC ceremony:
+
+- WeightUpdateCircuit proof artifact: [`../results/zk/weight-proof-latest.json`](../results/zk/weight-proof-latest.json) — real gnark Groth16 circuit (9569 constraints), measured prove/verify costs; not a knowledge-soundness proof
+- Byzantine partition probe: [`../results/go-live/evidence/partition_probe_2026-08-10.json`](../results/go-live/evidence/partition_probe_2026-08-10.json) — empirical BFT partition evidence, not a machine-checked claim
+- Transport congestion probe: [`../results/go-live/evidence/transport_congestion_probe_2026-08-10.json`](../results/go-live/evidence/transport_congestion_probe_2026-08-10.json) — empirical transport impairment evidence
+- Transport delay probe: [`../results/go-live/evidence/transport_delay_probe_2026-08-10.json`](../results/go-live/evidence/transport_delay_probe_2026-08-10.json) — empirical transport impairment evidence
+- Transport impairment probe: [`../results/go-live/evidence/transport_impairment_probe_2026-08-10.json`](../results/go-live/evidence/transport_impairment_probe_2026-08-10.json) — empirical transport impairment evidence
+- Evidence package guide: [`EVIDENCE_PACKAGE.md`](EVIDENCE_PACKAGE.md) — how the artifacts are produced and checked

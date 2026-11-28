@@ -700,8 +700,11 @@ In heterogeneous edge settings, data distributions across participants are non-I
 $$\mathbb{E}[\|\nabla F_k(\theta, \xi) - \nabla F_k(\theta)\|^2] \le \sigma^2, \quad \frac{1}{K} \sum_{k=1}^K \|\nabla F_k(\theta) - \nabla F(\theta)\|^2 \le \zeta^2$$
 
 ### 9.2 Descent Lemma and Supermartingale Inequality
-In `DescentInequalityFull.lean`, we formalize a one-step descent inequality under client learning rate $\eta \le \frac{1}{2L}$ (the statement proved in `DescentInequalityFull.lean`, which differs from the classical textbook form in its hypotheses):
-$$\mathbb{E}[F(\theta_{t+1}) \mid \mathcal{F}_t] \le F(\theta_t) - \frac{\eta}{2} \|\nabla F(\theta_t)\|^2 + \frac{\eta^2 L}{2} \left(\frac{\sigma^2}{K} + \zeta^2\right)$$
+In `DescentInequalityFull.lean`, the proved one-step inequality is a contraction of the squared distance to the optimizer, not a function-value descent bound. Under $0 < \eta \le 1/L$ together with unbiasedness, bounded conditional variance, $\mu_{\mathrm{sc}}$-strong convexity, $L$-smoothness and optimality of $\theta^*$, `descent_inequality_derived` proves
+$$
+\mathbb{E}[\|\theta_{t+1}-\theta^*\|^2 \mid \mathcal{F}_t] \le (1-\eta\mu_{\mathrm{sc}})\|\theta_t-\theta^*\|^2 + \eta^2\sigma^2 .
+$$
+The classical function-value form with $\eta \le 1/(2L)$ and the $(\sigma^2/K+\zeta^2)$ term is **not** formalized in that module: the proved step-size bound is $1/L$, and the $K$- and $\zeta$-terms belong only to the rational envelope below.
 
 ### 9.3 Robbins-Siegmund Deterministic Limit Proof
 To establish asymptotic convergence, we formalize the Robbins-Siegmund almost-supermartingale theorem [21]. In `RobbinsSiegmundDeterministic.lean`, we prove from first principles that if sequence $V_k \ge 0$ converges to limit $L$ and step-sizes $a_k \ge 0$ satisfy $\sum a_k = \infty$ with $\sum a_k V_k < \infty$, the limit $L$ must be zero:
@@ -716,9 +719,9 @@ theorem robbins_siegmund_limit_zero
     L = 0 := by ...
 ```
 
-In `Theorem6StochasticConvergence.lean`, we derive the corresponding certified rational convergence envelope:
+In `Theorem6StochasticConvergence.lean`, the certified rational envelope
 $$\mathcal{E}(K, T, \zeta, \sigma, \delta) \equiv \frac{1}{2KT} + \zeta^2 + \frac{\sigma^2}{K} + \delta^2$$
-proving that the optimization envelope contracts monotonically as round budget $T$ and participation $K$ grow.
+is a **definition**, and the module proves algebraic facts about it: nonnegativity for nonnegative parameters with $K,T>0$, decomposition into its four terms, dominance over the deterministic envelope, monotonicity in the client-variance parameter, and one concrete instance ($K=100$, $T=1000$ versus $T=5000$) where more rounds shrink the rate term. A general monotonicity theorem in $K$ and $T$ is **not** proved, and none of these results derives convergence: all claims in this module are rational inequalities over $\mathbb{Q}$ (§3.2).
 
 ---
 

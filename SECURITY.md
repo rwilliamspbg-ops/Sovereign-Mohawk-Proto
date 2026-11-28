@@ -21,7 +21,7 @@ We enforce security through **Proof-Driven Design**. The following "guards" are 
 
 1. **Byzantine Guard (`internal/tpm/tpm.go`):** Enforces $n > 2f + 1$ at every aggregation tier.
 2. **Privacy Guard (`internal/rdp_accountant.go`):** Prevents membership inference attacks by strictly enforcing the $\epsilon = 2.0$ budget.
-3. **Succinct Verification (`internal/zksnark_verifier.go`):** Uses Groth16 zk-SNARKs to check a proof against a verification key. **Scope caveat:** the configured key (`genesisVK`) is a fixed, content-free pairing identity, not derived from a circuit's trusted setup — so the verifier attests to a hardcoded genesis proof, not to "regional nodes haven't tampered with model weights". See `internal/zksnark_verifier.go`'s own doc comment and `proofs/cryptography.md`.
+3. **Succinct Verification (`internal/zkprover/produce.go`):** Circuit-bound Groth16 proofs are verified against statements derived from `WeightUpdateCircuit`. The fixed `genesisVK` in `internal/zksnark_verifier.go` is a **deprecated commitment-less fallback**, not the production weight-update key; it does not bind a proof to model-weight content. See `internal/zkprover/produce.go`'s embedded-statement self-check and `proofs/cryptography.md`.
 
 ### Runtime Hardening Notes (Apr 2026)
 
@@ -102,10 +102,14 @@ The cost model in `Theorem5Cryptography.lean` is an **abstract
 constant-operation model**: it shows that, under the model's assumptions, proof
 size and verification cost do not grow with the number of participants. It is
 **not** a soundness proof for Groth16, and it is **not** a measurement of the
-production verifier. Separately, the deployed verifier
-(`internal/zksnark_verifier.go`) checks Groth16 proofs against a fixed
-`genesisVK` that is not derived from a circuit's trusted setup, so it does not
-currently bind a proof to gradient or model-weight content.
+production verifier. The production weight-update path is separate:
+`zkprover.ProduceWeightProof` verifies each framed proof against the statement
+embedded in it before returning (`internal/zkprover/produce.go`), and
+`batch.Aggregator.ProcessRound` re-verifies it (`internal/batch/aggregator.go`).
+The legacy fallback verifier (`internal/zksnark_verifier.go::VerifyProof`) still
+checks against a fixed `genesisVK` when no commitment is supplied (deprecated,
+removal scheduled 2027-01-15). Groth16 knowledge soundness is an external
+assumption, and the setup is an in-process simulated MPC ceremony.
 
 ### 📊 Competitive Comparison
 
@@ -113,5 +117,5 @@ currently bind a proof to gradient or model-weight content.
 | :--- | :--- | :--- |
 | **BFT claim** | 33.3% (honest majority) | **No global bound.** Single-tier guard arithmetic is machine-checked; deterministic hierarchical composition is **disproven** (60% counterexample). A probabilistic Chernoff repair is proved for the i.i.d. Bernoulli committee-sampling model. |
 | **Path depth** | $O(n)$ | $O(\log n)$ **path-depth proxy** (machine-checked); total bytes remain model-dependent |
-| **Verification** | Trust-based | Abstract constant-cost **model**; deployed verifier checks against a fixed genesis VK |
+| **Verification** | Trust-based | Abstract constant-cost **model**; circuit-bound Groth16 weight proofs with a deprecated fixed-genesis fallback |
 | **Overhead** | ~40TB (at 10M nodes, naive) | 28MB (at 10M nodes) — **model-level** estimate from the Lean transport spec, not a measured deployment figure |
