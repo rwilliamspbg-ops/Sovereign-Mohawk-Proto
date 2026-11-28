@@ -101,3 +101,14 @@ Rows with an assumed or conditional guarantee:
 - Row 19 — Multi-Krum **selection** safety under a stated clustering/separation model: every honest candid… — `fully_formalized under the stated model; not unconditional`
 - Row 20 — Go-side cross-check of the sibling `CausalMohawkBridge` project's Chernoff tail bound and Loren… — `empirically_pinned_external; adds no claim to this repo`
 - Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — `fully_formalized for the split-Byzantine model; the honest-cluster/se…`
+
+## Reviewer evidence index
+
+Checked-in artifacts behind the empirical and cost claims above. These are repository files, not live measurements: the ZK costs come from the real circuit, knowledge soundness is external, and setup is an in-process simulated MPC ceremony:
+
+- WeightUpdateCircuit proof artifact: [`../results/zk/weight-proof-latest.json`](../results/zk/weight-proof-latest.json) — real gnark Groth16 circuit (9569 constraints), measured prove/verify costs; not a knowledge-soundness proof
+- Byzantine partition probe: [`../results/go-live/evidence/partition_probe_2026-08-10.json`](../results/go-live/evidence/partition_probe_2026-08-10.json) — empirical BFT partition evidence, not a machine-checked claim
+- Transport congestion probe: [`../results/go-live/evidence/transport_congestion_probe_2026-08-10.json`](../results/go-live/evidence/transport_congestion_probe_2026-08-10.json) — empirical transport impairment evidence
+- Transport delay probe: [`../results/go-live/evidence/transport_delay_probe_2026-08-10.json`](../results/go-live/evidence/transport_delay_probe_2026-08-10.json) — empirical transport impairment evidence
+- Transport impairment probe: [`../results/go-live/evidence/transport_impairment_probe_2026-08-10.json`](../results/go-live/evidence/transport_impairment_probe_2026-08-10.json) — empirical transport impairment evidence
+- Evidence package guide: [`EVIDENCE_PACKAGE.md`](EVIDENCE_PACKAGE.md) — how the artifacts are produced and checked

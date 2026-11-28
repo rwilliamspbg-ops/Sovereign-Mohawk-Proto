@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Generate (or --check) a one-page reviewer boundary doc from the matrix.
 
-The doc `docs/FORMAL_CLAIM_BOUNDARY.md` has exactly three sections -- What is
-proved / What is assumed / What is only tested -- and every bullet in them is
-derived from a row of `proofs/FORMAL_TRACEABILITY_MATRIX.md` (the authoritative
-status source) plus the claim taxonomy in `proofs/theorem_claims.json`.
+The doc `docs/FORMAL_CLAIM_BOUNDARY.md` has three matrix-derived sections --
+What is proved / What is assumed / What is only tested -- and every bullet in
+them is derived from a row of `proofs/FORMAL_TRACEABILITY_MATRIX.md` (the
+authoritative status source) plus the claim taxonomy in
+`proofs/theorem_claims.json`. A final reviewer-evidence section links checked-in
+artifacts; those links are a static index, not matrix-derived statuses.
 
 Nothing here judges whether a claim is *true*: it mechanically reads the
 matrix's own Status / Notes / Evidence cells and reports what the matrix says
@@ -28,6 +30,35 @@ from pathlib import Path
 MATRIX_REL = "proofs/FORMAL_TRACEABILITY_MATRIX.md"
 CLAIMS_REL = "proofs/theorem_claims.json"
 OUTPUT_REL = "docs/FORMAL_CLAIM_BOUNDARY.md"
+
+EVIDENCE_ARTIFACTS = [
+    (
+        "WeightUpdateCircuit proof artifact",
+        "../results/zk/weight-proof-latest.json",
+        "real gnark Groth16 circuit (9569 constraints), measured prove/verify costs; not a knowledge-soundness proof",
+    ),
+    (
+        "Byzantine partition probe",
+        "../results/go-live/evidence/partition_probe_2026-08-10.json",
+        "empirical BFT partition evidence, not a machine-checked claim",
+    ),
+    (
+        "Transport congestion probe",
+        "../results/go-live/evidence/transport_congestion_probe_2026-08-10.json",
+        "empirical transport impairment evidence",
+    ),
+    (
+        "Transport delay probe",
+        "../results/go-live/evidence/transport_delay_probe_2026-08-10.json",
+        "empirical transport impairment evidence",
+    ),
+    (
+        "Transport impairment probe",
+        "../results/go-live/evidence/transport_impairment_probe_2026-08-10.json",
+        "empirical transport impairment evidence",
+    ),
+    ("Evidence package guide", "EVIDENCE_PACKAGE.md", "how the artifacts are produced and checked"),
+]
 
 # A matrix row may wrap across physical lines (long Notes cells). Rejoin those
 # before parsing -- the same rule check_claim_transitions.py uses. Parsing
@@ -298,6 +329,19 @@ def render(
     lines.append("")
     for row in buckets["only_tested"]:
         lines.append(f"- Row {row['id']} — {short(row['claim'])} — {code(row['status'])}")
+    lines.append("")
+    # Section 4 -- static reviewer evidence index.
+    lines.append("## Reviewer evidence index")
+    lines.append("")
+    lines.append(
+        "Checked-in artifacts behind the empirical and cost claims above. "
+        "These are repository files, not live measurements: the ZK costs come "
+        "from the real circuit, knowledge soundness is external, and setup is "
+        "an in-process simulated MPC ceremony:"
+    )
+    lines.append("")
+    for label, link, note in EVIDENCE_ARTIFACTS:
+        lines.append(f"- {label}: [`{link}`]({link}) — {note}")
     lines.append("")
     return "\n".join(lines)
 
