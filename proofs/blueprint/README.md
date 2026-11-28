@@ -44,3 +44,16 @@ repository settings.
 The graph intentionally omits claims that are not machine-checked: an
 unconditional group law for the concrete implementation, a general Float↔ℝ
 Krum bridge, and Groth16/q-SDH knowledge soundness.
+
+## Self-hosted doc runner
+
+`.github/workflows/blueprint.yml` is a **manual** (`workflow_dispatch`) deployment:
+it verifies all `\lean{}` tags, builds the plasTeX web pages on a hosted runner,
+builds `doc-gen4` API pages on the `deskmini-docgen` self-hosted runner
+(label `docgen`, ~11 GiB available), then deploys both to GitHub Pages.
+`static.yml` is manual-only so it cannot overwrite this site. Pages must be
+configured with **Source: GitHub Actions** in repository settings.
+
+The Desk-Mini runner is started with `nohup ./run.sh &` from
+`~/actions-runner-docgen`; it is not installed as a systemd service, so it
+does not survive a reboot. Re-launch it before triggering the workflow.
