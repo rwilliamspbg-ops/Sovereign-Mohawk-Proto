@@ -31,8 +31,11 @@ root, use the script rather than bare `leanblueprint web` here.
 ## CI and publication
 
 `.github/workflows/blueprint.yml` is a **manual** (`workflow_dispatch`) deployment:
-it verifies all `\lean{}` tags, builds the plasTeX web pages and the `doc-gen4`
-API pages, and deploys the combined site to GitHub Pages. It is intentionally not
+it verifies all `\lean{}` tags, builds the plasTeX web pages, and deploys them
+to GitHub Pages. The `doc-gen4` dependency is pinned in the Lake workspace for
+local API generation, but its full-dependency docs build OOMs on the default
+7 GB GitHub runner, so published `\lean{}` links currently point at the Lean
+sources. A larger runner would allow re-enabling `LeanFormalization:docs`. It is intentionally not
 triggered by pushes because `static.yml` already owns the `pages` concurrency
 group for the default site; a second automatic deployment would cancel or
 overwrite it. Pages must be configured with **Source: GitHub Actions** in

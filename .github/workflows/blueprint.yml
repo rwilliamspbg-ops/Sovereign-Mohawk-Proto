@@ -38,19 +38,11 @@ jobs:
       - name: Verify \lean{} tags and build blueprint web pages
         run: bash scripts/ci/build_blueprint.sh
 
-      - name: Build doc-gen4 API documentation
-        working-directory: proofs
-        env:
-          # doc-gen4 analyses every imported Mathlib module; on the default
-          # 7 GB runner the parallel worker pool exhausts memory.
-          LEAN_NUM_THREADS: '1'
-        run: lake -R -Kenv=dev build LeanFormalization:docs
-
       - name: Assemble GitHub Pages artifact
         run: |
-          mkdir -p _site/docs
+          mkdir -p _site
           cp -r proofs/blueprint/web/* _site/
-          cp -r proofs/.lake/build/doc/* _site/docs/
+          touch _site/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
