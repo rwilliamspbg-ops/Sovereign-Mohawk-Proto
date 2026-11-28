@@ -8,7 +8,7 @@
       "surrogate_verified_with_cast_bridge": 1
     }
   },
-  "input_merkle_root": "73b99f22d1ccf2a0ae96aedd398d07bbcf79e50e7b3904817eca81f1f99c4a0a",
+  "input_merkle_root": "ee597078543d48f767004df0b39fdd3ac3ff973bdee3a93f253504783141d2d0",
   "inputs": [
     {
       "path": "capabilities.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "proofs/FORMAL_TRACEABILITY_MATRIX.md",
-      "sha256": "86d0f4fa9d49eb989bb8c2dfe76ef8df368871dc726e6da9d4b7da35bb5942ef"
+      "sha256": "5b5e0e62876bd9bb90ae06f05aefc44f9c6d98ba9e686c72d4d51eb06d70929f"
     },
     {
       "path": "proofs/LeanFormalization.lean",
@@ -48,7 +48,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
-      "sha256": "98ca9b3a061880651d539c8073adbc9c57d41f5ea8e525b86352f58bbc11db92"
+      "sha256": "8d34f93f0665c43ff8d1a340a9498f16919a88294030722b88de4fb42b8c0bb8"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519FieldBridge.lean",
@@ -60,7 +60,7 @@
     },
     {
       "path": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
-      "sha256": "8172400ea37bf2c4b984b2a9672e8a694179ac2a394f5650037b2891d416eaa3"
+      "sha256": "8618c61e4ddd25595c1a86dc1e757c1585850527291492c70238f679a3bed329"
     },
     {
       "path": "proofs/LeanFormalization/Ed25519UF_CMASecurity.lean",
@@ -304,7 +304,7 @@
     {
       "file": "proofs/LeanFormalization/Ed25519CurveGroupLaw.lean",
       "module": "LeanFormalization.Ed25519CurveGroupLaw",
-      "symbol_count": 31,
+      "symbol_count": 33,
       "symbols": [
         "IsCanonical",
         "IsConsistent",
@@ -331,6 +331,8 @@
         "ed25519_isSquare_neg_one",
         "ed25519_mod_four_eq_one",
         "ed25519_two_ne_zero",
+        "edAddField_snd_eq_one_zmod11",
+        "edAddField_snd_ne_one_of_fst_ne_zero",
         "edwardsEq_of_nat_curve_eq",
         "isNegation_comm",
         "isNegation_false_of_mont_u_ne",
@@ -398,17 +400,38 @@
     {
       "file": "proofs/LeanFormalization/Ed25519ScalarMulStructure.lean",
       "module": "LeanFormalization.Ed25519ScalarMulStructure",
-      "symbol_count": 17,
+      "symbol_count": 39,
       "symbols": [
+        "affineAdd_assoc_ofConditions",
         "affineAdd_consistent",
+        "affineScalarMulImpl_addMul_of_laws",
         "affineScalarMulImpl_canonical",
         "affineScalarMulImpl_consistent",
         "affineScalarMulImpl_eq_smulFold",
+        "affineScalarMulImpl_mulMul_of_laws",
         "affineScalarMulImpl_one",
         "affineScalarMulImpl_zero",
+        "binVal",
+        "binVal_range_bits",
+        "bit_land_one_mod",
+        "bit_mod_pow_succ",
+        "foldBits",
+        "foldBits_eq",
         "foldl_smulStep_canonical",
         "foldl_smulStep_consistent",
         "foldl_zero_bits_eq_identity",
+        "genFold_addMul",
+        "genFold_eq_opPow_of_lt",
+        "genFold_mulMul",
+        "genSmulFold",
+        "genSmulFold_eq_smulFold",
+        "genSmulStep",
+        "opPow",
+        "opPow_add",
+        "opPow_e",
+        "opPow_mul",
+        "opPow_op",
+        "op_op_comm",
         "smulFold_bitZero",
         "smulFold_range_succ",
         "smulFold_stable_below",
@@ -416,7 +439,8 @@
         "smulStep_canonical",
         "smulStep_consistent",
         "smulStep_one_identity",
-        "smulStep_zero_identity"
+        "smulStep_zero_identity",
+        "step_eq"
       ]
     },
     {
@@ -1254,7 +1278,7 @@
   "summary": {
     "input_file_count": 58,
     "module_count": 51,
-    "theorem_symbol_count": 648
+    "theorem_symbol_count": 672
   },
   "toolchain_lock": {
     "go_version": "1.27.4",

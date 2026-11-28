@@ -711,6 +711,62 @@ theorem affineAdd_associative_of_complete (P Q R : AffinePoint)
   subst ri
   rfl
 
+/-- The intermediate `1 - y ≠ 0` admissibility conditions reduce to `x ≠ 0` on
+    the sum. Given the on-curve equations for both inputs, the two input `y ≠ 1`
+    conditions, and the two unified-law denominators (all of which are available
+    in `affineAdd_associative_of_complete`), closure of the sum plus
+    `edwards_y_ne_one_of_x_ne_zero` gives `y ≠ 1` of the sum. The only remaining
+    failure mode is a sum with `x = 0`, i.e. the affine identity or the 2-torsion
+    point; negative control `edAddField_snd_eq_one_zmod11` shows the identity case
+    really occurs when the two inputs are negations.
+-/
+lemma edAddField_snd_ne_one_of_fst_ne_zero {K : Type*} [Field K] [DecidableEq K]
+    {d x1 y1 x2 y2 : K}
+    (hd : 1 + d ≠ 0)
+    (hE1 : edwardsEq d x1 y1) (hE2 : edwardsEq d x2 y2)
+    (hy1 : 1 - y1 ≠ 0) (hy2 : 1 - y2 ≠ 0)
+    (hD12p : 1 + d * x1 * x2 * y1 * y2 ≠ 0)
+    (hD12m : 1 - d * x1 * x2 * y1 * y2 ≠ 0)
+    (hx3 : (edAddField d x1 y1 x2 y2).1 ≠ 0) :
+    1 - (edAddField d x1 y1 x2 y2).2 ≠ 0 := by
+  have hDy1 := edwards_one_add_dy_ne_zero hE1 hy1 hd
+  have hDy2 := edwards_one_add_dy_ne_zero hE2 hy2 hd
+  have hp : 1 + d * x1 * y1 * x2 * y2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12p
+  have hm : 1 - d * x1 * y1 * x2 * y2 ≠ 0 := by
+    simpa [mul_assoc, mul_left_comm, mul_comm] using hD12m
+  have hE12 := edAddClosure_aux hE1 hE2 hDy1 hDy2 hp hm
+  have hy3 : (edAddField d x1 y1 x2 y2).2 ≠ 1 :=
+    edwards_y_ne_one_of_x_ne_zero hE12 hd hx3
+  intro h
+  apply hy3
+  linear_combination -h
+
+section IntermediateSndNegativeControl
+
+local instance : Fact (Nat.Prime 11) := ⟨by norm_num⟩
+
+/-- **Negative control for the intermediate `y ≠ 1` condition.** Over `ZMod 11`
+    at `d = 2`, the on-curve points `(4,6)` and `(7,6) = -(4,6)` have `x ≠ 0` and
+    `y ≠ 1`, yet their Edwards sum is the affine identity `(0,1)`, so
+    `1 - y = 0`. Hence `1 - y(sum) ≠ 0` cannot be derived from the admissibility
+    of the inputs alone: one must exclude that the two inputs are negations.
+    The missing algebraic step is exactly
+    `y(P + Q) = 1 → (x₂ = -x₁ ∧ y₂ = y₁)`; a Groebner-basis computation confirms
+    it over an arbitrary field (with the two unified-law denominators inverted),
+    but its `linear_combination` certificate has degree ≥ 8 and is not tractable
+    to formalise here. This is the precise obstruction to discharging `hy12`,
+    `hy23`, `hy12L`, `hy1R` from `hnegPQ`, `hnegQR`, `hnegS1R`, `hnegPS2`.
+-/
+lemma edAddField_snd_eq_one_zmod11 :
+    edwardsEq (2 : ZMod 11) 4 6 ∧ edwardsEq (2 : ZMod 11) 7 6 ∧
+    (4 : ZMod 11) ≠ 0 ∧ (7 : ZMod 11) ≠ 0 ∧ (6 : ZMod 11) ≠ 1 ∧
+    (edAddField (2 : ZMod 11) 4 6 7 6).1 = 0 ∧
+    1 - (edAddField (2 : ZMod 11) 4 6 7 6).2 = 0 := by
+  unfold edwardsEq edAddField
+  decide
+
+end IntermediateSndNegativeControl
 /-- `decodePoint`'s Nat on-curve test lifts to `edwardsEq` on `ZMod ed25519P`.
     This lets callers supply the concrete Bool/Nat test instead of a separate
     field-level hypothesis. -/

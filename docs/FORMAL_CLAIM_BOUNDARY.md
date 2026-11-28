@@ -55,7 +55,7 @@ One-page reviewer map of what the formalization actually establishes. Every bull
 - `FloatOrderLaws` — matrix row(s) 12
 - `Fact (Nat.Prime q)` — matrix row(s) 23, 25, 38, 47
 - `SchnorrDLHard` — matrix row(s) 25, 31, 32, 33
-- `Ed25519GroupLaws` — matrix row(s) 26, 33
+- `Ed25519GroupLaws` — matrix row(s) 26, 33, 45
 
 Rows with an assumed or conditional guarantee:
 
@@ -86,7 +86,7 @@ Rows with an assumed or conditional guarantee:
 - Row 40 — **Ed25519 affine addition law, first increment**: `affineAdd` is **commutative** on reduced rep… — assumed; assumption; not proved / not unconditional
 - Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — assumption; clustering/separation model; scope limit (not claimed/formalized/refined/recovered)
 - Row 43 — **Multi-Krum convergence without exact unbiasedness**: `V_t = ‖θ_t − θ*‖²` converges to `0` alm… — unbiasedness; conditional on invariants
-- Row 45 — **Ed25519 `affineScalarMulImpl`: base cases and produced-point invariants.** The double-and-add… — assumed; not proved / not unconditional
+- Row 45 — **Ed25519 `affineScalarMulImpl`: base cases and produced-point invariants.** The double-and-add… — Ed25519GroupLaws; assumed; conditional on invariants; not proved / not unconditional
 - Row 46 — **Ed25519 `affineAdd`: birational bridge to a Montgomery model.** `affineAdd`'s group law lives… — assumed; conditional on invariants
 - Row 47 — **Ed25519 affine addition law, field-level bridge**: the Edwards to Montgomery addition-law com… — Fact (Nat.Prime ...); assumed; conditional on invariants; not proved / not unconditional; scope…
 

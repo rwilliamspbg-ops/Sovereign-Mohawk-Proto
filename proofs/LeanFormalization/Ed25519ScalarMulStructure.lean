@@ -263,4 +263,307 @@ theorem affineScalarMulImpl_canonical (k : Nat) (P : AffinePoint) (hP : IsCanoni
     exact ⟨ed25519P_pos, by unfold ed25519P; norm_num⟩
   exact foldl_smulStep_canonical (List.range 256).reverse k P hP affineIdentity hinit
 
+set_option maxHeartbeats 400000
+
+/-! ### Conditional scalar-multiplication laws, at the fold level
+
+The loop is ordinary binary exponentiation: for an associative operation `op`
+with identity `e`, the `n`-bit MSB-first fold equals `opPow op e P k` whenever
+`k < 2 ^ n`. `OpCommMonoid.genFold_addMul` and `OpCommMonoid.genFold_mulMul`
+derive the two consumed laws from that identity. No new axiom: the residual
+assumptions are the monoid laws on the operation used by the fold, and the
+exponent-width bounds that keep the fold from truncating.
+
+For the concrete `affineAdd` these are real residuals. Associativity is proved
+only by `affineAdd_associative_of_complete`, whose 22 conditions are packaged
+verbatim in `AffineAssocConditions`; `affineAdd_comm`, `affineAdd_identity` and
+`affineAdd_identity_left` are conditional on reduced coordinates / consistency.
+The two concrete theorems below therefore take the four laws as explicit
+hypotheses and state the width bounds explicitly.
+-/
+
+local instance ed25519P_prime_fact_local : Fact (Nat.Prime ed25519P) := ⟨ed25519P_prime⟩
+
+universe u
+
+structure OpCommMonoid (α : Type u) where
+  op : α → α → α
+  e : α
+  assoc : ∀ x y z : α, op (op x y) z = op x (op y z)
+  comm : ∀ x y : α, op x y = op y x
+  one_left : ∀ x : α, op e x = x
+  one_right : ∀ x : α, op x e = x
+
+def opPow {α : Type u} (op : α → α → α) (e a : α) : Nat → α
+  | 0 => e
+  | n + 1 => op (opPow op e a n) a
+
+def genSmulStep {α : Type u} (op : α → α → α) (bit : Nat) (r P : α) : α :=
+  let r2 := op r r
+  if bit == 1 then op r2 P else r2
+
+def foldBits {α : Type u} (op : α → α → α) (bits : List Nat) (acc P : α) : α :=
+  bits.foldl (fun r b => genSmulStep op b r P) acc
+
+def genSmulFold {α : Type u} (op : α → α → α) (e : α) (k : Nat) (P : α) (n : Nat) : α :=
+  ((List.range n).reverse.foldl (fun r i => genSmulStep op ((k >>> i) &&& 1) r P) e)
+
+def binVal : List Nat → Nat
+  | [] => 0
+  | b :: bs => b * 2 ^ bs.length + binVal bs
+
+namespace OpCommMonoid
+
+variable {α : Type u} (m : OpCommMonoid α)
+
+theorem opPow_e (n : Nat) : opPow m.op m.e m.e n = m.e := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [opPow, ih, m.one_left]
+
+theorem opPow_add (a : α) (p q : Nat) :
+    opPow m.op m.e a (p + q) = m.op (opPow m.op m.e a p) (opPow m.op m.e a q) := by
+  induction q with
+  | zero => simp [opPow, m.one_right]
+  | succ q ih => rw [Nat.add_succ, opPow, ih, opPow, ← m.assoc]
+
+theorem opPow_mul (a : α) (p q : Nat) :
+    opPow m.op m.e (opPow m.op m.e a p) q = opPow m.op m.e a (p * q) := by
+  induction q with
+  | zero => simp [opPow]
+  | succ q ih => rw [Nat.mul_succ, opPow, ih, ← m.opPow_add]
+
+theorem op_op_comm (a b c d : α) :
+    m.op (m.op a b) (m.op c d) = m.op (m.op a c) (m.op b d) := by
+  calc
+    m.op (m.op a b) (m.op c d) = m.op a (m.op b (m.op c d)) := m.assoc a b (m.op c d)
+    _ = m.op a (m.op (m.op b c) d) := by rw [← m.assoc b c d]
+    _ = m.op a (m.op (m.op c b) d) := by rw [m.comm b c]
+    _ = m.op a (m.op c (m.op b d)) := by rw [m.assoc c b d]
+    _ = m.op (m.op a c) (m.op b d) := by rw [← m.assoc a c (m.op b d)]
+
+theorem opPow_op (a b : α) (n : Nat) :
+    opPow m.op m.e (m.op a b) n = m.op (opPow m.op m.e a n) (opPow m.op m.e b n) := by
+  induction n with
+  | zero => simp [opPow, m.one_left]
+  | succ n ih => rw [opPow, ih, opPow, opPow, m.op_op_comm]
+
+theorem step_eq (b : Nat) (hb : b = 0 ∨ b = 1) (r P : α) :
+    genSmulStep m.op b r P = m.op (m.op r r) (opPow m.op m.e P b) := by
+  rcases hb with rfl | rfl
+  · simp [genSmulStep, opPow, m.one_right]
+  · simp [genSmulStep, opPow, m.one_left]
+
+theorem foldBits_eq (bits : List Nat) (hb : ∀ b ∈ bits, b = 0 ∨ b = 1) (acc P : α) :
+    foldBits m.op bits acc P =
+      m.op (opPow m.op m.e acc (2 ^ bits.length)) (opPow m.op m.e P (binVal bits)) := by
+  induction bits generalizing acc with
+  | nil => simp [foldBits, binVal, opPow, m.one_left, m.one_right]
+  | cons b bs ih =>
+      have hb0 : b = 0 ∨ b = 1 := hb b (by simp)
+      have hbs : ∀ x ∈ bs, x = 0 ∨ x = 1 := fun x hx => hb x (by simp [hx])
+      change foldBits m.op bs (genSmulStep m.op b acc P) P =
+        m.op (opPow m.op m.e acc (2 ^ (b :: bs).length)) (opPow m.op m.e P (binVal (b :: bs)))
+      rw [m.step_eq b hb0 acc P]
+      rcases hb0 with rfl | rfl
+      · simp only [opPow, m.one_right]
+        rw [ih hbs]
+        rw [m.opPow_op]
+        simp only [binVal, List.length_cons, zero_mul, zero_add]
+        rw [show 2 ^ (bs.length + 1) = 2 ^ bs.length + 2 ^ bs.length by rw [pow_succ]; ring]
+        rw [← m.opPow_add]
+      · simp only [opPow, m.one_left]
+        rw [ih hbs]
+        rw [m.opPow_op, m.opPow_op]
+        simp only [binVal, List.length_cons, one_mul]
+        rw [show 2 ^ (bs.length + 1) = 2 ^ bs.length + 2 ^ bs.length by rw [pow_succ]; ring]
+        rw [← m.opPow_add]
+        rw [m.assoc]
+        rw [← m.opPow_add]
+
+end OpCommMonoid
+
+lemma bit_land_one_mod (n : Nat) : n &&& 1 = n % 2 := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  rw [Nat.testBit_land]
+  rw [show (1 : Nat) = 2 ^ 0 by norm_num, Nat.testBit_two_pow]
+  rw [show (2 : Nat) = 2 ^ 1 by norm_num, Nat.testBit_mod_two_pow]
+  by_cases hi : i = 0
+  · subst hi
+    simp
+  · have hi0 : ¬ i < 1 := by omega
+    have h0i : ¬ 0 = i := by omega
+    by_cases hb : n.testBit i <;> simp [hb, hi0, h0i]
+
+lemma bit_mod_pow_succ (k n : Nat) :
+    k % 2 ^ (n + 1) = ((k / 2 ^ n) % 2) * 2 ^ n + k % 2 ^ n := by
+  have hd : 0 < 2 ^ n := pow_pos (by norm_num) _
+  have hdecomp : k = 2 ^ n * (k / 2 ^ n) + k % 2 ^ n := (Nat.div_add_mod k (2 ^ n)).symm
+  have hq : k / 2 ^ n = 2 * (k / 2 ^ n / 2) + (k / 2 ^ n) % 2 :=
+    (Nat.div_add_mod (k / 2 ^ n) 2).symm
+  have hlt : ((k / 2 ^ n) % 2) * 2 ^ n + k % 2 ^ n < 2 * 2 ^ n := by
+    have hle : (k / 2 ^ n) % 2 ≤ 1 := by omega
+    have hr : k % 2 ^ n < 2 ^ n := Nat.mod_lt _ hd
+    nlinarith
+  conv_lhs =>
+    rw [show 2 ^ (n + 1) = 2 * 2 ^ n by rw [pow_succ]; ring]
+    rw [hdecomp, hq]
+    rw [show 2 ^ n * (2 * (k / 2 ^ n / 2) + (k / 2 ^ n) % 2) + k % 2 ^ n =
+      (k / 2 ^ n % 2 * 2 ^ n + k % 2 ^ n) + (2 * 2 ^ n) * (k / 2 ^ n / 2) by ring]
+    rw [Nat.add_mul_mod_self_left]
+  exact Nat.mod_eq_of_lt hlt
+
+lemma binVal_range_bits (k n : Nat) :
+    binVal ((List.range n).reverse.map (fun i => (k >>> i) &&& 1)) = k % 2 ^ n := by
+  induction n with
+  | zero => simp [binVal, Nat.mod_one]
+  | succ n ih =>
+      rw [List.range_succ, List.reverse_append, List.reverse_singleton]
+      simp only [List.singleton_append, List.map_cons, binVal]
+      rw [show List.length ((List.range n).reverse.map (fun i => (k >>> i) &&& 1)) = n by simp]
+      rw [ih]
+      rw [Nat.shiftRight_eq_div_pow, bit_land_one_mod]
+      exact (bit_mod_pow_succ k n).symm
+
+namespace OpCommMonoid
+
+variable {α : Type u} (m : OpCommMonoid α)
+
+theorem genFold_eq_opPow_of_lt (k n : Nat) (P : α) (hk : k < 2 ^ n) :
+    genSmulFold m.op m.e k P n = opPow m.op m.e P k := by
+  have hb : ∀ b ∈ ((List.range n).reverse.map (fun i => (k >>> i) &&& 1)), b = 0 ∨ b = 1 := by
+    intro b hb
+    simp only [List.mem_map] at hb
+    rcases hb with ⟨i, hi, rfl⟩
+    rw [bit_land_one_mod]
+    exact Nat.mod_two_eq_zero_or_one _
+  have h := m.foldBits_eq ((List.range n).reverse.map (fun i => (k >>> i) &&& 1)) hb m.e P
+  have hfold : genSmulFold m.op m.e k P n =
+      foldBits m.op ((List.range n).reverse.map (fun i => (k >>> i) &&& 1)) m.e P := by
+    unfold genSmulFold foldBits
+    rw [List.foldl_map]
+  rw [hfold]
+  rw [h, m.opPow_e, m.one_left, binVal_range_bits]
+  rw [Nat.mod_eq_of_lt hk]
+
+theorem genFold_addMul (k1 k2 n : Nat) (P : α)
+    (h1 : k1 < 2 ^ n) (h2 : k2 < 2 ^ n) (hs : k1 + k2 < 2 ^ n) :
+    genSmulFold m.op m.e (k1 + k2) P n =
+      m.op (genSmulFold m.op m.e k1 P n) (genSmulFold m.op m.e k2 P n) := by
+  rw [m.genFold_eq_opPow_of_lt (k1 + k2) n P hs,
+      m.genFold_eq_opPow_of_lt k1 n P h1,
+      m.genFold_eq_opPow_of_lt k2 n P h2,
+      m.opPow_add]
+
+theorem genFold_mulMul (k1 k2 n : Nat) (P : α)
+    (h1 : k1 < 2 ^ n) (h2 : k2 < 2 ^ n) (hp : k1 * k2 < 2 ^ n) :
+    genSmulFold m.op m.e k1 (genSmulFold m.op m.e k2 P n) n =
+      genSmulFold m.op m.e (k1 * k2) P n := by
+  rw [m.genFold_eq_opPow_of_lt k1 n (genSmulFold m.op m.e k2 P n) h1,
+      m.genFold_eq_opPow_of_lt k2 n P h2,
+      m.genFold_eq_opPow_of_lt (k1 * k2) n P hp,
+      m.opPow_mul]
+  rw [Nat.mul_comm]
+
+end OpCommMonoid
+
+/-! ### Concrete specialization -/
+
+theorem genSmulFold_eq_smulFold (k : Nat) (P : AffinePoint) (n : Nat) :
+    genSmulFold affineAdd affineIdentity k P n = smulFold k P n := by
+  rfl
+
+theorem affineScalarMulImpl_addMul_of_laws
+    (hAssoc : ∀ X Y Z : AffinePoint, affineAdd (affineAdd X Y) Z = affineAdd X (affineAdd Y Z))
+    (hComm : ∀ X Y : AffinePoint, affineAdd X Y = affineAdd Y X)
+    (hLeft : ∀ X : AffinePoint, affineAdd affineIdentity X = X)
+    (hRight : ∀ X : AffinePoint, affineAdd X affineIdentity = X)
+    (k1 k2 : Nat) (P : AffinePoint)
+    (h1 : k1 < 2 ^ 256) (h2 : k2 < 2 ^ 256) (hs : k1 + k2 < 2 ^ 256) :
+    affineScalarMulImpl (k1 + k2) P =
+      affineAdd (affineScalarMulImpl k1 P) (affineScalarMulImpl k2 P) := by
+  let m : OpCommMonoid AffinePoint := ⟨affineAdd, affineIdentity, hAssoc, hComm, hLeft, hRight⟩
+  simp only [affineScalarMulImpl_eq_smulFold]
+  rw [← genSmulFold_eq_smulFold (k1 + k2) P 256,
+      ← genSmulFold_eq_smulFold k1 P 256,
+      ← genSmulFold_eq_smulFold k2 P 256]
+  exact m.genFold_addMul k1 k2 256 P h1 h2 hs
+
+theorem affineScalarMulImpl_mulMul_of_laws
+    (hAssoc : ∀ X Y Z : AffinePoint, affineAdd (affineAdd X Y) Z = affineAdd X (affineAdd Y Z))
+    (hComm : ∀ X Y : AffinePoint, affineAdd X Y = affineAdd Y X)
+    (hLeft : ∀ X : AffinePoint, affineAdd affineIdentity X = X)
+    (hRight : ∀ X : AffinePoint, affineAdd X affineIdentity = X)
+    (k1 k2 : Nat) (P : AffinePoint)
+    (h1 : k1 < 2 ^ 256) (h2 : k2 < 2 ^ 256) (hp : k1 * k2 < 2 ^ 256) :
+    affineScalarMulImpl k1 (affineScalarMulImpl k2 P) = affineScalarMulImpl (k1 * k2) P := by
+  let m : OpCommMonoid AffinePoint := ⟨affineAdd, affineIdentity, hAssoc, hComm, hLeft, hRight⟩
+  simp only [affineScalarMulImpl_eq_smulFold]
+  rw [← genSmulFold_eq_smulFold k1 (smulFold k2 P 256) 256,
+      ← genSmulFold_eq_smulFold k2 P 256,
+      ← genSmulFold_eq_smulFold (k1 * k2) P 256]
+  exact m.genFold_mulMul k1 k2 256 P h1 h2 hp
+
+/-- The 22 explicit residual conditions required by
+`affineAdd_associative_of_complete` for a triple `(P, Q, R)`, stated verbatim. -/
+structure AffineAssocConditions (P Q R : AffinePoint) : Prop where
+  hcP : IsCanonical P
+  hcQ : IsCanonical Q
+  hcR : IsCanonical R
+  hP : ¬ P.inf
+  hQ : ¬ Q.inf
+  hR : ¬ R.inf
+  hnegPQ : IsNegation P Q = false
+  hnegQR : IsNegation Q R = false
+  hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+  hEQ : edwardsEq (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+  hER : edwardsEq (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)
+  hxP : (P.x : ZMod ed25519P) ≠ 0
+  hxQ : (Q.x : ZMod ed25519P) ≠ 0
+  hxR : (R.x : ZMod ed25519P) ≠ 0
+  hu12 : ((edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1) ≠
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+  hu23 : (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1 ≠
+    (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+  hu12_3 : (montAdd (ed25519D : ZMod ed25519P)
+    (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1
+    (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).2
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2).1 ≠
+    (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+  hu1_23 : (edwardsToMont (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)).1 ≠
+    (montAdd (ed25519D : ZMod ed25519P)
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+    (edwardsToMont (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2
+    (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+    (edwardsToMont (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).1
+  hy12 : 1 - (edAddField (ed25519D : ZMod ed25519P)
+    (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2 ≠ 0
+  hy23 : 1 - (edAddField (ed25519D : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+    (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 ≠ 0
+  hy12L : 1 - (edAddField (ed25519D : ZMod ed25519P)
+    (edAddField (ed25519D : ZMod ed25519P)
+    (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).1
+    (edAddField (ed25519D : ZMod ed25519P)
+    (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)).2
+    (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2 ≠ 0
+  hy1R : 1 - (edAddField (ed25519D : ZMod ed25519P)
+    (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
+    (edAddField (ed25519D : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+    (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).1
+    (edAddField (ed25519D : ZMod ed25519P)
+    (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
+    (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)).2).2 ≠ 0
+
+/-- Associativity of `affineAdd` from exactly those conditions. -/
+theorem affineAdd_assoc_ofConditions (P Q R : AffinePoint)
+    (h : AffineAssocConditions P Q R) :
+    affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) :=
+  affineAdd_associative_of_complete P Q R h.hcP h.hcQ h.hcR h.hP h.hQ h.hR h.hnegPQ h.hnegQR h.hEP h.hEQ h.hER h.hxP h.hxQ h.hxR h.hu12 h.hu23 h.hu12_3 h.hu1_23 h.hy12 h.hy23 h.hy12L h.hy1R
 end LeanFormalization
