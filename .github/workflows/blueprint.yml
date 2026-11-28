@@ -59,9 +59,15 @@ jobs:
 
       - name: Build doc-gen4 API documentation
         working-directory: proofs
+        # doc-gen4 d555f83 (v4.30.0-rc2) blocks on srcUri.github inside
+        # modJob.mapM, which inflates the Lake worker pool until git spawns
+        # fail with ENOMEM (doc-gen4#434/#435). LEAN_NUM_THREADS is not a
+        # hard cap there; use the documented file:// facet until the pinned
+        # doc-gen4 is upgraded. Source links in the API pages are runner-local.
         env:
           DISABLE_EQUATIONS: '1'
           LEAN_NUM_THREADS: '2'
+          DOCGEN_SRC: 'file'
         run: lake -R -Kenv=dev build LeanFormalization:docs
 
       - name: Upload doc-gen4 artifact
