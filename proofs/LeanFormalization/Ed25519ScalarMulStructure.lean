@@ -275,7 +275,7 @@ assumptions are the monoid laws on the operation used by the fold, and the
 exponent-width bounds that keep the fold from truncating.
 
 For the concrete `affineAdd` these are real residuals. Associativity is proved
-only by `affineAdd_associative_of_complete`, whose 22 conditions are packaged
+only by `affineAdd_associative_of_complete`, whose 20 conditions are packaged
 verbatim in `AffineAssocConditions`; `affineAdd_comm`, `affineAdd_identity` and
 `affineAdd_identity_left` are conditional on reduced coordinates / consistency.
 The two concrete theorems below therefore take the four laws as explicit
@@ -505,7 +505,7 @@ theorem affineScalarMulImpl_mulMul_of_laws
       ← genSmulFold_eq_smulFold (k1 * k2) P 256]
   exact m.genFold_mulMul k1 k2 256 P h1 h2 hp
 
-/-- The 22 explicit residual conditions required by
+/-- The 20 explicit residual conditions required by
 `affineAdd_associative_of_complete` for a triple `(P, Q, R)`, stated verbatim. -/
 structure AffineAssocConditions (P Q R : AffinePoint) : Prop where
   hcP : IsCanonical P
@@ -514,8 +514,6 @@ structure AffineAssocConditions (P Q R : AffinePoint) : Prop where
   hP : ¬ P.inf
   hQ : ¬ Q.inf
   hR : ¬ R.inf
-  hnegPQ : IsNegation P Q = false
-  hnegQR : IsNegation Q R = false
   hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P)
   hEQ : edwardsEq (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P)
   hER : edwardsEq (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P)
@@ -565,5 +563,5 @@ structure AffineAssocConditions (P Q R : AffinePoint) : Prop where
 theorem affineAdd_assoc_ofConditions (P Q R : AffinePoint)
     (h : AffineAssocConditions P Q R) :
     affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) :=
-  affineAdd_associative_of_complete P Q R h.hcP h.hcQ h.hcR h.hP h.hQ h.hR h.hnegPQ h.hnegQR h.hEP h.hEQ h.hER h.hxP h.hxQ h.hxR h.hu12 h.hu23 h.hu12_3 h.hu1_23 h.hy12 h.hy23 h.hy12L h.hy1R
+  affineAdd_associative_of_complete P Q R h.hcP h.hcQ h.hcR h.hP h.hQ h.hR h.hEP h.hEQ h.hER h.hxP h.hxQ h.hxR h.hu12 h.hu23 h.hu12_3 h.hu1_23 h.hy12 h.hy23 h.hy12L h.hy1R
 end LeanFormalization

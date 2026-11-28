@@ -463,7 +463,7 @@ theorem ed25519D_not_isSquare : ¬ IsSquare (ed25519D : ZMod ed25519P) := by
     conditions; `x != 0` for the three
     inputs (`y != 1` follows from it by `edwards_y_ne_one_of_x_ne_zero`); four
     Montgomery-u distinctness conditions (`hu12`, `hu23`, `hu12_3`, `hu1_23`) and four
-    intermediate `y != 1` conditions. Note `IsSquare (-1)` is derived here from
+    intermediate `y != 1` conditions. The two `IsNegation = false` branch exclusions are derived from `hu12`/`hu23` by `isNegation_false_of_mont_u_ne`. Note `IsSquare (-1)` is derived here from
     `p % 4 = 1`, so it is not an assumption.
 
     If any of these is unavailable the theorem makes no claim -- in particular
@@ -471,7 +471,6 @@ theorem ed25519D_not_isSquare : ¬ IsSquare (ed25519D : ZMod ed25519P) := by
 theorem affineAdd_associative_of_complete (P Q R : AffinePoint)
     (hcP : IsCanonical P) (hcQ : IsCanonical Q) (hcR : IsCanonical R)
     (hP : ¬ P.inf) (hQ : ¬ Q.inf) (hR : ¬ R.inf)
-    (hnegPQ : IsNegation P Q = false) (hnegQR : IsNegation Q R = false)
     (hEP : edwardsEq (ed25519D : ZMod ed25519P) (P.x : ZMod ed25519P) (P.y : ZMod ed25519P))
     (hEQ : edwardsEq (ed25519D : ZMod ed25519P) (Q.x : ZMod ed25519P) (Q.y : ZMod ed25519P))
     (hER : edwardsEq (ed25519D : ZMod ed25519P) (R.x : ZMod ed25519P) (R.y : ZMod ed25519P))
@@ -518,6 +517,8 @@ theorem affineAdd_associative_of_complete (P Q R : AffinePoint)
     affineAdd (affineAdd P Q) R = affineAdd P (affineAdd Q R) := by
   have hnd : ¬ IsSquare (ed25519D : ZMod ed25519P) := ed25519D_not_isSquare
   have hp : Fact (Nat.Prime ed25519P) := ed25519P_prime_fact
+  have hnegPQ : IsNegation P Q = false := isNegation_false_of_mont_u_ne hp P Q hu12
+  have hnegQR : IsNegation Q R = false := isNegation_false_of_mont_u_ne hp Q R hu23
   have hS1inf : ¬ (affineAdd P Q).inf := by
     rw [affineAdd_eq_formula P Q hP hQ hnegPQ]
     simp [affineAddFormula]
