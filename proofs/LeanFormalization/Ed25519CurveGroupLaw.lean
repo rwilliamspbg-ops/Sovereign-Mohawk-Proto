@@ -310,7 +310,7 @@ theorem affineAddFormula_zmod_eq_edAddField (hp : Fact (Nat.Prime ed25519P))
   have hinv1 : (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ZMod ed25519P) =
       ((fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) : ℕ) : ZMod ed25519P)⁻¹ := by
     have hmul : fmul (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
-        (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hp hden1
+        (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hden1
     have hmulz : ((fmul (fInv (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
         (fadd 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ℕ) : ZMod ed25519P) = 1 := by
       rw [hmul]
@@ -320,7 +320,7 @@ theorem affineAddFormula_zmod_eq_edAddField (hp : Fact (Nat.Prime ed25519P))
   have hinv2 : (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ZMod ed25519P) =
       ((fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2))) : ℕ) : ZMod ed25519P)⁻¹ := by
     have hmul : fmul (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
-        (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hp hden2
+        (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) = 1 := fmul_fInv hden2
     have hmulz : ((fmul (fInv (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))))
         (fsub 1 (fmul ed25519D (fmul (fmul x1 x2) (fmul y1 y2)))) : ℕ) : ZMod ed25519P) = 1 := by
       rw [hmul]

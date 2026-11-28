@@ -280,6 +280,11 @@ def render(
         "Lean side can have an empirical-only Go bridge. Counts are derived."
     )
     lines.append("")
+    lines.append(
+        "Reading order: this boundary → [traceability matrix]"
+        "(../proofs/FORMAL_TRACEABILITY_MATRIX.md) → [academic paper](ACADEMIC_PAPER.md)."
+    )
+    lines.append("")
 
     # Section 1 -- proved.
     lines.append("## What is proved")
@@ -338,6 +343,10 @@ def render(
         "These are repository files, not live measurements: the ZK costs come "
         "from the real circuit, knowledge soundness is external, and setup is "
         "an in-process simulated MPC ceremony:"
+    )
+    lines.append("")
+    lines.append(
+        "Probe artifacts are point-in-time captures from 2026-08-10 and are not re-measured by CI."
     )
     lines.append("")
     for label, link, note in EVIDENCE_ARTIFACTS:

@@ -19,9 +19,11 @@ Our security architecture, detailed in [Theorem 1 (BFT Resilience)](./proofs/bft
 
 We enforce security through **Proof-Driven Design**. The following "guards" are active in the codebase:
 
-1. **Byzantine Guard (`internal/tpm/tpm.go`):** Enforces $n > 2f + 1$ at every aggregation tier.
+1. **Byzantine Guard (`internal/multikrum.go`):** Enforces $n > 2f + 2$ at every Multi-Krum aggregation tier.
 2. **Privacy Guard (`internal/rdp_accountant.go`):** Prevents membership inference attacks by strictly enforcing the $\epsilon = 2.0$ budget.
 3. **Succinct Verification (`internal/zkprover/produce.go`):** Circuit-bound Groth16 proofs are verified against statements derived from `WeightUpdateCircuit`. The fixed `genesisVK` in `internal/zksnark_verifier.go` is a **deprecated commitment-less fallback**, not the production weight-update key; it does not bind a proof to model-weight content. See `internal/zkprover/produce.go`'s embedded-statement self-check and `proofs/cryptography.md`.
+
+Guard scope: $n > 2f + 2$ is the enforced Multi-Krum precondition (`internal/multikrum.go`, mirrored in `internal/hbft/simulator.go`), $2f < n$ is the abstract single-tier Lean safety hypothesis, and the TPM module's `VerifyByzantineResilience` is a separate 55.5%-boundary check — no deployed guard uses the old $n > 2f + 1$ arithmetic.
 
 ### Runtime Hardening Notes (Apr 2026)
 
@@ -78,7 +80,7 @@ For consolidated legal context, see [NOTICE.md](./NOTICE.md).
 
 Traditional Federated Learning (FL) frameworks (e.g., Google TFF, Flower) are typically analyzed under honest-majority assumptions. The [Sovereign Mohawk Protocol](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto) tracks a compositional honest-majority theorem and separate concrete profile guards, rather than claiming a universal 80% Byzantine bound.
 
-### 🔬 Technical Breakthroughs (Patent Pending)
+### 🔬 Design Claims Under Evaluation
 
 #### 1. Hierarchical Recursive Filtering ($O(\log n)$)
 

@@ -393,7 +393,7 @@ class TestTheorem5Cryptography:
         }
 
         cost_per_op_micros = 1000
-        max_cost_micros = 10_000  # 10ms guard
+        max_cost_micros = 10_000  # abstract-model guard, not a measurement; measured verify 0.675 ms (results/zk/weight-proof-latest.json)
 
         for nodes, ops in verification_ops.items():
             cost_micros = ops * cost_per_op_micros

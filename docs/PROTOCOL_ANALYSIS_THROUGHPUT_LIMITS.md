@@ -165,13 +165,13 @@ Current stress test: 342K msg/sec (within capacity)
   Exceeds 16-core capacity by 10-40x
   
 Protocol consequence:
-  Theorem 5 SLA violation: >10ms verification time
+  Theorem 5 abstract cost-model guard exceeded (>10ms nominal; measured verify 0.675 ms — results/zk/weight-proof-latest.json)
   Queue backlog grows unbounded
   Messages rejected (batch_rejected increments)
 ```
 
 **Theorem 5 Formal Statement (from code):**
-> "O(1) verification of node manifests supporting 10ms verification target"
+> "O(1) verification of node manifests (abstract cost model; measured verify 0.675 ms — results/zk/weight-proof-latest.json)"
 
 **50-100x load impact:**
 ```
@@ -290,7 +290,7 @@ Tier 2: 1-5M msg/sec (10-15x increase)
 
 Tier 3: 5-15M msg/sec (15-50x increase)
   ❌ FAILURE: Privacy budget depletes too fast (if using naive sigma)
-  ❌ FAILURE: Theorem 5 verification SLA violated (>10ms)
+  ❌ FAILURE: Theorem 5 abstract verification-cost guard exceeded (>10ms nominal; measured verify 0.675 ms — results/zk/weight-proof-latest.json)
   ⚠️ Warning: Theorem 4 liveness becomes unreliable
   ⚠️ Warning: Adaptive quorum calculation numeric instability
   Impact: Training stalls (privacy guard activates) or drops to 50% delivery
@@ -311,7 +311,7 @@ Constraint 1 (Privacy Budget - Theorem 2):
   Time available: 4-10 rounds × target_latency
   
   For 100ms per round: 400-1000ms budget
-  For 10ms per round:  40-100ms budget
+  For 10ms per round:  40-100ms budget (round-latency assumption, not a ZK measurement — measured verify 0.675 ms: results/zk/weight-proof-latest.json)
   
   At 50x increase (5ms per round): Privacy exhausted in 25-50ms
   

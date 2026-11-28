@@ -203,7 +203,7 @@ completeness lemmas are proved axiom-free with load-bearing negative controls;
 primality of `ed25519P` and nonsquareness of `ed25519D` are now proved as
 theorems, while the admissibility/distinctness conditions of the concrete
 associativity theorem remain explicit hypotheses. No global `axiom` is used, and no proof
-uses `sorry` or `admit`.
+uses `sorry` or `admit`. The field prime $p$ is proved; the subgroup order $L$ is still an explicit hypothesis.
 
 ### 3.4 What is deliberately not claimed
 
@@ -671,7 +671,7 @@ field — the same permutation whose algebra is formalized in §8.2:
 choose them independently.
 
 **Measured cost** (BN254, `results/zk/weight-proof-latest.json`): 9 569 constraints,
-164-byte proof, verification **0.675 ms**, proving **38 ms** (mean over 200
+164-byte proof, verification **0.675 ms** (200 iterations), proving **38 ms** (mean over 20
 iterations), one-time setup 41.4 s (39 ms compile + simulated MPC ceremony).
 Verification is $O(1)$ in participant count: the aggregator's per-proof cost does
 not grow with the network, which is what makes the §8.3 cost model plausible in
