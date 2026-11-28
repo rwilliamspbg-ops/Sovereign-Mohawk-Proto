@@ -113,7 +113,9 @@ def main():
         print(f"   Average Loss: {avg_loss:.4f}")
         print(f"   Total Samples: {int(total_samples)}")
         print(f"   Aggregation Time: {elapsed:.2f}ms")
-        print("   Proof Verification: 10ms (constant)")
+        print(
+            "   Proof Verification: not measured by this SDK; Go measurement 0.675 ms (results/zk/weight-proof-latest.json)"
+        )
 
         print("\n✨ Federated learning round complete!\n")
 

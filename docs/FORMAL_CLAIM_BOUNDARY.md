@@ -4,11 +4,13 @@
 
 One-page reviewer map of what the formalization actually establishes. Every bullet is a traceability-matrix row, classified mechanically from its own Status / Notes / Evidence cells. Sections may overlap: a machine-checked core can be conditional on an assumption, and a proved Lean side can have an empirical-only Go bridge. Counts are derived.
 
+Reading order: this boundary → [traceability matrix](../proofs/FORMAL_TRACEABILITY_MATRIX.md) → [academic paper](ACADEMIC_PAPER.md).
+
 ## What is proved
 
 39 of 47 rows carry a machine-checked core recorded in the matrix Status cell (Lean theorem, proved bound, derived identity, or closed refinement):
 
-- Row 1 — 55.5% Byzantine resilience via hierarchical Multi-Krum at 10M node scale — `fully_formalized (single-tier); compositional claim disproven determini…`
+- Row 1 — Single-tier 5/9 Byzantine guard; hierarchical composition disproved (machine-checked counterexa… — `fully_formalized (single-tier); compositional claim disproven determini…`
 - Row 2 — Integer composition surrogate for a 4-tier privacy-budget profile; the scalar Gaussian RDP boun… — `gaussian_rdp_derived; the integer/rational additive ledger remains a su…`
 - Row 3 — Hierarchical routing has logarithmic per-update path depth proxy O(d log n); total bytes remain… — `fully_formalized`
 - Row 4 — Redundancy/dropout surrogate exceeds configured liveness guards for concrete profiles — `model_verified`
@@ -59,7 +61,7 @@ One-page reviewer map of what the formalization actually establishes. Every bull
 
 Rows with an assumed or conditional guarantee:
 
-- Row 1 — 55.5% Byzantine resilience via hierarchical Multi-Krum at 10M node scale — i.i.d. model
+- Row 1 — Single-tier 5/9 Byzantine guard; hierarchical composition disproved (machine-checked counterexa… — i.i.d. model
 - Row 2 — Integer composition surrogate for a 4-tier privacy-budget profile; the scalar Gaussian RDP boun… — conditional on invariants
 - Row 6 — Surrogate convergence envelope decreases with rounds and grows with heterogeneity (with real-va… — conditional on invariants
 - Row 8 — PQC migration continuity requires dual signatures across cutover phases — witnessed acceptance
@@ -81,7 +83,7 @@ Rows with an assumed or conditional guarantee:
 - Row 31 — Schnorr identification in the **random-oracle model**: a quantitative forking reduction — succe… — SchnorrDLHard; uniform-challenge RO
 - Row 32 — Schnorr signature **UF-CMA** in the simplified random-oracle model: a **signing oracle** plus a… — SchnorrDLHard; uniform-challenge RO; scope limit (not claimed/formalized/refined/recovered)
 - Row 33 — **Crypto capstone**: Ed25519 UF-CMA in the exponent abstraction — the four proved pieces compos… — SchnorrDLHard; Ed25519GroupLaws; assumed; explicit hypothesis; uniform-challenge RO; not proved…
-- Row 38 — **Ed25519 field-arithmetic bridge**: the `Nat`-valued field operations `fadd`/`fsub`/`fmul` use… — Fact (Nat.Prime ...); assumed
+- Row 38 — **Ed25519 field-arithmetic bridge**: the `Nat`-valued field operations `fadd`/`fsub`/`fmul` use… — Fact (Nat.Prime ...); assumed; explicit hypothesis
 - Row 39 — **Gaussian mechanism `(ε,δ)`-DP conversion**: the RDP-to-`(ε,δ)` conversion applied to the Gaus… — scope limit (not claimed/formalized/refined/recovered)
 - Row 40 — **Ed25519 affine addition law, first increment**: `affineAdd` is **commutative** on reduced rep… — assumed; assumption; not proved / not unconditional
 - Row 42 — **Multi-Krum under adversarial clustering**: when the Byzantine candidates split into `Far` (se… — assumption; clustering/separation model; scope limit (not claimed/formalized/refined/recovered)
@@ -105,6 +107,8 @@ Rows with an assumed or conditional guarantee:
 ## Reviewer evidence index
 
 Checked-in artifacts behind the empirical and cost claims above. These are repository files, not live measurements: the ZK costs come from the real circuit, knowledge soundness is external, and setup is an in-process simulated MPC ceremony:
+
+Probe artifacts are point-in-time captures from 2026-08-10 and are not re-measured by CI.
 
 - WeightUpdateCircuit proof artifact: [`../results/zk/weight-proof-latest.json`](../results/zk/weight-proof-latest.json) — real gnark Groth16 circuit (9569 constraints), measured prove/verify costs; not a knowledge-soundness proof
 - Byzantine partition probe: [`../results/go-live/evidence/partition_probe_2026-08-10.json`](../results/go-live/evidence/partition_probe_2026-08-10.json) — empirical BFT partition evidence, not a machine-checked claim

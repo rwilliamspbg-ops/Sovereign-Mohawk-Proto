@@ -68,7 +68,7 @@ The current Lean modules, proof artifacts, and runtime references have been **au
 | theorem3_improvement_ratio | ✓ Proven | norm_num | (1.4M× improvement) |
 | theorem3_lower_bound_match | ✓ Proven | unfold, rw, gcongr, omega | (information-theoretic) |
 | theorem3_naive_expensive | ✓ Proven | norm_num | (40TB bound) |
-| theorem3_hierarchical_efficient | ✓ Proven | norm_num | (28MB bound) |
+| theorem3_hierarchical_efficient | ✓ Proven | norm_num | (28MB model-level bound; not a measured deployment figure) |
 | theorem3_tier_additivity | ✓ Proven | ring | (4-tier sum) |
 | theorem3_one_message_per_level | ✓ Proven | unfold, rw, omega | (fan-in) |
 

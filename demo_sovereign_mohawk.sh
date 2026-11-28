@@ -56,7 +56,7 @@ print(f'Compressed Output: {compressed}')
 "
 
 step_header "5" "Hybrid Proof Verification (SNARK + STARK)"
-echo "Target: 10ms proof-verification latency envelope (a target, not a measured value) with 55.5% Byzantine resilience."
+echo "ZK verification: measured 0.675 ms (results/zk/weight-proof-latest.json); the old 10ms figure was a target, not a measurement."
 echo "Action: Validating a proof using the 'both' mode (SNARK/STARK hybrid)."
 wait_for_user
 python3 -c "

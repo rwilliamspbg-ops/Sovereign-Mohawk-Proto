@@ -2,7 +2,7 @@
 
 This document maps Sovereign Mohawk controls to AI Act Articles 8-15 with implementation and test evidence pointers.
 
-This engineering matrix is not legal advice.
+This engineering matrix is not legal advice. It documents engineering controls and evidence pointers only; it does not assert EU AI Act conformity, certification, or CE marking.
 
 ## Scope
 

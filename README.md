@@ -4,6 +4,8 @@
 
 ## MOHAWK: Mobile Offloading Heterogenous Adaptive Weights for Knowledge
 
+**Research-first scope.** This is a formal-methods research prototype, not a certified or production-hardened system: the Lean development is axiom-free and sorry-free, but its theorems hold for stated models and hypotheses, and the Go↔Lean correspondence is empirical. Start with the [one-page Formal Claim Boundary](docs/FORMAL_CLAIM_BOUNDARY.md), then the [traceability matrix](proofs/FORMAL_TRACEABILITY_MATRIX.md) for per-claim status. We do **not** claim end-to-end theorem-proved security, Groth16/q-SDH knowledge soundness, or EU AI Act certification. No 10 ms verifier is claimed — measured ZK costs are 0.675 ms verify / 38 ms prove ([results/zk/weight-proof-latest.json](results/zk/weight-proof-latest.json)).
+
 [![Latest Tag](https://img.shields.io/github/v/release/rwilliamspbg-ops/Sovereign-Mohawk-Proto?display_name=tag&label=Latest%20Tag)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/releases)
 [![Build](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/build-test.yml)
 [![Go Test](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml/badge.svg)](https://github.com/rwilliamspbg-ops/Sovereign-Mohawk-Proto/actions/workflows/go-test.yml)

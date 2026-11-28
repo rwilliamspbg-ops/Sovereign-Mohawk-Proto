@@ -18,6 +18,8 @@
 
 The Sovereign-Mohawk Python SDK provides a Pythonic wrapper around the Go-based MOHAWK runtime, enabling Python developers to leverage:
 
+Security claims here are model-scoped (Lean theorems about stated hypotheses, not the deployed Go runtime); per-claim status is in the [traceability matrix](../../proofs/FORMAL_TRACEABILITY_MATRIX.md).
+
 - **10M+ node federated learning** with a logarithmic path-depth proxy for communication
 - **zk-SNARK verification** — measured in Go, not in this SDK benchmark: `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38 ms). the former 10.55 ms SDK figure was a `time.sleep`, not a measurement (`docs/ZK_FINALIZATION_PLAN.md` §0.2)
 - **hybrid SNARK/STARK policy checks** with backend selection
@@ -570,7 +572,7 @@ Benchmark snapshot from `python -m pytest tests/test_benchmarks.py --benchmark-o
 - **zk-SNARK verification**: not measured by this suite. The `test_verify_proof_performance` row was a hardcoded `time.sleep(0.0104)` and is retracted; real figures live in `results/zk/weight-proof-latest.json` (verify 0.675 ms, prove 38 ms).
 - **Aggregation**: logarithmic path-depth proxy with 30.63us mean benchmark latency
 - **Gradient compression**: 995.70us mean for FP16 path in the benchmark suite
-- **Memory overhead**: 28 MB for 10M nodes
+- **Memory overhead**: 28 MB model-level estimate for 10M nodes (Lean transport spec), not a measured deployment figure
 
 ## Contributing
 

@@ -34,7 +34,7 @@ of `affineScalarMulImpl`) is **not** proved here and remains the open part.
   `Fintype.card (ZMod p)ˣ = p - 1` for prime `p` (from `Fintype.card_units` and
   `ZMod.card`), `zmod_pow_sub_one` derives `a ^ (p-1) = 1` from Lagrange's
   theorem, and `fmul_fInv` concludes `fInv a * a = 1` for `a` not divisible by
-  `p`, carrying `Fact (Nat.Prime ed25519P)` explicitly.
+  `p`; `Nat.Prime ed25519P` is now proved (`ed25519P_prime`), so the `Fact` is supplied from that theorem.
 
 ## Scope
 
@@ -54,8 +54,13 @@ load-bearing too: at `a = 0` the product is `0`, not `1`.
 -/
 import Mathlib
 import LeanFormalization.Ed25519
+import LeanFormalization.Ed25519PrimeCert
 
 namespace LeanFormalization
+
+/-- Primality is proved in `Ed25519PrimeCert`; package it once for this module. -/
+local instance ed25519P_prime_fact_field : Fact (Nat.Prime ed25519P) :=
+  ⟨Ed25519PrimeCert.ed25519P_prime⟩
 
 /-! ### Range helpers -/
 
@@ -376,9 +381,9 @@ theorem zmod_pow_sub_one (p : ℕ) [Fact (Nat.Prime p)] {a : ZMod p} (ha : a ≠
     congrArg (Units.val : (ZMod p)ˣ → ZMod p) h
 
 /-- **`fInv` is the field inverse**: `fInv a * a = 1`, for `a` not divisible by
-    `p`. Carries `Fact (Nat.Prime ed25519P)` explicitly, the same convention the
-    repository uses for `Fact (Nat.Prime dlL)`. -/
-theorem fmul_fInv (hp : Fact (Nat.Prime ed25519P)) {a : ℕ} (ha : a % ed25519P ≠ 0) :
+    `p`. Primality is supplied from the proved `ed25519P_prime` (unlike
+    `Fact (Nat.Prime dlL)`, which remains an explicit hypothesis). -/
+theorem fmul_fInv {a : ℕ} (ha : a % ed25519P ≠ 0) :
     fmul (fInv a) a = 1 := by
   have hne : (a : ZMod ed25519P) ≠ 0 := by
     intro h
