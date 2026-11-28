@@ -38,20 +38,10 @@ jobs:
       - name: Verify \lean{} tags and build blueprint web pages
         run: bash scripts/ci/build_blueprint.sh
 
-      - name: Build doc-gen4 API documentation
-        working-directory: proofs
-        env:
-          # DISABLE_EQUATIONS avoids generating equational lemmas for every
-          # imported Mathlib definition; that phase was the memory spike.
-          DISABLE_EQUATIONS: '1'
-          LEAN_NUM_THREADS: '1'
-        run: lake -R -Kenv=dev build LeanFormalization:docs
-
       - name: Assemble GitHub Pages artifact
         run: |
-          mkdir -p _site/docs
+          mkdir -p _site
           cp -r proofs/blueprint/web/* _site/
-          cp -r proofs/.lake/build/doc/* _site/docs/
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
