@@ -461,8 +461,8 @@ theorem ed25519D_not_isSquare : ¬ IsSquare (ed25519D : ZMod ed25519P) := by
     are exactly: the on-curve equations
     for P, Q, R; canonical representatives; the three `inf = false` branch
     conditions; `x != 0` for the three
-    inputs (`y != 1` follows from it by `edwards_y_ne_one_of_x_ne_zero`); three
-    Montgomery-u distinctness conditions and four
+    inputs (`y != 1` follows from it by `edwards_y_ne_one_of_x_ne_zero`); four
+    Montgomery-u distinctness conditions (`hu12`, `hu23`, `hu12_3`, `hu1_23`) and four
     intermediate `y != 1` conditions. Note `IsSquare (-1)` is derived here from
     `p % 4 = 1`, so it is not an assumption.
 
