@@ -1,7 +1,7 @@
 name: Deploy static content to Pages
+# Manual-only: blueprint.yml is the sole automatic Pages publisher.
+# A push-triggered deployment here would overwrite the blueprint/docs site.
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 env:
