@@ -1,5 +1,7 @@
 # Outdated Information Audit (main branch)
 
+> Historical snapshot from 2026-10-29. Superseded by the traceability matrix and `docs/FORMAL_CLAIM_BOUNDARY.md`; do not read as current status.
+
 ## Go toolchain version mismatch
 
 - `go.mod` declares: `go 1.27.3`
